@@ -9,16 +9,28 @@ def frechet_unitary_transformation(data, location, scale, shape):
     return (1 + shape * (data - location) / scale) ** (1 / shape)
 
 
+class GevParameters(object):
+
+    def __init__(self, location, scale, shape):
+        self.location = location
+        self.scale = scale
+        self.shape = shape
+
+
+def frechet_unitary_transformation_from_gev_parameters(data, gev_parameters: GevParameters):
+    return frechet_unitary_transformation(data, gev_parameters.location)
+
+
 class GevMarginal(object):
 
-    def __init__(self, position, data, estimator=GevMleFit):
+    def __init__(self, coordinate, data, estimator=GevMleFit):
         """
         Class to fit a GEV a list of data. Compute also the corresponding unitary data
 
-        :param position: Represents the spatio-temporal position of the marginals
+        :param coordinate: Represents the spatio-temporal spatial_coordinates of the marginals
         :param data:  array of data corresponding to this position (and potentially its neighborhood)
         """
-        self.position = position
+        self.coordinate = coordinate
         self.data = data
         self.gev_estimator = estimator(x_gev=data)
         self.gev_parameters_estimated = [self.location, self.scale, self.shape]
