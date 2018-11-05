@@ -1,4 +1,12 @@
 
 
 class AbstractEstimator(object):
-    pass
+
+    def __init__(self):
+        pass
+
+    def fit(self):
+        pass
+
+    def error(self):
+        pass

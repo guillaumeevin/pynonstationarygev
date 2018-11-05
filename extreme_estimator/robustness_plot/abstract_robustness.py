@@ -5,7 +5,7 @@ from extreme_estimator.R_fit.max_stable_fit.max_stable_models import GaussianMSP
 from itertools import product
 
 from spatio_temporal_dataset.dataset.simulation_dataset import SimulatedDataset
-from spatio_temporal_dataset.spatial_coordinates.generated_coordinate import CircleCoordinates
+from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinates
 import matplotlib.pyplot as plt
 
 plt.style.use('seaborn-white')
@@ -82,7 +82,6 @@ class AbstractRobustnessPlot(object):
     @staticmethod
     def estimation_error_max_stable_unitary_frechet(**kwargs_single_points):
         # Get the argument from kwargs
-        print(kwargs_single_points)
         max_stable_model = MaxStableModelItem.value_from_kwargs(**kwargs_single_points)
         spatial_coordinate_class = SpatialCoordinateClassItem.value_from_kwargs(**kwargs_single_points)
         nb_station = NbStationItem.value_from_kwargs(**kwargs_single_points)

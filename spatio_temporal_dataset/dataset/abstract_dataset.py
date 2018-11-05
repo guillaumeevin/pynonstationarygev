@@ -2,7 +2,7 @@ import os
 import os.path as op
 import pandas as pd
 from spatio_temporal_dataset.temporal_maxima.temporal_maxima import TemporalMaxima
-from spatio_temporal_dataset.spatial_coordinates.abstract_coordinate import AbstractSpatialCoordinates
+from spatio_temporal_dataset.spatial_coordinates.abstract_coordinates import AbstractSpatialCoordinates
 
 
 class AbstractDataset(object):

@@ -9,6 +9,7 @@ class AbstractSpatialCoordinates(object):
     COORD_X = 'coord_x'
     COORD_Y = 'coord_y'
     COORD_SPLIT = 'coord_split'
+    COOR_ID = 'coord_id'
     # Constants
     TRAIN_SPLIT_STR = 'train_split'
     TEST_SPLIT_STR = 'test_split'
