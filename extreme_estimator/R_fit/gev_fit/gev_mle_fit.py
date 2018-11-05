@@ -1,9 +1,11 @@
 import rpy2.robjects as ro
 import numpy as np
 import rpy2.robjects.numpy2ri as rpyn
-
+import os.path as op
 
 # Defining some constants
+from extreme_estimator.R_fit.utils import get_associated_r_file
+
 GEV_SCALE = 'scale'
 GEV_LOCATION = 'loc'
 GEV_SHAPE = 'shape'
@@ -16,7 +18,7 @@ def mle_gev(x_gev: np.ndarray, start_loc=0, start_scale=1, start_shape=0):
     x_gev = rpyn.numpy2ri(x_gev)
     r.assign('x_gev', x_gev)
     r.assign('python_wrapping', True)
-    r.source(file="/home/erwan/Documents/projects/spatiotemporalextremes/extreme_estimator/gev_fit/gev_fit.extreme_estimator")
+    r.source(file=get_associated_r_file(python_filepath=op.abspath(__file__)))
     res = r.mle_gev(loc=start_loc, scale=start_scale, shape=start_shape)
     mle_params = dict(r.attr(res, 'coef').items())
     return mle_params

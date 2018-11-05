@@ -6,6 +6,7 @@ def frechet_unitary_transformation(data, location, scale, shape):
     Compute the unitary Frechet transformed data
     (1 + \zeta \frac{z - \mu}{\sigma}) ^ {\frac{1}{\zeta}}
     """
+    # todo: there is already a function doing that in R
     return (1 + shape * (data - location) / scale) ** (1 / shape)
 
 
