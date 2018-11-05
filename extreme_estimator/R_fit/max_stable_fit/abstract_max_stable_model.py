@@ -1,3 +1,4 @@
+import rpy2
 from enum import Enum
 
 from rpy2.robjects import ListVector
@@ -15,19 +16,20 @@ class AbstractMaxStableModel(object):
         self.user_params_sample = params_sample
         self.r = get_loaded_r()
 
-    def fitmaxstab(self, maxima: np.ndarray, coord: np.ndarray, ):
-        # todo: find how to specify a startign point, understand how is it set by default
-        # res = None
-        # tries = 5
-        # nb_tries = 0
-        # while res is None and nb_tries < tries:
-        #     try:
-        #         res = self.r.fitmaxstab(maxima, coord, **self.cov_mod_param)  # type: ListVector
-        #     except rpy2.rinterface.RRuntimeError:
-        #         pass
-        #     nb_tries += 1
-        #     print(nb_tries)
-        res = self.r.fitmaxstab(np.transpose(maxima), coord, **self.cov_mod_param)  # type: ListVector
+    def fitmaxstab(self, maxima: np.ndarray, coord: np.ndarray, fit_marge=False):
+        #  Specify the fit params
+        fit_params = {
+            'fit.marge': fit_marge,
+            'start': self.r.list(**self.params_start_fit),
+        }
+        # Run the fitmaxstab in R
+        # todo: find how to specify the optim function to use
+        try:
+            res = self.r.fitmaxstab(np.transpose(maxima), coord, **self.cov_mod_param, **fit_params)  # type: ListVector
+        except rpy2.rinterface.RRuntimeError as error:
+            raise Exception('Some R exception have been launched at RunTime: {}'.format(error.__repr__()))
+        # todo: maybe if the convergence was not successful I could try other starting point several times
+        # Retrieve the resulting fitted values
         fitted_values = res.rx2('fitted.values')
         fitted_values = {key: fitted_values.rx2(key)[0] for key in fitted_values.names}
         return fitted_values
@@ -36,7 +38,7 @@ class AbstractMaxStableModel(object):
         """
         Return an numpy of maxima. With rows being the stations and columns being the years of maxima
         """
-        maxima = np.array(self.r.rmaxstab(nb_obs, coord, **self.cov_mod_param, **self.params_sample))
+        maxima = np.array(self.r.rmaxstab(nb_obs, coord, *list(self.cov_mod_param.values()), **self.params_sample))
         return np.transpose(maxima)
 
     @property
@@ -53,6 +55,7 @@ class AbstractMaxStableModel(object):
 
     @staticmethod
     def merge_params(default_params, input_params):
+        assert default_params is not None, 'some default_params need to be specified'
         merged_params = default_params.copy()
         if input_params is not None:
             assert isinstance(default_params, dict) and isinstance(input_params, dict)

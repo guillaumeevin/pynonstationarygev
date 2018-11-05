@@ -16,7 +16,6 @@ class TestMaxStableFit(unittest.TestCase):
         self.spatial_coord = CircleCoordinates.from_nb_points(nb_points=5, max_radius=1)
         self.max_stable_models = []
         for max_stable_class in self.MAX_STABLE_CLASSES:
-            print(max_stable_class)
             if issubclass(max_stable_class, AbstractMaxStableModelWithCovarianceFunction):
                 self.max_stable_models.extend([max_stable_class(covariance_function=covariance_function)
                                                for covariance_function in CovarianceFunction])
@@ -27,9 +26,11 @@ class TestMaxStableFit(unittest.TestCase):
         for max_stable_model in self.max_stable_models:
             dataset = SimulatedDataset.from_max_stable_sampling(nb_obs=10, max_stable_model=max_stable_model,
                                                                 spatial_coordinates=self.spatial_coord)
+            fitted_values = max_stable_model.fitmaxstab(maxima=dataset.maxima, coord=dataset.coord)
             if display:
-                print(dataset.head())
-            max_stable_model.fitmaxstab(maxima=dataset.maxima, coord=dataset.coord)
+                print(type(max_stable_model))
+                print(dataset.df_dataset.head())
+                print(fitted_values)
         self.assertTrue(True)
 
 
