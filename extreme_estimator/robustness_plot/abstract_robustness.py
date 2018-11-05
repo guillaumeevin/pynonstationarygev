@@ -1,7 +1,7 @@
 from typing import List
 
 from extreme_estimator.estimator.msp_estimator import MaxStableEstimator
-from extreme_estimator.R_fit.max_stable_fit.max_stable_models import GaussianMSP, MaxStableModel
+from extreme_estimator.R_fit.max_stable_fit.abstract_max_stable_model import GaussianMSP, AbstractMaxStableModel
 from itertools import product
 
 from spatio_temporal_dataset.dataset.simulation_dataset import SimulatedDataset

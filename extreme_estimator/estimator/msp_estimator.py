@@ -1,12 +1,12 @@
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
-from extreme_estimator.R_fit.max_stable_fit.max_stable_models import MaxStableModel
+from extreme_estimator.R_fit.max_stable_fit.abstract_max_stable_model import AbstractMaxStableModel
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 import numpy as np
 
 
 class MaxStableEstimator(AbstractEstimator):
 
-    def __init__(self, dataset: AbstractDataset, max_stable_model: MaxStableModel):
+    def __init__(self, dataset: AbstractDataset, max_stable_model: AbstractMaxStableModel):
         self.dataset = dataset
         self.max_stable_model = max_stable_model
         self.max_stable_params_fitted = None

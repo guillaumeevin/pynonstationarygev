@@ -16,7 +16,7 @@ def mle_gev(x_gev: np.ndarray, start_loc=0, start_scale=1, start_shape=0):
     x_gev = rpyn.numpy2ri(x_gev)
     r.assign('x_gev', x_gev)
     r.assign('python_wrapping', True)
-    r.source(file="/home/erwan/Documents/projects/spatiotemporalextremes/R/gev_fit/gev_fit.R")
+    r.source(file="/home/erwan/Documents/projects/spatiotemporalextremes/extreme_estimator/gev_fit/gev_fit.extreme_estimator")
     res = r.mle_gev(loc=start_loc, scale=start_scale, shape=start_shape)
     mle_params = dict(r.attr(res, 'coef').items())
     return mle_params

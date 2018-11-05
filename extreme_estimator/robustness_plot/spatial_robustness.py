@@ -1,4 +1,3 @@
-from extreme_estimator.R_fit.max_stable_fit.max_stable_models import GaussianMSP, BrownResick
 from extreme_estimator.robustness_plot.abstract_robustness import DisplayItem, AbstractRobustnessPlot, \
     SpatialCoordinateClassItem, NbObservationItem, NbStationItem, MaxStableModelItem, SpatialParamsItem
 from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinates

@@ -1,9 +1,8 @@
 import unittest
-
-from R.gev_fit.gev_marginal import frechet_unitary_transformation
-from R.gev_fit.gev_mle_fit import GevMleFit
 import rpy2.robjects as ro
 import numpy as np
+
+from extreme_estimator.R_fit.gev_fit.gev_mle_fit import GevMleFit
 
 
 class TestGevFit(unittest.TestCase):
