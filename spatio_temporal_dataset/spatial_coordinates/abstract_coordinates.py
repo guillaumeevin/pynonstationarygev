@@ -1,4 +1,5 @@
 import os.path as op
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -31,30 +32,33 @@ class AbstractSpatialCoordinates(object):
         df = pd.read_csv(csv_path)
         return cls.from_df(df)
 
-    def df_coord_split(self, split_str):
+    def coord_x_y_values(self, df_coord: pd.DataFrame) -> np.ndarray:
+        return df_coord.loc[:, [self.COORD_X, self.COORD_Y]].values
+
+    def df_coord_split(self, split_str: str) -> pd.DataFrame:
         assert self.s_split is not None
         ind = self.s_split == split_str
         return self.df_coord.loc[ind]
 
     @property
-    def df_coord_train(self):
-        return self.df_coord_split(self.TRAIN_SPLIT_STR)
+    def coord(self) -> np.ndarray:
+        return self.coord_x_y_values(df_coord=self.df_coord)
 
     @property
-    def df_coord_test(self):
-        return self.df_coord_split(self.TEST_SPLIT_STR)
+    def coord_train(self) -> np.ndarray:
+        return self.coord_x_y_values(df_coord=self.df_coord_split(self.TRAIN_SPLIT_STR))
 
     @property
-    def nb_points(self):
-        return len(self.df_coord)
-
-    @property
-    def coord(self):
-        return self.df_coord.values
+    def coord_test(self) -> np.ndarray:
+        return self.coord_x_y_values(df_coord=self.df_coord_split(self.TEST_SPLIT_STR))
 
     @property
     def index(self):
         return self.df_coord.index
+
+    @property
+    def nb_points(self):
+        return len(self.df_coord)
 
     def visualization(self):
         x, y = self.coord[:, 0], self.coord[:, 1]
