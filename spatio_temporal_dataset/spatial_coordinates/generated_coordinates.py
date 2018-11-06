@@ -7,20 +7,7 @@ from spatio_temporal_dataset.spatial_coordinates.abstract_coordinates import Abs
 import matplotlib.pyplot as plt
 
 
-class SimulatedCoordinates(AbstractSpatialCoordinates):
-    """
-    Common manipulation on generated coordinates
-    """
-
-    def __init__(self, df_coord, s_split=None):
-        super().__init__(df_coord, s_split)
-
-    @classmethod
-    def from_nb_points(cls, nb_points, **kwargs):
-        pass
-
-
-class CircleCoordinates(SimulatedCoordinates):
+class CircleCoordinates(AbstractSpatialCoordinates):
 
     @classmethod
     def from_nb_points(cls, nb_points, **kwargs):

@@ -26,11 +26,28 @@ class AbstractSpatialCoordinates(object):
         s_split = df[cls.COORD_SPLIT] if cls.COORD_SPLIT in df.columns else None
         return cls(df_coord=df_coord, s_split=s_split)
 
+    @property
+    def df(self):
+        return self.df_coord if self.s_split is None else self.df_coord.join(self.s_split)
+
     @classmethod
-    def from_csv(cls, csv_path):
+    def from_csv(cls, csv_path=None):
+        assert csv_path is not None
         assert op.exists(csv_path)
         df = pd.read_csv(csv_path)
         return cls.from_df(df)
+
+    @classmethod
+    def from_nb_points(cls, nb_points, **kwargs):
+        # Call the default class method from csv
+        coordinates = cls.from_csv()  # type: AbstractSpatialCoordinates
+        # Sample randomly nb_points coordinates
+        nb_coordinates = len(coordinates)
+        if nb_points > nb_coordinates:
+            raise Exception('Nb coordinates in csv: {} < Nb points desired: {}'.format(nb_coordinates, nb_points))
+        else:
+            df_sample = pd.DataFrame.sample(coordinates.df, n=nb_points)
+            return cls.from_df(df=df_sample)
 
     def coord_x_y_values(self, df_coord: pd.DataFrame) -> np.ndarray:
         return df_coord.loc[:, [self.COORD_X, self.COORD_Y]].values
@@ -56,8 +73,7 @@ class AbstractSpatialCoordinates(object):
     def index(self):
         return self.df_coord.index
 
-    @property
-    def nb_points(self):
+    def __len__(self):
         return len(self.df_coord)
 
     def visualization(self):

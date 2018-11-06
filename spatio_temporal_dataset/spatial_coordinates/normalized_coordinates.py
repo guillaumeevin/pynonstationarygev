@@ -1,7 +1,5 @@
 import pandas as pd
-
 from spatio_temporal_dataset.spatial_coordinates.abstract_coordinates import AbstractSpatialCoordinates
-from spatio_temporal_dataset.spatial_coordinates.alps_station_coordinates import AlpsStationCoordinate
 
 
 class AbstractNormalizingFunction(object):
@@ -59,8 +57,3 @@ class BetweenZeroAndOneNormalization(UniformNormalization):
         return s_coord_scaled
 
 
-if __name__ == '__main__':
-    coord = AlpsStationCoordinate.from_csv()
-    normalized_coord = NormalizedCoordinates.from_coordinates(spatial_coordinates=coord,
-                                                              normalizing_function=BetweenZeroAndOneNormalization())
-    normalized_coord.visualization()
