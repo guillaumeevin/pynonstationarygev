@@ -1,7 +1,3 @@
-import matplotlib.pyplot as plt
-
-plt.style.use('seaborn-white')
-
 
 class DisplayItem(object):
 
@@ -22,14 +18,3 @@ class DisplayItem(object):
         updated_kwargs = kwargs.copy()
         updated_kwargs.update({self.argument_name: value})
         return updated_kwargs
-
-
-
-class AbstractPlot(object):
-    COLORS = ['blue', 'red', 'green', 'black', 'magenta', 'cyan']
-
-    def __init__(self, grid_row_item, grid_column_item, plot_row_item, plot_label_item):
-        self.grid_row_item = grid_row_item  # type: DisplayItem
-        self.grid_column_item = grid_column_item  # type: DisplayItem
-        self.plot_row_item = plot_row_item  # type: DisplayItem
-        self.plot_label_item = plot_label_item  # type: DisplayItem

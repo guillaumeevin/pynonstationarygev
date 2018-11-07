@@ -2,20 +2,26 @@ import time
 
 
 class AbstractEstimator(object):
+    DURATION = 'Duration'
+    MAE_ERROR = 'Mean Average Error'
 
-    def __init__(self):
-        self.fit_duration = None
-
-    def timed_fit(self):
-        ts = time.time()
-        result = self.fit()
-        te = time.time()
-        log_time = int((te - ts) * 1000)
-        self.fit_duration = log_time
-        return result
+    def __init__(self) -> None:
+        self.additional_information = dict()
 
     def fit(self):
+        ts = time.time()
+        self._fit()
+        te = time.time()
+        self.additional_information[self.DURATION] = int((te - ts) * 1000)
+
+    def scalars(self, true_max_stable_params: dict):
+        error = self._error(true_max_stable_params)
+        return {**error, **self.additional_information}
+
+    # Methods to override in the child class
+
+    def _fit(self):
         pass
 
-    def error(self, true_max_stable_params: dict):
+    def _error(self, true_max_stable_params: dict):
         pass

@@ -1,16 +1,21 @@
-from extreme_estimator.robustness_plot.abstract_robustness_plot import AbstractPlot
 import matplotlib.pyplot as plt
 from itertools import product
 
+from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
+from extreme_estimator.robustness_plot.display_item import DisplayItem
 
-class SingleScalarPlot(AbstractPlot):
-    """
-    For a single scalar plot, for the combination of all the parameters of interest,
-    then the function
-    """
+plt.style.use('seaborn-white')
 
-    def single_scalar_from_all_params(self, **kwargs_single_point) -> float:
-        pass
+
+class SinglePlot(object):
+    COLORS = ['blue', 'red', 'green', 'black', 'magenta', 'cyan']
+    OrdinateItem = DisplayItem('ordinate', AbstractEstimator.MAE_ERROR)
+
+    def __init__(self, grid_row_item, grid_column_item, plot_row_item, plot_label_item):
+        self.grid_row_item = grid_row_item  # type: DisplayItem
+        self.grid_column_item = grid_column_item  # type: DisplayItem
+        self.plot_row_item = plot_row_item  # type: DisplayItem
+        self.plot_label_item = plot_label_item  # type: DisplayItem
 
     def robustness_grid_plot(self, **kwargs):
         # Extract Grid row and columns values
@@ -37,16 +42,26 @@ class SingleScalarPlot(AbstractPlot):
         for j, plot_label_value in enumerate(plot_label_values):
             # Compute
             plot_row_value_to_error = {}
-            # todo: do some parallzlization here (do the parallelization in the Asbtract class if possible)
+            # todo: do some parallzlization here
             for plot_row_value in plot_row_values:
                 # Adapt the kwargs for the single value
                 kwargs_single_point = kwargs_single_plot.copy()
                 kwargs_single_point.update({self.plot_row_item.argument_name: plot_row_value,
                                             self.plot_label_item.argument_name: plot_label_value})
-                plot_row_value_to_error[plot_row_value] = self.single_scalar_from_all_params(**kwargs_single_point)
+                # The kwargs should not contain list of values
+                for k, v in kwargs_single_point.items():
+                    assert not isinstance(v, list), '"{}" argument is a list'.format(k)
+                # Compute ordinate values
+                ordinates = self.compute_value_from_kwargs_single_point(**kwargs_single_point)
+                # Extract the ordinate value of interest
+                ordinate_name = self.OrdinateItem.value_from_kwargs(**kwargs_single_point)
+                plot_row_value_to_error[plot_row_value] = ordinates[ordinate_name]
             plot_column_values = [plot_row_value_to_error[plot_row_value] for plot_row_value in plot_row_values]
             ax.plot(plot_row_values, plot_column_values, color=self.COLORS[j % len(self.COLORS)], label=str(j))
         ax.legend()
         ax.set_xlabel(self.plot_row_item.dislay_name)
         ax.set_ylabel('Absolute error')
         ax.set_title('Title (display all the other parameters)')
+
+    def compute_value_from_kwargs_single_point(self, **kwargs_single_point):
+        pass
