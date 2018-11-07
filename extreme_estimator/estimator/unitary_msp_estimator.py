@@ -7,8 +7,7 @@ import numpy as np
 class MaxStableEstimator(AbstractEstimator):
 
     def __init__(self, dataset: AbstractDataset, max_stable_model: AbstractMaxStableModel):
-        super().__init__()
-        self.dataset = dataset
+        super().__init__(dataset=dataset)
         self.max_stable_model = max_stable_model
         # Fit parameters
         self.max_stable_params_fitted = None

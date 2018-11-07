@@ -1,11 +1,14 @@
 import time
 
+from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
+
 
 class AbstractEstimator(object):
     DURATION = 'Duration'
     MAE_ERROR = 'Mean Average Error'
 
-    def __init__(self) -> None:
+    def __init__(self, dataset: AbstractDataset):
+        self.dataset = dataset
         self.additional_information = dict()
 
     def fit(self):
