@@ -4,7 +4,7 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
 class AbstractEstimator(object):
-    DURATION = 'Duration'
+    DURATION = 'Average duration'
     MAE_ERROR = 'Mean Average Error'
 
     def __init__(self, dataset: AbstractDataset):

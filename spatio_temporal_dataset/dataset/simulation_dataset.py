@@ -3,7 +3,7 @@ import pandas as pd
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.temporal_maxima.temporal_maxima import TemporalMaxima
 from spatio_temporal_dataset.spatial_coordinates.abstract_coordinates import AbstractSpatialCoordinates
-from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinates
+from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
 
 
 class SimulatedDataset(AbstractDataset):

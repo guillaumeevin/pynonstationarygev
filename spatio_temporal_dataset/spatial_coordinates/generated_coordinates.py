@@ -7,11 +7,10 @@ from spatio_temporal_dataset.spatial_coordinates.abstract_coordinates import Abs
 import matplotlib.pyplot as plt
 
 
-class CircleCoordinates(AbstractSpatialCoordinates):
+class CircleCoordinatesRadius1(AbstractSpatialCoordinates):
 
     @classmethod
-    def from_nb_points(cls, nb_points, **kwargs):
-        max_radius = kwargs.get('max_radius', 1.0)
+    def from_nb_points(cls, nb_points, max_radius=1.0):
         # Sample uniformly inside the circle
         r = get_loaded_r()
         angles = np.array(r.runif(nb_points, max=2 * math.pi))
@@ -28,6 +27,13 @@ class CircleCoordinates(AbstractSpatialCoordinates):
         super().visualization()
 
 
+class CircleCoordinatesRadius2(CircleCoordinatesRadius1):
+
+    @classmethod
+    def from_nb_points(cls, nb_points, max_radius=1.0):
+        return 2 * super().from_nb_points(nb_points, max_radius)
+
+
 if __name__ == '__main__':
-    coord = CircleCoordinates.from_nb_points(nb_points=500, max_radius=1)
+    coord = CircleCoordinatesRadius1.from_nb_points(nb_points=500, max_radius=1)
     coord.visualization()

@@ -42,10 +42,18 @@ class AlpsStationCoordinatesBetweenZeroAndOne(AlpsStationCoordinates):
                                                       normalizing_function=BetweenZeroAndOneNormalization())
 
 
+class AlpsStationCoordinatesBetweenZeroAndTwo(AlpsStationCoordinatesBetweenZeroAndOne):
+
+    @classmethod
+    def from_csv(cls, csv_file='coord-lambert2'):
+        return 2 * super().from_csv(csv_file)
+
+
 if __name__ == '__main__':
     # AlpsStationCoordinate.transform_txt_into_csv()
     # coord = AlpsStationCoordinates.from_csv()
     # coord = AlpsStationCoordinates.from_nb_points(nb_points=60)
     # coord = AlpsStationCoordinatesBetweenZeroAndOne.from_csv()
-    coord = AlpsStationCoordinatesBetweenZeroAndOne.from_nb_points(nb_points=60)
+    coord = AlpsStationCoordinatesBetweenZeroAndTwo.from_nb_points(nb_points=60)
+    # coord = coord * 2
     coord.visualization()

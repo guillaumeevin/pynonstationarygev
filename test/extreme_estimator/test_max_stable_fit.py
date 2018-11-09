@@ -5,7 +5,7 @@ from extreme_estimator.R_fit.max_stable_fit.abstract_max_stable_model import \
 from extreme_estimator.R_fit.max_stable_fit.max_stable_models import Smith, BrownResnick, Schlather, \
     Geometric, ExtremalT, ISchlather
 from spatio_temporal_dataset.dataset.simulation_dataset import SimulatedDataset
-from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinates
+from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
 
 
 class TestMaxStableFit(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestMaxStableFit(unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        self.spatial_coord = CircleCoordinates.from_nb_points(nb_points=5, max_radius=1)
+        self.spatial_coord = CircleCoordinatesRadius1.from_nb_points(nb_points=5, max_radius=1)
         self.max_stable_models = []
         for max_stable_class in self.MAX_STABLE_CLASSES:
             if issubclass(max_stable_class, AbstractMaxStableModelWithCovarianceFunction):

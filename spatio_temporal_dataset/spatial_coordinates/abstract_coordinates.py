@@ -73,10 +73,19 @@ class AbstractSpatialCoordinates(object):
     def index(self):
         return self.df_coord.index
 
-    def __len__(self):
-        return len(self.df_coord)
-
     def visualization(self):
         x, y = self.coord[:, 0], self.coord[:, 1]
         plt.scatter(x, y)
         plt.show()
+
+    #  Magic Methods
+
+    def __len__(self):
+        return len(self.df_coord)
+
+    def __mul__(self, other: float):
+        self.df_coord *= other
+        return self
+
+    def __rmul__(self, other):
+        return self * other
