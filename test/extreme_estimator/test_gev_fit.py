@@ -1,16 +1,14 @@
 import unittest
-import rpy2.robjects as ro
 import numpy as np
 
 from extreme_estimator.R_fit.gev_fit.gev_mle_fit import GevMleFit
+from extreme_estimator.R_fit.utils import get_loaded_r
 
 
 class TestGevFit(unittest.TestCase):
 
     def test_unitary_mle_gev_fit(self):
-        r = ro.r
-        # Generate some sample from a gev
-        r.library('SpatialExtremes')
+        r = get_loaded_r()
         r("""
         set.seed(42)
         N <- 50

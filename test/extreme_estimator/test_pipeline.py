@@ -1,10 +1,7 @@
 import unittest
 import pandas as pd
 
-from spatio_temporal_dataset.spatio_temporal_data_handler import SpatioTemporalDataHandler
-
-
-class TestPipeline(unittest):
+class TestPipeline(unittest.TestCase):
 
     def main_pipeline(self):
         # Select a type of marginals (either spatial, spatio temporal, temporal)
@@ -51,10 +48,5 @@ class TestPipeline(unittest):
 
         # Fit the max stable process
 
-    def test_dataframe_fit_unitary(self):
-        df = pd.DataFrame(1, index=['station1', 'station2'], columns=['200' + str(i) for i in range(18)])
-        xp = SpatioTemporalDataHandler.from_dataframe(df)
-
 if __name__ == '__main__':
-    df = pd.DataFrame(1, index=['station1', 'station2'], columns=['200' + str(i) for i in range(18)])
-    xp = SpatioTemporalDataHandler.from_dataframe(df)
+    unittest.main()
