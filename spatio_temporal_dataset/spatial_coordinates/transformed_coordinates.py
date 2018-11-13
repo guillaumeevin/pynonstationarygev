@@ -7,7 +7,7 @@ class TransformedCoordinates(AbstractSpatialCoordinates):
     @classmethod
     def from_coordinates(cls, spatial_coordinates: AbstractSpatialCoordinates,
                          transformation_function: AbstractTransformation):
-        df_coord_transformed = spatial_coordinates.df_coord.copy()
+        df_coord_transformed = spatial_coordinates.df_coordinates.copy()
         df_coord_transformed = transformation_function.transform(df_coord=df_coord_transformed)
         return cls(df_coord=df_coord_transformed, s_split=spatial_coordinates.s_split)
 

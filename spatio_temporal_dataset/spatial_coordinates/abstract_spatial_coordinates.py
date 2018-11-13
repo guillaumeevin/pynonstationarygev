@@ -17,21 +17,21 @@ class AbstractSpatialCoordinates(object):
     TRAIN_SPLIT_STR = 'train_split'
     TEST_SPLIT_STR = 'test_split'
 
-    def __init__(self, df_coord: pd.DataFrame, s_split: pd.Series = None):
-        self.df_coord = df_coord
+    def __init__(self, df_coordinates: pd.DataFrame, s_split: pd.Series = None):
+        self.df_coordinates = df_coordinates
         self.s_split = s_split
 
     @classmethod
     def from_df(cls, df: pd.DataFrame):
         #  X and Y coordinates must be defined
         assert cls.COORD_X in df.columns and cls.COORD_Y in df.columns
-        df_coord = df.loc[:, cls.coord_columns(df)]
+        df_coordinates = df.loc[:, cls.coordinates_columns(df)]
         # Potentially, a split column can be specified
         s_split = df[cls.COORD_SPLIT] if cls.COORD_SPLIT in df.columns else None
-        return cls(df_coord=df_coord, s_split=s_split)
+        return cls(df_coordinates=df_coordinates, s_split=s_split)
 
     @classmethod
-    def coord_columns(cls, df_coord: pd.DataFrame) -> List[str]:
+    def coordinates_columns(cls, df_coord: pd.DataFrame) -> List[str]:
         # If a Z coordinate is in the DataFrame, then
         coord_columns = [cls.COORD_X, cls.COORD_Y]
         if cls.COORD_Z in df_coord.columns:
@@ -40,12 +40,12 @@ class AbstractSpatialCoordinates(object):
 
     @property
     def columns(self):
-        return self.coord_columns(df_coord=self.df_coord)
+        return self.coordinates_columns(df_coord=self.df_coordinates)
 
     @property
     def df(self) -> pd.DataFrame:
         # Merged DataFrame of df_coord and s_split
-        return self.df_coord if self.s_split is None else self.df_coord.join(self.s_split)
+        return self.df_coordinates if self.s_split is None else self.df_coordinates.join(self.s_split)
 
     @classmethod
     def from_csv(cls, csv_path: str = None):
@@ -66,52 +66,52 @@ class AbstractSpatialCoordinates(object):
             df_sample = pd.DataFrame.sample(coordinates.df, n=nb_points)
             return cls.from_df(df=df_sample)
 
-    def df_coord_split(self, split_str: str) -> pd.DataFrame:
+    def df_coordinates_split(self, split_str: str) -> pd.DataFrame:
         assert self.s_split is not None
         ind = self.s_split == split_str
-        return self.df_coord.loc[ind]
+        return self.df_coordinates.loc[ind]
 
-    def coord_values(self, df_coord: pd.DataFrame) -> np.ndarray:
-        return df_coord.loc[:, self.coord_columns(df_coord)].values
-
-    @property
-    def coord(self) -> np.ndarray:
-        return self.coord_values(df_coord=self.df_coord)
+    def coordinates_values(self, df_coordinates: pd.DataFrame) -> np.ndarray:
+        return df_coordinates.loc[:, self.coordinates_columns(df_coordinates)].values
 
     @property
-    def coord_train(self) -> np.ndarray:
-        return self.coord_values(df_coord=self.df_coord_split(self.TRAIN_SPLIT_STR))
+    def coordinates(self) -> np.ndarray:
+        return self.coordinates_values(df_coordinates=self.df_coordinates)
 
     @property
-    def coord_test(self) -> np.ndarray:
-        return self.coord_values(df_coord=self.df_coord_split(self.TEST_SPLIT_STR))
+    def coordinates_train(self) -> np.ndarray:
+        return self.coordinates_values(df_coordinates=self.df_coordinates_split(self.TRAIN_SPLIT_STR))
+
+    @property
+    def coordinates_test(self) -> np.ndarray:
+        return self.coordinates_values(df_coordinates=self.df_coordinates_split(self.TEST_SPLIT_STR))
 
     @property
     def index(self):
-        return self.df_coord.index
+        return self.df_coordinates.index
 
     #  Visualization
 
     def visualization_2D(self):
-        x, y = self.coord[:, 0], self.coord[:, 1]
+        x, y = self.coordinates[:, 0], self.coordinates[:, 1]
         plt.scatter(x, y)
         plt.show()
 
     def visualization_3D(self):
-        assert len(self.coord_columns(self.df_coord)) == 3
+        assert len(self.coordinates_columns(self.df_coordinates)) == 3
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')  # type: Axes3D
-        x, y, z = self.coord[:, 0], self.coord[:, 1], self.coord[:, 2]
+        x, y, z = self.coordinates[:, 0], self.coordinates[:, 1], self.coordinates[:, 2]
         ax.scatter(x, y, z, marker='^')
         plt.show()
 
     #  Magic Methods
 
     def __len__(self):
-        return len(self.df_coord)
+        return len(self.df_coordinates)
 
     def __mul__(self, other: float):
-        self.df_coord *= other
+        self.df_coordinates *= other
         return self
 
     def __rmul__(self, other):

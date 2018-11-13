@@ -3,34 +3,34 @@ import pandas as pd
 
 class AbstractTemporalObservations(object):
 
-    def __init__(self, df_maxima_normalized: pd.DataFrame = None, df_maxima: pd.DataFrame = None):
+    def __init__(self, df_maxima_frech: pd.DataFrame = None, df_maxima_gev: pd.DataFrame = None):
         """
         Main attribute of the class is the DataFrame df_maxima
         Index are stations index
         Columns are the temporal moment of the maxima
         """
-        self.df_maxima_normalized = df_maxima_normalized
-        self.df_maxima = df_maxima
+        self.df_maxima_frech = df_maxima_frech
+        self.df_maxima_gev = df_maxima_gev
 
     @classmethod
     def from_df(cls, df):
         pass
 
     @property
-    def maxima(self):
-        return self.df_maxima.values
+    def maxima_gev(self):
+        return self.df_maxima_gev.values
 
     @property
-    def maxima_normalized(self):
-        return self.df_maxima_normalized.values
+    def maxima_frech(self):
+        return self.df_maxima_frech.values
 
-    @maxima_normalized.setter
-    def maxima_normalized(self, maxima_normalized_to_set):
-        assert self.df_maxima_normalized is None
-        assert maxima_normalized_to_set is not None
-        assert maxima_normalized_to_set.shape == self.maxima.shape
-        self.df_maxima_normalized = pd.DataFrame(data=maxima_normalized_to_set, index=self.df_maxima.index,
-                                                 columns=self.df_maxima.columns)
+    @maxima_frech.setter
+    def maxima_frech(self, maxima_frech_to_set):
+        assert maxima_frech_to_set is not None
+        assert maxima_frech_to_set.shape == self.maxima_gev.shape
+        self.df_maxima_frech = pd.DataFrame(data=maxima_frech_to_set,
+                                            index=self.df_maxima_gev.index,
+                                            columns=self.df_maxima_gev.columns)
 
     @property
     def column_to_time_index(self):
@@ -38,14 +38,7 @@ class AbstractTemporalObservations(object):
 
     @property
     def index(self):
-        return self.df_maxima.index
+        return self.df_maxima_gev.index
 
 
-class RealTemporalObservations(object):
 
-    def __init__(self):
-        pass
-
-
-class NormalizedTemporalObservations(object):
-    pass

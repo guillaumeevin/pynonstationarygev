@@ -9,7 +9,6 @@ from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates im
 class AbstractDataset(object):
 
     def __init__(self, temporal_observations: AbstractTemporalObservations, spatial_coordinates: AbstractSpatialCoordinates):
-        # assert
         # is_same_index = temporal_observations.index == spatial_coordinates.index  # type: pd.Series
         # assert is_same_index.all()
         self.temporal_observations = temporal_observations
@@ -32,21 +31,21 @@ class AbstractDataset(object):
     @property
     def df_dataset(self) -> pd.DataFrame:
         # Merge dataframes with the maxima and with the coordinates
-        return self.temporal_observations.df_maxima.join(self.spatial_coordinates.df_coord)
+        return self.temporal_observations.df_maxima_gev.join(self.spatial_coordinates.df_coordinates)
 
     @property
-    def coord(self):
-        return self.spatial_coordinates.coord
+    def coordinates(self):
+        return self.spatial_coordinates.coordinates
 
     @property
-    def maxima(self) -> np.ndarray:
-        return self.temporal_observations.maxima
+    def maxima_gev(self) -> np.ndarray:
+        return self.temporal_observations.maxima_gev
 
     @property
-    def maxima_normalized(self):
-        return self.temporal_observations.maxima_normalized
+    def maxima_frech(self):
+        return self.temporal_observations.maxima_frech
 
-    @maxima_normalized.setter
-    def maxima_normalized(self, maxima_normalized_to_set):
-        self.temporal_observations.maxima_normalized = maxima_normalized_to_set
+    @maxima_frech.setter
+    def maxima_frech(self, maxima_frech_to_set):
+        self.temporal_observations.maxima_frech = maxima_frech_to_set
 

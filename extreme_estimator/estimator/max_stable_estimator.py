@@ -16,10 +16,10 @@ class AbstractMaxStableEstimator(AbstractEstimator):
 class MaxStableEstimator(AbstractMaxStableEstimator):
 
     def _fit(self):
-        assert self.dataset.maxima_normalized is not None
+        assert self.dataset.maxima_frech is not None
         self.max_stable_params_fitted = self.max_stable_model.fitmaxstab(
-            maxima_normalized=self.dataset.maxima_normalized,
-            coord=self.dataset.coord)
+            maxima_frech=self.dataset.maxima_frech,
+            coord=self.dataset.coordinates)
 
     def _error(self, true_max_stable_params: dict):
         absolute_errors = {param_name: np.abs(param_true_value - self.max_stable_params_fitted[param_name])

@@ -7,7 +7,7 @@ class AbstractMarginEstimator(AbstractEstimator):
 
     def __init__(self, dataset: AbstractDataset):
         super().__init__(dataset)
-        assert dataset.temporal_observations.df_maxima is not None
+        assert self.dataset.maxima_gev is not None
 
 
 class PointWiseMarginEstimator(AbstractMarginEstimator):
@@ -23,5 +23,5 @@ class SmoothMarginEstimator(AbstractMarginEstimator):
         self.df_gev_params = None
 
     def _fit(self):
-        self.df_gev_params = self.margin_model.fitmargin(maxima=self.dataset.maxima,
-                                                         coord=self.dataset.coord)
+        self.df_gev_params = self.margin_model.fitmargin(maxima=self.dataset.maxima_gev,
+                                                         coord=self.dataset.coordinates)

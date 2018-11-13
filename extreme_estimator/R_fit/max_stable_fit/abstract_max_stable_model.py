@@ -1,23 +1,20 @@
-import rpy2
 from enum import Enum
 
-from rpy2.robjects import ListVector
-from extreme_estimator.R_fit.utils import get_loaded_r
 import numpy as np
+import rpy2
+from rpy2.robjects import ListVector
+
+from extreme_estimator.R_fit.abstract_model import AbstractModel
 
 
-class AbstractMaxStableModel(object):
+class AbstractMaxStableModel(AbstractModel):
 
     def __init__(self, params_start_fit=None, params_sample=None):
+        super().__init__(params_start_fit, params_sample)
         self.cov_mod = None
-        self.default_params_start_fit = None
-        self.default_params_sample = None
-        self.user_params_start_fit = params_start_fit
-        self.user_params_sample = params_sample
-        self.r = get_loaded_r()
 
-    def fitmaxstab(self, maxima_normalized: np.ndarray, coord: np.ndarray, fit_marge=False):
-        assert all([isinstance(arr, np.ndarray) for arr in [maxima_normalized, coord]])
+    def fitmaxstab(self, maxima_frech: np.ndarray, coord: np.ndarray, fit_marge=False):
+        assert all([isinstance(arr, np.ndarray) for arr in [maxima_frech, coord]])
         #  Specify the fit params
         fit_params = {
             'fit.marge': fit_marge,
@@ -26,7 +23,8 @@ class AbstractMaxStableModel(object):
         # Run the fitmaxstab in R
         # todo: find how to specify the optim function to use
         try:
-            res = self.r.fitmaxstab(np.transpose(maxima_normalized), coord, **self.cov_mod_param, **fit_params)  # type: ListVector
+            res = self.r.fitmaxstab(np.transpose(maxima_frech), coord, **self.cov_mod_param,
+                                    **fit_params)  # type: ListVector
         except rpy2.rinterface.RRuntimeError as error:
             raise Exception('Some R exception have been launched at RunTime: {}'.format(error.__repr__()))
         # todo: maybe if the convergence was not successful I could try other starting point several times
@@ -35,12 +33,13 @@ class AbstractMaxStableModel(object):
         fitted_values = {key: fitted_values.rx2(key)[0] for key in fitted_values.names}
         return fitted_values
 
-    def rmaxstab(self, nb_obs: int, coord: np.ndarray, ) -> np.ndarray:
+    def rmaxstab(self, nb_obs: int, coord: np.ndarray) -> np.ndarray:
         """
         Return an numpy of maxima. With rows being the stations and columns being the years of maxima
         """
-        maxima = np.array(self.r.rmaxstab(nb_obs, coord, *list(self.cov_mod_param.values()), **self.params_sample))
-        return np.transpose(maxima)
+        maxima_frech = np.array(
+            self.r.rmaxstab(nb_obs, coord, *list(self.cov_mod_param.values()), **self.params_sample))
+        return np.transpose(maxima_frech)
 
     @property
     def cov_mod_param(self):

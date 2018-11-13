@@ -48,8 +48,9 @@ class MarginDataset(SimulatedDataset):
 class FullSimulatedDataset(SimulatedDataset):
 
     @classmethod
-    def from_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel,
-                      spatial_coordinates: AbstractSpatialCoordinates):
+    def from_double_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel,
+                             spatial_coordinates: AbstractSpatialCoordinates,
+                             margin_model: AbstractMarginModel):
         temporal_obs = FullAnnualMaxima.from_double_sampling(nb_obs, max_stable_model,
-                                                             spatial_coordinates)
+                                                             spatial_coordinates, margin_model)
         return cls(temporal_obs, spatial_coordinates, max_stable_model)

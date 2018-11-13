@@ -24,6 +24,8 @@ if (call_main) {
     # res = fitmaxstab(data, coord, "whitmat", par())
     # print(res)
     # print(class(res))
+    gev2frech(x, loc, scale, shape, emp=FALSE)
+    frech2gev(x, loc, scale, shape)
     # print(names(res))
     for (name in names(res)){
         print(name)
