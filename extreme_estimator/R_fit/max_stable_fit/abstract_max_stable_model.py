@@ -16,7 +16,8 @@ class AbstractMaxStableModel(object):
         self.user_params_sample = params_sample
         self.r = get_loaded_r()
 
-    def fitmaxstab(self, maxima: np.ndarray, coord: np.ndarray, fit_marge=False):
+    def fitmaxstab(self, maxima_normalized: np.ndarray, coord: np.ndarray, fit_marge=False):
+        assert all([isinstance(arr, np.ndarray) for arr in [maxima_normalized, coord]])
         #  Specify the fit params
         fit_params = {
             'fit.marge': fit_marge,
@@ -25,7 +26,7 @@ class AbstractMaxStableModel(object):
         # Run the fitmaxstab in R
         # todo: find how to specify the optim function to use
         try:
-            res = self.r.fitmaxstab(np.transpose(maxima), coord, **self.cov_mod_param, **fit_params)  # type: ListVector
+            res = self.r.fitmaxstab(np.transpose(maxima_normalized), coord, **self.cov_mod_param, **fit_params)  # type: ListVector
         except rpy2.rinterface.RRuntimeError as error:
             raise Exception('Some R exception have been launched at RunTime: {}'.format(error.__repr__()))
         # todo: maybe if the convergence was not successful I could try other starting point several times
@@ -82,9 +83,3 @@ class AbstractMaxStableModelWithCovarianceFunction(AbstractMaxStableModel):
             'smooth': 0.5,
             'nugget': 0.5
         }
-
-
-if __name__ == '__main__':
-     print([c.name for c in CovarianceFunction])
-     for covariance_function in CovarianceFunction:
-         print(covariance_function)

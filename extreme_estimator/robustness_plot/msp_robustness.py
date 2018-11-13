@@ -1,13 +1,13 @@
 from extreme_estimator.R_fit.max_stable_fit.abstract_max_stable_model import AbstractMaxStableModel, CovarianceFunction
 from extreme_estimator.R_fit.max_stable_fit.max_stable_models import Smith, BrownResnick, Schlather, ExtremalT
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
-from extreme_estimator.estimator.unitary_msp_estimator import MaxStableEstimator
+from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
 from extreme_estimator.robustness_plot.multiple_plot import MultiplePlot
 from extreme_estimator.robustness_plot.single_plot import SinglePlot
 from spatio_temporal_dataset.dataset.simulation_dataset import SimulatedDataset
-from spatio_temporal_dataset.spatial_coordinates.abstract_coordinates import AbstractSpatialCoordinates
-from spatio_temporal_dataset.spatial_coordinates.alps_station_coordinates import \
-    AlpsStationCoordinatesBetweenZeroAndOne, AlpsStationCoordinatesBetweenZeroAndTwo
+from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.spatial_coordinates.alps_station_2D_coordinates import \
+    AlpsStation2DCoordinatesBetweenZeroAndOne, AlpsStationCoordinatesBetweenZeroAndTwo
 from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1, \
     CircleCoordinatesRadius2
 from extreme_estimator.robustness_plot.display_item import DisplayItem
@@ -102,7 +102,7 @@ def multiple_spatial_robustness_alps():
         MspSpatial.MaxStableModelItem.name: msp_models,
         MspSpatial.SpatialCoordinateClassItem.name: [CircleCoordinatesRadius1,
                                                      CircleCoordinatesRadius2,
-                                                     AlpsStationCoordinatesBetweenZeroAndOne,
+                                                     AlpsStation2DCoordinatesBetweenZeroAndOne,
                                                      AlpsStationCoordinatesBetweenZeroAndTwo][:],
     })
 
