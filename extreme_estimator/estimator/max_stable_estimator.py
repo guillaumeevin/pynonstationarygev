@@ -4,7 +4,7 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 import numpy as np
 
 
-class MaxStableEstimator(AbstractEstimator):
+class AbstractMaxStableEstimator(AbstractEstimator):
 
     def __init__(self, dataset: AbstractDataset, max_stable_model: AbstractMaxStableModel):
         super().__init__(dataset=dataset)
@@ -12,9 +12,14 @@ class MaxStableEstimator(AbstractEstimator):
         # Fit parameters
         self.max_stable_params_fitted = None
 
+
+class MaxStableEstimator(AbstractMaxStableEstimator):
+
     def _fit(self):
-        self.max_stable_params_fitted = self.max_stable_model.fitmaxstab(maxima=self.dataset.maxima,
-                                                                         coord=self.dataset.coord)
+        assert self.dataset.maxima_normalized is not None
+        self.max_stable_params_fitted = self.max_stable_model.fitmaxstab(
+            maxima_normalized=self.dataset.maxima_normalized,
+            coord=self.dataset.coord)
 
     def _error(self, true_max_stable_params: dict):
         absolute_errors = {param_name: np.abs(param_true_value - self.max_stable_params_fitted[param_name])

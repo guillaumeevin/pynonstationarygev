@@ -7,6 +7,10 @@ class AbstractEstimator(object):
     DURATION = 'Average duration'
     MAE_ERROR = 'Mean Average Error'
 
+    # For each estimator, we shall define:
+    # - The loss
+    # - The optimization method for each part of the process
+
     def __init__(self, dataset: AbstractDataset):
         self.dataset = dataset
         self.additional_information = dict()
