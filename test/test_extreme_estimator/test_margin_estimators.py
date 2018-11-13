@@ -2,9 +2,9 @@ import unittest
 
 import numpy as np
 
-from extreme_estimator.R_fit.gev_fit.abstract_margin_model import ConstantMarginModel
-from extreme_estimator.R_fit.gev_fit.gev_mle_fit import GevMleFit
-from extreme_estimator.R_fit.utils import get_loaded_r
+from extreme_estimator.R_model.margin_model.abstract_margin_model import ConstantMarginModel
+from extreme_estimator.R_model.margin_model.gev_mle_fit import GevMleFit
+from extreme_estimator.R_model.utils import get_loaded_r
 from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
 from spatio_temporal_dataset.dataset.simulation_dataset import MarginDataset
 from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1

@@ -1,8 +1,8 @@
 import unittest
 
-from extreme_estimator.R_fit.max_stable_fit.abstract_max_stable_model import \
+from extreme_estimator.R_model.max_stable_model.abstract_max_stable_model import \
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
-from extreme_estimator.R_fit.max_stable_fit.max_stable_models import Smith, BrownResnick, Schlather, \
+from extreme_estimator.R_model.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, \
     Geometric, ExtremalT, ISchlather
 from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset

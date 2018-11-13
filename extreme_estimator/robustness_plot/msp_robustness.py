@@ -1,5 +1,5 @@
-from extreme_estimator.R_fit.max_stable_fit.abstract_max_stable_model import AbstractMaxStableModel, CovarianceFunction
-from extreme_estimator.R_fit.max_stable_fit.max_stable_models import Smith, BrownResnick, Schlather, ExtremalT
+from extreme_estimator.R_model.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel, CovarianceFunction
+from extreme_estimator.R_model.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, ExtremalT
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
 from extreme_estimator.robustness_plot.multiple_plot import MultiplePlot

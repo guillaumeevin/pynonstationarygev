@@ -4,7 +4,7 @@ import rpy2.robjects.numpy2ri as rpyn
 import os.path as op
 
 # Defining some constants
-from extreme_estimator.R_fit.utils import get_associated_r_file
+from extreme_estimator.R_model.utils import get_associated_r_file
 
 
 def mle_gev(x_gev: np.ndarray, start_loc=0, start_scale=1, start_shape=0):

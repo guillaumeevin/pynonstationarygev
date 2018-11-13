@@ -2,7 +2,7 @@ import math
 import numpy as np
 import pandas as pd
 
-from extreme_estimator.R_fit.utils import get_loaded_r
+from extreme_estimator.R_model.utils import get_loaded_r
 from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
 import matplotlib.pyplot as plt
 

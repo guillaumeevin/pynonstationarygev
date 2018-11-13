@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from extreme_estimator.R_fit.abstract_model import AbstractModel
-from extreme_estimator.R_fit.gev_fit.gev_mle_fit import GevMleFit, mle_gev
+from extreme_estimator.R_model.abstract_model import AbstractModel
+from extreme_estimator.R_model.margin_model.gev_mle_fit import GevMleFit, mle_gev
 
 
 class AbstractMarginModel(AbstractModel):

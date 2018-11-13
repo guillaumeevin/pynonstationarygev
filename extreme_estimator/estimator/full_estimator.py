@@ -1,5 +1,5 @@
-from extreme_estimator.R_fit.gev_fit.abstract_margin_model import AbstractMarginModel
-from extreme_estimator.R_fit.max_stable_fit.abstract_max_stable_model import AbstractMaxStableModel
+from extreme_estimator.R_model.margin_model.abstract_margin_model import AbstractMarginModel
+from extreme_estimator.R_model.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
 from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator

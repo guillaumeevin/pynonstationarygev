@@ -1,4 +1,4 @@
-from extreme_estimator.R_fit.gev_fit.abstract_margin_model import AbstractMarginModel
+from extreme_estimator.R_model.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 

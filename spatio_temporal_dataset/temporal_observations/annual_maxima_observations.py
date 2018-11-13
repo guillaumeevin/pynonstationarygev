@@ -1,7 +1,7 @@
 import pandas as pd
 
-from extreme_estimator.R_fit.gev_fit.abstract_margin_model import AbstractMarginModel
-from extreme_estimator.R_fit.max_stable_fit.abstract_max_stable_model import AbstractMaxStableModel
+from extreme_estimator.R_model.margin_model.abstract_margin_model import AbstractMarginModel
+from extreme_estimator.R_model.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
 from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
 from spatio_temporal_dataset.temporal_observations.abstract_temporal_observations import AbstractTemporalObservations
 

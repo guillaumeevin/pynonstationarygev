@@ -1,9 +1,8 @@
-import os
 import os.path as op
 
 
 def get_root_path() -> str:
-    return os.path.dirname(os.path.abspath(__file__))
+    return op.dirname(op.abspath(__file__))
 
 
 def get_full_path(relative_path: str) -> str:
