@@ -1,12 +1,11 @@
 import unittest
-
-from extreme_estimator.estimator.full_estimator import FullEstimatorInASingleStep, \
-    FullEstimatorInASingleStepWithSmoothMarginals, SmoothMarginalsThenUnitaryMsp
-from spatio_temporal_dataset.dataset.simulation_dataset import MarginDataset, FullSimulatedDataset
-from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
-from test.extreme_estimator.test_margin_estimators import TestMarginEstimators
-from test.extreme_estimator.test_max_stable_estimators import TestMaxStableEstimators
 from itertools import product
+
+from extreme_estimator.estimator.full_estimator import SmoothMarginalsThenUnitaryMsp
+from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
+from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
+from test.test_extreme_estimator.test_margin_estimators import TestMarginEstimators
+from test.test_extreme_estimator.test_max_stable_estimators import TestMaxStableEstimators
 
 
 class TestFullEstimators(unittest.TestCase):
@@ -20,7 +19,6 @@ class TestFullEstimators(unittest.TestCase):
         self.margin_models = TestMarginEstimators.load_margin_models()
 
     def test_full_estimators(self):
-        print(self.margin_models, self.max_stable_models)
         for margin_model, max_stable_model in product(self.margin_models, self.max_stable_models):
             dataset = FullSimulatedDataset.from_double_sampling(nb_obs=10, margin_model=margin_model,
                                                                 spatial_coordinates=self.spatial_coord,

@@ -9,8 +9,8 @@ class AlpsStation2DCoordinates(AlpsStation3DCoordinates):
     @classmethod
     def from_csv(cls, csv_file='coord-lambert2'):
         # Remove the Z coordinates from df_coord
-        spatial_coordinates = super().from_csv(csv_file)
-        spatial_coordinates.df_coord.drop(cls.COORD_Z, axis=1, inplace=True)
+        spatial_coordinates = super().from_csv(csv_file)  # type: AlpsStation3DCoordinates
+        spatial_coordinates.df_coordinates.drop(cls.COORD_Z, axis=1, inplace=True)
         return spatial_coordinates
 
 
