@@ -1,8 +1,11 @@
+import numpy as np
+
 
 class GevParams(object):
     GEV_SCALE = 'scale'
     GEV_LOC = 'loc'
     GEV_SHAPE = 'shape'
+    GEV_PARAM_NAMES = [GEV_LOC, GEV_SCALE, GEV_SHAPE]
 
     def __init__(self, loc: float, scale: float, shape: float):
         self.location = loc
@@ -20,10 +23,6 @@ class GevParams(object):
             self.GEV_SHAPE: self.shape,
         }
 
-    def rgev(self, nb_obs):
-        gev_params = {
-            self.GEV_LOC: loc,
-            self.GEV_SCALE: scale,
-            self.GEV_SHAPE: shape,
-        }
-        return self.r.rgev(nb_obs, **gev_params)
+    def to_array(self) -> np.ndarray:
+        gev_param_name_to_value = self.to_dict()
+        return np.array([gev_param_name_to_value[gev_param_name] for gev_param_name in self.GEV_PARAM_NAMES])

@@ -79,6 +79,14 @@ class AbstractSpatialCoordinates(object):
         return self.coordinates_values(df_coordinates=self.df_coordinates)
 
     @property
+    def x_coordinates(self) -> np.ndarray:
+        return self.df_coordinates.loc[:, self.COORD_X].values.copy()
+
+    @property
+    def y_coordinates(self) -> np.ndarray:
+        return self.df_coordinates.loc[:, self.COORD_Y].values.copy()
+
+    @property
     def coordinates_train(self) -> np.ndarray:
         return self.coordinates_values(df_coordinates=self.df_coordinates_split(self.TRAIN_SPLIT_STR))
 

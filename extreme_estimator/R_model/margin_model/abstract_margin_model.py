@@ -1,22 +1,18 @@
 import numpy as np
 
 from extreme_estimator.R_model.abstract_model import AbstractModel
-from extreme_estimator.R_model.margin_model.abstract_margin_function import AbstractMarginFunction
+from extreme_estimator.R_model.margin_function.abstract_margin_function import AbstractMarginFunction
 from extreme_estimator.R_model.gev.gev_parameters import GevParams
 from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
 
 
 class AbstractMarginModel(AbstractModel):
-    GEV_SCALE = GevParams.GEV_SCALE
-    GEV_LOC = GevParams.GEV_LOC
-    GEV_SHAPE = GevParams.GEV_SHAPE
-    GEV_PARAMETERS = [GEV_LOC, GEV_SCALE, GEV_SHAPE]
 
     def __init__(self, spatial_coordinates: AbstractSpatialCoordinates, params_start_fit=None, params_sample=None):
         super().__init__(params_start_fit, params_sample)
         self.spatial_coordinates = spatial_coordinates
         self.margin_function_sample = None  # type: AbstractMarginFunction
-        self.margin_function_start_fit = None # type: AbstractMarginFunction
+        self.margin_function_start_fit = None  # type: AbstractMarginFunction
         self.load_margin_functions()
 
     def load_margin_functions(self, margin_function_class: type = None):
@@ -68,5 +64,3 @@ class AbstractMarginModel(AbstractModel):
         pass
 
     # Define the method to sample/fit a single gev
-
-
