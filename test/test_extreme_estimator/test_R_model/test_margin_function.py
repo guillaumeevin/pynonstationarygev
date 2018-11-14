@@ -1,13 +1,12 @@
 import unittest
 
-from extreme_estimator.R_model.gev.gev_parameters import GevParams
-from extreme_estimator.R_model.margin_function.independent_margin_function import LinearMarginFunction
-from extreme_estimator.R_model.margin_model.smooth_margin_model import ConstantMarginModel, LinearShapeAxis0MarginModel
+from extreme_estimator.gev_params import GevParams
+from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearShapeAxis0MarginModel
 from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
 
 
 class TestLinearMarginModel(unittest.TestCase):
-    DISPLAY = True
+    DISPLAY = False
 
     def test_visualization_2D(self):
         spatial_coordinates = CircleCoordinatesRadius1.from_nb_points(nb_points=50)

@@ -1,10 +1,8 @@
-from typing import List, Dict
-
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 
-from extreme_estimator.R_model.gev.gev_parameters import GevParams
+from extreme_estimator.gev_params import GevParams
 from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
 
 

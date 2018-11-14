@@ -1,8 +1,8 @@
 import numpy as np
 
-from extreme_estimator.R_model.abstract_model import AbstractModel
-from extreme_estimator.R_model.margin_function.abstract_margin_function import AbstractMarginFunction
-from extreme_estimator.R_model.gev.gev_parameters import GevParams
+from extreme_estimator.extreme_models.abstract_model import AbstractModel
+from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import AbstractMarginFunction
+from extreme_estimator.gev_params import GevParams
 from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
 
 

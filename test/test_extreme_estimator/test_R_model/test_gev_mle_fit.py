@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from extreme_estimator.R_model.gev.gev_mle_fit import GevMleFit
-from extreme_estimator.R_model.utils import get_loaded_r
+from extreme_estimator.gev.gev_mle_fit import GevMleFit
+from extreme_estimator.extreme_models.utils import get_loaded_r
 
 
 class TestGevMleFit(unittest.TestCase):

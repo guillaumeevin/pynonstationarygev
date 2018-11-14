@@ -1,5 +1,5 @@
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
-from extreme_estimator.R_model.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
+from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 import numpy as np
 

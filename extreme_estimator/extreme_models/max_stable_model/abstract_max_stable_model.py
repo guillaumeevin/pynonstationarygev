@@ -4,7 +4,7 @@ import numpy as np
 import rpy2
 from rpy2.robjects import ListVector
 
-from extreme_estimator.R_model.abstract_model import AbstractModel
+from extreme_estimator.extreme_models.abstract_model import AbstractModel
 
 
 class AbstractMaxStableModel(AbstractModel):

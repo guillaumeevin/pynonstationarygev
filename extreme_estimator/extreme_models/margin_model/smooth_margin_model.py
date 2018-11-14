@@ -1,9 +1,9 @@
 import numpy as np
 
-from extreme_estimator.R_model.margin_function.abstract_margin_function import AbstractMarginFunction
-from extreme_estimator.R_model.margin_function.independent_margin_function import LinearMarginFunction
-from extreme_estimator.R_model.margin_model.abstract_margin_model import AbstractMarginModel
-from extreme_estimator.R_model.gev.gev_parameters import GevParams
+from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import AbstractMarginFunction
+from extreme_estimator.extreme_models.margin_model.margin_function.independent_margin_function import LinearMarginFunction
+from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
+from extreme_estimator.gev_params import GevParams
 
 
 class LinearMarginModel(AbstractMarginModel):

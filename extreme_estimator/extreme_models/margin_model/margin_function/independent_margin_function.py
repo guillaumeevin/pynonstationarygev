@@ -1,9 +1,9 @@
-from typing import Dict, List
+from typing import Dict
 
 import numpy as np
 
-from extreme_estimator.R_model.gev.gev_parameters import GevParams
-from extreme_estimator.R_model.margin_function.abstract_margin_function import AbstractMarginFunction
+from extreme_estimator.gev_params import GevParams
+from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import AbstractMarginFunction
 from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
 
 

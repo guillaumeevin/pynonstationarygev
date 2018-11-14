@@ -1,7 +1,7 @@
 import unittest
 
-from extreme_estimator.R_model.margin_model.abstract_margin_model import AbstractMarginModel
-from extreme_estimator.R_model.margin_model.smooth_margin_model import ConstantMarginModel
+from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
+from extreme_estimator.extreme_models.margin_model.smooth_margin_model import ConstantMarginModel
 from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
 from spatio_temporal_dataset.dataset.simulation_dataset import MarginDataset
 from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1

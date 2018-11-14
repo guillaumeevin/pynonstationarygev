@@ -4,8 +4,8 @@ import rpy2.robjects.numpy2ri as rpyn
 import os.path as op
 
 # Defining some constants
-from extreme_estimator.R_model.gev.gev_parameters import GevParams
-from extreme_estimator.R_model.utils import get_associated_r_file
+from extreme_estimator.gev_params import GevParams
+from extreme_estimator.extreme_models.utils import get_associated_r_file
 
 
 def gev_mle_fit(x_gev: np.ndarray, start_loc=0, start_scale=1, start_shape=0):
