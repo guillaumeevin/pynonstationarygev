@@ -49,13 +49,14 @@ class AbstractMarginModel(AbstractModel):
             maxima_gev.append(x_gev)
         return np.array(maxima_gev)
 
-    def gev2frech(self, maxima_gev: np.ndarray, df_gev_params: pd.DataFrame):
+    @classmethod
+    def gev2frech(cls, maxima_gev: np.ndarray, df_gev_params: pd.DataFrame):
         assert len(maxima_gev) == len(df_gev_params)
         maxima_frech = []
         for x_gev, (_, s_gev_params) in zip(maxima_gev, df_gev_params.iterrows()):
             gev_params = dict(s_gev_params)
             gev2frech_param = {'emp': False}
-            x_frech = self.r.gev2frech(x_gev, **gev_params, **gev2frech_param)
+            x_frech = cls.r.gev2frech(x_gev, **gev_params, **gev2frech_param)
             maxima_frech.append(x_frech)
         return np.array(maxima_frech)
 

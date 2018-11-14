@@ -23,8 +23,8 @@ class SmoothMarginalsThenUnitaryMsp(AbstractFullEstimator):
         # Estimate the margin parameters
         self.margin_estimator.fit()
         # Compute the maxima_frech
-        maxima_frech = self.margin_estimator.margin_model.gev2frech(maxima_gev=self.dataset.maxima_gev,
-                                                                    df_gev_params=self.margin_estimator.df_gev_params)
+        maxima_frech = AbstractMarginModel.gev2frech(maxima_gev=self.dataset.maxima_gev,
+                                                     df_gev_params=self.margin_estimator.df_gev_params)
         # Update maxima frech field through the dataset object
         self.dataset.maxima_frech = maxima_frech
         # Estimate the max stable parameters
