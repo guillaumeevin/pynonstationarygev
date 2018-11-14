@@ -1,82 +1,72 @@
 import numpy as np
-import pandas as pd
 
 from extreme_estimator.R_model.abstract_model import AbstractModel
-from extreme_estimator.R_model.margin_model.gev_mle_fit import GevMleFit, mle_gev
+from extreme_estimator.R_model.margin_model.abstract_margin_function import AbstractMarginFunction
+from extreme_estimator.R_model.gev.gev_parameters import GevParams
+from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
 
 
 class AbstractMarginModel(AbstractModel):
-    GEV_SCALE = GevMleFit.GEV_SCALE
-    GEV_LOCATION = GevMleFit.GEV_LOCATION
-    GEV_SHAPE = GevMleFit.GEV_SHAPE
-    GEV_PARAMETERS = [GEV_LOCATION, GEV_SCALE, GEV_SHAPE]
+    GEV_SCALE = GevParams.GEV_SCALE
+    GEV_LOC = GevParams.GEV_LOC
+    GEV_SHAPE = GevParams.GEV_SHAPE
+    GEV_PARAMETERS = [GEV_LOC, GEV_SCALE, GEV_SHAPE]
 
-    def __init__(self, params_start_fit=None, params_sample=None):
+    def __init__(self, spatial_coordinates: AbstractSpatialCoordinates, params_start_fit=None, params_sample=None):
         super().__init__(params_start_fit, params_sample)
+        self.spatial_coordinates = spatial_coordinates
+        self.margin_function_sample = None  # type: AbstractMarginFunction
+        self.margin_function_start_fit = None # type: AbstractMarginFunction
+        self.load_margin_functions()
 
-    # Define the method to sample/fit a single gev
+    def load_margin_functions(self, margin_function_class: type = None):
+        assert margin_function_class is not None
+        self.margin_function_sample = margin_function_class(spatial_coordinates=self.spatial_coordinates,
+                                                            default_params=GevParams.from_dict(self.params_sample))
+        self.margin_function_start_fit = margin_function_class(spatial_coordinates=self.spatial_coordinates,
+                                                               default_params=GevParams.from_dict(
+                                                                   self.params_start_fit))
 
-    def rgev(self, nb_obs, loc, scale, shape):
-        gev_params = {
-            self.GEV_LOCATION: loc,
-            self.GEV_SCALE: scale,
-            self.GEV_SHAPE: shape,
-        }
-        return self.r.rgev(nb_obs, **gev_params)
+    # Conversion class methods
 
-    def fitgev(self, x_gev, estimator=GevMleFit):
-        mle_params = mle_gev(x_gev=x_gev)
+    @classmethod
+    def convert_maxima(cls, convertion_r_function, maxima: np.ndarray, coordinates: np.ndarray,
+                       margin_function: AbstractMarginFunction):
+        assert len(maxima) == len(coordinates)
+        converted_maxima = []
+        for x, coordinate in zip(maxima, coordinates):
+            gev_params = margin_function.get_gev_params(coordinate)
+            x_gev = convertion_r_function(x, **gev_params.to_dict())
+            converted_maxima.append(x_gev)
+        return np.array(converted_maxima)
 
-    def gev_params_sample(self, coordinate) -> dict:
-        pass
+    @classmethod
+    def gev2frech(cls, maxima_gev: np.ndarray, coordinates: np.ndarray, margin_function: AbstractMarginFunction):
+        return cls.convert_maxima(cls.r.gev2frech, maxima_gev, coordinates, margin_function)
 
-    # Define the method to sample/fit all marginals globally in the child classes
+    @classmethod
+    def frech2gev(cls, maxima_frech: np.ndarray, coordinates: np.ndarray, margin_function: AbstractMarginFunction):
+        return cls.convert_maxima(cls.r.frech2gev, maxima_frech, coordinates, margin_function)
 
-    def fitmargin(self, maxima, coord):
-        df_fit_gev_params = None
-        return df_fit_gev_params
+    # Sampling methods
 
-    def rmargin(self, nb_obs, coord):
-        maxima_gev = None
+    def rmargin_from_maxima_frech(self, maxima_frech: np.ndarray, coordinates: np.ndarray):
+        maxima_gev = self.frech2gev(maxima_frech, coordinates, self.margin_function_sample)
         return maxima_gev
 
-    def frech2gev(self, maxima_frech: np.ndarray, coordinates: np.ndarray):
-        assert len(maxima_frech) == len(coordinates)
+    def rmargin_from_nb_obs(self, nb_obs, coordinates):
         maxima_gev = []
-        for x_frech, coordinate in zip(maxima_frech, coordinates):
-            gev_params = self.gev_params_sample(coordinate)
-            x_gev = self.r.frech2gev(x_frech, **gev_params)
+        for coordinate in coordinates:
+            gev_params = self.margin_function_sample.get_gev_params(coordinate)
+            x_gev = self.r.rgev(nb_obs, **gev_params.to_dict())
             maxima_gev.append(x_gev)
         return np.array(maxima_gev)
 
-    @classmethod
-    def gev2frech(cls, maxima_gev: np.ndarray, df_gev_params: pd.DataFrame):
-        assert len(maxima_gev) == len(df_gev_params)
-        maxima_frech = []
-        for x_gev, (_, s_gev_params) in zip(maxima_gev, df_gev_params.iterrows()):
-            gev_params = dict(s_gev_params)
-            gev2frech_param = {'emp': False}
-            x_frech = cls.r.gev2frech(x_gev, **gev_params, **gev2frech_param)
-            maxima_frech.append(x_frech)
-        return np.array(maxima_frech)
+    # Fitting methods
 
+    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, coordinates: np.ndarray) -> AbstractMarginFunction:
+        pass
 
-class SmoothMarginModel(AbstractMarginModel):
-    pass
-
-
-class ConstantMarginModel(SmoothMarginModel):
-    def __init__(self, params_start_fit=None, params_sample=None):
-        super().__init__(params_start_fit, params_sample)
-        self.default_params_sample = {gev_param: 1.0 for gev_param in self.GEV_PARAMETERS}
-        self.default_params_start_fit = {gev_param: 1.0 for gev_param in self.GEV_PARAMETERS}
-
-    def gev_params_sample(self, coordinate):
-        return self.default_params_sample
-
-    def fitmargin(self, maxima, coord):
-        return pd.DataFrame([pd.Series(self.default_params_start_fit) for _ in maxima])
-
-
+    # Define the method to sample/fit a single gev
 
 

@@ -8,6 +8,12 @@ class AbstractMarginEstimator(AbstractEstimator):
     def __init__(self, dataset: AbstractDataset):
         super().__init__(dataset)
         assert self.dataset.maxima_gev is not None
+        self._margin_function_fitted = None
+
+    @property
+    def margin_function_fitted(self):
+        assert self._margin_function_fitted is not None, 'Error: estimator has not been not fitted yet'
+        return self._margin_function_fitted
 
 
 class PointWiseMarginEstimator(AbstractMarginEstimator):
@@ -19,9 +25,9 @@ class SmoothMarginEstimator(AbstractMarginEstimator):
 
     def __init__(self, dataset: AbstractDataset, margin_model: AbstractMarginModel):
         super().__init__(dataset)
+        assert isinstance(margin_model, AbstractMarginModel)
         self.margin_model = margin_model
-        self.df_gev_params = None
 
     def _fit(self):
-        self.df_gev_params = self.margin_model.fitmargin(maxima=self.dataset.maxima_gev,
-                                                         coord=self.dataset.coordinates)
+        self._margin_function_fitted = self.margin_model.fitmargin_from_maxima_gev(maxima_gev=self.dataset.maxima_gev,
+                                                                                   coordinates=self.dataset.coordinates)
