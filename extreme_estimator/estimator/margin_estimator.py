@@ -1,5 +1,8 @@
 from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
+from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
+    AbstractMarginFunction
+from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearMarginModel
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
@@ -11,8 +14,8 @@ class AbstractMarginEstimator(AbstractEstimator):
         self._margin_function_fitted = None
 
     @property
-    def margin_function_fitted(self):
-        assert self._margin_function_fitted is not None, 'Error: estimator has not been not fitted yet'
+    def margin_function_fitted(self) -> AbstractMarginFunction:
+        assert self._margin_function_fitted is not None, 'Error: estimator has not been fitted'
         return self._margin_function_fitted
 
 
@@ -23,9 +26,9 @@ class PointWiseMarginEstimator(AbstractMarginEstimator):
 class SmoothMarginEstimator(AbstractMarginEstimator):
     """# with different type of marginals: cosntant, linear...."""
 
-    def __init__(self, dataset: AbstractDataset, margin_model: AbstractMarginModel):
+    def __init__(self, dataset: AbstractDataset, margin_model: LinearMarginModel):
         super().__init__(dataset)
-        assert isinstance(margin_model, AbstractMarginModel)
+        assert isinstance(margin_model, LinearMarginModel)
         self.margin_model = margin_model
 
     def _fit(self):

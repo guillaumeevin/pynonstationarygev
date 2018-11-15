@@ -33,8 +33,8 @@ class LinearShapeAxis0MarginModel(LinearMarginModel):
     def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_linear_axis=None):
         super().load_margin_functions({GevParams.GEV_SHAPE: 0})
 
-    # def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, coordinates: np.ndarray) -> AbstractMarginFunction:
-    #     return self.margin_function_start_fit
+    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, coordinates: np.ndarray) -> AbstractMarginFunction:
+        return self.margin_function_start_fit
 
 
 if __name__ == '__main__':
