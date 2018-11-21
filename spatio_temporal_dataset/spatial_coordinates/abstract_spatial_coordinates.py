@@ -9,9 +9,10 @@ from mpl_toolkits.mplot3d import Axes3D
 
 class AbstractSpatialCoordinates(object):
     # Columns
-    COORD_X = 'coord_x'
-    COORD_Y = 'coord_y'
-    COORD_Z = 'coord_z'
+    COORDINATE_X = 'coord_x'
+    COORDINATE_Y = 'coord_y'
+    COORDINATE_Z = 'coord_z'
+    COORDINATE_NAMES = [COORDINATE_X, COORDINATE_Y, COORDINATE_Z]
     COORD_SPLIT = 'coord_split'
     # Constants
     TRAIN_SPLIT_STR = 'train_split'
@@ -24,7 +25,7 @@ class AbstractSpatialCoordinates(object):
     @classmethod
     def from_df(cls, df: pd.DataFrame):
         #  X and Y coordinates must be defined
-        assert cls.COORD_X in df.columns and cls.COORD_Y in df.columns
+        assert cls.COORDINATE_X in df.columns and cls.COORDINATE_Y in df.columns
         df_coordinates = df.loc[:, cls.coordinates_columns(df)]
         # Potentially, a split column can be specified
         s_split = df[cls.COORD_SPLIT] if cls.COORD_SPLIT in df.columns else None
@@ -33,9 +34,9 @@ class AbstractSpatialCoordinates(object):
     @classmethod
     def coordinates_columns(cls, df_coord: pd.DataFrame) -> List[str]:
         # If a Z coordinate is in the DataFrame, then
-        coord_columns = [cls.COORD_X, cls.COORD_Y]
-        if cls.COORD_Z in df_coord.columns:
-            coord_columns.append(cls.COORD_Z)
+        coord_columns = [cls.COORDINATE_X, cls.COORDINATE_Y]
+        if cls.COORDINATE_Z in df_coord.columns:
+            coord_columns.append(cls.COORDINATE_Z)
         return coord_columns
 
     @property
@@ -80,11 +81,11 @@ class AbstractSpatialCoordinates(object):
 
     @property
     def x_coordinates(self) -> np.ndarray:
-        return self.df_coordinates.loc[:, self.COORD_X].values.copy()
+        return self.df_coordinates.loc[:, self.COORDINATE_X].values.copy()
 
     @property
     def y_coordinates(self) -> np.ndarray:
-        return self.df_coordinates.loc[:, self.COORD_Y].values.copy()
+        return self.df_coordinates.loc[:, self.COORDINATE_Y].values.copy()
 
     @property
     def coordinates_train(self) -> np.ndarray:

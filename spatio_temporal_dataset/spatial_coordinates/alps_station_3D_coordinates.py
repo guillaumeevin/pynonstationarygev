@@ -31,7 +31,7 @@ class AlpsStation3DCoordinates(AbstractSpatialCoordinates):
                 assert len(coordinates) == 3
                 station_to_coordinates[station_name] = coordinates
         df = pd.DataFrame.from_dict(data=station_to_coordinates, orient='index',
-                                    columns=[cls.COORD_X, cls.COORD_Y, cls.COORD_Z])
+                                    columns=[cls.COORDINATE_X, cls.COORDINATE_Y, cls.COORDINATE_Z])
         print(df.head())
         filepath = op.join(cls.FULL_PATH, 'coord-lambert2.csv')
         assert not op.exists(filepath)
