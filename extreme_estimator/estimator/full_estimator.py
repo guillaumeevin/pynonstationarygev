@@ -1,4 +1,7 @@
 from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
+from extreme_estimator.extreme_models.margin_model.margin_function.independent_margin_function import \
+    LinearMarginFunction
+from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
@@ -12,7 +15,7 @@ class AbstractFullEstimator(AbstractEstimator):
 
 class SmoothMarginalsThenUnitaryMsp(AbstractFullEstimator):
 
-    def __init__(self, dataset: AbstractDataset, margin_model: AbstractMarginModel,
+    def __init__(self, dataset: AbstractDataset, margin_model: LinearMarginModel,
                  max_stable_model: AbstractMaxStableModel):
         super().__init__(dataset)
         # Instantiate the two associated estimators
@@ -36,9 +39,25 @@ class FullEstimatorInASingleStep(AbstractFullEstimator):
     pass
 
 
-class FullEstimatorInASingleStepWithSmoothMarginals(AbstractFullEstimator):
+class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
     """The method of Gaume, check if its method is in a single step or not"""
-    pass
+
+    def __init__(self, dataset: AbstractDataset, margin_model: LinearMarginModel,
+                 max_stable_model: AbstractMaxStableModel):
+        super().__init__(dataset)
+        self.max_stable_model = max_stable_model
+        self.smooth_margin_function_to_fit = margin_model.margin_function_start_fit
+
+    def _fit(self):
+        # todo: specify the shape of the margin
+        # Estimate the margin
+        self.max_stable_params_fitted = self.max_stable_model.fitmaxstab(
+            maxima_frech=self.dataset.maxima_frech,
+            df_coordinates=self.dataset.df_coordinates,
+            fit_marge=True,
+            fit_marge_form_dict=self.smooth_margin_function_to_fit.fit_marge_form_dict,
+            margin_start_dict=self.smooth_margin_function_to_fit.margin_start_dict
+        )
 
 
 class PointwiseAndThenUnitaryMsp(AbstractFullEstimator):

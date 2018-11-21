@@ -28,6 +28,7 @@ class AbstractMarginModel(AbstractModel):
     @classmethod
     def convert_maxima(cls, convertion_r_function, maxima: np.ndarray, coordinates: np.ndarray,
                        margin_function: AbstractMarginFunction):
+        assert isinstance(coordinates, np.ndarray)
         assert len(maxima) == len(coordinates)
         converted_maxima = []
         for x, coordinate in zip(maxima, coordinates):
@@ -58,9 +59,7 @@ class AbstractMarginModel(AbstractModel):
             maxima_gev.append(x_gev)
         return np.array(maxima_gev)
 
-    # Fitting methods
+    # Fitting methods needs to be defined in child classes
 
     def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, coordinates: np.ndarray) -> AbstractMarginFunction:
         pass
-
-    # Define the method to sample/fit a single gev

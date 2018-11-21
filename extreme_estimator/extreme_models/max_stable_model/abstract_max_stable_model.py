@@ -1,7 +1,9 @@
+import pandas as pd
 from enum import Enum
 
 import numpy as np
 import rpy2
+import rpy2.robjects as ro
 from rpy2.robjects import ListVector
 
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
@@ -17,20 +19,34 @@ class AbstractMaxStableModel(AbstractModel):
     def cov_mod_param(self):
         return {'cov.mod': self.cov_mod}
 
-    def fitmaxstab(self, maxima_frech: np.ndarray, coord: np.ndarray, fit_marge=False):
-        assert all([isinstance(arr, np.ndarray) for arr in [maxima_frech, coord]])
+    def fitmaxstab(self, maxima_frech: np.ndarray, df_coordinates: pd.DataFrame, fit_marge=False,
+                   fit_marge_form_dict=None, margin_start_dict=None):
+        assert isinstance(maxima_frech, np.ndarray)
+        assert isinstance(df_coordinates, pd.DataFrame)
+        if fit_marge:
+            assert fit_marge_form_dict is not None
+            assert margin_start_dict is not None
+
+        # Add the colnames to df_coordinates DataFrame to enable specification of the margin functions
+        df_coordinates = df_coordinates.copy()
+        df_coordinates.colnames = ro.StrVector(list(df_coordinates.columns))
+        # Transform the formula string representation into robjects.Formula("y ~ x")
         #  Specify the fit params
-        fit_params = {
-            'fit.marge': fit_marge,
-            'start': self.r.list(**self.params_start_fit),
-        }
+        fit_params = self.cov_mod_param.copy()
+        start_dict = self.params_start_fit
+        if fit_marge:
+            start_dict.update(margin_start_dict)
+            fit_params.update({k: ro.Formula(v) for k, v in fit_marge_form_dict.items()})
+        fit_params['start'] = self.r.list(**start_dict)
+        fit_params['fit.marge'] = fit_marge
         # Run the fitmaxstab in R
         # todo: find how to specify the optim function to use
+        coord = df_coordinates.values
+
         try:
-            res = self.r.fitmaxstab(np.transpose(maxima_frech), coord, **self.cov_mod_param,
-                                    **fit_params)  # type: ListVector
+            res = self.r.fitmaxstab(data=np.transpose(maxima_frech), coord=coord, **fit_params)  # type: ListVector
         except rpy2.rinterface.RRuntimeError as error:
-            raise Exception('Some R exception have been launched at RunTime: {}'.format(error.__repr__()))
+            raise Exception('Some R exception have been launched at RunTime: \n {}'.format(error.__repr__()))
         # todo: maybe if the convergence was not successful I could try other starting point several times
         # Retrieve the resulting fitted values
         fitted_values = res.rx2('fitted.values')

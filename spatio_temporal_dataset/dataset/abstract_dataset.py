@@ -34,6 +34,10 @@ class AbstractDataset(object):
         return self.temporal_observations.df_maxima_gev.join(self.spatial_coordinates.df_coordinates)
 
     @property
+    def df_coordinates(self):
+        return self.spatial_coordinates.df_coordinates
+
+    @property
     def coordinates(self):
         return self.spatial_coordinates.coordinates
 

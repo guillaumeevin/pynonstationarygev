@@ -41,7 +41,7 @@ class ConstantParamFunction(ParamFunction):
 
 class LinearOneAxisParamFunction(ParamFunction):
 
-    def __init__(self, linear_axis, coordinates_axis, start, end=0.0):
+    def __init__(self, linear_axis: int, coordinates_axis: np.ndarray, start: float, end: float = 0.0):
         self.linear_axis = linear_axis
         self.t_min = coordinates_axis.min()
         self.t_max = coordinates_axis.max()
@@ -63,6 +63,10 @@ class LinearMarginFunction(IndependentMarginFunction):
     def __init__(self, spatial_coordinates: AbstractSpatialCoordinates, default_params: GevParams,
                  gev_param_name_to_linear_axis: Dict[str, int]):
         super().__init__(spatial_coordinates, default_params)
+
+        # By default, set a constant function for all the params
+        self.gev_param_to_str_form = {gev_param_name: '1' for gev_param_name in GevParams.GEV_PARAM_NAMES}
+
         self.param_to_linear_dims = gev_param_name_to_linear_axis
         assert all([axis < np.ndim(spatial_coordinates.coordinates) for axis in gev_param_name_to_linear_axis.values()])
         # Initialize gev_parameter_to_param_function
@@ -76,3 +80,22 @@ class LinearMarginFunction(IndependentMarginFunction):
                 param_function = LinearOneAxisParamFunction(linear_axis=linear_axis, coordinates_axis=coordinates_axis,
                                                             start=self.default_params[gev_param_name])
             self.gev_param_name_to_param_function[gev_param_name] = param_function
+
+
+    @property
+    def fit_marge_form_dict(self):
+        """
+        Example:
+        loc.form = loc ~ E
+        scale.form = scale ~ N
+        shape.form = shape ~ E+N
+        :return:
+        """
+        # todo specify all functions
+        return {gev_param_name + '.form': gev_param_name + ' ~ ' + self.gev_param_to_str_form[gev_param_name]
+                for gev_param_name in GevParams.GEV_PARAM_NAMES}
+
+    @property
+    def margin_start_dict(self):
+        """Example for the names: locCoeff1     locCoeff2 """
+        return {gev_param_name + 'Coeff1': 0 for gev_param_name in GevParams.GEV_PARAM_NAMES}

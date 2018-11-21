@@ -9,24 +9,29 @@ if (call_main) {
     n.obs = 50
     n.site = 2
     coord <- matrix(rnorm(2*n.site, sd = sqrt(.2)), ncol = 2)
+    colnames(coord) = c("E", "N")
 
     #  Generate the data
     data <- rmaxstab(n.obs, coord, "gauss", cov11 = 100, cov12 = 25, cov22 = 220)
     # data <- rmaxstab(n.obs, coord, "brown", range = 3, smooth = 0.5)
     # data <- rmaxstab(n.obs, coord, "whitmat", nugget = 0.0, range = 3, smooth = 0.5)
     #  Fit back the data
-    # print(data)
+    # print(data)n
     # res = fitmaxstab(data, coord, "gauss", fit.marge=FALSE, )
     # res = fitmaxstab(data, coord, "brown")
     # res = fitmaxstab(data, coord, "whitmat", start=)
-    namedlist = list(cov11 = 1.0, cov12 = 1.2, cov22 = 2.2)
-    res = fitmaxstab(data=data, coord=coord, cov.mod="gauss", start=namedlist)
-    # res = fitmaxstab(data, coord, "whitmat", par())
-    # print(res)
-    # print(class(res))
-    gev2frech(x, loc, scale, shape, emp=FALSE)
-    frech2gev(x, loc, scale, shape)
-    # print(names(res))
+
+    loc.form = loc ~ 1
+    scale.form = scale ~ 1
+    shape.form = shape ~ 1
+
+
+    namedlist = list(cov11 = 1.0, cov12 = 1.2, cov22 = 2.2, locCoeff1=1.0, scaleCoeff1=1.0, shapeCoeff1=1.0)
+    res = fitmaxstab(data=data, coord=coord, cov.mod="gauss", start=namedlist, fit.marge=TRUE, loc.form=loc.form, scale.form=scale.form,shape.form=shape.form)
+
+    # namedlist = list(cov11 = 1.0, cov12 = 1.2, cov22 = 2.2)
+    # res = fitmaxstab(data=data, coord=coord, cov.mod="gauss", start=namedlist)
+
     for (name in names(res)){
         print(name)
         print(res[name])

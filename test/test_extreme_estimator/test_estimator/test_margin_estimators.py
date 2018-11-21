@@ -12,19 +12,19 @@ from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import Ci
 class TestSmoothMarginEstimator(unittest.TestCase):
     DISPLAY = False
     MARGIN_TYPES = [ConstantMarginModel, LinearShapeAxis0MarginModel][1:]
-    MARGIN_ESTIMATORS = [SmoothMarginEstimator]
+    SMOOTH_MARGIN_ESTIMATORS = [SmoothMarginEstimator]
 
     def setUp(self):
         super().setUp()
         self.spatial_coordinates = CircleCoordinatesRadius1.from_nb_points(nb_points=5, max_radius=1)
-        self.margin_models = self.load_margin_models(spatial_coordinates=self.spatial_coordinates)
+        self.smooth_margin_models = self.load_smooth_margin_models(spatial_coordinates=self.spatial_coordinates)
 
     @classmethod
-    def load_margin_models(cls, spatial_coordinates):
+    def load_smooth_margin_models(cls, spatial_coordinates):
         return [margin_class(spatial_coordinates=spatial_coordinates) for margin_class in cls.MARGIN_TYPES]
 
     def test_dependency_estimators(self):
-        for margin_model in self.margin_models:
+        for margin_model in self.smooth_margin_models:
             dataset = MarginDataset.from_sampling(nb_obs=10, margin_model=margin_model,
                                                   spatial_coordinates=self.spatial_coordinates)
             # Fit estimator

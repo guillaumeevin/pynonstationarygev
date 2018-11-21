@@ -1,13 +1,14 @@
 import os.path as op
+
 import rpy2.robjects as ro
-import pandas as pd
-import numpy as np
-import rpy2.robjects.numpy2ri as npr
+from rpy2.robjects import numpy2ri
+from rpy2.robjects import pandas2ri
 
 
 def get_loaded_r() -> ro.R:
     r = ro.r
-    ro.numpy2ri.activate()
+    numpy2ri.activate()
+    pandas2ri.activate()
     r.library('SpatialExtremes')
     return r
 
