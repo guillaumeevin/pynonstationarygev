@@ -2,7 +2,8 @@ import unittest
 
 from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import ConstantMarginModel, \
-    LinearShapeAxis0MarginModel
+    LinearShapeAxis0MarginModel, LinearShapeAxis0and1MarginModel, LinearAllParametersAxis0MarginModel, \
+    LinearAllParametersAxis0And1MarginModel
 from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
 from extreme_estimator.return_level_plot.spatial_2D_plot import Spatial2DPlot
 from spatio_temporal_dataset.dataset.simulation_dataset import MarginDataset
@@ -11,7 +12,9 @@ from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import Ci
 
 class TestSmoothMarginEstimator(unittest.TestCase):
     DISPLAY = False
-    MARGIN_TYPES = [ConstantMarginModel, LinearShapeAxis0MarginModel][1:]
+    MARGIN_TYPES = [ConstantMarginModel, LinearShapeAxis0MarginModel,
+                    LinearShapeAxis0and1MarginModel, LinearAllParametersAxis0MarginModel,
+                    LinearAllParametersAxis0And1MarginModel][:]
     SMOOTH_MARGIN_ESTIMATORS = [SmoothMarginEstimator]
 
     def setUp(self):
@@ -33,7 +36,7 @@ class TestSmoothMarginEstimator(unittest.TestCase):
             # Map name to their margin functions
             name_to_margin_function = {
                 'Ground truth margin function': dataset.margin_model.margin_function_sample,
-                # 'Estimated margin function': estimator.margin_function_fitted,
+                'Estimated margin function': estimator.margin_function_fitted,
             }
             # Spatial Plot
             if self.DISPLAY:

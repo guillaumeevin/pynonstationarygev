@@ -7,16 +7,17 @@ from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates im
 
 
 class AbstractMarginFunction(object):
-    """
-    It represents any function mapping points from a space S (could be 2D, 3D,...) to R^3 (the 3 parameters of the GEV)
-    """
+    """ Class of function mapping points from a space S (could be 1D, 2D,...) to R^3 (the 3 parameters of the GEV)"""
 
     def __init__(self, spatial_coordinates: AbstractSpatialCoordinates, default_params: GevParams):
         self.spatial_coordinates = spatial_coordinates
         self.default_params = default_params.to_dict()
 
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
+        """Main function that maps each coordinate to its GEV parameters"""
         pass
+
+    # Visualization function
 
     def visualize_2D(self, gev_param_name=GevParams.GEV_LOC, ax=None, show=False):
         x = self.spatial_coordinates.x_coordinates

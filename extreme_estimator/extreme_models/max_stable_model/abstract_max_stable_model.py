@@ -3,8 +3,7 @@ from enum import Enum
 
 import numpy as np
 import rpy2
-import rpy2.robjects as ro
-from rpy2.robjects import ListVector
+import rpy2.robjects as robjects
 
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
 
@@ -27,24 +26,23 @@ class AbstractMaxStableModel(AbstractModel):
             assert fit_marge_form_dict is not None
             assert margin_start_dict is not None
 
-        # Add the colnames to df_coordinates DataFrame to enable specification of the margin functions
-        df_coordinates = df_coordinates.copy()
-        df_coordinates.colnames = ro.StrVector(list(df_coordinates.columns))
-        # Transform the formula string representation into robjects.Formula("y ~ x")
-        #  Specify the fit params
+        # Prepare the data and the coord objects
+        data = np.transpose(maxima_frech)
+        coord = robjects.vectors.Matrix(df_coordinates.values)
+        coord.colnames = robjects.StrVector(list(df_coordinates.columns))
+
+        #  Prepare the fit params
         fit_params = self.cov_mod_param.copy()
         start_dict = self.params_start_fit
         if fit_marge:
             start_dict.update(margin_start_dict)
-            fit_params.update({k: ro.Formula(v) for k, v in fit_marge_form_dict.items()})
+            fit_params.update({k: robjects.Formula(v) for k, v in fit_marge_form_dict.items()})
         fit_params['start'] = self.r.list(**start_dict)
         fit_params['fit.marge'] = fit_marge
-        # Run the fitmaxstab in R
-        # todo: find how to specify the optim function to use
-        coord = df_coordinates.values
 
+        # Run the fitmaxstab in R
         try:
-            res = self.r.fitmaxstab(data=np.transpose(maxima_frech), coord=coord, **fit_params)  # type: ListVector
+            res = self.r.fitmaxstab(data=data, coord=coord, **fit_params)  # type: robjects.ListVector
         except rpy2.rinterface.RRuntimeError as error:
             raise Exception('Some R exception have been launched at RunTime: \n {}'.format(error.__repr__()))
         # todo: maybe if the convergence was not successful I could try other starting point several times

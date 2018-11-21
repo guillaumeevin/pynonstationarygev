@@ -11,6 +11,7 @@ class GevParams(object):
         self.location = loc
         self.scale = scale
         self.shape = shape
+        assert self.scale > 0
 
     @classmethod
     def from_dict(cls, params: dict):

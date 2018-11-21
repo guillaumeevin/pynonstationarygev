@@ -20,6 +20,8 @@ if (call_main) {
     # res = fitmaxstab(data, coord, "gauss", fit.marge=FALSE, )
     # res = fitmaxstab(data, coord, "brown")
     # res = fitmaxstab(data, coord, "whitmat", start=)
+    print(class(coord))
+    print(colnames(coord))
 
     loc.form = loc ~ 1
     scale.form = scale ~ 1
@@ -32,10 +34,10 @@ if (call_main) {
     # namedlist = list(cov11 = 1.0, cov12 = 1.2, cov22 = 2.2)
     # res = fitmaxstab(data=data, coord=coord, cov.mod="gauss", start=namedlist)
 
-    for (name in names(res)){
-        print(name)
-        print(res[name])
-    }
+    # for (name in names(res)){
+    #     print(name)
+    #     print(res[name])
+    # }
     print(res['fitted.values'])
     # print(res['convergence'])
 
