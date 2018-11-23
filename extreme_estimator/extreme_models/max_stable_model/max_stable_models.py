@@ -10,6 +10,7 @@ class Smith(AbstractMaxStableModel):
         super().__init__(params_start_fit=params_start_fit, params_sample=params_sample)
         self.cov_mod = 'gauss'
         self.default_params_start_fit = {
+            'var': 1,
             'cov11': 1,
             'cov12': 0,
             'cov22': 1
