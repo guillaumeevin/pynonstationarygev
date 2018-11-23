@@ -35,7 +35,7 @@ class TestMaxStableEstimators(unittest.TestCase):
         for max_stable_model in self.max_stable_models:
             dataset = MaxStableDataset.from_sampling(nb_obs=10,
                                                      max_stable_model=max_stable_model,
-                                                     spatial_coordinates=self.spatial_coord)
+                                                     coordinates=self.spatial_coord)
 
             for estimator_class in self.MAX_STABLE_ESTIMATORS:
                 estimator = estimator_class(dataset=dataset, max_stable_model=max_stable_model)

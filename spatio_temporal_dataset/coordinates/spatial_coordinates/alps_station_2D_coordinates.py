@@ -19,7 +19,7 @@ class AlpsStation2DCoordinatesBetweenZeroAndOne(AlpsStation2DCoordinates):
     @classmethod
     def from_csv(cls, csv_file='coord-lambert2'):
         coord = super().from_csv(csv_file)
-        return TransformedCoordinates.from_coordinates(spatial_coordinates=coord,
+        return TransformedCoordinates.from_coordinates(coordinates=coord,
                                                        transformation_function=BetweenZeroAndOne2DNormalization())
 
 

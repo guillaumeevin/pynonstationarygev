@@ -10,7 +10,7 @@ class TestLinearMarginModel(unittest.TestCase):
 
     def test_visualization_2D(self):
         spatial_coordinates = CircleCoordinatesRadius1.from_nb_points(nb_points=50)
-        margin_model = LinearShapeAxis0MarginModel(spatial_coordinates=spatial_coordinates)
+        margin_model = LinearShapeAxis0MarginModel(coordinates=spatial_coordinates)
         for gev_param_name in GevParams.GEV_PARAM_NAMES:
             margin_model.margin_function_sample.visualize_2D(gev_param_name=gev_param_name, show=self.DISPLAY)
         # maxima_gev = margin_model.rmargin_from_nb_obs(nb_obs=10, coordinates=coordinates)

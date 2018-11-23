@@ -3,14 +3,14 @@ import pandas as pd
 import numpy as np
 
 from extreme_estimator.extreme_models.utils import get_loaded_r
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
-class AxisCoordinates(AbstractSpatialCoordinates):
+class UniDimensionalCoordinates(AbstractCoordinates):
     pass
 
 
-class UniformAxisCoordinates(AxisCoordinates):
+class UniformAxisCoordinates(UniDimensionalCoordinates):
 
     @classmethod
     def from_nb_points(cls, nb_points, start=0.0, end=1.0):

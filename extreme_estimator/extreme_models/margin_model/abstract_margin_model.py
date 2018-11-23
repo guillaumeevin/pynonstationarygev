@@ -3,23 +3,23 @@ import numpy as np
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import AbstractMarginFunction
 from extreme_estimator.gev_params import GevParams
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 class AbstractMarginModel(AbstractModel):
 
-    def __init__(self, spatial_coordinates: AbstractSpatialCoordinates, params_start_fit=None, params_sample=None):
+    def __init__(self, coordinates: AbstractCoordinates, params_start_fit=None, params_sample=None):
         super().__init__(params_start_fit, params_sample)
-        self.spatial_coordinates = spatial_coordinates
+        self.coordinates = coordinates
         self.margin_function_sample = None  # type: AbstractMarginFunction
         self.margin_function_start_fit = None  # type: AbstractMarginFunction
         self.load_margin_functions()
 
     def load_margin_functions(self, margin_function_class: type = None):
         assert margin_function_class is not None
-        self.margin_function_sample = margin_function_class(spatial_coordinates=self.spatial_coordinates,
+        self.margin_function_sample = margin_function_class(coordinates=self.coordinates,
                                                             default_params=GevParams.from_dict(self.params_sample))
-        self.margin_function_start_fit = margin_function_class(spatial_coordinates=self.spatial_coordinates,
+        self.margin_function_start_fit = margin_function_class(coordinates=self.coordinates,
                                                                default_params=GevParams.from_dict(
                                                                    self.params_start_fit))
 

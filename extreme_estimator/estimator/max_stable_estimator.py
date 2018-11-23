@@ -19,8 +19,7 @@ class MaxStableEstimator(AbstractMaxStableEstimator):
         assert self.dataset.maxima_frech is not None
         self.max_stable_params_fitted = self.max_stable_model.fitmaxstab(
             maxima_frech=self.dataset.maxima_frech,
-            df_coordinates=self.dataset.spatial_coordinates.df_coordinates)
-            # coord=self.dataset.coordinates)
+            df_coordinates=self.dataset.coordinates.df_coordinates)
 
     def _error(self, true_max_stable_params: dict):
         absolute_errors = {param_name: np.abs(param_true_value - self.max_stable_params_fitted[param_name])

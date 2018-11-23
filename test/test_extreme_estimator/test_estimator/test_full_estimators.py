@@ -22,7 +22,7 @@ class TestFullEstimators(unittest.TestCase):
     def test_full_estimators(self):
         for margin_model, max_stable_model in product(self.smooth_margin_models, self.max_stable_models):
             dataset = FullSimulatedDataset.from_double_sampling(nb_obs=10, margin_model=margin_model,
-                                                                spatial_coordinates=self.spatial_coordinates,
+                                                                coordinates=self.spatial_coordinates,
                                                                 max_stable_model=max_stable_model)
 
             for estimator_class in self.FULL_ESTIMATORS:

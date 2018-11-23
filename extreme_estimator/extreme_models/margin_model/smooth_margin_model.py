@@ -13,10 +13,10 @@ class LinearMarginModel(AbstractMarginModel):
     def load_margin_functions(self, gev_param_name_to_linear_axis=None):
         self.default_params_sample = GevParams(1.0, 1.0, 1.0).to_dict()
         self.default_params_start_fit = GevParams(1.0, 1.0, 1.0).to_dict()
-        self.margin_function_sample = LinearMarginFunction(spatial_coordinates=self.spatial_coordinates,
+        self.margin_function_sample = LinearMarginFunction(coordinates=self.coordinates,
                                                            default_params=GevParams.from_dict(self.params_sample),
                                                            gev_param_name_to_linear_axes=gev_param_name_to_linear_axis)
-        self.margin_function_start_fit = LinearMarginFunction(spatial_coordinates=self.spatial_coordinates,
+        self.margin_function_start_fit = LinearMarginFunction(coordinates=self.coordinates,
                                                               default_params=GevParams.from_dict(self.params_start_fit),
                                                               gev_param_name_to_linear_axes=gev_param_name_to_linear_axis)
 

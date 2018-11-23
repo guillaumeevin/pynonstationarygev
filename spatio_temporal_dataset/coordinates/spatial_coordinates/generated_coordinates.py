@@ -3,11 +3,11 @@ import numpy as np
 import pandas as pd
 
 from extreme_estimator.extreme_models.utils import get_loaded_r
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 import matplotlib.pyplot as plt
 
 
-class CircleCoordinatesRadius1(AbstractSpatialCoordinates):
+class CircleCoordinatesRadius1(AbstractCoordinates):
 
     @classmethod
     def from_nb_points(cls, nb_points, max_radius=1.0):

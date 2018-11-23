@@ -23,12 +23,12 @@ class TestSmoothMarginEstimator(unittest.TestCase):
 
     @classmethod
     def load_smooth_margin_models(cls, spatial_coordinates):
-        return [margin_class(spatial_coordinates=spatial_coordinates) for margin_class in cls.MARGIN_TYPES]
+        return [margin_class(coordinates=spatial_coordinates) for margin_class in cls.MARGIN_TYPES]
 
     def test_dependency_estimators(self):
         for margin_model in self.smooth_margin_models:
             dataset = MarginDataset.from_sampling(nb_obs=10, margin_model=margin_model,
-                                                  spatial_coordinates=self.spatial_coordinates)
+                                                  coordinates=self.spatial_coordinates)
             # Fit estimator
             estimator = SmoothMarginEstimator(dataset=dataset, margin_model=margin_model)
             estimator.fit()

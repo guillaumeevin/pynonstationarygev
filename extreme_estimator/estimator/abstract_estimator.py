@@ -12,7 +12,7 @@ class AbstractEstimator(object):
     # - The optimization method for each part of the process
 
     def __init__(self, dataset: AbstractDataset):
-        self.dataset = dataset
+        self.dataset = dataset  # type: AbstractDataset
         self.additional_information = dict()
 
     def fit(self):

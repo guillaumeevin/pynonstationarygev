@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 
-class AbstractSpatialCoordinates(object):
+class AbstractCoordinates(object):
     # Columns
     COORDINATE_X = 'coord_x'
     COORDINATE_Y = 'coord_y'
@@ -58,7 +58,7 @@ class AbstractSpatialCoordinates(object):
     @classmethod
     def from_nb_points(cls, nb_points: int, **kwargs):
         # Call the default class method from csv
-        coordinates = cls.from_csv()  # type: AbstractSpatialCoordinates
+        coordinates = cls.from_csv()  # type: AbstractCoordinates
         # Sample randomly nb_points coordinates
         nb_coordinates = len(coordinates)
         if nb_points > nb_coordinates:
@@ -72,12 +72,12 @@ class AbstractSpatialCoordinates(object):
         ind = self.s_split == split_str
         return self.df_coordinates.loc[ind]
 
-    def coordinates_values(self, df_coordinates: pd.DataFrame) -> np.ndarray:
+    def _coordinates_values(self, df_coordinates: pd.DataFrame) -> np.ndarray:
         return df_coordinates.loc[:, self.coordinates_columns(df_coordinates)].values
 
     @property
-    def coordinates(self) -> np.ndarray:
-        return self.coordinates_values(df_coordinates=self.df_coordinates)
+    def coordinates_values(self) -> np.ndarray:
+        return self._coordinates_values(df_coordinates=self.df_coordinates)
 
     @property
     def x_coordinates(self) -> np.ndarray:
@@ -89,11 +89,11 @@ class AbstractSpatialCoordinates(object):
 
     @property
     def coordinates_train(self) -> np.ndarray:
-        return self.coordinates_values(df_coordinates=self.df_coordinates_split(self.TRAIN_SPLIT_STR))
+        return self._coordinates_values(df_coordinates=self.df_coordinates_split(self.TRAIN_SPLIT_STR))
 
     @property
     def coordinates_test(self) -> np.ndarray:
-        return self.coordinates_values(df_coordinates=self.df_coordinates_split(self.TEST_SPLIT_STR))
+        return self._coordinates_values(df_coordinates=self.df_coordinates_split(self.TEST_SPLIT_STR))
 
     @property
     def index(self):
@@ -103,20 +103,20 @@ class AbstractSpatialCoordinates(object):
 
     def visualization_1D(self):
         assert len(self.coordinates_columns(self.df_coordinates)) >= 1
-        x = self.coordinates[:]
+        x = self.coordinates_values[:]
         y = np.zeros(len(x))
         plt.scatter(x, y)
         plt.show()
 
     def visualization_2D(self):
         assert len(self.coordinates_columns(self.df_coordinates)) >= 2
-        x, y = self.coordinates[:, 0], self.coordinates[:, 1]
+        x, y = self.coordinates_values[:, 0], self.coordinates_values[:, 1]
         plt.scatter(x, y)
         plt.show()
 
     def visualization_3D(self):
         assert len(self.coordinates_columns(self.df_coordinates)) == 3
-        x, y, z = self.coordinates[:, 0], self.coordinates[:, 1], self.coordinates[:, 2]
+        x, y, z = self.coordinates_values[:, 0], self.coordinates_values[:, 1], self.coordinates_values[:, 2]
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')  # type: Axes3D
         ax.scatter(x, y, z, marker='^')

@@ -1,6 +1,6 @@
 import unittest
 
-from spatio_temporal_dataset.coordinates.axis_coordinates.axis_coordinates import UniformAxisCoordinates
+from spatio_temporal_dataset.coordinates.unidimensional_coordinates.axis_coordinates import UniformAxisCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_2D_coordinates import \
     AlpsStation2DCoordinatesBetweenZeroAndOne
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
@@ -30,7 +30,7 @@ class TestSpatialCoordinates(unittest.TestCase):
         self.assertTrue(True)
 
 
-class TestAxisCoordinates(unittest.TestCase):
+class TestUniDimensionalCoordinates(unittest.TestCase):
     DISPLAY = False
 
     def test_unif(self):

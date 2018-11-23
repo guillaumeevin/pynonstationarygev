@@ -1,4 +1,4 @@
-from extreme_estimator.robustness_plot.single_plot import SinglePlot
+from experiment.robustness_plot.single_plot import SinglePlot
 
 
 class MultiplePlot(SinglePlot):

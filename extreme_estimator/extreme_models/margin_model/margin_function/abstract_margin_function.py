@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from extreme_estimator.gev_params import GevParams
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 class AbstractMarginFunction(object):
     """ Class of function mapping points from a space S (could be 1D, 2D,...) to R^3 (the 3 parameters of the GEV)"""
 
-    def __init__(self, spatial_coordinates: AbstractSpatialCoordinates, default_params: GevParams):
-        self.spatial_coordinates = spatial_coordinates
+    def __init__(self, coordinates: AbstractCoordinates, default_params: GevParams):
+        self.coordinates = coordinates
         self.default_params = default_params.to_dict()
 
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
@@ -20,8 +20,8 @@ class AbstractMarginFunction(object):
     # Visualization function
 
     def visualize_2D(self, gev_param_name=GevParams.GEV_LOC, ax=None, show=False):
-        x = self.spatial_coordinates.x_coordinates
-        y = self.spatial_coordinates.y_coordinates
+        x = self.coordinates.x_coordinates
+        y = self.coordinates.y_coordinates
         grid = self.get_grid_2D(x, y)
         gev_param_idx = GevParams.GEV_PARAM_NAMES.index(gev_param_name)
         if ax is None:

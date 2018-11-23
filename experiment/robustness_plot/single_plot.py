@@ -1,13 +1,12 @@
 import os
 import os.path as op
-import random
 
 import matplotlib.pyplot as plt
 import numpy as np
 from itertools import product
 
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
-from extreme_estimator.robustness_plot.display_item import DisplayItem
+from experiment.robustness_plot.display_item import DisplayItem
 from utils import get_full_path
 
 plt.style.use('seaborn-white')

@@ -7,15 +7,15 @@ from extreme_estimator.extreme_models.margin_model.margin_function.param_functio
 from extreme_estimator.gev_params import GevParams
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 class IndependentMarginFunction(AbstractMarginFunction):
     """Margin Function where each parameter of the GEV are modeled independently"""
 
-    def __init__(self, spatial_coordinates: AbstractSpatialCoordinates, default_params: GevParams):
+    def __init__(self, coordinates: AbstractCoordinates, default_params: GevParams):
         """Attribute 'gev_param_name_to_param_function' maps each GEV parameter to its corresponding function"""
-        super().__init__(spatial_coordinates, default_params)
+        super().__init__(coordinates, default_params)
         self.gev_param_name_to_param_function = None  # type: Dict[str, ParamFunction]
 
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
@@ -34,7 +34,7 @@ class LinearMarginFunction(IndependentMarginFunction):
         On the extremal point along all the dimension, the GEV parameters will equal the default_param value
         Then, it will augment linearly along a single linear axis"""
 
-    def __init__(self, spatial_coordinates: AbstractSpatialCoordinates,
+    def __init__(self, coordinates: AbstractCoordinates,
                  default_params: GevParams,
                  gev_param_name_to_linear_axes: Dict[str, List[int]],
                  gev_param_name_and_axis_to_start_fit: Dict[Tuple[str, int], float] = None):
@@ -42,13 +42,13 @@ class LinearMarginFunction(IndependentMarginFunction):
         -Attribute 'gev_param_name_to_linear_axis'        maps each GEV parameter to its corresponding function
         -Attribute 'gev_param_name_and_axis_to_start_fit' maps each tuple (GEV parameter, axis) to its start value for
             fitting (by default equal to 1). Also start value for the intercept is equal to 0 by default."""
-        super().__init__(spatial_coordinates, default_params)
+        super().__init__(coordinates, default_params)
         self.gev_param_name_and_axis_to_start_fit = gev_param_name_and_axis_to_start_fit
         self.gev_param_name_to_linear_axes = gev_param_name_to_linear_axes
 
         # Check the axes are well-defined with respect to the coordinates
         for axes in self.gev_param_name_to_linear_axes.values():
-            assert all([axis < np.ndim(spatial_coordinates.coordinates) for axis in axes])
+            assert all([axis < np.ndim(coordinates.coordinates_values) for axis in axes])
 
         # Build gev_parameter_to_param_function dictionary
         self.gev_param_name_to_param_function = {}  # type: Dict[str, ParamFunction]
@@ -60,7 +60,7 @@ class LinearMarginFunction(IndependentMarginFunction):
             # Otherwise, we fit a LinearParamFunction
             else:
                 param_function = LinearParamFunction(linear_axes=self.gev_param_name_to_linear_axes[gev_param_name],
-                                                     coordinates=self.spatial_coordinates.coordinates,
+                                                     coordinates=self.coordinates.coordinates_values,
                                                      start=self.default_params[gev_param_name])
                 # Some check on the Linear param function
                 if gev_param_name == GevParams.GEV_SCALE:
@@ -79,7 +79,7 @@ class LinearMarginFunction(IndependentMarginFunction):
         :return:
         """
         fit_marge_form_dict = {}
-        axis_to_name = {i: name for i, name in enumerate(AbstractSpatialCoordinates.COORDINATE_NAMES)}
+        axis_to_name = {i: name for i, name in enumerate(AbstractCoordinates.COORDINATE_NAMES)}
         for gev_param_name in GevParams.GEV_PARAM_NAMES:
             axes = self.gev_param_name_to_linear_axes.get(gev_param_name, None)
             formula_str = '1' if axes is None else '+'.join([axis_to_name[axis] for axis in axes])

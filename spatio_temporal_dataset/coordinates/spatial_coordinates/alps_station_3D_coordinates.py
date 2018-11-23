@@ -2,13 +2,13 @@ import os.path as op
 
 import pandas as pd
 
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.tranformation_3D import AnisotropyTransformation
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformed_coordinates import TransformedCoordinates
 from utils import get_full_path
 
 
-class AlpsStation3DCoordinates(AbstractSpatialCoordinates):
+class AlpsStation3DCoordinates(AbstractCoordinates):
     """
     For the Alps Stations, X, Y coordinates are in Lambert 2. Altitude is in meters
     """
@@ -43,5 +43,5 @@ class AlpsStation3DCoordinatesWithAnisotropy(AlpsStation3DCoordinates):
     @classmethod
     def from_csv(cls, csv_file='coord-lambert2'):
         coord = super().from_csv(csv_file)
-        return TransformedCoordinates.from_coordinates(spatial_coordinates=coord,
+        return TransformedCoordinates.from_coordinates(coordinates=coord,
                                                        transformation_function=AnisotropyTransformation())

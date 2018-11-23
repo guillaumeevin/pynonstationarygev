@@ -25,7 +25,7 @@ class SmoothMarginalsThenUnitaryMsp(AbstractFullEstimator):
         self.margin_estimator.fit()
         # Compute the maxima_frech
         maxima_frech = AbstractMarginModel.gev2frech(maxima_gev=self.dataset.maxima_gev,
-                                                     coordinates=self.dataset.coordinates,
+                                                     coordinates=self.dataset.coordinates_values,
                                                      margin_function=self.margin_estimator.margin_function_fitted)
         # Update maxima frech field through the dataset object
         self.dataset.maxima_frech = maxima_frech
