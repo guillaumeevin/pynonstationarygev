@@ -7,7 +7,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 import matplotlib.pyplot as plt
 
 
-class CircleCoordinatesRadius1(AbstractCoordinates):
+class CircleCoordinates(AbstractCoordinates):
 
     @classmethod
     def from_nb_points(cls, nb_points, max_radius=1.0):
@@ -15,7 +15,8 @@ class CircleCoordinatesRadius1(AbstractCoordinates):
         r = get_loaded_r()
         angles = np.array(r.runif(nb_points, max=2 * math.pi))
         radius = np.sqrt(np.array(r.runif(nb_points, max=max_radius)))
-        df = pd.DataFrame.from_dict({cls.COORDINATE_X: radius * np.cos(angles), cls.COORDINATE_Y: radius * np.sin(angles)})
+        df = pd.DataFrame.from_dict({cls.COORDINATE_X: radius * np.cos(angles),
+                                     cls.COORDINATE_Y: radius * np.sin(angles)})
         return cls.from_df(df)
 
     def visualization_2D(self):
@@ -27,7 +28,7 @@ class CircleCoordinatesRadius1(AbstractCoordinates):
         super().visualization_2D()
 
 
-class CircleCoordinatesRadius2(CircleCoordinatesRadius1):
+class CircleCoordinatesRadius2(CircleCoordinates):
 
     @classmethod
     def from_nb_points(cls, nb_points, max_radius=1.0):

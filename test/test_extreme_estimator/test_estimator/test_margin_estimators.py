@@ -6,7 +6,7 @@ from extreme_estimator.extreme_models.margin_model.smooth_margin_model import Co
 from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
 from extreme_estimator.return_level_plot.spatial_2D_plot import Spatial2DPlot
 from spatio_temporal_dataset.dataset.simulation_dataset import MarginDataset
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates
 
 
 class TestSmoothMarginEstimator(unittest.TestCase):
@@ -18,12 +18,12 @@ class TestSmoothMarginEstimator(unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        self.spatial_coordinates = CircleCoordinatesRadius1.from_nb_points(nb_points=5, max_radius=1)
-        self.smooth_margin_models = self.load_smooth_margin_models(spatial_coordinates=self.spatial_coordinates)
+        self.spatial_coordinates = CircleCoordinates.from_nb_points(nb_points=5, max_radius=1)
+        self.smooth_margin_models = self.load_smooth_margin_models(coordinates=self.spatial_coordinates)
 
     @classmethod
-    def load_smooth_margin_models(cls, spatial_coordinates):
-        return [margin_class(coordinates=spatial_coordinates) for margin_class in cls.MARGIN_TYPES]
+    def load_smooth_margin_models(cls, coordinates):
+        return [margin_class(coordinates=coordinates) for margin_class in cls.MARGIN_TYPES]
 
     def test_dependency_estimators(self):
         for margin_model in self.smooth_margin_models:

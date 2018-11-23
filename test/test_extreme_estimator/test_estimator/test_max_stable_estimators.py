@@ -2,34 +2,21 @@ import unittest
 
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import \
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
-from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, \
-    Geometric, ExtremalT, ISchlather
 from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
+from extreme_estimator.extreme_models.max_stable_model.utils import load_max_stable_models
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates
 
 
 class TestMaxStableEstimators(unittest.TestCase):
     DISPLAY = False
-    MAX_STABLE_TYPES = [Smith, BrownResnick, Schlather, Geometric, ExtremalT, ISchlather]
+
     MAX_STABLE_ESTIMATORS = [MaxStableEstimator]
 
     def setUp(self):
         super().setUp()
-        self.spatial_coord = CircleCoordinatesRadius1.from_nb_points(nb_points=5, max_radius=1)
-        self.max_stable_models = self.load_max_stable_models()
-
-    @classmethod
-    def load_max_stable_models(cls):
-        # Load all max stable model
-        max_stable_models = []
-        for max_stable_class in cls.MAX_STABLE_TYPES:
-            if issubclass(max_stable_class, AbstractMaxStableModelWithCovarianceFunction):
-                max_stable_models.extend([max_stable_class(covariance_function=covariance_function)
-                                               for covariance_function in CovarianceFunction])
-            else:
-                max_stable_models.append(max_stable_class())
-        return max_stable_models
+        self.spatial_coord = CircleCoordinates.from_nb_points(nb_points=5, max_radius=1)
+        self.max_stable_models = load_max_stable_models()
 
     def test_max_stable_estimators(self):
         for max_stable_model in self.max_stable_models:

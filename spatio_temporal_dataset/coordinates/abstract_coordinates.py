@@ -101,6 +101,15 @@ class AbstractCoordinates(object):
 
     #  Visualization
 
+    def visualize(self):
+        nb_coordinates_columns = len(self.coordinates_columns(self.df_coordinates))
+        if nb_coordinates_columns == 1:
+            self.visualization_1D()
+        elif nb_coordinates_columns == 2:
+            self.visualization_2D()
+        else:
+            self.visualization_3D()
+
     def visualization_1D(self):
         assert len(self.coordinates_columns(self.df_coordinates)) >= 1
         x = self.coordinates_values[:]

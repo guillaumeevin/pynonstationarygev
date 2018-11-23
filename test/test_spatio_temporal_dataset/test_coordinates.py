@@ -1,43 +1,37 @@
 import unittest
 
-from spatio_temporal_dataset.coordinates.unidimensional_coordinates.axis_coordinates import UniformAxisCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from spatio_temporal_dataset.coordinates.unidimensional_coordinates.coordinates_1D import UniformCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_2D_coordinates import \
     AlpsStation2DCoordinatesBetweenZeroAndOne
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
     AlpsStation3DCoordinatesWithAnisotropy
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates
 
 
-class TestSpatialCoordinates(unittest.TestCase):
+class TestCoordinates(unittest.TestCase):
     DISPLAY = False
 
-    def test_circle(self):
-        coord = CircleCoordinatesRadius1.from_nb_points(nb_points=500)
+    def __init__(self, methodName='runTest'):
+        super().__init__(methodName)
+        self.coord = None  # type:  AbstractCoordinates
+
+    def tearDown(self):
         if self.DISPLAY:
-            coord.visualization_2D()
+            self.coord.visualize()
         self.assertTrue(True)
-
-    def test_anisotropy(self):
-        coord = AlpsStation3DCoordinatesWithAnisotropy.from_csv()
-        if self.DISPLAY:
-            coord.visualization_3D()
-        self.assertTrue(True)
-
-    def test_normalization(self):
-        coord = AlpsStation2DCoordinatesBetweenZeroAndOne.from_csv()
-        if self.DISPLAY:
-            coord.visualization_2D()
-        self.assertTrue(True)
-
-
-class TestUniDimensionalCoordinates(unittest.TestCase):
-    DISPLAY = False
 
     def test_unif(self):
-        coord = UniformAxisCoordinates.from_nb_points(nb_points=10)
-        if self.DISPLAY:
-            coord.visualization_1D()
-        self.assertTrue(True)
+        self.coord = UniformCoordinates.from_nb_points(nb_points=10)
+
+    def test_circle(self):
+        self.coord = CircleCoordinates.from_nb_points(nb_points=500)
+
+    def test_normalization(self):
+        self.coord = AlpsStation2DCoordinatesBetweenZeroAndOne.from_csv()
+
+    def test_anisotropy(self):
+        self.coord = AlpsStation3DCoordinatesWithAnisotropy.from_csv()
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ from experiment.robustness_plot.estimation_robustness.max_stable_process_plot im
 from experiment.robustness_plot.single_plot import SinglePlot
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_2D_coordinates import \
     AlpsStation2DCoordinatesBetweenZeroAndOne, AlpsStationCoordinatesBetweenZeroAndTwo
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1, \
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates, \
     CircleCoordinatesRadius2
 
 
@@ -49,7 +49,7 @@ def multiple_spatial_robustness_alps():
         MaxStableProcessPlot.NbStationItem.name: nb_stations,
         MaxStableProcessPlot.NbObservationItem.name: nb_observation,
         MaxStableProcessPlot.MaxStableModelItem.name: msp_models,
-        MaxStableProcessPlot.CoordinateClassItem.name: [CircleCoordinatesRadius1,
+        MaxStableProcessPlot.CoordinateClassItem.name: [CircleCoordinates,
                                                         CircleCoordinatesRadius2,
                                                         AlpsStation2DCoordinatesBetweenZeroAndOne,
                                                         AlpsStationCoordinatesBetweenZeroAndTwo][:],

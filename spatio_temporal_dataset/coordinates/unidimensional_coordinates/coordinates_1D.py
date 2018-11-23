@@ -6,14 +6,14 @@ from extreme_estimator.extreme_models.utils import get_loaded_r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
-class UniDimensionalCoordinates(AbstractCoordinates):
+class AbstractUniDimensionalCoordinates(AbstractCoordinates):
     pass
 
 
-class UniformAxisCoordinates(UniDimensionalCoordinates):
+class UniformCoordinates(AbstractUniDimensionalCoordinates):
 
     @classmethod
-    def from_nb_points(cls, nb_points, start=0.0, end=1.0):
+    def from_nb_points(cls, nb_points, start=-1.0, end=1.0):
         # Sample uniformly inside the circle
         r = get_loaded_r()
         axis_coordinates = np.array(r.runif(nb_points, min=start, max=end))

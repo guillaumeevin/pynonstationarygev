@@ -5,7 +5,7 @@ from experiment.robustness_plot.display_item import DisplayItem
 from experiment.robustness_plot.multiple_plot import MultiplePlot
 from experiment.robustness_plot.single_plot import SinglePlot
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
 
 
@@ -23,7 +23,7 @@ class CoordinateDisplayItem(DisplayItem):
 
 class MaxStableProcessPlot(object):
     MaxStableModelItem = MaxStableDisplayItem('max_stable_model', Smith)
-    CoordinateClassItem = CoordinateDisplayItem('coordinate_class', CircleCoordinatesRadius1)
+    CoordinateClassItem = CoordinateDisplayItem('coordinate_class', CircleCoordinates)
     NbStationItem = DisplayItem('Number of stations', 50)
     NbObservationItem = DisplayItem('nb_obs', 60)
 
