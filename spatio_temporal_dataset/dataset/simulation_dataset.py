@@ -34,7 +34,7 @@ class MaxStableDataset(SimulatedDataset):
 class MarginDataset(SimulatedDataset):
 
     @classmethod
-    def from_sampling(cls, nb_obs: int, margin_model: AbstractMarginModel,coordinates: AbstractCoordinates):
+    def from_sampling(cls, nb_obs: int, margin_model: AbstractMarginModel, coordinates: AbstractCoordinates):
         temporal_obs = MarginAnnualMaxima.from_sampling(nb_obs, coordinates, margin_model)
         return cls(temporal_observations=temporal_obs, coordinates=coordinates, margin_model=margin_model)
 

@@ -34,6 +34,9 @@ class AbstractMaxStableModel(AbstractModel):
         #  Prepare the fit params
         fit_params = self.cov_mod_param.copy()
         start_dict = self.params_start_fit
+        # Remove the 'var' parameter from the start_dict in the 2D case, otherwise fitmaxstab crashes
+        if len(df_coordinates.columns) == 2 and 'var' in start_dict.keys():
+                start_dict.pop('var')
         if fit_marge:
             start_dict.update(margin_start_dict)
             fit_params.update({k: robjects.Formula(v) for k, v in fit_marge_form_dict.items()})

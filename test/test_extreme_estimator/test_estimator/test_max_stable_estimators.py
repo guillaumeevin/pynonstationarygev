@@ -3,9 +3,9 @@ import unittest
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import \
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
 from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
-from extreme_estimator.extreme_models.max_stable_model.utils import load_max_stable_models
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates
+from test.test_utils import load_test_max_stable_models
 
 
 class TestMaxStableEstimators(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestMaxStableEstimators(unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.spatial_coord = CircleCoordinates.from_nb_points(nb_points=5, max_radius=1)
-        self.max_stable_models = load_max_stable_models()
+        self.max_stable_models = load_test_max_stable_models()
 
     def test_max_stable_estimators(self):
         for max_stable_model in self.max_stable_models:
