@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from extreme_estimator.gev_params import GevParams
-from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
 
 
 class AbstractMarginFunction(object):

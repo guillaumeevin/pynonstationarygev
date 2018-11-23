@@ -1,6 +1,6 @@
 from spatio_temporal_dataset.marginals.abstract_marginals import AbstractMarginals
 
-from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
 
 
 class SpatialMarginal(AbstractMarginals):

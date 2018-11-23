@@ -1,13 +1,12 @@
 import unittest
 
-from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import ConstantMarginModel, \
     LinearShapeAxis0MarginModel, LinearShapeAxis0and1MarginModel, LinearAllParametersAxis0MarginModel, \
     LinearAllParametersAxis0And1MarginModel
 from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
 from extreme_estimator.return_level_plot.spatial_2D_plot import Spatial2DPlot
 from spatio_temporal_dataset.dataset.simulation_dataset import MarginDataset
-from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
 
 
 class TestSmoothMarginEstimator(unittest.TestCase):

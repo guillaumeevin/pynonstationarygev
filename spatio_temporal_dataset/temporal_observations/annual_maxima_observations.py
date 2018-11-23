@@ -2,7 +2,7 @@ import pandas as pd
 
 from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
-from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
 from spatio_temporal_dataset.temporal_observations.abstract_temporal_observations import AbstractTemporalObservations
 
 

@@ -4,7 +4,7 @@ from itertools import product
 from extreme_estimator.estimator.full_estimator import SmoothMarginalsThenUnitaryMsp, \
     FullEstimatorInASingleStepWithSmoothMargin
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
-from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
 from test.test_extreme_estimator.test_estimator.test_margin_estimators import TestSmoothMarginEstimator
 from test.test_extreme_estimator.test_estimator.test_max_stable_estimators import TestMaxStableEstimators
 

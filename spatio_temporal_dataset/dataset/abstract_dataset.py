@@ -3,13 +3,13 @@ import numpy as np
 import os.path as op
 import pandas as pd
 from spatio_temporal_dataset.temporal_observations.abstract_temporal_observations import AbstractTemporalObservations
-from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
 
 
 class AbstractDataset(object):
 
     def __init__(self, temporal_observations: AbstractTemporalObservations, spatial_coordinates: AbstractSpatialCoordinates):
-        # is_same_index = temporal_observations.index == spatial_coordinates.index  # type: pd.Series
+        # is_same_index = temporal_observations.index == coordinates.index  # type: pd.Series
         # assert is_same_index.all()
         self.temporal_observations = temporal_observations
         self.spatial_coordinates = spatial_coordinates

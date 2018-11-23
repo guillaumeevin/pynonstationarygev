@@ -2,7 +2,7 @@ import unittest
 
 from extreme_estimator.gev_params import GevParams
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearShapeAxis0MarginModel
-from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
 
 
 class TestLinearMarginModel(unittest.TestCase):

@@ -7,7 +7,7 @@ from extreme_estimator.extreme_models.margin_model.margin_function.param_functio
 from extreme_estimator.gev_params import GevParams
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
-from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
 
 
 class IndependentMarginFunction(AbstractMarginFunction):

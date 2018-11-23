@@ -24,8 +24,8 @@ class AbstractSpatialCoordinates(object):
 
     @classmethod
     def from_df(cls, df: pd.DataFrame):
-        #  X and Y coordinates must be defined
-        assert cls.COORDINATE_X in df.columns and cls.COORDINATE_Y in df.columns
+        #  X and coordinates must be defined
+        assert cls.COORDINATE_X in df.columns
         df_coordinates = df.loc[:, cls.coordinates_columns(df)]
         # Potentially, a split column can be specified
         s_split = df[cls.COORD_SPLIT] if cls.COORD_SPLIT in df.columns else None
@@ -33,10 +33,10 @@ class AbstractSpatialCoordinates(object):
 
     @classmethod
     def coordinates_columns(cls, df_coord: pd.DataFrame) -> List[str]:
-        # If a Z coordinate is in the DataFrame, then
-        coord_columns = [cls.COORDINATE_X, cls.COORDINATE_Y]
-        if cls.COORDINATE_Z in df_coord.columns:
-            coord_columns.append(cls.COORDINATE_Z)
+        coord_columns = [cls.COORDINATE_X]
+        for additional_coord in [cls.COORDINATE_Y, cls.COORDINATE_Z]:
+            if additional_coord in df_coord.columns:
+                coord_columns.append(additional_coord)
         return coord_columns
 
     @property
@@ -101,16 +101,24 @@ class AbstractSpatialCoordinates(object):
 
     #  Visualization
 
+    def visualization_1D(self):
+        assert len(self.coordinates_columns(self.df_coordinates)) >= 1
+        x = self.coordinates[:]
+        y = np.zeros(len(x))
+        plt.scatter(x, y)
+        plt.show()
+
     def visualization_2D(self):
+        assert len(self.coordinates_columns(self.df_coordinates)) >= 2
         x, y = self.coordinates[:, 0], self.coordinates[:, 1]
         plt.scatter(x, y)
         plt.show()
 
     def visualization_3D(self):
         assert len(self.coordinates_columns(self.df_coordinates)) == 3
+        x, y, z = self.coordinates[:, 0], self.coordinates[:, 1], self.coordinates[:, 2]
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')  # type: Axes3D
-        x, y, z = self.coordinates[:, 0], self.coordinates[:, 1], self.coordinates[:, 2]
         ax.scatter(x, y, z, marker='^')
         plt.show()
 

@@ -2,9 +2,9 @@ import os.path as op
 
 import pandas as pd
 
-from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
-from spatio_temporal_dataset.spatial_coordinates.transformations.tranformation_3D import AnisotropyTransformation
-from spatio_temporal_dataset.spatial_coordinates.transformed_coordinates import TransformedCoordinates
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.transformed_coordinates.tranformation_3D import AnisotropyTransformation
+from spatio_temporal_dataset.coordinates.transformed_coordinates.transformed_coordinates import TransformedCoordinates
 from utils import get_full_path
 
 

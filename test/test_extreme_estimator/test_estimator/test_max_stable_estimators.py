@@ -6,7 +6,7 @@ from extreme_estimator.extreme_models.max_stable_model.max_stable_models import 
     Geometric, ExtremalT, ISchlather
 from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
-from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1
 
 
 class TestMaxStableEstimators(unittest.TestCase):

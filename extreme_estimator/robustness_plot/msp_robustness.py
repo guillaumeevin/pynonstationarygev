@@ -1,16 +1,14 @@
-from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel, \
-    CovarianceFunction
-from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, \
-    ExtremalT
+from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
+from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith, BrownResnick
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
 from extreme_estimator.robustness_plot.multiple_plot import MultiplePlot
 from extreme_estimator.robustness_plot.single_plot import SinglePlot
-from spatio_temporal_dataset.dataset.simulation_dataset import SimulatedDataset, MaxStableDataset
-from spatio_temporal_dataset.spatial_coordinates.abstract_spatial_coordinates import AbstractSpatialCoordinates
-from spatio_temporal_dataset.spatial_coordinates.alps_station_2D_coordinates import \
+from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_2D_coordinates import \
     AlpsStation2DCoordinatesBetweenZeroAndOne, AlpsStationCoordinatesBetweenZeroAndTwo
-from spatio_temporal_dataset.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1, \
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_coordinates import CircleCoordinatesRadius1, \
     CircleCoordinatesRadius2
 from extreme_estimator.robustness_plot.display_item import DisplayItem
 

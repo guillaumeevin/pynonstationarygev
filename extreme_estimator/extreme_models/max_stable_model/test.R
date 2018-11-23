@@ -1,5 +1,5 @@
 library(SpatialExtremes)
-##Define the spatial_coordinates of each location
+##Define the coordinates of each location
 n.site <- 30
 locations <- matrix(runif(2*n.site, 0, 10), ncol = 2)
 colnames(locations) <- c("lon", "lat")

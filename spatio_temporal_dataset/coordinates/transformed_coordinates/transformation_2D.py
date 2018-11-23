@@ -1,4 +1,4 @@
-from spatio_temporal_dataset.spatial_coordinates.transformations.abstract_transformation import AbstractTransformation
+from spatio_temporal_dataset.coordinates.transformed_coordinates.abstract_transformation import AbstractTransformation
 import pandas as pd
 
 
