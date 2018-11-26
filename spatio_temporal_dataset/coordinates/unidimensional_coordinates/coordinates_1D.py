@@ -10,6 +10,15 @@ class AbstractUniDimensionalCoordinates(AbstractCoordinates):
     pass
 
 
+class LinSpaceCoordinates(AbstractUniDimensionalCoordinates):
+
+    @classmethod
+    def from_nb_points(cls, nb_points, start=-1.0, end=1.0):
+        axis_coordinates = np.linspace(start, end, nb_points)
+        df = pd.DataFrame.from_dict({cls.COORDINATE_X: axis_coordinates})
+        return cls.from_df(df)
+
+
 class UniformCoordinates(AbstractUniDimensionalCoordinates):
 
     @classmethod

@@ -1,8 +1,7 @@
 import unittest
 
 from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
-from extreme_estimator.return_level_plot.spatial_2D_plot import Spatial2DPlot
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates
+from experiment.return_level_plot.spatial_2D_plot import Spatial2DPlot
 from spatio_temporal_dataset.dataset.simulation_dataset import MarginDataset
 from test.test_utils import load_smooth_margin_models, load_test_1D_and_2D_coordinates
 

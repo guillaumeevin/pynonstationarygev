@@ -65,7 +65,8 @@ class LinearMarginFunction(IndependentMarginFunction):
                                                      start=self.default_params[gev_param_name])
                 # Some check on the Linear param function
                 if gev_param_name == GevParams.GEV_SCALE:
-                    assert param_function.end > param_function.start, 'Impossible linear rate for Scale parameter'
+                    assert param_function.end > 0 and param_function.start > 0, \
+                        'Impossible start/end value for Scale parameter'
 
             # Add the param_function to the dictionary
             self.gev_param_name_to_param_function[gev_param_name] = param_function

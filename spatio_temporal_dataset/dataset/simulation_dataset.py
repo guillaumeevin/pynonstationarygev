@@ -19,8 +19,8 @@ class SimulatedDataset(AbstractDataset):
                  margin_model: AbstractMarginModel = None):
         super().__init__(temporal_observations, coordinates)
         assert margin_model is not None or max_stable_model is not None
-        self.margin_model = margin_model
-        self.max_stable_model = max_stable_model
+        self.margin_model = margin_model  # type: AbstractMarginModel
+        self.max_stable_model = max_stable_model  #  type: AbstractMaxStableModel
 
 
 class MaxStableDataset(SimulatedDataset):
@@ -47,4 +47,5 @@ class FullSimulatedDataset(SimulatedDataset):
                              margin_model: AbstractMarginModel):
         temporal_obs = FullAnnualMaxima.from_double_sampling(nb_obs, max_stable_model,
                                                              coordinates, margin_model)
-        return cls(temporal_obs, coordinates, max_stable_model)
+        return cls(temporal_observations=temporal_obs, coordinates=coordinates, max_stable_model=max_stable_model,
+                   margin_model=margin_model)

@@ -21,7 +21,7 @@ class AbstractMaxStableModel(AbstractModel):
         return {'cov.mod': self.cov_mod}
 
     def fitmaxstab(self, maxima_frech: np.ndarray, df_coordinates: pd.DataFrame, fit_marge=False,
-                   fit_marge_form_dict=None, margin_start_dict=None):
+                   fit_marge_form_dict=None, margin_start_dict=None) -> dict:
         assert isinstance(maxima_frech, np.ndarray)
         assert isinstance(df_coordinates, pd.DataFrame)
         if fit_marge:

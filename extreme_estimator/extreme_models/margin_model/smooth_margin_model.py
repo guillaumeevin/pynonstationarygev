@@ -20,7 +20,7 @@ class LinearMarginModel(AbstractMarginModel):
                                                               default_params=GevParams.from_dict(self.params_start_fit),
                                                               gev_param_name_to_linear_axes=gev_param_name_to_linear_axis)
 
-    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, coordinates: np.ndarray) -> AbstractMarginFunction:
+    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, coordinates_values: np.ndarray) -> AbstractMarginFunction:
         return self.margin_function_start_fit
 
 

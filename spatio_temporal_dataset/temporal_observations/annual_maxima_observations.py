@@ -19,7 +19,7 @@ class MarginAnnualMaxima(AnnualMaxima):
     @classmethod
     def from_sampling(cls, nb_obs: int, coordinates: AbstractCoordinates,
                       margin_model: AbstractMarginModel):
-        maxima_gev = margin_model.rmargin_from_nb_obs(nb_obs=nb_obs, coordinates=coordinates.coordinates_values)
+        maxima_gev = margin_model.rmargin_from_nb_obs(nb_obs=nb_obs, coordinates_values=coordinates.coordinates_values)
         df_maxima_gev = pd.DataFrame(data=maxima_gev, index=coordinates.index)
         return cls(df_maxima_gev=df_maxima_gev)
 
@@ -41,6 +41,6 @@ class FullAnnualMaxima(MaxStableAnnualMaxima):
         max_stable_annual_maxima = super().from_sampling(nb_obs, max_stable_model, coordinates)
         #  Compute df_maxima_gev from df_maxima_frech
         maxima_gev = margin_model.rmargin_from_maxima_frech(maxima_frech=max_stable_annual_maxima.maxima_frech,
-                                                            coordinates=coordinates.coordinates_values)
+                                                            coordinates_values=coordinates.coordinates_values)
         max_stable_annual_maxima.df_maxima_gev = pd.DataFrame(data=maxima_gev, index=coordinates.index)
         return max_stable_annual_maxima

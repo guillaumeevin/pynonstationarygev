@@ -20,7 +20,7 @@ class ConstantParamFunction(ParamFunction):
 
 class LinearOneAxisParamFunction(ParamFunction):
 
-    def __init__(self, linear_axis: int, coordinates_axis: np.ndarray, start: float, end: float = 2.0):
+    def __init__(self, linear_axis: int, coordinates_axis: np.ndarray, start: float, end: float = 0.01):
         self.linear_axis = linear_axis
         self.t_min = coordinates_axis.min()
         self.t_max = coordinates_axis.max()
@@ -36,7 +36,7 @@ class LinearOneAxisParamFunction(ParamFunction):
 
 class LinearParamFunction(ParamFunction):
 
-    def __init__(self, linear_axes: List[int], coordinates: np.ndarray, start: float, end: float = 2.0):
+    def __init__(self, linear_axes: List[int], coordinates: np.ndarray, start: float, end: float = 0.01):
         self.linear_one_axis_param_functions = []  # type: List[LinearOneAxisParamFunction]
         self.start = start
         self.end = end
