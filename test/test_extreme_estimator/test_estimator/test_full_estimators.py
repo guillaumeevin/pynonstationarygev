@@ -1,40 +1,36 @@
 import unittest
 from itertools import product
 
-from extreme_estimator.estimator.full_estimator import SmoothMarginalsThenUnitaryMsp, \
-    FullEstimatorInASingleStepWithSmoothMargin
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates
-from test.test_extreme_estimator.test_estimator.test_margin_estimators import TestSmoothMarginEstimator
-from test.test_extreme_estimator.test_estimator.test_max_stable_estimators import TestMaxStableEstimators
-from test.test_utils import load_test_max_stable_models, load_smooth_margin_models
+from test.test_utils import load_test_max_stable_models, load_smooth_margin_models, load_test_1D_and_2D_coordinates, \
+    load_test_full_estimators
 
 
 class TestFullEstimators(unittest.TestCase):
     DISPLAY = False
-    FULL_ESTIMATORS = [SmoothMarginalsThenUnitaryMsp, FullEstimatorInASingleStepWithSmoothMargin][:]
+    nb_obs = 10
+    nb_points = 5
 
     def setUp(self):
         super().setUp()
-        self.spatial_coordinates = CircleCoordinates.from_nb_points(nb_points=5, max_radius=1)
+        self.spatial_coordinates = load_test_1D_and_2D_coordinates(nb_points=self.nb_points)
         self.max_stable_models = load_test_max_stable_models()
-        self.smooth_margin_models = load_smooth_margin_models(coordinates=self.spatial_coordinates)
 
     def test_full_estimators(self):
-        for margin_model, max_stable_model in product(self.smooth_margin_models, self.max_stable_models):
-            dataset = FullSimulatedDataset.from_double_sampling(nb_obs=10, margin_model=margin_model,
-                                                                coordinates=self.spatial_coordinates,
-                                                                max_stable_model=max_stable_model)
+        for coordinates in self.spatial_coordinates:
+            smooth_margin_models = load_smooth_margin_models(coordinates=coordinates)
+            for margin_model, max_stable_model in product(smooth_margin_models, self.max_stable_models):
+                dataset = FullSimulatedDataset.from_double_sampling(nb_obs=self.nb_obs, margin_model=margin_model,
+                                                                    coordinates=coordinates,
+                                                                    max_stable_model=max_stable_model)
 
-            for estimator_class in self.FULL_ESTIMATORS:
-                estimator = estimator_class(dataset=dataset, margin_model=margin_model,
-                                            max_stable_model=max_stable_model)
-                estimator.fit()
-                if self.DISPLAY:
-                    print(type(margin_model))
-                    print(dataset.df_dataset.head())
-                    print(estimator.additional_information)
-            self.assertTrue(True)
+                for full_estimator in load_test_full_estimators(dataset, margin_model, max_stable_model):
+                    full_estimator.fit()
+                    if self.DISPLAY:
+                        print(type(margin_model))
+                        print(dataset.df_dataset.head())
+                        print(full_estimator.additional_information)
+        self.assertTrue(True)
 
 
 if __name__ == '__main__':

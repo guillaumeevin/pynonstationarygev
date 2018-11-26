@@ -50,9 +50,10 @@ class LinearAllParametersAxis0MarginModel(LinearMarginModel):
                                        GevParams.GEV_SCALE: [0]})
 
 
-class LinearAllParametersAxis0And1MarginModel(LinearMarginModel):
+class LinearAllParametersAllAxisMarginModel(LinearMarginModel):
 
     def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_linear_axis=None):
-        super().load_margin_functions({GevParams.GEV_SHAPE: [0, 1],
-                                       GevParams.GEV_LOC: [0, 1],
-                                       GevParams.GEV_SCALE: [0, 1]})
+        all_axis = list(range(self.coordinates.nb_columns))
+        super().load_margin_functions({GevParams.GEV_SHAPE: all_axis.copy(),
+                                       GevParams.GEV_LOC: all_axis.copy(),
+                                       GevParams.GEV_SCALE: all_axis.copy()})

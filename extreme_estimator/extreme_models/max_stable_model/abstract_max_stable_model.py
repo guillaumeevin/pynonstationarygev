@@ -3,9 +3,11 @@ from enum import Enum
 
 import numpy as np
 import rpy2
+from rpy2.rinterface import RRuntimeError
 import rpy2.robjects as robjects
 
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 class AbstractMaxStableModel(AbstractModel):
@@ -26,27 +28,37 @@ class AbstractMaxStableModel(AbstractModel):
             assert fit_marge_form_dict is not None
             assert margin_start_dict is not None
 
-        # Prepare the data and the coord objects
+        # Prepare the data
         data = np.transpose(maxima_frech)
+
+        # Prepare the coord
+        # In the one dimensional case, fitmaxstab isn't working
+        # therefore, we treat our 1D coordinate as 2D coordinate on the line y=x, and enforce iso=TRUE
+        fitmaxstab_with_one_dimensional_data = len(df_coordinates.columns) == 1
+        if fitmaxstab_with_one_dimensional_data:
+            assert AbstractCoordinates.COORDINATE_X in df_coordinates.columns
+            df_coordinates[AbstractCoordinates.COORDINATE_Y] = df_coordinates[AbstractCoordinates.COORDINATE_X]
+        # Give names to columns to enable a specification of the shape of each marginal parameter
         coord = robjects.vectors.Matrix(df_coordinates.values)
         coord.colnames = robjects.StrVector(list(df_coordinates.columns))
 
-        #  Prepare the fit params
+        #  Prepare the fit_params (a dictionary containing all additional parameters)
         fit_params = self.cov_mod_param.copy()
         start_dict = self.params_start_fit
-        # Remove the 'var' parameter from the start_dict in the 2D case, otherwise fitmaxstab crashes
-        if len(df_coordinates.columns) == 2 and 'var' in start_dict.keys():
-                start_dict.pop('var')
+        # Remove some parameters that should only be used either in 1D or 2D case, otherwise fitmaxstab crashes
+        start_dict = self.remove_unused_parameters(start_dict, fitmaxstab_with_one_dimensional_data)
         if fit_marge:
             start_dict.update(margin_start_dict)
             fit_params.update({k: robjects.Formula(v) for k, v in fit_marge_form_dict.items()})
+        if fitmaxstab_with_one_dimensional_data:
+            fit_params['iso'] = True
         fit_params['start'] = self.r.list(**start_dict)
         fit_params['fit.marge'] = fit_marge
 
         # Run the fitmaxstab in R
         try:
             res = self.r.fitmaxstab(data=data, coord=coord, **fit_params)  # type: robjects.ListVector
-        except rpy2.rinterface.RRuntimeError as error:
+        except RRuntimeError as error:
             raise Exception('Some R exception have been launched at RunTime: \n {}'.format(error.__repr__()))
         # todo: maybe if the convergence was not successful I could try other starting point several times
         # Retrieve the resulting fitted values
@@ -61,6 +73,9 @@ class AbstractMaxStableModel(AbstractModel):
         maxima_frech = np.array(
             self.r.rmaxstab(nb_obs, coordinates, *list(self.cov_mod_param.values()), **self.params_sample))
         return np.transpose(maxima_frech)
+
+    def remove_unused_parameters(self, start_dict, coordinate_dim):
+        return start_dict
 
 
 class CovarianceFunction(Enum):

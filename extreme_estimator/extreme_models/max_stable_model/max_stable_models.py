@@ -17,6 +17,13 @@ class Smith(AbstractMaxStableModel):
         }
         self.default_params_sample = self.default_params_start_fit.copy()
 
+    def remove_unused_parameters(self, start_dict, fitmaxstab_with_one_dimensional_data):
+        if fitmaxstab_with_one_dimensional_data:
+            start_dict = {'cov': start_dict['var']}
+        else:
+            start_dict.pop('var')
+        return start_dict
+
 
 class BrownResnick(AbstractMaxStableModel):
 
@@ -47,7 +54,7 @@ class Geometric(AbstractMaxStableModelWithCovarianceFunction):
     def __init__(self, params_start_fit=None, params_sample=None, covariance_function: CovarianceFunction = None):
         super().__init__(params_start_fit, params_sample, covariance_function)
         self.cov_mod = 'g' + self.covariance_function.name
-        self.default_params_sample .update({'sigma2': 0.5})
+        self.default_params_sample.update({'sigma2': 0.5})
         self.default_params_start_fit = self.default_params_sample.copy()
 
 
@@ -56,7 +63,7 @@ class ExtremalT(AbstractMaxStableModelWithCovarianceFunction):
     def __init__(self, params_start_fit=None, params_sample=None, covariance_function: CovarianceFunction = None):
         super().__init__(params_start_fit, params_sample, covariance_function)
         self.cov_mod = 't' + self.covariance_function.name
-        self.default_params_sample .update({'DoF': 2})
+        self.default_params_sample.update({'DoF': 2})
         self.default_params_start_fit = self.default_params_sample.copy()
 
 
@@ -65,5 +72,5 @@ class ISchlather(AbstractMaxStableModelWithCovarianceFunction):
     def __init__(self, params_start_fit=None, params_sample=None, covariance_function: CovarianceFunction = None):
         super().__init__(params_start_fit, params_sample, covariance_function)
         self.cov_mod = 'i' + self.covariance_function.name
-        self.default_params_sample .update({'alpha': 0.5})
+        self.default_params_sample.update({'alpha': 0.5})
         self.default_params_start_fit = self.default_params_sample.copy()

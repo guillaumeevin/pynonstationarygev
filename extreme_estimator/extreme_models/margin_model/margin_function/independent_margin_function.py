@@ -48,7 +48,8 @@ class LinearMarginFunction(IndependentMarginFunction):
 
         # Check the axes are well-defined with respect to the coordinates
         for axes in self.gev_param_name_to_linear_axes.values():
-            assert all([axis < np.ndim(coordinates.coordinates_values) for axis in axes])
+            for axis in axes:
+                assert axis < coordinates.nb_columns, "axis={}, nb_columns={}".format(axis, coordinates.nb_columns)
 
         # Build gev_parameter_to_param_function dictionary
         self.gev_param_name_to_param_function = {}  # type: Dict[str, ParamFunction]

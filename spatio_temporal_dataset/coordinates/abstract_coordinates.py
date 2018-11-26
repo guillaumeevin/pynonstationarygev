@@ -44,6 +44,10 @@ class AbstractCoordinates(object):
         return self.coordinates_columns(df_coord=self.df_coordinates)
 
     @property
+    def nb_columns(self):
+        return len(self.columns)
+
+    @property
     def df(self) -> pd.DataFrame:
         # Merged DataFrame of df_coord and s_split
         return self.df_coordinates if self.s_split is None else self.df_coordinates.join(self.s_split)

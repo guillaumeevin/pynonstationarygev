@@ -10,6 +10,7 @@ class AbstractMarginModel(AbstractModel):
 
     def __init__(self, coordinates: AbstractCoordinates, params_start_fit=None, params_sample=None):
         super().__init__(params_start_fit, params_sample)
+        assert isinstance(coordinates, AbstractCoordinates), type(coordinates)
         self.coordinates = coordinates
         self.margin_function_sample = None  # type: AbstractMarginFunction
         self.margin_function_start_fit = None  # type: AbstractMarginFunction
