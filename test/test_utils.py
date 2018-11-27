@@ -1,7 +1,7 @@
 from extreme_estimator.estimator.full_estimator import SmoothMarginalsThenUnitaryMsp, \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
-from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearAllParametersAllAxisMarginModel, \
+from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearAllParametersAllDimsMarginModel, \
     ConstantMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import \
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
@@ -21,7 +21,7 @@ In this case, unit test (at least on the constructor) must be ensured in the tes
 TEST_MAX_STABLE_MODEL = [Smith, BrownResnick, Schlather, Geometric, ExtremalT, ISchlather]
 TEST_1D_AND_2D_COORDINATES = [UniformCoordinates, CircleCoordinates]
 TEST_3D_COORDINATES = [AlpsStation3DCoordinatesWithAnisotropy]
-TEST_MARGIN_TYPES = [ConstantMarginModel, LinearAllParametersAllAxisMarginModel][:]
+TEST_MARGIN_TYPES = [ConstantMarginModel, LinearAllParametersAllDimsMarginModel][:]
 TEST_MAX_STABLE_ESTIMATOR = [MaxStableEstimator]
 TEST_FULL_ESTIMATORS = [SmoothMarginalsThenUnitaryMsp, FullEstimatorInASingleStepWithSmoothMargin][:]
 

@@ -26,11 +26,13 @@ class LinearOneAxisParamFunction(ParamFunction):
         self.t_max = coordinates[:, linear_axis].max()
         self.coef = coef
 
+    def get_gev_param_value_normalized(self, coordinate: np.ndarray) -> float:
+        return self.get_gev_param_value(coordinate) / (self.t_max - self.t_min)
+
     def get_gev_param_value(self, coordinate: np.ndarray) -> float:
         t = coordinate[self.linear_axis]
-        t_between_zero_and_one = t / (self.t_max - self.t_min)
-        assert -1 <= t_between_zero_and_one <= 1, 'Out of bounds'
-        return t_between_zero_and_one * self.coef
+        assert self.t_min <= t <= self.t_max, 'Out of bounds'
+        return t * self.coef
 
 
 class LinearParamFunction(ParamFunction):
@@ -40,7 +42,7 @@ class LinearParamFunction(ParamFunction):
         # Load each one axis linear function
         self.linear_one_axis_param_functions = []  # type: List[LinearOneAxisParamFunction]
         for linear_dim in linear_dims:
-            param_function = LinearOneAxisParamFunction(linear_axis=linear_dim-1, coordinates=coordinates,
+            param_function = LinearOneAxisParamFunction(linear_axis=linear_dim - 1, coordinates=coordinates,
                                                         coef=self.linear_coef.get_coef(dim=linear_dim))
             self.linear_one_axis_param_functions.append(param_function)
 

@@ -11,6 +11,7 @@ class AbstractMarginFunction(object):
 
     def __init__(self, coordinates: AbstractCoordinates):
         self.coordinates = coordinates
+        self.visualization_axes = None
 
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
         """Main method that maps each coordinate to its GEV parameters"""
@@ -18,17 +19,20 @@ class AbstractMarginFunction(object):
 
     # Visualization function
 
-    def visualize_all(self):
-        fig, axes = plt.subplots(3, 1, sharex='col', sharey='row')
-        fig.subplots_adjust(hspace=0.4, wspace=0.4, )
+    def visualize(self, axes=None, show=True):
+        if axes is None:
+            fig, axes = plt.subplots(3, 1, sharex='col', sharey='row')
+            fig.subplots_adjust(hspace=0.4, wspace=0.4, )
+        self.visualization_axes = axes
         for i, gev_param_name in enumerate(GevParams.GEV_PARAM_NAMES):
             ax = axes[i]
-            self.visualize(gev_param_name, ax, show=False)
+            self.visualize_single_param(gev_param_name, ax, show=False)
             title_str = gev_param_name
             ax.set_title(title_str)
-        plt.show()
+        if show:
+            plt.show()
 
-    def visualize(self, gev_param_name=GevParams.GEV_LOC, ax=None, show=True):
+    def visualize_single_param(self, gev_param_name=GevParams.GEV_LOC, ax=None, show=True):
         if self.coordinates.nb_columns == 1:
             self.visualize_1D(gev_param_name, ax, show)
         elif self.coordinates.nb_columns == 2:

@@ -1,4 +1,6 @@
 import os.path as op
+import random
+import sys
 
 import rpy2.robjects as ro
 from rpy2.robjects import numpy2ri
@@ -10,6 +12,9 @@ def get_loaded_r() -> ro.R:
     numpy2ri.activate()
     pandas2ri.activate()
     r.library('SpatialExtremes')
+    # max_int = r('.Machine$integer.max')
+    # seed = random.randrange(max_int)
+    # r("set.seed({})".format(seed))
     return r
 
 
