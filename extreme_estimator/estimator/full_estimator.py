@@ -1,4 +1,6 @@
 from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
+from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
+    AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
@@ -8,7 +10,21 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
 class AbstractFullEstimator(AbstractEstimator):
-    pass
+
+    def __init__(self, dataset: AbstractDataset):
+        super().__init__(dataset)
+        self._margin_function_fitted = None
+        self._max_stable_model_fitted = None
+
+    @property
+    def margin_function_fitted(self) -> AbstractMarginFunction:
+        assert self._margin_function_fitted is not None, 'Error: estimator has not been fitted'
+        return self._margin_function_fitted
+
+    # @property
+    # def max_stable_fitted(self) -> AbstractMarginFunction:
+    #     assert self._margin_function_fitted is not None, 'Error: estimator has not been fitted'
+    #     return self._margin_function_fitted
 
 
 class SmoothMarginalsThenUnitaryMsp(AbstractFullEstimator):
@@ -52,10 +68,11 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
             maxima_frech=self.dataset.maxima_frech,
             df_coordinates=self.dataset.df_coordinates,
             fit_marge=True,
-            fit_marge_form_dict=self.smooth_margin_function_to_fit.fit_marge_form_dict,
-            margin_start_dict=self.smooth_margin_function_to_fit.margin_start_dict
+            fit_marge_form_dict=self.smooth_margin_function_to_fit.form_dict,
+            margin_start_dict=self.smooth_margin_function_to_fit.coef_dict
         )
         # Initialize
+        # self._margin_function_fitted =
 
 
 class PointwiseAndThenUnitaryMsp(AbstractFullEstimator):

@@ -9,9 +9,8 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 class AbstractMarginFunction(object):
     """ Class of function mapping points from a space S (could be 1D, 2D,...) to R^3 (the 3 parameters of the GEV)"""
 
-    def __init__(self, coordinates: AbstractCoordinates, default_params: GevParams):
+    def __init__(self, coordinates: AbstractCoordinates):
         self.coordinates = coordinates
-        self.default_params = default_params.to_dict()
 
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
         """Main method that maps each coordinate to its GEV parameters"""

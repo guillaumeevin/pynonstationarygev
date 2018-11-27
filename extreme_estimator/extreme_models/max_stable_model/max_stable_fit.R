@@ -20,11 +20,11 @@ rmaxstab2D <- function (n.obs){
     print(class(coord))
     print(colnames(coord))
 
-    loc.form = loc ~ 1
+    loc.form = loc ~ N
     scale.form = scale ~ 1
     shape.form = shape ~ 1
 
-    namedlist = list(cov11 = 1.0, cov12 = 1.2, cov22 = 2.2, locCoeff1=1.0, scaleCoeff1=1.0, shapeCoeff1=1.0)
+    namedlist = list(cov11 = 1.0, cov12 = 1.2, cov22 = 2.2, locCoeff1=1.0, locCoeff2=1.0, scaleCoeff1=1.0, shapeCoeff1=1.0)
     res = fitmaxstab(data=data, coord=coord, cov.mod="gauss", start=namedlist, fit.marge=TRUE, loc.form=loc.form, scale.form=scale.form,shape.form=shape.form)
     print(res['fitted.values'])
 }
@@ -63,7 +63,7 @@ if (call_main) {
     set.seed(42)
     n.obs = 500
     rmaxstab2D(n.obs)
-    rmaxstab1D(n.obs)
+    # rmaxstab1D(n.obs)
 
     # namedlist = list(cov11 = 1.0, cov12 = 1.2, cov22 = 2.2)
     # res = fitmaxstab(data=data, coord=coord, cov.mod="gauss", start=namedlist)
