@@ -1,6 +1,7 @@
 from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
+from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
@@ -60,7 +61,9 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
                  max_stable_model: AbstractMaxStableModel):
         super().__init__(dataset)
         self.max_stable_model = max_stable_model
-        self.smooth_margin_function_to_fit = margin_model.margin_function_start_fit
+        self.linear_margin_model = margin_model
+        self.linear_margin_function_to_fit = self.linear_margin_model.margin_function_start_fit
+        assert isinstance(self.linear_margin_function_to_fit, LinearMarginFunction)
 
     def _fit(self):
         # Estimate both the margin and the max-stable structure
@@ -68,11 +71,14 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
             maxima_frech=self.dataset.maxima_frech,
             df_coordinates=self.dataset.df_coordinates,
             fit_marge=True,
-            fit_marge_form_dict=self.smooth_margin_function_to_fit.form_dict,
-            margin_start_dict=self.smooth_margin_function_to_fit.coef_dict
+            fit_marge_form_dict=self.linear_margin_function_to_fit.form_dict,
+            margin_start_dict=self.linear_margin_function_to_fit.coef_dict
         )
-        # Initialize
-        # self._margin_function_fitted =
+        # Create the fitted margin function
+        coef_dict = {k: v for k, v in self.full_params_fitted.items() if 'Coeff' in k}
+        self._margin_function_fitted = LinearMarginFunction.from_coef_dict(coordinates=self.dataset.coordinates,
+                                                                           gev_param_name_to_linear_dims=self.linear_margin_function_to_fit.gev_param_name_to_linear_dims,
+                                                                           coef_dict=coef_dict)
 
 
 class PointwiseAndThenUnitaryMsp(AbstractFullEstimator):

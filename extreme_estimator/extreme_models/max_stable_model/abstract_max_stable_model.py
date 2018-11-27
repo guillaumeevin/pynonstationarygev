@@ -32,6 +32,7 @@ class AbstractMaxStableModel(AbstractModel):
         data = np.transpose(maxima_frech)
 
         # Prepare the coord
+        df_coordinates = df_coordinates.copy()
         # In the one dimensional case, fitmaxstab isn't working
         # therefore, we treat our 1D coordinate as 2D coordinate on the line y=x, and enforce iso=TRUE
         fitmaxstab_with_one_dimensional_data = len(df_coordinates.columns) == 1

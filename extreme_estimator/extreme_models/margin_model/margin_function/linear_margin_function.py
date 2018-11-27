@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 from extreme_estimator.extreme_models.margin_model.margin_function.independent_margin_function import \
     IndependentMarginFunction
@@ -29,8 +29,8 @@ class LinearMarginFunction(IndependentMarginFunction):
                  gev_param_name_to_linear_dims: Dict[str, List[int]],
                  gev_param_name_to_linear_coef: Dict[str, LinearCoef]):
         super().__init__(coordinates)
-        self.gev_param_name_to_linear_coef = gev_param_name_to_linear_coef
-        self.gev_param_name_to_linear_dims = gev_param_name_to_linear_dims
+        self.gev_param_name_to_linear_coef = gev_param_name_to_linear_coef  # type: Dict[str, LinearCoef]
+        self.gev_param_name_to_linear_dims = gev_param_name_to_linear_dims  # type: Dict[str, List[int]]
         # Build gev_parameter_to_param_function dictionary
         self.gev_param_name_to_param_function = {}  # type: Dict[str, ParamFunction]
 
@@ -54,11 +54,18 @@ class LinearMarginFunction(IndependentMarginFunction):
             self.gev_param_name_to_param_function[gev_param_name] = param_function
 
     @classmethod
-    def from_margin_coeff_dict(cls, coordinates, margin_coeff_dict):
-        pass
+    def from_coef_dict(cls, coordinates: AbstractCoordinates, gev_param_name_to_linear_dims: Dict[str, List[int]],
+                       coef_dict: Dict[str, float]):
+        gev_param_name_to_linear_coef = {}
+        for gev_param_name in GevParams.GEV_PARAM_NAMES:
+            linear_dims = gev_param_name_to_linear_dims.get(gev_param_name, [])
+            linear_coef = LinearCoef.from_coef_dict(coef_dict=coef_dict, gev_param_name=gev_param_name,
+                                                    linear_dims=linear_dims)
+            gev_param_name_to_linear_coef[gev_param_name] = linear_coef
+        return cls(coordinates, gev_param_name_to_linear_dims, gev_param_name_to_linear_coef)
 
     @property
-    def form_dict(self) -> dict:
+    def form_dict(self) -> Dict[str, str]:
         form_dict = {}
         for gev_param_name in GevParams.GEV_PARAM_NAMES:
             linear_dims = self.gev_param_name_to_linear_dims.get(gev_param_name, [])
@@ -66,7 +73,7 @@ class LinearMarginFunction(IndependentMarginFunction):
         return form_dict
 
     @property
-    def coef_dict(self) -> dict:
+    def coef_dict(self) -> Dict[str, float]:
         coef_dict = {}
         for gev_param_name in GevParams.GEV_PARAM_NAMES:
             linear_dims = self.gev_param_name_to_linear_dims.get(gev_param_name, [])

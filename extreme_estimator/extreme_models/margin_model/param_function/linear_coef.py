@@ -12,7 +12,7 @@ class LinearCoef(object):
         dim = 3 correspond to the coordinate Z
     """
 
-    def __init__(self, gev_param_name: str, default_value: float = 0.0, dim_to_coef: Dict[int, float] = None):
+    def __init__(self, gev_param_name: str, dim_to_coef: Dict[int, float] = None, default_value: float = 0.0):
         self.gev_param_name = gev_param_name
         self.dim_to_coef = dim_to_coef
         self.default_value = default_value
@@ -27,21 +27,28 @@ class LinearCoef(object):
     def intercept(self):
         return self.get_coef(dim=0)
 
-    @classmethod
-    def from_dict(cls, coef_dict: Dict[int, float], gev_param_name: str, default_value: float = 0.0):
-        pass
+    @staticmethod
+    def coef_template_str(gev_param_name):
+        return gev_param_name + 'Coeff{}'
 
-    def coef_dict(self, linear_dims):
-        coef_dict = {}
-        coef_template_str = self.gev_param_name + 'Coeff{}'
+    @classmethod
+    def from_coef_dict(cls, coef_dict: Dict[str, float], gev_param_name: str, linear_dims):
+        dims = [0] + linear_dims
+        dim_to_coef = {}
+        for j, dim in enumerate(dims, 1):
+            coef = coef_dict[cls.coef_template_str(gev_param_name).format(j)]
+            dim_to_coef[dim] = coef
+        return cls(gev_param_name, dim_to_coef)
+
+    def coef_dict(self, linear_dims) -> Dict[str, float]:
         # Constant param must be specified for all the parameters
-        coef_dict[coef_template_str.format(1)] = self.intercept
+        coef_dict = {self.coef_template_str(self.gev_param_name).format(1): self.intercept}
         # Specify only the param that belongs to dim_to_coef
         for j, dim in enumerate(linear_dims, 2):
-            coef_dict[coef_template_str.format(j)] = self.dim_to_coef[dim]
+            coef_dict[self.coef_template_str(self.gev_param_name).format(j)] = self.dim_to_coef[dim]
         return coef_dict
 
-    def form_dict(self, linear_dims):
+    def form_dict(self, linear_dims) -> Dict[str, str]:
         """
         Example of formula that could be specified:
         loc.form = loc ~ coord_x
