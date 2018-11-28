@@ -12,6 +12,7 @@ class AbstractMarginFunction(object):
     def __init__(self, coordinates: AbstractCoordinates):
         self.coordinates = coordinates
         self.visualization_axes = None
+        self.dot_display = False
 
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
         """Main method that maps each coordinate to its GEV parameters"""
@@ -19,7 +20,8 @@ class AbstractMarginFunction(object):
 
     # Visualization function
 
-    def visualize(self, axes=None, show=True):
+    def visualize(self, axes=None, show=True, dot_display=False):
+        self.dot_display = dot_display
         if axes is None:
             fig, axes = plt.subplots(3, 1, sharex='col', sharey='row')
             fig.subplots_adjust(hspace=0.4, wspace=0.4, )
@@ -46,7 +48,11 @@ class AbstractMarginFunction(object):
         gev_param_idx = GevParams.GEV_PARAM_NAMES.index(gev_param_name)
         if ax is None:
             ax = plt.gca()
-        ax.plot(linspace, grid[:, gev_param_idx])
+        if self.dot_display:
+            ax.plot(linspace, grid[:, gev_param_idx], 'o')
+        else:
+            ax.plot(linspace, grid[:, gev_param_idx])
+
         if show:
             plt.show()
 
@@ -65,9 +71,15 @@ class AbstractMarginFunction(object):
 
     def get_grid_1D(self, x):
         # TODO: to avoid getting the value several times, I could cache the results
-        resolution = 100
+        if self.dot_display:
+            resolution = len(self.coordinates)
+            linspace = self.coordinates.coordinates_values[:, 0]
+            print('dot display')
+        else:
+            resolution = 100
+            linspace = np.linspace(x.min(), x.max(), resolution)
+
         grid = np.zeros([resolution, 3])
-        linspace = np.linspace(x.min(), x.max(), resolution)
         for i, xi in enumerate(linspace):
             grid[i] = self.get_gev_params(np.array([xi])).to_array()
         return grid, linspace

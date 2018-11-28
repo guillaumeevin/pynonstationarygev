@@ -3,15 +3,15 @@ import pandas as pd
 
 import numpy as np
 
-from extreme_estimator.extreme_models.utils import get_loaded_r
+from extreme_estimator.extreme_models.utils import R
 from extreme_estimator.gev.gev_mle_fit import GevMleFit
 import rpy2.robjects.numpy2ri as rpyn
 
-
 import rpy2.robjects as robjects
 
+
 def max_stable_fit():
-    r = get_loaded_r()
+    r = R().r
     r("""
     set.seed(42)
     n.obs = 50
@@ -44,8 +44,6 @@ def max_stable_fit():
     print(coord.colnames)
 
     # res = r.fitmaxstab(data=data, coord=coord, covmod="gauss", start=namedlist, fit.marge=TRUE, loc.form=loc.form, scale.form=scale.form,shape.form=shape.form)
-
-
 
     # m2.colnames = R.StrVector(['x', 'y'])
     # res = r.fitmaxstab()

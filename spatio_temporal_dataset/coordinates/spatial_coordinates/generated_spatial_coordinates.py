@@ -1,8 +1,8 @@
 import math
 import numpy as np
 import pandas as pd
+from rpy2.robjects import r
 
-from extreme_estimator.extreme_models.utils import get_loaded_r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 import matplotlib.pyplot as plt
 
@@ -12,7 +12,6 @@ class CircleCoordinates(AbstractCoordinates):
     @classmethod
     def from_nb_points(cls, nb_points, max_radius=1.0):
         # Sample uniformly inside the circle
-        r = get_loaded_r()
         angles = np.array(r.runif(nb_points, max=2 * math.pi))
         radius = np.sqrt(np.array(r.runif(nb_points, max=max_radius)))
         df = pd.DataFrame.from_dict({cls.COORDINATE_X: radius * np.cos(angles),

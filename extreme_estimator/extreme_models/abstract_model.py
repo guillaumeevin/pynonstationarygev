@@ -1,8 +1,4 @@
-from extreme_estimator.extreme_models.utils import get_loaded_r
-
-
 class AbstractModel(object):
-    r = get_loaded_r()
 
     def __init__(self, params_start_fit=None, params_sample=None):
         self.default_params_start_fit = None

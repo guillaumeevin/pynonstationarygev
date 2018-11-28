@@ -3,19 +3,18 @@ import random
 import sys
 
 import rpy2.robjects as ro
+
 from rpy2.robjects import numpy2ri
 from rpy2.robjects import pandas2ri
 
+r = ro.R()
+numpy2ri.activate()
+pandas2ri.activate()
+r.library('SpatialExtremes')
 
-def get_loaded_r() -> ro.R:
-    r = ro.r
-    numpy2ri.activate()
-    pandas2ri.activate()
-    r.library('SpatialExtremes')
-    # max_int = r('.Machine$integer.max')
-    # seed = random.randrange(max_int)
-    # r("set.seed({})".format(seed))
-    return r
+
+def set_seed_r(seed=42):
+    r("set.seed({})".format(seed))
 
 
 def get_associated_r_file(python_filepath: str) -> str:

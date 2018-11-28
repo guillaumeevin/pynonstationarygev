@@ -7,6 +7,7 @@ from rpy2.rinterface import RRuntimeError
 import rpy2.robjects as robjects
 
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
+from extreme_estimator.extreme_models.utils import r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
@@ -53,12 +54,12 @@ class AbstractMaxStableModel(AbstractModel):
             fit_params.update({k: robjects.Formula(v) for k, v in fit_marge_form_dict.items()})
         if fitmaxstab_with_one_dimensional_data:
             fit_params['iso'] = True
-        fit_params['start'] = self.r.list(**start_dict)
+        fit_params['start'] = r.list(**start_dict)
         fit_params['fit.marge'] = fit_marge
 
         # Run the fitmaxstab in R
         try:
-            res = self.r.fitmaxstab(data=data, coord=coord, **fit_params)  # type: robjects.ListVector
+            res = r.fitmaxstab(data=data, coord=coord, **fit_params)  # type: robjects.ListVector
         except RRuntimeError as error:
             raise Exception('Some R exception have been launched at RunTime: \n {}'.format(error.__repr__()))
         # todo: maybe if the convergence was not successful I could try other starting point several times
@@ -72,7 +73,7 @@ class AbstractMaxStableModel(AbstractModel):
         Return an numpy of maxima. With rows being the stations and columns being the years of maxima
         """
         maxima_frech = np.array(
-            self.r.rmaxstab(nb_obs, coordinates, *list(self.cov_mod_param.values()), **self.params_sample))
+            r.rmaxstab(nb_obs, coordinates, *list(self.cov_mod_param.values()), **self.params_sample))
         return np.transpose(maxima_frech)
 
     def remove_unused_parameters(self, start_dict, coordinate_dim):
@@ -95,5 +96,5 @@ class AbstractMaxStableModelWithCovarianceFunction(AbstractMaxStableModel):
         self.default_params_sample = {
             'range': 3,
             'smooth': 0.5,
-            'nugget': 0.5
+            'nugget': 0.0
         }

@@ -62,6 +62,12 @@ class LinearShapeDim1MarginModel(LinearMarginModel):
         super().load_margin_functions({GevParams.GEV_SHAPE: [1]})
 
 
+class LinearScaleDim1MarginModel(LinearMarginModel):
+
+    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_linear_dims=None):
+        super().load_margin_functions({GevParams.GEV_SCALE: [1]})
+
+
 class LinearShapeDim1and2MarginModel(LinearMarginModel):
 
     def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_linear_dims=None):

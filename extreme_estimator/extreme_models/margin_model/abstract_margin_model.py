@@ -3,6 +3,7 @@ import numpy as np
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function \
     import AbstractMarginFunction
+from extreme_estimator.extreme_models.utils import r
 from extreme_estimator.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
@@ -42,12 +43,12 @@ class AbstractMarginModel(AbstractModel):
     @classmethod
     def gev2frech(cls, maxima_gev: np.ndarray, coordinates_values: np.ndarray,
                   margin_function: AbstractMarginFunction) -> np.ndarray:
-        return cls.convert_maxima(cls.r.gev2frech, maxima_gev, coordinates_values, margin_function)
+        return cls.convert_maxima(r.gev2frech, maxima_gev, coordinates_values, margin_function)
 
     @classmethod
     def frech2gev(cls, maxima_frech: np.ndarray, coordinates_values: np.ndarray,
                   margin_function: AbstractMarginFunction) -> np.ndarray:
-        return cls.convert_maxima(cls.r.frech2gev, maxima_frech, coordinates_values, margin_function)
+        return cls.convert_maxima(r.frech2gev, maxima_frech, coordinates_values, margin_function)
 
     # Sampling methods
 
@@ -59,7 +60,7 @@ class AbstractMarginModel(AbstractModel):
         maxima_gev = []
         for coordinate in coordinates_values:
             gev_params = self.margin_function_sample.get_gev_params(coordinate)
-            x_gev = self.r.rgev(nb_obs, **gev_params.to_dict())
+            x_gev = r.rgev(nb_obs, **gev_params.to_dict())
             maxima_gev.append(x_gev)
         return np.array(maxima_gev)
 

@@ -2,16 +2,15 @@ import unittest
 
 import numpy as np
 
+from extreme_estimator.extreme_models.utils import r, set_seed_r
 from extreme_estimator.gev.gev_mle_fit import GevMleFit
-from extreme_estimator.extreme_models.utils import get_loaded_r
 
 
 class TestGevMleFit(unittest.TestCase):
 
     def test_unitary_gev_mle_fit(self):
-        r = get_loaded_r()
+        set_seed_r()
         r("""
-        set.seed(42)
         N <- 50
         loc = 0; scale = 1; shape <- 1
         x_gev <- rgev(N, loc = loc, scale = scale, shape = shape)
