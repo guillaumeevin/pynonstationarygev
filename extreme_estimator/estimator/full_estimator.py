@@ -68,7 +68,7 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
     def _fit(self):
         # Estimate both the margin and the max-stable structure
         self.full_params_fitted = self.max_stable_model.fitmaxstab(
-            maxima_frech=self.dataset.maxima_frech,
+            maxima_gev=self.dataset.maxima_gev,
             df_coordinates=self.dataset.df_coordinates,
             fit_marge=True,
             fit_marge_form_dict=self.linear_margin_function_to_fit.form_dict,

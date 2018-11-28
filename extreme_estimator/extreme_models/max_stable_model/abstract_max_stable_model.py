@@ -3,11 +3,11 @@ from enum import Enum
 
 import numpy as np
 import rpy2
-from rpy2.rinterface import RRuntimeError
+from rpy2.rinterface import RRuntimeError, RRuntimeWarning
 import rpy2.robjects as robjects
 
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
-from extreme_estimator.extreme_models.utils import r
+from extreme_estimator.extreme_models.utils import r, set_seed_r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
@@ -16,21 +16,23 @@ class AbstractMaxStableModel(AbstractModel):
     def __init__(self, params_start_fit=None, params_sample=None):
         super().__init__(params_start_fit, params_sample)
         self.cov_mod = None
+        self.start_value_for_fitmaxstab = True
 
     @property
     def cov_mod_param(self):
         return {'cov.mod': self.cov_mod}
 
-    def fitmaxstab(self, maxima_frech: np.ndarray, df_coordinates: pd.DataFrame, fit_marge=False,
+    def fitmaxstab(self, df_coordinates: pd.DataFrame, maxima_frech: np.ndarray=None, maxima_gev: np.ndarray=None, fit_marge=False,
                    fit_marge_form_dict=None, margin_start_dict=None) -> dict:
-        assert isinstance(maxima_frech, np.ndarray)
         assert isinstance(df_coordinates, pd.DataFrame)
         if fit_marge:
             assert fit_marge_form_dict is not None
             assert margin_start_dict is not None
 
         # Prepare the data
-        data = np.transpose(maxima_frech)
+        maxima = maxima_gev if fit_marge else maxima_frech
+        assert isinstance(maxima, np.ndarray)
+        data = np.transpose(maxima)
 
         # Prepare the coord
         df_coordinates = df_coordinates.copy()
@@ -54,14 +56,19 @@ class AbstractMaxStableModel(AbstractModel):
             fit_params.update({k: robjects.Formula(v) for k, v in fit_marge_form_dict.items()})
         if fitmaxstab_with_one_dimensional_data:
             fit_params['iso'] = True
-        fit_params['start'] = r.list(**start_dict)
+        if self.start_value_for_fitmaxstab:
+            fit_params['start'] = r.list(**start_dict)
         fit_params['fit.marge'] = fit_marge
 
         # Run the fitmaxstab in R
         try:
             res = r.fitmaxstab(data=data, coord=coord, **fit_params)  # type: robjects.ListVector
-        except RRuntimeError as error:
-            raise Exception('Some R exception have been launched at RunTime: \n {}'.format(error.__repr__()))
+        except (RRuntimeError, RRuntimeWarning) as e:
+            if isinstance(e, RRuntimeError):
+                raise Exception('Some R exception have been launched at RunTime: \n {}'.format(e.__repr__()))
+            if isinstance(e, RRuntimeWarning):
+                print(e.__repr__())
+                print('WARNING')
         # todo: maybe if the convergence was not successful I could try other starting point several times
         # Retrieve the resulting fitted values
         fitted_values = res.rx2('fitted.values')
