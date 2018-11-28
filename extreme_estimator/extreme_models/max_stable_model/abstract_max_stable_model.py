@@ -96,5 +96,5 @@ class AbstractMaxStableModelWithCovarianceFunction(AbstractMaxStableModel):
         self.default_params_sample = {
             'range': 3,
             'smooth': 0.5,
-            'nugget': 0.0
+            'nugget': 0.5
         }
