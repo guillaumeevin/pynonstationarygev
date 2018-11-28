@@ -11,6 +11,8 @@ from extreme_estimator.gev_params import GevParams
 class LinearMarginModel(AbstractMarginModel):
 
     def load_margin_functions(self, gev_param_name_to_linear_dims=None):
+        assert gev_param_name_to_linear_dims is not None, 'LinearMarginModel cannot be used for sampling/fitting \n' \
+                                                          'load_margin_functions needs to be implemented in child class'
         # Load sample coef
         self.default_params_sample = self.default_param_name_and_dim_to_coef()
         linear_coef_sample = self.gev_param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_sample)
@@ -48,6 +50,14 @@ class LinearMarginModel(AbstractMarginModel):
     def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray,
                                   coordinates_values: np.ndarray) -> AbstractMarginFunction:
         return self.margin_function_start_fit
+
+    @classmethod
+    def from_coef_list(cls, coordinates, gev_param_name_to_coef_list):
+        params = {}
+        for gev_param_name in GevParams.GEV_PARAM_NAMES:
+            for dim, coef in enumerate(gev_param_name_to_coef_list[gev_param_name]):
+                params[(gev_param_name, dim)] = coef
+        return cls(coordinates, params_sample=params, params_start_fit=params)
 
 
 class ConstantMarginModel(LinearMarginModel):

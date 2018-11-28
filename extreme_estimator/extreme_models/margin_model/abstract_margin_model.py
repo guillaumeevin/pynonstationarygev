@@ -18,8 +18,10 @@ class AbstractMarginModel(AbstractModel):
         self.margin_function_start_fit = None  # type: AbstractMarginFunction
         self.load_margin_functions()
 
-    def load_margin_functions(self, margin_function_class: type = None):
-        assert margin_function_class is not None
+    def load_margin_functions(self):
+        pass
+
+    def default_load_margin_functions(self, margin_function_class):
         self.margin_function_sample = margin_function_class(coordinates=self.coordinates,
                                                             default_params=GevParams.from_dict(self.params_sample))
         self.margin_function_start_fit = margin_function_class(coordinates=self.coordinates,
@@ -69,3 +71,5 @@ class AbstractMarginModel(AbstractModel):
     def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, coordinates_values: np.ndarray) \
             -> AbstractMarginFunction:
         pass
+
+

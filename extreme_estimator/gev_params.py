@@ -27,3 +27,4 @@ class GevParams(object):
     def to_array(self) -> np.ndarray:
         gev_param_name_to_value = self.to_dict()
         return np.array([gev_param_name_to_value[gev_param_name] for gev_param_name in self.GEV_PARAM_NAMES])
+
