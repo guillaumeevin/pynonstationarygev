@@ -3,6 +3,8 @@ from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 import numpy as np
 
+from spatio_temporal_dataset.dataset.spatio_temporal_split import SpatialTemporalSplit
+
 
 class AbstractMaxStableEstimator(AbstractEstimator):
 
@@ -16,9 +18,9 @@ class AbstractMaxStableEstimator(AbstractEstimator):
 class MaxStableEstimator(AbstractMaxStableEstimator):
 
     def _fit(self):
-        assert self.dataset.maxima_frech is not None
+        assert self.dataset.maxima_frech(split=SpatialTemporalSplit.train) is not None
         self.max_stable_params_fitted = self.max_stable_model.fitmaxstab(
-            maxima_frech=self.dataset.maxima_frech,
+            maxima_frech=self.dataset.maxima_frech(split=SpatialTemporalSplit.train),
             df_coordinates=self.dataset.coordinates.df_coordinates)
 
     def _error(self, true_max_stable_params: dict):

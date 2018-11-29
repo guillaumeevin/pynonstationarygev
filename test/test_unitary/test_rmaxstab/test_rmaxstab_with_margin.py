@@ -51,7 +51,7 @@ class TestRMaxStabWithMarginConstant(TestUnitaryAbstract):
     @property
     def python_output(self):
         dataset = self.python_code()
-        return np.sum(dataset.maxima_gev)
+        return np.sum(dataset.maxima_gev())
 
     def test_rmaxstab_with_constant_margin(self):
         self.compare()
@@ -96,7 +96,7 @@ class TestRMaxStabWithLinearMargin(TestUnitaryAbstract):
     @property
     def python_output(self):
         dataset = self.python_code()
-        return np.sum(dataset.maxima_gev)
+        return np.sum(dataset.maxima_gev())
 
     def test_rmaxstab_with_linear_margin(self):
         self.compare()

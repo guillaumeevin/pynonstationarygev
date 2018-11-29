@@ -40,7 +40,7 @@ class FullAnnualMaxima(MaxStableAnnualMaxima):
                              coordinates: AbstractCoordinates, margin_model: AbstractMarginModel):
         max_stable_annual_maxima = super().from_sampling(nb_obs, max_stable_model, coordinates)
         #  Compute df_maxima_gev from df_maxima_frech
-        maxima_gev = margin_model.rmargin_from_maxima_frech(maxima_frech=max_stable_annual_maxima.maxima_frech,
+        maxima_gev = margin_model.rmargin_from_maxima_frech(maxima_frech=max_stable_annual_maxima.maxima_frech(),
                                                             coordinates_values=coordinates.coordinates_values)
         max_stable_annual_maxima.df_maxima_gev = pd.DataFrame(data=maxima_gev, index=coordinates.index)
         return max_stable_annual_maxima

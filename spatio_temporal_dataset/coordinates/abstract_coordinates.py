@@ -13,14 +13,16 @@ class AbstractCoordinates(object):
     COORDINATE_Y = 'coord_y'
     COORDINATE_Z = 'coord_z'
     COORDINATE_NAMES = [COORDINATE_X, COORDINATE_Y, COORDINATE_Z]
-    COORD_SPLIT = 'coord_split'
-    # Constants
+    COORDINATE_SPLIT = 'coord_split'
+    # Constants for the split column
     TRAIN_SPLIT_STR = 'train_split'
     TEST_SPLIT_STR = 'test_split'
 
     def __init__(self, df_coordinates: pd.DataFrame, s_split: pd.Series = None):
-        self.df_coordinates = df_coordinates
-        self.s_split = s_split
+        self.df_coordinates = df_coordinates  # type: pd.DataFrame
+        self.s_split = s_split  # type: pd.Series
+
+    # ClassMethod constructor
 
     @classmethod
     def from_df(cls, df: pd.DataFrame):
@@ -28,8 +30,29 @@ class AbstractCoordinates(object):
         assert cls.COORDINATE_X in df.columns
         df_coordinates = df.loc[:, cls.coordinates_columns(df)]
         # Potentially, a split column can be specified
-        s_split = df[cls.COORD_SPLIT] if cls.COORD_SPLIT in df.columns else None
+        s_split = df[cls.COORDINATE_SPLIT] if cls.COORDINATE_SPLIT in df.columns else None
+        if s_split is not None:
+            assert s_split.isin([cls.TRAIN_SPLIT_STR, cls.TEST_SPLIT_STR])
         return cls(df_coordinates=df_coordinates, s_split=s_split)
+
+    @classmethod
+    def from_csv(cls, csv_path: str = None):
+        assert csv_path is not None
+        assert op.exists(csv_path)
+        df = pd.read_csv(csv_path)
+        return cls.from_df(df)
+
+    @classmethod
+    def from_nb_points(cls, nb_points: int, **kwargs):
+        # Call the default class method from csv
+        coordinates = cls.from_csv()  # type: AbstractCoordinates
+        # Sample randomly nb_points coordinates
+        nb_coordinates = len(coordinates)
+        if nb_points > nb_coordinates:
+            raise Exception('Nb coordinates in csv: {} < Nb points desired: {}'.format(nb_coordinates, nb_points))
+        else:
+            df_sample = pd.DataFrame.sample(coordinates.df, n=nb_points)
+            return cls.from_df(df=df_sample)
 
     @classmethod
     def coordinates_columns(cls, df_coord: pd.DataFrame) -> List[str]:
@@ -52,25 +75,6 @@ class AbstractCoordinates(object):
         # Merged DataFrame of df_coord and s_split
         return self.df_coordinates if self.s_split is None else self.df_coordinates.join(self.s_split)
 
-    @classmethod
-    def from_csv(cls, csv_path: str = None):
-        assert csv_path is not None
-        assert op.exists(csv_path)
-        df = pd.read_csv(csv_path)
-        return cls.from_df(df)
-
-    @classmethod
-    def from_nb_points(cls, nb_points: int, **kwargs):
-        # Call the default class method from csv
-        coordinates = cls.from_csv()  # type: AbstractCoordinates
-        # Sample randomly nb_points coordinates
-        nb_coordinates = len(coordinates)
-        if nb_points > nb_coordinates:
-            raise Exception('Nb coordinates in csv: {} < Nb points desired: {}'.format(nb_coordinates, nb_points))
-        else:
-            df_sample = pd.DataFrame.sample(coordinates.df, n=nb_points)
-            return cls.from_df(df=df_sample)
-
     def df_coordinates_split(self, split_str: str) -> pd.DataFrame:
         assert self.s_split is not None
         ind = self.s_split == split_str
@@ -92,16 +96,15 @@ class AbstractCoordinates(object):
         return self.df_coordinates.loc[:, self.COORDINATE_Y].values.copy()
 
     @property
-    def coordinates_train(self) -> np.ndarray:
-        return self._coordinates_values(df_coordinates=self.df_coordinates_split(self.TRAIN_SPLIT_STR))
-
-    @property
-    def coordinates_test(self) -> np.ndarray:
-        return self._coordinates_values(df_coordinates=self.df_coordinates_split(self.TEST_SPLIT_STR))
-
-    @property
-    def index(self):
+    def index(self) -> pd.Series:
         return self.df_coordinates.index
+
+    @property
+    def train_ind(self) -> pd.Series:
+        if self.s_split is None:
+            return None
+        else:
+            return self.s_split.isin([self.TRAIN_SPLIT_STR])
 
     #  Visualization
 
