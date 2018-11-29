@@ -13,13 +13,21 @@ class SpatialTemporalSplit(Enum):
 
 class SpatioTemporalSlicer(object):
 
-    def __init__(self, coordinate_train_ind: pd.Series, observation_train_ind: pd.Series):
-        self.index_train_ind = coordinate_train_ind  # type: pd.Series
-        self.column_train_ind = observation_train_ind  # type: pd.Series
+    def __init__(self, coordinates_train_ind: pd.Series, observations_train_ind: pd.Series):
+        self.index_train_ind = coordinates_train_ind  # type: pd.Series
+        self.column_train_ind = observations_train_ind  # type: pd.Series
         if self.ind_are_not_defined:
             msg = "One split was not defined \n \n" \
                   "index: \n {}  \n, column:\n {} \n".format(self.index_train_ind, self.column_train_ind)
             assert self.index_train_ind is None and self.column_train_ind is None, msg
+
+    def summary(self):
+        print('SpatioTemporal split summary: \n')
+        for s, global_name in [(self.index_train_ind, "Spatial"), (self.column_train_ind, "Temporal")]:
+            print(global_name + ' split')
+            for f, name in [(len, 'Total'), (sum, 'train')]:
+                print("{}: {}".format(name, f(s)))
+            print('\n')
 
     @property
     def index_test_ind(self) -> pd.Series:
@@ -56,11 +64,6 @@ TEST_SPLIT_STR = 'test_split'
 
 
 def train_ind_from_s_split(s_split):
-    """
-
-    :param s_split:
-    :return:
-    """
     if s_split is None:
         return None
     else:
@@ -74,3 +77,12 @@ def s_split_from_ratio(length, train_split_ratio):
     train_ind = pd.Series.sample(s, n=nb_points_train).index
     s.loc[train_ind] = TRAIN_SPLIT_STR
     return s
+
+
+def spatio_temporal_slice(df: pd.DataFrame, split: SpatialTemporalSplit = SpatialTemporalSplit.all,
+                          slicer: SpatioTemporalSlicer = None) -> pd.DataFrame:
+    if slicer is None:
+        assert split is SpatialTemporalSplit.all
+        return df
+    else:
+        return slicer.loc_split(df, split)

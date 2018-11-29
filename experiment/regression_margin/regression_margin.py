@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
 
-nb_points = 2
-nb_obs = 10000
-nb_estimator = 1
+nb_points = 50
+nb_obs = 60
+nb_estimator = 2
 show = False
 
 coordinates = LinSpaceCoordinates.from_nb_points(nb_points=nb_points)
@@ -30,7 +30,7 @@ params_sample = {
     (GevParams.GEV_SCALE, 0): 1.0,
 }
 margin_model = ConstantMarginModel(coordinates=coordinates, params_sample=params_sample)
-margin_model_for_estimator_class = [LinearAllParametersAllDimsMarginModel][-1]
+margin_model_for_estimator_class = [LinearAllParametersAllDimsMarginModel, ConstantMarginModel][-1]
 max_stable_model = Smith()
 
 
@@ -47,8 +47,8 @@ for i in range(nb_estimator):
 
     if show and i == 0:
         # Plot a realization from the maxima gev (i.e the maxima obtained just by simulating the marginal law)
-        for maxima in np.transpose(dataset.maxima_frech):
-            plt.plot(coordinates.coordinates_values, maxima, 'o')
+        for maxima in np.transpose(dataset.maxima_frech()):
+            plt.plot(coordinates.coordinates_values(), maxima, 'o')
         plt.show()
 
     margin_function_sample = dataset.margin_model.margin_function_sample # type: LinearMarginFunction

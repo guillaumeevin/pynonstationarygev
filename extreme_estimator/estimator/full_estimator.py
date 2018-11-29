@@ -1,14 +1,13 @@
+from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
+from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
+from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
 from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
-from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
-from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
-from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
-from spatio_temporal_dataset.dataset.spatio_temporal_split import SpatialTemporalSplit
 
 
 class AbstractFullEstimator(AbstractEstimator):
@@ -47,7 +46,7 @@ class SmoothMarginalsThenUnitaryMsp(AbstractFullEstimator):
                                                      coordinates_values=self.dataset.coordinates_values,
                                                      margin_function=self.margin_estimator.margin_function_fitted)
         # Update maxima frech field through the dataset object
-        self.dataset.set_maxima_frech(maxima_frech, split=SpatialTemporalSplit.train)
+        self.dataset.set_maxima_frech(maxima_frech, split=self.train_split)
         # Estimate the max stable parameters
         self.max_stable_estimator.fit()
 

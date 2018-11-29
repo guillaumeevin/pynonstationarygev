@@ -4,6 +4,7 @@ import numpy as np
 
 from extreme_estimator.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from spatio_temporal_dataset.spatio_temporal_split import SpatialTemporalSplit
 
 
 class AbstractMarginFunction(object):
@@ -11,8 +12,12 @@ class AbstractMarginFunction(object):
 
     def __init__(self, coordinates: AbstractCoordinates):
         self.coordinates = coordinates
+
+        # Visualization parameters
         self.visualization_axes = None
-        self.dot_display = False
+        self.datapoint_display = False
+        self.spatio_temporal_split = SpatialTemporalSplit.all
+        self.datapoint_marker = 'o'
 
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
         """Main method that maps each coordinate to its GEV parameters"""
@@ -20,8 +25,13 @@ class AbstractMarginFunction(object):
 
     # Visualization function
 
+    def set_datapoint_display_parameters(self, spatio_temporal_split, datapoint_marker):
+        self.datapoint_display = True
+        self.spatio_temporal_split = spatio_temporal_split
+        self.datapoint_marker = datapoint_marker
+
     def visualize(self, axes=None, show=True, dot_display=False):
-        self.dot_display = dot_display
+        self.datapoint_display = dot_display
         if axes is None:
             fig, axes = plt.subplots(3, 1, sharex='col', sharey='row')
             fig.subplots_adjust(hspace=0.4, wspace=0.4, )
@@ -48,8 +58,8 @@ class AbstractMarginFunction(object):
         gev_param_idx = GevParams.GEV_PARAM_NAMES.index(gev_param_name)
         if ax is None:
             ax = plt.gca()
-        if self.dot_display:
-            ax.plot(linspace, grid[:, gev_param_idx], 'o')
+        if self.datapoint_display:
+            ax.plot(linspace, grid[:, gev_param_idx], self.datapoint_marker)
         else:
             ax.plot(linspace, grid[:, gev_param_idx])
 
@@ -66,15 +76,15 @@ class AbstractMarginFunction(object):
         imshow_method = ax.imshow
         imshow_method(grid[..., gev_param_idx], extent=(x.min(), x.max(), y.min(), y.max()),
                       interpolation='nearest', cmap=cm.gist_rainbow)
+        # todo: add dot display in 2D
         if show:
             plt.show()
 
     def get_grid_1D(self, x):
         # TODO: to avoid getting the value several times, I could cache the results
-        if self.dot_display:
-            resolution = len(self.coordinates)
-            linspace = self.coordinates.coordinates_values()[:, 0]
-            print('dot display')
+        if self.datapoint_display:
+            linspace = self.coordinates.coordinates_values(self.spatio_temporal_split)[:, 0]
+            resolution = len(linspace)
         else:
             resolution = 100
             linspace = np.linspace(x.min(), x.max(), resolution)

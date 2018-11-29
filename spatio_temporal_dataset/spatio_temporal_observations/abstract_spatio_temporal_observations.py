@@ -1,11 +1,11 @@
 import pandas as pd
 import numpy as np
 
-from spatio_temporal_dataset.dataset.spatio_temporal_split import SpatialTemporalSplit, SpatioTemporalSlicer, \
-    train_ind_from_s_split, TEST_SPLIT_STR, TRAIN_SPLIT_STR, s_split_from_ratio
+from spatio_temporal_dataset.spatio_temporal_split import SpatialTemporalSplit, SpatioTemporalSlicer, \
+    train_ind_from_s_split, TEST_SPLIT_STR, TRAIN_SPLIT_STR, s_split_from_ratio, spatio_temporal_slice
 
 
-class AbstractTemporalObservations(object):
+class AbstractSpatioTemporalObservations(object):
 
     def __init__(self, df_maxima_frech: pd.DataFrame = None, df_maxima_gev: pd.DataFrame = None,
                  s_split: pd.Series = None, train_split_ratio: float = None):
@@ -37,24 +37,15 @@ class AbstractTemporalObservations(object):
     def from_df(cls, df):
         pass
 
-    @staticmethod
-    def df_maxima(df: pd.DataFrame, split: SpatialTemporalSplit = SpatialTemporalSplit.all,
-                  slicer: SpatioTemporalSlicer = None) -> pd.DataFrame:
-        if slicer is None:
-            assert split is SpatialTemporalSplit.all
-            return df
-        else:
-            return slicer.loc_split(df, split)
-
     def maxima_gev(self, split: SpatialTemporalSplit = SpatialTemporalSplit.all, slicer: SpatioTemporalSlicer = None):
-        return self.df_maxima(self.df_maxima_gev, split, slicer).values
+        return spatio_temporal_slice(self.df_maxima_gev, split, slicer).values
 
     def maxima_frech(self, split: SpatialTemporalSplit = SpatialTemporalSplit.all, slicer: SpatioTemporalSlicer = None):
-        return self.df_maxima(self.df_maxima_frech, split, slicer).values
+        return spatio_temporal_slice(self.df_maxima_frech, split, slicer).values
 
     def set_maxima_frech(self, maxima_frech_values: np.ndarray, split: SpatialTemporalSplit = SpatialTemporalSplit.all,
                          slicer: SpatioTemporalSlicer = None):
-        df = self.df_maxima(self.df_maxima_frech, split, slicer)
+        df = spatio_temporal_slice(self.df_maxima_frech, split, slicer)
         df.loc[:] = maxima_frech_values
 
     @property

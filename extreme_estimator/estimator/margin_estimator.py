@@ -1,10 +1,8 @@
-from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearMarginModel
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
-from spatio_temporal_dataset.dataset.spatio_temporal_split import SpatialTemporalSplit
 
 
 class AbstractMarginEstimator(AbstractEstimator):
@@ -33,7 +31,7 @@ class SmoothMarginEstimator(AbstractMarginEstimator):
         self.margin_model = margin_model
 
     def _fit(self):
-        maxima_gev = self.dataset.maxima_gev(split=SpatialTemporalSplit.train)
+        maxima_gev = self.dataset.maxima_gev(split=self.train_split)
         corodinate_values = self.dataset.coordinates_values
         self._margin_function_fitted = self.margin_model.fitmargin_from_maxima_gev(maxima_gev=maxima_gev,
                                                                                    coordinates_values=corodinate_values)

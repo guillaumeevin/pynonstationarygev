@@ -35,7 +35,7 @@ def multiple_spatial_robustness_alps():
         plot_row_item=MaxStableProcessPlot.NbStationItem,
         plot_label_item=MaxStableProcessPlot.MaxStableModelItem,
         nb_samples=nb_sample,
-        main_title="Max stable analysis with {} years of temporal_observations".format(nb_observation),
+        main_title="Max stable analysis with {} years of spatio_temporal_observations".format(nb_observation),
         plot_png_filename=plot_name
     )
     # Load all the models

@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 
-from spatio_temporal_dataset.dataset.spatio_temporal_split import s_split_from_ratio, TEST_SPLIT_STR, \
+from spatio_temporal_dataset.spatio_temporal_split import s_split_from_ratio, TEST_SPLIT_STR, \
     TRAIN_SPLIT_STR, train_ind_from_s_split, SpatialTemporalSplit
 
 

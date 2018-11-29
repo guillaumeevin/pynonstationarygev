@@ -1,5 +1,0 @@
-from spatio_temporal_dataset.temporal_observations.abstract_temporal_observations import AbstractTemporalObservations
-
-
-class AlpsPrecipitationObservations(AbstractTemporalObservations):
-    pass

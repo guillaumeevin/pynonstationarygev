@@ -3,11 +3,10 @@ import pandas as pd
 from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.dataset.spatio_temporal_split import s_split_from_ratio
-from spatio_temporal_dataset.temporal_observations.abstract_temporal_observations import AbstractTemporalObservations
+from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import AbstractSpatioTemporalObservations
 
 
-class AnnualMaxima(AbstractTemporalObservations):
+class AnnualMaxima(AbstractSpatioTemporalObservations):
     """
     Index are stations index
     Columns are the annual of the maxima

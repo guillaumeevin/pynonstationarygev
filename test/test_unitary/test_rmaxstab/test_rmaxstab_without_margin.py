@@ -7,7 +7,7 @@ from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Schlather
 from extreme_estimator.extreme_models.utils import r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.temporal_observations.annual_maxima_observations import MaxStableAnnualMaxima
+from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import MaxStableAnnualMaxima
 from test.test_unitary.test_unitary_abstract import TestUnitaryAbstract
 
 

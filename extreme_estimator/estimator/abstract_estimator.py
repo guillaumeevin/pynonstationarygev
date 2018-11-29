@@ -1,7 +1,7 @@
 import time
 
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
-from spatio_temporal_dataset.dataset.spatio_temporal_split import SpatialTemporalSplit
+from spatio_temporal_dataset.spatio_temporal_split import SpatialTemporalSplit
 
 
 class AbstractEstimator(object):
