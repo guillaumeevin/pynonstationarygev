@@ -1,6 +1,7 @@
 import time
 
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
+from spatio_temporal_dataset.dataset.spatio_temporal_split import SpatialTemporalSplit
 
 
 class AbstractEstimator(object):
@@ -14,6 +15,7 @@ class AbstractEstimator(object):
     def __init__(self, dataset: AbstractDataset):
         self.dataset = dataset  # type: AbstractDataset
         self.additional_information = dict()
+        self.train_split = SpatialTemporalSplit.train
 
     def fit(self):
         ts = time.time()

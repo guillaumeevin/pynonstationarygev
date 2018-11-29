@@ -35,15 +35,15 @@ class AbstractDataset(object):
     @property
     def df_dataset(self) -> pd.DataFrame:
         # Merge dataframes with the maxima and with the coordinates
-        return self.temporal_observations.df_maxima_gev.join(self.coordinates.df_coordinates)
+        # todo: maybe I should add the split from the temporal observations
+        return self.temporal_observations.df_maxima_gev.join(self.coordinates.df_merged)
+
+    def df_coordinates(self, split: SpatialTemporalSplit = SpatialTemporalSplit.all):
+        return self.coordinates.df_coordinates(split=split)
 
     @property
-    def df_coordinates(self):
-        return self.coordinates.df_coordinates
-
-    @property
-    def coordinates_values(self):
-        return self.coordinates.coordinates_values
+    def coordinates_values(self, split: SpatialTemporalSplit = SpatialTemporalSplit.all):
+        return self.coordinates.coordinates_values(split=split)
 
     def maxima_gev(self, split: SpatialTemporalSplit = SpatialTemporalSplit.all) -> np.ndarray:
         return self.temporal_observations.maxima_gev(split, self.spatio_temporal_slicer)

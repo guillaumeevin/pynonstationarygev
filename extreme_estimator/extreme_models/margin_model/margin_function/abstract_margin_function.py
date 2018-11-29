@@ -73,7 +73,7 @@ class AbstractMarginFunction(object):
         # TODO: to avoid getting the value several times, I could cache the results
         if self.dot_display:
             resolution = len(self.coordinates)
-            linspace = self.coordinates.coordinates_values[:, 0]
+            linspace = self.coordinates.coordinates_values()[:, 0]
             print('dot display')
         else:
             resolution = 100

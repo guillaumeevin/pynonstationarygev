@@ -26,16 +26,18 @@ class SimulatedDataset(AbstractDataset):
 class MaxStableDataset(SimulatedDataset):
 
     @classmethod
-    def from_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel, coordinates: AbstractCoordinates):
-        temporal_obs = MaxStableAnnualMaxima.from_sampling(nb_obs, max_stable_model, coordinates)
+    def from_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel, coordinates: AbstractCoordinates,
+                      train_split_ratio: float = None):
+        temporal_obs = MaxStableAnnualMaxima.from_sampling(nb_obs, max_stable_model, coordinates, train_split_ratio)
         return cls(temporal_observations=temporal_obs, coordinates=coordinates, max_stable_model=max_stable_model)
 
 
 class MarginDataset(SimulatedDataset):
 
     @classmethod
-    def from_sampling(cls, nb_obs: int, margin_model: AbstractMarginModel, coordinates: AbstractCoordinates):
-        temporal_obs = MarginAnnualMaxima.from_sampling(nb_obs, coordinates, margin_model)
+    def from_sampling(cls, nb_obs: int, margin_model: AbstractMarginModel, coordinates: AbstractCoordinates,
+                      train_split_ratio: float = None):
+        temporal_obs = MarginAnnualMaxima.from_sampling(nb_obs, coordinates, margin_model, train_split_ratio)
         return cls(temporal_observations=temporal_obs, coordinates=coordinates, margin_model=margin_model)
 
 
@@ -44,8 +46,9 @@ class FullSimulatedDataset(SimulatedDataset):
     @classmethod
     def from_double_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel,
                              coordinates: AbstractCoordinates,
-                             margin_model: AbstractMarginModel):
+                             margin_model: AbstractMarginModel,
+                             train_split_ratio: float = None):
         temporal_obs = FullAnnualMaxima.from_double_sampling(nb_obs, max_stable_model,
-                                                             coordinates, margin_model)
+                                                             coordinates, margin_model, train_split_ratio)
         return cls(temporal_observations=temporal_obs, coordinates=coordinates, max_stable_model=max_stable_model,
                    margin_model=margin_model)

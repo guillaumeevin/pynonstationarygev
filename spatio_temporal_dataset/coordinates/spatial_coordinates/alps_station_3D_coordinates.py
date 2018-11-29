@@ -43,5 +43,6 @@ class AlpsStation3DCoordinatesWithAnisotropy(AlpsStation3DCoordinates):
     @classmethod
     def from_csv(cls, csv_file='coord-lambert2'):
         coord = super().from_csv(csv_file)
+        print(coord)
         return TransformedCoordinates.from_coordinates(coordinates=coord,
                                                        transformation_function=AnisotropyTransformation())

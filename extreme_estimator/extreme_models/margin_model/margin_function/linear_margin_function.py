@@ -48,7 +48,7 @@ class LinearMarginFunction(IndependentMarginFunction):
             # Otherwise, we fit a LinearParamFunction
             else:
                 param_function = LinearParamFunction(linear_dims=self.gev_param_name_to_linear_dims[gev_param_name],
-                                                     coordinates=self.coordinates.coordinates_values,
+                                                     coordinates=self.coordinates.coordinates_values(),
                                                      linear_coef=linear_coef)
             # Add the param_function to the dictionary
             self.gev_param_name_to_param_function[gev_param_name] = param_function

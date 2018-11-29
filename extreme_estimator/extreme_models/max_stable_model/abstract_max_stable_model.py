@@ -22,7 +22,8 @@ class AbstractMaxStableModel(AbstractModel):
     def cov_mod_param(self):
         return {'cov.mod': self.cov_mod}
 
-    def fitmaxstab(self, df_coordinates: pd.DataFrame, maxima_frech: np.ndarray=None, maxima_gev: np.ndarray=None, fit_marge=False,
+    def fitmaxstab(self, df_coordinates: pd.DataFrame, maxima_frech: np.ndarray = None, maxima_gev: np.ndarray = None,
+                   fit_marge=False,
                    fit_marge_form_dict=None, margin_start_dict=None) -> dict:
         assert isinstance(df_coordinates, pd.DataFrame)
         if fit_marge:
@@ -32,6 +33,10 @@ class AbstractMaxStableModel(AbstractModel):
         # Prepare the data
         maxima = maxima_gev if fit_marge else maxima_frech
         assert isinstance(maxima, np.ndarray)
+        assert len(df_coordinates) == len(maxima), 'Coordinates and observations sizes should match,' \
+                                                   'check that the same split was used for both objects \n,' \
+                                                   'df_coordinates size: {}, data size {}'.format(len(df_coordinates),
+                                                                                                  len(maxima))
         data = np.transpose(maxima)
 
         # Prepare the coord
@@ -75,12 +80,12 @@ class AbstractMaxStableModel(AbstractModel):
         fitted_values = {key: fitted_values.rx2(key)[0] for key in fitted_values.names}
         return fitted_values
 
-    def rmaxstab(self, nb_obs: int, coordinates: np.ndarray) -> np.ndarray:
+    def rmaxstab(self, nb_obs: int, coordinates_values: np.ndarray) -> np.ndarray:
         """
         Return an numpy of maxima. With rows being the stations and columns being the years of maxima
         """
         maxima_frech = np.array(
-            r.rmaxstab(nb_obs, coordinates, *list(self.cov_mod_param.values()), **self.params_sample))
+            r.rmaxstab(nb_obs, coordinates_values, *list(self.cov_mod_param.values()), **self.params_sample))
         return np.transpose(maxima_frech)
 
     def remove_unused_parameters(self, start_dict, coordinate_dim):

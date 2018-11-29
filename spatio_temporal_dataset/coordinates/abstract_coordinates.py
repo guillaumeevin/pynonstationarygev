@@ -1,10 +1,13 @@
 import os.path as op
 from typing import List
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+
+from spatio_temporal_dataset.dataset.spatio_temporal_split import s_split_from_ratio, TEST_SPLIT_STR, \
+    TRAIN_SPLIT_STR, train_ind_from_s_split, SpatialTemporalSplit
 
 
 class AbstractCoordinates(object):
@@ -14,45 +17,54 @@ class AbstractCoordinates(object):
     COORDINATE_Z = 'coord_z'
     COORDINATE_NAMES = [COORDINATE_X, COORDINATE_Y, COORDINATE_Z]
     COORDINATE_SPLIT = 'coord_split'
-    # Constants for the split column
-    TRAIN_SPLIT_STR = 'train_split'
-    TEST_SPLIT_STR = 'test_split'
 
-    def __init__(self, df_coordinates: pd.DataFrame, s_split: pd.Series = None):
-        self.df_coordinates = df_coordinates  # type: pd.DataFrame
+    def __init__(self, df_coord: pd.DataFrame, s_split: pd.Series = None):
+        self.df_coord = df_coord  # type: pd.DataFrame
         self.s_split = s_split  # type: pd.Series
 
     # ClassMethod constructor
 
     @classmethod
-    def from_df(cls, df: pd.DataFrame):
+    def from_df(cls, df: pd.DataFrame, train_split_ratio: float = None):
         #  X and coordinates must be defined
         assert cls.COORDINATE_X in df.columns
-        df_coordinates = df.loc[:, cls.coordinates_columns(df)]
-        # Potentially, a split column can be specified
-        s_split = df[cls.COORDINATE_SPLIT] if cls.COORDINATE_SPLIT in df.columns else None
-        if s_split is not None:
-            assert s_split.isin([cls.TRAIN_SPLIT_STR, cls.TEST_SPLIT_STR])
-        return cls(df_coordinates=df_coordinates, s_split=s_split)
+        # Create a split based on the train_split_ratio
+        if train_split_ratio is not None:
+            assert cls.COORDINATE_SPLIT not in df.columns, "A split has already been defined"
+            s_split = s_split_from_ratio(length=len(df), train_split_ratio=train_split_ratio)
+            df[cls.COORDINATE_SPLIT] = s_split
+        # Potentially, a split column can be specified directly in df
+        if cls.COORDINATE_SPLIT not in df.columns:
+            df_coord = df
+            s_split = None
+        else:
+            df_coord = df.loc[:, cls.coordinates_columns(df)]
+            s_split = df[cls.COORDINATE_SPLIT]
+            assert s_split.isin([TRAIN_SPLIT_STR, TEST_SPLIT_STR]).all()
+        return cls(df_coord=df_coord, s_split=s_split)
 
     @classmethod
     def from_csv(cls, csv_path: str = None):
         assert csv_path is not None
         assert op.exists(csv_path)
         df = pd.read_csv(csv_path)
+        # Index correspond to the first column
+        index_column_name = df.columns[0]
+        assert index_column_name not in cls.coordinates_columns(df)
+        df.set_index(index_column_name, inplace=True)
         return cls.from_df(df)
 
     @classmethod
-    def from_nb_points(cls, nb_points: int, **kwargs):
+    def from_nb_points(cls, nb_points: int, train_split_ratio: float = None, **kwargs):
         # Call the default class method from csv
         coordinates = cls.from_csv()  # type: AbstractCoordinates
-        # Sample randomly nb_points coordinates
+        # Check that nb_points asked is not superior to the number of coordinates
         nb_coordinates = len(coordinates)
         if nb_points > nb_coordinates:
             raise Exception('Nb coordinates in csv: {} < Nb points desired: {}'.format(nb_coordinates, nb_points))
-        else:
-            df_sample = pd.DataFrame.sample(coordinates.df, n=nb_points)
-            return cls.from_df(df=df_sample)
+        # Sample randomly nb_points coordinates
+        df_sample = pd.DataFrame.sample(coordinates.df_merged, n=nb_points)
+        return cls.from_df(df=df_sample, train_split_ratio=train_split_ratio)
 
     @classmethod
     def coordinates_columns(cls, df_coord: pd.DataFrame) -> List[str]:
@@ -64,52 +76,48 @@ class AbstractCoordinates(object):
 
     @property
     def columns(self):
-        return self.coordinates_columns(df_coord=self.df_coordinates)
+        return self.coordinates_columns(df_coord=self.df_coord)
 
     @property
     def nb_columns(self):
         return len(self.columns)
 
     @property
-    def df(self) -> pd.DataFrame:
-        # Merged DataFrame of df_coord and s_split
-        return self.df_coordinates if self.s_split is None else self.df_coordinates.join(self.s_split)
-
-    def df_coordinates_split(self, split_str: str) -> pd.DataFrame:
-        assert self.s_split is not None
-        ind = self.s_split == split_str
-        return self.df_coordinates.loc[ind]
-
-    def _coordinates_values(self, df_coordinates: pd.DataFrame) -> np.ndarray:
-        return df_coordinates.loc[:, self.coordinates_columns(df_coordinates)].values
+    def index(self):
+        return self.df_coord.index
 
     @property
-    def coordinates_values(self) -> np.ndarray:
-        return self._coordinates_values(df_coordinates=self.df_coordinates)
+    def df_merged(self) -> pd.DataFrame:
+        # Merged DataFrame of df_coord and s_split
+        return self.df_coord if self.s_split is None else self.df_coord.join(self.s_split)
+
+    def df_coordinates(self, split: SpatialTemporalSplit = SpatialTemporalSplit.all) -> pd.DataFrame:
+        if split is SpatialTemporalSplit.all or self.s_split is None:
+            return self.df_coord
+        elif split in [SpatialTemporalSplit.train, SpatialTemporalSplit.test_temporal]:
+            return self.df_coord.loc[self.train_ind]
+        else:
+            return self.df_coord.loc[~self.train_ind]
+
+    def coordinates_values(self, split: SpatialTemporalSplit = SpatialTemporalSplit.all) -> np.ndarray:
+        return self.df_coordinates(split).values
 
     @property
     def x_coordinates(self) -> np.ndarray:
-        return self.df_coordinates.loc[:, self.COORDINATE_X].values.copy()
+        return self.df_coord[self.COORDINATE_X].values.copy()
 
     @property
     def y_coordinates(self) -> np.ndarray:
-        return self.df_coordinates.loc[:, self.COORDINATE_Y].values.copy()
-
-    @property
-    def index(self) -> pd.Series:
-        return self.df_coordinates.index
+        return self.df_coord[self.COORDINATE_Y].values.copy()
 
     @property
     def train_ind(self) -> pd.Series:
-        if self.s_split is None:
-            return None
-        else:
-            return self.s_split.isin([self.TRAIN_SPLIT_STR])
+        return train_ind_from_s_split(s_split=self.s_split)
 
     #  Visualization
 
     def visualize(self):
-        nb_coordinates_columns = len(self.coordinates_columns(self.df_coordinates))
+        nb_coordinates_columns = len(self.coordinates_columns(self.df_coord))
         if nb_coordinates_columns == 1:
             self.visualization_1D()
         elif nb_coordinates_columns == 2:
@@ -118,21 +126,23 @@ class AbstractCoordinates(object):
             self.visualization_3D()
 
     def visualization_1D(self):
-        assert len(self.coordinates_columns(self.df_coordinates)) >= 1
-        x = self.coordinates_values[:]
+        assert len(self.coordinates_columns(self.df_coord)) >= 1
+        x = self.coordinates_values()[:]
         y = np.zeros(len(x))
         plt.scatter(x, y)
         plt.show()
 
     def visualization_2D(self):
-        assert len(self.coordinates_columns(self.df_coordinates)) >= 2
-        x, y = self.coordinates_values[:, 0], self.coordinates_values[:, 1]
+        assert len(self.coordinates_columns(self.df_coord)) >= 2
+        coordinates_values = self.coordinates_values()
+        x, y = coordinates_values[:, 0], coordinates_values[:, 1]
         plt.scatter(x, y)
         plt.show()
 
     def visualization_3D(self):
-        assert len(self.coordinates_columns(self.df_coordinates)) == 3
-        x, y, z = self.coordinates_values[:, 0], self.coordinates_values[:, 1], self.coordinates_values[:, 2]
+        assert len(self.coordinates_columns(self.df_coord)) == 3
+        coordinates_values = self.coordinates_values()
+        x, y, z = coordinates_values[:, 0], coordinates_values[:, 1], coordinates_values[:, 2]
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')  # type: Axes3D
         ax.scatter(x, y, z, marker='^')
@@ -141,10 +151,10 @@ class AbstractCoordinates(object):
     #  Magic Methods
 
     def __len__(self):
-        return len(self.df_coordinates)
+        return len(self.df_coord)
 
     def __mul__(self, other: float):
-        self.df_coordinates *= other
+        self.df_coord *= other
         return self
 
     def __rmul__(self, other):

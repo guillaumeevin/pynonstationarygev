@@ -17,7 +17,9 @@ class SpatioTemporalSlicer(object):
         self.index_train_ind = coordinate_train_ind  # type: pd.Series
         self.column_train_ind = observation_train_ind  # type: pd.Series
         if self.ind_are_not_defined:
-            assert self.index_train_ind is None and self.column_train_ind is None, "One split was not defined"
+            msg = "One split was not defined \n \n" \
+                  "index: \n {}  \n, column:\n {} \n".format(self.index_train_ind, self.column_train_ind)
+            assert self.index_train_ind is None and self.column_train_ind is None, msg
 
     @property
     def index_test_ind(self) -> pd.Series:
@@ -36,8 +38,8 @@ class SpatioTemporalSlicer(object):
         # By default, if one of the two split is not defined we return all the data
         if self.ind_are_not_defined or split is SpatialTemporalSplit.all:
             return df
-        assert df.columns == self.column_train_ind.index
-        assert df.index == self.index_train_ind.index
+        assert pd.RangeIndex.equals(df.columns, self.column_train_ind.index)
+        assert pd.RangeIndex.equals(df.index, self.index_train_ind.index)
         if split is SpatialTemporalSplit.train:
             return df.loc[self.index_train_ind, self.column_train_ind]
         elif split is SpatialTemporalSplit.test:
@@ -46,3 +48,29 @@ class SpatioTemporalSlicer(object):
             return df.loc[self.index_test_ind, self.column_train_ind]
         elif split is SpatialTemporalSplit.test_temporal:
             return df.loc[self.index_train_ind, self.column_test_ind]
+
+
+SPLIT_NAME = 'split'
+TRAIN_SPLIT_STR = 'train_split'
+TEST_SPLIT_STR = 'test_split'
+
+
+def train_ind_from_s_split(s_split):
+    """
+
+    :param s_split:
+    :return:
+    """
+    if s_split is None:
+        return None
+    else:
+        return s_split.isin([TRAIN_SPLIT_STR])
+
+
+def s_split_from_ratio(length, train_split_ratio):
+    assert 0 < train_split_ratio < 1
+    s = pd.Series([TEST_SPLIT_STR for _ in range(length)])
+    nb_points_train = int(length * train_split_ratio)
+    train_ind = pd.Series.sample(s, n=nb_points_train).index
+    s.loc[train_ind] = TRAIN_SPLIT_STR
+    return s

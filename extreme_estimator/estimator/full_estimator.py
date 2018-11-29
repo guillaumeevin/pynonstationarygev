@@ -42,7 +42,7 @@ class SmoothMarginalsThenUnitaryMsp(AbstractFullEstimator):
         # Estimate the margin parameters
         self.margin_estimator.fit()
         # Compute the maxima_frech
-        maxima_gev_train = self.dataset.maxima_gev(split=SpatialTemporalSplit.train)
+        maxima_gev_train = self.dataset.maxima_gev(split=self.train_split)
         maxima_frech = AbstractMarginModel.gev2frech(maxima_gev=maxima_gev_train,
                                                      coordinates_values=self.dataset.coordinates_values,
                                                      margin_function=self.margin_estimator.margin_function_fitted)
@@ -70,8 +70,8 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
     def _fit(self):
         # Estimate both the margin and the max-stable structure
         self.full_params_fitted = self.max_stable_model.fitmaxstab(
-            maxima_gev=self.dataset.maxima_gev(split=SpatialTemporalSplit.train),
-            df_coordinates=self.dataset.df_coordinates,
+            maxima_gev=self.dataset.maxima_gev(split=self.train_split),
+            df_coordinates=self.dataset.df_coordinates(split=self.train_split),
             fit_marge=True,
             fit_marge_form_dict=self.linear_margin_function_to_fit.form_dict,
             margin_start_dict=self.linear_margin_function_to_fit.coef_dict
