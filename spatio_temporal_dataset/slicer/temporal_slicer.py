@@ -9,8 +9,8 @@ from spatio_temporal_dataset.slicer.split import Split
 class TemporalSlicer(AbstractSlicer):
     SPLITS = [Split.train_temporal, Split.test_temporal]
 
-    def __init__(self, coordinates_train_ind: Union[None, pd.Series], observations_train_ind: Union[None, pd.Series]):
-        super().__init__(None, observations_train_ind)
+    def __init__(self, ind_train_spatial: Union[None, pd.Series], ind_train_temporal: Union[None, pd.Series]):
+        super().__init__(None, ind_train_temporal)
 
     @property
     def splits(self) -> List[Split]:
@@ -26,11 +26,11 @@ class TemporalSlicer(AbstractSlicer):
 
     @property
     def some_required_ind_are_not_defined(self):
-        return self.column_train_ind is None
+        return self.ind_train_temporal is None
 
     def specialized_loc_split(self, df: pd.DataFrame, split: Split):
-        assert pd.Index.equals(df.columns, self.column_train_ind.index)
+        assert pd.Index.equals(df.index, self.ind_train_temporal.index)
         if split is Split.train_temporal:
-            return df.loc[:, self.column_train_ind]
+            return df.loc[self.ind_train_temporal]
         elif split is Split.test_temporal:
-            return df.loc[:, self.column_test_ind]
+            return df.loc[self.ind_test_temporal]

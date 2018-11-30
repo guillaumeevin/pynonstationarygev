@@ -37,7 +37,7 @@ class LinearMarginFunction(IndependentMarginFunction):
         # Check the linear_dim are well-defined with respect to the coordinates
         for linear_dims in self.gev_param_name_to_linear_dims.values():
             for dim in linear_dims:
-                assert 0 < dim <= coordinates.nb_columns, "dim={}, nb_columns={}".format(dim, coordinates.nb_columns)
+                assert 0 < dim <= coordinates.nb_coordinates, "dim={}, nb_columns={}".format(dim, coordinates.nb_coordinates)
 
         # Map each gev_param_name to its corresponding param_function
         for gev_param_name in GevParams.GEV_PARAM_NAMES:

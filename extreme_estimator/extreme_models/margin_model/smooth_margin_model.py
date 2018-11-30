@@ -103,7 +103,7 @@ class LinearMarginModelExample(LinearMarginModel):
 class LinearAllParametersAllDimsMarginModel(LinearMarginModel):
 
     def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_linear_dims=None):
-        all_dims = list(range(1, self.coordinates.nb_columns + 1))
+        all_dims = list(range(1, self.coordinates.nb_coordinates + 1))
         super().load_margin_functions({GevParams.GEV_SHAPE: all_dims.copy(),
                                        GevParams.GEV_LOC: all_dims.copy(),
                                        GevParams.GEV_SCALE: all_dims.copy()})

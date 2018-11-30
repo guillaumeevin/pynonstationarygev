@@ -18,29 +18,27 @@ class MarginAnnualMaxima(AnnualMaxima):
 
     @classmethod
     def from_sampling(cls, nb_obs: int, coordinates: AbstractCoordinates,
-                      margin_model: AbstractMarginModel, train_split_ratio: float = None):
+                      margin_model: AbstractMarginModel):
         maxima_gev = margin_model.rmargin_from_nb_obs(nb_obs=nb_obs, coordinates_values=coordinates.coordinates_values())
         df_maxima_gev = pd.DataFrame(data=maxima_gev, index=coordinates.index)
-        return cls(df_maxima_gev=df_maxima_gev, train_split_ratio=train_split_ratio)
+        return cls(df_maxima_gev=df_maxima_gev)
 
 
 class MaxStableAnnualMaxima(AnnualMaxima):
 
     @classmethod
-    def from_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel, coordinates: AbstractCoordinates,
-                      train_split_ratio: float = None):
+    def from_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel, coordinates: AbstractCoordinates):
         maxima_frech = max_stable_model.rmaxstab(nb_obs=nb_obs, coordinates_values=coordinates.coordinates_values())
         df_maxima_frech = pd.DataFrame(data=maxima_frech, index=coordinates.index)
-        return cls(df_maxima_frech=df_maxima_frech, train_split_ratio=train_split_ratio)
+        return cls(df_maxima_frech=df_maxima_frech)
 
 
 class FullAnnualMaxima(MaxStableAnnualMaxima):
 
     @classmethod
     def from_double_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel,
-                             coordinates: AbstractCoordinates, margin_model: AbstractMarginModel,
-                             train_split_ratio: float = None):
-        max_stable_annual_maxima = super().from_sampling(nb_obs, max_stable_model, coordinates, train_split_ratio)
+                             coordinates: AbstractCoordinates, margin_model: AbstractMarginModel):
+        max_stable_annual_maxima = super().from_sampling(nb_obs, max_stable_model, coordinates)
         #  Compute df_maxima_gev from df_maxima_frech
         maxima_gev = margin_model.rmargin_from_maxima_frech(maxima_frech=max_stable_annual_maxima.maxima_frech(),
                                                             coordinates_values=coordinates.coordinates_values())

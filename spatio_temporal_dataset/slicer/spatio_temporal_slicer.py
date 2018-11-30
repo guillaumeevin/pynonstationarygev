@@ -8,9 +8,9 @@ from spatio_temporal_dataset.slicer.split import Split
 
 class SpatioTemporalSlicer(AbstractSlicer):
     SPLITS = [Split.train_spatiotemporal,
-                Split.test_spatiotemporal,
-                Split.test_spatiotemporal_spatial,
-                Split.test_spatiotemporal_temporal]
+              Split.test_spatiotemporal,
+              Split.test_spatiotemporal_spatial,
+              Split.test_spatiotemporal_temporal]
 
     @property
     def splits(self) -> List[Split]:
@@ -26,16 +26,16 @@ class SpatioTemporalSlicer(AbstractSlicer):
 
     @property
     def some_required_ind_are_not_defined(self):
-        return self.index_train_ind is None or self.column_train_ind is None
+        return self.ind_train_spatial is None or self.ind_train_temporal is None
 
     def specialized_loc_split(self, df: pd.DataFrame, split: Split):
-        assert pd.Index.equals(df.columns, self.column_train_ind.index)
-        assert pd.Index.equals(df.index, self.index_train_ind.index)
+        assert pd.Index.equals(df.index, self.ind_train_temporal.index)
+        assert pd.Index.equals(df.index, self.ind_train_spatial.index)
         if split is Split.train_spatiotemporal:
-            return df.loc[self.index_train_ind, self.column_train_ind]
+            return df.loc[self.ind_train_spatial & self.ind_train_temporal]
         elif split is Split.test_spatiotemporal:
-            return df.loc[self.index_test_ind, self.column_test_ind]
+            return df.loc[self.ind_test_spatial & self.ind_test_temporal]
         elif split is Split.test_spatiotemporal_spatial:
-            return df.loc[self.index_test_ind, self.column_train_ind]
+            return df.loc[self.ind_test_spatial & self.ind_train_temporal]
         elif split is Split.test_spatiotemporal_temporal:
-            return df.loc[self.index_train_ind, self.column_test_ind]
+            return df.loc[self.ind_train_spatial & self.ind_test_temporal]

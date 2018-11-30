@@ -20,7 +20,7 @@ class TestRMaxStab(TestUnitaryAbstract):
     @classmethod
     def python_code(cls):
         # Load coordinate object
-        df = pd.DataFrame(data=r.locations, columns=AbstractCoordinates.COORDINATE_NAMES[:2])
+        df = pd.DataFrame(data=r.locations, columns=AbstractCoordinates.COORDINATE_SPATIAL_NAMES[:2])
         coordinates = AbstractCoordinates.from_df(df)
         # Load max stable model
         params_sample = {'range': 3, 'smooth': 0.5, 'nugget': 0}

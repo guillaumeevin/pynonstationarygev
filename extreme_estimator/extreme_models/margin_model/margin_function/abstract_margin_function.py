@@ -57,9 +57,9 @@ class AbstractMarginFunction(object):
             plt.show()
 
     def visualize_single_param(self, gev_param_name=GevParams.GEV_LOC, ax=None, show=True):
-        if self.coordinates.nb_columns == 1:
+        if self.coordinates.nb_coordinates_spatial == 1:
             self.visualize_1D(gev_param_name, ax, show)
-        elif self.coordinates.nb_columns == 2:
+        elif self.coordinates.nb_coordinates_spatial == 2:
             self.visualize_2D(gev_param_name, ax, show)
         else:
             raise NotImplementedError('3D Margin visualization not yet implemented')

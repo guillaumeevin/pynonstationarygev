@@ -56,6 +56,6 @@ class LinearCoef(object):
         shape.form = shape ~ coord_x+coord_y
         :return:
         """
-        dim_to_name = {i: name for i, name in enumerate(AbstractCoordinates.COORDINATE_NAMES, 1)}
+        dim_to_name = {i: name for i, name in enumerate(AbstractCoordinates.COORDINATES_NAMES, 1)}
         formula_str = '1' if not linear_dims else '+'.join([dim_to_name[dim] for dim in linear_dims])
         return {self.gev_param_name + '.form': self.gev_param_name + ' ~ ' + formula_str}

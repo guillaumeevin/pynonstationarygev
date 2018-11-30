@@ -17,10 +17,9 @@ class SimulatedDataset(AbstractDataset):
 
     def __init__(self, observations: AbstractSpatioTemporalObservations,
                  coordinates: AbstractCoordinates,
-                 slicer_class: type = SpatialSlicer,
                  max_stable_model: AbstractMaxStableModel = None,
                  margin_model: AbstractMarginModel = None):
-        super().__init__(observations, coordinates, slicer_class)
+        super().__init__(observations, coordinates)
         assert margin_model is not None or max_stable_model is not None
         self.margin_model = margin_model  # type: AbstractMarginModel
         self.max_stable_model = max_stable_model  # type: AbstractMaxStableModel
@@ -29,21 +28,17 @@ class SimulatedDataset(AbstractDataset):
 class MaxStableDataset(SimulatedDataset):
 
     @classmethod
-    def from_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel, coordinates: AbstractCoordinates,
-                      train_split_ratio: float = None, slicer_class: type = SpatialSlicer):
-        observations = MaxStableAnnualMaxima.from_sampling(nb_obs, max_stable_model, coordinates, train_split_ratio)
-        return cls(observations=observations, coordinates=coordinates, slicer_class=slicer_class,
-                   max_stable_model=max_stable_model)
+    def from_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel, coordinates: AbstractCoordinates):
+        observations = MaxStableAnnualMaxima.from_sampling(nb_obs, max_stable_model, coordinates)
+        return cls(observations=observations, coordinates=coordinates, max_stable_model=max_stable_model)
 
 
 class MarginDataset(SimulatedDataset):
 
     @classmethod
-    def from_sampling(cls, nb_obs: int, margin_model: AbstractMarginModel, coordinates: AbstractCoordinates,
-                      train_split_ratio: float = None, slicer_class: type = SpatialSlicer):
-        observations = MarginAnnualMaxima.from_sampling(nb_obs, coordinates, margin_model, train_split_ratio)
-        return cls(observations=observations, coordinates=coordinates, slicer_class=slicer_class,
-                   margin_model=margin_model)
+    def from_sampling(cls, nb_obs: int, margin_model: AbstractMarginModel, coordinates: AbstractCoordinates):
+        observations = MarginAnnualMaxima.from_sampling(nb_obs, coordinates, margin_model)
+        return cls(observations=observations, coordinates=coordinates, margin_model=margin_model)
 
 
 class FullSimulatedDataset(SimulatedDataset):
@@ -51,10 +46,8 @@ class FullSimulatedDataset(SimulatedDataset):
     @classmethod
     def from_double_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel,
                              coordinates: AbstractCoordinates,
-                             margin_model: AbstractMarginModel,
-                             train_split_ratio: float = None,
-                             slicer_class: type = SpatialSlicer):
+                             margin_model: AbstractMarginModel):
         observations = FullAnnualMaxima.from_double_sampling(nb_obs, max_stable_model,
-                                                             coordinates, margin_model, train_split_ratio)
-        return cls(observations=observations, coordinates=coordinates, slicer_class=slicer_class,
+                                                             coordinates, margin_model)
+        return cls(observations=observations, coordinates=coordinates,
                    max_stable_model=max_stable_model, margin_model=margin_model)

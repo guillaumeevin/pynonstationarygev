@@ -6,8 +6,6 @@ import numpy as np
 import pandas as pd
 
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.slicer.abstract_slicer import AbstractSlicer
-from spatio_temporal_dataset.slicer.spatial_slicer import SpatialSlicer
 from spatio_temporal_dataset.slicer.split import Split
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
@@ -15,15 +13,14 @@ from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_tempor
 
 class AbstractDataset(object):
 
-    def __init__(self, observations: AbstractSpatioTemporalObservations, coordinates: AbstractCoordinates,
-                 slicer_class: type = SpatialSlicer):
+    def __init__(self, observations: AbstractSpatioTemporalObservations, coordinates: AbstractCoordinates):
         assert pd.Index.equals(observations.index, coordinates.index)
-        assert isinstance(slicer_class, type)
         self.observations = observations
         self.coordinates = coordinates
-        self.slicer = slicer_class(coordinates_train_ind=self.coordinates.ind_train_spatial,
-                                   observations_train_ind=self.observations.train_ind)  # type: AbstractSlicer
-        assert isinstance(self.slicer, AbstractSlicer)
+
+    @property
+    def slicer(self):
+        return self.coordinates.slicer
 
     @classmethod
     def from_csv(cls, csv_path: str):
@@ -65,7 +62,7 @@ class AbstractDataset(object):
         return self.coordinates.coordinates_values(split=split)
 
     def coordinates_index(self, split: Split= Split.all) -> pd.Index:
-        return self.coordinates.coordinate_index(split=split)
+        return self.coordinates.coordinates_index(split=split)
 
     # Slicer wrapper
 

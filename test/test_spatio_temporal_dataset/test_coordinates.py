@@ -1,15 +1,20 @@
 import unittest
+from collections import Counter
 
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
+    CircleTemporalCoordinates
 from spatio_temporal_dataset.coordinates.unidimensional_coordinates.coordinates_1D import UniformCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_2D_coordinates import \
     AlpsStation2DCoordinatesBetweenZeroAndOne
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
     AlpsStation3DCoordinatesWithAnisotropy
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates
+from spatio_temporal_dataset.slicer.spatio_temporal_slicer import SpatioTemporalSlicer
+from spatio_temporal_dataset.slicer.split import Split
 
 
-class TestCoordinates(unittest.TestCase):
+class TestSpatialCoordinates(unittest.TestCase):
     DISPLAY = False
 
     def __init__(self, methodName='runTest'):
@@ -32,6 +37,23 @@ class TestCoordinates(unittest.TestCase):
 
     def test_anisotropy(self):
         self.coord = AlpsStation3DCoordinatesWithAnisotropy.from_csv()
+
+
+class SpatioTemporalCoordinates(unittest.TestCase):
+    nb_points = 4
+    nb_times_steps = 2
+
+    def tearDown(self):
+        c = Counter([len(self.coordinates.df_coordinates(split)) for split in SpatioTemporalSlicer.SPLITS])
+        good_count = c == Counter([2, 2, 2, 2]) or c == Counter([0, 0, 4, 4])
+        self.assertTrue(good_count)
+
+    def test_temporal_circle(self):
+        self.coordinates = CircleTemporalCoordinates.from_nb_points(nb_points=self.nb_points,
+                                                                    nb_time_steps=self.nb_times_steps,
+                                                                    train_split_ratio=0.5)
+    # def test_temporal_alps(self):
+    #     pass
 
 
 if __name__ == '__main__':
