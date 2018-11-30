@@ -32,6 +32,6 @@ class SmoothMarginEstimator(AbstractMarginEstimator):
 
     def _fit(self):
         maxima_gev = self.dataset.maxima_gev(split=self.train_split)
-        corodinate_values = self.dataset.coordinates_values
+        coordinate_values = self.dataset.coordinates_values(self.train_split)
         self._margin_function_fitted = self.margin_model.fitmargin_from_maxima_gev(maxima_gev=maxima_gev,
-                                                                                   coordinates_values=corodinate_values)
+                                                                                   coordinates_values=coordinate_values)

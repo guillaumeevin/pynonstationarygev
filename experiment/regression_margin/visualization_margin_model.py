@@ -22,12 +22,11 @@ class VisualizationMarginModel(unittest.TestCase):
     @classmethod
     def example_visualization_1D(cls):
         coordinates = LinSpaceCoordinates.from_nb_points(nb_points=cls.nb_points)
-        # MarginModel Linear with respect to the shape (from 0.01 to 0.02)
-        margin_model = cls.margin_model(coordinates=coordinates, params_sample={GevParams.GEV_SHAPE: 0.02})
+        margin_model = cls.margin_model(coordinates=coordinates, params_sample={(GevParams.GEV_SHAPE, 1): 0.02})
         if cls.DISPLAY:
             margin_model.margin_function_sample.visualize()
 
 
 if __name__ == '__main__':
     VisualizationMarginModel.example_visualization_1D()
-    VisualizationMarginModel.example_visualization_2D()
+    # VisualizationMarginModel.example_visualization_2D()

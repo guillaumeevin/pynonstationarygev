@@ -39,17 +39,23 @@ class SplitCurve(object):
         # Fit the estimator and get the margin_function
         self.estimator.fit()
         # todo: potentially I will do the fit several times, and retrieve the mean error
+        # there is a big variablility so it would be really interesting to average, to make real
         self.margin_function_fitted = estimator.margin_function_fitted
 
         self.error_dict = error_dict_between_margin_functions(self.margin_function_sample, self.margin_function_fitted)
         # todo: add quantile curve, additionally to the marginal curve
 
+    @property
+    def main_title(self):
+        return self.dataset.slicer.summary(show=False)
+
     def visualize(self):
-        fig, axes = plt.subplots(3, 2, sharex='col', sharey='row')
+        fig, axes = plt.subplots(3, 2)
         fig.subplots_adjust(hspace=0.4, wspace=0.4, )
         for i, gev_param_name in enumerate(GevParams.GEV_PARAM_NAMES):
             self.margin_graph(axes[i, 0], gev_param_name)
             self.score_graph(axes[i, 1], gev_param_name)
+        fig.suptitle(self.main_title)
         plt.show()
 
     def margin_graph(self, ax, gev_param_name):
@@ -63,9 +69,10 @@ class SplitCurve(object):
         ax.set_title(title_str)
 
     def score_graph(self, ax, gev_param_name):
-        for split in self.dataset.splits:
-            s = self.error_dict[gev_param_name]
-        data = [1.5] * 7 + [2.5] * 2 + [3.5] * 8 + [4.5] * 3 + [5.5] * 1 + [6.5] * 8
+        # todo: for the moment only the train/test are interresting (the spatio temporal isn"t working yet)
         sns.set_style('whitegrid')
-        sns.kdeplot(np.array(data), bw=0.5, ax=ax)
-        print()
+        s = self.error_dict[gev_param_name]
+        for split in self.dataset.splits:
+            ind = self.dataset.coordinates_index(split)
+            data = s.loc[ind].values
+            sns.kdeplot(data, bw=0.5, ax=ax, label=split.name).set(xlim=0)

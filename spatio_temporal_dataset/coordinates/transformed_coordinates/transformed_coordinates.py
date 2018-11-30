@@ -7,8 +7,8 @@ class TransformedCoordinates(AbstractCoordinates):
     @classmethod
     def from_coordinates(cls, coordinates: AbstractCoordinates,
                          transformation_function: AbstractTransformation):
-        df_coordinates_transformed = coordinates.df_coord.copy()
+        df_coordinates_transformed = coordinates.df_all_coordinates.copy()
         df_coordinates_transformed = transformation_function.transform(df_coord=df_coordinates_transformed)
-        return cls(df_coord=df_coordinates_transformed, s_split=coordinates.s_split)
+        return cls(df_coord=df_coordinates_transformed, s_spatial_split=coordinates.s_spatial_split)
 
 

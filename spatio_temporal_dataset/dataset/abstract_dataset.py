@@ -21,7 +21,7 @@ class AbstractDataset(object):
         assert isinstance(slicer_class, type)
         self.observations = observations
         self.coordinates = coordinates
-        self.slicer = slicer_class(coordinates_train_ind=self.coordinates.train_ind,
+        self.slicer = slicer_class(coordinates_train_ind=self.coordinates.ind_train_spatial,
                                    observations_train_ind=self.observations.train_ind)  # type: AbstractSlicer
         assert isinstance(self.slicer, AbstractSlicer)
 
@@ -61,9 +61,11 @@ class AbstractDataset(object):
 
     # Coordinates wrapper
 
-    @property
     def coordinates_values(self, split: Split = Split.all) -> np.ndarray:
         return self.coordinates.coordinates_values(split=split)
+
+    def coordinates_index(self, split: Split= Split.all) -> pd.Index:
+        return self.coordinates.coordinate_index(split=split)
 
     # Slicer wrapper
 

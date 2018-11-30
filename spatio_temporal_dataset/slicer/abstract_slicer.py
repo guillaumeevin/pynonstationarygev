@@ -37,16 +37,19 @@ class AbstractSlicer(object):
     def some_required_ind_are_not_defined(self):
         pass
 
-    def summary(self):
-        print('Slicer summary: \n')
+    def summary(self, show=True):
+        msg = ''
         for s, global_name in [(self.index_train_ind, "Spatial"), (self.column_train_ind, "Temporal")]:
-            print(global_name + ' split')
+            msg += global_name + ': '
             if s is None:
-                print('Not handled by this slicer')
+                msg += 'Not handled by this slicer'
             else:
                 for f, name in [(len, 'Total'), (sum, 'train')]:
-                    print("{}: {}".format(name, f(s)))
-                print('\n')
+                    msg += "{}: {} ".format(name, f(s))
+                msg += ' / '
+        if show:
+            print(msg)
+        return msg
 
     def loc_split(self, df: pd.DataFrame, split: Split):
         # split should belong to the list of split accepted by the slicer

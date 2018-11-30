@@ -10,6 +10,13 @@ def abs_error(s1, s2):
 
 
 def error_dict_between_margin_functions(margin1: AbstractMarginFunction, margin2: AbstractMarginFunction):
+    """
+    Return a serie, indexed by the same index as the coordinates
+    Each value correspond to the error for this coordinate
+    :param margin1:
+    :param margin2:
+    :return:
+    """
     assert margin1.coordinates == margin2.coordinates
     margin1_gev_params, margin2_gev_params = margin1.gev_params_for_coordinates, margin2.gev_params_for_coordinates
     gev_param_name_to_error_serie = {}
