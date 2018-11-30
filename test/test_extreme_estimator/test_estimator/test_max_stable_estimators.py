@@ -11,8 +11,8 @@ from test.test_utils import load_test_max_stable_models, load_test_1D_and_2D_coo
 
 class TestMaxStableEstimators(unittest.TestCase):
     DISPLAY = False
-    nb_points = 5
-    nb_obs = 10
+    nb_points = 2
+    nb_obs = 3
 
     def setUp(self):
         super().setUp()

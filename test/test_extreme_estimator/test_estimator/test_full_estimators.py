@@ -8,8 +8,8 @@ from test.test_utils import load_test_max_stable_models, load_smooth_margin_mode
 
 class TestFullEstimators(unittest.TestCase):
     DISPLAY = False
-    nb_obs = 10
-    nb_points = 5
+    nb_obs = 3
+    nb_points = 2
 
     def setUp(self):
         super().setUp()

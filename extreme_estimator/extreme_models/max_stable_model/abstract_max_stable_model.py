@@ -34,7 +34,7 @@ class AbstractMaxStableModel(AbstractModel):
         maxima = maxima_gev if fit_marge else maxima_frech
         assert isinstance(maxima, np.ndarray)
         assert len(df_coordinates) == len(maxima), 'Coordinates and observations sizes should match,' \
-                                                   'check that the same split was used for both objects \n,' \
+                                                   'check that the same split was used for both objects, \n' \
                                                    'df_coordinates size: {}, data size {}'.format(len(df_coordinates),
                                                                                                   len(maxima))
         data = np.transpose(maxima)

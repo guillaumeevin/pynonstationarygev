@@ -1,10 +1,11 @@
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 from extreme_estimator.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.spatio_temporal_split import SpatialTemporalSplit
+from spatio_temporal_dataset.slicer.split import Split
 
 
 class AbstractMarginFunction(object):
@@ -16,12 +17,23 @@ class AbstractMarginFunction(object):
         # Visualization parameters
         self.visualization_axes = None
         self.datapoint_display = False
-        self.spatio_temporal_split = SpatialTemporalSplit.all
+        self.spatio_temporal_split = Split.all
         self.datapoint_marker = 'o'
 
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
         """Main method that maps each coordinate to its GEV parameters"""
         pass
+
+    # Extraction function
+
+    @property
+    def gev_params_for_coordinates(self):
+        gev_params = [self.get_gev_params(coordinate).to_dict() for coordinate in self.coordinates.coordinates_values()]
+        gev_param_name_to_serie = {}
+        for gev_param_name in GevParams.GEV_PARAM_NAMES:
+            s = pd.Series(data=[p[gev_param_name] for p in gev_params], index=self.coordinates.index)
+            gev_param_name_to_serie[gev_param_name] = s
+        return gev_param_name_to_serie
 
     # Visualization function
 

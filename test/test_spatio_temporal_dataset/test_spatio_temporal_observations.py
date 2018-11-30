@@ -6,7 +6,7 @@ import pandas as pd
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import AbstractSpatioTemporalObservations
 
 
-class TestTemporalObservations(unittest.TestCase):
+class TestSpatioTemporalObservations(unittest.TestCase):
     DISPLAY = False
 
     def test_set_maxima_gev(self):

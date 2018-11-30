@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
 
-from spatio_temporal_dataset.spatio_temporal_split import SpatialTemporalSplit, SpatioTemporalSlicer, \
-    train_ind_from_s_split, TEST_SPLIT_STR, TRAIN_SPLIT_STR, s_split_from_ratio, spatio_temporal_slice
+from spatio_temporal_dataset.slicer.abstract_slicer import slice, AbstractSlicer
+from spatio_temporal_dataset.slicer.split import Split, \
+    train_ind_from_s_split, TEST_SPLIT_STR, TRAIN_SPLIT_STR, s_split_from_ratio
 
 
 class AbstractSpatioTemporalObservations(object):
@@ -22,30 +23,39 @@ class AbstractSpatioTemporalObservations(object):
             raise AttributeError('A split is already defined, there is no need to specify a ratio')
         elif s_split is not None or train_split_ratio is not None:
             if train_split_ratio:
-                s_split = s_split_from_ratio(length=self.nb_obs, train_split_ratio=train_split_ratio)
+                s_split = s_split_from_ratio(index=self._df_maxima.columns, train_split_ratio=train_split_ratio)
+            assert len(s_split) == len(self._df_maxima.columns)
             assert s_split.isin([TRAIN_SPLIT_STR, TEST_SPLIT_STR]).all()
         self.s_split = s_split
 
     @property
-    def nb_obs(self):
+    def _df_maxima(self) -> pd.DataFrame:
         if self.df_maxima_frech is not None:
-            return len(self.df_maxima_frech.columns)
+            return self.df_maxima_frech
         else:
-            return len(self.df_maxima_gev.columns)
+            return self.df_maxima_gev
+
+    @property
+    def index(self) -> pd.Index:
+        return self._df_maxima.index
+
+    @property
+    def nb_obs(self) -> int:
+        return len(self._df_maxima.columns)
 
     @classmethod
     def from_df(cls, df):
         pass
 
-    def maxima_gev(self, split: SpatialTemporalSplit = SpatialTemporalSplit.all, slicer: SpatioTemporalSlicer = None):
-        return spatio_temporal_slice(self.df_maxima_gev, split, slicer).values
+    def maxima_gev(self, split: Split = Split.all, slicer: AbstractSlicer = None) -> np.ndarray:
+        return slice(self.df_maxima_gev, split, slicer).values
 
-    def maxima_frech(self, split: SpatialTemporalSplit = SpatialTemporalSplit.all, slicer: SpatioTemporalSlicer = None):
-        return spatio_temporal_slice(self.df_maxima_frech, split, slicer).values
+    def maxima_frech(self, split: Split = Split.all, slicer: AbstractSlicer = None) -> np.ndarray:
+        return slice(self.df_maxima_frech, split, slicer).values
 
-    def set_maxima_frech(self, maxima_frech_values: np.ndarray, split: SpatialTemporalSplit = SpatialTemporalSplit.all,
-                         slicer: SpatioTemporalSlicer = None):
-        df = spatio_temporal_slice(self.df_maxima_frech, split, slicer)
+    def set_maxima_frech(self, maxima_frech_values: np.ndarray, split: Split = Split.all,
+                         slicer: AbstractSlicer = None):
+        df = slice(self.df_maxima_frech, split, slicer)
         df.loc[:] = maxima_frech_values
 
     @property

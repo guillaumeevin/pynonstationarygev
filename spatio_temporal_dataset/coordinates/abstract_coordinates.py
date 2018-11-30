@@ -6,8 +6,11 @@ import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 
-from spatio_temporal_dataset.spatio_temporal_split import s_split_from_ratio, TEST_SPLIT_STR, \
-    TRAIN_SPLIT_STR, train_ind_from_s_split, SpatialTemporalSplit
+from spatio_temporal_dataset.slicer.spatial_slicer import SpatialSlicer
+from spatio_temporal_dataset.slicer.spatio_temporal_slicer import SpatioTemporalSlicer
+from spatio_temporal_dataset.slicer.split import s_split_from_ratio, TEST_SPLIT_STR, \
+    TRAIN_SPLIT_STR, train_ind_from_s_split, Split
+from spatio_temporal_dataset.slicer.temporal_slicer import TemporalSlicer
 
 
 class AbstractCoordinates(object):
@@ -31,7 +34,7 @@ class AbstractCoordinates(object):
         # Create a split based on the train_split_ratio
         if train_split_ratio is not None:
             assert cls.COORDINATE_SPLIT not in df.columns, "A split has already been defined"
-            s_split = s_split_from_ratio(length=len(df), train_split_ratio=train_split_ratio)
+            s_split = s_split_from_ratio(index=df.index, train_split_ratio=train_split_ratio)
             df[cls.COORDINATE_SPLIT] = s_split
         # Potentially, a split column can be specified directly in df
         if cls.COORDINATE_SPLIT not in df.columns:
@@ -91,15 +94,21 @@ class AbstractCoordinates(object):
         # Merged DataFrame of df_coord and s_split
         return self.df_coord if self.s_split is None else self.df_coord.join(self.s_split)
 
-    def df_coordinates(self, split: SpatialTemporalSplit = SpatialTemporalSplit.all) -> pd.DataFrame:
-        if split is SpatialTemporalSplit.all or self.s_split is None:
+    def df_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
+        if self.train_ind is None:
             return self.df_coord
-        elif split in [SpatialTemporalSplit.train, SpatialTemporalSplit.test_temporal]:
+        if split is Split.all:
+            return self.df_coord
+        if split in [Split.train_temporal, Split.test_temporal]:
+            return self.df_coord
+        elif split in [Split.train_spatial, Split.train_spatiotemporal, Split.test_spatiotemporal_temporal]:
             return self.df_coord.loc[self.train_ind]
-        else:
+        elif split in [Split.test_spatial, Split.test_spatiotemporal, Split.test_spatiotemporal_spatial]:
             return self.df_coord.loc[~self.train_ind]
+        else:
+            raise NotImplementedError('Unknown split: {}'.format(split))
 
-    def coordinates_values(self, split: SpatialTemporalSplit = SpatialTemporalSplit.all) -> np.ndarray:
+    def coordinates_values(self, split: Split = Split.all) -> np.ndarray:
         return self.df_coordinates(split).values
 
     @property
