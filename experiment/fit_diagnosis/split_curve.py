@@ -43,36 +43,42 @@ class SplitCurve(object):
         self.margin_function_fitted = estimator.margin_function_fitted
 
         self.error_dict = error_dict_between_margin_functions(self.margin_function_sample, self.margin_function_fitted)
-        # todo: add quantile curve, additionally to the marginal curve
 
     @property
     def main_title(self):
         return self.dataset.slicer.summary(show=False)
 
     def visualize(self):
-        fig, axes = plt.subplots(3, 2)
+        fig, axes = plt.subplots(len(GevParams.GEV_VALUE_NAMES), 2)
         fig.subplots_adjust(hspace=0.4, wspace=0.4, )
-        for i, gev_param_name in enumerate(GevParams.GEV_PARAM_NAMES):
-            self.margin_graph(axes[i, 0], gev_param_name)
-            self.score_graph(axes[i, 1], gev_param_name)
+        for i, gev_value_name in enumerate(GevParams.GEV_VALUE_NAMES):
+            self.margin_graph(axes[i, 0], gev_value_name)
+            self.score_graph(axes[i, 1], gev_value_name)
         fig.suptitle(self.main_title)
         plt.show()
 
-    def margin_graph(self, ax, gev_param_name):
+    def margin_graph(self, ax, gev_value_name):
         # Display the fitted curve
-        self.margin_function_fitted.visualize_single_param(gev_param_name, ax, show=False)
+        self.margin_function_fitted.visualize_single_param(gev_value_name, ax, show=False)
         # Display train/test points
         for split, marker in [(self.dataset.train_split, 'o'), (self.dataset.test_split, 'x')]:
             self.margin_function_sample.set_datapoint_display_parameters(split, datapoint_marker=marker)
-            self.margin_function_sample.visualize_single_param(gev_param_name, ax, show=False)
-        title_str = gev_param_name
-        ax.set_title(title_str)
+            self.margin_function_sample.visualize_single_param(gev_value_name, ax, show=False)
 
-    def score_graph(self, ax, gev_param_name):
+    def score_graph(self, ax, gev_value_name):
         # todo: for the moment only the train/test are interresting (the spatio temporal isn"t working yet)
         sns.set_style('whitegrid')
-        s = self.error_dict[gev_param_name]
+        s = self.error_dict[gev_value_name]
         for split in self.dataset.splits:
             ind = self.dataset.coordinates_index(split)
             data = s.loc[ind].values
             sns.kdeplot(data, bw=0.5, ax=ax, label=split.name).set(xlim=0)
+        ax.legend()
+        # X axis
+        ax.set_xlabel('Absolute error in percentage')
+        plt.setp(ax.get_xticklabels(), visible=True)
+        ax.xaxis.set_tick_params(labelbottom=True)
+        # Y axis
+        ax.set_ylabel(gev_value_name)
+        plt.setp(ax.get_yticklabels(), visible=True)
+        ax.yaxis.set_tick_params(labelbottom=True)

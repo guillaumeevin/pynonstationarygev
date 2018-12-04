@@ -2,6 +2,7 @@ import random
 
 from experiment.fit_diagnosis.split_curve import SplitCurve, LocFunction
 from extreme_estimator.estimator.full_estimator import FullEstimatorInASingleStepWithSmoothMargin
+from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import ConstantMarginModel, \
     LinearAllParametersAllDimsMarginModel
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith
@@ -13,6 +14,7 @@ from spatio_temporal_dataset.slicer.spatial_slicer import SpatialSlicer
 from spatio_temporal_dataset.slicer.spatio_temporal_slicer import SpatioTemporalSlicer
 
 random.seed(42)
+
 
 def load_dataset():
     nb_points = 50
@@ -30,20 +32,18 @@ def load_dataset():
 
     return FullSimulatedDataset.from_double_sampling(nb_obs=nb_obs, margin_model=margin_model,
                                                      coordinates=coordinates,
-                                                     max_stable_model=max_stable_model,
-                                                     train_split_ratio=0.8,
-                                                     slicer_class=SpatialSlicer)
+                                                     max_stable_model=max_stable_model)
 
 
 def full_estimator(dataset):
     max_stable_model = Smith()
     margin_model_for_estimator = LinearAllParametersAllDimsMarginModel(dataset.coordinates)
-    full_estimator = FullEstimatorInASingleStepWithSmoothMargin(dataset, margin_model_for_estimator, max_stable_model)
-    return full_estimator
+    # full_estimator = FullEstimatorInASingleStepWithSmoothMargin(dataset, margin_model_for_estimator, max_stable_model)
+    fast_estimator = SmoothMarginEstimator(dataset, margin_model_for_estimator)
+    return fast_estimator
 
 
 if __name__ == '__main__':
-
     dataset = load_dataset()
     dataset.slicer.summary()
     full_estimator = full_estimator(dataset)

@@ -5,23 +5,25 @@ from extreme_estimator.extreme_models.margin_model.margin_function.abstract_marg
 from extreme_estimator.gev_params import GevParams
 
 
-def abs_error(s1, s2):
-    return (s1 - s2).abs().pow(2)
+def relative_abs_error(reference_value, fitted_value):
+    return (reference_value - fitted_value).abs() / reference_value
 
 
-def error_dict_between_margin_functions(margin1: AbstractMarginFunction, margin2: AbstractMarginFunction):
+def error_dict_between_margin_functions(reference: AbstractMarginFunction, fitted: AbstractMarginFunction):
     """
     Return a serie, indexed by the same index as the coordinates
     Each value correspond to the error for this coordinate
-    :param margin1:
-    :param margin2:
+    :param reference:
+    :param fitted:
     :return:
     """
-    assert margin1.coordinates == margin2.coordinates
-    margin1_gev_params, margin2_gev_params = margin1.gev_params_for_coordinates, margin2.gev_params_for_coordinates
+    assert reference.coordinates == fitted.coordinates
+    reference_values = reference.gev_value_name_to_serie
+    fitted_values = fitted.gev_value_name_to_serie
+
     gev_param_name_to_error_serie = {}
-    for gev_param_name in GevParams.GEV_PARAM_NAMES:
-        serie1, serie2 = margin1_gev_params[gev_param_name], margin2_gev_params[gev_param_name]
-        error = abs_error(serie1, serie2)
-        gev_param_name_to_error_serie[gev_param_name] = error
+    for value_name in GevParams.GEV_VALUE_NAMES:
+        print(value_name)
+        error = relative_abs_error(reference_values[value_name], fitted_values[value_name])
+        gev_param_name_to_error_serie[value_name] = error
     return gev_param_name_to_error_serie
