@@ -20,10 +20,8 @@ def error_dict_between_margin_functions(reference: AbstractMarginFunction, fitte
     assert reference.coordinates == fitted.coordinates
     reference_values = reference.gev_value_name_to_serie
     fitted_values = fitted.gev_value_name_to_serie
-
     gev_param_name_to_error_serie = {}
-    for value_name in GevParams.GEV_VALUE_NAMES:
-        print(value_name)
-        error = relative_abs_error(reference_values[value_name], fitted_values[value_name])
-        gev_param_name_to_error_serie[value_name] = error
+    for gev_value_name in GevParams.GEV_VALUE_NAMES:
+        error = relative_abs_error(reference_values[gev_value_name], fitted_values[gev_value_name])
+        gev_param_name_to_error_serie[gev_value_name] = error
     return gev_param_name_to_error_serie

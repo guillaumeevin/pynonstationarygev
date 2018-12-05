@@ -22,6 +22,17 @@ class PointWiseMarginEstimator(AbstractMarginEstimator):
     pass
 
 
+class ConstantMarginEstimator(AbstractMarginEstimator):
+
+    def __init__(self, dataset: AbstractDataset, margin_model: LinearMarginModel):
+        super().__init__(dataset)
+        assert isinstance(margin_model, LinearMarginModel)
+        self.margin_model = margin_model
+
+    def _fit(self):
+        self._margin_function_fitted = self.margin_model.margin_function_start_fit
+
+
 class SmoothMarginEstimator(AbstractMarginEstimator):
     """# with different type of marginals: cosntant, linear...."""
 
