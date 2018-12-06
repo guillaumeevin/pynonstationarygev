@@ -1,20 +1,10 @@
-from typing import Union
-
-from experiment.fit_diagnosis.split_curve import SplitCurve
-from extreme_estimator.estimator.full_estimator import AbstractFullEstimator
-from extreme_estimator.estimator.margin_estimator import AbstractMarginEstimator, ConstantMarginEstimator
-from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
-
-import random
-
 from experiment.fit_diagnosis.split_curve import SplitCurve
 from extreme_estimator.estimator.full_estimator import FullEstimatorInASingleStepWithSmoothMargin
-from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import ConstantMarginModel, \
     LinearAllParametersAllDimsMarginModel
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith
 from extreme_estimator.gev_params import GevParams
-from spatio_temporal_dataset.coordinates.unidimensional_coordinates.coordinates_1D import LinSpaceCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import LinSpaceSpatialCoordinates
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
 
 
@@ -24,7 +14,7 @@ class SplitCurveExample(SplitCurve):
         super().__init__(nb_fit)
         self.nb_points = 50
         self.nb_obs = 60
-        self.coordinates = LinSpaceCoordinates.from_nb_points(nb_points=self.nb_points, train_split_ratio=0.8)
+        self.coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=self.nb_points, train_split_ratio=0.8)
         # MarginModel Linear with respect to the shape (from 0.01 to 0.02)
         params_sample = {
             (GevParams.GEV_LOC, 0): 10,

@@ -3,12 +3,14 @@ import os.path as op
 import pandas as pd
 
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.transformed_coordinates.tranformation_3D import AnisotropyTransformation
+from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
+    AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.tranformation_3D import AnisotropyTransformation
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformed_coordinates import TransformedCoordinates
 from utils import get_full_path
 
 
-class AlpsStation3DCoordinates(AbstractCoordinates):
+class AlpsStation3DCoordinates(AbstractSpatialCoordinates):
     """
     For the Alps Stations, X, Y coordinates are in Lambert 2. Altitude is in meters
     """

@@ -9,8 +9,10 @@ from extreme_estimator.extreme_models.max_stable_model.max_stable_models import 
     Geometric, ExtremalT, ISchlather
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
     AlpsStation3DCoordinatesWithAnisotropy
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates
-from spatio_temporal_dataset.coordinates.unidimensional_coordinates.coordinates_1D import UniformCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleSpatialCoordinates
+from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
+    UniformSpatioTemporalCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import UniformSpatialCoordinates
 
 """
 Common objects to load for the test.
@@ -19,8 +21,9 @@ In this case, unit test (at least on the constructor) must be ensured in the tes
 """
 
 TEST_MAX_STABLE_MODEL = [Smith, BrownResnick, Schlather, Geometric, ExtremalT, ISchlather]
-TEST_1D_AND_2D_COORDINATES = [UniformCoordinates, CircleCoordinates]
+TEST_1D_AND_2D_COORDINATES = [UniformSpatialCoordinates, CircleSpatialCoordinates]
 TEST_3D_COORDINATES = [AlpsStation3DCoordinatesWithAnisotropy]
+TEST_SPATIO_TEMPORAL_COORDINATES = [UniformSpatioTemporalCoordinates]
 TEST_MARGIN_TYPES = [ConstantMarginModel, LinearAllParametersAllDimsMarginModel][:]
 TEST_MAX_STABLE_ESTIMATOR = [MaxStableEstimator]
 TEST_FULL_ESTIMATORS = [SmoothMarginalsThenUnitaryMsp, FullEstimatorInASingleStepWithSmoothMargin][:]
@@ -51,13 +54,20 @@ def load_test_max_stable_models():
     return max_stable_models
 
 
-def load_test_coordinates(nb_points, coordinate_types):
-    return [coordinate_class.from_nb_points(nb_points=nb_points) for coordinate_class in coordinate_types]
+def load_test_spatial_coordinates(nb_points, coordinate_types, train_split_ratio=None):
+    return [coordinate_class.from_nb_points(nb_points=nb_points, train_split_ratio=train_split_ratio)
+            for coordinate_class in coordinate_types]
 
 
-def load_test_1D_and_2D_coordinates(nb_points):
-    return load_test_coordinates(nb_points, TEST_1D_AND_2D_COORDINATES)
+def load_test_1D_and_2D_coordinates(nb_points, train_split_ratio=None):
+    return load_test_spatial_coordinates(nb_points, TEST_1D_AND_2D_COORDINATES, train_split_ratio=train_split_ratio)
 
 
 def load_test_3D_coordinates(nb_points):
-    return load_test_coordinates(nb_points, TEST_3D_COORDINATES)
+    return load_test_spatial_coordinates(nb_points, TEST_3D_COORDINATES)
+
+
+def load_test_spatiotemporal_coordinates(nb_points, train_split_ratio=None, nb_time_steps=None):
+    return [coordinate_class.from_nb_points(nb_points=nb_points, train_split_ratio=train_split_ratio,
+                                            nb_time_steps=nb_time_steps)
+            for coordinate_class in TEST_SPATIO_TEMPORAL_COORDINATES]

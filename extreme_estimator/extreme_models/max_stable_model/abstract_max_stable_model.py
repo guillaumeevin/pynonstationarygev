@@ -84,6 +84,7 @@ class AbstractMaxStableModel(AbstractModel):
         """
         Return an numpy of maxima. With rows being the stations and columns being the years of maxima
         """
+
         maxima_frech = np.array(
             r.rmaxstab(nb_obs, coordinates_values, *list(self.cov_mod_param.values()), **self.params_sample))
         return np.transpose(maxima_frech)

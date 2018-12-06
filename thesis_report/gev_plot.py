@@ -35,10 +35,11 @@ def max_stable_plot():
             ax.plot(x, y, label=label)
         ax.legend(loc=4)
         ax.set_xlabel('$z$')
-        ax.set_ylabel('$P(Z \leq z)^n$')
+        if j == 0:
+            ax.set_ylabel('$P(\\frac{ \max{(Z_1, ..., Z_n)} - b_n}{a_n} \leq z)$')
     plt.show()
 
 
 if __name__ == '__main__':
-    gev_plot()
-    # max_stable_plot()
+#     gev_plot()
+    max_stable_plot()

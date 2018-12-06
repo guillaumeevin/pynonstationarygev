@@ -4,7 +4,7 @@ from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
 from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleSpatialCoordinates
 from test.test_utils import load_test_max_stable_models, load_test_1D_and_2D_coordinates, \
     load_test_max_stable_estimators
 

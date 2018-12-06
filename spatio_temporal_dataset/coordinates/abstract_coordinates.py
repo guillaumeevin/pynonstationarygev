@@ -23,11 +23,11 @@ class AbstractCoordinates(object):
     SPATIAL_SPLIT = 'spatial_split'
     # Temporal columns
     COORDINATE_T = 'coord_t'
-    TEMPORAL_SPLIT = 'coord_temporal_split'
+    TEMPORAL_SPLIT = 'temporal_split'
+    # Coordinates columns
     COORDINATES_NAMES = COORDINATE_SPATIAL_NAMES + [COORDINATE_T]
 
-    def __init__(self, df_coord: pd.DataFrame, s_split_spatial: pd.Series = None, s_split_temporal: pd.Series = None,
-                 slicer_class: type = SpatialSlicer):
+    def __init__(self, df_coord: pd.DataFrame, slicer_class: type, s_split_spatial: pd.Series = None, s_split_temporal: pd.Series = None):
         self.df_all_coordinates = df_coord  # type: pd.DataFrame
         self.s_split_spatial = s_split_spatial  # type: pd.Series
         self.s_split_temporal = s_split_temporal  # type: pd.Series
@@ -38,7 +38,7 @@ class AbstractCoordinates(object):
     # ClassMethod constructor
 
     @classmethod
-    def from_df(cls, df: pd.DataFrame, train_split_ratio: float = None, slicer_class: type = SpatialSlicer):
+    def from_df_and_slicer(cls, df: pd.DataFrame, slicer_class: type, train_split_ratio: float = None):
         """
         train_split_ratio is shared between the spatial part of the data, and the temporal part
         """
@@ -46,16 +46,19 @@ class AbstractCoordinates(object):
         assert len(set(df.index)) == len(df)
 
         # Create a spatial split
-        s_split_spatial = s_split_from_df(df, cls.COORDINATE_X, cls.SPATIAL_SPLIT, train_split_ratio, concat=False)
+        if slicer_class in [SpatialSlicer, SpatioTemporalSlicer]:
+            s_split_spatial = s_split_from_df(df, cls.COORDINATE_X, cls.SPATIAL_SPLIT, train_split_ratio, concat=False)
+        else:
+            s_split_spatial = None
 
         # Create a temporal split
-        if slicer_class is SpatioTemporalSlicer:
+        if slicer_class in [TemporalSlicer, SpatioTemporalSlicer]:
             s_split_temporal = s_split_from_df(df, cls.COORDINATE_T, cls.TEMPORAL_SPLIT, train_split_ratio, concat=True)
         else:
             s_split_temporal = None
 
-        return cls(df_coord=df, s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal,
-                   slicer_class=slicer_class)
+        return cls(df_coord=df, slicer_class=slicer_class,
+                   s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal)
 
     @classmethod
     def from_csv(cls, csv_path: str = None):

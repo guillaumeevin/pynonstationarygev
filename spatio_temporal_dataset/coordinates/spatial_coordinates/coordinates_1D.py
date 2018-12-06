@@ -4,13 +4,15 @@ import numpy as np
 from rpy2.robjects import r
 
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
+    AbstractSpatialCoordinates
 
 
-class AbstractUniDimensionalCoordinates(AbstractCoordinates):
+class AbstractUniDimensionalSpatialCoordinates(AbstractSpatialCoordinates):
     pass
 
 
-class LinSpaceCoordinates(AbstractUniDimensionalCoordinates):
+class LinSpaceSpatialCoordinates(AbstractUniDimensionalSpatialCoordinates):
 
     @classmethod
     def from_nb_points(cls, nb_points, train_split_ratio: float = None, start=-1.0, end=1.0):
@@ -19,11 +21,16 @@ class LinSpaceCoordinates(AbstractUniDimensionalCoordinates):
         return cls.from_df(df, train_split_ratio)
 
 
-class UniformCoordinates(AbstractUniDimensionalCoordinates):
+class UniformSpatialCoordinates(AbstractUniDimensionalSpatialCoordinates):
 
     @classmethod
     def from_nb_points(cls, nb_points, train_split_ratio: float = None, start=-1.0, end=1.0):
         # Sample uniformly inside the circle
+        df = cls.df_spatial(nb_points, start, end)
+        return cls.from_df(df, train_split_ratio)
+
+    @classmethod
+    def df_spatial(cls, nb_points, start=-1.0, end=1.0):
         axis_coordinates = np.array(r.runif(nb_points, min=start, max=end))
         df = pd.DataFrame.from_dict({cls.COORDINATE_X: axis_coordinates})
-        return cls.from_df(df, train_split_ratio)
+        return df

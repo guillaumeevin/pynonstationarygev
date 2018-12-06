@@ -3,7 +3,7 @@ import unittest
 from itertools import product
 
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
-from test.test_utils import load_test_max_stable_models, load_test_coordinates, load_test_3D_coordinates, \
+from test.test_utils import load_test_max_stable_models, load_test_spatial_coordinates, load_test_3D_coordinates, \
     load_test_1D_and_2D_coordinates
 
 

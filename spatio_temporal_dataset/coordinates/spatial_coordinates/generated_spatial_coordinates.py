@@ -6,8 +6,11 @@ from rpy2.robjects import r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 import matplotlib.pyplot as plt
 
+from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
+    AbstractSpatialCoordinates
 
-class CircleCoordinates(AbstractCoordinates):
+
+class CircleSpatialCoordinates(AbstractSpatialCoordinates):
 
     @classmethod
     def df_spatial(cls, nb_points, max_radius=1.0):
@@ -31,7 +34,7 @@ class CircleCoordinates(AbstractCoordinates):
         super().visualization_2D()
 
 
-class CircleCoordinatesRadius2(CircleCoordinates):
+class CircleSpatialCoordinatesRadius2(CircleSpatialCoordinates):
 
     @classmethod
     def from_nb_points(cls, nb_points, train_split_ratio: float = None, max_radius=1.0):

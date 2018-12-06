@@ -1,5 +1,5 @@
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.transformed_coordinates.abstract_transformation import AbstractTransformation
+from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import AbstractTransformation
 
 
 class TransformedCoordinates(AbstractCoordinates):
@@ -9,6 +9,7 @@ class TransformedCoordinates(AbstractCoordinates):
                          transformation_function: AbstractTransformation):
         df_coordinates_transformed = coordinates.df_all_coordinates.copy()
         df_coordinates_transformed = transformation_function.transform(df_coord=df_coordinates_transformed)
-        return cls(df_coord=df_coordinates_transformed, s_split_spatial=coordinates.s_split_spatial)
+        return cls(df_coord=df_coordinates_transformed, slicer_class=type(coordinates.slicer),
+                   s_split_spatial=coordinates.s_split_spatial, s_split_temporal=coordinates.s_split_temporal)
 
 

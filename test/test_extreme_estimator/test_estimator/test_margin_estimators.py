@@ -1,3 +1,4 @@
+import time
 import unittest
 
 from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
@@ -7,24 +8,26 @@ from test.test_utils import load_smooth_margin_models, load_test_1D_and_2D_coord
 
 class TestSmoothMarginEstimator(unittest.TestCase):
     DISPLAY = False
-    nb_points = 5
+    nb_points = 2
+    nb_obs = 2
 
     def setUp(self):
         super().setUp()
         self.coordinates = load_test_1D_and_2D_coordinates(nb_points=self.nb_points)
 
-    def test_dependency_estimators(self):
+    def test_smooth_margin_estimator(self):
         for coordinates in self.coordinates:
             smooth_margin_models = load_smooth_margin_models(coordinates=coordinates)
             for margin_model in smooth_margin_models[1:]:
-                dataset = MarginDataset.from_sampling(nb_obs=10,
+                dataset = MarginDataset.from_sampling(nb_obs=self.nb_obs,
                                                       margin_model=margin_model,
                                                       coordinates=coordinates)
                 # Fit estimator
                 estimator = SmoothMarginEstimator(dataset=dataset, margin_model=margin_model)
                 estimator.fit()
                 # Plot
-                margin_model.margin_function_sample.visualize(show=self.DISPLAY)
+                if self.DISPLAY:
+                    margin_model.margin_function_sample.visualize(show=True)
         self.assertTrue(True)
 
 

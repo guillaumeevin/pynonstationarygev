@@ -3,8 +3,8 @@ import unittest
 from extreme_estimator.gev_params import GevParams
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearShapeDim1MarginModel, \
     LinearAllParametersAllDimsMarginModel
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates
-from spatio_temporal_dataset.coordinates.unidimensional_coordinates.coordinates_1D import LinSpaceCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleSpatialCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import LinSpaceSpatialCoordinates
 
 
 class VisualizationMarginModel(unittest.TestCase):
@@ -14,14 +14,14 @@ class VisualizationMarginModel(unittest.TestCase):
 
     @classmethod
     def example_visualization_2D(cls):
-        spatial_coordinates = CircleCoordinates.from_nb_points(nb_points=cls.nb_points)
+        spatial_coordinates = CircleSpatialCoordinates.from_nb_points(nb_points=cls.nb_points)
         margin_model = cls.margin_model(coordinates=spatial_coordinates)
         if cls.DISPLAY:
             margin_model.margin_function_sample.visualize()
 
     @classmethod
     def example_visualization_1D(cls):
-        coordinates = LinSpaceCoordinates.from_nb_points(nb_points=cls.nb_points)
+        coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=cls.nb_points)
         margin_model = cls.margin_model(coordinates=coordinates, params_sample={(GevParams.GEV_SHAPE, 1): 0.02})
         if cls.DISPLAY:
             margin_model.margin_function_sample.visualize()

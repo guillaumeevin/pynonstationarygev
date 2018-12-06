@@ -3,15 +3,14 @@ from collections import Counter
 
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
-    CircleTemporalCoordinates
-from spatio_temporal_dataset.coordinates.unidimensional_coordinates.coordinates_1D import UniformCoordinates
+    UniformSpatioTemporalCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import UniformSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_2D_coordinates import \
     AlpsStation2DCoordinatesBetweenZeroAndOne
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
     AlpsStation3DCoordinatesWithAnisotropy
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleSpatialCoordinates
 from spatio_temporal_dataset.slicer.spatio_temporal_slicer import SpatioTemporalSlicer
-from spatio_temporal_dataset.slicer.split import Split
 
 
 class TestSpatialCoordinates(unittest.TestCase):
@@ -27,10 +26,10 @@ class TestSpatialCoordinates(unittest.TestCase):
         self.assertTrue(True)
 
     def test_unif(self):
-        self.coord = UniformCoordinates.from_nb_points(nb_points=10)
+        self.coord = UniformSpatialCoordinates.from_nb_points(nb_points=10)
 
     def test_circle(self):
-        self.coord = CircleCoordinates.from_nb_points(nb_points=500)
+        self.coord = CircleSpatialCoordinates.from_nb_points(nb_points=500)
 
     def test_normalization(self):
         self.coord = AlpsStation2DCoordinatesBetweenZeroAndOne.from_csv()
@@ -49,9 +48,9 @@ class SpatioTemporalCoordinates(unittest.TestCase):
         self.assertTrue(good_count)
 
     def test_temporal_circle(self):
-        self.coordinates = CircleTemporalCoordinates.from_nb_points(nb_points=self.nb_points,
-                                                                    nb_time_steps=self.nb_times_steps,
-                                                                    train_split_ratio=0.5)
+        self.coordinates = UniformSpatioTemporalCoordinates.from_nb_points(nb_points=self.nb_points,
+                                                                           nb_time_steps=self.nb_times_steps,
+                                                                           train_split_ratio=0.5)
     # def test_temporal_alps(self):
     #     pass
 

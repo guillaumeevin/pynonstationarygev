@@ -53,23 +53,23 @@ class AbstractSlicer(object):
     # Methods that need to be defined in the child class
 
     def specialized_loc_split(self, df: pd.DataFrame, split: Split):
-        return None
+        return
 
     @property
-    def some_required_ind_are_not_defined(self):
-        pass
+    def some_required_ind_are_not_defined(self) -> bool:
+        return
 
     @property
     def train_split(self) -> Split:
-        pass
+        return
 
     @property
     def test_split(self) -> Split:
-        pass
+        return
 
     @property
     def splits(self) -> List[Split]:
-        pass
+        return
 
 
 def df_sliced(df: pd.DataFrame, split: Split = Split.all, slicer: AbstractSlicer = None) -> pd.DataFrame:

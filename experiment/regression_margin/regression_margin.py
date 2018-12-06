@@ -1,14 +1,12 @@
-import random
-
 import numpy as np
 
 from extreme_estimator.estimator.full_estimator import FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
-from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearShapeDim1MarginModel, \
-    LinearAllParametersAllDimsMarginModel, LinearScaleDim1MarginModel, ConstantMarginModel
+from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearAllParametersAllDimsMarginModel, \
+    ConstantMarginModel
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith
 from extreme_estimator.gev_params import GevParams
-from spatio_temporal_dataset.coordinates.unidimensional_coordinates.coordinates_1D import LinSpaceCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import LinSpaceSpatialCoordinates
 import matplotlib.pyplot as plt
 
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
@@ -18,7 +16,7 @@ nb_obs = 60
 nb_estimator = 2
 show = False
 
-coordinates = LinSpaceCoordinates.from_nb_points(nb_points=nb_points)
+coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=nb_points)
 
 ########## GENERATING THE DATA #####################
 
