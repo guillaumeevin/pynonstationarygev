@@ -1,11 +1,7 @@
 import unittest
 
-from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import \
-    AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
-from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleSpatialCoordinates
-from test.test_utils import load_test_max_stable_models, load_test_1D_and_2D_coordinates, \
+from test.test_utils import load_test_max_stable_models, load_test_1D_and_2D_spatial_coordinates, \
     load_test_max_stable_estimators
 
 
@@ -16,7 +12,7 @@ class TestMaxStableEstimators(unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        self.coordinates = load_test_1D_and_2D_coordinates(nb_points=self.nb_points)
+        self.coordinates = load_test_1D_and_2D_spatial_coordinates(nb_points=self.nb_points)
         self.max_stable_models = load_test_max_stable_models()
 
     def test_max_stable_estimators(self):

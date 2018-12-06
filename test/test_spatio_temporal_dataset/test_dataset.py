@@ -3,8 +3,8 @@ import unittest
 from itertools import product
 
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
-from test.test_utils import load_test_max_stable_models, load_test_spatial_coordinates, load_test_3D_coordinates, \
-    load_test_1D_and_2D_coordinates
+from test.test_utils import load_test_max_stable_models, load_test_spatial_coordinates, load_test_3D_spatial_coordinates, \
+    load_test_1D_and_2D_spatial_coordinates
 
 
 class TestDataset(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestDataset(unittest.TestCase):
 
     def test_max_stable_dataset_R1_and_R2(self):
         max_stable_models = load_test_max_stable_models()[:]
-        coordinatess = load_test_1D_and_2D_coordinates(self.nb_points)
+        coordinatess = load_test_1D_and_2D_spatial_coordinates(self.nb_points)
         for coordinates, max_stable_model in product(coordinatess, max_stable_models):
             MaxStableDataset.from_sampling(nb_obs=self.nb_obs,
                                            max_stable_model=max_stable_model,
@@ -24,7 +24,7 @@ class TestDataset(unittest.TestCase):
         """Test to warn me when spatialExtremes handles R3"""
         with self.assertRaises(RRuntimeError):
             smith_process = load_test_max_stable_models()[0]
-            coordinates = load_test_3D_coordinates(nb_points=self.nb_points)[0]
+            coordinates = load_test_3D_spatial_coordinates(nb_points=self.nb_points)[0]
             MaxStableDataset.from_sampling(nb_obs=self.nb_obs,
                                            max_stable_model=smith_process,
                                            coordinates=coordinates)

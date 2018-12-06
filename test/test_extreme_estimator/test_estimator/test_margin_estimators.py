@@ -3,7 +3,7 @@ import unittest
 
 from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
 from spatio_temporal_dataset.dataset.simulation_dataset import MarginDataset
-from test.test_utils import load_smooth_margin_models, load_test_1D_and_2D_coordinates
+from test.test_utils import load_smooth_margin_models, load_test_1D_and_2D_spatial_coordinates
 
 
 class TestSmoothMarginEstimator(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestSmoothMarginEstimator(unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        self.coordinates = load_test_1D_and_2D_coordinates(nb_points=self.nb_points)
+        self.coordinates = load_test_1D_and_2D_spatial_coordinates(nb_points=self.nb_points)
 
     def test_smooth_margin_estimator(self):
         for coordinates in self.coordinates:

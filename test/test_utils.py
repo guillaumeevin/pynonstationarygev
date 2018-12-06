@@ -9,10 +9,12 @@ from extreme_estimator.extreme_models.max_stable_model.max_stable_models import 
     Geometric, ExtremalT, ISchlather
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
     AlpsStation3DCoordinatesWithAnisotropy
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleSpatialCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
+    CircleSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
     UniformSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import UniformSpatialCoordinates
+from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import TemporalCoordinates
 
 """
 Common objects to load for the test.
@@ -21,8 +23,9 @@ In this case, unit test (at least on the constructor) must be ensured in the tes
 """
 
 TEST_MAX_STABLE_MODEL = [Smith, BrownResnick, Schlather, Geometric, ExtremalT, ISchlather]
-TEST_1D_AND_2D_COORDINATES = [UniformSpatialCoordinates, CircleSpatialCoordinates]
-TEST_3D_COORDINATES = [AlpsStation3DCoordinatesWithAnisotropy]
+TEST_1D_AND_2D_SPATIAL_COORDINATES = [UniformSpatialCoordinates, CircleSpatialCoordinates]
+TEST_3D_SPATIAL_COORDINATES = [AlpsStation3DCoordinatesWithAnisotropy]
+TEST_TEMPORAL_COORDINATES = [TemporalCoordinates]
 TEST_SPATIO_TEMPORAL_COORDINATES = [UniformSpatioTemporalCoordinates]
 TEST_MARGIN_TYPES = [ConstantMarginModel, LinearAllParametersAllDimsMarginModel][:]
 TEST_MAX_STABLE_ESTIMATOR = [MaxStableEstimator]
@@ -59,12 +62,18 @@ def load_test_spatial_coordinates(nb_points, coordinate_types, train_split_ratio
             for coordinate_class in coordinate_types]
 
 
-def load_test_1D_and_2D_coordinates(nb_points, train_split_ratio=None):
-    return load_test_spatial_coordinates(nb_points, TEST_1D_AND_2D_COORDINATES, train_split_ratio=train_split_ratio)
+def load_test_1D_and_2D_spatial_coordinates(nb_points, train_split_ratio=None):
+    return load_test_spatial_coordinates(nb_points, TEST_1D_AND_2D_SPATIAL_COORDINATES,
+                                         train_split_ratio=train_split_ratio)
 
 
-def load_test_3D_coordinates(nb_points):
-    return load_test_spatial_coordinates(nb_points, TEST_3D_COORDINATES)
+def load_test_3D_spatial_coordinates(nb_points):
+    return load_test_spatial_coordinates(nb_points, TEST_3D_SPATIAL_COORDINATES)
+
+
+def load_test_temporal_coordinates(nb_temporal_steps, train_split_ratio=None):
+    return [coordinate_class.from_nb_temporal_steps(nb_temporal_steps, train_split_ratio) for coordinate_class in
+            TEST_TEMPORAL_COORDINATES]
 
 
 def load_test_spatiotemporal_coordinates(nb_points, train_split_ratio=None, nb_time_steps=None):
