@@ -27,7 +27,8 @@ class AbstractCoordinates(object):
     # Coordinates columns
     COORDINATES_NAMES = COORDINATE_SPATIAL_NAMES + [COORDINATE_T]
 
-    def __init__(self, df_coord: pd.DataFrame, slicer_class: type, s_split_spatial: pd.Series = None, s_split_temporal: pd.Series = None):
+    def __init__(self, df_coord: pd.DataFrame, slicer_class: type, s_split_spatial: pd.Series = None,
+                 s_split_temporal: pd.Series = None):
         self.df_all_coordinates = df_coord  # type: pd.DataFrame
         self.s_split_spatial = s_split_spatial  # type: pd.Series
         self.s_split_temporal = s_split_temporal  # type: pd.Series
@@ -38,22 +39,25 @@ class AbstractCoordinates(object):
     # ClassMethod constructor
 
     @classmethod
+    def from_df(cls, df: pd.DataFrame):
+        pass
+
+    @classmethod
     def from_df_and_slicer(cls, df: pd.DataFrame, slicer_class: type, train_split_ratio: float = None):
-        """
-        train_split_ratio is shared between the spatial part of the data, and the temporal part
-        """
+        # train_split_ratio is shared between the spatial part of the data, and the temporal part
+
         # All the index should be unique
         assert len(set(df.index)) == len(df)
 
         # Create a spatial split
         if slicer_class in [SpatialSlicer, SpatioTemporalSlicer]:
-            s_split_spatial = s_split_from_df(df, cls.COORDINATE_X, cls.SPATIAL_SPLIT, train_split_ratio, concat=False)
+            s_split_spatial = s_split_from_df(df, cls.COORDINATE_X, cls.SPATIAL_SPLIT, train_split_ratio, True)
         else:
             s_split_spatial = None
 
         # Create a temporal split
         if slicer_class in [TemporalSlicer, SpatioTemporalSlicer]:
-            s_split_temporal = s_split_from_df(df, cls.COORDINATE_T, cls.TEMPORAL_SPLIT, train_split_ratio, concat=True)
+            s_split_temporal = s_split_from_df(df, cls.COORDINATE_T, cls.TEMPORAL_SPLIT, train_split_ratio, False)
         else:
             s_split_temporal = None
 
@@ -70,18 +74,6 @@ class AbstractCoordinates(object):
         assert index_column_name not in cls.COORDINATE_SPATIAL_NAMES
         df.set_index(index_column_name, inplace=True)
         return cls.from_df(df)
-
-    @classmethod
-    def from_nb_points(cls, nb_points: int, train_split_ratio: float = None, **kwargs):
-        # Call the default class method from csv
-        coordinates = cls.from_csv()  # type: AbstractCoordinates
-        # Check that nb_points asked is not superior to the number of coordinates
-        nb_coordinates = len(coordinates)
-        if nb_points > nb_coordinates:
-            raise Exception('Nb coordinates in csv: {} < Nb points desired: {}'.format(nb_coordinates, nb_points))
-        # Sample randomly nb_points coordinates
-        df_sample = pd.DataFrame.sample(coordinates.df_merged, n=nb_points)
-        return cls.from_df(df=df_sample, train_split_ratio=train_split_ratio)
 
     @property
     def index(self):

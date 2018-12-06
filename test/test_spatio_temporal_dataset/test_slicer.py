@@ -17,8 +17,8 @@ class TestSlicerForDataset(unittest.TestCase):
         super().__init__(methodName)
         self.dataset = None
 
-    nb_spatial_points = 2
-    nb_temporal_steps = 2
+    nb_points = 2
+    nb_steps = 2
     nb_obs = 2
 
     @property
@@ -48,10 +48,10 @@ class TestSlicerForSpatialDataset(TestSlicerForDataset):
 
     @property
     def complete_shape(self):
-        return self.nb_spatial_points, self.nb_obs
+        return self.nb_points, self.nb_obs
 
     def load_datasets(self, train_split_ratio):
-        coordinates_list = load_test_1D_and_2D_spatial_coordinates(nb_points=self.nb_spatial_points,
+        coordinates_list = load_test_1D_and_2D_spatial_coordinates(nb_points=self.nb_points,
                                                                    train_split_ratio=train_split_ratio)
         dataset_list = [FullSimulatedDataset.from_double_sampling(nb_obs=self.nb_obs,
                                                                   margin_model=ConstantMarginModel(
@@ -63,7 +63,7 @@ class TestSlicerForSpatialDataset(TestSlicerForDataset):
     def test_spatial_slicer_for_spatial_dataset(self):
         train_split_ratio_to_observation_shape = {
             None: self.complete_shape,
-            0.5: (self.nb_spatial_points // 2, self.nb_obs),
+            0.5: (self.nb_points // 2, self.nb_obs),
         }
         self.check_shapes(train_split_ratio_to_observation_shape)
 
@@ -72,10 +72,10 @@ class TestSlicerForTemporalDataset(TestSlicerForDataset):
 
     @property
     def complete_shape(self):
-        return self.nb_temporal_steps, self.nb_obs
+        return self.nb_steps, self.nb_obs
 
     def load_datasets(self, train_split_ratio):
-        coordinates_list = load_test_temporal_coordinates(nb_temporal_steps=self.nb_temporal_steps,
+        coordinates_list = load_test_temporal_coordinates(nb_steps=self.nb_steps,
                                                           train_split_ratio=train_split_ratio)
         dataset_list = [FullSimulatedDataset.from_double_sampling(nb_obs=self.nb_obs,
                                                                   margin_model=ConstantMarginModel(
@@ -87,33 +87,34 @@ class TestSlicerForTemporalDataset(TestSlicerForDataset):
     def test_temporal_slicer_for_temporal_dataset(self):
         ind_tuple_to_observation_shape = {
             None: self.complete_shape,
-            0.5: (self.nb_temporal_steps // 2, self.nb_obs),
+            0.5: (self.nb_steps // 2, self.nb_obs),
         }
         self.check_shapes(ind_tuple_to_observation_shape)
 
 
-# class TestSlicerForSpatioTemporalDataset(TestSlicerForDataset):
-#
-#     def complete_shape(self):
-#         return self.nb_spatial_points * self.nb_temporal_points, self.nb_obs
-#
-#     def load_datasets(self, train_split_ratio):
-#         coordinates_list = load_test_spatiotemporal_coordinates(nb_points=self.nb_spatial_points,
-#                                                                 train_split_ratio=train_split_ratio,
-#                                                                 nb_time_steps=self.nb_temporal_points)
-#         dataset_list = [FullSimulatedDataset.from_double_sampling(nb_obs=self.nb_obs,
-#                                                                   margin_model=ConstantMarginModel(
-#                                                                       coordinates=coordinates),
-#                                                                   coordinates=coordinates, max_stable_model=Smith())
-#                         for coordinates in coordinates_list]
-#         return dataset_list
-#
-#     def test_spatiotemporal_slicer_for_spatio_temporal_dataset(self):
-#         ind_tuple_to_observation_shape = {
-#             None: self.complete_shape,
-#             0.5: (1, 1),
-#         }
-#         self.check_shapes(ind_tuple_to_observation_shape)
+class TestSlicerForSpatioTemporalDataset(TestSlicerForDataset):
+
+    @property
+    def complete_shape(self):
+        return self.nb_points * self.nb_steps, self.nb_obs
+
+    def load_datasets(self, train_split_ratio):
+        coordinates_list = load_test_spatiotemporal_coordinates(nb_points=self.nb_points,
+                                                                nb_steps=self.nb_steps,
+                                                                train_split_ratio=train_split_ratio)
+        dataset_list = [FullSimulatedDataset.from_double_sampling(nb_obs=self.nb_obs,
+                                                                  margin_model=ConstantMarginModel(
+                                                                      coordinates=coordinates),
+                                                                  coordinates=coordinates, max_stable_model=Smith())
+                        for coordinates in coordinates_list]
+        return dataset_list
+
+    def test_spatiotemporal_slicer_for_spatio_temporal_dataset(self):
+        ind_tuple_to_observation_shape = {
+            None: self.complete_shape,
+            0.5: (self.nb_steps * self.nb_points // 4, self.nb_obs),
+        }
+        self.check_shapes(ind_tuple_to_observation_shape)
 
 
 if __name__ == '__main__':

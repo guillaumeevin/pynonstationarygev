@@ -9,7 +9,8 @@ from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_2D_coo
     AlpsStation2DCoordinatesBetweenZeroAndOne
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
     AlpsStation3DCoordinatesWithAnisotropy
-from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleSpatialCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
+    CircleSpatialCoordinates
 from spatio_temporal_dataset.slicer.spatio_temporal_slicer import SpatioTemporalSlicer
 
 
@@ -40,7 +41,7 @@ class TestSpatialCoordinates(unittest.TestCase):
 
 class SpatioTemporalCoordinates(unittest.TestCase):
     nb_points = 4
-    nb_times_steps = 2
+    nb_steps = 2
 
     def tearDown(self):
         c = Counter([len(self.coordinates.df_coordinates(split)) for split in SpatioTemporalSlicer.SPLITS])
@@ -48,9 +49,9 @@ class SpatioTemporalCoordinates(unittest.TestCase):
         self.assertTrue(good_count)
 
     def test_temporal_circle(self):
-        self.coordinates = UniformSpatioTemporalCoordinates.from_nb_points(nb_points=self.nb_points,
-                                                                           nb_time_steps=self.nb_times_steps,
-                                                                           train_split_ratio=0.5)
+        self.coordinates = UniformSpatioTemporalCoordinates.from_nb_points_and_nb_steps(nb_points=self.nb_points,
+                                                                                        nb_steps=self.nb_steps,
+                                                                                        train_split_ratio=0.5)
     # def test_temporal_alps(self):
     #     pass
 

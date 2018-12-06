@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Union
 
 import pandas as pd
 
@@ -44,7 +45,7 @@ def small_s_split_from_ratio(index: pd.Index, train_split_ratio):
     return s
 
 
-def s_split_from_df(df: pd.DataFrame, column, split_column, train_split_ratio, concat):
+def s_split_from_df(df: pd.DataFrame, column, split_column, train_split_ratio, spatial_split) -> Union[None, pd.Series]:
     df = df.copy() # type: pd.DataFrame
     # Extract the index
     if train_split_ratio is None:
@@ -55,17 +56,17 @@ def s_split_from_df(df: pd.DataFrame, column, split_column, train_split_ratio, c
         raise Exception('A split has already been defined')
     else:
         serie = df.drop_duplicates(subset=[column], keep='first')[column]
-
         assert len(df) % len(serie) == 0
         multiplication_factor = len(df) // len(serie)
         small_s_split = small_s_split_from_ratio(serie.index, train_split_ratio)
-        if concat:
+        if spatial_split:
+            # concatenation for spatial_split
             s_split = pd.concat([small_s_split for _ in range(multiplication_factor)], ignore_index=True).copy()
         else:
-            # dilatjon
-            s_split = pd.Series(None, index=df.infer_objects())
+            # dilatjon for the temporal split
+            s_split = pd.Series(None, index=df.index)
             for i in range(len(s_split)):
-                s_split.iloc[i] = small_s_split.iloc[i % len(small_s_split)]
+                s_split.iloc[i] = small_s_split.iloc[i // multiplication_factor]
         s_split.index = df.index
         return s_split
 

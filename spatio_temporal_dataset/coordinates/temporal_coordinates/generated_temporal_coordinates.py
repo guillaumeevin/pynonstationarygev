@@ -4,7 +4,7 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_
     AbstractTemporalCoordinates
 
 
-class TemporalCoordinates(AbstractTemporalCoordinates):
+class ConsecutiveTemporalCoordinates(AbstractTemporalCoordinates):
     pass
 
     @classmethod
