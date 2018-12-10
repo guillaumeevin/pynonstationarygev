@@ -18,6 +18,11 @@ class AbstractDataset(object):
         self.observations = observations
         self.coordinates = coordinates
 
+    # @property
+    # def max_stable_fitted(self) -> AbstractMarginFunction:
+    #     assert self._margin_function_fitted is not None, 'Error: estimator has not been fitted'
+    #     return self._margin_function_fitted
+
     @property
     def slicer(self):
         return self.coordinates.slicer
@@ -42,9 +47,6 @@ class AbstractDataset(object):
         # todo: maybe I should add the split from the temporal observations
         return self.observations.df_maxima_gev.join(self.coordinates.df_merged)
 
-    def df_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
-        return self.coordinates.df_coordinates(split=split)
-
     # Observation wrapper
 
     def maxima_gev(self, split: Split = Split.all) -> np.ndarray:
@@ -57,6 +59,9 @@ class AbstractDataset(object):
         self.observations.set_maxima_frech(maxima_frech_values, split, self.slicer)
 
     # Coordinates wrapper
+
+    def df_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
+        return self.coordinates.df_coordinates(split=split)
 
     def coordinates_values(self, split: Split = Split.all) -> np.ndarray:
         return self.coordinates.coordinates_values(split=split)

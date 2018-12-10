@@ -24,6 +24,9 @@ class AbstractMarginFunction(object):
         self.color = 'skyblue'
         self.filter = None
 
+        self._grid_2D = None
+        self._grid_1D = None
+
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
         """Main method that maps each coordinate to its GEV parameters"""
         pass
@@ -76,7 +79,7 @@ class AbstractMarginFunction(object):
 
     def visualize_1D(self, gev_value_name=GevParams.GEV_LOC, ax=None, show=True):
         x = self.coordinates.x_coordinates
-        grid, linspace = self.get_grid_values_1D(x)
+        grid, linspace = self.grid_1D(x)
         if ax is None:
             ax = plt.gca()
         if self.datapoint_display:
@@ -90,6 +93,11 @@ class AbstractMarginFunction(object):
 
         if show:
             plt.show()
+
+    def grid_1D(self, x):
+        if self._grid_1D is None:
+            self._grid_1D = self.get_grid_values_1D(x)
+        return self._grid_1D
 
     def get_grid_values_1D(self, x):
         # TODO: to avoid getting the value several times, I could cache the results
@@ -115,7 +123,7 @@ class AbstractMarginFunction(object):
     def visualize_2D(self, gev_value_name=GevParams.GEV_LOC, ax=None, show=True):
         x = self.coordinates.x_coordinates
         y = self.coordinates.y_coordinates
-        grid = self.get_grid_2D(x, y)
+        grid = self.grid_2D(x, y)
         if ax is None:
             ax = plt.gca()
         imshow_method = ax.imshow
@@ -132,6 +140,11 @@ class AbstractMarginFunction(object):
         # todo: add dot display in 2D
         if show:
             plt.show()
+
+    def grid_2D(self, x, y):
+        if self._grid_2D is None:
+            self._grid_2D = self.get_grid_2D(x, y)
+        return self._grid_2D
 
     def get_grid_2D(self, x, y):
         resolution = 100

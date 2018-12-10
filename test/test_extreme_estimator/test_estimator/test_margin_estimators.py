@@ -28,6 +28,7 @@ class TestSmoothMarginEstimator(unittest.TestCase):
                 # Plot
                 if self.DISPLAY:
                     margin_model.margin_function_sample.visualize(show=True)
+                    estimator.margin_function_fitted.visualize(show=True)
         self.assertTrue(True)
 
 

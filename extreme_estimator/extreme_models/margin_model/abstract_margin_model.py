@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function \
@@ -10,8 +11,8 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 class AbstractMarginModel(AbstractModel):
 
-    def __init__(self, coordinates: AbstractCoordinates, params_start_fit=None, params_sample=None):
-        super().__init__(params_start_fit, params_sample)
+    def __init__(self, coordinates: AbstractCoordinates, use_start_value=True, params_start_fit=None, params_sample=None):
+        super().__init__(use_start_value, params_start_fit, params_sample)
         assert isinstance(coordinates, AbstractCoordinates), type(coordinates)
         self.coordinates = coordinates
         self.margin_function_sample = None  # type: AbstractMarginFunction
@@ -68,7 +69,7 @@ class AbstractMarginModel(AbstractModel):
 
     # Fitting methods needs to be defined in child classes
 
-    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, coordinates_values: np.ndarray) \
+    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, df_coordinates: pd.DataFrame) \
             -> AbstractMarginFunction:
         pass
 

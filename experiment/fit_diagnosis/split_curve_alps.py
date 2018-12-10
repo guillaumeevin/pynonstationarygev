@@ -5,22 +5,25 @@ from extreme_estimator.extreme_models.margin_model.smooth_margin_model import Co
     LinearAllParametersAllDimsMarginModel
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith
 from extreme_estimator.gev_params import GevParams
+from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_2D_coordinates import \
+    AlpsStation2DCoordinates, AlpsStation2DCoordinatesBetweenZeroAndOne
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import LinSpaceSpatialCoordinates
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
 
 
-class SplitCurveExample(SplitCurve):
+class SplitCurveAlps(SplitCurve):
 
     def __init__(self, nb_fit: int = 1):
         super().__init__(nb_fit)
-        self.nb_points = 50
-        self.nb_obs = 60
-        self.coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=self.nb_points, train_split_ratio=0.8)
+        self.nb_obs = 2
+        # nb_points = len(AlpsStation2DCoordinates.from_csv())
+        nb_points = 10
+        self.coordinates = AlpsStation2DCoordinatesBetweenZeroAndOne.from_nb_points(nb_points, train_split_ratio=0.8)
         # MarginModel Linear with respect to the shape (from 0.01 to 0.02)
         params_sample = {
             (GevParams.GEV_LOC, 0): 10,
             (GevParams.GEV_SHAPE, 0): 1.0,
-            (GevParams.GEV_SCALE, 0): 1.0,
+            (GevParams.GEV_SCALE, 0): 10,
         }
         self.margin_model = ConstantMarginModel(coordinates=self.coordinates, params_sample=params_sample)
         self.max_stable_model = Smith()
@@ -39,5 +42,5 @@ class SplitCurveExample(SplitCurve):
 
 
 if __name__ == '__main__':
-    curve = SplitCurveExample(nb_fit=2)
+    curve = SplitCurveAlps(nb_fit=2)
     curve.fit()

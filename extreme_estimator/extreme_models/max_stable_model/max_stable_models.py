@@ -6,8 +6,8 @@ from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model
 
 class Smith(AbstractMaxStableModel):
 
-    def __init__(self, params_start_fit=None, params_sample=None):
-        super().__init__(params_start_fit=params_start_fit, params_sample=params_sample)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.cov_mod = 'gauss'
         self.default_params_start_fit = {
             'var': 1,
@@ -27,8 +27,8 @@ class Smith(AbstractMaxStableModel):
 
 class BrownResnick(AbstractMaxStableModel):
 
-    def __init__(self, params_start_fit=None, params_sample=None):
-        super().__init__(params_start_fit=params_start_fit, params_sample=params_sample)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.cov_mod = 'brown'
         self.default_params_start_fit = {
             'range': 3,
@@ -42,8 +42,8 @@ class BrownResnick(AbstractMaxStableModel):
 
 class Schlather(AbstractMaxStableModelWithCovarianceFunction):
 
-    def __init__(self, params_start_fit=None, params_sample=None, covariance_function: CovarianceFunction = None):
-        super().__init__(params_start_fit, params_sample, covariance_function)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.cov_mod = self.covariance_function.name
         self.default_params_sample.update({})
         self.default_params_start_fit = self.default_params_sample.copy()
@@ -51,8 +51,8 @@ class Schlather(AbstractMaxStableModelWithCovarianceFunction):
 
 class Geometric(AbstractMaxStableModelWithCovarianceFunction):
 
-    def __init__(self, params_start_fit=None, params_sample=None, covariance_function: CovarianceFunction = None):
-        super().__init__(params_start_fit, params_sample, covariance_function)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.cov_mod = 'g' + self.covariance_function.name
         self.default_params_sample.update({'sigma2': 0.5})
         self.default_params_start_fit = self.default_params_sample.copy()
@@ -60,8 +60,8 @@ class Geometric(AbstractMaxStableModelWithCovarianceFunction):
 
 class ExtremalT(AbstractMaxStableModelWithCovarianceFunction):
 
-    def __init__(self, params_start_fit=None, params_sample=None, covariance_function: CovarianceFunction = None):
-        super().__init__(params_start_fit, params_sample, covariance_function)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.cov_mod = 't' + self.covariance_function.name
         self.default_params_sample.update({'DoF': 2})
         self.default_params_start_fit = self.default_params_sample.copy()
@@ -69,8 +69,8 @@ class ExtremalT(AbstractMaxStableModelWithCovarianceFunction):
 
 class ISchlather(AbstractMaxStableModelWithCovarianceFunction):
 
-    def __init__(self, params_start_fit=None, params_sample=None, covariance_function: CovarianceFunction = None):
-        super().__init__(params_start_fit, params_sample, covariance_function)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.cov_mod = 'i' + self.covariance_function.name
         self.default_params_sample.update({'alpha': 0.5})
         self.default_params_start_fit = self.default_params_sample.copy()

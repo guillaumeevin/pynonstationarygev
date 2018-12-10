@@ -1,10 +1,15 @@
+from typing import Dict
+
 import numpy as np
+import pandas as pd
 
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_estimator.extreme_models.margin_model.param_function.linear_coef import LinearCoef
+from extreme_estimator.extreme_models.utils import safe_run_r_estimator, r, retrieve_fitted_values, get_coord, \
+    get_margin_formula
 from extreme_estimator.gev_params import GevParams
 
 
@@ -47,10 +52,6 @@ class LinearMarginModel(AbstractMarginModel):
             gev_param_name_to_linear_coef[gev_param_name] = linear_coef
         return gev_param_name_to_linear_coef
 
-    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray,
-                                  coordinates_values: np.ndarray) -> AbstractMarginFunction:
-        return self.margin_function_start_fit
-
     @classmethod
     def from_coef_list(cls, coordinates, gev_param_name_to_coef_list):
         params = {}
@@ -58,6 +59,16 @@ class LinearMarginModel(AbstractMarginModel):
             for dim, coef in enumerate(gev_param_name_to_coef_list[gev_param_name]):
                 params[(gev_param_name, dim)] = coef
         return cls(coordinates, params_sample=params, params_start_fit=params)
+
+    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray,
+                                  df_coordinates: pd.DataFrame) -> Dict[str, float]:
+        data = np.transpose(maxima_gev)
+        covariables = get_coord(df_coordinates)
+        fit_params = get_margin_formula(self.margin_function_start_fit.form_dict)
+        if self.use_start_value:
+            fit_params['start'] = r.list(**self.margin_function_start_fit.coef_dict)
+        res = safe_run_r_estimator(function=r.fitspatgev, data=data, covariables=covariables, **fit_params)
+        return retrieve_fitted_values(res)
 
 
 class ConstantMarginModel(LinearMarginModel):

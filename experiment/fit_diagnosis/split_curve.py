@@ -73,10 +73,12 @@ class SplitCurve(object):
         # Create bins of data, each with an associated color corresponding to its error
 
         data = self.mean_error_dict[gev_value_name].values
+        data_min, data_max = data.min(), data.max()
         nb_bins = 10
-        limits = np.linspace(data.min(), data.max(), num=nb_bins + 1)
+        limits = np.linspace(data_min, data_max, num=nb_bins + 1)
         limits[-1] += 0.01
-        colors = cm.binary(limits)
+        # Binary color should
+        colors = cm.binary((limits - data_min/ (data_max - data_min)))
 
         # Display train/test points
         for split, marker in [(self.dataset.train_split, 'o'), (self.dataset.test_split, 'x')]:

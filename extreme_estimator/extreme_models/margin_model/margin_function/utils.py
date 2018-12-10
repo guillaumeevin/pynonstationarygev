@@ -22,6 +22,6 @@ def error_dict_between_margin_functions(reference: AbstractMarginFunction, fitte
     fitted_values = fitted.gev_value_name_to_serie
     gev_param_name_to_error_serie = {}
     for gev_value_name in GevParams.GEV_VALUE_NAMES:
-        error = relative_abs_error(reference_values[gev_value_name], fitted_values[gev_value_name])
+        error = 100 * relative_abs_error(reference_values[gev_value_name], fitted_values[gev_value_name])
         gev_param_name_to_error_serie[gev_value_name] = error
     return gev_param_name_to_error_serie

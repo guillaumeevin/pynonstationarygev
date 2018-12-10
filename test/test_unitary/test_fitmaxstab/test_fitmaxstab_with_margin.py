@@ -26,13 +26,12 @@ class TestMaxStableFitWithConstantMargin(TestUnitaryAbstract):
     @property
     def python_output(self):
         dataset = TestRMaxStabWithMarginConstant.python_code()
-        max_stable_model = Schlather(covariance_function=CovarianceFunction.whitmat)
+        max_stable_model = Schlather(covariance_function=CovarianceFunction.whitmat, use_start_value=False)
         margin_model = ConstantMarginModel(dataset.coordinates)
-        max_stable_model.start_value_for_fitmaxstab = False
         full_estimator = FullEstimatorInASingleStepWithSmoothMargin(dataset, margin_model,
                                                                     max_stable_model)
         full_estimator.fit()
-        return full_estimator.full_params_fitted
+        return full_estimator.params_fitted
 
     def test_max_stable_fit_with_constant_margin(self):
         self.compare()
@@ -55,13 +54,12 @@ class TestMaxStableFitWithLinearMargin(TestUnitaryAbstract):
     @property
     def python_output(self):
         dataset = TestRMaxStabWithMarginConstant.python_code()
-        max_stable_model = Schlather(covariance_function=CovarianceFunction.whitmat)
+        max_stable_model = Schlather(covariance_function=CovarianceFunction.whitmat, use_start_value=False)
         margin_model = LinearMarginModelExample(dataset.coordinates)
-        max_stable_model.start_value_for_fitmaxstab = False
         full_estimator = FullEstimatorInASingleStepWithSmoothMargin(dataset, margin_model,
                                                                     max_stable_model)
         full_estimator.fit()
-        return full_estimator.full_params_fitted
+        return full_estimator.params_fitted
 
     def test_max_stable_fit_with_linear_margin(self):
         self.compare()

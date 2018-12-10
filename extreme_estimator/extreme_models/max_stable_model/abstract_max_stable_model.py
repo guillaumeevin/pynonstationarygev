@@ -1,22 +1,20 @@
-import pandas as pd
 from enum import Enum
 
 import numpy as np
-import rpy2
-from rpy2.rinterface import RRuntimeError, RRuntimeWarning
+import pandas as pd
 import rpy2.robjects as robjects
 
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
-from extreme_estimator.extreme_models.utils import r, set_seed_r
+from extreme_estimator.extreme_models.utils import r, safe_run_r_estimator, retrieve_fitted_values, get_coord, \
+    get_margin_formula
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 class AbstractMaxStableModel(AbstractModel):
 
-    def __init__(self, params_start_fit=None, params_sample=None):
-        super().__init__(params_start_fit, params_sample)
+    def __init__(self, use_start_value=True, params_start_fit=None, params_sample=None):
+        super().__init__(use_start_value, params_start_fit, params_sample)
         self.cov_mod = None
-        self.start_value_for_fitmaxstab = True
 
     @property
     def cov_mod_param(self):
@@ -48,8 +46,7 @@ class AbstractMaxStableModel(AbstractModel):
             assert AbstractCoordinates.COORDINATE_X in df_coordinates.columns
             df_coordinates[AbstractCoordinates.COORDINATE_Y] = df_coordinates[AbstractCoordinates.COORDINATE_X]
         # Give names to columns to enable a specification of the shape of each marginal parameter
-        coord = robjects.vectors.Matrix(df_coordinates.values)
-        coord.colnames = robjects.StrVector(list(df_coordinates.columns))
+        coord = get_coord(df_coordinates)
 
         #  Prepare the fit_params (a dictionary containing all additional parameters)
         fit_params = self.cov_mod_param.copy()
@@ -58,27 +55,17 @@ class AbstractMaxStableModel(AbstractModel):
         start_dict = self.remove_unused_parameters(start_dict, fitmaxstab_with_one_dimensional_data)
         if fit_marge:
             start_dict.update(margin_start_dict)
-            fit_params.update({k: robjects.Formula(v) for k, v in fit_marge_form_dict.items()})
+            margin_formulas = get_margin_formula(fit_marge_form_dict)
+            fit_params.update(margin_formulas)
         if fitmaxstab_with_one_dimensional_data:
             fit_params['iso'] = True
-        if self.start_value_for_fitmaxstab:
+        if self.use_start_value:
             fit_params['start'] = r.list(**start_dict)
         fit_params['fit.marge'] = fit_marge
 
         # Run the fitmaxstab in R
-        try:
-            res = r.fitmaxstab(data=data, coord=coord, **fit_params)  # type: robjects.ListVector
-        except (RRuntimeError, RRuntimeWarning) as e:
-            if isinstance(e, RRuntimeError):
-                raise Exception('Some R exception have been launched at RunTime: \n {}'.format(e.__repr__()))
-            if isinstance(e, RRuntimeWarning):
-                print(e.__repr__())
-                print('WARNING')
-        # todo: maybe if the convergence was not successful I could try other starting point several times
-        # Retrieve the resulting fitted values
-        fitted_values = res.rx2('fitted.values')
-        fitted_values = {key: fitted_values.rx2(key)[0] for key in fitted_values.names}
-        return fitted_values
+        res = safe_run_r_estimator(function=r.fitmaxstab, data=data, coord=coord, **fit_params)
+        return retrieve_fitted_values(res)
 
     def rmaxstab(self, nb_obs: int, coordinates_values: np.ndarray) -> np.ndarray:
         """
@@ -102,8 +89,8 @@ class CovarianceFunction(Enum):
 
 class AbstractMaxStableModelWithCovarianceFunction(AbstractMaxStableModel):
 
-    def __init__(self, params_start_fit=None, params_sample=None, covariance_function: CovarianceFunction = None):
-        super().__init__(params_start_fit, params_sample)
+    def __init__(self, use_start_value=True, params_start_fit=None, params_sample=None, covariance_function: CovarianceFunction = None):
+        super().__init__(use_start_value, params_start_fit, params_sample)
         assert covariance_function is not None
         self.covariance_function = covariance_function
         self.default_params_sample = {
