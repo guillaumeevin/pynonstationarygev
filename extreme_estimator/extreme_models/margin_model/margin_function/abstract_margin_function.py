@@ -95,15 +95,17 @@ class AbstractMarginFunction(object):
             plt.show()
 
     def grid_1D(self, x):
-        if self._grid_1D is None:
-            self._grid_1D = self.get_grid_values_1D(x)
-        return self._grid_1D
+        # if self._grid_1D is None:
+        #     self._grid_1D = self.get_grid_values_1D(x)
+        # return self._grid_1D
+        return self.get_grid_values_1D(x, self.spatio_temporal_split)
 
-    def get_grid_values_1D(self, x):
+    def get_grid_values_1D(self, x, spatio_temporal_split):
         # TODO: to avoid getting the value several times, I could cache the results
         if self.datapoint_display:
             # todo: keep only the index of interest here
-            linspace = self.coordinates.coordinates_values(self.spatio_temporal_split)[:, 0]
+            linspace = self.coordinates.coordinates_values(spatio_temporal_split)[:, 0]
+            print(self.spatio_temporal_split, linspace)
             if self.filter is not None:
                 linspace = linspace[self.filter]
             resolution = len(linspace)
@@ -142,9 +144,9 @@ class AbstractMarginFunction(object):
             plt.show()
 
     def grid_2D(self, x, y):
-        if self._grid_2D is None:
-            self._grid_2D = self.get_grid_2D(x, y)
-        return self._grid_2D
+        # if self._grid_2D is None:
+        #     self._grid_2D = self.get_grid_2D(x, y)
+        return self.get_grid_2D(x, y)
 
     def get_grid_2D(self, x, y):
         resolution = 100

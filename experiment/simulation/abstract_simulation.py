@@ -120,9 +120,10 @@ class AbstractSimulation(object):
 
         data = self.mean_error_dict[gev_value_name].values
         data_min, data_max = data.min(), data.max()
-        nb_bins = 10
+        nb_bins = 1
         limits = np.linspace(data_min, data_max, num=nb_bins + 1)
         limits[-1] += 0.01
+        limits[0] -= 0.01
         # Binary color should
         colors = cm.binary((limits - data_min / (data_max - data_min)))
 
@@ -134,8 +135,9 @@ class AbstractSimulation(object):
                     self.full_dataset.coordinates.coordinates_index(split)].values
                 data_filter = np.logical_and(left_limit <= data_ind, data_ind < right_limit)
 
+                # todo: fix binary color problem
                 self.margin_function_sample.set_datapoint_display_parameters(split, datapoint_marker=marker,
-                                                                             filter=data_filter, color=color)
+                                                                             filter=data_filter)
                 self.margin_function_sample.visualize_single_param(gev_value_name, ax, show=False)
 
         # Display the individual fitted curve
