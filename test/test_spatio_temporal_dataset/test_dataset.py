@@ -3,21 +3,23 @@ import unittest
 from itertools import product
 
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
-from test.test_utils import load_test_max_stable_models, load_test_spatial_coordinates, load_test_3D_spatial_coordinates, \
+from test.test_utils import load_test_max_stable_models, load_test_spatial_coordinates, \
+    load_test_3D_spatial_coordinates, \
     load_test_1D_and_2D_spatial_coordinates
 
 
 class TestDataset(unittest.TestCase):
-    nb_obs = 10
-    nb_points = 10
+    nb_obs = 2
+    nb_points = 2
 
     def test_max_stable_dataset_R1_and_R2(self):
         max_stable_models = load_test_max_stable_models()[:]
-        coordinatess = load_test_1D_and_2D_spatial_coordinates(self.nb_points)
-        for coordinates, max_stable_model in product(coordinatess, max_stable_models):
-            MaxStableDataset.from_sampling(nb_obs=self.nb_obs,
-                                           max_stable_model=max_stable_model,
-                                           coordinates=coordinates)
+        coordinates = load_test_1D_and_2D_spatial_coordinates(self.nb_points)
+        for coordinates, max_stable_model in product(coordinates, max_stable_models):
+            dataset = MaxStableDataset.from_sampling(nb_obs=self.nb_obs,
+                                                     max_stable_model=max_stable_model,
+                                                     coordinates=coordinates)
+            assert len(dataset.df_dataset.columns) == self.nb_obs + dataset.coordinates.nb_coordinates
         self.assertTrue(True)
 
     def test_max_stable_dataset_crash_R3(self):

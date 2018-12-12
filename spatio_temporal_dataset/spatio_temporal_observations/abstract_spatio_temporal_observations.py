@@ -5,7 +5,11 @@ import numpy as np
 from spatio_temporal_dataset.slicer.abstract_slicer import df_sliced, AbstractSlicer
 from spatio_temporal_dataset.slicer.split import Split
 
+
 class AbstractSpatioTemporalObservations(object):
+    # Observation columns
+    OBSERVATIONS_GEV = 'obs_gev'
+    OBSERVATIONS_FRECH = 'obs_frech'
 
     def __init__(self, df_maxima_frech: pd.DataFrame = None, df_maxima_gev: pd.DataFrame = None):
         """
@@ -13,19 +17,17 @@ class AbstractSpatioTemporalObservations(object):
         Index are stations index
         Columns are the temporal moment of the maxima
         """
-        assert df_maxima_frech is not None or df_maxima_gev is not None
-        self.df_maxima_frech = df_maxima_frech
+        assert df_maxima_gev is not None or df_maxima_frech is not None
+        if df_maxima_gev is not None and df_maxima_frech is not None:
+            assert pd.Index.equals(df_maxima_gev.index, df_maxima_frech.index)
         self.df_maxima_gev = df_maxima_gev
+        self.df_maxima_frech = df_maxima_frech
 
     @classmethod
     def from_csv(cls, csv_path: str = None):
         assert csv_path is not None
         assert op.exists(csv_path)
-        df = pd.read_csv(csv_path)
-        # # Index correspond to the first column
-        # index_column_name = df.columns[0]
-        # assert index_column_name not in cls.coordinates_columns(df)
-        # df.set_index(index_column_name, inplace=True)
+        df = pd.read_csv(csv_path, index_col=0)
         return cls.from_df(df)
 
     @property
@@ -34,6 +36,16 @@ class AbstractSpatioTemporalObservations(object):
             return self.df_maxima_frech
         else:
             return self.df_maxima_gev
+
+    @property
+    def df_maxima_merged(self):
+        df_maxima_list = []
+        for df, suffix in [(self.df_maxima_gev, self.OBSERVATIONS_GEV), (self.df_maxima_frech, self.OBSERVATIONS_FRECH)]:
+            if df is not None:
+                df_maxima = df.copy()
+                df_maxima.columns = [str(c) + ' ' + suffix for c in df_maxima.columns]
+                df_maxima_list.append(df_maxima)
+        return pd.concat(df_maxima_list, axis=1)
 
     @property
     def index(self) -> pd.Index:
@@ -45,7 +57,19 @@ class AbstractSpatioTemporalObservations(object):
 
     @classmethod
     def from_df(cls, df):
-        pass
+        df_maxima_list = []
+        for suffix in [cls.OBSERVATIONS_GEV, cls.OBSERVATIONS_FRECH]:
+            columns_with_suffix = [c for c in df.columns if str(c).endswith(suffix)]
+            if columns_with_suffix:
+                df_maxima = df[columns_with_suffix] if columns_with_suffix else None
+                df_maxima.columns = [c.replace(' ' + suffix, '') for c in df_maxima.columns]
+            else:
+                df_maxima = None
+            df_maxima_list.append(df_maxima)
+        df_maxima_gev, df_maxima_frech = df_maxima_list
+        if df_maxima_gev is not None and df_maxima_frech is not None:
+            assert pd.Index.equals(df_maxima_gev.columns, df_maxima_frech.columns)
+        return cls(df_maxima_gev=df_maxima_gev, df_maxima_frech=df_maxima_frech)
 
     def maxima_gev(self, split: Split = Split.all, slicer: AbstractSlicer = None) -> np.ndarray:
         return df_sliced(self.df_maxima_gev, split, slicer).values

@@ -17,7 +17,8 @@ def error_dict_between_margin_functions(reference: AbstractMarginFunction, fitte
     :param fitted:
     :return:
     """
-    assert reference.coordinates == fitted.coordinates
+    assert reference.coordinates == fitted.coordinates, \
+        'Coordinates have either been resampled or the split is not the same'
     reference_values = reference.gev_value_name_to_serie
     fitted_values = fitted.gev_value_name_to_serie
     gev_param_name_to_error_serie = {}

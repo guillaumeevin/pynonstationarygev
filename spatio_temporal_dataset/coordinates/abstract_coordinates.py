@@ -40,11 +40,31 @@ class AbstractCoordinates(object):
 
     @classmethod
     def from_df(cls, df: pd.DataFrame):
-        pass
+        # Extract df_coordinate
+        coordinate_columns = [c for c in df.columns if c in cls.COORDINATES_NAMES]
+        df_coord = df.loc[:, coordinate_columns].copy()
+        # Extract the split
+        split_columns = [c for c in df.columns if c in [cls.SPATIAL_SPLIT, cls.TEMPORAL_SPLIT]]
+        s_split_spatial = df[cls.SPATIAL_SPLIT].copy() if cls.SPATIAL_SPLIT in df.columns else None
+        s_split_temporal = df[cls.TEMPORAL_SPLIT].copy() if cls.TEMPORAL_SPLIT in df.columns else None
+        # Infer the slicer class
+        if s_split_temporal is None and s_split_spatial is None:
+            raise ValueError('Both split are unspecified')
+        elif s_split_temporal is not None and s_split_spatial is None:
+            slicer_class = TemporalSlicer
+        elif s_split_temporal is None and s_split_spatial is not None:
+            slicer_class = SpatialSlicer
+        else:
+            slicer_class = SpatioTemporalSlicer
+        # Remove all the columns used from df
+        columns_used = coordinate_columns + split_columns
+        df.drop(columns_used, axis=1, inplace=True)
+        return cls(df_coord=df_coord, slicer_class=slicer_class,
+                   s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal)
 
     @classmethod
     def from_df_and_slicer(cls, df: pd.DataFrame, slicer_class: type, train_split_ratio: float = None):
-        # train_split_ratio is shared between the spatial part of the data, and the temporal part
+        # So far, the train_split_ratio is the same between the spatial part of the data, and the temporal part
 
         # All the index should be unique
         assert len(set(df.index)) == len(df)
@@ -81,9 +101,8 @@ class AbstractCoordinates(object):
 
     @property
     def df_merged(self) -> pd.DataFrame:
-        # Merged DataFrame of df_coord and s_split
-        return self.df_all_coordinates if self.s_split_spatial is None else self.df_all_coordinates.join(
-            self.s_split_spatial)
+        # Merged DataFrame of df_coord with s_split
+        return self.df_all_coordinates.join(self.df_split)
 
     # Split
 
@@ -104,7 +123,16 @@ class AbstractCoordinates(object):
     def ind_train_temporal(self) -> pd.Series:
         return ind_train_from_s_split(s_split=self.s_split_temporal)
 
-    # Columns
+    @property
+    def df_split(self):
+        split_name_to_s_split = {
+            self.SPATIAL_SPLIT: self.s_split_spatial,
+            self.TEMPORAL_SPLIT: self.s_split_temporal,
+        }
+        # Delete None s_split from the dictionary
+        split_name_to_s_split = {k: v for k, v in split_name_to_s_split.items() if v is not None}
+        # Create df_split from dict
+        return pd.DataFrame.from_dict(split_name_to_s_split)
 
     @property
     def coordinates_names(self) -> List[str]:
@@ -186,3 +214,7 @@ class AbstractCoordinates(object):
 
     def __rmul__(self, other):
         return self * other
+
+    def __eq__(self, other):
+        return self.df_merged.equals(other.df_merged)
+

@@ -1,7 +1,6 @@
-import time
 import unittest
 
-from extreme_estimator.estimator.margin_estimator import SmoothMarginEstimator
+from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import SmoothMarginEstimator
 from spatio_temporal_dataset.dataset.simulation_dataset import MarginDataset
 from test.test_utils import load_smooth_margin_models, load_test_1D_and_2D_spatial_coordinates
 

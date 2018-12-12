@@ -1,6 +1,6 @@
 import numpy as np
 
-from extreme_estimator.estimator.full_estimator import FullEstimatorInASingleStepWithSmoothMargin
+from extreme_estimator.estimator.full_estimator.abstract_full_estimator import FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearAllParametersAllDimsMarginModel, \
     ConstantMarginModel

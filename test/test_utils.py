@@ -1,6 +1,6 @@
-from extreme_estimator.estimator.full_estimator import SmoothMarginalsThenUnitaryMsp, \
+from extreme_estimator.estimator.full_estimator.abstract_full_estimator import SmoothMarginalsThenUnitaryMsp, \
     FullEstimatorInASingleStepWithSmoothMargin
-from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
+from extreme_estimator.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearAllParametersAllDimsMarginModel, \
     ConstantMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import \

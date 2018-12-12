@@ -1,6 +1,6 @@
 import unittest
 
-from extreme_estimator.estimator.max_stable_estimator import MaxStableEstimator
+from extreme_estimator.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Schlather
 from extreme_estimator.extreme_models.utils import r

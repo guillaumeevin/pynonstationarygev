@@ -4,7 +4,6 @@ from extreme_estimator.extreme_models.margin_model.margin_function.abstract_marg
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
-from spatio_temporal_dataset.slicer.split import Split
 
 
 class AbstractEstimator(object):
@@ -22,6 +21,11 @@ class AbstractEstimator(object):
         self._margin_function_fitted = None
         self._max_stable_model_fitted = None
 
+    @classmethod
+    def from_dataset(cls, dataset: AbstractDataset):
+        # raise NotImplementedError('from_dataset class constructor has not been implemented for this class')
+        pass
+
     def fit(self):
         ts = time.time()
         self._fit()
@@ -32,6 +36,11 @@ class AbstractEstimator(object):
     def params_fitted(self):
         assert self.is_fitted
         return self._params_fitted
+
+    # @property
+    # def max_stable_fitted(self) -> AbstractMarginFunction:
+    #     assert self._margin_function_fitted is not None, 'Error: estimator has not been fitted'
+    #     return self._margin_function_fitted
 
     @property
     def margin_function_fitted(self) -> AbstractMarginFunction:

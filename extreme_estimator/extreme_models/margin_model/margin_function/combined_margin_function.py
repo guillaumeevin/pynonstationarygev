@@ -1,4 +1,5 @@
 from typing import List
+from itertools import combinations
 
 import numpy as np
 
@@ -24,7 +25,8 @@ class CombinedMarginFunction(AbstractMarginFunction):
     def from_margin_functions(cls, margin_functions: List[AbstractMarginFunction]):
         assert len(margin_functions) > 0
         assert all([isinstance(margin_function, AbstractMarginFunction) for margin_function in margin_functions])
-        common_coordinates = set([margin_function.coordinates for margin_function in margin_functions])
-        assert len(common_coordinates) == 1
-        coordinates = common_coordinates.pop()
+        all_coordinates = [margin_function.coordinates for margin_function in margin_functions]
+        for coordinates1, coordinates2 in combinations(all_coordinates, 2):
+            assert coordinates1 == coordinates2
+        coordinates = all_coordinates[0]
         return cls(coordinates, margin_functions)
