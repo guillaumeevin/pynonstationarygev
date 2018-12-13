@@ -28,7 +28,7 @@ def max_stable_plot():
         lim = 10 ** (power_n)
         x = np.linspace(0, lim, 100)
         loc, scale, shape = 1, 1, 1
-        for n in [10**i for i in range(power_n)]:
+        for n in [10 ** i for i in range(power_n)]:
             label = 'n={}'.format(n)
             y = np.array(r.pgev(x, loc, scale, shape))
             y **= n
@@ -40,6 +40,22 @@ def max_stable_plot():
     plt.show()
 
 
+def quantile_function_plot():
+    p = np.linspace(5e-1, 1e-5, 100)
+    loc, scale = 2, 1
+    shapes = [-1, 0, 1]
+    for shape in shapes:
+        label = '$\zeta= {} $'.format(shape)
+        funct = [r.qgev, r.qgpd][0]
+        y = funct(1 - p, loc, scale, shape)
+        plt.loglog(1/p, y, basex=10, label=label)
+    plt.legend()
+    plt.xlabel('$1/p$')
+    plt.ylabel('$q(1- p|\mu, \sigma, \zeta)$')
+    plt.show()
+
+
 if __name__ == '__main__':
-#     gev_plot()
-    max_stable_plot()
+    #     gev_plot()
+    # max_stable_plot()
+    quantile_function_plot()
