@@ -12,7 +12,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 class AbstractMaxStableModel(AbstractModel):
 
-    def __init__(self, use_start_value=True, params_start_fit=None, params_sample=None):
+    def __init__(self, use_start_value=False, params_start_fit=None, params_sample=None):
         super().__init__(use_start_value, params_start_fit, params_sample)
         self.cov_mod = None
 
@@ -59,12 +59,11 @@ class AbstractMaxStableModel(AbstractModel):
             fit_params.update(margin_formulas)
         if fitmaxstab_with_one_dimensional_data:
             fit_params['iso'] = True
-        if self.use_start_value:
-            fit_params['start'] = r.list(**start_dict)
+        fit_params['start'] = r.list(**start_dict)
         fit_params['fit.marge'] = fit_marge
 
         # Run the fitmaxstab in R
-        res = safe_run_r_estimator(function=r.fitmaxstab, data=data, coord=coord, **fit_params)
+        res = safe_run_r_estimator(function=r.fitmaxstab, use_start=self.use_start_value, data=data, coord=coord, **fit_params)
         return retrieve_fitted_values(res)
 
     def rmaxstab(self, nb_obs: int, coordinates_values: np.ndarray) -> np.ndarray:
@@ -89,7 +88,7 @@ class CovarianceFunction(Enum):
 
 class AbstractMaxStableModelWithCovarianceFunction(AbstractMaxStableModel):
 
-    def __init__(self, use_start_value=True, params_start_fit=None, params_sample=None, covariance_function: CovarianceFunction = None):
+    def __init__(self, use_start_value=False, params_start_fit=None, params_sample=None, covariance_function: CovarianceFunction = None):
         super().__init__(use_start_value, params_start_fit, params_sample)
         assert covariance_function is not None
         self.covariance_function = covariance_function

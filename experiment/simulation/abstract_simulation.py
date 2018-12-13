@@ -1,4 +1,11 @@
 import os
+from typing import List
+
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import matplotlib.cm as cmx
+import numpy as np
 import os.path as op
 import pickle
 
@@ -8,12 +15,15 @@ import numpy as np
 import seaborn as sns
 
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
+from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
+    AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.margin_function.combined_margin_function import \
     CombinedMarginFunction
 from extreme_estimator.extreme_models.margin_model.margin_function.utils import error_dict_between_margin_functions
 from extreme_estimator.gev_params import GevParams
 from spatio_temporal_dataset.dataset.abstract_dataset import get_subset_dataset
 from spatio_temporal_dataset.dataset.simulation_dataset import SimulatedDataset
+from spatio_temporal_dataset.slicer.split import split_to_display_kwargs
 from utils import get_full_path, get_display_name_from_object_type
 
 SIMULATION_RELATIVE_PATH = op.join('local', 'simulation')
@@ -21,14 +31,15 @@ SIMULATION_RELATIVE_PATH = op.join('local', 'simulation')
 
 class AbstractSimulation(object):
 
-    def __init__(self):
-        self.nb_fit = 1
-        self.margin_function_fitted_list = None
+    def __init__(self, nb_fit=1):
+        self.nb_fit = nb_fit
+        self.margin_function_fitted_list = None # type: List[AbstractMarginFunction]
         self.full_dataset = None
         self.error_dict_all = None
         self.margin_function_sample = None
         self.mean_error_dict = None
-        self.mean_margin_function_fitted = None
+        self.mean_margin_function_fitted = None # type: AbstractMarginFunction
+        self.estimator_name = ''
 
     def fit(self, estimator_class, show=True):
         assert estimator_class not in self.already_fitted_estimator_names, \
@@ -75,7 +86,18 @@ class AbstractSimulation(object):
         self.margin_function_sample = self.full_dataset.margin_model.margin_function_sample
 
         fig, axes = self.load_fig_and_axes()
-        for estimator_name in estimator_names:
+
+        # Binary color should
+        values = np.linspace(0, 1, len(estimator_names))
+        jet = plt.get_cmap('jet')
+        cNorm = matplotlib.colors.Normalize(vmin=0, vmax=values[-1])
+        scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
+        colors = [scalarMap.to_rgba(value) for value in values]
+
+        for j, (estimator_name, color) in enumerate(zip(estimator_names, colors)):
+            self.j = j
+            self.color = color
+            self.estimator_name = estimator_name
             self.margin_function_fitted_list = self.load_fitted_margins_pickles(estimator_name)
 
             self.error_dict_all = [error_dict_between_margin_functions(reference=self.margin_function_sample,
@@ -89,6 +111,11 @@ class AbstractSimulation(object):
             self.mean_error_dict = error_dict_between_margin_functions(self.margin_function_sample,
                                                                        self.mean_margin_function_fitted)
             self.visualize(fig, axes, show=False)
+
+        title = self.main_title
+        for j, estimator_name in enumerate(estimator_names):
+            title += '\n y{}: {}'.format(j, estimator_name)
+        fig.suptitle(title)
         plt.show()
 
     @property
@@ -137,15 +164,17 @@ class AbstractSimulation(object):
 
                 # todo: fix binary color problem
                 self.margin_function_sample.set_datapoint_display_parameters(split, datapoint_marker=marker,
-                                                                             filter=data_filter)
+                                                                             filter=data_filter,
+                                                                             color='black',
+                                                                             datapoint_display=True)
                 self.margin_function_sample.visualize_single_param(gev_value_name, ax, show=False)
 
         # Display the individual fitted curve
-        self.mean_margin_function_fitted.color = 'lightskyblue'
         for m in self.margin_function_fitted_list:
+            m.set_datapoint_display_parameters(linewidth=0.1, color=self.color)
             m.visualize_single_param(gev_value_name, ax, show=False)
         # Display the mean fitted curve
-        self.mean_margin_function_fitted.color = 'blue'
+        self.mean_margin_function_fitted.set_datapoint_display_parameters(color=self.color, linewidth=2)
         self.mean_margin_function_fitted.visualize_single_param(gev_value_name, ax, show=False)
 
     def score_graph(self, ax, gev_value_name):
@@ -156,10 +185,19 @@ class AbstractSimulation(object):
         for split in self.full_dataset.splits:
             ind = self.full_dataset.coordinates_index(split)
             data = s.loc[ind].values
-            sns.kdeplot(data, bw=0.5, ax=ax, label=split.name).set(xlim=0)
+            display_kwargs = split_to_display_kwargs(split)
+            print(split, 'train' in split.name)
+            if 'train' in split.name:
+                display_kwargs.update({"label": 'y' + str(self.j)})
+                markersize=3
+            else:
+                markersize = 10
+            ax.plot([data.mean()], [0], color=self.color, marker='o', markersize=markersize)
+            sns.kdeplot(data, bw=1, ax=ax, color=self.color, **display_kwargs).set(xlim=0)
         ax.legend()
+
         # X axis
-        ax.set_xlabel('Absolute error in percentage')
+        ax.set_xlabel('Mean absolute error in %')
         plt.setp(ax.get_xticklabels(), visible=True)
         ax.xaxis.set_tick_params(labelbottom=True)
         # Y axis

@@ -23,6 +23,7 @@ class GevParams(object):
         self.location = loc
         self.scale = scale
         self.shape = shape
+        # self.scale = max(self.scale, 1e-4)
         assert self.scale > 0
 
     @classmethod

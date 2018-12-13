@@ -11,7 +11,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 class AbstractMarginModel(AbstractModel):
 
-    def __init__(self, coordinates: AbstractCoordinates, use_start_value=True, params_start_fit=None, params_sample=None):
+    def __init__(self, coordinates: AbstractCoordinates, use_start_value=False, params_start_fit=None, params_sample=None):
         super().__init__(use_start_value, params_start_fit, params_sample)
         assert isinstance(coordinates, AbstractCoordinates), type(coordinates)
         self.coordinates = coordinates

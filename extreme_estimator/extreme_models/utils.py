@@ -29,15 +29,26 @@ def get_associated_r_file(python_filepath: str) -> str:
     return r_filepath
 
 
-def safe_run_r_estimator(function, **parameters):
-    try:
-        res = function(**parameters)  # type:
-    except (RRuntimeError, RRuntimeWarning) as e:
-        if isinstance(e, RRuntimeError):
-            raise Exception('Some R exception have been launched at RunTime: \n {}'.format(e.__repr__()))
-        if isinstance(e, RRuntimeWarning):
-            print(e.__repr__())
-            print('WARNING')
+def safe_run_r_estimator(function, use_start=False, **parameters):
+    # First run without using start value
+    # Then if it crashes, use start value
+    run_successful = False
+    while not run_successful:
+        current_parameter = parameters.copy()
+        if not use_start:
+            current_parameter.pop('start')
+        try:
+            res = function(**current_parameter)  # type:
+            run_successful = True
+        except (RRuntimeError, RRuntimeWarning) as e:
+            if not use_start:
+                use_start = True
+                continue
+            elif isinstance(e, RRuntimeError):
+                raise Exception('Some R exception have been launched at RunTime: \n {}'.format(e.__repr__()))
+            if isinstance(e, RRuntimeWarning):
+                print(e.__repr__())
+                print('WARNING')
     return res
 
 

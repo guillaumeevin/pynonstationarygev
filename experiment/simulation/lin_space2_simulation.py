@@ -9,17 +9,17 @@ from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D impo
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
 
 
-class LinSpaceSimulation(AbstractSimulation):
+class LinSpace3Simulation(AbstractSimulation):
     FITTED_ESTIMATORS = []
 
     def __init__(self, nb_fit=1):
         super().__init__(nb_fit)
         # Simulation parameters
         self.nb_obs = 60
-        self.coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=21, train_split_ratio=0.75)
+        self.coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=100, train_split_ratio=0.75)
         # MarginModel Linear with respect to the shape (from 0.01 to 0.02)
         params_sample = {
-            (GevParams.GEV_LOC, 0): 10,
+            (GevParams.GEV_LOC, 0): 1.0,
             (GevParams.GEV_SHAPE, 0): 1.0,
             (GevParams.GEV_SCALE, 0): 1.0,
         }
@@ -34,8 +34,8 @@ class LinSpaceSimulation(AbstractSimulation):
 
 
 if __name__ == '__main__':
-    simu = LinSpaceSimulation(nb_fit=3)
+    simu = LinSpace3Simulation(nb_fit=7)
     simu.dump()
-    # for estimator_class in MARGIN_ESTIMATORS_FOR_SIMULATION + FULL_ESTIMATORS_FOR_SIMULATION:
-    #     simu.fit(estimator_class, show=False)
+    for estimator_class in MARGIN_ESTIMATORS_FOR_SIMULATION + FULL_ESTIMATORS_FOR_SIMULATION:
+        simu.fit(estimator_class, show=False)
     simu.visualize_comparison_graph()

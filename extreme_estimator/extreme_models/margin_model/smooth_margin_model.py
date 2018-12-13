@@ -65,9 +65,8 @@ class LinearMarginModel(AbstractMarginModel):
         data = np.transpose(maxima_gev)
         covariables = get_coord(df_coordinates)
         fit_params = get_margin_formula(self.margin_function_start_fit.form_dict)
-        if self.use_start_value:
-            fit_params['start'] = r.list(**self.margin_function_start_fit.coef_dict)
-        res = safe_run_r_estimator(function=r.fitspatgev, data=data, covariables=covariables, **fit_params)
+        fit_params['start'] = r.list(**self.margin_function_start_fit.coef_dict)
+        res = safe_run_r_estimator(function=r.fitspatgev, use_start=self.use_start_value, data=data, covariables=covariables, **fit_params)
         return retrieve_fitted_values(res)
 
 

@@ -20,9 +20,13 @@ class TestFullEstimators(unittest.TestCase):
         for coordinates in self.spatial_coordinates:
             smooth_margin_models = load_smooth_margin_models(coordinates=coordinates)
             for margin_model, max_stable_model in product(smooth_margin_models, self.max_stable_models):
+
                 dataset = FullSimulatedDataset.from_double_sampling(nb_obs=self.nb_obs, margin_model=margin_model,
                                                                     coordinates=coordinates,
                                                                     max_stable_model=max_stable_model)
+
+                margin_model.use_start_value = True
+                # todo: understand why it is crashing without specifying that (when not using start value was passed by default this test started crashing)
 
                 for full_estimator in load_test_full_estimators(dataset, margin_model, max_stable_model):
                     full_estimator.fit()

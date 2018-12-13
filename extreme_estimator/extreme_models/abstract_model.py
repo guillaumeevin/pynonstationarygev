@@ -1,6 +1,6 @@
 class AbstractModel(object):
 
-    def __init__(self, use_start_value=True, params_start_fit=None, params_sample=None):
+    def __init__(self, use_start_value=False, params_start_fit=None, params_sample=None):
         self.default_params_start_fit = None
         self.default_params_sample = None
         self.use_start_value = use_start_value

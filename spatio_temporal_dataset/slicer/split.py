@@ -19,6 +19,24 @@ class Split(Enum):
     test_temporal = 8
 
 
+def split_to_display_kwargs(split: Split):
+    marker = None
+    gridsize = 1000
+    if 'train' in split.name:
+        linewidth = 0.5
+    else:
+        linewidth = 2
+        if 'spatiotemporal' in split.name:
+            gridsize = 20
+            if 'spatial' in split.name and 'temporal' in split.name:
+                marker = '*'
+            elif 'spatial' in split.name:
+                marker = '^'
+            else:
+                marker = '>'
+    return {'marker': marker, 'linewidth': linewidth, 'gridsize':gridsize}
+
+
 ALL_SPLITS_EXCEPT_ALL = [split for split in Split if split is not Split.all]
 
 SPLIT_NAME = 'split'
@@ -46,7 +64,7 @@ def small_s_split_from_ratio(index: pd.Index, train_split_ratio):
 
 
 def s_split_from_df(df: pd.DataFrame, column, split_column, train_split_ratio, spatial_split) -> Union[None, pd.Series]:
-    df = df.copy() # type: pd.DataFrame
+    df = df.copy()  # type: pd.DataFrame
     # Extract the index
     if train_split_ratio is None:
         return None
@@ -69,4 +87,3 @@ def s_split_from_df(df: pd.DataFrame, column, split_column, train_split_ratio, s
                 s_split.iloc[i] = small_s_split.iloc[i // multiplication_factor]
         s_split.index = df.index
         return s_split
-

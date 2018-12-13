@@ -23,6 +23,7 @@ class AbstractMarginFunction(object):
         self.datapoint_marker = 'o'
         self.color = 'skyblue'
         self.filter = None
+        self.linewidth = 1
 
         self._grid_2D = None
         self._grid_1D = None
@@ -45,10 +46,12 @@ class AbstractMarginFunction(object):
 
     # Visualization function
 
-    def set_datapoint_display_parameters(self, spatio_temporal_split, datapoint_marker, filter=None, color=None):
-        self.datapoint_display = True
+    def set_datapoint_display_parameters(self, spatio_temporal_split=Split.all, datapoint_marker=None, filter=None, color=None,
+                                         linewidth=1, datapoint_display=False):
+        self.datapoint_display = datapoint_display
         self.spatio_temporal_split = spatio_temporal_split
         self.datapoint_marker = datapoint_marker
+        self.linewidth = linewidth
         self.filter = filter
         self.color = color
 
@@ -83,9 +86,10 @@ class AbstractMarginFunction(object):
         if ax is None:
             ax = plt.gca()
         if self.datapoint_display:
-            ax.plot(linspace, grid[gev_value_name], self.datapoint_marker, color=self.color)
+            ax.plot(linspace, grid[gev_value_name], marker=self.datapoint_marker, color=self.color)
         else:
-            ax.plot(linspace, grid[gev_value_name], color=self.color)
+            print('here')
+            ax.plot(linspace, grid[gev_value_name], color=self.color, linewidth=self.linewidth)
         # X axis
         ax.set_xlabel('coordinate X')
         plt.setp(ax.get_xticklabels(), visible=True)
