@@ -88,7 +88,6 @@ class AbstractMarginFunction(object):
         if self.datapoint_display:
             ax.plot(linspace, grid[gev_value_name], marker=self.datapoint_marker, color=self.color)
         else:
-            print('here')
             ax.plot(linspace, grid[gev_value_name], color=self.color, linewidth=self.linewidth)
         # X axis
         ax.set_xlabel('coordinate X')
@@ -109,7 +108,6 @@ class AbstractMarginFunction(object):
         if self.datapoint_display:
             # todo: keep only the index of interest here
             linspace = self.coordinates.coordinates_values(spatio_temporal_split)[:, 0]
-            print(self.spatio_temporal_split, linspace)
             if self.filter is not None:
                 linspace = linspace[self.filter]
             resolution = len(linspace)

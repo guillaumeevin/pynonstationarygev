@@ -96,7 +96,7 @@ class AbstractCoordinates(object):
         return cls.from_df(df)
 
     @property
-    def index(self):
+    def index(self) -> pd.Index:
         return self.df_all_coordinates.index
 
     @property
@@ -124,7 +124,7 @@ class AbstractCoordinates(object):
         return ind_train_from_s_split(s_split=self.s_split_temporal)
 
     @property
-    def df_split(self):
+    def df_split(self) -> pd.DataFrame:
         split_name_to_s_split = {
             self.SPATIAL_SPLIT: self.s_split_spatial,
             self.TEMPORAL_SPLIT: self.s_split_temporal,
@@ -173,7 +173,7 @@ class AbstractCoordinates(object):
         return self.df_all_coordinates[self.COORDINATE_Z].values.copy()
 
     @property
-    def t_coordinates(self):
+    def t_coordinates(self) -> np.ndarray:
         return self.df_all_coordinates[self.COORDINATE_T].values.copy()
 
     def visualize(self):

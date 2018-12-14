@@ -9,7 +9,7 @@ from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D impo
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
 
 
-class LinSpace3Simulation(AbstractSimulation):
+class LinSpace5Simulation(AbstractSimulation):
     FITTED_ESTIMATORS = []
 
     def __init__(self, nb_fit=1):
@@ -34,8 +34,9 @@ class LinSpace3Simulation(AbstractSimulation):
 
 
 if __name__ == '__main__':
-    simu = LinSpace3Simulation(nb_fit=7)
+    simu = LinSpace5Simulation(nb_fit=10)
     simu.dump()
-    for estimator_class in MARGIN_ESTIMATORS_FOR_SIMULATION + FULL_ESTIMATORS_FOR_SIMULATION:
+    estimators_class = MARGIN_ESTIMATORS_FOR_SIMULATION + FULL_ESTIMATORS_FOR_SIMULATION
+    for estimator_class in estimators_class[:]:
         simu.fit(estimator_class, show=False)
     simu.visualize_comparison_graph()

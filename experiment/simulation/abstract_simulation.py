@@ -13,6 +13,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+from numpy.linalg import LinAlgError
 
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
@@ -193,7 +194,11 @@ class AbstractSimulation(object):
             else:
                 markersize = 10
             ax.plot([data.mean()], [0], color=self.color, marker='o', markersize=markersize)
-            sns.kdeplot(data, bw=1, ax=ax, color=self.color, **display_kwargs).set(xlim=0)
+            try:
+                sns.kdeplot(data, bw=1, ax=ax, color=self.color, **display_kwargs).set(xlim=0)
+            except LinAlgError as e:
+                if 'singular_matrix' in e.__repr__():
+                    continue
         ax.legend()
 
         # X axis
@@ -242,6 +247,7 @@ class AbstractSimulation(object):
         # Pickle Dataset
         if op.exists(self.dataset_pickle_path):
             print('A dataset already exists, we will keep it intact, delete it manually if you want to change it')
+            # todo: print the parameters of the existing data, the parameters that were used to generate it
         else:
             with open(self.dataset_pickle_path, 'wb') as fp:
                 pickle.dump(dataset, fp)

@@ -6,6 +6,7 @@ from extreme_estimator.gev_params import GevParams
 
 
 def relative_abs_error(reference_value, fitted_value):
+    # todo: handle the case when the location, or the shape we aim to estimate might be equal to zero
     return (reference_value - fitted_value).abs() / reference_value
 
 
