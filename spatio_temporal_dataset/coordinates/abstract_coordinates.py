@@ -9,12 +9,15 @@ from mpl_toolkits.mplot3d import Axes3D
 from spatio_temporal_dataset.slicer.abstract_slicer import AbstractSlicer, df_sliced
 from spatio_temporal_dataset.slicer.spatial_slicer import SpatialSlicer
 from spatio_temporal_dataset.slicer.spatio_temporal_slicer import SpatioTemporalSlicer
-from spatio_temporal_dataset.slicer.split import s_split_from_df, TEST_SPLIT_STR, \
-    TRAIN_SPLIT_STR, ind_train_from_s_split, Split
+from spatio_temporal_dataset.slicer.split import s_split_from_df, ind_train_from_s_split, Split
 from spatio_temporal_dataset.slicer.temporal_slicer import TemporalSlicer
 
 
 class AbstractCoordinates(object):
+    """
+
+    So far, the train_split_ratio is the same between the spatial part of the data, and the temporal part
+    """
     # Spatial columns
     COORDINATE_X = 'coord_x'
     COORDINATE_Y = 'coord_y'
@@ -32,9 +35,17 @@ class AbstractCoordinates(object):
         self.df_all_coordinates = df_coord  # type: pd.DataFrame
         self.s_split_spatial = s_split_spatial  # type: pd.Series
         self.s_split_temporal = s_split_temporal  # type: pd.Series
-        self.slicer = slicer_class(ind_train_spatial=self.ind_train_spatial,
-                                   ind_train_temporal=self.ind_train_temporal)  # type: AbstractSlicer
-        assert isinstance(self.slicer, AbstractSlicer)
+        self.slicer = None  # type: AbstractSlicer
+
+        # Load the slicer
+        if slicer_class is TemporalSlicer:
+            self.slicer = TemporalSlicer(self.ind_train_temporal)
+        elif slicer_class is SpatialSlicer:
+            self.slicer = SpatialSlicer(self.ind_train_spatial)
+        elif slicer_class is SpatioTemporalSlicer:
+            self.slicer = SpatioTemporalSlicer(self.ind_train_spatial, self.ind_train_temporal)
+        else:
+            raise ValueError("Unknown slicer_class: {}".format(slicer_class))
 
     # ClassMethod constructor
 
@@ -43,10 +54,12 @@ class AbstractCoordinates(object):
         # Extract df_coordinate
         coordinate_columns = [c for c in df.columns if c in cls.COORDINATES_NAMES]
         df_coord = df.loc[:, coordinate_columns].copy()
+
         # Extract the split
         split_columns = [c for c in df.columns if c in [cls.SPATIAL_SPLIT, cls.TEMPORAL_SPLIT]]
         s_split_spatial = df[cls.SPATIAL_SPLIT].copy() if cls.SPATIAL_SPLIT in df.columns else None
         s_split_temporal = df[cls.TEMPORAL_SPLIT].copy() if cls.TEMPORAL_SPLIT in df.columns else None
+
         # Infer the slicer class
         if s_split_temporal is None and s_split_spatial is None:
             raise ValueError('Both split are unspecified')
@@ -56,6 +69,7 @@ class AbstractCoordinates(object):
             slicer_class = SpatialSlicer
         else:
             slicer_class = SpatioTemporalSlicer
+
         # Remove all the columns used from df
         columns_used = coordinate_columns + split_columns
         df.drop(columns_used, axis=1, inplace=True)
@@ -64,22 +78,13 @@ class AbstractCoordinates(object):
 
     @classmethod
     def from_df_and_slicer(cls, df: pd.DataFrame, slicer_class: type, train_split_ratio: float = None):
-        # So far, the train_split_ratio is the same between the spatial part of the data, and the temporal part
-
         # All the index should be unique
         assert len(set(df.index)) == len(df)
 
         # Create a spatial split
-        if slicer_class in [SpatialSlicer, SpatioTemporalSlicer]:
-            s_split_spatial = s_split_from_df(df, cls.COORDINATE_X, cls.SPATIAL_SPLIT, train_split_ratio, True)
-        else:
-            s_split_spatial = None
-
+        s_split_spatial = s_split_from_df(df, cls.COORDINATE_X, cls.SPATIAL_SPLIT, train_split_ratio, True)
         # Create a temporal split
-        if slicer_class in [TemporalSlicer, SpatioTemporalSlicer]:
-            s_split_temporal = s_split_from_df(df, cls.COORDINATE_T, cls.TEMPORAL_SPLIT, train_split_ratio, False)
-        else:
-            s_split_temporal = None
+        s_split_temporal = s_split_from_df(df, cls.COORDINATE_T, cls.TEMPORAL_SPLIT, train_split_ratio, False)
 
         return cls(df_coord=df, slicer_class=slicer_class,
                    s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal)
@@ -217,4 +222,3 @@ class AbstractCoordinates(object):
 
     def __eq__(self, other):
         return self.df_merged.equals(other.df_merged)
-

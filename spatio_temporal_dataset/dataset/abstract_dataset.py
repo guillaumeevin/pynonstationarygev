@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from spatio_temporal_dataset.slicer.abstract_slicer import AbstractSlicer
 from spatio_temporal_dataset.slicer.split import Split
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
@@ -16,13 +17,9 @@ class AbstractDataset(object):
 
     def __init__(self, observations: AbstractSpatioTemporalObservations, coordinates: AbstractCoordinates):
         assert pd.Index.equals(observations.index, coordinates.index)
-        self.observations = observations
-        self.coordinates = coordinates
+        self.observations = observations  # type: AbstractSpatioTemporalObservations
+        self.coordinates = coordinates  # type: AbstractCoordinates
         self.subset_id_to_column_idxs = None  # type: Dict[int, List[int]]
-
-    @property
-    def slicer(self):
-        return self.coordinates.slicer
 
     @classmethod
     def from_csv(cls, csv_path: str):
@@ -68,6 +65,10 @@ class AbstractDataset(object):
     # Slicer wrapper
 
     @property
+    def slicer(self) -> AbstractSlicer:
+        return self.coordinates.slicer
+
+    @property
     def train_split(self) -> Split:
         return self.slicer.train_split
 
@@ -99,4 +100,3 @@ def get_subset_dataset(dataset: AbstractDataset, subset_id) -> AbstractDataset:
     if observations.df_maxima_frech is not None:
         observations.df_maxima_frech = observations.df_maxima_frech.iloc[:, columns_idxs]
     return subset_dataset
-

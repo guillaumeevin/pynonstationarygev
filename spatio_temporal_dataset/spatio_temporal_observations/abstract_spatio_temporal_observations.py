@@ -20,8 +20,8 @@ class AbstractSpatioTemporalObservations(object):
         assert df_maxima_gev is not None or df_maxima_frech is not None
         if df_maxima_gev is not None and df_maxima_frech is not None:
             assert pd.Index.equals(df_maxima_gev.index, df_maxima_frech.index)
-        self.df_maxima_gev = df_maxima_gev
-        self.df_maxima_frech = df_maxima_frech
+        self.df_maxima_gev = df_maxima_gev  # type: pd.DataFrame
+        self.df_maxima_frech = df_maxima_frech  # type: pd.DataFrame
 
     @classmethod
     def from_csv(cls, csv_path: str = None):
@@ -38,9 +38,10 @@ class AbstractSpatioTemporalObservations(object):
             return self.df_maxima_gev
 
     @property
-    def df_maxima_merged(self):
+    def df_maxima_merged(self) -> pd.DataFrame:
         df_maxima_list = []
-        for df, suffix in [(self.df_maxima_gev, self.OBSERVATIONS_GEV), (self.df_maxima_frech, self.OBSERVATIONS_FRECH)]:
+        for df, suffix in [(self.df_maxima_gev, self.OBSERVATIONS_GEV),
+                           (self.df_maxima_frech, self.OBSERVATIONS_FRECH)]:
             if df is not None:
                 df_maxima = df.copy()
                 df_maxima.columns = [str(c) + ' ' + suffix for c in df_maxima.columns]

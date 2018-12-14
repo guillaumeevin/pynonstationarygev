@@ -1,10 +1,9 @@
 import math
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from rpy2.robjects import r
-
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-import matplotlib.pyplot as plt
 
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -26,10 +25,10 @@ class CircleSpatialCoordinates(AbstractSpatialCoordinates):
         return cls.from_df(cls.df_spatial(nb_points, max_radius), train_split_ratio)
 
     def visualization_2D(self):
-        r = 1.0
-        circle1 = plt.Circle((0, 0), r, color='r', fill=False)
-        plt.gcf().gca().set_xlim((-r, r))
-        plt.gcf().gca().set_ylim((-r, r))
+        radius = 1.0
+        circle1 = plt.Circle((0, 0), radius, color='r', fill=False)
+        plt.gcf().gca().set_xlim((-radius, radius))
+        plt.gcf().gca().set_ylim((-radius, radius))
         plt.gcf().gca().add_artist(circle1)
         super().visualization_2D()
 

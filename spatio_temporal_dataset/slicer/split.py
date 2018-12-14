@@ -34,7 +34,7 @@ def split_to_display_kwargs(split: Split):
                 marker = '^'
             else:
                 marker = '>'
-    return {'marker': marker, 'linewidth': linewidth, 'gridsize':gridsize}
+    return {'marker': marker, 'linewidth': linewidth, 'gridsize': gridsize}
 
 
 ALL_SPLITS_EXCEPT_ALL = [split for split in Split if split is not Split.all]
@@ -73,15 +73,15 @@ def s_split_from_df(df: pd.DataFrame, column, split_column, train_split_ratio, s
     elif split_column in df:
         raise Exception('A split has already been defined')
     else:
-        serie = df.drop_duplicates(subset=[column], keep='first')[column]
-        assert len(df) % len(serie) == 0
-        multiplication_factor = len(df) // len(serie)
-        small_s_split = small_s_split_from_ratio(serie.index, train_split_ratio)
+        s = df.drop_duplicates(subset=[column], keep='first')[column]
+        assert len(df) % len(s) == 0
+        multiplication_factor = len(df) // len(s)
+        small_s_split = small_s_split_from_ratio(s.index, train_split_ratio)
         if spatial_split:
             # concatenation for spatial_split
             s_split = pd.concat([small_s_split for _ in range(multiplication_factor)], ignore_index=True).copy()
         else:
-            # dilatjon for the temporal split
+            # dilatation for the temporal split
             s_split = pd.Series(None, index=df.index)
             for i in range(len(s_split)):
                 s_split.iloc[i] = small_s_split.iloc[i // multiplication_factor]

@@ -15,8 +15,7 @@ class FullEstimatorInASingleStepWithSmoothMargin_LinearAllParametersAllDims_Smit
                    max_stable_model=Smith())
 
 
-class FullEstimatorInASingleStepWithSmoothMargin_Constant_Smith(
-    FullEstimatorInASingleStepWithSmoothMargin):
+class FullEstimatorInASingleStepWithSmoothMargin_Constant_Smith(FullEstimatorInASingleStepWithSmoothMargin):
 
     @classmethod
     def from_dataset(cls, dataset: AbstractDataset):

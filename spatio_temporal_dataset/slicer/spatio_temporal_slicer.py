@@ -25,10 +25,10 @@ class SpatioTemporalSlicer(AbstractSlicer):
         return Split.test_spatiotemporal
 
     @property
-    def some_required_ind_are_not_defined(self):
+    def some_required_ind_are_not_defined(self) -> bool:
         return self.ind_train_spatial is None or self.ind_train_temporal is None
 
-    def specialized_loc_split(self, df: pd.DataFrame, split: Split):
+    def specialized_loc_split(self, df: pd.DataFrame, split: Split) -> pd.DataFrame:
         assert pd.Index.equals(df.index, self.ind_train_temporal.index)
         assert pd.Index.equals(df.index, self.ind_train_spatial.index)
         if split is Split.train_spatiotemporal:

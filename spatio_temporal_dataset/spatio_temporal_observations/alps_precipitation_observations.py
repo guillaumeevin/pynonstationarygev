@@ -1,13 +1,11 @@
 import os.path as op
 
-import pandas as pd
-
-from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import AbstractSpatioTemporalObservations
+from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
+    AbstractSpatioTemporalObservations
 from utils import get_full_path
 
 
 class AlpsPrecipitationObservations(AbstractSpatioTemporalObservations):
-
     RELATIVE_PATH = r'local/spatio_temporal_datasets/Gilles  - precipitations'
     FULL_PATH = get_full_path(relative_path=RELATIVE_PATH)
 

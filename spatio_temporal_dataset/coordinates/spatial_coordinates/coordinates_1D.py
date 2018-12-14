@@ -1,9 +1,7 @@
-import pandas as pd
-
 import numpy as np
+import pandas as pd
 from rpy2.robjects import r
 
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
 

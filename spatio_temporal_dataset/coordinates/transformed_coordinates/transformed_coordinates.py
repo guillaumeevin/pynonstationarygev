@@ -1,5 +1,6 @@
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import AbstractTransformation
+from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation \
+    import AbstractTransformation
 
 
 class TransformedCoordinates(AbstractCoordinates):

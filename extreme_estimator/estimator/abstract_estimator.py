@@ -69,7 +69,8 @@ class AbstractEstimator(object):
     # Methods to override in the child class
 
     def _fit(self):
-        pass
+        raise NotImplementedError
 
     def _error(self, true_max_stable_params: dict):
-        pass
+        raise NotImplementedError
+

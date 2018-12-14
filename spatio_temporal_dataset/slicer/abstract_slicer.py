@@ -19,7 +19,7 @@ class AbstractSlicer(object):
     def ind_test_temporal(self) -> pd.Series:
         return ~self.ind_train_temporal
 
-    def loc_split(self, df: pd.DataFrame, split: Split):
+    def loc_split(self, df: pd.DataFrame, split: Split) -> pd.DataFrame:
         # split should belong to the list of split accepted by the slicer
         assert isinstance(split, Split)
 
@@ -52,24 +52,24 @@ class AbstractSlicer(object):
 
     # Methods that need to be defined in the child class
 
-    def specialized_loc_split(self, df: pd.DataFrame, split: Split):
-        return
+    def specialized_loc_split(self, df: pd.DataFrame, split: Split) -> pd.DataFrame:
+        raise NotImplementedError
 
     @property
     def some_required_ind_are_not_defined(self) -> bool:
-        return
+        raise NotImplementedError
 
     @property
     def train_split(self) -> Split:
-        return
+        raise NotImplementedError
 
     @property
     def test_split(self) -> Split:
-        return
+        raise NotImplementedError
 
     @property
     def splits(self) -> List[Split]:
-        return
+        raise NotImplementedError
 
 
 def df_sliced(df: pd.DataFrame, split: Split = Split.all, slicer: AbstractSlicer = None) -> pd.DataFrame:

@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import AbstractTransformation
+from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation \
+    import AbstractTransformation
 import math
 
 

@@ -71,6 +71,6 @@ class AbstractMarginModel(AbstractModel):
 
     def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, df_coordinates: pd.DataFrame) \
             -> AbstractMarginFunction:
-        pass
+        raise NotImplementedError
 
 

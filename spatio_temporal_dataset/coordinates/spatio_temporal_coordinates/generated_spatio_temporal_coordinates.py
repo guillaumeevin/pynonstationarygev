@@ -1,12 +1,8 @@
 import pandas as pd
 
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import UniformSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
     AbstractSpatioTemporalCoordinates
-from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
-    ConsecutiveTemporalCoordinates
-from spatio_temporal_dataset.slicer.spatio_temporal_slicer import SpatioTemporalSlicer
 
 
 class UniformSpatioTemporalCoordinates(AbstractSpatioTemporalCoordinates):
