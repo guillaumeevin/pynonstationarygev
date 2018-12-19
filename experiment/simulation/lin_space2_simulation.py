@@ -15,15 +15,20 @@ class LinSpace5Simulation(AbstractSimulation):
     def __init__(self, nb_fit=1):
         super().__init__(nb_fit)
         # Simulation parameters
+        # Number of observations
         self.nb_obs = 60
-        self.coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=100, train_split_ratio=0.75)
-        # MarginModel Linear with respect to the shape (from 0.01 to 0.02)
+        # 1 dimensional spatial coordinates (separated in train split and test split)
+        self.coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=100,
+                                                                     train_split_ratio=0.75)
+        # MarginModel Constant for simulation
         params_sample = {
             (GevParams.GEV_LOC, 0): 1.0,
             (GevParams.GEV_SHAPE, 0): 1.0,
             (GevParams.GEV_SCALE, 0): 1.0,
         }
-        self.margin_model = ConstantMarginModel(coordinates=self.coordinates, params_sample=params_sample)
+        self.margin_model = ConstantMarginModel(coordinates=self.coordinates,
+                                                params_sample=params_sample)
+        # MaxStable Model for simulation
         self.max_stable_model = Smith()
 
     def dump(self):
@@ -37,6 +42,6 @@ if __name__ == '__main__':
     simu = LinSpace5Simulation(nb_fit=10)
     simu.dump()
     estimators_class = MARGIN_ESTIMATORS_FOR_SIMULATION + FULL_ESTIMATORS_FOR_SIMULATION
-    for estimator_class in estimators_class[:]:
-        simu.fit(estimator_class, show=False)
+    # for estimator_class in estimators_class[:]:
+    #     simu.fit(estimator_class, show=False)
     simu.visualize_comparison_graph()
