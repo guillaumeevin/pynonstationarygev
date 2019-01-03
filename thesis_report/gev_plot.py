@@ -15,7 +15,7 @@ def gev_plot():
         plt.plot(x, y, label=label)
     plt.legend()
     plt.xlabel('$y$')
-    plt.ylabel('$p(y|\mu, \sigma, \zeta)$')
+    plt.ylabel('$f_{GEV}(y|1,1,\zeta)$')
     plt.show()
 
 
@@ -40,6 +40,23 @@ def max_stable_plot():
     plt.show()
 
 
+def max_stable_plot_v2():
+    power_n = 3
+    fig, ax = plt.subplots(1, 1, sharey='row')
+    loc, scale, shape = 1, 1, 1
+    for n in [10 ** i for i in range(power_n)]:
+        lim_left, lim_right = n, n * 10
+        x = np.linspace(lim_left, lim_right, 100)
+        label = 'n={}'.format(n)
+        y = np.array(r.pgev(x, loc, scale, shape))
+        y **= n
+        ax.semilogx(x, y, label=label)
+        ax.legend(loc=4)
+        ax.set_xlabel('$z$')
+        ax.set_ylabel('$P(\\frac{ \max{(Z_1, ..., Z_n)} - b_n}{a_n} \leq z)$')
+    plt.show()
+
+
 def quantile_function_plot():
     p = np.linspace(5e-1, 1e-5, 100)
     loc, scale = 2, 1
@@ -56,6 +73,7 @@ def quantile_function_plot():
 
 
 if __name__ == '__main__':
-    #     gev_plot()
+    gev_plot()
     # max_stable_plot()
-    quantile_function_plot()
+    # quantile_function_plot()
+    # max_stable_plot_v2()
