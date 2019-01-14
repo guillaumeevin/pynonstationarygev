@@ -10,7 +10,7 @@ class TransformedCoordinates(AbstractCoordinates):
                          transformation_function: AbstractTransformation):
         df_coordinates_transformed = coordinates.df_all_coordinates.copy()
         df_coordinates_transformed = transformation_function.transform(df_coord=df_coordinates_transformed)
-        return cls(df_coord=df_coordinates_transformed, slicer_class=type(coordinates.slicer),
+        return cls(df=df_coordinates_transformed, slicer_class=type(coordinates.slicer),
                    s_split_spatial=coordinates.s_split_spatial, s_split_temporal=coordinates.s_split_temporal)
 
 
