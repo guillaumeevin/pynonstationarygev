@@ -22,9 +22,13 @@ mle_gev <- function(loc, scale, shape){
 }
 
 main <- function(){
+    # My custom mle fit
     res = mle_gev(start_loc, start_scale, start_shape)
     print(attributes(res))
     print(attr(res, 'coef'))
+    # mle fit from spatial extremes
+    param = gevmle(x_gev, method = "Nelder")
+    print(param)
 }
 
 if (call_main) {
