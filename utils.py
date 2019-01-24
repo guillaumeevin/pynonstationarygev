@@ -24,6 +24,8 @@ def first(s):
     return next(iter(s))
 
 
+# todo: these cached property have a weird behavior with inheritence,
+#  when we call the super cached_property in the child method
 class cached_property(object):
     """
     Descriptor (non-data) for building an attribute on-demand on first use.

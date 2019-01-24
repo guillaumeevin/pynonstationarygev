@@ -7,7 +7,7 @@ from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, \
     Geometric, ExtremalT, ISchlather
-from safran_study.safran import Safran2400, Safran1800
+from safran_study.safran import Safran
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
     AlpsStation3DCoordinatesWithAnisotropy
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
@@ -85,5 +85,5 @@ def load_test_spatiotemporal_coordinates(nb_points, nb_steps, train_split_ratio=
 
 def load_safran_objects():
     nb_days_list = [1, 3, 5][:1]
-    safran_classes = [Safran1800, Safran2400][:1]
-    return [safran_class(nb_days) for safran_class in safran_classes for nb_days in nb_days_list]
+    safran_altitude_list = [1800, 2400][:1]
+    return [Safran(safran_altitude, nb_days) for safran_altitude in safran_altitude_list for nb_days in nb_days_list]
