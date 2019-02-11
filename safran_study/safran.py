@@ -52,22 +52,20 @@ class Safran(object):
             fill_kwargs = massif_name_to_fill_kwargs[massif_name] if massif_name_to_fill_kwargs is not None else {}
             ax.fill(*l, **fill_kwargs)
         ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates)
+        ax.axis('off')
 
         if show:
             plt.show()
 
     def visualize_gev_fit_with_cmap(self, show=True, axes=None):
+        params_names = GevParams.GEV_VALUE_NAMES
         if axes is None:
-            fig, axes = plt.subplots(1, len(GevParams.GEV_PARAM_NAMES))
+            fig, axes = plt.subplots(1, len(params_names))
             fig.subplots_adjust(hspace=1.0, wspace=1.0)
 
-            # fig = plt.figure(figsize=(6, 6))
-            # axes = AxesGrid(fig, 111, nrows_ncols=(1, 3), axes_pad=0.5,
-            #                 label_mode="1", share_all=True,
-            #                 cbar_location="right", cbar_mode="each",
-            #                 cbar_size="7%", cbar_pad="2%")
+        for i, gev_param_name in enumerate(params_names):
+            ax = axes[i]
 
-        for i, gev_param_name in enumerate(GevParams.GEV_PARAM_NAMES[:]):
             massif_name_to_value = self.df_gev_mle_each_massif.loc[gev_param_name, :].to_dict()
             # Compute the middle point of the values for the color map
             values = list(massif_name_to_value.values())
@@ -90,12 +88,13 @@ class Safran(object):
 
             massif_name_to_fill_kwargs = {massif_name: {'color': m.to_rgba(value)} for massif_name, value in
                                           massif_name_to_value.items()}
-            ax = axes[i]
+
             self.visualize(ax=ax, massif_name_to_fill_kwargs=massif_name_to_fill_kwargs, show=False)
 
+            # Add colorbar
+            # plt.axis('off')
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('right', size='5%', pad=0.05)
-
             cb = cbar.ColorbarBase(cax, cmap=shifted_cmap, norm=norm)
             cb.set_label(gev_param_name)
 
@@ -115,7 +114,7 @@ class Safran(object):
     @property
     def df_gev_mle_each_massif(self):
         # Fit a gev n each massif
-        massif_to_gev_mle = {massif_name: GevMleFit(self.df_annual_maxima[massif_name]).gev_params.to_serie()
+        massif_to_gev_mle = {massif_name: GevMleFit(self.df_annual_maxima[massif_name]).gev_params.value_serie
                              for massif_name in self.safran_massif_names}
         return pd.DataFrame(massif_to_gev_mle, columns=self.safran_massif_names)
 
@@ -173,7 +172,6 @@ class Safran(object):
     @property
     def coordinate_id_to_massif_name(self):
         df_centroid = self.load_df_centroid()
-        print(df_centroid.columns)
         return dict(zip(df_centroid['id'], df_centroid['NOM']))
 
     """ Some properties """

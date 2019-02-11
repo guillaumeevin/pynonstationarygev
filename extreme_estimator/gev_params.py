@@ -46,7 +46,7 @@ class GevParams(object):
 
     # GEV quantiles
 
-    def qgev(self, p):
+    def qgev(self, p) -> float:
         return r.qgev(p, self.location, self.scale, self.shape)[0]
 
     @property
@@ -66,5 +66,9 @@ class GevParams(object):
     @property
     def value_dict(self) -> dict:
         return {**self.to_dict(), **self.quantile_dict}
+
+    @property
+    def value_serie(self) -> pd.Series:
+        return pd.Series(self.value_dict, index=self.GEV_VALUE_NAMES)
 
 
