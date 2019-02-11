@@ -1,11 +1,13 @@
 import os
+import matplotlib as mpl
+import matplotlib.colorbar as cbar
 import os.path as op
 from collections import OrderedDict
 
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
-from mpl_toolkits.axes_grid1 import AxesGrid
+from mpl_toolkits.axes_grid1 import AxesGrid, make_axes_locatable
 from netCDF4 import Dataset
 
 from extreme_estimator.gev.gevmle_fit import GevMleFit
@@ -71,15 +73,32 @@ class Safran(object):
             values = list(massif_name_to_value.values())
             vmin, vmax = min(values), max(values)
             midpoint = 1 - vmax / (vmax + abs(vmin))
-            scaling_factor = max(vmax, -vmin)
+            scaling_factor = 2 * max(vmax, -vmin)
             # print(gev_param_name, midpoint, vmin, vmax, scaling_factor)
             # Load the shifted cmap to center on a middle point
             cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][0]
-            shifted_cmap = shiftedColorMap(plt.cm.coolwarm, midpoint=0.0, name='shifted')
-            massif_name_to_fill_kwargs = {massif_name: {'color': shifted_cmap(value / scaling_factor)} for massif_name, value in
+            shifted_cmap = shiftedColorMap(cmap, midpoint=0.5, name='shifted')
+            for massif_name, value in massif_name_to_value.items():
+                if value < 0:
+                    print(massif_name, value)
+            # massif_name_to_fill_kwargs = {massif_name: {'color': shifted_cmap(0.5 + value / scaling_factor)} for massif_name, value in
+            #                               massif_name_to_value.items()}
+            massif_name_to_fill_kwargs = {massif_name: {'color': shifted_cmap(0.5 + value / scaling_factor)} for massif_name, value in
                                           massif_name_to_value.items()}
             ax = axes[i]
             cax = self.visualize(ax=ax, massif_name_to_fill_kwargs=massif_name_to_fill_kwargs, show=False)
+
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes('right', size='5%', pad=0.05)
+
+            # cax, _ = cbar.make_axes(ax)
+            # todo: the good shape values are not the one displayed
+            norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+            cb = cbar.ColorbarBase(cax, cmap=shifted_cmap, norm=norm)
+            cb.set_label('Some Units')
+
+            # fig.colorbar(shifted_cmap, cax=cax, orientation='vertical')
+
 
             # cbar = fig.colorbar(cax, ticks=[-1, 0, 1], orientation='horizontal')
             # cbar.ax.set_xticklabels(['Low', 'Medium', 'High'])  # horizontal colorbar
