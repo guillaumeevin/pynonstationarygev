@@ -1,8 +1,6 @@
-import numpy as np
-
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
-from extreme_estimator.gev_params import GevParams
+from extreme_estimator.margin_fits.gev.gev_params import GevParams
 
 
 def relative_abs_error(reference_value, fitted_value):
@@ -23,7 +21,7 @@ def error_dict_between_margin_functions(reference: AbstractMarginFunction, fitte
     reference_values = reference.gev_value_name_to_serie
     fitted_values = fitted.gev_value_name_to_serie
     gev_param_name_to_error_serie = {}
-    for gev_value_name in GevParams.GEV_VALUE_NAMES:
+    for gev_value_name in GevParams.SUMMARY_NAMES:
         error = 100 * relative_abs_error(reference_values[gev_value_name], fitted_values[gev_value_name])
         gev_param_name_to_error_serie[gev_value_name] = error
     return gev_param_name_to_error_serie

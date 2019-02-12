@@ -4,15 +4,14 @@ import matplotlib.colorbar as cbar
 import os.path as op
 from collections import OrderedDict
 
-import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib import cm
-from mpl_toolkits.axes_grid1 import AxesGrid, make_axes_locatable
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from netCDF4 import Dataset
 
-from extreme_estimator.gev.gevmle_fit import GevMleFit
-from extreme_estimator.gev_params import GevParams
+from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
+from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from safran_study.massif import safran_massif_names_from_datasets
 from safran_study.shifted_color_map import shiftedColorMap
 from safran_study.snowfall_annual_maxima import SafranSnowfall
@@ -58,7 +57,7 @@ class Safran(object):
             plt.show()
 
     def visualize_gev_fit_with_cmap(self, show=True, axes=None):
-        params_names = GevParams.GEV_VALUE_NAMES
+        params_names = GevParams.SUMMARY_NAMES
         if axes is None:
             fig, axes = plt.subplots(1, len(params_names))
             fig.subplots_adjust(hspace=1.0, wspace=1.0)
@@ -77,7 +76,7 @@ class Safran(object):
             # Load the shifted cmap to center on a middle point
 
             cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
-            if gev_param_name == GevParams.GEV_SHAPE:
+            if gev_param_name == GevParams.SHAPE:
                 shifted_cmap = shiftedColorMap(cmap, midpoint=midpoint, name='shifted')
                 norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
             else:
@@ -113,8 +112,8 @@ class Safran(object):
 
     @property
     def df_gev_mle_each_massif(self):
-        # Fit a gev n each massif
-        massif_to_gev_mle = {massif_name: GevMleFit(self.df_annual_maxima[massif_name]).gev_params.value_serie
+        # Fit a margin_fits n each massif
+        massif_to_gev_mle = {massif_name: GevMleFit(self.df_annual_maxima[massif_name]).gev_params.summary_serie
                              for massif_name in self.safran_massif_names}
         return pd.DataFrame(massif_to_gev_mle, columns=self.safran_massif_names)
 

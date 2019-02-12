@@ -5,7 +5,7 @@ import numpy as np
 
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
-from extreme_estimator.gev_params import GevParams
+from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 

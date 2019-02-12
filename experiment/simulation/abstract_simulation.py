@@ -2,10 +2,8 @@ import os
 from typing import List
 
 import matplotlib
-import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
-import numpy as np
 import os.path as op
 import pickle
 
@@ -21,7 +19,7 @@ from extreme_estimator.extreme_models.margin_model.margin_function.abstract_marg
 from extreme_estimator.extreme_models.margin_model.margin_function.combined_margin_function import \
     CombinedMarginFunction
 from extreme_estimator.extreme_models.margin_model.margin_function.utils import error_dict_between_margin_functions
-from extreme_estimator.gev_params import GevParams
+from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.dataset.abstract_dataset import get_subset_dataset
 from spatio_temporal_dataset.dataset.simulation_dataset import SimulatedDataset
 from spatio_temporal_dataset.slicer.split import split_to_display_kwargs
@@ -129,14 +127,14 @@ class AbstractSimulation(object):
 
     @staticmethod
     def load_fig_and_axes():
-        fig, axes = plt.subplots(len(GevParams.GEV_VALUE_NAMES), 2)
+        fig, axes = plt.subplots(len(GevParams.SUMMARY_NAMES), 2)
         fig.subplots_adjust(hspace=0.4, wspace=0.4)
         return fig, axes
 
     def visualize(self, fig=None, axes=None, show=True):
         if fig is None or axes is None:
             fig, axes = self.load_fig_and_axes()
-        for i, gev_value_name in enumerate(GevParams.GEV_VALUE_NAMES):
+        for i, gev_value_name in enumerate(GevParams.SUMMARY_NAMES):
             self.margin_graph(axes[i, 0], gev_value_name)
             self.score_graph(axes[i, 1], gev_value_name)
         if show:

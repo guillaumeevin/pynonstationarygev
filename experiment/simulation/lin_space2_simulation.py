@@ -4,7 +4,7 @@ from extreme_estimator.estimator.margin_estimator.margin_estimator_for_simulatio
     MARGIN_ESTIMATORS_FOR_SIMULATION
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import ConstantMarginModel
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith
-from extreme_estimator.gev_params import GevParams
+from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import LinSpaceSpatialCoordinates
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
 
@@ -22,9 +22,9 @@ class LinSpace5Simulation(AbstractSimulation):
                                                                      train_split_ratio=0.75)
         # MarginModel Constant for simulation
         params_sample = {
-            (GevParams.GEV_LOC, 0): 1.0,
-            (GevParams.GEV_SHAPE, 0): 1.0,
-            (GevParams.GEV_SCALE, 0): 1.0,
+            (GevParams.LOC, 0): 1.0,
+            (GevParams.SHAPE, 0): 1.0,
+            (GevParams.SCALE, 0): 1.0,
         }
         self.margin_model = ConstantMarginModel(coordinates=self.coordinates,
                                                 params_sample=params_sample)

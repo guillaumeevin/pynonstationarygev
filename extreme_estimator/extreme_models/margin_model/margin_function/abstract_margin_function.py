@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from extreme_estimator.gev_params import GevParams
+from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.slicer.split import Split
 
@@ -36,10 +36,10 @@ class AbstractMarginFunction(object):
     def gev_value_name_to_serie(self) -> Dict[str, pd.Series]:
         # Load the gev_params
         gev_params = [self.get_gev_params(coordinate) for coordinate in self.coordinates.coordinates_values()]
-        # Load the dictionary of values (gev parameters + the quantiles)
-        value_dicts = [gev_param.value_dict for gev_param in gev_params]
+        # Load the dictionary of values (margin_fits parameters + the quantiles)
+        value_dicts = [gev_param.summary_dict for gev_param in gev_params]
         gev_value_name_to_serie = {}
-        for value_name in GevParams.GEV_VALUE_NAMES:
+        for value_name in GevParams.SUMMARY_NAMES:
             s = pd.Series(data=[d[value_name] for d in value_dicts], index=self.coordinates.index)
             gev_value_name_to_serie[value_name] = s
         return gev_value_name_to_serie
@@ -58,10 +58,10 @@ class AbstractMarginFunction(object):
     def visualize(self, axes=None, show=True, dot_display=False):
         self.datapoint_display = dot_display
         if axes is None:
-            fig, axes = plt.subplots(1, len(GevParams.GEV_VALUE_NAMES))
+            fig, axes = plt.subplots(1, len(GevParams.SUMMARY_NAMES))
             fig.subplots_adjust(hspace=1.0, wspace=1.0)
         self.visualization_axes = axes
-        for i, gev_value_name in enumerate(GevParams.GEV_VALUE_NAMES):
+        for i, gev_value_name in enumerate(GevParams.SUMMARY_NAMES):
             ax = axes[i]
             self.visualize_single_param(gev_value_name, ax, show=False)
             title_str = gev_value_name
@@ -69,8 +69,8 @@ class AbstractMarginFunction(object):
         if show:
             plt.show()
 
-    def visualize_single_param(self, gev_value_name=GevParams.GEV_LOC, ax=None, show=True):
-        assert gev_value_name in GevParams.GEV_VALUE_NAMES
+    def visualize_single_param(self, gev_value_name=GevParams.LOC, ax=None, show=True):
+        assert gev_value_name in GevParams.SUMMARY_NAMES
         if self.coordinates.nb_coordinates_spatial == 1:
             self.visualize_1D(gev_value_name, ax, show)
         elif self.coordinates.nb_coordinates_spatial == 2:
@@ -80,7 +80,7 @@ class AbstractMarginFunction(object):
 
     # Visualization 1D
 
-    def visualize_1D(self, gev_value_name=GevParams.GEV_LOC, ax=None, show=True):
+    def visualize_1D(self, gev_value_name=GevParams.LOC, ax=None, show=True):
         x = self.coordinates.x_coordinates
         grid, linspace = self.grid_1D(x)
         if ax is None:
@@ -118,13 +118,13 @@ class AbstractMarginFunction(object):
         grid = []
         for i, xi in enumerate(linspace):
             gev_param = self.get_gev_params(np.array([xi]))
-            grid.append(gev_param.value_dict)
-        grid = {gev_param: [g[gev_param] for g in grid] for gev_param in GevParams.GEV_VALUE_NAMES}
+            grid.append(gev_param.summary_dict)
+        grid = {gev_param: [g[gev_param] for g in grid] for gev_param in GevParams.SUMMARY_NAMES}
         return grid, linspace
 
     # Visualization 2D
 
-    def visualize_2D(self, gev_value_name=GevParams.GEV_LOC, ax=None, show=True):
+    def visualize_2D(self, gev_value_name=GevParams.LOC, ax=None, show=True):
         x = self.coordinates.x_coordinates
         y = self.coordinates.y_coordinates
         grid = self.grid_2D(x, y)
@@ -155,7 +155,7 @@ class AbstractMarginFunction(object):
         grid = []
         for i, xi in enumerate(np.linspace(x.min(), x.max(), resolution)):
             for j, yj in enumerate(np.linspace(y.min(), y.max(), resolution)):
-                grid.append(self.get_gev_params(np.array([xi, yj])).value_dict)
+                grid.append(self.get_gev_params(np.array([xi, yj])).summary_dict)
         grid = {value_name: np.array([g[value_name] for g in grid]).reshape([resolution, resolution])
-                for value_name in GevParams.GEV_VALUE_NAMES}
+                for value_name in GevParams.SUMMARY_NAMES}
         return grid

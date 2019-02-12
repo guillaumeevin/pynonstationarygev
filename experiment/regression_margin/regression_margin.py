@@ -5,7 +5,7 @@ from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearAllParametersAllDimsMarginModel, \
     ConstantMarginModel
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith
-from extreme_estimator.gev_params import GevParams
+from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import LinSpaceSpatialCoordinates
 import matplotlib.pyplot as plt
 
@@ -23,9 +23,9 @@ coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=nb_points)
 # MarginModel Linear with respect to the shape (from 0.01 to 0.02)
 params_sample = {
     # (GevParams.GEV_SHAPE, 0): 0.2,
-    (GevParams.GEV_LOC, 0): 10,
-    (GevParams.GEV_SHAPE, 0): 1.0,
-    (GevParams.GEV_SCALE, 0): 1.0,
+    (GevParams.LOC, 0): 10,
+    (GevParams.SHAPE, 0): 1.0,
+    (GevParams.SCALE, 0): 1.0,
 }
 margin_model = ConstantMarginModel(coordinates=coordinates, params_sample=params_sample)
 margin_model_for_estimator_class = [LinearAllParametersAllDimsMarginModel, ConstantMarginModel][-1]
@@ -44,7 +44,7 @@ for i in range(nb_estimator):
                                                         max_stable_model=max_stable_model)
 
     if show and i == 0:
-        # Plot a realization from the maxima gev (i.e the maxima obtained just by simulating the marginal law)
+        # Plot a realization from the maxima margin_fits (i.e the maxima obtained just by simulating the marginal law)
         for maxima in np.transpose(dataset.maxima_frech()):
             plt.plot(coordinates.coordinates_values(), maxima, 'o')
         plt.show()

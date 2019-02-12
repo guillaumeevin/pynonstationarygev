@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from extreme_estimator.extreme_models.utils import r, set_seed_r
-from extreme_estimator.gev.gevmle_fit import GevMleFit
+from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
 
 
 class TestGevMleFit(unittest.TestCase):

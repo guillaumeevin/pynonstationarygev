@@ -1,6 +1,6 @@
 import unittest
 
-from extreme_estimator.gev_params import GevParams
+from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearShapeDim1MarginModel, \
     LinearAllParametersAllDimsMarginModel
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import CircleSpatialCoordinates
@@ -20,7 +20,7 @@ class VisualizationMarginModel(unittest.TestCase):
 
     def test_example_visualization_1D(self):
         coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=self.nb_points)
-        margin_model = self.margin_model(coordinates=coordinates, params_sample={(GevParams.GEV_SHAPE, 1): 0.02})
+        margin_model = self.margin_model(coordinates=coordinates, params_sample={(GevParams.SHAPE, 1): 0.02})
         margin_model.margin_function_sample.visualize(show=self.DISPLAY)
         self.assertTrue(True)
 
