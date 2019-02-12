@@ -15,6 +15,7 @@ class GevParams(object):
     GEV_QUANTILE_100 = 'quantile 100'
     GEV_QUANTILE_1000 = 'quantile 1000'
     GEV_QUANTILE_NAMES = [GEV_QUANTILE_10, GEV_QUANTILE_100, GEV_QUANTILE_1000]
+    GEV_QUANTILE_P_VALUES = [0.9, 0.99, 0.999]
     # GEV values
     GEV_VALUE_NAMES = GEV_PARAM_NAMES + GEV_QUANTILE_NAMES[:-1]
 
@@ -51,11 +52,7 @@ class GevParams(object):
 
     @property
     def quantile_name_to_p(self) -> dict:
-        return {
-            self.GEV_QUANTILE_10: 0.1,
-            self.GEV_QUANTILE_100: 0.01,
-            self.GEV_QUANTILE_1000: 0.001,
-        }
+        return dict(zip(self.GEV_QUANTILE_NAMES, self.GEV_QUANTILE_P_VALUES))
 
     @property
     def quantile_dict(self) -> dict:
