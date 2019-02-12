@@ -12,4 +12,4 @@ class GpdMleFit(object):
         self.x_gev = x_gev
         self.threshold = threshold
         self.mle_params = spatial_extreme_gpdmle_fit(x_gev, threshold)
-        self.gev_params = GpdParams.from_dict({**self.mle_params, 'threshold': threshold})
+        self.gpd_params = GpdParams.from_dict({**self.mle_params, 'threshold': threshold})

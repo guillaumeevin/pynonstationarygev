@@ -10,8 +10,11 @@ from matplotlib import cm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from netCDF4 import Dataset
 
+from extreme_estimator.margin_fits.extreme_params import ExtremeParams
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
+from extreme_estimator.margin_fits.gpd.gpd_params import GpdParams
+from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
 from safran_study.massif import safran_massif_names_from_datasets
 from safran_study.shifted_color_map import shiftedColorMap
 from safran_study.snowfall_annual_maxima import SafranSnowfall
@@ -56,27 +59,34 @@ class Safran(object):
         if show:
             plt.show()
 
-    def visualize_gev_fit_with_cmap(self, show=True, axes=None):
-        params_names = GevParams.SUMMARY_NAMES
+    def visualize_margin_fits_with_cmap(self, threshold=None, show=True, axes=None):
+        if threshold is None:
+            params_names = GevParams.SUMMARY_NAMES
+            df = self.df_gev_mle_each_massif
+            # todo: understand how Maurienne could be negative
+            # print(df.head())
+        else:
+            params_names = GpdParams.SUMMARY_NAMES
+            df = self.df_gpd_mle_each_massif(threshold)
+
         if axes is None:
             fig, axes = plt.subplots(1, len(params_names))
             fig.subplots_adjust(hspace=1.0, wspace=1.0)
 
         for i, gev_param_name in enumerate(params_names):
             ax = axes[i]
-
-            massif_name_to_value = self.df_gev_mle_each_massif.loc[gev_param_name, :].to_dict()
+            massif_name_to_value = df.loc[gev_param_name, :].to_dict()
             # Compute the middle point of the values for the color map
             values = list(massif_name_to_value.values())
             vmin, vmax = min(values), max(values)
-            midpoint = 1 - vmax / (vmax + abs(vmin))
-            maxmax = max(vmax, -vmin)
-            scaling_factor = 2 * maxmax
-            # print(gev_param_name, midpoint, vmin, vmax, scaling_factor)
+            try:
+                midpoint = 1 - vmax / (vmax + abs(vmin))
+            except ZeroDivisionError:
+                pass
             # Load the shifted cmap to center on a middle point
 
             cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
-            if gev_param_name == GevParams.SHAPE:
+            if gev_param_name == ExtremeParams.SHAPE:
                 shifted_cmap = shiftedColorMap(cmap, midpoint=midpoint, name='shifted')
                 norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
             else:
@@ -112,12 +122,24 @@ class Safran(object):
 
     @property
     def df_gev_mle_each_massif(self):
-        # Fit a margin_fits n each massif
+        # Fit a margin_fits on each massif
         massif_to_gev_mle = {massif_name: GevMleFit(self.df_annual_maxima[massif_name]).gev_params.summary_serie
                              for massif_name in self.safran_massif_names}
         return pd.DataFrame(massif_to_gev_mle, columns=self.safran_massif_names)
 
-    """ Annual maxima of snowfall """
+    def df_gpd_mle_each_massif(self, threshold):
+        # Fit a margin fit on each massif
+        massif_to_gev_mle = {massif_name: GpdMleFit(self.df_all_snowfall_concatenated[massif_name], threshold=threshold).gpd_params.summary_serie
+                             for massif_name in self.safran_massif_names}
+        return pd.DataFrame(massif_to_gev_mle, columns=self.safran_massif_names)
+
+    """ Data """
+
+    @property
+    def df_all_snowfall_concatenated(self):
+        df_list = [pd.DataFrame(snowfall, columns=self.safran_massif_names) for snowfall in self.year_to_snowfall.values()]
+        df_concatenated = pd.concat(df_list)
+        return df_concatenated
 
     @property
     def df_annual_maxima(self):
@@ -126,14 +148,22 @@ class Safran(object):
     """ Load some attributes only once """
 
     @cached_property
-    def year_to_annual_maxima(self):
+    def year_to_annual_maxima(self) -> OrderedDict:
+        # Map each year to an array of size nb_massif
+        year_to_annual_maxima = OrderedDict()
+        for year, snowfall in self.year_to_snowfall.items():
+            year_to_annual_maxima[year] = snowfall.max(axis=0)
+        return year_to_annual_maxima
+
+    @cached_property
+    def year_to_snowfall(self) -> OrderedDict:
+        # Map each year to a matrix of size 365-nb_days_consecutive+1 x nb_massifs
         year_to_safran_snowfall = {year: SafranSnowfall(dataset) for year, dataset in
                                    self.year_to_dataset_ordered_dict.items()}
-        year_to_annual_maxima = OrderedDict()
+        year_to_snowfall = OrderedDict()
         for year in self.year_to_dataset_ordered_dict.keys():
-            year_to_annual_maxima[year] = year_to_safran_snowfall[year].annual_maxima_of_snowfall(
-                self.nb_days_of_snowfall)
-        return year_to_annual_maxima
+            year_to_snowfall[year] = year_to_safran_snowfall[year].annual_snowfall(self.nb_days_of_snowfall)
+        return year_to_snowfall
 
     @property
     def safran_massif_names(self):

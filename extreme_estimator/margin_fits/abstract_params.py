@@ -3,8 +3,6 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-from extreme_estimator.extreme_models.utils import r
-
 
 class AbstractParams(object):
     # Parameters
@@ -29,6 +27,7 @@ class AbstractParams(object):
         raise NotImplementedError
 
     def to_dict(self) -> dict:
+        assert len(self.PARAM_NAMES) == len(self.param_values)
         return dict(zip(self.PARAM_NAMES, self.param_values))
 
     def to_serie(self) -> pd.Series:

@@ -31,12 +31,17 @@ class SafranSnowfall(object):
         nb_days = len(hourly_snowfall) // 24
         self.daily_snowfall = [sum(hourly_snowfall[24 * i:24 * (i+1)]) for i in range(nb_days)]
 
-    def annual_maxima_of_snowfall(self, nb_days_of_snowfall=1):
+    def annual_snowfall(self, nb_days_of_snowfall=1):
         # Aggregate the daily snowfall by the number of consecutive days
         shifted_list = [self.daily_snowfall[i:] for i in range(nb_days_of_snowfall)]
+        # First element of shifted_list is of length n, Second element of length n-1, Third element n-2....
+        # The zip is done with respect to the shortest list
         snowfall_in_consecutive_days = [sum(e) for e in zip(*shifted_list)]
         # Return the maximum of the aggregated list
-        return np.array(snowfall_in_consecutive_days).max(axis=0)
+        # The returned array is of size n-nb_days+1 x nb_massif
+        return np.array(snowfall_in_consecutive_days)
+
+
 
 
 

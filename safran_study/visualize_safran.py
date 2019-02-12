@@ -12,11 +12,11 @@ def load_all_safran(only_first_one=False):
     return all_safran
 
 
-def fit_mle_gev_independent():
+def fit_mle_gev_independent(threshold=None):
     # Dump the result in a csv
     dfs = []
     for safran in load_all_safran(only_first_one=True):
-        safran.visualize_gev_fit_with_cmap()
+        safran.visualize_margin_fits_with_cmap(threshold=threshold)
         # path = r'/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/results/fit_mle_massif/fit_mle_gev_{}.csv'
         # df.to_csv(path.format(VERSION))
 
@@ -26,4 +26,5 @@ def fit_max_stab():
 
 
 if __name__ == '__main__':
-    fit_mle_gev_independent()
+    threshold = [None, 20, 40, 60][1]
+    fit_mle_gev_independent(threshold=threshold)
