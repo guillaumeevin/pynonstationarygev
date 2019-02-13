@@ -17,6 +17,6 @@ def load_all_safran(only_first_one=False):
 if __name__ == '__main__':
     for safran in load_all_safran(only_first_one=True):
         safran_visualizer = SafranVisualizer(safran)
-        # safran_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][1])
-        # safran_visualizer.visualize_smooth_margin_fit()
-        safran_visualizer.visualize_full_fit()
+        # safran_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
+        safran_visualizer.visualize_smooth_margin_fit()
+        # safran_visualizer.visualize_full_fit()

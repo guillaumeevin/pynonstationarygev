@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
+from extreme_estimator.margin_fits.plot.create_shifted_cmap import plot_extreme_param
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.slicer.split import Split
 
@@ -124,15 +125,19 @@ class AbstractMarginFunction(object):
 
     # Visualization 2D
 
-    def visualize_2D(self, gev_value_name=GevParams.LOC, ax=None, show=True):
+    def visualize_2D(self, gev_param_name=GevParams.LOC, ax=None, show=True):
         x = self.coordinates.x_coordinates
         y = self.coordinates.y_coordinates
         grid = self.grid_2D(x, y)
         if ax is None:
             ax = plt.gca()
         imshow_method = ax.imshow
-        imshow_method(grid[gev_value_name], extent=(x.min(), x.max(), y.min(), y.max()),
-                      interpolation='nearest', cmap=cm.gist_rainbow)
+        values = grid[gev_param_name]
+
+        norm, shifted_cmap = plot_extreme_param(ax, gev_param_name, values)
+
+        imshow_method(values, extent=(x.min(), x.max(), y.min(), y.max()),
+                      interpolation='nearest', cmap=shifted_cmap)
         # X axis
         ax.set_xlabel('coordinate X')
         plt.setp(ax.get_xticklabels(), visible=True)
@@ -145,12 +150,8 @@ class AbstractMarginFunction(object):
         if show:
             plt.show()
 
-    def grid_2D(self, x, y):
-        # if self._grid_2D is None:
-        #     self._grid_2D = self.get_grid_2D(x, y)
-        return self.get_grid_2D(x, y)
 
-    def get_grid_2D(self, x, y):
+    def grid_2D(self, x, y):
         resolution = 100
         grid = []
         for i, xi in enumerate(np.linspace(x.min(), x.max(), resolution)):
