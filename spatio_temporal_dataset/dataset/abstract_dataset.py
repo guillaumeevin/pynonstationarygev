@@ -16,7 +16,7 @@ from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_tempor
 class AbstractDataset(object):
 
     def __init__(self, observations: AbstractSpatioTemporalObservations, coordinates: AbstractCoordinates):
-        assert pd.Index.equals(observations.index, coordinates.index)
+        assert pd.Index.equals(observations.index, coordinates.index), '\n{}\n{}'.format(observations.index, coordinates.index)
         self.observations = observations  # type: AbstractSpatioTemporalObservations
         self.coordinates = coordinates  # type: AbstractCoordinates
         self.subset_id_to_column_idxs = None  # type: Dict[int, List[int]]

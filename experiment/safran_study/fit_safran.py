@@ -1,7 +1,6 @@
 import pandas as pd
 
-from safran_study.safran import Safran
-from safran_study.safran_extended import ExtendedSafran
+from experiment.safran_study.safran_extended import ExtendedSafran
 from utils import VERSION
 
 
