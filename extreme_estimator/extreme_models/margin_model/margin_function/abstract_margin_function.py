@@ -69,6 +69,7 @@ class AbstractMarginFunction(object):
             ax.set_title(title_str)
         if show:
             plt.show()
+        return axes
 
     def visualize_single_param(self, gev_value_name=GevParams.LOC, ax=None, show=True):
         assert gev_value_name in GevParams.SUMMARY_NAMES

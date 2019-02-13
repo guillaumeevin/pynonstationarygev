@@ -38,18 +38,23 @@ class SafranVisualizer(object):
     def dataset(self):
         return AbstractDataset(self.observations, self.coordinates)
 
+    def fit_and_visualize_estimator(self, estimator):
+        estimator.fit()
+        axes = estimator.margin_function_fitted.visualize(show=False)
+        for ax in axes:
+            self.safran.visualize(ax, fill=False, show=False)
+        plt.show()
+
     def visualize_smooth_margin_fit(self):
         margin_model = LinearAllParametersAllDimsMarginModel(coordinates=self.coordinates)
         estimator = SmoothMarginEstimator(dataset=self.dataset, margin_model=margin_model)
-        estimator.fit()
-        estimator.margin_function_fitted.visualize(show=self.show)
+        self.fit_and_visualize_estimator(estimator)
 
     def visualize_full_fit(self):
         max_stable_model = Smith()
         margin_model = LinearAllParametersAllDimsMarginModel(coordinates=self.coordinates)
         estimator = FullEstimatorInASingleStepWithSmoothMargin(self.dataset, margin_model, max_stable_model)
-        estimator.fit()
-        estimator.margin_function_fitted.visualize(show=self.show)
+        self.fit_and_visualize_estimator(estimator)
 
     def visualize_independent_margin_fits(self, threshold=None, axes=None):
         if threshold is None:
@@ -77,7 +82,6 @@ class SafranVisualizer(object):
             print(massif_name_to_fill_kwargs)
 
             self.safran.visualize(ax=ax, massif_name_to_fill_kwargs=massif_name_to_fill_kwargs, show=False)
-
 
         if self.show:
             plt.show()

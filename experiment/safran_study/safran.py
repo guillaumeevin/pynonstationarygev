@@ -108,7 +108,7 @@ class Safran(object):
 
     """ Visualization methods """
 
-    def visualize(self, ax=None, massif_name_to_fill_kwargs=None, show=True):
+    def visualize(self, ax=None, massif_name_to_fill_kwargs=None, show=True, fill=True):
         if ax is None:
             ax = plt.gca()
         df_massif = pd.read_csv(op.join(self.map_full_path, 'massifsalpes.csv'))
@@ -120,9 +120,10 @@ class Safran(object):
             l = [coords for idx, *coords in coord_tuples if idx == coordinate_id]
             l = list(zip(*l))
             ax.plot(*l, color='black')
-            massif_name = self.coordinate_id_to_massif_name[coordinate_id]
-            fill_kwargs = massif_name_to_fill_kwargs[massif_name] if massif_name_to_fill_kwargs is not None else {}
-            ax.fill(*l, **fill_kwargs)
+            if fill:
+                massif_name = self.coordinate_id_to_massif_name[coordinate_id]
+                fill_kwargs = massif_name_to_fill_kwargs[massif_name] if massif_name_to_fill_kwargs is not None else {}
+                ax.fill(*l, **fill_kwargs)
         ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates)
         ax.axis('off')
 
