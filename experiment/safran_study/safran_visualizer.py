@@ -46,6 +46,7 @@ class SafranVisualizer(object):
         plt.show()
 
     def visualize_smooth_margin_fit(self):
+        # todo: fix some blue points in the corner when we display the margin
         margin_model = LinearAllParametersAllDimsMarginModel(coordinates=self.coordinates)
         estimator = SmoothMarginEstimator(dataset=self.dataset, margin_model=margin_model)
         self.fit_and_visualize_estimator(estimator)
@@ -78,9 +79,6 @@ class SafranVisualizer(object):
             colors = get_color_rbga(ax, gev_param_name, values)
             massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
                                           zip(self.safran.safran_massif_names, colors)}
-
-            print(massif_name_to_fill_kwargs)
-
             self.safran.visualize(ax=ax, massif_name_to_fill_kwargs=massif_name_to_fill_kwargs, show=False)
 
         if self.show:
