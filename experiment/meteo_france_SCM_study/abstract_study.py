@@ -46,14 +46,6 @@ class AbstractStudy(object):
     """ Load some attributes only once """
 
     @cached_property
-    def year_to_annual_maxima(self) -> OrderedDict:
-        # Map each year to an array of size nb_massif
-        year_to_annual_maxima = OrderedDict()
-        for year, time_serie in self.year_to_daily_time_serie.items():
-            year_to_annual_maxima[year] = time_serie.max(axis=0)
-        return year_to_annual_maxima
-
-    @cached_property
     def year_to_dataset_ordered_dict(self) -> OrderedDict:
         # Map each year to the correspond netCDF4 Dataset
         year_to_dataset = OrderedDict()
@@ -64,6 +56,23 @@ class AbstractStudy(object):
 
     @cached_property
     def year_to_daily_time_serie(self) -> OrderedDict:
+        return self._year_to_daily_time_serie
+
+    @cached_property
+    def year_to_annual_maxima(self) -> OrderedDict:
+        # Map each year to an array of size nb_massif
+        year_to_annual_maxima = OrderedDict()
+        for year, time_serie in self._year_to_max_daily_time_serie.items():
+            year_to_annual_maxima[year] = time_serie.max(axis=0)
+        return year_to_annual_maxima
+
+    def instantiate_variable_object(self, dataset) -> AbstractVariable:
+        return self.variable_class(dataset)
+
+    """ Private methods to be overwritten """
+
+    @property
+    def _year_to_daily_time_serie(self) -> OrderedDict:
         # Map each year to a matrix of size 365-nb_days_consecutive+1 x nb_massifs
         year_to_variable = {year: self.instantiate_variable_object(dataset) for year, dataset in
                             self.year_to_dataset_ordered_dict.items()}
@@ -72,19 +81,24 @@ class AbstractStudy(object):
             year_to_daily_time_serie[year] = year_to_variable[year].daily_time_serie
         return year_to_daily_time_serie
 
-    def instantiate_variable_object(self, dataset) -> AbstractVariable:
-        return self.variable_class(dataset)
+    @property
+    def _year_to_max_daily_time_serie(self):
+        return self._year_to_daily_time_serie
 
     ##########
 
     @property
     def safran_massif_names(self) -> List[str]:
+        return self.original_safran_massif_names
+
+    @property
+    def original_safran_massif_names(self):
         # Load the names of the massif as defined by SAFRAN
         return safran_massif_names_from_datasets(list(self.year_to_dataset_ordered_dict.values()))
 
     @property
-    def safran_massif_id_to_massif_name(self) -> Dict[int, str]:
-        return {massif_id: massif_name for massif_id, massif_name in enumerate(self.safran_massif_names)}
+    def original_safran_massif_id_to_massif_name(self) -> Dict[int, str]:
+        return {massif_id: massif_name for massif_id, massif_name in enumerate(self.original_safran_massif_names)}
 
     @cached_property
     def massifs_coordinates(self) -> AbstractSpatialCoordinates:
@@ -97,10 +111,8 @@ class AbstractStudy(object):
 
     def load_df_centroid(self) -> pd.DataFrame:
         df_centroid = pd.read_csv(op.join(self.map_full_path, 'coordonnees_massifs_alpes.csv'))
-        # Assert that the massif names are the same between SAFRAN and the coordinate file
-        assert not set(self.safran_massif_names).symmetric_difference(set(df_centroid['NOM']))
         df_centroid.set_index('NOM', inplace=True)
-        df_centroid = df_centroid.loc[self.safran_massif_names]
+        df_centroid = df_centroid.loc[self.original_safran_massif_names]
         return df_centroid
 
     @property

@@ -3,6 +3,7 @@ from experiment.meteo_france_SCM_study.crocus.crocus import CrocusDepth, CrocusS
 from experiment.meteo_france_SCM_study.safran.safran import Safran
 from itertools import product
 
+from experiment.meteo_france_SCM_study.safran.safran_extended import ExtendedSafran
 from experiment.meteo_france_SCM_study.safran.safran_visualizer import StudyVisualizer
 
 
@@ -20,7 +21,7 @@ def load_all_studies(study_class, only_first_one=False):
 
 
 if __name__ == '__main__':
-    for study_class in [Safran, CrocusSwe, CrocusDepth][1:2]:
+    for study_class in [ExtendedSafran, Safran, CrocusSwe, CrocusDepth][:1]:
         for study in load_all_studies(study_class, only_first_one=True):
             study_visualizer = StudyVisualizer(study)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])

@@ -1,6 +1,5 @@
+import numpy as np
 from collections import OrderedDict
-
-import pandas as pd
 
 from experiment.meteo_france_SCM_study.safran.safran import Safran
 from utils import cached_property
@@ -9,28 +8,62 @@ from utils import cached_property
 class ExtendedSafran(Safran):
 
     @property
+    def region_names(self):
+        return ['Alps', 'Northern Alps', 'Central Alps', 'Southern Alps', 'Extreme South Alps']
+
+    @property
+    def nb_region_names(self):
+        return len(self.region_names)
+
+    @property
     def safran_massif_names(self):
         return self.region_names + super().safran_massif_names
-
-    """ Properties """
-
-    @cached_property
-    def df_annual_maxima(self):
-        df_annual_maxima = pd.DataFrame(self.year_to_annual_maxima, index=super().safran_massif_names).T
-        # Add the column corresponding to the aggregated massif
-        for region_name_loop in self.region_names:
-            # We use "is in" so that the "Alps" will automatically regroup all the massif data
-            massif_belong_to_the_group = [massif_name
-                                          for massif_name, region_name in self.massif_name_to_region_name.items()
-                                          if region_name_loop in region_name]
-            df_annual_maxima[region_name_loop] = df_annual_maxima.loc[:, massif_belong_to_the_group].max(axis=1)
-        return df_annual_maxima
 
     @property
     def massif_name_to_region_name(self):
         df_centroid = self.load_df_centroid()
-        return OrderedDict(zip(df_centroid['NOM'], df_centroid['REGION']))
+        return OrderedDict(zip(df_centroid.index, df_centroid['REGION']))
 
     @property
-    def region_names(self):
-        return ['Alps', 'Northern Alps', 'Central Alps', 'Southern Alps', 'Extreme South Alps']
+    def region_name_to_massif_ids(self):
+        region_name_to_massifs_ids = {}
+        for region_name_loop in self.region_names:
+            # We use "is in" so that the "Alps" will automatically regroup all the massif data
+            massif_names_belong_to_the_group = [massif_name
+                                                for massif_name, region_name in self.massif_name_to_region_name.items()
+                                                if region_name_loop in region_name]
+            massif_ids_belong_to_the_group = [massif_id
+                                              for massif_id, massif_name in self.original_safran_massif_id_to_massif_name.items()
+                                              if massif_name in massif_names_belong_to_the_group]
+            region_name_to_massifs_ids[region_name_loop] = massif_ids_belong_to_the_group
+        return region_name_to_massifs_ids
+
+    """ Properties """
+
+
+
+    @property
+    def _year_to_daily_time_serie(self) -> OrderedDict:
+        return self._year_to_extended_time_serie(aggregation_function=np.mean)
+
+    @property
+    def _year_to_max_daily_time_serie(self):
+        return self._year_to_extended_time_serie(aggregation_function=np.max)
+
+    def _year_to_extended_time_serie(self, aggregation_function) -> OrderedDict:
+        year_to_extended_time_serie = OrderedDict()
+        for year, old_time_serie in super()._year_to_daily_time_serie.items():
+            new_time_serie = np.zeros([len(old_time_serie), len(self.safran_massif_names)])
+            new_time_serie[:, self.nb_region_names:] = old_time_serie
+            for i, region_name in enumerate(self.region_names):
+                massifs_ids_belong_to_region = self.region_name_to_massif_ids[region_name]
+                aggregated_time_serie = aggregation_function(old_time_serie[:, massifs_ids_belong_to_region], axis=1)
+                new_time_serie[:, i] = aggregated_time_serie
+
+            year_to_extended_time_serie[year] = new_time_serie
+        return year_to_extended_time_serie
+
+
+
+
+

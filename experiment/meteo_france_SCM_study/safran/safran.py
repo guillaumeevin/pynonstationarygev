@@ -15,5 +15,5 @@ class Safran(AbstractStudy):
 
     @property
     def variable_name(self):
-        return super().variable_name() + 'cumulated over {} days'.format(self.nb_days_of_snowfall)
+        return super().variable_name + ' cumulated over {} days'.format(self.nb_days_of_snowfall)
 
