@@ -34,7 +34,7 @@ class AbstractStudy(object):
 
     @property
     def df_all_snowfall_concatenated(self) -> pd.DataFrame:
-        df_list = [pd.DataFrame(snowfall, columns=self.safran_massif_names) for snowfall in
+        df_list = [pd.DataFrame(time_serie, columns=self.safran_massif_names) for time_serie in
                    self.year_to_daily_time_serie.values()]
         df_concatenated = pd.concat(df_list)
         return df_concatenated
@@ -111,7 +111,6 @@ class AbstractStudy(object):
     """ Visualization methods """
 
     def visualize(self, ax=None, massif_name_to_fill_kwargs=None, show=True, fill=True):
-        print("here")
         if ax is None:
             ax = plt.gca()
         df_massif = pd.read_csv(op.join(self.map_full_path, 'massifsalpes.csv'))
@@ -134,6 +133,14 @@ class AbstractStudy(object):
             plt.show()
 
     """ Some properties """
+
+    @property
+    def title(self):
+        return "{} at altitude {}m".format(self.variable_name, self.altitude)
+
+    @property
+    def variable_name(self):
+        return self.variable_class.NAME
 
     @property
     def relative_path(self) -> str:

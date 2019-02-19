@@ -2,6 +2,8 @@
 
 class AbstractVariable(object):
 
+    NAME = ''
+
     def __init__(self, dataset):
         self.dataset = dataset
 

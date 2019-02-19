@@ -1,3 +1,6 @@
+import math
+import numpy as np
+
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -11,7 +14,6 @@ from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
 from extreme_estimator.margin_fits.gpd.gpd_params import GpdParams
 from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
-from experiment.meteo_france_SCM_study.safran.safran import Safran
 from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
@@ -21,6 +23,7 @@ class StudyVisualizer(object):
     def __init__(self, study: AbstractStudy, show=True):
         self.study = study
         self.show = show
+        self.window_size_for_smoothing = 21
 
     @property
     def observations(self):
@@ -33,6 +36,60 @@ class StudyVisualizer(object):
     @property
     def dataset(self):
         return AbstractDataset(self.observations, self.coordinates)
+
+    def visualize_all_kde_graphs(self, show=True):
+        massif_names = self.study.safran_massif_names
+        nb_columns = 5
+        nb_rows = math.ceil(len(massif_names) / nb_columns)
+        fig, axes = plt.subplots(nb_rows, nb_columns)
+        fig.subplots_adjust(hspace=1.0, wspace=1.0)
+        for i, massif_name in enumerate(massif_names):
+            row_id, column_id = i // nb_columns, i % nb_columns
+            ax = axes[row_id, column_id]
+            self.visualize_kde_graph(ax, i, massif_name)
+        title = self.study.title
+        title += '  (mean computed with a sliding window of size {})'.format(self.window_size_for_smoothing)
+        fig.suptitle(title)
+        if show:
+            plt.show()
+
+    def visualize_kde_graph(self, ax, i, massif_name):
+        self.maxima_plot(ax, i)
+        self.mean_plot(ax, i)
+        ax.set_xlabel('year')
+        ax.set_title(massif_name)
+
+    def mean_plot(self, ax, i):
+        # Display the mean graph
+        # Counting the sum of 3-consecutive days of snowfall does not have any physical meaning,
+        # as we are counting twice some days
+        color_mean = 'g'
+        tuples_x_y = [(year, np.mean(data[:, i])) for year, data in self.study.year_to_daily_time_serie.items()]
+        x, y = list(zip(*tuples_x_y))
+        x, y = self.smooth(x, y)
+        ax.plot(x, y, color=color_mean)
+        ax.set_ylabel('mean', color=color_mean)
+
+    def maxima_plot(self, ax, i):
+        # Display the graph of the max on top
+        color_maxima = 'r'
+        tuples_x_y = [(year, annual_maxima[i]) for year, annual_maxima in self.study.year_to_annual_maxima.items()]
+        x, y = list(zip(*tuples_x_y))
+        ax2 = ax.twinx()
+        ax2.plot(x, y, color=color_maxima)
+        ax2.set_ylabel('maxima', color=color_maxima)
+
+    def smooth(self, x, y):
+        # Average on windows of size 2*M+1 (M elements on each side)
+        filter = np.ones(self.window_size_for_smoothing) / self.window_size_for_smoothing
+        y = np.convolve(y, filter, mode='valid')
+        assert self.window_size_for_smoothing % 2 == 1
+        nb_to_delete = int(self.window_size_for_smoothing // 2)
+        x = np.array(x)[nb_to_delete:-nb_to_delete]
+        assert len(x) == len(y)
+        return x, y
+
+
 
     def fit_and_visualize_estimator(self, estimator):
         estimator.fit()

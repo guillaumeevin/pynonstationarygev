@@ -19,6 +19,8 @@ class SafranSnowfallVariable(AbstractVariable):
         (but here the problem might be that the x_i are not idnependent, they are highly dependent one from another)
     """
 
+    NAME = 'Snowfall'
+
     def __init__(self, dataset, nb_consecutive_days_of_snowfall=1):
         super().__init__(dataset)
         self.nb_consecutive_days_of_snowfall = nb_consecutive_days_of_snowfall
@@ -39,6 +41,8 @@ class SafranSnowfallVariable(AbstractVariable):
         snowfall_in_consecutive_days = [sum(e) for e in zip(*shifted_list)]
         # The returned array is of size n-nb_days+1 x nb_massif
         return np.array(snowfall_in_consecutive_days)
+
+
 
 
 

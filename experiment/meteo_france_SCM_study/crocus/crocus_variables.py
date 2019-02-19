@@ -16,12 +16,14 @@ class CrocusVariable(AbstractVariable):
 
 
 class CrocusSweVariable(CrocusVariable):
+    NAME = 'Snow Water Equivalent'
 
     def __init__(self, dataset):
         super().__init__(dataset, 'SNOWSWE')
 
 
 class CrocusDepthVariable(CrocusVariable):
+    NAME = 'Snow Depth'
 
     def __init__(self, dataset):
         super().__init__(dataset, "SNOWDEPTH")
