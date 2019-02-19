@@ -18,12 +18,14 @@ from spatio_temporal_dataset.slicer.split import Split
 def plot_extreme_param(ax, gev_param_name, values):
     # Load the shifted cmap to center on a middle point
     vmin, vmax = np.min(values), np.max(values)
-    cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
-    if gev_param_name == ExtremeParams.SHAPE and vmin < 0:
+    if vmin < 0 < vmax:
         midpoint = 1 - vmax / (vmax + abs(vmin))
-        shifted_cmap = shiftedColorMap(cmap, midpoint=midpoint, name='shifted')
-    else:
-        shifted_cmap = shiftedColorMap(cmap, midpoint=0.0, name='shifted')
+    elif vmin < 0 and vmax < 0:
+        midpoint = 1.0
+    elif vmin > 0 and vmax > 0:
+        midpoint = 0.0
+    cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
+    shifted_cmap = shiftedColorMap(cmap, midpoint=midpoint, name='shifted')
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
     divider = make_axes_locatable(ax)
     cax = divider.append_axes('right', size='5%', pad=0.05)
@@ -50,10 +52,9 @@ def imshow_shifted(ax, gev_param_name, values, x, y):
 
     masked_array = values
     if gev_param_name != ExtremeParams.SHAPE:
-        epsilon = 1.0
+        epsilon = 1e-2 * (np.max(values) - np.min(values))
         value = np.min(values)
         # The right blue corner will be blue (but most of the time, another display will be on top)
         masked_array[-1, -1] = value - epsilon
-
     ax.imshow(masked_array, extent=(x.min(), x.max(), y.min(), y.max()), cmap=shifted_cmap)
 

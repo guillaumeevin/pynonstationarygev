@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import SmoothMarginEstimator
@@ -15,19 +16,19 @@ from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbg
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
-class SafranVisualizer(object):
+class StudyVisualizer(object):
 
-    def __init__(self, safran: Safran, show=True):
-        self.safran = safran
+    def __init__(self, study: AbstractStudy, show=True):
+        self.study = study
         self.show = show
 
     @property
     def observations(self):
-        return self.safran.observations_annual_maxima
+        return self.study.observations_annual_maxima
 
     @property
     def coordinates(self):
-        return self.safran.massifs_coordinates
+        return self.study.massifs_coordinates
 
     @property
     def dataset(self):
@@ -37,11 +38,10 @@ class SafranVisualizer(object):
         estimator.fit()
         axes = estimator.margin_function_fitted.visualize(show=False)
         for ax in axes:
-            self.safran.visualize(ax, fill=False, show=False)
+            self.study.visualize(ax, fill=False, show=False)
         plt.show()
 
     def visualize_smooth_margin_fit(self):
-        # todo: fix some blue points in the corner when we display the margin
         margin_model = LinearAllParametersAllDimsMarginModel(coordinates=self.coordinates)
         estimator = SmoothMarginEstimator(dataset=self.dataset, margin_model=margin_model)
         self.fit_and_visualize_estimator(estimator)
@@ -73,8 +73,8 @@ class SafranVisualizer(object):
             values = list(massif_name_to_value.values())
             colors = get_color_rbga_shifted(ax, gev_param_name, values)
             massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
-                                          zip(self.safran.safran_massif_names, colors)}
-            self.safran.visualize(ax=ax, massif_name_to_fill_kwargs=massif_name_to_fill_kwargs, show=False)
+                                          zip(self.study.safran_massif_names, colors)}
+            self.study.visualize(ax=ax, massif_name_to_fill_kwargs=massif_name_to_fill_kwargs, show=False)
 
         if self.show:
             plt.show()
@@ -86,20 +86,20 @@ class SafranVisualizer(object):
         massif_name_to_fill_kwargs = {massif_name: {'color': orig_cmap(value)} for massif_name, value in
                                       massif_name_to_value.items()}
 
-        self.safran.visualize(massif_name_to_fill_kwargs=massif_name_to_fill_kwargs)
+        self.study.visualize(massif_name_to_fill_kwargs=massif_name_to_fill_kwargs)
 
     """ Statistics methods """
 
     @property
     def df_gev_mle_each_massif(self):
         # Fit a margin_fits on each massif
-        massif_to_gev_mle = {massif_name: GevMleFit(self.safran.observations_annual_maxima.loc[massif_name]).gev_params.summary_serie
-                             for massif_name in self.safran.safran_massif_names}
-        return pd.DataFrame(massif_to_gev_mle, columns=self.safran.safran_massif_names)
+        massif_to_gev_mle = {massif_name: GevMleFit(self.study.observations_annual_maxima.loc[massif_name]).gev_params.summary_serie
+                             for massif_name in self.study.safran_massif_names}
+        return pd.DataFrame(massif_to_gev_mle, columns=self.study.safran_massif_names)
 
     def df_gpd_mle_each_massif(self, threshold):
         # Fit a margin fit on each massif
-        massif_to_gev_mle = {massif_name: GpdMleFit(self.safran.df_all_snowfall_concatenated[massif_name],
+        massif_to_gev_mle = {massif_name: GpdMleFit(self.study.df_all_snowfall_concatenated[massif_name],
                                                     threshold=threshold).gpd_params.summary_serie
-                             for massif_name in self.safran.safran_massif_names}
-        return pd.DataFrame(massif_to_gev_mle, columns=self.safran.safran_massif_names)
+                             for massif_name in self.study.safran_massif_names}
+        return pd.DataFrame(massif_to_gev_mle, columns=self.study.safran_massif_names)

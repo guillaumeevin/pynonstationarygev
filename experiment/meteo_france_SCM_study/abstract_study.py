@@ -1,7 +1,7 @@
 import os
 import os.path as op
 from collections import OrderedDict
-from typing import List
+from typing import List, Dict
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -17,29 +17,30 @@ from utils import get_full_path, cached_property
 
 
 class AbstractStudy(object):
+    ALTITUDES = [1800, 2400]
 
-    def __init__(self, safran_altitude=1800):
-        assert safran_altitude in [1800, 2400]
-        self.safran_altitude = safran_altitude
+    def __init__(self, variable_class, altitude=1800):
+        assert altitude in self.ALTITUDES
+        self.altitude = altitude
         self.model_name = None
-        self.variable_class = None
+        self.variable_class = variable_class
 
     def write_to_file(self, df):
         if not op.exists(self.result_full_path):
             os.makedirs(self.result_full_path, exist_ok=True)
-        df.to_csv(op.join(self.result_full_path, 'merged_array_{}_altitude.csv'.format(self.safran_altitude)))
+        df.to_csv(op.join(self.result_full_path, 'merged_array_{}_altitude.csv'.format(self.altitude)))
 
     """ Data """
 
     @property
-    def df_all_snowfall_concatenated(self):
+    def df_all_snowfall_concatenated(self) -> pd.DataFrame:
         df_list = [pd.DataFrame(snowfall, columns=self.safran_massif_names) for snowfall in
                    self.year_to_daily_time_serie.values()]
         df_concatenated = pd.concat(df_list)
         return df_concatenated
 
     @property
-    def observations_annual_maxima(self):
+    def observations_annual_maxima(self) -> AnnualMaxima:
         return AnnualMaxima(df_maxima_gev=pd.DataFrame(self.year_to_annual_maxima, index=self.safran_massif_names))
 
     """ Load some attributes only once """
@@ -79,11 +80,11 @@ class AbstractStudy(object):
     @property
     def safran_massif_names(self) -> List[str]:
         # Load the names of the massif as defined by SAFRAN
-        return safran_massif_names_from_datasets(self.year_to_dataset_ordered_dict.values())
+        return safran_massif_names_from_datasets(list(self.year_to_dataset_ordered_dict.values()))
 
     @property
-    def safran_massif_id_to_massif_name(self):
-        return dict(enumerate(self.safran_massif_names))
+    def safran_massif_id_to_massif_name(self) -> Dict[int, str]:
+        return {massif_id: massif_name for massif_id, massif_name in enumerate(self.safran_massif_names)}
 
     @cached_property
     def massifs_coordinates(self) -> AbstractSpatialCoordinates:
@@ -103,13 +104,14 @@ class AbstractStudy(object):
         return df_centroid
 
     @property
-    def coordinate_id_to_massif_name(self) -> dict:
+    def coordinate_id_to_massif_name(self) -> Dict[int, str]:
         df_centroid = self.load_df_centroid()
         return dict(zip(df_centroid['id'], df_centroid.index))
 
     """ Visualization methods """
 
     def visualize(self, ax=None, massif_name_to_fill_kwargs=None, show=True, fill=True):
+        print("here")
         if ax is None:
             ax = plt.gca()
         df_massif = pd.read_csv(op.join(self.map_full_path, 'massifsalpes.csv'))
@@ -144,7 +146,7 @@ class AbstractStudy(object):
     @property
     def safran_full_path(self) -> str:
         assert self.model_name in ['Safran', 'Crocus']
-        return op.join(self.full_path, 'safran-crocus_{}'.format(self.safran_altitude), self.model_name)
+        return op.join(self.full_path, 'safran-crocus_{}'.format(self.altitude), self.model_name)
 
     @property
     def map_full_path(self) -> str:
