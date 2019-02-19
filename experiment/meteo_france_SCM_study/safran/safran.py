@@ -1,3 +1,4 @@
+from experiment.meteo_france_SCM_study.abstract_extended_study import AbstractExtendedStudy
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
 from experiment.meteo_france_SCM_study.safran.safran_snowfall_variable import SafranSnowfallVariable
@@ -17,3 +18,6 @@ class Safran(AbstractStudy):
     def variable_name(self):
         return super().variable_name + ' cumulated over {} days'.format(self.nb_days_of_snowfall)
 
+
+class ExtendedSafran(AbstractExtendedStudy, Safran):
+    pass

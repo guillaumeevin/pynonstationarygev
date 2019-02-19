@@ -1,11 +1,10 @@
 import numpy as np
 from collections import OrderedDict
 
-from experiment.meteo_france_SCM_study.safran.safran import Safran
-from utils import cached_property
+from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 
 
-class ExtendedSafran(Safran):
+class AbstractExtendedStudy(AbstractStudy):
 
     @property
     def region_names(self):
@@ -33,14 +32,13 @@ class ExtendedSafran(Safran):
                                                 for massif_name, region_name in self.massif_name_to_region_name.items()
                                                 if region_name_loop in region_name]
             massif_ids_belong_to_the_group = [massif_id
-                                              for massif_id, massif_name in self.original_safran_massif_id_to_massif_name.items()
+                                              for massif_id, massif_name in
+                                              self.original_safran_massif_id_to_massif_name.items()
                                               if massif_name in massif_names_belong_to_the_group]
             region_name_to_massifs_ids[region_name_loop] = massif_ids_belong_to_the_group
         return region_name_to_massifs_ids
 
     """ Properties """
-
-
 
     @property
     def _year_to_daily_time_serie(self) -> OrderedDict:
@@ -62,8 +60,3 @@ class ExtendedSafran(Safran):
 
             year_to_extended_time_serie[year] = new_time_serie
         return year_to_extended_time_serie
-
-
-
-
-

@@ -1,3 +1,4 @@
+from experiment.meteo_france_SCM_study.abstract_extended_study import AbstractExtendedStudy
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.crocus.crocus_variables import CrocusSweVariable, CrocusDepthVariable
 
@@ -19,10 +20,18 @@ class CrocusSwe(Crocus):
         super().__init__(CrocusSweVariable, altitude)
 
 
+class ExtendedCrocusSwe(AbstractExtendedStudy, CrocusSwe):
+    pass
+
+
 class CrocusDepth(Crocus):
 
     def __init__(self, altitude=1800):
         super().__init__(CrocusDepthVariable, altitude)
+
+
+class ExtendedCrocusDepth(AbstractExtendedStudy, CrocusDepth):
+    pass
 
 
 if __name__ == '__main__':

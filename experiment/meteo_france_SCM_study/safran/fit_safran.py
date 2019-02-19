@@ -1,6 +1,6 @@
 import pandas as pd
 
-from experiment.meteo_france_SCM_study.safran.safran_extended import ExtendedSafran
+from experiment.meteo_france_SCM_study.safran.safran import ExtendedSafran
 from utils import VERSION
 
 
