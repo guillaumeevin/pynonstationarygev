@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
-from extreme_estimator.margin_fits.plot.create_shifted_cmap import plot_extreme_param
+from extreme_estimator.margin_fits.plot.create_shifted_cmap import plot_extreme_param, imshow_shifted
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.slicer.split import Split
 
@@ -47,7 +47,8 @@ class AbstractMarginFunction(object):
 
     # Visualization function
 
-    def set_datapoint_display_parameters(self, spatio_temporal_split=Split.all, datapoint_marker=None, filter=None, color=None,
+    def set_datapoint_display_parameters(self, spatio_temporal_split=Split.all, datapoint_marker=None, filter=None,
+                                         color=None,
                                          linewidth=1, datapoint_display=False):
         self.datapoint_display = datapoint_display
         self.spatio_temporal_split = spatio_temporal_split
@@ -132,13 +133,10 @@ class AbstractMarginFunction(object):
         grid = self.grid_2D(x, y)
         if ax is None:
             ax = plt.gca()
-        imshow_method = ax.imshow
-        values = grid[gev_param_name]
 
-        norm, shifted_cmap = plot_extreme_param(ax, gev_param_name, values)
+        # Special display
+        imshow_shifted(ax, gev_param_name, grid[gev_param_name], x, y)
 
-        imshow_method(values, extent=(x.min(), x.max(), y.min(), y.max()),
-                      interpolation='nearest', cmap=shifted_cmap)
         # X axis
         ax.set_xlabel('coordinate X')
         plt.setp(ax.get_xticklabels(), visible=True)
@@ -150,7 +148,6 @@ class AbstractMarginFunction(object):
         # todo: add dot display in 2D
         if show:
             plt.show()
-
 
     def grid_2D(self, x, y):
         resolution = 100

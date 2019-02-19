@@ -32,7 +32,7 @@ def plot_extreme_param(ax, gev_param_name, values):
     return norm, shifted_cmap
 
 
-def get_color_rbga(ax, gev_param_name, values):
+def get_color_rbga_shifted(ax, gev_param_name, values):
     """
     For some display it was necessary to transform dark blue values into white values
     """
@@ -40,5 +40,20 @@ def get_color_rbga(ax, gev_param_name, values):
     m = cm.ScalarMappable(norm=norm, cmap=shifted_cmap)
     colors = [m.to_rgba(value) for value in values]
     if gev_param_name != ExtremeParams.SHAPE:
-        colors = [color if color != (0, 0, 1, 1) else (1, 1, 1, 1) for color in colors]
+        colors = [color if color[2] == 1 else (1, 1, 1, 1) for color in colors]
     return colors
+
+
+def imshow_shifted(ax, gev_param_name, values, x, y):
+    norm, shifted_cmap = plot_extreme_param(ax, gev_param_name, values)
+    shifted_cmap.set_bad(color='white')
+
+    masked_array = values
+    if gev_param_name != ExtremeParams.SHAPE:
+        epsilon = 1.0
+        value = np.min(values)
+        # The right blue corner will be blue (but most of the time, another display will be on top)
+        masked_array[-1, -1] = value - epsilon
+
+    ax.imshow(masked_array, extent=(x.min(), x.max(), y.min(), y.max()), cmap=shifted_cmap)
+

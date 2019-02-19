@@ -1,7 +1,7 @@
-from experiment.safran_study.safran import Safran
+from experiment.meteo_france_SCM_study.safran.safran import Safran
 from itertools import product
 
-from experiment.safran_study.safran_visualizer import SafranVisualizer
+from experiment.meteo_france_SCM_study.safran.safran_visualizer import SafranVisualizer
 
 
 def load_all_safran(only_first_one=False):

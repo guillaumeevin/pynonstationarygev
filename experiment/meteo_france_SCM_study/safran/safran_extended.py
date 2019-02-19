@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from experiment.safran_study.safran import Safran
+from experiment.meteo_france_SCM_study.safran.safran import Safran
 from utils import cached_property
 
 

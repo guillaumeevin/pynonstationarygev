@@ -1,7 +1,7 @@
 # import unittest
 #
-# from experiment.safran_study.safran import Safran
-# from experiment.safran_study.safran_visualizer import SafranVisualizer
+# from experiment.meteo_france_SCM_study.safran import Safran
+# from experiment.meteo_france_SCM_study.safran_visualizer import SafranVisualizer
 #
 #
 # class TestSafranVisualizer(unittest.TestCase):

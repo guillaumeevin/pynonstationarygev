@@ -7,7 +7,7 @@ from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, \
     Geometric, ExtremalT, ISchlather
-from experiment.safran_study.safran import Safran
+from experiment.meteo_france_SCM_study.safran.safran import Safran
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
     AlpsStation3DCoordinatesWithAnisotropy
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \

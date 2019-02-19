@@ -1,7 +1,9 @@
 import numpy as np
 
+from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
 
-class SafranSnowfall(object):
+
+class SafranSnowfallVariable(AbstractVariable):
     """"
     Hypothesis:
 
@@ -17,12 +19,9 @@ class SafranSnowfall(object):
         (but here the problem might be that the x_i are not idnependent, they are highly dependent one from another)
     """
 
-    def __init__(self, dataset):
-        self.dataset = dataset
-        # Corresponding starting times
-        # start_datetime = datetime(year=year, month=8, day=1, hour=6)
-        # start_times = np.array(dataset.variables['time'])[:-1]
-
+    def __init__(self, dataset, nb_consecutive_days_of_snowfall=1):
+        super().__init__(dataset)
+        self.nb_consecutive_days_of_snowfall = nb_consecutive_days_of_snowfall
         # Compute the daily snowfall in kg/m2
         snowfall_rates = np.array(dataset.variables['Snowf'])
         mean_snowfall_rates = 0.5 * (snowfall_rates[:-1] + snowfall_rates[1:])
@@ -31,13 +30,13 @@ class SafranSnowfall(object):
         nb_days = len(hourly_snowfall) // 24
         self.daily_snowfall = [sum(hourly_snowfall[24 * i:24 * (i+1)]) for i in range(nb_days)]
 
-    def annual_snowfall(self, nb_days_of_snowfall=1):
+    @property
+    def daily_time_serie(self):
         # Aggregate the daily snowfall by the number of consecutive days
-        shifted_list = [self.daily_snowfall[i:] for i in range(nb_days_of_snowfall)]
+        shifted_list = [self.daily_snowfall[i:] for i in range(self.nb_consecutive_days_of_snowfall)]
         # First element of shifted_list is of length n, Second element of length n-1, Third element n-2....
         # The zip is done with respect to the shortest list
         snowfall_in_consecutive_days = [sum(e) for e in zip(*shifted_list)]
-        # Return the maximum of the aggregated list
         # The returned array is of size n-nb_days+1 x nb_massif
         return np.array(snowfall_in_consecutive_days)
 

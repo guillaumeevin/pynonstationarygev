@@ -1,15 +1,14 @@
 import os
-from typing import List
-
 import os.path as op
 from collections import OrderedDict
+from typing import List
 
 import matplotlib.pyplot as plt
 import pandas as pd
 from netCDF4 import Dataset
 
-from experiment.safran_study.massif import safran_massif_names_from_datasets
-from experiment.safran_study.snowfall_annual_maxima import SafranSnowfall
+from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
+from experiment.meteo_france_SCM_study.massif import safran_massif_names_from_datasets
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -17,12 +16,13 @@ from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observat
 from utils import get_full_path, cached_property
 
 
-class Safran(object):
+class AbstractStudy(object):
 
-    def __init__(self, safran_altitude=1800, nb_days_of_snowfall=1):
+    def __init__(self, safran_altitude=1800):
         assert safran_altitude in [1800, 2400]
         self.safran_altitude = safran_altitude
-        self.nb_days_of_snowfall = nb_days_of_snowfall
+        self.model_name = None
+        self.variable_class = None
 
     def write_to_file(self, df):
         if not op.exists(self.result_full_path):
@@ -33,17 +33,14 @@ class Safran(object):
 
     @property
     def df_all_snowfall_concatenated(self):
-        df_list = [pd.DataFrame(snowfall, columns=self.safran_massif_names) for snowfall in self.year_to_snowfall.values()]
+        df_list = [pd.DataFrame(snowfall, columns=self.safran_massif_names) for snowfall in
+                   self.year_to_daily_time_serie.values()]
         df_concatenated = pd.concat(df_list)
         return df_concatenated
 
     @property
-    def df_annual_maxima(self):
-        return pd.DataFrame(self.year_to_annual_maxima, index=self.safran_massif_names).T
-
-    @property
     def observations_annual_maxima(self):
-        return AnnualMaxima(df_maxima_gev=self.df_annual_maxima.T)
+        return AnnualMaxima(df_maxima_gev=pd.DataFrame(self.year_to_annual_maxima, index=self.safran_massif_names))
 
     """ Load some attributes only once """
 
@@ -51,28 +48,9 @@ class Safran(object):
     def year_to_annual_maxima(self) -> OrderedDict:
         # Map each year to an array of size nb_massif
         year_to_annual_maxima = OrderedDict()
-        for year, snowfall in self.year_to_snowfall.items():
-            year_to_annual_maxima[year] = snowfall.max(axis=0)
+        for year, time_serie in self.year_to_daily_time_serie.items():
+            year_to_annual_maxima[year] = time_serie.max(axis=0)
         return year_to_annual_maxima
-
-    @cached_property
-    def year_to_snowfall(self) -> OrderedDict:
-        # Map each year to a matrix of size 365-nb_days_consecutive+1 x nb_massifs
-        year_to_safran_snowfall = {year: SafranSnowfall(dataset) for year, dataset in
-                                   self.year_to_dataset_ordered_dict.items()}
-        year_to_snowfall = OrderedDict()
-        for year in self.year_to_dataset_ordered_dict.keys():
-            year_to_snowfall[year] = year_to_safran_snowfall[year].annual_snowfall(self.nb_days_of_snowfall)
-        return year_to_snowfall
-
-    @property
-    def safran_massif_names(self) -> List[str]:
-        # Load the names of the massif as defined by SAFRAN
-        return safran_massif_names_from_datasets(self.year_to_dataset_ordered_dict.values())
-
-    @property
-    def safran_massif_id_to_massif_name(self):
-        return dict(enumerate(self.safran_massif_names))
 
     @cached_property
     def year_to_dataset_ordered_dict(self) -> OrderedDict:
@@ -82,6 +60,30 @@ class Safran(object):
         for year, nc_file in sorted(nc_files, key=lambda t: t[0]):
             year_to_dataset[year] = Dataset(op.join(self.safran_full_path, nc_file))
         return year_to_dataset
+
+    @cached_property
+    def year_to_daily_time_serie(self) -> OrderedDict:
+        # Map each year to a matrix of size 365-nb_days_consecutive+1 x nb_massifs
+        year_to_variable = {year: self.instantiate_variable_object(dataset) for year, dataset in
+                            self.year_to_dataset_ordered_dict.items()}
+        year_to_daily_time_serie = OrderedDict()
+        for year in self.year_to_dataset_ordered_dict.keys():
+            year_to_daily_time_serie[year] = year_to_variable[year].daily_time_serie
+        return year_to_daily_time_serie
+
+    def instantiate_variable_object(self, dataset) -> AbstractVariable:
+        return self.variable_class(dataset)
+
+    ##########
+
+    @property
+    def safran_massif_names(self) -> List[str]:
+        # Load the names of the massif as defined by SAFRAN
+        return safran_massif_names_from_datasets(self.year_to_dataset_ordered_dict.values())
+
+    @property
+    def safran_massif_id_to_massif_name(self):
+        return dict(enumerate(self.safran_massif_names))
 
     @cached_property
     def massifs_coordinates(self) -> AbstractSpatialCoordinates:
@@ -104,7 +106,6 @@ class Safran(object):
     def coordinate_id_to_massif_name(self) -> dict:
         df_centroid = self.load_df_centroid()
         return dict(zip(df_centroid['id'], df_centroid.index))
-
 
     """ Visualization methods """
 
@@ -142,7 +143,8 @@ class Safran(object):
 
     @property
     def safran_full_path(self) -> str:
-        return op.join(self.full_path, 'safran-crocus_{}'.format(self.safran_altitude), 'Safran')
+        assert self.model_name in ['Safran', 'Crocus']
+        return op.join(self.full_path, 'safran-crocus_{}'.format(self.safran_altitude), self.model_name)
 
     @property
     def map_full_path(self) -> str:
