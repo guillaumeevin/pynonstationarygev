@@ -20,11 +20,22 @@ def load_all_studies(study_class, only_first_one=False):
     return all_studies
 
 
-if __name__ == '__main__':
-    for study_class in [ExtendedSafran, ExtendedCrocusSwe, ExtendedCrocusDepth][:]:
+def extended_visualization():
+    for study_class in [ExtendedSafran, ExtendedCrocusSwe, ExtendedCrocusDepth][:1]:
+        for study in load_all_studies(study_class, only_first_one=True):
+            study_visualizer = StudyVisualizer(study)
+            study_visualizer.visualize_all_kde_graphs()
+
+
+def normal_visualization():
+    for study_class in [Safran, CrocusSwe, CrocusDepth][:1]:
         for study in load_all_studies(study_class, only_first_one=True):
             study_visualizer = StudyVisualizer(study)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
             # study_visualizer.visualize_smooth_margin_fit()
-            study_visualizer.visualize_all_kde_graphs()
-            # study_visualizer.visualize_full_fit()
+            study_visualizer.visualize_full_fit()
+
+
+if __name__ == '__main__':
+    normal_visualization()
+    # extended_visualization()

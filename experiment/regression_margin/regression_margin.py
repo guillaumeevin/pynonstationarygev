@@ -50,14 +50,14 @@ for i in range(nb_estimator):
         plt.show()
 
     margin_function_sample = dataset.margin_model.margin_function_sample # type: LinearMarginFunction
-    margin_function_sample.visualize(show=False, axes=axes, dot_display=True)
+    margin_function_sample.visualize_function(show=False, axes=axes, dot_display=True)
     axes = margin_function_sample.visualization_axes
 
     # Estimation part
     margin_model_for_estimator = margin_model_for_estimator_class(coordinates)
     full_estimator = FullEstimatorInASingleStepWithSmoothMargin(dataset, margin_model_for_estimator, max_stable_model)
     full_estimator.fit()
-    full_estimator.margin_function_fitted.visualize(axes=axes, show=False)
+    full_estimator.margin_function_fitted.visualize_function(axes=axes, show=False)
 plt.show()
 
 # Display all the margin on the same graph for comparison

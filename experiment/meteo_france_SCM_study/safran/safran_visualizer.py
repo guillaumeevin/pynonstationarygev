@@ -16,6 +16,8 @@ from extreme_estimator.margin_fits.gpd.gpd_params import GpdParams
 from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
 from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
+from test.test_utils import load_test_max_stable_models
+from utils import get_display_name_from_object_type
 
 
 class StudyVisualizer(object):
@@ -89,14 +91,14 @@ class StudyVisualizer(object):
         assert len(x) == len(y)
         return x, y
 
-
-
-    def fit_and_visualize_estimator(self, estimator):
+    def fit_and_visualize_estimator(self, estimator, axes=None, show=True, title=None):
         estimator.fit()
-        axes = estimator.margin_function_fitted.visualize(show=False)
+        axes = estimator.margin_function_fitted.visualize_function(show=False, axes=axes, title=title)
         for ax in axes:
             self.study.visualize(ax, fill=False, show=False)
-        plt.show()
+        if show:
+            plt.suptitle(self.study.title)
+            plt.show()
 
     def visualize_smooth_margin_fit(self):
         margin_model = LinearAllParametersAllDimsMarginModel(coordinates=self.coordinates)
@@ -104,10 +106,19 @@ class StudyVisualizer(object):
         self.fit_and_visualize_estimator(estimator)
 
     def visualize_full_fit(self):
-        max_stable_model = Smith()
-        margin_model = LinearAllParametersAllDimsMarginModel(coordinates=self.coordinates)
-        estimator = FullEstimatorInASingleStepWithSmoothMargin(self.dataset, margin_model, max_stable_model)
-        self.fit_and_visualize_estimator(estimator)
+        max_stable_models = load_test_max_stable_models()
+        fig, axes = plt.subplots(len(max_stable_models), len(GevParams.SUMMARY_NAMES))
+        fig.subplots_adjust(hspace=1.0, wspace=1.0)
+        for i, max_stable_model in enumerate(max_stable_models):
+            margin_model = LinearAllParametersAllDimsMarginModel(coordinates=self.coordinates)
+            estimator = FullEstimatorInASingleStepWithSmoothMargin(self.dataset, margin_model, max_stable_model)
+            title = get_display_name_from_object_type(type(max_stable_model))
+            print(title)
+            self.fit_and_visualize_estimator(estimator, axes[i], show=False, title=title)
+        title = self.study.title
+        title += '\nMethod: Full Likelihood with Linear marginals and max stable dependency structure'
+        plt.suptitle(title)
+        plt.show()
 
     def visualize_independent_margin_fits(self, threshold=None, axes=None):
         if threshold is None:
@@ -150,8 +161,9 @@ class StudyVisualizer(object):
     @property
     def df_gev_mle_each_massif(self):
         # Fit a margin_fits on each massif
-        massif_to_gev_mle = {massif_name: GevMleFit(self.study.observations_annual_maxima.loc[massif_name]).gev_params.summary_serie
-                             for massif_name in self.study.safran_massif_names}
+        massif_to_gev_mle = {
+        massif_name: GevMleFit(self.study.observations_annual_maxima.loc[massif_name]).gev_params.summary_serie
+        for massif_name in self.study.safran_massif_names}
         return pd.DataFrame(massif_to_gev_mle, columns=self.study.safran_massif_names)
 
     def df_gpd_mle_each_massif(self, threshold):

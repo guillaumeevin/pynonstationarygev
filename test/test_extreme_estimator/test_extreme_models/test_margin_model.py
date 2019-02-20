@@ -16,12 +16,12 @@ class VisualizationMarginModel(unittest.TestCase):
         spatial_coordinates = CircleSpatialCoordinates.from_nb_points(nb_points=self.nb_points)
         margin_model = self.margin_model(coordinates=spatial_coordinates)
         if self.DISPLAY:
-            margin_model.margin_function_sample.visualize()
+            margin_model.margin_function_sample.visualize_function()
 
     def test_example_visualization_1D(self):
         coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=self.nb_points)
         margin_model = self.margin_model(coordinates=coordinates, params_sample={(GevParams.SHAPE, 1): 0.02})
-        margin_model.margin_function_sample.visualize(show=self.DISPLAY)
+        margin_model.margin_function_sample.visualize_function(show=self.DISPLAY)
         self.assertTrue(True)
 
 

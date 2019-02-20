@@ -57,7 +57,7 @@ class AbstractMarginFunction(object):
         self.filter = filter
         self.color = color
 
-    def visualize(self, axes=None, show=True, dot_display=False):
+    def visualize_function(self, axes=None, show=True, dot_display=False, title=None):
         self.datapoint_display = dot_display
         if axes is None:
             fig, axes = plt.subplots(1, len(GevParams.SUMMARY_NAMES))
@@ -66,7 +66,7 @@ class AbstractMarginFunction(object):
         for i, gev_value_name in enumerate(GevParams.SUMMARY_NAMES):
             ax = axes[i]
             self.visualize_single_param(gev_value_name, ax, show=False)
-            title_str = gev_value_name
+            title_str = gev_value_name if title is None else title
             ax.set_title(title_str)
         if show:
             plt.show()
