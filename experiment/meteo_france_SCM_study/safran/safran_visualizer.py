@@ -11,6 +11,8 @@ from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import SmoothMarginEstimator
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearAllParametersAllDimsMarginModel
+from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction, \
+    AbstractMaxStableModelWithCovarianceFunction
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
@@ -96,9 +98,12 @@ class StudyVisualizer(object):
         assert len(x) == len(y)
         return x, y
 
-    def visualize_linear_margin_fit(self):
+    def visualize_linear_margin_fit(self, only_first_max_stable=False):
         plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
-        max_stable_models = load_test_max_stable_models(only_one_covariance_function=True)[:1]
+        default_covariance_function = CovarianceFunction.cauchy
+        max_stable_models = load_test_max_stable_models(default_covariance_function=default_covariance_function)
+        if only_first_max_stable:
+            max_stable_models = max_stable_models[:1]
         fig, axes = plt.subplots(len(max_stable_models) + 1, len(GevParams.SUMMARY_NAMES), figsize=self.figsize)
         fig.subplots_adjust(hspace=1.0, wspace=1.0)
         margin_class = LinearAllParametersAllDimsMarginModel
@@ -111,6 +116,8 @@ class StudyVisualizer(object):
             margin_model = margin_class(coordinates=self.coordinates)
             estimator = FullEstimatorInASingleStepWithSmoothMargin(self.dataset, margin_model, max_stable_model)
             title = get_display_name_from_object_type(type(max_stable_model))
+            if isinstance(max_stable_model, AbstractMaxStableModelWithCovarianceFunction):
+                title += ' ' + str(default_covariance_function).split('.')[-1]
             self.fit_and_visualize_estimator(estimator, axes[i], title=title)
         self.show_or_save_to_file(plot_name)
 

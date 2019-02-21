@@ -19,7 +19,7 @@ def study_iterator(study_class, only_first_one=False, both_altitude=False, verbo
     if verbose:
         print('Loading studies....')
     for nb_day in nb_days:
-        for alti in AbstractStudy.ALTITUDES[::-1]:
+        for alti in AbstractStudy.ALTITUDES[::1]:
             if verbose:
                 print('alti: {}, nb_day: {}'.format(alti, nb_day))
             study = study_class(alti, nb_day) if is_safran_study else study_class(alti)
@@ -41,11 +41,12 @@ def extended_visualization():
 
 
 def normal_visualization():
+    only_first_one = True
     for study_class in SCM_STUDIES[1:2]:
-        for study in study_iterator(study_class, only_first_one=True):
+        for study in study_iterator(study_class, only_first_one=only_first_one):
             study_visualizer = StudyVisualizer(study)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
-            study_visualizer.visualize_linear_margin_fit()
+            study_visualizer.visualize_linear_margin_fit(only_first_max_stable=only_first_one)
 
 
 def complete_analysis(only_first_one=False):
@@ -63,6 +64,6 @@ def complete_analysis(only_first_one=False):
 
 
 if __name__ == '__main__':
-    normal_visualization()
+    # normal_visualization()
     # extended_visualization()
-    # complete_analysis()
+    complete_analysis()
