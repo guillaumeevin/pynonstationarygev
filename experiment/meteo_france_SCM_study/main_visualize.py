@@ -37,7 +37,7 @@ def extended_visualization():
         for study in study_iterator(study_class, only_first_one=True):
             study_visualizer = StudyVisualizer(study)
             # study_visualizer.visualize_all_kde_graphs()
-            study_visualizer.visualize_experimental_law()
+            study_visualizer.visualize_all_experimental_law()
 
 
 def normal_visualization():
@@ -56,7 +56,7 @@ def complete_analysis(only_first_one=False):
         print('Extended study')
         for extended_study in study_iterator(extended_study_class, only_first_one=only_first_one):
             study_visualizer = StudyVisualizer(extended_study, save_to_file=True)
-            study_visualizer.visualize_all_kde_graphs()
+            study_visualizer.visualize_all_mean_and_max_graphs()
         print('Study normal')
         for study in study_iterator(study_class, only_first_one=only_first_one):
             study_visualizer = StudyVisualizer(study, save_to_file=True)
@@ -65,5 +65,5 @@ def complete_analysis(only_first_one=False):
 
 if __name__ == '__main__':
     # normal_visualization()
-    # extended_visualization()
-    complete_analysis()
+    extended_visualization()
+    # complete_analysis()

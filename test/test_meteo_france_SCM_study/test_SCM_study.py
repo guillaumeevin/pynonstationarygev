@@ -24,7 +24,7 @@ class TestSCMStudy(unittest.TestCase):
         for study_class in [ExtendedSafran, ExtendedCrocusSwe]:
             for study in study_iterator(study_class, only_first_one=True, both_altitude=True, verbose=False):
                 study_visualizer = StudyVisualizer(study, show=False, save_to_file=False)
-                study_visualizer.visualize_all_kde_graphs()
+                study_visualizer.visualize_all_mean_and_max_graphs()
         self.assertTrue(True)
 
 

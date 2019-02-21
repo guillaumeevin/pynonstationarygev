@@ -1,19 +1,21 @@
 import math
 import os
 import os.path as op
-import numpy as np
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import seaborn as sns
 
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
+from experiment.utils import average_smoothing_with_sliding_window
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import SmoothMarginEstimator
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearAllParametersAllDimsMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction, \
     AbstractMaxStableModelWithCovarianceFunction
-from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith
+from extreme_estimator.margin_fits.abstract_params import AbstractParams
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
 from extreme_estimator.margin_fits.gpd.gpd_params import GpdParams
@@ -21,7 +23,7 @@ from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
 from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from test.test_utils import load_test_max_stable_models
-from utils import get_display_name_from_object_type, VERSION, VERSION_TIME
+from utils import get_display_name_from_object_type, VERSION_TIME
 
 
 class StudyVisualizer(object):
@@ -31,7 +33,7 @@ class StudyVisualizer(object):
         self.study = study
         self.show = False if self.save_to_file else show
         self.window_size_for_smoothing = 21
-        self.figsize=(16.0, 10.0)
+        self.figsize = (16.0, 10.0)
 
     @property
     def observations(self):
@@ -45,58 +47,77 @@ class StudyVisualizer(object):
     def dataset(self):
         return AbstractDataset(self.observations, self.coordinates)
 
-    def visualize_experimental_law(self):
-        plot_name = ' experimental law'
-        self.show_or_save_to_file(plot_name)
+    # Graph for each massif / or groups of massifs
 
-    def visualize_all_kde_graphs(self):
-        massif_names = self.study.safran_massif_names
+    def visualize_massif_graphs(self, visualize_function):
         nb_columns = 5
-        nb_rows = math.ceil(len(massif_names) / nb_columns)
+        nb_rows = math.ceil(len(self.study.safran_massif_names) / nb_columns)
         fig, axes = plt.subplots(nb_rows, nb_columns, figsize=self.figsize)
         fig.subplots_adjust(hspace=1.0, wspace=1.0)
-        for i, massif_name in enumerate(massif_names):
-            row_id, column_id = i // nb_columns, i % nb_columns
+        for massif_id, massif_name in enumerate(self.study.safran_massif_names):
+            row_id, column_id = massif_id // nb_columns, massif_id % nb_columns
             ax = axes[row_id, column_id]
-            self.visualize_kde_graph(ax, i, massif_name)
+            visualize_function(ax, massif_id)
+
+    def visualize_all_experimental_law(self):
+        self.visualize_massif_graphs(self.visualize_experimental_law)
+        plot_name = ' Experimental law with all the data'
+        self.show_or_save_to_file(plot_name)
+
+    def visualize_experimental_law(self, ax, massif_id):
+        # Display the experimental law for a given massif
+        all_massif_data = np.concatenate([data[:, massif_id] for data in self.study.year_to_daily_time_serie.values()])
+        all_massif_data = np.sort(all_massif_data)
+
+        # Kde plot, and retrieve the data forming the line
+        color_kde = 'b'
+        sns.kdeplot(all_massif_data, bw=1, ax=ax, color=color_kde).set(xlim=0)
+        data_x, data_y = ax.lines[0].get_data()
+
+        # Plot the mean point in green
+        x_level_to_color = {
+            np.mean(all_massif_data): 'g',
+        }
+        # Plot some specific quantiles in red
+        for p in AbstractParams.QUANTILE_P_VALUES:
+            x_level = all_massif_data[int(p * len(all_massif_data))]
+            x_level_to_color[x_level] = 'r'
+
+        for xi, color in x_level_to_color.items():
+            yi = np.interp(xi, data_x, data_y)
+            ax.plot([xi], [yi], color=color, marker="o")
+
+        ax.set_ylabel('Density', color=color_kde)
+        ax.set_xlabel(self.study.title)
+        extraticks = [round(x) for x in sorted(list(x_level_to_color.keys()))]
+        ax.set_xticks(extraticks)
+        ax.set_title(self.study.safran_massif_names[massif_id])
+
+    def visualize_all_mean_and_max_graphs(self):
+        self.visualize_massif_graphs(self.visualize_mean_and_max_graph)
         plot_name = ' mean with sliding window of size {}'.format(self.window_size_for_smoothing)
         self.show_or_save_to_file(plot_name)
 
-    def visualize_kde_graph(self, ax, i, massif_name):
-        self.maxima_plot(ax, i)
-        self.mean_plot(ax, i)
-        ax.set_xlabel('year')
-        ax.set_title(massif_name)
-
-    def mean_plot(self, ax, i):
-        # Display the mean graph
-        # Counting the sum of 3-consecutive days of snowfall does not have any physical meaning,
-        # as we are counting twice some days
-        color_mean = 'g'
-        tuples_x_y = [(year, np.mean(data[:, i])) for year, data in self.study.year_to_daily_time_serie.items()]
-        x, y = list(zip(*tuples_x_y))
-        x, y = self.smooth(x, y)
-        ax.plot(x, y, color=color_mean)
-        ax.set_ylabel('mean', color=color_mean)
-
-    def maxima_plot(self, ax, i):
+    def visualize_mean_and_max_graph(self, ax, massif_id):
         # Display the graph of the max on top
         color_maxima = 'r'
-        tuples_x_y = [(year, annual_maxima[i]) for year, annual_maxima in self.study.year_to_annual_maxima.items()]
+        tuples_x_y = [(year, annual_maxima[massif_id]) for year, annual_maxima in
+                      self.study.year_to_annual_maxima.items()]
         x, y = list(zip(*tuples_x_y))
         ax2 = ax.twinx()
         ax2.plot(x, y, color=color_maxima)
         ax2.set_ylabel('maxima', color=color_maxima)
-
-    def smooth(self, x, y):
-        # Average on windows of size 2*M+1 (M elements on each side)
-        filter = np.ones(self.window_size_for_smoothing) / self.window_size_for_smoothing
-        y = np.convolve(y, filter, mode='valid')
-        assert self.window_size_for_smoothing % 2 == 1
-        nb_to_delete = int(self.window_size_for_smoothing // 2)
-        x = np.array(x)[nb_to_delete:-nb_to_delete]
-        assert len(x) == len(y)
-        return x, y
+        # Display the mean graph
+        # Counting the sum of 3-consecutive days of snowfall does not have any physical meaning,
+        # as we are counting twice some days
+        color_mean = 'g'
+        tuples_x_y = [(year, np.mean(data[:, massif_id])) for year, data in self.study.year_to_daily_time_serie.items()]
+        x, y = list(zip(*tuples_x_y))
+        x, y = average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
+        ax.plot(x, y, color=color_mean)
+        ax.set_ylabel('mean', color=color_mean)
+        ax.set_xlabel('year')
+        ax.set_title(self.study.safran_massif_names[massif_id])
 
     def visualize_linear_margin_fit(self, only_first_max_stable=False):
         plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
