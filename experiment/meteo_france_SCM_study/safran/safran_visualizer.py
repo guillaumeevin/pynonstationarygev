@@ -1,4 +1,6 @@
 import math
+import os
+import os.path as op
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -17,15 +19,17 @@ from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
 from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from test.test_utils import load_test_max_stable_models
-from utils import get_display_name_from_object_type
+from utils import get_display_name_from_object_type, VERSION, VERSION_TIME
 
 
 class StudyVisualizer(object):
 
-    def __init__(self, study: AbstractStudy, show=True):
+    def __init__(self, study: AbstractStudy, show=True, save_to_file=False):
+        self.save_to_file = save_to_file
         self.study = study
-        self.show = show
+        self.show = False if self.save_to_file else show
         self.window_size_for_smoothing = 21
+        self.figsize=(16.0, 10.0)
 
     @property
     def observations(self):
@@ -39,21 +43,18 @@ class StudyVisualizer(object):
     def dataset(self):
         return AbstractDataset(self.observations, self.coordinates)
 
-    def visualize_all_kde_graphs(self, show=True):
+    def visualize_all_kde_graphs(self):
         massif_names = self.study.safran_massif_names
         nb_columns = 5
         nb_rows = math.ceil(len(massif_names) / nb_columns)
-        fig, axes = plt.subplots(nb_rows, nb_columns)
+        fig, axes = plt.subplots(nb_rows, nb_columns, figsize=self.figsize)
         fig.subplots_adjust(hspace=1.0, wspace=1.0)
         for i, massif_name in enumerate(massif_names):
             row_id, column_id = i // nb_columns, i % nb_columns
             ax = axes[row_id, column_id]
             self.visualize_kde_graph(ax, i, massif_name)
-        title = self.study.title
-        title += '  (mean computed with a sliding window of size {})'.format(self.window_size_for_smoothing)
-        fig.suptitle(title)
-        if show:
-            plt.show()
+        plot_name = ' mean with sliding window of size {}'.format(self.window_size_for_smoothing)
+        self.show_or_save_to_file(plot_name)
 
     def visualize_kde_graph(self, ax, i, massif_name):
         self.maxima_plot(ax, i)
@@ -91,34 +92,43 @@ class StudyVisualizer(object):
         assert len(x) == len(y)
         return x, y
 
-    def fit_and_visualize_estimator(self, estimator, axes=None, show=True, title=None):
+    def visualize_linear_margin_fit(self):
+        plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
+        max_stable_models = load_test_max_stable_models(only_one_covariance_function=True)[:1]
+        fig, axes = plt.subplots(len(max_stable_models) + 1, len(GevParams.SUMMARY_NAMES), figsize=self.figsize)
+        fig.subplots_adjust(hspace=1.0, wspace=1.0)
+        margin_class = LinearAllParametersAllDimsMarginModel
+        # Plot the smooth margin only
+        margin_model = margin_class(coordinates=self.coordinates)
+        estimator = SmoothMarginEstimator(dataset=self.dataset, margin_model=margin_model)
+        self.fit_and_visualize_estimator(estimator, axes[0], title='without max stable')
+        # Plot the smooth margin fitted with a max stable
+        for i, max_stable_model in enumerate(max_stable_models, 1):
+            margin_model = margin_class(coordinates=self.coordinates)
+            estimator = FullEstimatorInASingleStepWithSmoothMargin(self.dataset, margin_model, max_stable_model)
+            title = get_display_name_from_object_type(type(max_stable_model))
+            self.fit_and_visualize_estimator(estimator, axes[i], title=title)
+        self.show_or_save_to_file(plot_name)
+
+    def fit_and_visualize_estimator(self, estimator, axes=None, title=None):
         estimator.fit()
         axes = estimator.margin_function_fitted.visualize_function(show=False, axes=axes, title=title)
         for ax in axes:
             self.study.visualize(ax, fill=False, show=False)
-        if show:
-            plt.suptitle(self.study.title)
-            plt.show()
 
-    def visualize_smooth_margin_fit(self):
-        margin_model = LinearAllParametersAllDimsMarginModel(coordinates=self.coordinates)
-        estimator = SmoothMarginEstimator(dataset=self.dataset, margin_model=margin_model)
-        self.fit_and_visualize_estimator(estimator)
-
-    def visualize_full_fit(self):
-        max_stable_models = load_test_max_stable_models()
-        fig, axes = plt.subplots(len(max_stable_models), len(GevParams.SUMMARY_NAMES))
-        fig.subplots_adjust(hspace=1.0, wspace=1.0)
-        for i, max_stable_model in enumerate(max_stable_models):
-            margin_model = LinearAllParametersAllDimsMarginModel(coordinates=self.coordinates)
-            estimator = FullEstimatorInASingleStepWithSmoothMargin(self.dataset, margin_model, max_stable_model)
-            title = get_display_name_from_object_type(type(max_stable_model))
-            print(title)
-            self.fit_and_visualize_estimator(estimator, axes[i], show=False, title=title)
+    def show_or_save_to_file(self, plot_name):
         title = self.study.title
-        title += '\nMethod: Full Likelihood with Linear marginals and max stable dependency structure'
+        title += '\n' + plot_name
         plt.suptitle(title)
-        plt.show()
+        if self.show:
+            plt.show()
+        if self.save_to_file:
+            filename = "{}/{}/{}".format(VERSION_TIME, '_'.join(self.study.title.split()), '_'.join(plot_name.split()))
+            filepath = op.join(self.study.result_full_path, filename + '.png')
+            dir = op.dirname(filepath)
+            if not op.exists(dir):
+                os.makedirs(dir, exist_ok=True)
+            plt.savefig(filepath)
 
     def visualize_independent_margin_fits(self, threshold=None, axes=None):
         if threshold is None:
@@ -162,8 +172,8 @@ class StudyVisualizer(object):
     def df_gev_mle_each_massif(self):
         # Fit a margin_fits on each massif
         massif_to_gev_mle = {
-        massif_name: GevMleFit(self.study.observations_annual_maxima.loc[massif_name]).gev_params.summary_serie
-        for massif_name in self.study.safran_massif_names}
+            massif_name: GevMleFit(self.study.observations_annual_maxima.loc[massif_name]).gev_params.summary_serie
+            for massif_name in self.study.safran_massif_names}
         return pd.DataFrame(massif_to_gev_mle, columns=self.study.safran_massif_names)
 
     def df_gpd_mle_each_massif(self, threshold):

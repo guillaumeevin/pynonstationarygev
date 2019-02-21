@@ -2,7 +2,9 @@ import datetime
 import os.path as op
 
 VERSION = datetime.datetime.now()
-
+VERSION_TIME = str(VERSION).split('.')[0]
+for c in [' ', ':', '-']:
+    VERSION_TIME = VERSION_TIME.replace(c, '_')
 
 def get_root_path() -> str:
     return op.dirname(op.abspath(__file__))
@@ -62,3 +64,4 @@ if __name__ == '__main__':
     e = Example()
     print(e.big_attribute)
     print(e.big_attribute)
+    print(VERSION_TIME)

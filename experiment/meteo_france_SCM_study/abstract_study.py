@@ -49,7 +49,7 @@ class AbstractStudy(object):
     def year_to_dataset_ordered_dict(self) -> OrderedDict:
         # Map each year to the correspond netCDF4 Dataset
         year_to_dataset = OrderedDict()
-        nc_files = [(int(f.split('_')[1][:4]), f) for f in os.listdir(self.safran_full_path) if f.endswith('.nc')]
+        nc_files = [(int(f.split('_')[-2][:4]), f) for f in os.listdir(self.safran_full_path) if f.endswith('.nc')]
         for year, nc_file in sorted(nc_files, key=lambda t: t[0]):
             year_to_dataset[year] = Dataset(op.join(self.safran_full_path, nc_file))
         return year_to_dataset
@@ -94,7 +94,7 @@ class AbstractStudy(object):
     @property
     def original_safran_massif_names(self):
         # Load the names of the massif as defined by SAFRAN
-        return safran_massif_names_from_datasets(list(self.year_to_dataset_ordered_dict.values()))
+        return safran_massif_names_from_datasets(list(self.year_to_dataset_ordered_dict.values()), self.altitude)
 
     @property
     def original_safran_massif_id_to_massif_name(self) -> Dict[int, str]:

@@ -46,13 +46,17 @@ def load_smooth_margin_models(coordinates):
     return [margin_class(coordinates=coordinates) for margin_class in TEST_MARGIN_TYPES]
 
 
-def load_test_max_stable_models():
+def load_test_max_stable_models(only_one_covariance_function=False):
+    default_covariance_function = CovarianceFunction.cauchy
     # Load all max stable model
     max_stable_models = []
     for max_stable_class in TEST_MAX_STABLE_MODEL:
         if issubclass(max_stable_class, AbstractMaxStableModelWithCovarianceFunction):
-            max_stable_models.extend([max_stable_class(covariance_function=covariance_function)
-                                      for covariance_function in CovarianceFunction])
+            if only_one_covariance_function:
+                max_stable_models.append(max_stable_class(covariance_function=default_covariance_function))
+            else:
+                max_stable_models.extend([max_stable_class(covariance_function=covariance_function)
+                                          for covariance_function in CovarianceFunction])
         else:
             max_stable_models.append(max_stable_class())
     return max_stable_models
