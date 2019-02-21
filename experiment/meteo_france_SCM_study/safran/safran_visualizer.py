@@ -43,6 +43,10 @@ class StudyVisualizer(object):
     def dataset(self):
         return AbstractDataset(self.observations, self.coordinates)
 
+    def visualize_experimental_law(self):
+        plot_name = ' experimental law'
+        self.show_or_save_to_file(plot_name)
+
     def visualize_all_kde_graphs(self):
         massif_names = self.study.safran_massif_names
         nb_columns = 5

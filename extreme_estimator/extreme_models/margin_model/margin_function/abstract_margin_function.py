@@ -121,6 +121,7 @@ class AbstractMarginFunction(object):
         grid = []
         for i, xi in enumerate(linspace):
             gev_param = self.get_gev_params(np.array([xi]))
+            assert not gev_param.has_undefined_parameters, 'This case needs to be handled during display'
             grid.append(gev_param.summary_dict)
         grid = {gev_param: [g[gev_param] for g in grid] for gev_param in GevParams.SUMMARY_NAMES}
         return grid, linspace

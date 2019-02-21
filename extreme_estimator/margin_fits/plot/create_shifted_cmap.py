@@ -24,6 +24,8 @@ def plot_extreme_param(ax, gev_param_name, values):
         midpoint = 1.0
     elif vmin > 0 and vmax > 0:
         midpoint = 0.0
+    else:
+        raise ValueError('Unexpected values: vmin={}, vmax={}'.format(vmin, vmax))
     cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
     shifted_cmap = shiftedColorMap(cmap, midpoint=midpoint, name='shifted')
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
@@ -47,10 +49,9 @@ def get_color_rbga_shifted(ax, gev_param_name, values):
 
 
 def imshow_shifted(ax, gev_param_name, values, x, y):
-    norm, shifted_cmap = plot_extreme_param(ax, gev_param_name, values)
+    masked_array = np.ma.masked_where(np.isnan(values), values)
+    norm, shifted_cmap = plot_extreme_param(ax, gev_param_name, masked_array)
     shifted_cmap.set_bad(color='white')
-
-    masked_array = values
     if gev_param_name != ExtremeParams.SHAPE:
         epsilon = 1e-2 * (np.max(values) - np.min(values))
         value = np.min(values)

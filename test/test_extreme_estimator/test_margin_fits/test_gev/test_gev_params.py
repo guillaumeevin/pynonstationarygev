@@ -14,6 +14,12 @@ class TestGevParams(unittest.TestCase):
         for quantile_name, p in gev_params.quantile_name_to_p.items():
             self.assertAlmostEqual(- 1 / np.log(p), quantile_dict[quantile_name])
 
+    def test_negative_scale(self):
+        gev_params = GevParams(loc=1.0, shape=1.0, scale=-1.0)
+        for p in [0.1, 0.5, 0.9]:
+            q = gev_params.quantile(p)
+            self.assertTrue(np.isnan(q))
+
 
 if __name__ == '__main__':
     unittest.main()
