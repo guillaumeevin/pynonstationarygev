@@ -69,8 +69,8 @@ class AbstractMarginModel(AbstractModel):
 
     # Fitting methods needs to be defined in child classes
 
-    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, df_coordinates: pd.DataFrame) \
-            -> AbstractMarginFunction:
+    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, df_coordinates_spatial: pd.DataFrame,
+                                  df_coordinates_temporal: pd.DataFrame) -> AbstractMarginFunction:
         raise NotImplementedError
 
 

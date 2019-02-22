@@ -16,7 +16,7 @@ r = ro.R()
 numpy2ri.activate()
 pandas2ri.activate()
 r.library('SpatialExtremes')
-
+# todo: R is not reloading all the time, the SpatialExtremes, so it's quite hard to debug or print in the code...
 
 def set_seed_r(seed=42):
     r("set.seed({})".format(seed))
@@ -35,7 +35,7 @@ def safe_run_r_estimator(function, use_start=False, **parameters):
     run_successful = False
     while not run_successful:
         current_parameter = parameters.copy()
-        if not use_start:
+        if not use_start and 'start' in current_parameter:
             current_parameter.pop('start')
         try:
             res = function(**current_parameter)  # type:
@@ -52,7 +52,7 @@ def safe_run_r_estimator(function, use_start=False, **parameters):
     return res
 
 
-def retrieve_fitted_values(res: robjects.ListVector):
+def retrieve_fitted_values(res: robjects.ListVector) -> Dict[str, float]:
     # todo: maybe if the convergence was not successful I could try other starting point several times
     # Retrieve the resulting fitted values
     fitted_values = res.rx2('fitted.values')

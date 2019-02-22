@@ -1,3 +1,5 @@
+from abc import ABC
+
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
@@ -6,7 +8,7 @@ from extreme_estimator.extreme_models.margin_model.smooth_margin_model import Li
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
-class AbstractMarginEstimator(AbstractEstimator):
+class AbstractMarginEstimator(AbstractEstimator, ABC):
 
     def __init__(self, dataset: AbstractDataset):
         super().__init__(dataset)
@@ -34,7 +36,10 @@ class SmoothMarginEstimator(AbstractMarginEstimator):
     def _fit(self):
         maxima_gev = self.dataset.maxima_gev(split=self.train_split)
         df_coordinates = self.dataset.df_coordinates(self.train_split)
+        df_coordinates_spatial = df_coordinates.loc[:, self.dataset.coordinates.coordinates_spatial_names]
+        df_coordinates_temporal = df_coordinates.loc[:, self.dataset.coordinates.coordinates_temporal_names]
         self._params_fitted = self.margin_model.fitmargin_from_maxima_gev(maxima_gev=maxima_gev,
-                                                                          df_coordinates=df_coordinates)
+                                                                          df_coordinates_spatial=df_coordinates_spatial,
+                                                                          df_coordinates_temporal=df_coordinates_temporal)
         self.extract_fitted_models_from_fitted_params(self.margin_model.margin_function_start_fit, self._params_fitted)
         assert isinstance(self.margin_function_fitted, AbstractMarginFunction)

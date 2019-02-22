@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
@@ -7,10 +7,11 @@ class LinearCoef(object):
     """
     Object that maps each dimension to its corresponding coefficient.
         dim = 0 correspond to the intercept
-        dim = 1 correspond to the coordinate X
-        dim = 2 correspond to the coordinate Y
-        dim = 3 correspond to the coordinate Z
+        dim = 1 correspond to the first coordinate
+        dim = 2 correspond to the second coordinate
+        dim = 3 correspond to the third coordinate...
     """
+    INTERCEPT_NAME = 'intercept'
 
     def __init__(self, gev_param_name: str, dim_to_coef: Dict[int, float] = None, default_value: float = 0.0):
         self.gev_param_name = gev_param_name
@@ -24,31 +25,50 @@ class LinearCoef(object):
             return self.dim_to_coef.get(dim, self.default_value)
 
     @property
-    def intercept(self):
+    def intercept(self) -> float:
         return self.get_coef(dim=0)
 
-    @staticmethod
-    def coef_template_str(gev_param_name):
-        return gev_param_name + 'Coeff{}'
+    @classmethod
+    def coef_template_str(cls, gev_param_name: str, coefficient_name: str) -> str:
+        """
+        Example of coef that can be specified
+            -for the spatial covariates: locCoeff1
+            -for the temporal covariates: tempCoeffLoc
+        :param gev_param_name:
+        :param coefficient_name:
+        :return:
+        """
+        assert coefficient_name == cls.INTERCEPT_NAME or coefficient_name in AbstractCoordinates.COORDINATES_NAMES
+        if coefficient_name == cls.INTERCEPT_NAME or coefficient_name in AbstractCoordinates.COORDINATE_SPATIAL_NAMES:
+            return gev_param_name + 'Coeff{}'
+        else:
+            return 'tempCoeff' + gev_param_name.title() + '{}'
 
     @classmethod
-    def from_coef_dict(cls, coef_dict: Dict[str, float], gev_param_name: str, linear_dims):
+    def from_coef_dict(cls, coef_dict: Dict[str, float], gev_param_name: str, linear_dims: List[int],
+                       dim_to_coefficient_name):
         dims = [0] + linear_dims
         dim_to_coef = {}
         for j, dim in enumerate(dims, 1):
-            coef = coef_dict[cls.coef_template_str(gev_param_name).format(j)]
+            coefficient_name = dim_to_coefficient_name[dim]
+            coef = coef_dict[cls.coef_template_str(gev_param_name, coefficient_name).format(j)]
             dim_to_coef[dim] = coef
         return cls(gev_param_name, dim_to_coef)
 
-    def coef_dict(self, linear_dims) -> Dict[str, float]:
-        # Constant param must be specified for all the parameters
-        coef_dict = {self.coef_template_str(self.gev_param_name).format(1): self.intercept}
-        # Specify only the param that belongs to dim_to_coef
-        for j, dim in enumerate(linear_dims, 2):
-            coef_dict[self.coef_template_str(self.gev_param_name).format(j)] = self.dim_to_coef[dim]
+    def coef_dict(self, linear_dims, dim_to_coefficient_name) -> Dict[str, float]:
+        dims = [0] + linear_dims
+        coef_dict = {}
+        for j, dim in enumerate(dims, 1):
+            coefficient_name = dim_to_coefficient_name[dim]
+            coef = self.dim_to_coef[dim]
+            coef_dict[self.coef_template_str(self.gev_param_name, coefficient_name).format(j)] = coef
         return coef_dict
 
-    def form_dict(self, linear_dims) -> Dict[str, str]:
+    def form_dict(self, names: List[str]) -> Dict[str, str]:
+        formula_str = '1' if not names else '+'.join(names)
+        return {self.gev_param_name + '.form': self.gev_param_name + ' ~ ' + formula_str}
+
+    def spatial_form_dict(self, coordinate_spatial_names: List[str]) -> Dict[str, str]:
         """
         Example of formula that could be specified:
         loc.form = loc ~ coord_x
@@ -56,6 +76,16 @@ class LinearCoef(object):
         shape.form = shape ~ coord_x+coord_y
         :return:
         """
-        dim_to_name = {i: name for i, name in enumerate(AbstractCoordinates.COORDINATES_NAMES, 1)}
-        formula_str = '1' if not linear_dims else '+'.join([dim_to_name[dim] for dim in linear_dims])
-        return {self.gev_param_name + '.form': self.gev_param_name + ' ~ ' + formula_str}
+        assert all([name in AbstractCoordinates.COORDINATE_SPATIAL_NAMES for name in coordinate_spatial_names])
+        return self.form_dict(coordinate_spatial_names)
+
+    def temporal_form_dict(self, coordinate_temporal_names: List[str]) -> Dict[str, str]:
+        """
+        Example of formula that could be specified:
+        temp.loc.form = loc ~ coord_t
+        temp.scale.form = scale ~ coord_t
+        temp.shape.form = shape ~ 1
+        :return:
+        """
+        assert all([name in [AbstractCoordinates.COORDINATE_T] for name in coordinate_temporal_names])
+        return {'temp.' + k: v for k, v in self.form_dict(coordinate_temporal_names).items()}

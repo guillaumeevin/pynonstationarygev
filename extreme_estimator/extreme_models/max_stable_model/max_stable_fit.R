@@ -29,6 +29,49 @@ rmaxstab2D <- function (n.obs){
     print(res['fitted.values'])
 }
 
+
+# rmaxstab with 3D data
+# rmaxstab3D <- function (n.obs){
+#     # todo: problem this function is currently not available in dimensions 3
+#     n.site = 2
+#     dimension = 3
+#     ar = rnorm(3*n.obs*n.site, sd = sqrt(.2))
+#     print(ar)
+#     coord <- array(ar, dim = c(4,3))
+#     print(coord)
+#     colnames(coord) = c("E", "N", "T")
+#     print(colnames(coord))
+#     data <- coord
+#
+#     #  Generate the data
+#     # data <- rmaxstab(n.obs, coord, "gauss", cov11 = 100, cov12 = 25, cov22 = 220)
+#     # data <- rmaxstab(n.obs, coord, "brown", range = 3, smooth = 0.5)
+#     # data <- rmaxstab(n.obs, coord, "whitmat", nugget = 0.0, range = 3, smooth = 0.5)
+#     #  Fit back the data
+#     # print(data)n
+#     # res = fitmaxstab(data, coord, "gauss", fit.marge=FALSE, )
+#     # res = fitmaxstab(data, coord, "brown")
+#     # res = fitmaxstab(data, coord, "whitmat", start=)
+#     print(class(coord))
+#     print(colnames(coord))
+#
+#     loc.form = loc ~ N
+#     scale.form = scale ~ 1
+#     shape.form = shape ~ 1
+#
+#     temp_loc.form = loc ~ T
+#     temp_scale.form = scale ~ 1
+#     temp_shape.form = shape ~ 1
+#
+#     namedlist = list(cov11 = 1.0, cov12 = 1.2, cov22 = 2.2, locCoeff1=1.0, locCoeff2=1.0, scaleCoeff1=1.0, shapeCoeff1=1.0)
+#     res = fitmaxstab(data=data, coord=coord, cov.mod="gauss", start=namedlist, fit.marge=TRUE,
+#     loc.form=loc.form, scale.form=scale.form,shape.form=shape.form,
+#     temp.loc.form = temp_loc.form, temp.scale.form = temp_scale.form, temp.shape.form = temp_shape.form)
+#     print(res['fitted.values'])
+# }
+
+fitspatgev()
+
 # rmaxstab with 1D data
 rmaxstab1D <- function (n.obs){
 
@@ -62,7 +105,8 @@ call_main = !exists("python_wrapping")
 if (call_main) {
     set.seed(42)
     n.obs = 500
-    rmaxstab2D(n.obs)
+    # rmaxstab2D(n.obs)
+    # rmaxstab3D(n.obs)
     # rmaxstab1D(n.obs)
 
     # namedlist = list(cov11 = 1.0, cov12 = 1.2, cov22 = 2.2)
