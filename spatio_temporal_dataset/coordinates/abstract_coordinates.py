@@ -35,7 +35,9 @@ class AbstractCoordinates(object):
         # Extract df_all_coordinates from df
         coordinate_columns = [c for c in df.columns if c in self.COORDINATES_NAMES]
         assert len(coordinate_columns) > 0
-        self.df_all_coordinates = df.loc[:, coordinate_columns].copy()  # type: pd.DataFrame
+        # Sort coordinates according to a specified order
+        sorted_coordinates_columns = [c for c in self.COORDINATES_NAMES if c in coordinate_columns]
+        self.df_all_coordinates = df.loc[:, sorted_coordinates_columns].copy()  # type: pd.DataFrame
         # Check the data type of the coordinate columns
         accepted_dtypes = ['float64', 'int64']
         assert len(self.df_all_coordinates.select_dtypes(include=accepted_dtypes).columns) == len(coordinate_columns), \
