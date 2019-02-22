@@ -23,7 +23,7 @@ from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
 from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from test.test_utils import load_test_max_stable_models
-from utils import get_display_name_from_object_type, VERSION_TIME
+from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits
 
 
 class StudyVisualizer(object):
@@ -89,7 +89,9 @@ class StudyVisualizer(object):
 
         ax.set_ylabel('Density', color=color_kde)
         ax.set_xlabel(self.study.title)
-        extraticks = [round(x) for x in sorted(list(x_level_to_color.keys()))]
+        extraticks = [float(float_to_str_with_only_some_significant_digits(x, nb_digits=2))
+                      for x in sorted(list(x_level_to_color.keys()))]
+        extraticks = [extraticks[0], extraticks[-1]]
         ax.set_xticks(extraticks)
         ax.set_title(self.study.safran_massif_names[massif_id])
 
