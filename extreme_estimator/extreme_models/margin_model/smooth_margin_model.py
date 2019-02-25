@@ -58,13 +58,25 @@ class LinearMarginModel(AbstractMarginModel):
                 params[(gev_param_name, dim)] = coef
         return cls(coordinates, params_sample=params, params_start_fit=params)
 
-    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray,
-                                  df_coordinates: pd.DataFrame) -> Dict[str, float]:
+    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, df_coordinates_spatial: pd.DataFrame,
+                                  df_coordinates_temporal: pd.DataFrame) -> Dict[str, float]:
+        # The reshaping on the line below is only valid if we have a single observation per spatio-temporal point
+        if maxima_gev.shape[1] == 1:
+            maxima_gev = maxima_gev.reshape([len(df_coordinates_temporal), len(df_coordinates_spatial)])
         data = np.transpose(maxima_gev)
-        covariables = get_coord(df_coordinates)
+
         fit_params = get_margin_formula(self.margin_function_start_fit.form_dict)
-        fit_params['start'] = r.list(**self.margin_function_start_fit.coef_dict)
-        res = safe_run_r_estimator(function=r.fitspatgev, use_start=self.use_start_value, data=data, covariables=covariables, **fit_params)
+
+        # Covariables
+        covariables = get_coord(df_coordinates=df_coordinates_spatial)
+        fit_params['temp.cov'] = get_coord(df_coordinates=df_coordinates_temporal)
+
+        # Start parameters
+        coef_dict = self.margin_function_start_fit.coef_dict
+        fit_params['start'] = r.list(**coef_dict)
+
+        res = safe_run_r_estimator(function=r.fitspatgev, use_start=self.use_start_value, data=data,
+                                   covariables=covariables, **fit_params)
         return retrieve_fitted_values(res)
 
 

@@ -16,7 +16,11 @@ r = ro.R()
 numpy2ri.activate()
 pandas2ri.activate()
 r.library('SpatialExtremes')
-# todo: R is not reloading all the time, the SpatialExtremes, so it's quite hard to debug or print in the code...
+
+
+# Notice: R is not reloading all the time, the SpatialExtremes, so it's quite hard to debug or print in the code...
+# the best solution for debugging is to copy/paste the code module into a file that belongs to me, and then
+# I can put print & stop in the code, and I can understand where are the problems
 
 def set_seed_r(seed=42):
     r("set.seed({})".format(seed))

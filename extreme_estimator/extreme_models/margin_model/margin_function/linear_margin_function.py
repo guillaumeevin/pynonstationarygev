@@ -95,6 +95,8 @@ class LinearMarginFunction(IndependentMarginFunction):
                 temporal_names = [name for name in self.coordinates.coordinates_temporal_names
                                   if self.coefficient_name_to_dim(self.coordinates)[name] in linear_dims]
                 temporal_form = self.gev_param_name_to_linear_coef[gev_param_name].temporal_form_dict(temporal_names)
+                # Specifying a formula '~ 1' creates a bug in fitspatgev of SpatialExtreme R package
+                assert not any(['1' in formula for formula in temporal_form.values()])
                 form_dict.update(temporal_form)
         return form_dict
 

@@ -148,6 +148,8 @@ class AbstractCoordinates(object):
     def nb_coordinates(self) -> int:
         return len(self.coordinates_names)
 
+    # Spatial attributes
+
     @property
     def coordinates_spatial_names(self) -> List[str]:
         return [name for name in self.COORDINATE_SPATIAL_NAMES if name in self.df_all_coordinates.columns]
@@ -156,6 +158,14 @@ class AbstractCoordinates(object):
     def nb_coordinates_spatial(self) -> int:
         return len(self.coordinates_spatial_names)
 
+    def df_spatial_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
+        if self.nb_coordinates_spatial == 0:
+            return pd.DataFrame()
+        else:
+            return self.df_coordinates(split).loc[:, self.coordinates_spatial_names].drop_duplicates()
+
+    # Temporal attributes
+
     @property
     def coordinates_temporal_names(self) -> List[str]:
         return [self.COORDINATE_T] if self.COORDINATE_T in self.df_all_coordinates else []
@@ -163,6 +173,12 @@ class AbstractCoordinates(object):
     @property
     def nb_coordinates_temporal(self) -> int:
         return len(self.coordinates_temporal_names)
+
+    def df_temporal_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
+        if self.nb_coordinates_temporal == 0:
+            return pd.DataFrame()
+        else:
+            return self.df_coordinates(split).loc[:, self.coordinates_temporal_names].drop_duplicates()
 
     #  Visualization
 

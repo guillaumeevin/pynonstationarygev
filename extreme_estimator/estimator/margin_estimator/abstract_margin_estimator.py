@@ -35,9 +35,8 @@ class SmoothMarginEstimator(AbstractMarginEstimator):
 
     def _fit(self):
         maxima_gev = self.dataset.maxima_gev(split=self.train_split)
-        df_coordinates = self.dataset.df_coordinates(self.train_split)
-        df_coordinates_spatial = df_coordinates.loc[:, self.dataset.coordinates.coordinates_spatial_names]
-        df_coordinates_temporal = df_coordinates.loc[:, self.dataset.coordinates.coordinates_temporal_names]
+        df_coordinates_spatial = self.dataset.coordinates.df_spatial_coordinates(self.train_split)
+        df_coordinates_temporal = self.dataset.coordinates.df_temporal_coordinates(self.train_split)
         self._params_fitted = self.margin_model.fitmargin_from_maxima_gev(maxima_gev=maxima_gev,
                                                                           df_coordinates_spatial=df_coordinates_spatial,
                                                                           df_coordinates_temporal=df_coordinates_temporal)
