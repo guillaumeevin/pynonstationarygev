@@ -12,6 +12,7 @@ class LinearCoef(object):
         dim = 3 correspond to the third coordinate...
     """
     INTERCEPT_NAME = 'intercept'
+    COEFF_STR = 'Coeff'
 
     def __init__(self, gev_param_name: str, dim_to_coef: Dict[int, float] = None, default_value: float = 0.0):
         self.gev_param_name = gev_param_name
@@ -40,9 +41,11 @@ class LinearCoef(object):
         """
         assert coefficient_name == cls.INTERCEPT_NAME or coefficient_name in AbstractCoordinates.COORDINATES_NAMES
         if coefficient_name == cls.INTERCEPT_NAME or coefficient_name in AbstractCoordinates.COORDINATE_SPATIAL_NAMES:
-            return gev_param_name + 'Coeff{}'
+            coef_template_str = gev_param_name + cls.COEFF_STR + '{}'
         else:
-            return 'tempCoeff' + gev_param_name.title() + '{}'
+            coef_template_str = 'temp' + cls.COEFF_STR + gev_param_name.title() + '{}'
+        assert cls.COEFF_STR in coef_template_str
+        return coef_template_str
 
     @staticmethod
     def has_dependence_in_spatial_coordinates(dim_to_coefficient_name):
