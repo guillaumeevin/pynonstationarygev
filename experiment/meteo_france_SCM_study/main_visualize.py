@@ -33,10 +33,9 @@ def study_iterator(study_class, only_first_one=False, both_altitude=False, verbo
 
 
 def extended_visualization():
-    for study_class in SCM_EXTENDED_STUDIES[:1]:
-        for study in study_iterator(study_class, only_first_one=True):
-            study_visualizer = StudyVisualizer(study, save_to_file=False, only_one_graph=True, vertical_kde_plot=True,
-                                               year_for_kde_plot=1958)
+    for study_class in SCM_EXTENDED_STUDIES[:]:
+        for study in study_iterator(study_class, only_first_one=False):
+            study_visualizer = StudyVisualizer(study, save_to_file=True, only_one_graph=True, plot_bm_quantiles=True)
             # study_visualizer.visualize_all_mean_and_max_graphs()
             study_visualizer.visualize_all_experimental_law()
     # for study_class in SCM_EXTENDED_STUDIES[:]:
@@ -47,10 +46,11 @@ def extended_visualization():
 
 
 def normal_visualization():
-    only_first_one = True
-    for study_class in SCM_STUDIES[1:2]:
+    save_to_file = True
+    only_first_one = False
+    for study_class in SCM_STUDIES[:]:
         for study in study_iterator(study_class, only_first_one=only_first_one):
-            study_visualizer = StudyVisualizer(study)
+            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
             study_visualizer.visualize_linear_margin_fit(only_first_max_stable=only_first_one)
 
@@ -71,6 +71,6 @@ def complete_analysis(only_first_one=False):
 
 
 if __name__ == '__main__':
-    # normal_visualization()
-    extended_visualization()
+    normal_visualization()
+    # extended_visualization()
     # complete_analysis()

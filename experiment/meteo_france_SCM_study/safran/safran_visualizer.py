@@ -25,19 +25,23 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from test.test_utils import load_test_max_stable_models
 from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits
 
+BLOCK_MAXIMA_DISPLAY_NAME = 'block maxima '
+
 
 class StudyVisualizer(object):
 
     def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False,
-                 vertical_kde_plot=False, year_for_kde_plot=None):
+                 vertical_kde_plot=False, year_for_kde_plot=None, plot_bm_quantiles=False):
         self.only_first_row = only_first_row
         self.only_one_graph = only_one_graph
         self.save_to_file = save_to_file
         self.study = study
         self.plot_name = None
         # KDE PLOT ARGUMENTS
-        self.vertical_kde_plot=vertical_kde_plot
+        self.vertical_kde_plot = vertical_kde_plot
         self.year_for_kde_plot = year_for_kde_plot
+        self.plot_bm_quantiles = plot_bm_quantiles
+
         self.show = False if self.save_to_file else show
         self.window_size_for_smoothing = 21
         if self.only_one_graph:
@@ -92,7 +96,8 @@ class StudyVisualizer(object):
         if self.year_for_kde_plot is not None:
             all_massif_data = self.study.year_to_daily_time_serie[self.year_for_kde_plot][:, massif_id]
         else:
-            all_massif_data = np.concatenate([data[:, massif_id] for data in self.study.year_to_daily_time_serie.values()])
+            all_massif_data = np.concatenate(
+                [data[:, massif_id] for data in self.study.year_to_daily_time_serie.values()])
         all_massif_data = np.sort(all_massif_data)
 
         # Kde plot, and retrieve the data forming the line
@@ -105,9 +110,15 @@ class StudyVisualizer(object):
             np.mean(all_massif_data): ('g', 'mean'),
         }
         # Plot some specific quantiles in their color
-        for p, color, name in zip(AbstractParams.QUANTILE_P_VALUES, AbstractParams.QUANTILE_COLORS, AbstractParams.QUANTILE_NAMES):
+        for p, color, name in zip(AbstractParams.QUANTILE_P_VALUES, AbstractParams.QUANTILE_COLORS,
+                                  AbstractParams.QUANTILE_NAMES):
             x_level = all_massif_data[int(p * len(all_massif_data))]
             x_level_to_color[x_level] = (color, name)
+            # Plot some additional quantiles from the correspond Annual Maxima law
+            if self.plot_bm_quantiles:
+                p = p ** (1 / 365)
+                x_level = all_massif_data[int(p * len(all_massif_data))]
+                x_level_to_color[x_level] = (color, BLOCK_MAXIMA_DISPLAY_NAME + name)
 
         for xi, (color, name) in x_level_to_color.items():
             if self.vertical_kde_plot:
@@ -115,7 +126,8 @@ class StudyVisualizer(object):
                 xi = np.interp(yi, data_y, data_x)
             else:
                 yi = np.interp(xi, data_x, data_y)
-            ax.scatter([xi], [yi], color=color, marker="o", label=name)
+            marker = "x" if BLOCK_MAXIMA_DISPLAY_NAME in name else "o"
+            ax.scatter([xi], [yi], color=color, marker=marker, label=name)
 
         label_function = ax.set_xlabel if self.vertical_kde_plot else ax.set_ylabel
         label_function('Probability Density function f(x)', color=color_kde)
@@ -236,7 +248,7 @@ class StudyVisualizer(object):
             plt.show()
 
     def visualize_cmap(self, massif_name_to_value):
-        orig_cmap = plt.cm. coolwarm
+        orig_cmap = plt.cm.coolwarm
         # shifted_cmap = shiftedColorMap(orig_cmap, midpoint=0.75, name='shifted')
 
         massif_name_to_fill_kwargs = {massif_name: {'color': orig_cmap(value)} for massif_name, value in
