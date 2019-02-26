@@ -28,13 +28,19 @@ from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_
 
 class StudyVisualizer(object):
 
-    def __init__(self, study: AbstractStudy, show=True, save_to_file=False, single_massif_graph=False):
-        self.single_massif_graph = single_massif_graph
+    def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False):
+        self.only_first_row = only_first_row
+        self.only_one_graph = only_one_graph
         self.save_to_file = save_to_file
         self.study = study
         self.show = False if self.save_to_file else show
         self.window_size_for_smoothing = 21
-        self.figsize = (16.0, 10.0)
+        if self.only_one_graph:
+            self.figsize = (6.0, 4.0)
+        elif self.only_first_row:
+            self.figsize = (16.0, 6.0)
+        else:
+            self.figsize = (16.0, 10.0)
 
     @property
     def observations(self):
@@ -51,18 +57,23 @@ class StudyVisualizer(object):
     # Graph for each massif / or groups of massifs
 
     def visualize_massif_graphs(self, visualize_function):
-        if self.single_massif_graph:
+        if self.only_one_graph:
             fig, ax = plt.subplots(1, 1, figsize=self.figsize)
             visualize_function(ax, 0)
         else:
             nb_columns = 5
-            nb_rows = math.ceil(len(self.study.safran_massif_names) / nb_columns)
+            nb_rows = 1 if self.only_first_row else math.ceil(len(self.study.safran_massif_names) / nb_columns)
             fig, axes = plt.subplots(nb_rows, nb_columns, figsize=self.figsize)
             fig.subplots_adjust(hspace=1.0, wspace=1.0)
-            for massif_id, massif_name in enumerate(self.study.safran_massif_names):
-                row_id, column_id = massif_id // nb_columns, massif_id % nb_columns
-                ax = axes[row_id, column_id]
-                visualize_function(ax, massif_id)
+            if self.only_first_row:
+                for massif_id, massif_name in enumerate(self.study.safran_massif_names[:nb_columns]):
+                    ax = axes[massif_id]
+                    visualize_function(ax, massif_id)
+            else:
+                for massif_id, massif_name in enumerate(self.study.safran_massif_names):
+                    row_id, column_id = massif_id // nb_columns, massif_id % nb_columns
+                    ax = axes[row_id, column_id]
+                    visualize_function(ax, massif_id)
 
     def visualize_all_experimental_law(self):
         self.visualize_massif_graphs(self.visualize_experimental_law)
@@ -93,13 +104,15 @@ class StudyVisualizer(object):
             ax.scatter([xi], [yi], color=color, marker="o", label=name)
 
         ax.set_ylabel('Probability Density function f(x)', color=color_kde)
-        ax.set_xlabel('x = {}'.format(self.study.title))
+        xlabel = 'x = {}'.format(self.study.title) if self.only_one_graph else 'x'
+        ax.set_xlabel(xlabel)
         extraticks = [float(float_to_str_with_only_some_significant_digits(x, nb_digits=2))
                       for x in sorted(list(x_level_to_color.keys()))]
-        if not self.single_massif_graph:
+        if not self.only_one_graph:
             extraticks = [extraticks[0], extraticks[-1]]
         ax.set_xticks(extraticks)
-        ax.set_title(self.study.safran_massif_names[massif_id])
+        if not self.only_one_graph:
+            ax.set_title(self.study.safran_massif_names[massif_id])
         ax.legend()
 
     def visualize_all_mean_and_max_graphs(self):
@@ -160,11 +173,15 @@ class StudyVisualizer(object):
     def show_or_save_to_file(self, plot_name):
         title = self.study.title
         title += '\n' + plot_name
-        plt.suptitle(title)
+        if not self.only_one_graph:
+            plt.suptitle(title)
         if self.show:
             plt.show()
         if self.save_to_file:
-            filename = "{}/{}/{}".format(VERSION_TIME, '_'.join(self.study.title.split()), '_'.join(plot_name.split()))
+            filename = "{}/{}".format(VERSION_TIME, '_'.join(self.study.title.split()))
+            if not self.only_one_graph:
+                filename += "/{}".format('_'.join(plot_name.split()))
+
             filepath = op.join(self.study.result_full_path, filename + '.png')
             dir = op.dirname(filepath)
             if not op.exists(dir):

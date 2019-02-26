@@ -37,7 +37,7 @@ class ExtendedCrocusDepth(AbstractExtendedStudy, CrocusDepth):
 if __name__ == '__main__':
     for variable_class in [CrocusSweVariable, CrocusDepthVariable]:
         study = Crocus(variable_class=variable_class)
-        # d = study.year_to_dataset_ordered_dict[1960]
+        d = study.year_to_dataset_ordered_dict[1960]
         # print(d)
         a = study.year_to_daily_time_serie[1960]
         print(a.shape)

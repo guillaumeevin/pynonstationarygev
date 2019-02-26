@@ -19,6 +19,7 @@ class CrocusSweVariable(CrocusVariable):
     NAME = 'Snow Water Equivalent'
 
     def __init__(self, dataset):
+        # Units are kg m-2
         super().__init__(dataset, 'SNOWSWE')
 
 
@@ -26,4 +27,5 @@ class CrocusDepthVariable(CrocusVariable):
     NAME = 'Snow Depth'
 
     def __init__(self, dataset):
+        # Units are m
         super().__init__(dataset, "SNOWDEPTH")
