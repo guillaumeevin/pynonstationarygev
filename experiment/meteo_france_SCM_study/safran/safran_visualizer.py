@@ -28,17 +28,22 @@ from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_
 
 class StudyVisualizer(object):
 
-    def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False):
+    def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False,
+                 vertical_kde_plot=False, year_for_kde_plot=None):
         self.only_first_row = only_first_row
         self.only_one_graph = only_one_graph
         self.save_to_file = save_to_file
         self.study = study
+        self.plot_name = None
+        # KDE PLOT ARGUMENTS
+        self.vertical_kde_plot=vertical_kde_plot
+        self.year_for_kde_plot = year_for_kde_plot
         self.show = False if self.save_to_file else show
         self.window_size_for_smoothing = 21
         if self.only_one_graph:
             self.figsize = (6.0, 4.0)
         elif self.only_first_row:
-            self.figsize = (16.0, 6.0)
+            self.figsize = (8.0, 6.0)
         else:
             self.figsize = (16.0, 10.0)
 
@@ -77,17 +82,22 @@ class StudyVisualizer(object):
 
     def visualize_all_experimental_law(self):
         self.visualize_massif_graphs(self.visualize_experimental_law)
-        plot_name = ' Empirical distribution with all available data'
-        self.show_or_save_to_file(plot_name)
+        self.plot_name = ' Empirical distribution '
+        self.plot_name += 'with all available data' if self.year_for_kde_plot is None else \
+            'for the year {}'.format(self.year_for_kde_plot)
+        self.show_or_save_to_file()
 
     def visualize_experimental_law(self, ax, massif_id):
         # Display the experimental law for a given massif
-        all_massif_data = np.concatenate([data[:, massif_id] for data in self.study.year_to_daily_time_serie.values()])
+        if self.year_for_kde_plot is not None:
+            all_massif_data = self.study.year_to_daily_time_serie[self.year_for_kde_plot][:, massif_id]
+        else:
+            all_massif_data = np.concatenate([data[:, massif_id] for data in self.study.year_to_daily_time_serie.values()])
         all_massif_data = np.sort(all_massif_data)
 
         # Kde plot, and retrieve the data forming the line
         color_kde = 'b'
-        sns.kdeplot(all_massif_data, bw=1, ax=ax, color=color_kde).set(xlim=0)
+        sns.kdeplot(all_massif_data, bw=1, ax=ax, color=color_kde, vertical=self.vertical_kde_plot).set(xlim=0)
         data_x, data_y = ax.lines[0].get_data()
 
         # Plot the mean point in green
@@ -100,25 +110,33 @@ class StudyVisualizer(object):
             x_level_to_color[x_level] = (color, name)
 
         for xi, (color, name) in x_level_to_color.items():
-            yi = np.interp(xi, data_x, data_y)
+            if self.vertical_kde_plot:
+                yi = xi
+                xi = np.interp(yi, data_y, data_x)
+            else:
+                yi = np.interp(xi, data_x, data_y)
             ax.scatter([xi], [yi], color=color, marker="o", label=name)
 
-        ax.set_ylabel('Probability Density function f(x)', color=color_kde)
+        label_function = ax.set_xlabel if self.vertical_kde_plot else ax.set_ylabel
+        label_function('Probability Density function f(x)', color=color_kde)
+
         xlabel = 'x = {}'.format(self.study.title) if self.only_one_graph else 'x'
-        ax.set_xlabel(xlabel)
+        label_function = ax.set_ylabel if self.vertical_kde_plot else ax.set_xlabel
+        label_function(xlabel)
         extraticks = [float(float_to_str_with_only_some_significant_digits(x, nb_digits=2))
                       for x in sorted(list(x_level_to_color.keys()))]
         if not self.only_one_graph:
             extraticks = [extraticks[0], extraticks[-1]]
-        ax.set_xticks(extraticks)
+        set_ticks_function = ax.set_yticks if self.vertical_kde_plot else ax.set_xticks
+        set_ticks_function(extraticks)
         if not self.only_one_graph:
             ax.set_title(self.study.safran_massif_names[massif_id])
         ax.legend()
 
     def visualize_all_mean_and_max_graphs(self):
         self.visualize_massif_graphs(self.visualize_mean_and_max_graph)
-        plot_name = ' mean with sliding window of size {}'.format(self.window_size_for_smoothing)
-        self.show_or_save_to_file(plot_name)
+        self.plot_name = ' mean with sliding window of size {}'.format(self.window_size_for_smoothing)
+        self.show_or_save_to_file()
 
     def visualize_mean_and_max_graph(self, ax, massif_id):
         # Display the graph of the max on top
@@ -137,12 +155,12 @@ class StudyVisualizer(object):
         x, y = list(zip(*tuples_x_y))
         x, y = average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
         ax.plot(x, y, color=color_mean)
-        ax.set_ylabel('mean', color=color_mean)
+        ax.set_ylabel('mean with sliding window of size {}'.format(self.window_size_for_smoothing), color=color_mean)
         ax.set_xlabel('year')
         ax.set_title(self.study.safran_massif_names[massif_id])
 
     def visualize_linear_margin_fit(self, only_first_max_stable=False):
-        plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
+        self.plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
         default_covariance_function = CovarianceFunction.cauchy
         max_stable_models = load_test_max_stable_models(default_covariance_function=default_covariance_function)
         if only_first_max_stable:
@@ -162,7 +180,7 @@ class StudyVisualizer(object):
             if isinstance(max_stable_model, AbstractMaxStableModelWithCovarianceFunction):
                 title += ' ' + str(default_covariance_function).split('.')[-1]
             self.fit_and_visualize_estimator(estimator, axes[i], title=title)
-        self.show_or_save_to_file(plot_name)
+        self.show_or_save_to_file()
 
     def fit_and_visualize_estimator(self, estimator, axes=None, title=None):
         estimator.fit()
@@ -170,18 +188,20 @@ class StudyVisualizer(object):
         for ax in axes:
             self.study.visualize(ax, fill=False, show=False)
 
-    def show_or_save_to_file(self, plot_name):
+    def show_or_save_to_file(self):
+        assert self.plot_name is not None
         title = self.study.title
-        title += '\n' + plot_name
-        if not self.only_one_graph:
+        title += '\n' + self.plot_name
+        if self.only_one_graph:
+            plt.suptitle(self.plot_name)
+        else:
             plt.suptitle(title)
         if self.show:
             plt.show()
         if self.save_to_file:
             filename = "{}/{}".format(VERSION_TIME, '_'.join(self.study.title.split()))
             if not self.only_one_graph:
-                filename += "/{}".format('_'.join(plot_name.split()))
-
+                filename += "/{}".format('_'.join(self.plot_name.split()))
             filepath = op.join(self.study.result_full_path, filename + '.png')
             dir = op.dirname(filepath)
             if not op.exists(dir):
@@ -216,7 +236,7 @@ class StudyVisualizer(object):
             plt.show()
 
     def visualize_cmap(self, massif_name_to_value):
-        orig_cmap = plt.cm.coolwarm
+        orig_cmap = plt.cm. coolwarm
         # shifted_cmap = shiftedColorMap(orig_cmap, midpoint=0.75, name='shifted')
 
         massif_name_to_fill_kwargs = {massif_name: {'color': orig_cmap(value)} for massif_name, value in
