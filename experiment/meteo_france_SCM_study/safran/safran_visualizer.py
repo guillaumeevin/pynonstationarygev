@@ -28,7 +28,8 @@ from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_
 
 class StudyVisualizer(object):
 
-    def __init__(self, study: AbstractStudy, show=True, save_to_file=False):
+    def __init__(self, study: AbstractStudy, show=True, save_to_file=False, single_massif_graph=False):
+        self.single_massif_graph = single_massif_graph
         self.save_to_file = save_to_file
         self.study = study
         self.show = False if self.save_to_file else show
@@ -50,18 +51,22 @@ class StudyVisualizer(object):
     # Graph for each massif / or groups of massifs
 
     def visualize_massif_graphs(self, visualize_function):
-        nb_columns = 5
-        nb_rows = math.ceil(len(self.study.safran_massif_names) / nb_columns)
-        fig, axes = plt.subplots(nb_rows, nb_columns, figsize=self.figsize)
-        fig.subplots_adjust(hspace=1.0, wspace=1.0)
-        for massif_id, massif_name in enumerate(self.study.safran_massif_names):
-            row_id, column_id = massif_id // nb_columns, massif_id % nb_columns
-            ax = axes[row_id, column_id]
-            visualize_function(ax, massif_id)
+        if self.single_massif_graph:
+            fig, ax = plt.subplots(1, 1, figsize=self.figsize)
+            visualize_function(ax, 0)
+        else:
+            nb_columns = 5
+            nb_rows = math.ceil(len(self.study.safran_massif_names) / nb_columns)
+            fig, axes = plt.subplots(nb_rows, nb_columns, figsize=self.figsize)
+            fig.subplots_adjust(hspace=1.0, wspace=1.0)
+            for massif_id, massif_name in enumerate(self.study.safran_massif_names):
+                row_id, column_id = massif_id // nb_columns, massif_id % nb_columns
+                ax = axes[row_id, column_id]
+                visualize_function(ax, massif_id)
 
     def visualize_all_experimental_law(self):
         self.visualize_massif_graphs(self.visualize_experimental_law)
-        plot_name = ' Experimental law with all the data'
+        plot_name = ' Empirical distribution with all available data'
         self.show_or_save_to_file(plot_name)
 
     def visualize_experimental_law(self, ax, massif_id):
@@ -76,24 +81,26 @@ class StudyVisualizer(object):
 
         # Plot the mean point in green
         x_level_to_color = {
-            np.mean(all_massif_data): 'g',
+            np.mean(all_massif_data): ('g', 'mean'),
         }
-        # Plot some specific quantiles in red
-        for p in AbstractParams.QUANTILE_P_VALUES:
+        # Plot some specific quantiles in their color
+        for p, color, name in zip(AbstractParams.QUANTILE_P_VALUES, AbstractParams.QUANTILE_COLORS, AbstractParams.QUANTILE_NAMES):
             x_level = all_massif_data[int(p * len(all_massif_data))]
-            x_level_to_color[x_level] = 'r'
+            x_level_to_color[x_level] = (color, name)
 
-        for xi, color in x_level_to_color.items():
+        for xi, (color, name) in x_level_to_color.items():
             yi = np.interp(xi, data_x, data_y)
-            ax.plot([xi], [yi], color=color, marker="o")
+            ax.scatter([xi], [yi], color=color, marker="o", label=name)
 
-        ax.set_ylabel('Density', color=color_kde)
-        ax.set_xlabel(self.study.title)
+        ax.set_ylabel('Probability Density function f(x)', color=color_kde)
+        ax.set_xlabel('x = {}'.format(self.study.title))
         extraticks = [float(float_to_str_with_only_some_significant_digits(x, nb_digits=2))
                       for x in sorted(list(x_level_to_color.keys()))]
-        extraticks = [extraticks[0], extraticks[-1]]
+        if not self.single_massif_graph:
+            extraticks = [extraticks[0], extraticks[-1]]
         ax.set_xticks(extraticks)
         ax.set_title(self.study.safran_massif_names[massif_id])
+        ax.legend()
 
     def visualize_all_mean_and_max_graphs(self):
         self.visualize_massif_graphs(self.visualize_mean_and_max_graph)

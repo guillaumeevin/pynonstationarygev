@@ -8,11 +8,12 @@ class AbstractParams(object):
     # Parameters
     PARAM_NAMES = []
     # Quantile
-    QUANTILE_10 = 'quantile 10'
-    QUANTILE_100 = 'quantile 100'
-    QUANTILE_1000 = 'quantile 1000'
+    QUANTILE_10 = 'quantile 0.9'
+    QUANTILE_100 = 'quantile 0.99'
+    QUANTILE_1000 = 'quantile 0.999'
     QUANTILE_NAMES = [QUANTILE_10, QUANTILE_100, QUANTILE_1000][:-1]
     QUANTILE_P_VALUES = [0.9, 0.99, 0.999][:-1]
+    QUANTILE_COLORS = ['orange', 'red', 'darkviolet']
     # Summary
     SUMMARY_NAMES = PARAM_NAMES + QUANTILE_NAMES
 

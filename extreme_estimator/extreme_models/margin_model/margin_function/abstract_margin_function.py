@@ -78,8 +78,10 @@ class AbstractMarginFunction(object):
             self.visualize_1D(gev_value_name, ax, show)
         elif self.coordinates.nb_coordinates_spatial == 2:
             self.visualize_2D(gev_value_name, ax, show)
+        elif self.coordinates.nb_coordinates_spatial == 3:
+            self.visualize_3D(gev_value_name, ax, show)
         else:
-            raise NotImplementedError('3D Margin visualization not yet implemented')
+            raise NotImplementedError('Other visualization not yet implemented')
 
     # Visualization 1D
 
@@ -159,3 +161,10 @@ class AbstractMarginFunction(object):
         grid = {value_name: np.array([g[value_name] for g in grid]).reshape([resolution, resolution])
                 for value_name in GevParams.SUMMARY_NAMES}
         return grid
+
+    # Visualization 3D
+
+    def visualize_3D(self, gev_param_name=GevParams.LOC, ax=None, show=True):
+        # Make the first/the last time step 2D visualization side by side
+        # self.visualize_2D(gev_param_name=gev_param_name, ax=ax, show=show)
+        pass
