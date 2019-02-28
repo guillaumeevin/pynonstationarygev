@@ -34,10 +34,10 @@ def study_iterator(study_class, only_first_one=False, both_altitude=False, verbo
 
 def extended_visualization():
     save_to_file = True
-    only_first_one = False
-    for study_class in SCM_EXTENDED_STUDIES[:]:
+    only_first_one = True
+    for study_class in SCM_EXTENDED_STUDIES[:1]:
         for study in study_iterator(study_class, only_first_one=only_first_one):
-            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, only_one_graph=True)
+            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, only_one_graph=True, year_for_kde_plot=1958, vertical_kde_plot=True)
             # study_visualizer.visualize_all_mean_and_max_graphs()
             study_visualizer.visualize_all_experimental_law()
     # for study_class in SCM_EXTENDED_STUDIES[:]:

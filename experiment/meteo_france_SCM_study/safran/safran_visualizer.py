@@ -102,10 +102,14 @@ class StudyVisualizer(object):
         all_massif_data = np.sort(all_massif_data)
 
         # Display an histogram on the background (with 100 bins, for visibility, and to check 0.9 quantiles)
-        ax2 = ax.twinx()
+        ax2 = ax.twiny() if self.vertical_kde_plot else ax.twinx()
         color_hist = 'k'
-        ax2.hist(all_massif_data, bins=50, density=True, histtype='step', color=color_hist)
-        ax2.set_ylabel('normalized histogram', color=color_hist)
+        orientation = "horizontal" if self.vertical_kde_plot else 'vertical'
+        ax2.hist(all_massif_data, bins=50, density=True, histtype='step', color=color_hist, orientation=orientation)
+        label_function = ax2.set_xlabel if self.vertical_kde_plot else ax2.set_ylabel
+        # Do not display this label in the vertical plot
+        if not self.vertical_kde_plot:
+            label_function('normalized histogram', color=color_hist)
 
         # Kde plot, and retrieve the data forming the line
         color_kde = 'b'

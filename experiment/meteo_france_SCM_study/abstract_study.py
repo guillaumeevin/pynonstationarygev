@@ -19,13 +19,13 @@ from utils import get_full_path, cached_property
 class AbstractStudy(object):
     ALTITUDES = [1800, 2400]
 
-    def __init__(self, variable_class, altitude=1800):
+    def __init__(self, variable_class: type, altitude: int = 1800):
         assert altitude in self.ALTITUDES
         self.altitude = altitude
         self.model_name = None
         self.variable_class = variable_class
 
-    def write_to_file(self, df):
+    def write_to_file(self, df: pd.DataFrame):
         if not op.exists(self.result_full_path):
             os.makedirs(self.result_full_path, exist_ok=True)
         df.to_csv(op.join(self.result_full_path, 'merged_array_{}_altitude.csv'.format(self.altitude)))
@@ -82,7 +82,7 @@ class AbstractStudy(object):
         return year_to_daily_time_serie
 
     @property
-    def _year_to_max_daily_time_serie(self):
+    def _year_to_max_daily_time_serie(self) -> OrderedDict:
         return self._year_to_daily_time_serie
 
     ##########
@@ -92,7 +92,7 @@ class AbstractStudy(object):
         return self.original_safran_massif_names
 
     @property
-    def original_safran_massif_names(self):
+    def original_safran_massif_names(self) -> List[str]:
         # Load the names of the massif as defined by SAFRAN
         return safran_massif_names_from_datasets(list(self.year_to_dataset_ordered_dict.values()), self.altitude)
 
