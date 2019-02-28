@@ -3,10 +3,11 @@ import unittest
 
 import pandas as pd
 
-from experiment.meteo_france_SCM_study.crocus.crocus import ExtendedCrocusSwe
+from experiment.meteo_france_SCM_study.crocus.crocus import ExtendedCrocusSwe, Crocus
 from experiment.meteo_france_SCM_study.main_visualize import study_iterator
 from experiment.meteo_france_SCM_study.safran.safran import Safran, ExtendedSafran
 from experiment.meteo_france_SCM_study.safran.safran_visualizer import StudyVisualizer
+from test.test_utils import load_scm_studies
 
 
 class TestSCMStudy(unittest.TestCase):
@@ -22,10 +23,17 @@ class TestSCMStudy(unittest.TestCase):
 
     def test_extended_run(self):
         for study_class in [ExtendedSafran, ExtendedCrocusSwe]:
-            for study in study_iterator(study_class, only_first_one=True, both_altitude=True, verbose=False):
+            for study in study_iterator(study_class, only_first_one=True, both_altitude=False, verbose=False):
                 study_visualizer = StudyVisualizer(study, show=False, save_to_file=False)
                 study_visualizer.visualize_all_mean_and_max_graphs()
         self.assertTrue(True)
+
+    def test_scm_daily_data(self):
+        for study in load_scm_studies():
+            time_serie = study.year_to_daily_time_serie[1958]
+            self.assertTrue(time_serie.ndim == 2, msg='for {} ndim={}'.format(study.__repr__(), time_serie.ndim))
+            self.assertTrue(len(time_serie) in [365, 366],
+                            msg="current time serie length for {} is {}".format(study.__repr__(), len(time_serie)))
 
 
 if __name__ == '__main__':

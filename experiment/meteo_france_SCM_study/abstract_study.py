@@ -67,7 +67,7 @@ class AbstractStudy(object):
         return year_to_annual_maxima
 
     def instantiate_variable_object(self, dataset) -> AbstractVariable:
-        return self.variable_class(dataset)
+        return self.variable_class(dataset, self.altitude)
 
     """ Private methods to be overwritten """
 

@@ -5,6 +5,8 @@ from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
 
 class SafranSnowfallVariable(AbstractVariable):
     """"
+    Safran data is hourly
+
     Hypothesis:
 
     -How to count how much snowfall in one hour ?
@@ -21,8 +23,8 @@ class SafranSnowfallVariable(AbstractVariable):
 
     NAME = 'Snowfall'
 
-    def __init__(self, dataset, nb_consecutive_days_of_snowfall=1):
-        super().__init__(dataset)
+    def __init__(self, dataset, altitude, nb_consecutive_days_of_snowfall=1):
+        super().__init__(dataset, altitude)
         self.nb_consecutive_days_of_snowfall = nb_consecutive_days_of_snowfall
         # Compute the daily snowfall in kg/m2
         snowfall_rates = np.array(dataset.variables['Snowf'])

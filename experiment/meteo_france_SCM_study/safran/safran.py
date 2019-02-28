@@ -21,3 +21,11 @@ class Safran(AbstractStudy):
 
 class ExtendedSafran(AbstractExtendedStudy, Safran):
     pass
+
+
+if __name__ == '__main__':
+    study = Safran()
+    d = study.year_to_dataset_ordered_dict[1958]
+    print(d.variables['time'])
+    print(study.year_to_daily_time_serie[1958].shape)
+    print(len(d.variables['time']))

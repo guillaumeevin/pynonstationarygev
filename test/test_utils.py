@@ -1,3 +1,9 @@
+from itertools import product
+from typing import List
+
+from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
+from experiment.meteo_france_SCM_study.crocus.crocus import Crocus, CrocusSwe, CrocusDepth
+from experiment.meteo_france_SCM_study.crocus.crocus_variables import CrocusSweVariable, CrocusDepthVariable
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import SmoothMarginalsThenUnitaryMsp, \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
@@ -15,7 +21,8 @@ from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_c
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
     UniformSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import UniformSpatialCoordinates
-from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import ConsecutiveTemporalCoordinates
+from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
+    ConsecutiveTemporalCoordinates
 
 """
 Common objects to load for the test.
@@ -87,7 +94,18 @@ def load_test_spatiotemporal_coordinates(nb_points, nb_steps, train_split_ratio=
             for coordinate_class in TEST_SPATIO_TEMPORAL_COORDINATES]
 
 
-def load_safran_objects():
-    nb_days_list = [1, 3, 5][:1]
-    safran_altitude_list = [1800, 2400][:1]
-    return [Safran(safran_altitude, nb_days) for safran_altitude in safran_altitude_list for nb_days in nb_days_list]
+def load_safran_studies(altitudes) -> List[Safran]:
+    nb_days_list = [1]
+    return [Safran(safran_altitude, nb_days) for safran_altitude in altitudes for nb_days in nb_days_list]
+
+
+def load_crocus_studies(altitudes) -> List[Crocus]:
+    crocus_classes = [CrocusSwe, CrocusDepth][:]
+    return [crocus_class(altitude) for crocus_class, altitude in product(crocus_classes, altitudes)]
+
+
+def load_scm_studies() -> List[AbstractStudy]:
+    altitudes = [1800, 2400][:]
+    scm_studies = load_safran_studies(altitudes)
+    scm_studies += load_crocus_studies(altitudes)
+    return scm_studies

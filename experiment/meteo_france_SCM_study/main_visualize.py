@@ -15,7 +15,7 @@ SCM_STUDY_TO_EXTENDED_STUDY = OrderedDict(zip(SCM_STUDIES, SCM_EXTENDED_STUDIES)
 def study_iterator(study_class, only_first_one=False, both_altitude=False, verbose=True):
     all_studies = []
     is_safran_study = study_class in [Safran, ExtendedSafran]
-    nb_days = [3, 1] if is_safran_study else [1]
+    nb_days = [1] if is_safran_study else [1]
     if verbose:
         print('Loading studies....')
     for nb_day in nb_days:
@@ -35,7 +35,7 @@ def study_iterator(study_class, only_first_one=False, both_altitude=False, verbo
 def extended_visualization():
     for study_class in SCM_EXTENDED_STUDIES[:]:
         for study in study_iterator(study_class, only_first_one=False):
-            study_visualizer = StudyVisualizer(study, save_to_file=True, only_one_graph=True, plot_bm_quantiles=True)
+            study_visualizer = StudyVisualizer(study, save_to_file=True, only_one_graph=True, plot_block_maxima_quantiles=True)
             # study_visualizer.visualize_all_mean_and_max_graphs()
             study_visualizer.visualize_all_experimental_law()
     # for study_class in SCM_EXTENDED_STUDIES[:]:

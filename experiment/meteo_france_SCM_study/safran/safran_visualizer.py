@@ -31,7 +31,7 @@ BLOCK_MAXIMA_DISPLAY_NAME = 'block maxima '
 class StudyVisualizer(object):
 
     def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False,
-                 vertical_kde_plot=False, year_for_kde_plot=None, plot_bm_quantiles=False):
+                 vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False):
         self.only_first_row = only_first_row
         self.only_one_graph = only_one_graph
         self.save_to_file = save_to_file
@@ -40,7 +40,7 @@ class StudyVisualizer(object):
         # KDE PLOT ARGUMENTS
         self.vertical_kde_plot = vertical_kde_plot
         self.year_for_kde_plot = year_for_kde_plot
-        self.plot_bm_quantiles = plot_bm_quantiles
+        self.plot_block_maxima_quantiles = plot_block_maxima_quantiles
 
         self.show = False if self.save_to_file else show
         self.window_size_for_smoothing = 21
@@ -115,7 +115,9 @@ class StudyVisualizer(object):
             x_level = all_massif_data[int(p * len(all_massif_data))]
             x_level_to_color[x_level] = (color, name)
             # Plot some additional quantiles from the correspond Annual Maxima law
-            if self.plot_bm_quantiles:
+            if self.plot_block_maxima_quantiles:
+                # This formula can only be applied if we have a daily time serie
+                assert len(self.study.year_to_daily_time_serie[1958]) in [365, 366]
                 p = p ** (1 / 365)
                 x_level = all_massif_data[int(p * len(all_massif_data))]
                 x_level_to_color[x_level] = (color, BLOCK_MAXIMA_DISPLAY_NAME + name)
