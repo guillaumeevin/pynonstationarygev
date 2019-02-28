@@ -1,6 +1,7 @@
 import math
 import os
 import os.path as op
+from collections import OrderedDict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -100,29 +101,36 @@ class StudyVisualizer(object):
                 [data[:, massif_id] for data in self.study.year_to_daily_time_serie.values()])
         all_massif_data = np.sort(all_massif_data)
 
+        # Display an histogram on the background (with 100 bins, for visibility, and to check 0.9 quantiles)
+        ax2 = ax.twinx()
+        color_hist = 'k'
+        ax2.hist(all_massif_data, bins=50, density=True, histtype='step', color=color_hist)
+        ax2.set_ylabel('normalized histogram', color=color_hist)
+
         # Kde plot, and retrieve the data forming the line
         color_kde = 'b'
         sns.kdeplot(all_massif_data, bw=1, ax=ax, color=color_kde, vertical=self.vertical_kde_plot).set(xlim=0)
         data_x, data_y = ax.lines[0].get_data()
 
-        # Plot the mean point in green
-        x_level_to_color = {
-            np.mean(all_massif_data): ('g', 'mean'),
-        }
-        # Plot some specific quantiles in their color
+        # Plot the mean and median points
+        name_to_xlevel_and_color = OrderedDict()
+        name_to_xlevel_and_color['median'] = (np.median(all_massif_data), 'chartreuse')
+        name_to_xlevel_and_color['mean'] = (np.mean(all_massif_data), 'g')
+
+        # Plot some specific "extreme" quantiles with their color
         for p, color, name in zip(AbstractParams.QUANTILE_P_VALUES, AbstractParams.QUANTILE_COLORS,
                                   AbstractParams.QUANTILE_NAMES):
             x_level = all_massif_data[int(p * len(all_massif_data))]
-            x_level_to_color[x_level] = (color, name)
+            name_to_xlevel_and_color[name] = (x_level, color)
             # Plot some additional quantiles from the correspond Annual Maxima law
             if self.plot_block_maxima_quantiles:
                 # This formula can only be applied if we have a daily time serie
                 assert len(self.study.year_to_daily_time_serie[1958]) in [365, 366]
                 p = p ** (1 / 365)
                 x_level = all_massif_data[int(p * len(all_massif_data))]
-                x_level_to_color[x_level] = (color, BLOCK_MAXIMA_DISPLAY_NAME + name)
+                name_to_xlevel_and_color[BLOCK_MAXIMA_DISPLAY_NAME + name] = (x_level, color)
 
-        for xi, (color, name) in x_level_to_color.items():
+        for name, (xi, color) in name_to_xlevel_and_color.items():
             if self.vertical_kde_plot:
                 yi = xi
                 xi = np.interp(yi, data_y, data_x)
@@ -137,10 +145,11 @@ class StudyVisualizer(object):
         xlabel = 'x = {}'.format(self.study.title) if self.only_one_graph else 'x'
         label_function = ax.set_ylabel if self.vertical_kde_plot else ax.set_xlabel
         label_function(xlabel)
+        sorted_x_levels = sorted(list([x_level for x_level, _ in name_to_xlevel_and_color.values()]))
         extraticks = [float(float_to_str_with_only_some_significant_digits(x, nb_digits=2))
-                      for x in sorted(list(x_level_to_color.keys()))]
+                      for x in sorted_x_levels]
         if not self.only_one_graph:
-            extraticks = [extraticks[0], extraticks[-1]]
+            extraticks = [name_to_xlevel_and_color['mean'][0], name_to_xlevel_and_color[AbstractParams.QUANTILE_100][0]]
         set_ticks_function = ax.set_yticks if self.vertical_kde_plot else ax.set_xticks
         set_ticks_function(extraticks)
         if not self.only_one_graph:
