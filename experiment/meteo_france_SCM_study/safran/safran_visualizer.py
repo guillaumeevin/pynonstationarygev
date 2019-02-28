@@ -146,11 +146,16 @@ class StudyVisualizer(object):
         label_function = ax.set_ylabel if self.vertical_kde_plot else ax.set_xlabel
         label_function(xlabel)
         sorted_x_levels = sorted(list([x_level for x_level, _ in name_to_xlevel_and_color.values()]))
-        extraticks = [float(float_to_str_with_only_some_significant_digits(x, nb_digits=2))
-                      for x in sorted_x_levels]
-        if not self.only_one_graph:
-            extraticks = [name_to_xlevel_and_color['mean'][0], name_to_xlevel_and_color[AbstractParams.QUANTILE_100][0]]
+
+        # Take all the ticks
+        # extraticks = [float(float_to_str_with_only_some_significant_digits(x, nb_digits=2))
+        #               for x in sorted_x_levels]
+        # Display only some specific ticks
+        extraticks = [name_to_xlevel_and_color['mean'][0], name_to_xlevel_and_color[AbstractParams.QUANTILE_100][0]]
+
         set_ticks_function = ax.set_yticks if self.vertical_kde_plot else ax.set_xticks
+        # Round up the ticks with a given number of significative digits
+        extraticks = [float(float_to_str_with_only_some_significant_digits(t, nb_digits=2)) for t in extraticks]
         set_ticks_function(extraticks)
         if not self.only_one_graph:
             ax.set_title(self.study.safran_massif_names[massif_id])
