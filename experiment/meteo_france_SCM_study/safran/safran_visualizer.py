@@ -43,14 +43,18 @@ class StudyVisualizer(object):
         self.year_for_kde_plot = year_for_kde_plot
         self.plot_block_maxima_quantiles = plot_block_maxima_quantiles
 
-        self.show = False if self.save_to_file else show
         self.window_size_for_smoothing = 21
+
+        # PLOT ARGUMENTS
+        self.show = False if self.save_to_file else show
         if self.only_one_graph:
             self.figsize = (6.0, 4.0)
         elif self.only_first_row:
             self.figsize = (8.0, 6.0)
         else:
             self.figsize = (16.0, 10.0)
+        self.subplot_space = 0.05
+        self.coef_zoom_map = 0
 
     @property
     def observations(self):
@@ -74,7 +78,7 @@ class StudyVisualizer(object):
             nb_columns = 5
             nb_rows = 1 if self.only_first_row else math.ceil(len(self.study.safran_massif_names) / nb_columns)
             fig, axes = plt.subplots(nb_rows, nb_columns, figsize=self.figsize)
-            fig.subplots_adjust(hspace=1.0, wspace=1.0)
+            fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
             if self.only_first_row:
                 for massif_id, massif_name in enumerate(self.study.safran_massif_names[:nb_columns]):
                     ax = axes[massif_id]
@@ -149,13 +153,16 @@ class StudyVisualizer(object):
         xlabel = 'x = {}'.format(self.study.title) if self.only_one_graph else 'x'
         label_function = ax.set_ylabel if self.vertical_kde_plot else ax.set_xlabel
         label_function(xlabel)
-        sorted_x_levels = sorted(list([x_level for x_level, _ in name_to_xlevel_and_color.values()]))
 
         # Take all the ticks
+        # sorted_x_levels = sorted(list([x_level for x_level, _ in name_to_xlevel_and_color.values()]))
         # extraticks = [float(float_to_str_with_only_some_significant_digits(x, nb_digits=2))
         #               for x in sorted_x_levels]
         # Display only some specific ticks
-        extraticks = [name_to_xlevel_and_color['mean'][0], name_to_xlevel_and_color[AbstractParams.QUANTILE_100][0]]
+        extraticks_names = ['mean', AbstractParams.QUANTILE_100]
+        if self.plot_block_maxima_quantiles:
+            extraticks_names += [name for name in name_to_xlevel_and_color.keys() if BLOCK_MAXIMA_DISPLAY_NAME in name]
+        extraticks = [name_to_xlevel_and_color[name][0] for name in extraticks_names]
 
         set_ticks_function = ax.set_yticks if self.vertical_kde_plot else ax.set_xticks
         # Round up the ticks with a given number of significative digits
@@ -192,13 +199,15 @@ class StudyVisualizer(object):
         ax.set_title(self.study.safran_massif_names[massif_id])
 
     def visualize_linear_margin_fit(self, only_first_max_stable=False):
-        self.plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
         default_covariance_function = CovarianceFunction.cauchy
+        plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
+        plot_name += '\n(with {} covariance structure when a covariance is needed)'.format(str(default_covariance_function).split('.')[-1])
+        self.plot_name = plot_name
         max_stable_models = load_test_max_stable_models(default_covariance_function=default_covariance_function)
         if only_first_max_stable:
             max_stable_models = max_stable_models[:1]
         fig, axes = plt.subplots(len(max_stable_models) + 1, len(GevParams.SUMMARY_NAMES), figsize=self.figsize)
-        fig.subplots_adjust(hspace=1.0, wspace=1.0)
+        fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
         margin_class = LinearAllParametersAllDimsMarginModel
         # Plot the smooth margin only
         margin_model = margin_class(coordinates=self.coordinates)
@@ -209,16 +218,44 @@ class StudyVisualizer(object):
             margin_model = margin_class(coordinates=self.coordinates)
             estimator = FullEstimatorInASingleStepWithSmoothMargin(self.dataset, margin_model, max_stable_model)
             title = get_display_name_from_object_type(type(max_stable_model))
-            if isinstance(max_stable_model, AbstractMaxStableModelWithCovarianceFunction):
-                title += ' ' + str(default_covariance_function).split('.')[-1]
+            # if isinstance(max_stable_model, AbstractMaxStableModelWithCovarianceFunction):
+            #     title += ' ' + str(default_covariance_function).split('.')[-1]
             self.fit_and_visualize_estimator(estimator, axes[i], title=title)
+        # Add the label
         self.show_or_save_to_file()
 
     def fit_and_visualize_estimator(self, estimator, axes=None, title=None):
         estimator.fit()
-        axes = estimator.margin_function_fitted.visualize_function(show=False, axes=axes, title=title)
+
+        margin_fct = estimator.margin_function_fitted
+        axes = margin_fct.visualize_function(show=False, axes=axes, title='')
+
+        def get_lim_array(ax):
+            return np.array([np.array(ax.get_xlim()), np.array(ax.get_ylim())])
+
         for ax in axes:
+            old_lim = get_lim_array(ax)
             self.study.visualize(ax, fill=False, show=False)
+            new_lim = get_lim_array(ax)
+            assert 0 <= self.coef_zoom_map <= 1
+            updated_lim = new_lim * self.coef_zoom_map + (1 - self.coef_zoom_map) * old_lim
+            for i, method in enumerate([ax.set_xlim, ax.set_ylim]):
+                method(updated_lim[i, 0], updated_lim[i, 1])
+            ax.tick_params(axis=u'both', which=u'both', length=0)
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+            ax.spines['left'].set_visible(False)
+            ax.get_xaxis().set_visible(False)
+            ax.get_yaxis().set_visible(False)
+            ax.set_aspect('equal')
+        ax0 = axes[0]
+        ax0.get_yaxis().set_visible(True)
+        # todo: manage to remove ticks on ylabel
+        # finally it's good because it differntiate it from the other labels
+        #  maybe i could put it in bold
+        ax0.set_ylabel(title)
+        ax0.tick_params(axis=u'both', which=u'both', length=0)
 
     def show_or_save_to_file(self):
         assert self.plot_name is not None
@@ -252,7 +289,7 @@ class StudyVisualizer(object):
 
         if axes is None:
             fig, axes = plt.subplots(1, len(params_names))
-            fig.subplots_adjust(hspace=1.0, wspace=1.0)
+            fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
 
         for i, gev_param_name in enumerate(params_names):
             ax = axes[i]

@@ -20,10 +20,12 @@ class Crocus(AbstractStudy):
         suffix = '' if self.altitude == 2400 else ' average of data observed every 6 hours'
         return super().variable_name + suffix
 
+
 class CrocusSwe(Crocus):
 
     def __init__(self, altitude=1800):
         super().__init__(CrocusSweVariable, altitude)
+
 
 class ExtendedCrocusSwe(AbstractExtendedStudy, CrocusSwe):
     pass

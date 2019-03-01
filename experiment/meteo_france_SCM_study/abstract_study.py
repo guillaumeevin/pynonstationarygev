@@ -138,9 +138,7 @@ class AbstractStudy(object):
                 massif_name = self.coordinate_id_to_massif_name[coordinate_id]
                 fill_kwargs = massif_name_to_fill_kwargs[massif_name] if massif_name_to_fill_kwargs is not None else {}
                 ax.fill(*l, **fill_kwargs)
-        ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates)
-        ax.axis('off')
-
+        ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates, s=1)
         if show:
             plt.show()
 

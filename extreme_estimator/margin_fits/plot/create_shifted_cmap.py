@@ -30,7 +30,7 @@ def plot_extreme_param(ax, gev_param_name, values):
     shifted_cmap = shiftedColorMap(cmap, midpoint=midpoint, name='shifted')
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
     divider = make_axes_locatable(ax)
-    cax = divider.append_axes('right', size='5%', pad=0.05)
+    cax = divider.append_axes('right', size='5%', pad=0.03)
     cb = cbar.ColorbarBase(cax, cmap=shifted_cmap, norm=norm)
     cb.set_label(gev_param_name)
     return norm, shifted_cmap
