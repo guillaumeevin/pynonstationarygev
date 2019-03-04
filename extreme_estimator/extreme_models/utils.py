@@ -1,7 +1,11 @@
 import os.path as op
+import warnings
+
+import numpy as np
 import random
 import sys
-from typing import Dict
+from types import TracebackType
+from typing import Dict, Optional
 
 import pandas as pd
 import rpy2.robjects as ro
@@ -33,7 +37,20 @@ def get_associated_r_file(python_filepath: str) -> str:
     return r_filepath
 
 
-def safe_run_r_estimator(function, use_start=False, **parameters):
+class WarningMaximumAbsoluteValueTooHigh(Warning):
+    pass
+
+
+def safe_run_r_estimator(function, data, use_start=False, threshold_max_abs_value=100, **parameters):
+    # Raise warning if the maximum absolute value is above a threshold
+    assert isinstance(data, np.ndarray)
+    maximum_absolute_value = np.max(np.abs(data))
+    if maximum_absolute_value > threshold_max_abs_value:
+        msg = "maxmimum absolute value in data {} is too high, i.e. above the defined threshold {}"\
+            .format(maximum_absolute_value, threshold_max_abs_value)
+        msg += '\nPotentially in that case, data should be re-normalized'
+        warnings.warn(msg, WarningMaximumAbsoluteValueTooHigh)
+    parameters['data'] = data
     # First run without using start value
     # Then if it crashes, use start value
     run_successful = False
