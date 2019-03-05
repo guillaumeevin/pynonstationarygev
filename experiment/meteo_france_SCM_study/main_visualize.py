@@ -33,11 +33,11 @@ def study_iterator(study_class, only_first_one=False, both_altitude=False, verbo
 
 
 def extended_visualization():
-    save_to_file = True
+    save_to_file = False
     only_first_one = True
-    for study_class in SCM_EXTENDED_STUDIES[:]:
+    for study_class in SCM_EXTENDED_STUDIES[-1:]:
         for study in study_iterator(study_class, only_first_one=only_first_one):
-            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, only_one_graph=True, plot_block_maxima_quantiles=True)
+            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, only_one_graph=True, plot_block_maxima_quantiles=False)
             # study_visualizer.visualize_all_mean_and_max_graphs()
             study_visualizer.visualize_all_experimental_law()
     # for study_class in SCM_EXTENDED_STUDIES[:]:
@@ -73,6 +73,6 @@ def complete_analysis(only_first_one=False):
 
 
 if __name__ == '__main__':
-    normal_visualization()
-    # extended_visualization()
+    # normal_visualization()
+    extended_visualization()
     # complete_analysis()

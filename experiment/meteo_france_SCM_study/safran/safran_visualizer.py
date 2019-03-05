@@ -109,7 +109,9 @@ class StudyVisualizer(object):
         ax2 = ax.twiny() if self.vertical_kde_plot else ax.twinx()
         color_hist = 'k'
         orientation = "horizontal" if self.vertical_kde_plot else 'vertical'
-        ax2.hist(all_massif_data, bins=50, density=True, histtype='step', color=color_hist, orientation=orientation)
+        weights = np.ones_like(all_massif_data) / float(len(all_massif_data))
+        ax2.hist(all_massif_data, weights=weights, bins=50,
+                 histtype='step', color=color_hist, orientation=orientation)
         label_function = ax2.set_xlabel if self.vertical_kde_plot else ax2.set_ylabel
         # Do not display this label in the vertical plot
         if not self.vertical_kde_plot:
