@@ -9,6 +9,7 @@ from netCDF4 import Dataset
 
 from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
 from experiment.meteo_france_SCM_study.massif import safran_massif_names_from_datasets
+from extreme_estimator.margin_fits.plot.mask_poly import mask_outside_polygon
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -130,15 +131,23 @@ class AbstractStudy(object):
                          row_massif[AbstractCoordinates.COORDINATE_Y])
                         for _, row_massif in df_massif.iterrows()]
 
-        for coordinate_id in set([tuple[0] for tuple in coord_tuples]):
+        for j, coordinate_id in enumerate(set([tuple[0] for tuple in coord_tuples])):
+            # Retrieve the list of coords (x,y) that define the contour of the massif of id coordinate_id
             l = [coords for idx, *coords in coord_tuples if idx == coordinate_id]
+            # if j == 0:
+            #     mask_outside_polygon(poly_verts=l, ax=ax)
+            # Plot the contour of the massif
             l = list(zip(*l))
             ax.plot(*l, color='black')
+            # Potentially, fill the inside of the polygon with some color
             if fill:
                 massif_name = self.coordinate_id_to_massif_name[coordinate_id]
                 fill_kwargs = massif_name_to_fill_kwargs[massif_name] if massif_name_to_fill_kwargs is not None else {}
                 ax.fill(*l, **fill_kwargs)
+        # Display the center of the massif
         ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates, s=1)
+
+
         if show:
             plt.show()
 
