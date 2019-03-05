@@ -21,9 +21,13 @@ class ResultFromFit(object):
         return self.name_to_value.keys()
 
     @property
-    def convergence(self):
+    def convergence(self) -> str:
         convergence_value = self.name_to_value[self.CONVERGENCE_NAME]
-        return convergence_value
+        return convergence_value[0]
+
+    @property
+    def is_convergence_successful(self) -> bool:
+        return self.convergence == "successful"
 
     @property
     def fitted_values(self) -> Dict[str, float]:
