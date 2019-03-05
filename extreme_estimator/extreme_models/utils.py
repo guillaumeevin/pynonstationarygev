@@ -16,6 +16,8 @@ from rpy2.rinterface._rinterface import RRuntimeError
 from rpy2.robjects import numpy2ri
 from rpy2.robjects import pandas2ri
 
+from extreme_estimator.extreme_models.result_from_fit import ResultFromFit
+
 r = ro.R()
 numpy2ri.activate()
 pandas2ri.activate()
@@ -41,7 +43,7 @@ class WarningMaximumAbsoluteValueTooHigh(Warning):
     pass
 
 
-def safe_run_r_estimator(function, data, use_start=False, threshold_max_abs_value=100, **parameters):
+def safe_run_r_estimator(function, data, use_start=False, threshold_max_abs_value=100, **parameters) -> ResultFromFit:
     # Raise warning if the maximum absolute value is above a threshold
     assert isinstance(data, np.ndarray)
     maximum_absolute_value = np.max(np.abs(data))
@@ -54,6 +56,7 @@ def safe_run_r_estimator(function, data, use_start=False, threshold_max_abs_valu
     # First run without using start value
     # Then if it crashes, use start value
     run_successful = False
+    res = None
     while not run_successful:
         current_parameter = parameters.copy()
         if not use_start and 'start' in current_parameter:
@@ -70,15 +73,7 @@ def safe_run_r_estimator(function, data, use_start=False, threshold_max_abs_valu
             if isinstance(e, RRuntimeWarning):
                 print(e.__repr__())
                 print('WARNING')
-    return res
-
-
-def retrieve_fitted_values(res: robjects.ListVector) -> Dict[str, float]:
-    # todo: maybe if the convergence was not successful I could try other starting point several times
-    # Retrieve the resulting fitted values
-    fitted_values = res.rx2('fitted.values')
-    fitted_values = {key: fitted_values.rx2(key)[0] for key in fitted_values.names}
-    return fitted_values
+    return ResultFromFit(res)
 
 
 def get_coord(df_coordinates: pd.DataFrame):

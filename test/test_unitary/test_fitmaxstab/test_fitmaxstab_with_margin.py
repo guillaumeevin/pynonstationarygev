@@ -31,7 +31,7 @@ class TestMaxStableFitWithConstantMargin(TestUnitaryAbstract):
         full_estimator = FullEstimatorInASingleStepWithSmoothMargin(dataset, margin_model,
                                                                     max_stable_model)
         full_estimator.fit()
-        return full_estimator.params_fitted
+        return full_estimator.fitted_values
 
     def test_max_stable_fit_with_constant_margin(self):
         self.compare()
@@ -59,7 +59,7 @@ class TestMaxStableFitWithLinearMargin(TestUnitaryAbstract):
         full_estimator = FullEstimatorInASingleStepWithSmoothMargin(dataset, margin_model,
                                                                     max_stable_model)
         full_estimator.fit()
-        return full_estimator.params_fitted
+        return full_estimator.fitted_values
 
     def test_max_stable_fit_with_linear_margin(self):
         self.compare()

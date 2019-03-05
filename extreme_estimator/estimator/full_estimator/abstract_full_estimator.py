@@ -55,7 +55,7 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
 
     def _fit(self):
         # Estimate both the margin and the max-stable structure
-        self._params_fitted = self.max_stable_model.fitmaxstab(
+        self._result_from_fit = self.max_stable_model.fitmaxstab(
             maxima_gev=self.dataset.maxima_gev(split=self.train_split),
             df_coordinates=self.dataset.df_coordinates(split=self.train_split),
             fit_marge=True,
@@ -63,7 +63,7 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
             margin_start_dict=self.linear_margin_function_to_fit.coef_dict
         )
         # Create the fitted margin function
-        self.extract_fitted_models_from_fitted_params(self.linear_margin_function_to_fit, self._params_fitted)
+        self.extract_fitted_models_from_fitted_params(self.linear_margin_function_to_fit, self.fitted_values)
 
 
 class PointwiseAndThenUnitaryMsp(AbstractFullEstimator):

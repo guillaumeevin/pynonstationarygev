@@ -2,10 +2,10 @@ from enum import Enum
 
 import numpy as np
 import pandas as pd
-import rpy2.robjects as robjects
 
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
-from extreme_estimator.extreme_models.utils import r, safe_run_r_estimator, retrieve_fitted_values, get_coord, \
+from extreme_estimator.extreme_models.result_from_fit import ResultFromFit
+from extreme_estimator.extreme_models.utils import r, safe_run_r_estimator, get_coord, \
     get_margin_formula
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
@@ -21,8 +21,7 @@ class AbstractMaxStableModel(AbstractModel):
         return {'cov.mod': self.cov_mod}
 
     def fitmaxstab(self, df_coordinates: pd.DataFrame, maxima_frech: np.ndarray = None, maxima_gev: np.ndarray = None,
-                   fit_marge=False,
-                   fit_marge_form_dict=None, margin_start_dict=None) -> dict:
+                   fit_marge=False, fit_marge_form_dict=None, margin_start_dict=None) -> ResultFromFit:
         assert isinstance(df_coordinates, pd.DataFrame)
         if fit_marge:
             assert fit_marge_form_dict is not None
@@ -63,8 +62,7 @@ class AbstractMaxStableModel(AbstractModel):
         fit_params['fit.marge'] = fit_marge
 
         # Run the fitmaxstab in R
-        res = safe_run_r_estimator(function=r.fitmaxstab, use_start=self.use_start_value, data=data, coord=coord, **fit_params)
-        return retrieve_fitted_values(res)
+        return safe_run_r_estimator(function=r.fitmaxstab, use_start=self.use_start_value, data=data, coord=coord, **fit_params)
 
     def rmaxstab(self, nb_obs: int, coordinates_values: np.ndarray) -> np.ndarray:
         """

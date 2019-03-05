@@ -1,5 +1,6 @@
 import time
 
+from extreme_estimator.extreme_models.result_from_fit import ResultFromFit
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
@@ -18,7 +19,7 @@ class AbstractEstimator(object):
     def __init__(self, dataset: AbstractDataset):
         self.dataset = dataset  # type: AbstractDataset
         self.additional_information = dict()
-        self._params_fitted = None
+        self._result_from_fit = None  # type: ResultFromFit
         self._margin_function_fitted = None
         self._max_stable_model_fitted = None
 
@@ -34,9 +35,9 @@ class AbstractEstimator(object):
         self.additional_information[self.DURATION] = int((te - ts) * 1000)
 
     @property
-    def params_fitted(self):
+    def fitted_values(self):
         assert self.is_fitted
-        return self._params_fitted
+        return self._result_from_fit.fitted_values
 
     # @property
     # def max_stable_fitted(self) -> AbstractMarginFunction:
@@ -57,7 +58,7 @@ class AbstractEstimator(object):
 
     @property
     def is_fitted(self):
-        return self._params_fitted is not None
+        return self._result_from_fit is not None
 
     @property
     def train_split(self):

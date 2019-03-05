@@ -18,9 +18,10 @@ class MaxStableEstimator(AbstractMaxStableEstimator):
 
     def _fit(self):
         assert self.dataset.maxima_frech(split=self.train_split) is not None
-        self.max_stable_params_fitted = self.max_stable_model.fitmaxstab(
+        self._result_from_fit = self.max_stable_model.fitmaxstab(
             maxima_frech=self.dataset.maxima_frech(split=self.train_split),
             df_coordinates=self.dataset.df_coordinates(split=self.train_split))
+        self.max_stable_params_fitted = self.fitted_values
 
     def _error(self, true_max_stable_params: dict):
         absolute_errors = {param_name: np.abs(param_true_value - self.max_stable_params_fitted[param_name])
