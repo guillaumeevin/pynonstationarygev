@@ -1,21 +1,15 @@
-from typing import Dict
-
 import matplotlib as mpl
 import matplotlib.cm as cm
 import matplotlib.colorbar as cbar
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from extreme_estimator.margin_fits.plot.shifted_color_map import shiftedColorMap
 from extreme_estimator.margin_fits.extreme_params import ExtremeParams
-from extreme_estimator.margin_fits.gev.gev_params import GevParams
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.slicer.split import Split
+from extreme_estimator.margin_fits.plot.shifted_color_map import shiftedColorMap
 
 
-def plot_extreme_param(ax, gev_param_name, values):
+def plot_extreme_param(ax, label: str, values: np.ndarray):
     # Load the shifted cmap to center on a middle point
     vmin, vmax = np.min(values), np.max(values)
     if vmin < 0 < vmax:
@@ -32,19 +26,21 @@ def plot_extreme_param(ax, gev_param_name, values):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes('right', size='5%', pad=0.03)
     cb = cbar.ColorbarBase(cax, cmap=shifted_cmap, norm=norm)
-    cb.set_label(gev_param_name)
+    cb.set_label(label)
     return norm, shifted_cmap
 
 
-def get_color_rbga_shifted(ax, gev_param_name, values):
+def get_color_rbga_shifted(ax, replace_blue_by_white: bool, values: np.ndarray, label=None):
     """
     For some display it was necessary to transform dark blue values into white values
     """
-    norm, shifted_cmap = plot_extreme_param(ax, gev_param_name, values)
+    norm, shifted_cmap = plot_extreme_param(ax, label, values)
     m = cm.ScalarMappable(norm=norm, cmap=shifted_cmap)
     colors = [m.to_rgba(value) for value in values]
-    if gev_param_name != ExtremeParams.SHAPE:
-        colors = [color if color[2] == 1 else (1, 1, 1, 1) for color in colors]
+    # We do not want any blue values for parameters other than the Shape
+    # So when the value corresponding to the blue color is 1, then we set the color to white, i.e. (1,1,1,1)
+    if replace_blue_by_white:
+        colors = [color if color[2] != 1 else (1, 1, 1, 1) for color in colors]
     return colors
 
 

@@ -50,11 +50,12 @@ def extended_visualization():
 def normal_visualization():
     save_to_file = False
     only_first_one = True
-    for study_class in SCM_STUDIES[-1:]:
+    for study_class in SCM_STUDIES[:1]:
         for study in study_iterator(study_class, only_first_one=only_first_one):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
-            study_visualizer.visualize_linear_margin_fit(only_first_max_stable=True)
+            study_visualizer.visualize_mean_daily_values()
+            # study_visualizer.visualize_linear_margin_fit(only_first_max_stable=True)
 
 
 def complete_analysis(only_first_one=False):
@@ -73,6 +74,6 @@ def complete_analysis(only_first_one=False):
 
 
 if __name__ == '__main__':
-    # normal_visualization()
-    extended_visualization()
+    normal_visualization()
+    # extended_visualization()
     # complete_analysis()

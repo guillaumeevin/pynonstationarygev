@@ -14,14 +14,12 @@ from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import SmoothMarginEstimator
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearAllParametersAllDimsMarginModel
-from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction, \
-    AbstractMaxStableModelWithCovarianceFunction
+from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
 from extreme_estimator.margin_fits.abstract_params import AbstractParams
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
 from extreme_estimator.margin_fits.gpd.gpd_params import GpdParams
 from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
-from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from test.test_utils import load_test_max_stable_models
 from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits
@@ -53,7 +51,7 @@ class StudyVisualizer(object):
             self.figsize = (8.0, 6.0)
         else:
             self.figsize = (16.0, 10.0)
-        self.subplot_space = 0.05
+        self.subplot_space = 0.5
         self.coef_zoom_map = 0
 
     @property
@@ -98,12 +96,7 @@ class StudyVisualizer(object):
 
     def visualize_experimental_law(self, ax, massif_id):
         # Display the experimental law for a given massif
-        if self.year_for_kde_plot is not None:
-            all_massif_data = self.study.year_to_daily_time_serie[self.year_for_kde_plot][:, massif_id]
-        else:
-            all_massif_data = np.concatenate(
-                [data[:, massif_id] for data in self.study.year_to_daily_time_serie.values()])
-        all_massif_data = np.sort(all_massif_data)
+        all_massif_data = self.get_all_massif_data(massif_id)
 
         # Display an histogram on the background (with 100 bins, for visibility, and to check 0.9 quantiles)
         ax2 = ax.twiny() if self.vertical_kde_plot else ax.twinx()
@@ -177,6 +170,15 @@ class StudyVisualizer(object):
             ax.set_title(self.study.safran_massif_names[massif_id])
         ax.legend()
 
+    def get_all_massif_data(self, massif_id):
+        if self.year_for_kde_plot is not None:
+            all_massif_data = self.study.year_to_daily_time_serie[self.year_for_kde_plot][:, massif_id]
+        else:
+            all_massif_data = np.concatenate(
+                [data[:, massif_id] for data in self.study.year_to_daily_time_serie.values()])
+        all_massif_data = np.sort(all_massif_data)
+        return all_massif_data
+
     def visualize_all_mean_and_max_graphs(self):
         self.visualize_massif_graphs(self.visualize_mean_and_max_graph)
         self.plot_name = ' mean with sliding window of size {}'.format(self.window_size_for_smoothing)
@@ -206,7 +208,8 @@ class StudyVisualizer(object):
     def visualize_linear_margin_fit(self, only_first_max_stable=False):
         default_covariance_function = CovarianceFunction.cauchy
         plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
-        plot_name += '\n(with {} covariance structure when a covariance is needed)'.format(str(default_covariance_function).split('.')[-1])
+        plot_name += '\n(with {} covariance structure when a covariance is needed)'.format(
+            str(default_covariance_function).split('.')[-1])
         self.plot_name = plot_name
         max_stable_models = load_test_max_stable_models(default_covariance_function=default_covariance_function)
         if only_first_max_stable:
@@ -235,12 +238,12 @@ class StudyVisualizer(object):
         margin_fct = estimator.margin_function_fitted
         axes = margin_fct.visualize_function(show=False, axes=axes, title='')
 
-        def get_lim_array(ax):
-            return np.array([np.array(ax.get_xlim()), np.array(ax.get_ylim())])
+        def get_lim_array(ax_with_lim_to_measure):
+            return np.array([np.array(ax_with_lim_to_measure.get_xlim()), np.array(ax_with_lim_to_measure.get_ylim())])
 
         for ax in axes:
             old_lim = get_lim_array(ax)
-            self.study.visualize(ax, fill=False, show=False)
+            self.study.visualize_study(ax, fill=False, show=False)
             new_lim = get_lim_array(ax)
             assert 0 <= self.coef_zoom_map <= 1
             updated_lim = new_lim * self.coef_zoom_map + (1 - self.coef_zoom_map) * old_lim
@@ -277,20 +280,19 @@ class StudyVisualizer(object):
             if not self.only_one_graph:
                 filename += "/{}".format('_'.join(self.plot_name.split()))
             filepath = op.join(self.study.result_full_path, filename + '.png')
-            dir = op.dirname(filepath)
-            if not op.exists(dir):
-                os.makedirs(dir, exist_ok=True)
+            dirname = op.dirname(filepath)
+            if not op.exists(dirname):
+                os.makedirs(dirname, exist_ok=True)
             plt.savefig(filepath)
 
     def visualize_independent_margin_fits(self, threshold=None, axes=None):
+        # Fit either a GEV or a GPD
         if threshold is None:
             params_names = GevParams.SUMMARY_NAMES
-            df = self.df_gev_mle_each_massif
-            # todo: understand how Maurienne could be negative
-            # print(df.head())
+            df = self.df_gev_mle
         else:
             params_names = GpdParams.SUMMARY_NAMES
-            df = self.df_gpd_mle_each_massif(threshold)
+            df = self.df_gpd_mle(threshold)
 
         if axes is None:
             fig, axes = plt.subplots(1, len(params_names))
@@ -298,39 +300,44 @@ class StudyVisualizer(object):
 
         for i, gev_param_name in enumerate(params_names):
             ax = axes[i]
-            massif_name_to_value = df.loc[gev_param_name, :].to_dict()
-            # Compute the middle point of the values for the color map
-            values = list(massif_name_to_value.values())
-            colors = get_color_rbga_shifted(ax, gev_param_name, values)
-            massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
-                                          zip(self.study.safran_massif_names, colors)}
-            self.study.visualize(ax=ax, massif_name_to_fill_kwargs=massif_name_to_fill_kwargs, show=False)
+            self.study.visualize_study(ax=ax, massif_name_to_value=df.loc[gev_param_name, :].to_dict(), show=False,
+                                       replace_blue_by_white=gev_param_name != GevParams.SHAPE,
+                                       label=gev_param_name)
+
+        if self.show:
+            # plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
+            plt.show()
+
+    def visualize_mean_daily_values(self, ax=None):
+        if ax is None:
+            _, ax = plt.subplots(1, 1, figsize=self.figsize)
+
+        massif_name_to_value = {
+            massif_name: np.mean(self.get_all_massif_data(massif_id))
+            for massif_id, massif_name in enumerate(self.study.safran_massif_names)
+        }
+
+        self.study.visualize_study(ax=ax, massif_name_to_value=massif_name_to_value, show=False)
 
         if self.show:
             plt.show()
 
-    def visualize_cmap(self, massif_name_to_value):
-        orig_cmap = plt.cm.coolwarm
-        # shifted_cmap = shiftedColorMap(orig_cmap, midpoint=0.75, name='shifted')
-
-        massif_name_to_fill_kwargs = {massif_name: {'color': orig_cmap(value)} for massif_name, value in
-                                      massif_name_to_value.items()}
-
-        self.study.visualize(massif_name_to_fill_kwargs=massif_name_to_fill_kwargs)
-
     """ Statistics methods """
 
     @property
-    def df_gev_mle_each_massif(self):
+    def df_maxima_gev(self) -> pd.DataFrame:
+        return self.study.observations_annual_maxima.df_maxima_gev
+
+    @property
+    def df_gev_mle(self) -> pd.DataFrame:
         # Fit a margin_fits on each massif
-        massif_to_gev_mle = {
-            massif_name: GevMleFit(self.study.observations_annual_maxima.loc[massif_name]).gev_params.summary_serie
-            for massif_name in self.study.safran_massif_names}
+        massif_to_gev_mle = {massif_name: GevMleFit(self.df_maxima_gev.loc[massif_name]).gev_params.summary_serie
+                             for massif_name in self.study.safran_massif_names}
         return pd.DataFrame(massif_to_gev_mle, columns=self.study.safran_massif_names)
 
-    def df_gpd_mle_each_massif(self, threshold):
+    def df_gpd_mle(self, threshold) -> pd.DataFrame:
         # Fit a margin fit on each massif
-        massif_to_gev_mle = {massif_name: GpdMleFit(self.study.df_all_snowfall_concatenated[massif_name],
+        massif_to_gev_mle = {massif_name: GpdMleFit(self.study.df_all_daily_time_series_concatenated[massif_name],
                                                     threshold=threshold).gpd_params.summary_serie
                              for massif_name in self.study.safran_massif_names}
         return pd.DataFrame(massif_to_gev_mle, columns=self.study.safran_massif_names)

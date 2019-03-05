@@ -9,7 +9,7 @@ from netCDF4 import Dataset
 
 from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
 from experiment.meteo_france_SCM_study.massif import safran_massif_names_from_datasets
-from extreme_estimator.margin_fits.plot.mask_poly import mask_outside_polygon
+from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -34,7 +34,7 @@ class AbstractStudy(object):
     """ Data """
 
     @property
-    def df_all_snowfall_concatenated(self) -> pd.DataFrame:
+    def df_all_daily_time_series_concatenated(self) -> pd.DataFrame:
         df_list = [pd.DataFrame(time_serie, columns=self.safran_massif_names) for time_serie in
                    self.year_to_daily_time_serie.values()]
         df_concatenated = pd.concat(df_list)
@@ -123,7 +123,13 @@ class AbstractStudy(object):
 
     """ Visualization methods """
 
-    def visualize(self, ax=None, massif_name_to_fill_kwargs=None, show=True, fill=True):
+    def visualize_study(self, ax=None, massif_name_to_value=None, show=True, fill=True, replace_blue_by_white=True,
+                        label=None):
+        massif_names, values = list(zip(*massif_name_to_value.items()))
+        colors = get_color_rbga_shifted(ax, replace_blue_by_white, values, label=label)
+        massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
+                                      zip(massif_names, colors)}
+
         if ax is None:
             ax = plt.gca()
         df_massif = pd.read_csv(op.join(self.map_full_path, 'massifsalpes.csv'))
@@ -131,19 +137,19 @@ class AbstractStudy(object):
                          row_massif[AbstractCoordinates.COORDINATE_Y])
                         for _, row_massif in df_massif.iterrows()]
 
-        for j, coordinate_id in enumerate(set([tuple[0] for tuple in coord_tuples])):
+        for j, coordinate_id in enumerate(set([t[0] for t in coord_tuples])):
             # Retrieve the list of coords (x,y) that define the contour of the massif of id coordinate_id
-            l = [coords for idx, *coords in coord_tuples if idx == coordinate_id]
+            coords_list = [coords for idx, *coords in coord_tuples if idx == coordinate_id]
             # if j == 0:
             #     mask_outside_polygon(poly_verts=l, ax=ax)
             # Plot the contour of the massif
-            l = list(zip(*l))
-            ax.plot(*l, color='black')
+            coords_list = list(zip(*coords_list))
+            ax.plot(*coords_list, color='black')
             # Potentially, fill the inside of the polygon with some color
             if fill:
                 massif_name = self.coordinate_id_to_massif_name[coordinate_id]
                 fill_kwargs = massif_name_to_fill_kwargs[massif_name] if massif_name_to_fill_kwargs is not None else {}
-                ax.fill(*l, **fill_kwargs)
+                ax.fill(*coords_list, **fill_kwargs)
         # Display the center of the massif
         ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates, s=1)
 
