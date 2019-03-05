@@ -119,7 +119,9 @@ class StudyVisualizer(object):
 
         # Kde plot, and retrieve the data forming the line
         color_kde = 'b'
-        sns.kdeplot(all_massif_data, bw=1, ax=ax, color=color_kde, vertical=self.vertical_kde_plot).set(xlim=0)
+        sns.kdeplot(all_massif_data, ax=ax, color=color_kde, vertical=self.vertical_kde_plot)
+        ax.set(ylim=0)
+        ax.set(xlim=0)
         data_x, data_y = ax.lines[0].get_data()
 
         # Plot the mean and median points
