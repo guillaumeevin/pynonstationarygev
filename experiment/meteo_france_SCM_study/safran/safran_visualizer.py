@@ -126,7 +126,6 @@ class StudyVisualizer(object):
         name_to_xlevel_and_color = OrderedDict()
         name_to_xlevel_and_color['median'] = (np.median(all_massif_data), 'chartreuse')
         name_to_xlevel_and_color['mean'] = (np.mean(all_massif_data), 'g')
-
         # Plot some specific "extreme" quantiles with their color
         for p, color, name in zip(AbstractParams.QUANTILE_P_VALUES, AbstractParams.QUANTILE_COLORS,
                                   AbstractParams.QUANTILE_NAMES):
@@ -139,6 +138,8 @@ class StudyVisualizer(object):
                 p = p ** (1 / 365)
                 x_level = all_massif_data[int(p * len(all_massif_data))]
                 name_to_xlevel_and_color[BLOCK_MAXIMA_DISPLAY_NAME + name] = (x_level, color)
+        # Plot the maxima
+        name_to_xlevel_and_color['maxima'] = (np.max(all_massif_data), 'darkmagenta')
 
         for name, (xi, color) in name_to_xlevel_and_color.items():
             if self.vertical_kde_plot:
