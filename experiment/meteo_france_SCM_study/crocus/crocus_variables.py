@@ -15,11 +15,13 @@ class CrocusVariable(AbstractVariable):
         if self.altitude == 2400:
             time_serie_daily = time_serie_every_6_hours
         else:
-            # Take the mean over a full day (WARNING: by doing that I am potentially destroying some maxima)
-            # TODO: I could create a special mode where I take the maximum instead of the mean here
             nb_days = len(time_serie_every_6_hours) // 4
-            time_serie_daily = np.array([np.mean(time_serie_every_6_hours[4 * i:4 * (i + 1)], axis=0)
-                                         for i in range(nb_days)])
+            # The first value of each day is selected (in order to be comparable to an instantaneous value)
+            time_serie_daily = np.array([time_serie_every_6_hours[4 * i] for i in range(nb_days)])
+            # Take the mean over a full day (WARNING: by doing that I am potentially destroying some maxima)
+            # (I could also create a special mode where I take the maximum instead of the mean here)
+            # time_serie_daily = np.array([np.mean(time_serie_every_6_hours[4 * i:4 * (i + 1)], axis=0)
+            #                              for i in range(nb_days)])
         return time_serie_daily
 
 
