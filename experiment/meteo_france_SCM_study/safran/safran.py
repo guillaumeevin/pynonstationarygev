@@ -9,17 +9,16 @@ from experiment.meteo_france_SCM_study.safran.safran_variable import SafranSnowf
 
 class Safran(AbstractStudy):
 
-    def __init__(self, variable_class: type, altitude: int = 1800):
-        super().__init__(variable_class, altitude)
+    def __init__(self, variable_class: type, *args, **kwargs):
+        super().__init__(variable_class, *args, **kwargs)
         self.model_name = 'Safran'
 
 
 class SafranFrequency(Safran):
 
-    def __init__(self, variable_class: type, nb_days_of_snowfall=1, altitude: int = 1800, ):
-        super().__init__(variable_class, altitude)
+    def __init__(self, variable_class: type, nb_days_of_snowfall=1, *args, **kwargs):
+        super().__init__(variable_class, *args, **kwargs)
         self.nb_days_of_snowfall = nb_days_of_snowfall
-
 
     def instantiate_variable_object(self, dataset) -> AbstractVariable:
         return self.variable_class(dataset, self.nb_days_of_snowfall)
@@ -34,8 +33,8 @@ class SafranFrequency(Safran):
 
 class SafranSnowfall(SafranFrequency):
 
-    def __init__(self, altitude: int = 1800, nb_days_of_snowfall=1):
-        super().__init__(SafranSnowfallVariable, nb_days_of_snowfall, altitude)
+    def __init__(self, *args, **kwargs):
+        super().__init__(SafranSnowfallVariable, *args, **kwargs)
 
 
 class ExtendedSafranSnowfall(AbstractExtendedStudy, SafranSnowfall):
@@ -44,14 +43,14 @@ class ExtendedSafranSnowfall(AbstractExtendedStudy, SafranSnowfall):
 
 class SafranPrecipitation(SafranFrequency):
 
-    def __init__(self, altitude: int = 1800, nb_days_of_snowfall=1):
-        super().__init__(SafranPrecipitationVariable, nb_days_of_snowfall, altitude)
+    def __init__(self, *args, **kwargs):
+        super().__init__(SafranPrecipitationVariable, *args, **kwargs)
 
 
 class SafranTemperature(Safran):
 
-    def __init__(self, altitude: int = 1800):
-        super().__init__(SafranTemperatureVariable, altitude)
+    def __init__(self, *args, **kwargs):
+        super().__init__(SafranTemperatureVariable, *args, **kwargs)
 
     def annual_aggregation_function(self, *args, **kwargs):
         return np.mean(*args, **kwargs)

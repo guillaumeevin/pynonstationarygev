@@ -47,11 +47,17 @@ def extended_visualization():
     #         study_visualizer.visualize_all_experimental_law()
 
 
+def annual_mean_vizu_compare_durand_study():
+    for study_class in [SafranPrecipitation, SafranSnowfall, SafranTemperature][1:]:
+        study = study_class(altitude=1800, year_min=1958, year_max=2002)
+        study_visualizer = StudyVisualizer(study)
+        study_visualizer.visualize_annual_mean_values()
+
 def normal_visualization():
     save_to_file = False
     only_first_one = True
     # for study_class in SCM_STUDIES[:1]:
-    for study_class in [SafranPrecipitation, SafranSnowfall, SafranTemperature][-1:]:
+    for study_class in [SafranPrecipitation, SafranSnowfall, SafranTemperature][1:]:
         for study in study_iterator(study_class, only_first_one=only_first_one):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
@@ -75,6 +81,7 @@ def complete_analysis(only_first_one=False):
 
 
 if __name__ == '__main__':
-    normal_visualization()
+    annual_mean_vizu_compare_durand_study()
+    # normal_visualization()
     # extended_visualization()
     # complete_analysis()

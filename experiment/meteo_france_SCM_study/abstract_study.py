@@ -20,11 +20,13 @@ from utils import get_full_path, cached_property
 class AbstractStudy(object):
     ALTITUDES = [1800, 2400]
 
-    def __init__(self, variable_class: type, altitude: int = 1800):
+    def __init__(self, variable_class: type, altitude: int = 1800, year_min=1000, year_max=3000):
         assert altitude in self.ALTITUDES, altitude
         self.altitude = altitude
         self.model_name = None
         self.variable_class = variable_class
+        self.year_min = year_min
+        self.year_max = year_max
 
     def write_to_file(self, df: pd.DataFrame):
         if not op.exists(self.result_full_path):
@@ -59,7 +61,9 @@ class AbstractStudy(object):
         year_to_dataset = OrderedDict()
         nc_files = [(int(f.split('_')[-2][:4]), f) for f in os.listdir(self.safran_full_path) if f.endswith('.nc')]
         for year, nc_file in sorted(nc_files, key=lambda t: t[0]):
-            year_to_dataset[year] = Dataset(op.join(self.safran_full_path, nc_file))
+            if self.year_min <= year < self.year_max:
+                year_to_dataset[year] = Dataset(op.join(self.safran_full_path, nc_file))
+        print(year_to_dataset.keys())
         return year_to_dataset
 
     @cached_property
@@ -174,14 +178,13 @@ class AbstractStudy(object):
                 # ax.scatter(x, y)
                 # ax.text(x, y, massif_name)
         # Display the center of the massif
-        # ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates, s=1)
-        # # Display the name of the massif
-        # for _, row in self.massifs_coordinates.df_all_coordinates.iterrows():
-        #     x, y = list(row)
-        #     massif_name = row.name
-        #     ax.text(x, y, massif_name)
-        # print(self.massifs_coordinates.df_all_coordinates.head())
-
+        ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates, s=1)
+        # Display the name of the massif
+        for _, row in self.massifs_coordinates.df_all_coordinates.iterrows():
+            x, y = list(row)
+            massif_name = row.name
+            value = massif_name_to_value[massif_name]
+            ax.text(x, y, str(round(value, 1)))
 
         if show:
             plt.show()
