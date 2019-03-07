@@ -38,7 +38,7 @@ class AbstractStudy(object):
     @property
     def df_all_daily_time_series_concatenated(self) -> pd.DataFrame:
         df_list = [pd.DataFrame(time_serie, columns=self.safran_massif_names) for time_serie in
-                   self.year_to_daily_time_serie.values()]
+                   self.year_to_daily_time_serie_array.values()]
         df_concatenated = pd.concat(df_list)
         return df_concatenated
 
@@ -63,12 +63,11 @@ class AbstractStudy(object):
         for year, nc_file in sorted(nc_files, key=lambda t: t[0]):
             if self.year_min <= year < self.year_max:
                 year_to_dataset[year] = Dataset(op.join(self.safran_full_path, nc_file))
-        print(year_to_dataset.keys())
         return year_to_dataset
 
     @cached_property
-    def year_to_daily_time_serie(self) -> OrderedDict:
-        return self._year_to_daily_time_serie
+    def year_to_daily_time_serie_array(self) -> OrderedDict:
+        return self._year_to_daily_time_serie_array
 
     @cached_property
     def year_to_annual_maxima(self) -> OrderedDict:
@@ -82,7 +81,8 @@ class AbstractStudy(object):
     def year_to_annual_total(self) -> OrderedDict:
         # Map each year to an array of size nb_massif
         year_to_annual_mean = OrderedDict()
-        for year, time_serie in self._year_to_daily_time_serie.items():
+        for year, time_serie in self._year_to_daily_time_serie_array.items():
+            print(time_serie.shape)
             year_to_annual_mean[year] = self.annual_aggregation_function(time_serie, axis=0)
         return year_to_annual_mean
 
@@ -92,18 +92,18 @@ class AbstractStudy(object):
     """ Private methods to be overwritten """
 
     @property
-    def _year_to_daily_time_serie(self) -> OrderedDict:
+    def _year_to_daily_time_serie_array(self) -> OrderedDict:
         # Map each year to a matrix of size 365-nb_days_consecutive+1 x nb_massifs
         year_to_variable = {year: self.instantiate_variable_object(dataset) for year, dataset in
                             self.year_to_dataset_ordered_dict.items()}
-        year_to_daily_time_serie = OrderedDict()
+        year_to_daily_time_serie_array = OrderedDict()
         for year in self.year_to_dataset_ordered_dict.keys():
-            year_to_daily_time_serie[year] = year_to_variable[year].daily_time_serie
-        return year_to_daily_time_serie
+            year_to_daily_time_serie_array[year] = year_to_variable[year].daily_time_serie_array
+        return year_to_daily_time_serie_array
 
     @property
     def _year_to_max_daily_time_serie(self) -> OrderedDict:
-        return self._year_to_daily_time_serie
+        return self._year_to_daily_time_serie_array
 
 
 

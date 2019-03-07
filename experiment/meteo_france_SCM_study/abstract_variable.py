@@ -9,6 +9,6 @@ class AbstractVariable(object):
         self.altitude = altitude
 
     @property
-    def daily_time_serie(self):
+    def daily_time_serie_array(self):
         # Return an array of size length of time series x nb_massif
         raise NotImplementedError

@@ -96,12 +96,13 @@ def load_test_spatiotemporal_coordinates(nb_points, nb_steps, train_split_ratio=
 
 def load_safran_studies(altitudes) -> List[Safran]:
     nb_days_list = [1]
-    return [SafranSnowfall(safran_altitude, nb_days) for safran_altitude in altitudes for nb_days in nb_days_list]
+    return [SafranSnowfall(altitude=safran_altitude, nb_consecutive_days=nb_days)
+            for safran_altitude in altitudes for nb_days in nb_days_list]
 
 
 def load_crocus_studies(altitudes) -> List[Crocus]:
     crocus_classes = [CrocusSwe, CrocusDepth][:]
-    return [crocus_class(altitude) for crocus_class, altitude in product(crocus_classes, altitudes)]
+    return [crocus_class(altitude=altitude) for crocus_class, altitude in product(crocus_classes, altitudes)]
 
 
 def load_scm_studies() -> List[AbstractStudy]:

@@ -10,7 +10,7 @@ class CrocusVariable(AbstractVariable):
         self.variable_name = variable_name
 
     @property
-    def daily_time_serie(self):
+    def daily_time_serie_array(self):
         time_serie_every_6_hours = np.array(self.dataset.variables[self.variable_name])[:, 0, :]
         if self.altitude == 2400:
             time_serie_daily = time_serie_every_6_hours

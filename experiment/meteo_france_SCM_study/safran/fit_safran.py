@@ -13,7 +13,7 @@ def fit_mle_gev_for_all_safran_and_different_days():
             # safran = Safran(safran_alti, nb_day)
             safran = ExtendedSafranSnowfall(safran_alti, nb_day)
             df = safran.df_gev_mle_each_massif
-            df.index += ' Safran{} with {} days'.format(safran.altitude, safran.nb_days_of_snowfall)
+            df.index += ' Safran{} with {} days'.format(safran.altitude, safran.nb_consecutive_days)
             dfs.append(df)
     df = pd.concat(dfs)
     path = r'/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/results/fit_mle_massif/fit_mle_gev_{}.csv'

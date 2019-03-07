@@ -41,7 +41,7 @@ class AbstractExtendedStudy(AbstractStudy):
     """ Properties """
 
     @property
-    def _year_to_daily_time_serie(self) -> OrderedDict:
+    def _year_to_daily_time_serie_array(self) -> OrderedDict:
         return self._year_to_extended_time_serie(aggregation_function=np.mean)
 
     @property
@@ -50,7 +50,7 @@ class AbstractExtendedStudy(AbstractStudy):
 
     def _year_to_extended_time_serie(self, aggregation_function) -> OrderedDict:
         year_to_extended_time_serie = OrderedDict()
-        for year, old_time_serie in super()._year_to_daily_time_serie.items():
+        for year, old_time_serie in super()._year_to_daily_time_serie_array.items():
             new_time_serie = np.zeros([len(old_time_serie), len(self.safran_massif_names)])
             new_time_serie[:, self.nb_region_names:] = old_time_serie
             for i, region_name in enumerate(self.region_names):

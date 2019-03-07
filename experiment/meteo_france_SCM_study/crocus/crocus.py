@@ -10,9 +10,9 @@ class Crocus(AbstractStudy):
     In the Crocus data, there is no 'massifsList' variable, thus we assume massifs are ordered just like Safran data
     """
 
-    def __init__(self, variable_class, altitude=1800):
+    def __init__(self, variable_class, *args, **kwargs):
         assert variable_class in [CrocusSweVariable, CrocusDepthVariable]
-        super().__init__(variable_class, altitude)
+        super().__init__(variable_class, *args, **kwargs)
         self.model_name = 'Crocus'
 
     @property
@@ -26,8 +26,8 @@ class Crocus(AbstractStudy):
 
 class CrocusSwe(Crocus):
 
-    def __init__(self, altitude=1800):
-        super().__init__(CrocusSweVariable, altitude)
+    def __init__(self, *args, **kwargs):
+        super().__init__(CrocusSweVariable, *args, **kwargs)
 
 
 class ExtendedCrocusSwe(AbstractExtendedStudy, CrocusSwe):
@@ -36,8 +36,8 @@ class ExtendedCrocusSwe(AbstractExtendedStudy, CrocusSwe):
 
 class CrocusDepth(Crocus):
 
-    def __init__(self, altitude=1800):
-        super().__init__(CrocusDepthVariable, altitude)
+    def __init__(self, *args, **kwargs):
+        super().__init__(CrocusDepthVariable, *args, **kwargs)
 
 
 class ExtendedCrocusDepth(AbstractExtendedStudy, CrocusDepth):
@@ -51,5 +51,5 @@ if __name__ == '__main__':
         time_arr = np.array(d.variables['time'])
         print(time_arr)
         # print(d)
-        a = study.year_to_daily_time_serie[1960]
+        a = study.year_to_daily_time_serie_array[1960]
         print(a.shape)

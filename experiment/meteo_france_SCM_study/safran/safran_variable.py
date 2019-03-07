@@ -35,7 +35,7 @@ class SafranSnowfallVariable(AbstractVariable):
         self.daily_snowfall = [sum(hourly_snowfall[24 * i:24 * (i + 1)]) for i in range(nb_days)]
 
     @property
-    def daily_time_serie(self):
+    def daily_time_serie_array(self):
         # Aggregate the daily snowfall by the number of consecutive days
         shifted_list = [self.daily_snowfall[i:] for i in range(self.nb_consecutive_days_of_snowfall)]
         # First element of shifted_list is of length n, Second element of length n-1, Third element n-2....
@@ -62,6 +62,6 @@ class SafranTemperatureVariable(AbstractVariable):
 
 
     @property
-    def daily_time_serie(self):
+    def daily_time_serie_array(self):
         return self.daily_temperature
 

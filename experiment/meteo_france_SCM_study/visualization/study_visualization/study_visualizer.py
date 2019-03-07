@@ -129,7 +129,7 @@ class StudyVisualizer(object):
             # Plot some additional quantiles from the correspond Annual Maxima law
             if self.plot_block_maxima_quantiles:
                 # This formula can only be applied if we have a daily time serie
-                assert len(self.study.year_to_daily_time_serie[1958]) in [365, 366]
+                assert len(self.study.year_to_daily_time_serie_array[1958]) in [365, 366]
                 p = p ** (1 / 365)
                 x_level = all_massif_data[int(p * len(all_massif_data))]
                 name_to_xlevel_and_color[BLOCK_MAXIMA_DISPLAY_NAME + name] = (x_level, color)
@@ -172,10 +172,10 @@ class StudyVisualizer(object):
 
     def get_all_massif_data(self, massif_id):
         if self.year_for_kde_plot is not None:
-            all_massif_data = self.study.year_to_daily_time_serie[self.year_for_kde_plot][:, massif_id]
+            all_massif_data = self.study.year_to_daily_time_serie_array[self.year_for_kde_plot][:, massif_id]
         else:
             all_massif_data = np.concatenate(
-                [data[:, massif_id] for data in self.study.year_to_daily_time_serie.values()])
+                [data[:, massif_id] for data in self.study.year_to_daily_time_serie_array.values()])
         all_massif_data = np.sort(all_massif_data)
         return all_massif_data
 
@@ -197,7 +197,7 @@ class StudyVisualizer(object):
         # Counting the sum of 3-consecutive days of snowfall does not have any physical meaning,
         # as we are counting twice some days
         color_mean = 'g'
-        tuples_x_y = [(year, np.mean(data[:, massif_id])) for year, data in self.study.year_to_daily_time_serie.items()]
+        tuples_x_y = [(year, np.mean(data[:, massif_id])) for year, data in self.study.year_to_daily_time_serie_array.items()]
         x, y = list(zip(*tuples_x_y))
         x, y = average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
         ax.plot(x, y, color=color_mean)
