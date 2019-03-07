@@ -2,9 +2,8 @@ from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
     ExtendedCrocusSwe
 from experiment.meteo_france_SCM_study.safran.safran import Safran, ExtendedSafran
-from itertools import product
 
-from experiment.meteo_france_SCM_study.safran.safran_visualizer import StudyVisualizer
+from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
 from collections import OrderedDict
 
 SCM_STUDIES = [Safran, CrocusSwe, CrocusDepth]

@@ -57,6 +57,5 @@ class AbstractExtendedStudy(AbstractStudy):
                 massifs_ids_belong_to_region = self.region_name_to_massif_ids[region_name]
                 aggregated_time_serie = aggregation_function(old_time_serie[:, massifs_ids_belong_to_region], axis=1)
                 new_time_serie[:, i] = aggregated_time_serie
-
             year_to_extended_time_serie[year] = new_time_serie
         return year_to_extended_time_serie

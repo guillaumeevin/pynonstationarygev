@@ -44,6 +44,10 @@ class AbstractStudy(object):
     def observations_annual_maxima(self) -> AnnualMaxima:
         return AnnualMaxima(df_maxima_gev=pd.DataFrame(self.year_to_annual_maxima, index=self.safran_massif_names))
 
+    @property
+    def df_annual_mean(self) -> pd.DataFrame:
+        return pd.DataFrame(self.year_to_annual_mean, index=self.safran_massif_names).transpose()
+
     """ Load some attributes only once """
 
     @cached_property
@@ -67,6 +71,14 @@ class AbstractStudy(object):
             year_to_annual_maxima[year] = time_serie.max(axis=0)
         return year_to_annual_maxima
 
+    @cached_property
+    def year_to_annual_mean(self) -> OrderedDict:
+        # Map each year to an array of size nb_massif
+        year_to_annual_mean = OrderedDict()
+        for year, time_serie in self._year_to_daily_time_serie.items():
+            year_to_annual_mean[year] = time_serie.mean(axis=0)
+        return year_to_annual_mean
+
     def instantiate_variable_object(self, dataset) -> AbstractVariable:
         return self.variable_class(dataset, self.altitude)
 
@@ -85,6 +97,8 @@ class AbstractStudy(object):
     @property
     def _year_to_max_daily_time_serie(self) -> OrderedDict:
         return self._year_to_daily_time_serie
+
+
 
     ##########
 
