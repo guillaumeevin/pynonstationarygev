@@ -1,19 +1,20 @@
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
     ExtendedCrocusSwe
-from experiment.meteo_france_SCM_study.safran.safran import Safran, ExtendedSafran
+from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, SafranPrecipitation, \
+    SafranTemperature
 
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
 from collections import OrderedDict
 
-SCM_STUDIES = [Safran, CrocusSwe, CrocusDepth]
-SCM_EXTENDED_STUDIES = [ExtendedSafran, ExtendedCrocusSwe, ExtendedCrocusDepth]
+SCM_STUDIES = [SafranSnowfall, CrocusSwe, CrocusDepth]
+SCM_EXTENDED_STUDIES = [ExtendedSafranSnowfall, ExtendedCrocusSwe, ExtendedCrocusDepth]
 SCM_STUDY_TO_EXTENDED_STUDY = OrderedDict(zip(SCM_STUDIES, SCM_EXTENDED_STUDIES))
 
 
 def study_iterator(study_class, only_first_one=False, both_altitude=False, verbose=True):
     all_studies = []
-    is_safran_study = study_class in [Safran, ExtendedSafran]
+    is_safran_study = study_class in [SafranSnowfall, ExtendedSafranSnowfall]
     nb_days = [1] if is_safran_study else [1]
     if verbose:
         print('Loading studies....')
@@ -49,11 +50,12 @@ def extended_visualization():
 def normal_visualization():
     save_to_file = False
     only_first_one = True
-    for study_class in SCM_STUDIES[:1]:
+    # for study_class in SCM_STUDIES[:1]:
+    for study_class in [SafranPrecipitation, SafranSnowfall, SafranTemperature][-1:]:
         for study in study_iterator(study_class, only_first_one=only_first_one):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
-            study_visualizer.visualize_mean_daily_values()
+            study_visualizer.visualize_annual_mean_values()
             # study_visualizer.visualize_linear_margin_fit(only_first_max_stable=True)
 
 

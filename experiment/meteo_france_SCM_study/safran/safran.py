@@ -1,15 +1,25 @@
+import numpy as np
+
 from experiment.meteo_france_SCM_study.abstract_extended_study import AbstractExtendedStudy
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
-from experiment.meteo_france_SCM_study.safran.safran_snowfall_variable import SafranSnowfallVariable
+from experiment.meteo_france_SCM_study.safran.safran_variable import SafranSnowfallVariable, \
+    SafranPrecipitationVariable, SafranTemperatureVariable
 
 
 class Safran(AbstractStudy):
 
-    def __init__(self, altitude=1800, nb_days_of_snowfall=1):
-        super().__init__(SafranSnowfallVariable, altitude)
-        self.nb_days_of_snowfall = nb_days_of_snowfall
+    def __init__(self, variable_class: type, altitude: int = 1800):
+        super().__init__(variable_class, altitude)
         self.model_name = 'Safran'
+
+
+class SafranFrequency(Safran):
+
+    def __init__(self, variable_class: type, nb_days_of_snowfall=1, altitude: int = 1800, ):
+        super().__init__(variable_class, altitude)
+        self.nb_days_of_snowfall = nb_days_of_snowfall
+
 
     def instantiate_variable_object(self, dataset) -> AbstractVariable:
         return self.variable_class(dataset, self.nb_days_of_snowfall)
@@ -18,16 +28,40 @@ class Safran(AbstractStudy):
     def variable_name(self):
         return super().variable_name + ' cumulated over {} days'.format(self.nb_days_of_snowfall)
 
+    def annual_aggregation_function(self, *args, **kwargs):
+        return np.sum(*args, **kwargs)
 
-class ExtendedSafran(AbstractExtendedStudy, Safran):
+
+class SafranSnowfall(SafranFrequency):
+
+    def __init__(self, altitude: int = 1800, nb_days_of_snowfall=1):
+        super().__init__(SafranSnowfallVariable, nb_days_of_snowfall, altitude)
+
+
+class ExtendedSafranSnowfall(AbstractExtendedStudy, SafranSnowfall):
     pass
 
 
+class SafranPrecipitation(SafranFrequency):
+
+    def __init__(self, altitude: int = 1800, nb_days_of_snowfall=1):
+        super().__init__(SafranPrecipitationVariable, nb_days_of_snowfall, altitude)
+
+
+class SafranTemperature(Safran):
+
+    def __init__(self, altitude: int = 1800):
+        super().__init__(SafranTemperatureVariable, altitude)
+
+    def annual_aggregation_function(self, *args, **kwargs):
+        return np.mean(*args, **kwargs)
+
+
 if __name__ == '__main__':
-    study = Safran()
+    study = SafranSnowfall()
     d = study.year_to_dataset_ordered_dict[1958]
-    # print(d.variables['time'])
+    print(d.variables['time'])
     # print(study.year_to_daily_time_serie[1958].shape)
     # print(len(d.variables['time']))
-    print(study.year_to_annual_mean)
-    print(study.df_annual_mean)
+    print(study.year_to_annual_total)
+    print(study.df_annual_total)

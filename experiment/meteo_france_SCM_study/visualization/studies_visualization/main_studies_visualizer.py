@@ -1,15 +1,15 @@
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
     ExtendedCrocusSwe
-from experiment.meteo_france_SCM_study.safran.safran import Safran, ExtendedSafran
+from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies import Studies
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies_visualizer import StudiesVisualizer
 
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
 from collections import OrderedDict
 
-SCM_STUDIES = [Safran, CrocusSwe, CrocusDepth]
-SCM_EXTENDED_STUDIES = [ExtendedSafran, ExtendedCrocusSwe, ExtendedCrocusDepth]
+SCM_STUDIES = [SafranSnowfall, CrocusSwe, CrocusDepth]
+SCM_EXTENDED_STUDIES = [ExtendedSafranSnowfall, ExtendedCrocusSwe, ExtendedCrocusDepth]
 SCM_STUDY_TO_EXTENDED_STUDY = OrderedDict(zip(SCM_STUDIES, SCM_EXTENDED_STUDIES))
 
 

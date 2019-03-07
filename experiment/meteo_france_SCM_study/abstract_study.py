@@ -21,7 +21,7 @@ class AbstractStudy(object):
     ALTITUDES = [1800, 2400]
 
     def __init__(self, variable_class: type, altitude: int = 1800):
-        assert altitude in self.ALTITUDES
+        assert altitude in self.ALTITUDES, altitude
         self.altitude = altitude
         self.model_name = None
         self.variable_class = variable_class
@@ -45,8 +45,11 @@ class AbstractStudy(object):
         return AnnualMaxima(df_maxima_gev=pd.DataFrame(self.year_to_annual_maxima, index=self.safran_massif_names))
 
     @property
-    def df_annual_mean(self) -> pd.DataFrame:
-        return pd.DataFrame(self.year_to_annual_mean, index=self.safran_massif_names).transpose()
+    def df_annual_total(self) -> pd.DataFrame:
+        return pd.DataFrame(self.year_to_annual_total, index=self.safran_massif_names).transpose()
+
+    def annual_aggregation_function(self, *args, **kwargs):
+        raise NotImplementedError()
 
     """ Load some attributes only once """
 
@@ -72,11 +75,11 @@ class AbstractStudy(object):
         return year_to_annual_maxima
 
     @cached_property
-    def year_to_annual_mean(self) -> OrderedDict:
+    def year_to_annual_total(self) -> OrderedDict:
         # Map each year to an array of size nb_massif
         year_to_annual_mean = OrderedDict()
         for year, time_serie in self._year_to_daily_time_serie.items():
-            year_to_annual_mean[year] = time_serie.mean(axis=0)
+            year_to_annual_mean[year] = self.annual_aggregation_function(time_serie, axis=0)
         return year_to_annual_mean
 
     def instantiate_variable_object(self, dataset) -> AbstractVariable:
@@ -151,7 +154,7 @@ class AbstractStudy(object):
                          row_massif[AbstractCoordinates.COORDINATE_Y])
                         for _, row_massif in df_massif.iterrows()]
 
-        for j, coordinate_id in enumerate(set([t[0] for t in coord_tuples])):
+        for _, coordinate_id in enumerate(set([t[0] for t in coord_tuples])):
             # Retrieve the list of coords (x,y) that define the contour of the massif of id coordinate_id
             coords_list = [coords for idx, *coords in coord_tuples if idx == coordinate_id]
             # if j == 0:
@@ -164,8 +167,20 @@ class AbstractStudy(object):
                 massif_name = self.coordinate_id_to_massif_name[coordinate_id]
                 fill_kwargs = massif_name_to_fill_kwargs[massif_name] if massif_name_to_fill_kwargs is not None else {}
                 ax.fill(*coords_list, **fill_kwargs)
+                # x , y = list(self.massifs_coordinates.df_all_coordinates.loc[massif_name])
+                # x , y= coords_list[0][0], coords_list[0][1]
+                # print(x, y)
+                # print(massif_name)
+                # ax.scatter(x, y)
+                # ax.text(x, y, massif_name)
         # Display the center of the massif
-        ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates, s=1)
+        # ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates, s=1)
+        # # Display the name of the massif
+        # for _, row in self.massifs_coordinates.df_all_coordinates.iterrows():
+        #     x, y = list(row)
+        #     massif_name = row.name
+        #     ax.text(x, y, massif_name)
+        # print(self.massifs_coordinates.df_all_coordinates.head())
 
 
         if show:

@@ -23,16 +23,16 @@ class SafranSnowfallVariable(AbstractVariable):
 
     NAME = 'Snowfall'
 
-    def __init__(self, dataset, altitude, nb_consecutive_days_of_snowfall=1):
+    def __init__(self, dataset, altitude, nb_consecutive_days_of_snowfall=1, keyword='Snowf'):
         super().__init__(dataset, altitude)
         self.nb_consecutive_days_of_snowfall = nb_consecutive_days_of_snowfall
         # Compute the daily snowfall in kg/m2
-        snowfall_rates = np.array(dataset.variables['Snowf'])
+        snowfall_rates = np.array(dataset.variables[keyword])
         mean_snowfall_rates = 0.5 * (snowfall_rates[:-1] + snowfall_rates[1:])
         hourly_snowfall = 60 * 60 * mean_snowfall_rates
         # Transform the snowfall amount into a dataframe
         nb_days = len(hourly_snowfall) // 24
-        self.daily_snowfall = [sum(hourly_snowfall[24 * i:24 * (i+1)]) for i in range(nb_days)]
+        self.daily_snowfall = [sum(hourly_snowfall[24 * i:24 * (i + 1)]) for i in range(nb_days)]
 
     @property
     def daily_time_serie(self):
@@ -45,10 +45,23 @@ class SafranSnowfallVariable(AbstractVariable):
         return np.array(snowfall_in_consecutive_days)
 
 
+class SafranPrecipitationVariable(SafranSnowfallVariable):
+
+    def __init__(self, dataset, altitude, nb_consecutive_days_of_snowfall=1, keyword='Rainf'):
+        super().__init__(dataset, altitude, nb_consecutive_days_of_snowfall, keyword)
 
 
+class SafranTemperatureVariable(AbstractVariable):
+
+    def __init__(self, dataset, altitude, keyword='Tair'):
+        super().__init__(dataset, altitude)
+        # Temperature are in K, I transform them as celsius
+        self.hourly_temperature = np.array(dataset.variables[keyword]) - 273.15
+        nb_days = len(self.hourly_temperature) // 24
+        self.daily_temperature = [np.mean(self.hourly_temperature[24 * i:24 * (i + 1)]) for i in range(nb_days)]
 
 
-
-
+    @property
+    def daily_time_serie(self):
+        return self.daily_temperature
 

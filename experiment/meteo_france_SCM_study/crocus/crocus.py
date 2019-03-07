@@ -20,6 +20,9 @@ class Crocus(AbstractStudy):
         suffix = '' if self.altitude == 2400 else ' average of data observed every 6 hours'
         return super().variable_name + suffix
 
+    def annual_aggregation_function(self):
+        return np.mean
+
 
 class CrocusSwe(Crocus):
 

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from experiment.meteo_france_SCM_study.safran.safran import ExtendedSafran
+from experiment.meteo_france_SCM_study.safran.safran import ExtendedSafranSnowfall
 from utils import VERSION
 
 
@@ -11,7 +11,7 @@ def fit_mle_gev_for_all_safran_and_different_days():
         for nb_day in [1, 3, 7][:]:
             print('alti: {}, nb_day: {}'.format(safran_alti, nb_day))
             # safran = Safran(safran_alti, nb_day)
-            safran = ExtendedSafran(safran_alti, nb_day)
+            safran = ExtendedSafranSnowfall(safran_alti, nb_day)
             df = safran.df_gev_mle_each_massif
             df.index += ' Safran{} with {} days'.format(safran.altitude, safran.nb_days_of_snowfall)
             dfs.append(df)

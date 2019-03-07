@@ -27,7 +27,7 @@ class StudiesVisualizer(object):
         # Load the dictionary that maps each massif_name to its corresponding time series
         mean_series = []
         for study in self.studies.altitude_to_study.values():
-            mean_serie = study.df_annual_mean.loc[:, massif_names].mean(axis=0)
+            mean_serie = study.df_annual_total.loc[:, massif_names].mean(axis=0)
             mean_series.append(mean_serie)
         df_mean = pd.concat(mean_series, axis=1) # type: pd.DataFrame
         df_mean.columns = self.studies.altitude_list
