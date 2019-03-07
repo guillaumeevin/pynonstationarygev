@@ -82,7 +82,6 @@ class AbstractStudy(object):
         # Map each year to an array of size nb_massif
         year_to_annual_mean = OrderedDict()
         for year, time_serie in self._year_to_daily_time_serie_array.items():
-            print(time_serie.shape)
             year_to_annual_mean[year] = self.annual_aggregation_function(time_serie, axis=0)
         return year_to_annual_mean
 
@@ -104,8 +103,6 @@ class AbstractStudy(object):
     @property
     def _year_to_max_daily_time_serie(self) -> OrderedDict:
         return self._year_to_daily_time_serie_array
-
-
 
     ##########
 
