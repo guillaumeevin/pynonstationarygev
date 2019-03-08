@@ -28,6 +28,15 @@ class SafranSnowfallVariable(AbstractVariable):
         self.nb_consecutive_days_of_snowfall = nb_consecutive_days_of_snowfall
         # Compute the daily snowfall in kg/m2
         snowfall_rates = np.array(dataset.variables[keyword])
+
+        # Compute the mean snowrate, then multiply it by 60 * 60 * 24
+        # day_duration_in_seconds = 24 * 60 * 60
+        # nb_days = len(snowfall_rates) // 24
+        # print(nb_days)
+        # daily_snowrate = [np.mean(snowfall_rates[24 * i:24 * (i + 1) + 1], axis=0) for i in range(nb_days)]
+        # self.daily_snowfall = day_duration_in_seconds * np.array(daily_snowrate)
+
+        # Compute the hourly snowfall first, then aggregate
         mean_snowfall_rates = 0.5 * (snowfall_rates[:-1] + snowfall_rates[1:])
         hourly_snowfall = 60 * 60 * mean_snowfall_rates
         # Transform the snowfall amount into a dataframe
@@ -40,15 +49,28 @@ class SafranSnowfallVariable(AbstractVariable):
         shifted_list = [self.daily_snowfall[i:] for i in range(self.nb_consecutive_days_of_snowfall)]
         # First element of shifted_list is of length n, Second element of length n-1, Third element n-2....
         # The zip is done with respect to the shortest list
-        snowfall_in_consecutive_days = [sum(e) for e in zip(*shifted_list)]
+        snowfall_in_consecutive_days = np.array([sum(e) for e in zip(*shifted_list)])
         # The returned array is of size n-nb_days+1 x nb_massif
-        return np.array(snowfall_in_consecutive_days)
+        return snowfall_in_consecutive_days
 
 
-class SafranPrecipitationVariable(SafranSnowfallVariable):
+class SafranRainfallVariable(SafranSnowfallVariable):
 
     def __init__(self, dataset, altitude, nb_consecutive_days_of_snowfall=1, keyword='Rainf'):
         super().__init__(dataset, altitude, nb_consecutive_days_of_snowfall, keyword)
+
+
+class SafranTotalPrecipVariable(AbstractVariable):
+
+    def __init__(self, dataset, altitude):
+        super().__init__(dataset, altitude)
+        self.snow_precipitation = SafranSnowfallVariable(dataset=dataset, altitude=altitude)
+        self.rain_precipitation = SafranRainfallVariable(dataset=dataset, altitude=altitude)
+
+    @property
+    def daily_time_serie_array(self) -> np.ndarray:
+        return self.snow_precipitation.daily_time_serie_array + self.rain_precipitation.daily_time_serie_array
+
 
 
 class SafranTemperatureVariable(AbstractVariable):

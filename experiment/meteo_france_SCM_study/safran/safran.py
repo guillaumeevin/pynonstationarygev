@@ -4,13 +4,14 @@ from experiment.meteo_france_SCM_study.abstract_extended_study import AbstractEx
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
 from experiment.meteo_france_SCM_study.safran.safran_variable import SafranSnowfallVariable, \
-    SafranPrecipitationVariable, SafranTemperatureVariable
+    SafranRainfallVariable, SafranTemperatureVariable, SafranTotalPrecipVariable
 
 
 class Safran(AbstractStudy):
 
     def __init__(self, variable_class: type, *args, **kwargs):
-        assert variable_class in [SafranSnowfallVariable, SafranPrecipitationVariable, SafranTemperatureVariable]
+        assert variable_class in [SafranSnowfallVariable, SafranRainfallVariable, SafranTemperatureVariable,
+                                  SafranTotalPrecipVariable]
         super().__init__(variable_class, *args, **kwargs)
         self.model_name = 'Safran'
 
@@ -42,10 +43,16 @@ class ExtendedSafranSnowfall(AbstractExtendedStudy, SafranSnowfall):
     pass
 
 
-class SafranPrecipitation(SafranFrequency):
+class SafranRainfall(SafranFrequency):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(SafranPrecipitationVariable, *args, **kwargs)
+        super().__init__(SafranRainfallVariable, *args, **kwargs)
+
+
+class SafranTotalPrecip(SafranFrequency):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(SafranTotalPrecipVariable, *args, **kwargs)
 
 
 class SafranTemperature(Safran):

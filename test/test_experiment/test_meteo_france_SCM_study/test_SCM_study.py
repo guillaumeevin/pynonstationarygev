@@ -6,7 +6,7 @@ import pandas as pd
 from experiment.meteo_france_SCM_study.crocus.crocus import ExtendedCrocusSwe
 from experiment.meteo_france_SCM_study.visualization.study_visualization.main_study_visualizer import study_iterator
 from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, SafranTemperature, \
-    SafranPrecipitation
+    SafranRainfall, SafranTotalPrecip
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
 from test.test_utils import load_scm_studies
 
@@ -61,15 +61,16 @@ class TestSCMPrecipitation(TestSCMStudy):
 
     def setUp(self) -> None:
         super().setUp()
-        self.study = SafranPrecipitation(altitude=1800, year_min=1958, year_max=2002)
+        self.study = SafranTotalPrecip(altitude=1800, year_min=1958, year_max=2002)
 
-    # def test_durand(self):
-    #     # Test based on Durand paper
-    #     # Test for the mean temperature between 1958 and 2002
-    #     self.check({
-    #         "Mercantour": 1340,
-    #         'Chablais': 1928,
-    #     })
+    def test_durand(self):
+        # Test based on Durand paper
+        # (some small differences probably due to the fact that SAFRAN model has evolved since then)
+        # Test for the mean total precipitation (rainfall + snowfall) between 1958 and 2002
+        self.check({
+            "Mercantour": 1346,
+            'Chablais': 1928,
+        })
 
     def round(self, f):
         return int(f)

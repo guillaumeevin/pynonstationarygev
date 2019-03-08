@@ -315,6 +315,7 @@ class StudyVisualizer(object):
         massif_name_to_value = OrderedDict()
         df_annual_total = self.study.df_annual_total
         for massif_id, massif_name in enumerate(self.study.safran_massif_names):
+            # We take the mean over all the annual values
             massif_name_to_value[massif_name] = df_annual_total.loc[:, massif_name].mean()
         self.study.visualize_study(ax=ax, massif_name_to_value=massif_name_to_value, show=self.show)
 

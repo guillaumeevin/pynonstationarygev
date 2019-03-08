@@ -13,8 +13,8 @@ from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, \
     Geometric, ExtremalT, ISchlather
-from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, Safran, SafranPrecipitation, \
-    SafranTemperature
+from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, Safran, SafranRainfall, \
+    SafranTemperature, SafranTotalPrecip
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
     AlpsStation3DCoordinatesWithAnisotropy
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
@@ -98,8 +98,8 @@ def load_test_spatiotemporal_coordinates(nb_points, nb_steps, train_split_ratio=
 def load_safran_studies(altitudes) -> List[Safran]:
     nb_days_list = [1]
     safran_studies = [safran_class(altitude=safran_altitude, nb_consecutive_days=nb_days)
-            for safran_altitude in altitudes for nb_days in nb_days_list
-            for safran_class in [SafranSnowfall, SafranPrecipitation]]
+                      for safran_altitude in altitudes for nb_days in nb_days_list
+                      for safran_class in [SafranSnowfall, SafranRainfall, SafranTotalPrecip]]
     safran_studies += [SafranTemperature(altitude) for altitude in altitudes]
     return safran_studies
 
