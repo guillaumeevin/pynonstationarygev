@@ -55,6 +55,10 @@ class SafranTotalPrecip(SafranFrequency):
         super().__init__(SafranTotalPrecipVariable, *args, **kwargs)
 
 
+class ExtendedSafranTotalPrecip(AbstractExtendedStudy, SafranTotalPrecip):
+    pass
+
+
 class SafranTemperature(Safran):
 
     def __init__(self, *args, **kwargs):
