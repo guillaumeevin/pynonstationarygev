@@ -1,14 +1,16 @@
 from utils import first
 
-MASSIF_NAMES_1800 = ['Pelvoux', 'Queyras', 'Mont-Blanc', 'Aravis', 'Haute-Tarentaise', 'Vercors', 'Alpes-Azur',
-                     'Oisans',
-                     'Mercantour', 'Chartreuse', 'Haute-Maurienne', 'Belledonne', 'Thabor', 'Parpaillon', 'Bauges',
-                     'Chablais', 'Ubaye', 'Grandes-Rousses', 'Devoluy', 'Champsaur', 'Vanoise', 'Beaufortain',
-                     'Maurienne']
+MASSIF_NAMES_1800 = ['Chablais', 'Aravis', 'Mont-Blanc', 'Bauges', 'Beaufortain',
+                     'Haute-Tarentaise', 'Chartreuse', 'Belledonne', 'Maurienne', 'Vanoise',
+                     'Haute-Maurienne', 'Grandes-Rousses', 'Thabor', 'Vercors', 'Oisans',
+                     'Pelvoux', 'Queyras', 'Devoluy', 'Champsaur', 'Parpaillon', 'Ubaye',
+                     'Alpes-Azur', 'Mercantour']
 # Some massif like Chartreuse do not have massif whose altitude is higher or equal to 2400
-MASSIF_NAMES_2400 = ['Pelvoux', 'Queyras', 'Mont-Blanc', 'Aravis', 'Haute-Tarentaise', 'Vercors', 'Alpes-Azur', 'Oisans'
-    , 'Mercantour', 'Haute-Maurienne', 'Belledonne', 'Thabor', 'Parpaillon', 'Chablais', 'Ubaye', 'Grandes-Rousses',
-                     'Devoluy', 'Champsaur', 'Vanoise', 'Beaufortain', 'Maurienne']
+MASSIF_NAMES_2400 = ['Chablais', 'Aravis', 'Mont-Blanc', 'Beaufortain', 'Haute-Tarentaise',
+                     'Belledonne', 'Maurienne', 'Vanoise', 'Haute-Maurienne',
+                     'Grandes-Rousses', 'Thabor', 'Vercors', 'Oisans', 'Pelvoux', 'Queyras',
+                     'Devoluy', 'Champsaur', 'Parpaillon', 'Ubaye', 'Alpes-Azur',
+                     'Mercantour']
 
 
 class Massif(object):
@@ -32,6 +34,9 @@ def safran_massif_names_from_datasets(datasets, altitude):
         # Assert the all the datasets have the same indexing for the massif
         assert len(set([dataset.massifsList for dataset in datasets])) == 1
         # List of the name of the massif used by all the SAFRAN datasets
-        safran_names = [Massif.from_str(massif_str).name for massif_str in first(datasets).massifsList.split('/')]
+        massifs = [Massif.from_str(massif_str) for massif_str in first(datasets).massifsList.split('/')]
+        # IMPORTANT: Sort the massif names
+        massifs = sorted(massifs, key=lambda massif: massif.id)
+        safran_names = [massif.name for massif in massifs]
         assert reference_massif_list == safran_names, '{} \n{}'.format(reference_massif_list, safran_names)
     return reference_massif_list
