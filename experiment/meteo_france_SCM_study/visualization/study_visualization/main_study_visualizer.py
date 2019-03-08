@@ -37,7 +37,8 @@ def extended_visualization():
     only_first_one = True
     for study_class in SCM_EXTENDED_STUDIES[-1:]:
         for study in study_iterator(study_class, only_first_one=only_first_one):
-            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, only_one_graph=True, plot_block_maxima_quantiles=False)
+            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, only_one_graph=True,
+                                               plot_block_maxima_quantiles=False)
             # study_visualizer.visualize_all_mean_and_max_graphs()
             study_visualizer.visualize_all_experimental_law()
     # for study_class in SCM_EXTENDED_STUDIES[:]:
@@ -48,10 +49,11 @@ def extended_visualization():
 
 
 def annual_mean_vizu_compare_durand_study():
-    for study_class in [SafranPrecipitation, SafranSnowfall, SafranTemperature][1:]:
+    for study_class in [SafranPrecipitation, SafranSnowfall, SafranTemperature][2:]:
         study = study_class(altitude=1800, year_min=1958, year_max=2002)
         study_visualizer = StudyVisualizer(study)
         study_visualizer.visualize_annual_mean_values()
+
 
 def normal_visualization():
     save_to_file = False

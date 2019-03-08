@@ -57,9 +57,8 @@ class SafranTemperatureVariable(AbstractVariable):
         super().__init__(dataset, altitude)
         # Temperature are in K, I transform them as celsius
         self.hourly_temperature = np.array(dataset.variables[keyword]) - 273.15
-        print(self.hourly_temperature.shape)
         nb_days = len(self.hourly_temperature) // 24
-        self.daily_temperature = [np.mean(self.hourly_temperature[24 * i:24 * (i + 1)]) for i in range(nb_days)]
+        self.daily_temperature = [np.mean(self.hourly_temperature[24 * i:24 * (i + 1)], axis=0) for i in range(nb_days)]
 
 
     @property

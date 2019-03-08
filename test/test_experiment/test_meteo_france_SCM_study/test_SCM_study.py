@@ -32,6 +32,7 @@ class TestSCMStudy(unittest.TestCase):
         for study in load_scm_studies():
             time_serie = study.year_to_daily_time_serie_array[1958]
             self.assertTrue(time_serie.ndim == 2, msg='for {} ndim={}'.format(study.__repr__(), time_serie.ndim))
+            self.assertTrue(time_serie.shape[1] in [21, 23])
             self.assertTrue(len(time_serie) in [365, 366],
                             msg="current time serie length for {} is {}".format(study.__repr__(), len(time_serie)))
 
