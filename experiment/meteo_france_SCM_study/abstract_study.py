@@ -82,8 +82,11 @@ class AbstractStudy(object):
         # Map each year to an array of size nb_massif
         year_to_annual_mean = OrderedDict()
         for year, time_serie in self._year_to_daily_time_serie_array.items():
-            year_to_annual_mean[year] = self.annual_aggregation_function(time_serie, axis=0)
+            year_to_annual_mean[year] = self.apply_annual_aggregation(time_serie)
         return year_to_annual_mean
+
+    def apply_annual_aggregation(self, time_serie):
+        return self.annual_aggregation_function(time_serie, axis=0)
 
     def instantiate_variable_object(self, dataset) -> AbstractVariable:
         return self.variable_class(dataset, self.altitude)
@@ -142,11 +145,14 @@ class AbstractStudy(object):
     """ Visualization methods """
 
     def visualize_study(self, ax=None, massif_name_to_value=None, show=True, fill=True, replace_blue_by_white=True,
-                        label=None):
-        massif_names, values = list(zip(*massif_name_to_value.items()))
-        colors = get_color_rbga_shifted(ax, replace_blue_by_white, values, label=label)
-        massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
-                                      zip(massif_names, colors)}
+                        label=None, add_text=False):
+        if massif_name_to_value is None:
+            massif_name_to_fill_kwargs = None
+        else:
+            massif_names, values = list(zip(*massif_name_to_value.items()))
+            colors = get_color_rbga_shifted(ax, replace_blue_by_white, values, label=label)
+            massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
+                                          zip(massif_names, colors)}
 
         if ax is None:
             ax = plt.gca()
@@ -176,12 +182,13 @@ class AbstractStudy(object):
                 # ax.text(x, y, massif_name)
         # Display the center of the massif
         ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates, s=1)
-        # Display the name of the massif
-        for _, row in self.massifs_coordinates.df_all_coordinates.iterrows():
-            x, y = list(row)
-            massif_name = row.name
-            value = massif_name_to_value[massif_name]
-            ax.text(x, y, str(round(value, 1)))
+        # Display the name or value of the massif
+        if add_text:
+            for _, row in self.massifs_coordinates.df_all_coordinates.iterrows():
+                x, y = list(row)
+                massif_name = row.name
+                value = massif_name_to_value[massif_name]
+                ax.text(x, y, str(round(value, 1)))
 
         if show:
             plt.show()

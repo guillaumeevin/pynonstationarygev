@@ -17,11 +17,17 @@ class Crocus(AbstractStudy):
 
     @property
     def variable_name(self):
-        suffix = '' if self.altitude == 2400 else ' average of data observed every 6 hours'
+        suffix = '' if self.altitude == 2400 else ' instantaneous data observed sampled every 24 hours'
         return super().variable_name + suffix
 
     def annual_aggregation_function(self, *args, **kwargs):
         return np.mean(*args, **kwargs)
+
+    def apply_annual_aggregation(self, time_serie):
+        # In the Durand paper, we only want the data from November to April
+        # 91 = 30 + 31 + 30 first days of the time serie correspond to the month of August + September + October
+        # 92 = 31 + 30 + 31 last days correspond to the month of May + June + JUly
+        return super().apply_annual_aggregation(time_serie[91:-92, ...])
 
 
 class CrocusSwe(Crocus):
@@ -45,8 +51,8 @@ class ExtendedCrocusDepth(AbstractExtendedStudy, CrocusDepth):
 
 
 if __name__ == '__main__':
-    for variable_class in [CrocusSweVariable, CrocusDepthVariable]:
-        study = Crocus(variable_class=variable_class, altitude=2400)
+    for variable_clas in [CrocusSweVariable, CrocusDepthVariable]:
+        study = Crocus(variable_class=variable_clas, altitude=2400)
         d = study.year_to_dataset_ordered_dict[1960]
         time_arr = np.array(d.variables['time'])
         print(time_arr)

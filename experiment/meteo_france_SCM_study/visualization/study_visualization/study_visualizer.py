@@ -308,16 +308,19 @@ class StudyVisualizer(object):
             # plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
             plt.show()
 
-    def visualize_annual_mean_values(self, ax=None):
+    def visualize_annual_mean_values(self, ax=None, take_mean_value=True):
         if ax is None:
             _, ax = plt.subplots(1, 1, figsize=self.figsize)
 
         massif_name_to_value = OrderedDict()
         df_annual_total = self.study.df_annual_total
         for massif_id, massif_name in enumerate(self.study.safran_massif_names):
-            # We take the mean over all the annual values
-            massif_name_to_value[massif_name] = df_annual_total.loc[:, massif_name].mean()
-        self.study.visualize_study(ax=ax, massif_name_to_value=massif_name_to_value, show=self.show)
+            # We take the mean over all the annual values, otherwise we take the max
+            value = df_annual_total.loc[:, massif_name]
+            value = value.mean() if take_mean_value else value.max()
+            massif_name_to_value[massif_name] = value
+        self.study.visualize_study(ax=ax, massif_name_to_value=massif_name_to_value, show=self.show, add_text=True,
+                                   label=self.study.variable_name)
 
     """ Statistics methods """
 

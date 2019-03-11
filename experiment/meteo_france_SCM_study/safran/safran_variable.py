@@ -72,7 +72,6 @@ class SafranTotalPrecipVariable(AbstractVariable):
         return self.snow_precipitation.daily_time_serie_array + self.rain_precipitation.daily_time_serie_array
 
 
-
 class SafranTemperatureVariable(AbstractVariable):
 
     def __init__(self, dataset, altitude, keyword='Tair'):
@@ -82,8 +81,6 @@ class SafranTemperatureVariable(AbstractVariable):
         nb_days = len(self.hourly_temperature) // 24
         self.daily_temperature = [np.mean(self.hourly_temperature[24 * i:24 * (i + 1)], axis=0) for i in range(nb_days)]
 
-
     @property
     def daily_time_serie_array(self):
         return np.array(self.daily_temperature)
-

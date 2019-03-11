@@ -2,6 +2,9 @@ import numpy as np
 
 
 class AbstractVariable(object):
+    """
+    All Variable (CROCUS & SAFRAN) are available since 1958-08-01 06:00:00
+    """
 
     NAME = ''
 

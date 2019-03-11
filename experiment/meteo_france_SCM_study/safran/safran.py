@@ -73,8 +73,8 @@ if __name__ == '__main__':
     for year, dataset in study.year_to_dataset_ordered_dict.items():
         print('{}: {}'.format(year, dataset.massifsList))
     d = study.year_to_dataset_ordered_dict[1958]
-    # print(d.variables['time'])
+    print(d.variables['time'])
     # print(study.year_to_daily_time_serie[1958].shape)
     # print(len(d.variables['time']))
     # print(study.year_to_annual_total)
-    print(study.df_annual_total.columns)
+    # print(study.df_annual_total.columns)
