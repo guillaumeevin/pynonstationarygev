@@ -1,6 +1,6 @@
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
-    ExtendedCrocusSwe
+    ExtendedCrocusSwe, CrocusDaysWithSnowOnGround
 from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, SafranRainfall, \
     SafranTemperature, SafranTotalPrecip
 
@@ -22,7 +22,7 @@ def study_iterator(study_class, only_first_one=False, both_altitude=False, verbo
         for alti in AbstractStudy.ALTITUDES[::1]:
             if verbose:
                 print('alti: {}, nb_day: {}'.format(alti, nb_day))
-            study = study_class(altitude=alti, nb_consecutive_days=nb_day) if is_safran_study else study_class(alti)
+            study = study_class(altitude=alti, nb_consecutive_days=nb_day) if is_safran_study else study_class(altitude=alti)
             yield study
             if only_first_one and not both_altitude:
                 break
@@ -50,12 +50,12 @@ def extended_visualization():
 
 def annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True):
     if safran:
-        for study_class in [SafranTotalPrecip, SafranRainfall, SafranSnowfall, SafranTemperature][:1]:
+        for study_class in [SafranTotalPrecip, SafranRainfall, SafranSnowfall, SafranTemperature][2:3]:
             study = study_class(altitude=1800, year_min=1958, year_max=2002)
             study_visualizer = StudyVisualizer(study)
             study_visualizer.visualize_annual_mean_values(take_mean_value=True)
     else:
-        for study_class in [CrocusSwe, CrocusDepth][1:]:
+        for study_class in [CrocusSwe, CrocusDepth, CrocusDaysWithSnowOnGround][-1:]:
             study = study_class(altitude=1800, year_min=1958, year_max=2005)
             study_visualizer = StudyVisualizer(study)
             study_visualizer.visualize_annual_mean_values(take_mean_value=take_mean_value)
@@ -65,7 +65,7 @@ def normal_visualization():
     save_to_file = False
     only_first_one = True
     # for study_class in SCM_STUDIES[:1]:
-    for study_class in [SafranRainfall, SafranSnowfall, SafranTemperature][:1]:
+    for study_class in [SafranSnowfall, SafranRainfall, SafranTemperature][:1]:
         for study in study_iterator(study_class, only_first_one=only_first_one):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
@@ -89,7 +89,7 @@ def complete_analysis(only_first_one=False):
 
 
 if __name__ == '__main__':
-    annual_mean_vizu_compare_durand_study(safran=False, take_mean_value=True)
-    # normal_visualization()
+    # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True)
+    normal_visualization()
     # extended_visualization()
     # complete_analysis()

@@ -134,6 +134,7 @@ class AbstractStudy(object):
     def load_df_centroid(self) -> pd.DataFrame:
         df_centroid = pd.read_csv(op.join(self.map_full_path, 'coordonnees_massifs_alpes.csv'))
         df_centroid.set_index('NOM', inplace=True)
+        # Sort the column in the order of the SAFRAN dataset
         df_centroid = df_centroid.loc[self.original_safran_massif_names]
         return df_centroid
 

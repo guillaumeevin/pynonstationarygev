@@ -41,3 +41,4 @@ class CrocusDepthVariable(CrocusVariable):
     def __init__(self, dataset, altitude):
         # Units are m
         super().__init__(dataset, altitude, "SNOWDEPTH")
+

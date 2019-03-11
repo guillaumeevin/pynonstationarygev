@@ -23,7 +23,7 @@ class Crocus(AbstractStudy):
     def annual_aggregation_function(self, *args, **kwargs):
         return np.mean(*args, **kwargs)
 
-    def apply_annual_aggregation(self, time_serie):
+    def winter_annual_aggregation(self, time_serie):
         # In the Durand paper, we only want the data from November to April
         # 91 = 30 + 31 + 30 first days of the time serie correspond to the month of August + September + October
         # 92 = 31 + 30 + 31 last days correspond to the month of May + June + JUly
@@ -35,6 +35,9 @@ class CrocusSwe(Crocus):
     def __init__(self, *args, **kwargs):
         super().__init__(CrocusSweVariable, *args, **kwargs)
 
+    def apply_annual_aggregation(self, time_serie):
+        return self.winter_annual_aggregation(time_serie)
+
 
 class ExtendedCrocusSwe(AbstractExtendedStudy, CrocusSwe):
     pass
@@ -45,9 +48,22 @@ class CrocusDepth(Crocus):
     def __init__(self, *args, **kwargs):
         super().__init__(CrocusDepthVariable, *args, **kwargs)
 
+    def apply_annual_aggregation(self, time_serie):
+        return self.winter_annual_aggregation(time_serie)
+
 
 class ExtendedCrocusDepth(AbstractExtendedStudy, CrocusDepth):
     pass
+
+
+class CrocusDaysWithSnowOnGround(Crocus):
+    """Having snow on the ground is equivalent to snow depth > 0"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(CrocusDepthVariable, *args, **kwargs)
+
+    def annual_aggregation_function(self, *args, **kwargs):
+        return np.count_nonzero(*args, **kwargs)
 
 
 if __name__ == '__main__':

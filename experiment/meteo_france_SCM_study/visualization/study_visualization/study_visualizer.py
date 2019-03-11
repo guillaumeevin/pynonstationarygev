@@ -226,8 +226,6 @@ class StudyVisualizer(object):
             margin_model = margin_class(coordinates=self.coordinates)
             estimator = FullEstimatorInASingleStepWithSmoothMargin(self.dataset, margin_model, max_stable_model)
             title = get_display_name_from_object_type(type(max_stable_model))
-            # if isinstance(max_stable_model, AbstractMaxStableModelWithCovarianceFunction):
-            #     title += ' ' + str(default_covariance_function).split('.')[-1]
             self.fit_and_visualize_estimator(estimator, axes[i], title=title)
         # Add the label
         self.show_or_save_to_file()
