@@ -18,8 +18,8 @@ class Safran(AbstractStudy):
 
 class SafranFrequency(Safran):
 
-    def __init__(self, variable_class: type, nb_consecutive_days=1, *args, **kwargs):
-        assert nb_consecutive_days <= 7
+    def __init__(self, variable_class: type, nb_consecutive_days: int = 1, *args, **kwargs):
+        assert 1 <= nb_consecutive_days <= 7
         super().__init__(variable_class, *args, **kwargs)
         self.nb_consecutive_days = nb_consecutive_days
 

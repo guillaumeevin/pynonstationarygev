@@ -22,7 +22,8 @@ def study_iterator(study_class, only_first_one=False, both_altitude=False, verbo
         for alti in AbstractStudy.ALTITUDES[::1]:
             if verbose:
                 print('alti: {}, nb_day: {}'.format(alti, nb_day))
-            study = study_class(altitude=alti, nb_consecutive_days=nb_day) if is_safran_study else study_class(altitude=alti)
+            study = study_class(altitude=alti, nb_consecutive_days=nb_day) if is_safran_study \
+                else study_class(altitude=alti)
             yield study
             if only_first_one and not both_altitude:
                 break

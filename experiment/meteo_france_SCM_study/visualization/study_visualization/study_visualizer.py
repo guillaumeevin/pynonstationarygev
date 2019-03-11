@@ -214,15 +214,19 @@ class StudyVisualizer(object):
         max_stable_models = load_test_max_stable_models(default_covariance_function=default_covariance_function)
         if only_first_max_stable:
             max_stable_models = max_stable_models[:1]
-        fig, axes = plt.subplots(len(max_stable_models) + 1, len(GevParams.SUMMARY_NAMES), figsize=self.figsize)
+        fig, axes = plt.subplots(len(max_stable_models) + 2, len(GevParams.SUMMARY_NAMES), figsize=self.figsize)
         fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
         margin_class = LinearAllParametersAllDimsMarginModel
+
+        # Plot the margin fit independently
+        self.visualize_independent_margin_fits(threshold=None, axes=axes[0], show=False)
         # Plot the smooth margin only
         margin_model = margin_class(coordinates=self.coordinates)
         estimator = SmoothMarginEstimator(dataset=self.dataset, margin_model=margin_model)
-        self.fit_and_visualize_estimator(estimator, axes[0], title='without max stable')
+        self.fit_and_visualize_estimator(estimator, axes[1], title='without max stable')
+
         # Plot the smooth margin fitted with a max stable
-        for i, max_stable_model in enumerate(max_stable_models, 1):
+        for i, max_stable_model in enumerate(max_stable_models, 2):
             margin_model = margin_class(coordinates=self.coordinates)
             estimator = FullEstimatorInASingleStepWithSmoothMargin(self.dataset, margin_model, max_stable_model)
             title = get_display_name_from_object_type(type(max_stable_model))
@@ -247,6 +251,11 @@ class StudyVisualizer(object):
             updated_lim = new_lim * self.coef_zoom_map + (1 - self.coef_zoom_map) * old_lim
             for i, method in enumerate([ax.set_xlim, ax.set_ylim]):
                 method(updated_lim[i, 0], updated_lim[i, 1])
+        self.clean_axes_write_title_on_the_left(axes, title)
+
+    @staticmethod
+    def clean_axes_write_title_on_the_left(axes, title):
+        for ax in axes:
             ax.tick_params(axis=u'both', which=u'both', length=0)
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
@@ -257,9 +266,6 @@ class StudyVisualizer(object):
             ax.set_aspect('equal')
         ax0 = axes[0]
         ax0.get_yaxis().set_visible(True)
-        # todo: manage to remove ticks on ylabel
-        # finally it's good because it differntiate it from the other labels
-        #  maybe i could put it in bold
         ax0.set_ylabel(title)
         ax0.tick_params(axis=u'both', which=u'both', length=0)
 
@@ -283,7 +289,7 @@ class StudyVisualizer(object):
                 os.makedirs(dirname, exist_ok=True)
             plt.savefig(filepath)
 
-    def visualize_independent_margin_fits(self, threshold=None, axes=None):
+    def visualize_independent_margin_fits(self, threshold=None, axes=None, show=True):
         # Fit either a GEV or a GPD
         if threshold is None:
             params_names = GevParams.SUMMARY_NAMES
@@ -301,9 +307,9 @@ class StudyVisualizer(object):
             self.study.visualize_study(ax=ax, massif_name_to_value=df.loc[gev_param_name, :].to_dict(), show=False,
                                        replace_blue_by_white=gev_param_name != GevParams.SHAPE,
                                        label=gev_param_name)
+        self.clean_axes_write_title_on_the_left(axes, title='Independent fits')
 
-        if self.show:
-            # plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
+        if show:
             plt.show()
 
     def visualize_annual_mean_values(self, ax=None, take_mean_value=True):
