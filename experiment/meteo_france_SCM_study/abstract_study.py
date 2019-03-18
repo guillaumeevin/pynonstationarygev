@@ -9,6 +9,7 @@ from netCDF4 import Dataset
 
 from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
 from experiment.meteo_france_SCM_study.massif import safran_massif_names_from_datasets
+from experiment.meteo_france_SCM_study.visualization.utils import get_km_formatter
 from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
@@ -171,7 +172,7 @@ class AbstractStudy(object):
             coords_list = list(zip(*coords_list))
             ax.plot(*coords_list, color='black')
             # Potentially, fill the inside of the polygon with some color
-            if fill:
+            if fill and coordinate_id in self.coordinate_id_to_massif_name:
                 massif_name = self.coordinate_id_to_massif_name[coordinate_id]
                 fill_kwargs = massif_name_to_fill_kwargs[massif_name] if massif_name_to_fill_kwargs is not None else {}
                 ax.fill(*coords_list, **fill_kwargs)
@@ -183,6 +184,11 @@ class AbstractStudy(object):
                 # ax.text(x, y, massif_name)
         # Display the center of the massif
         ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates, s=1)
+        # Improve some explanation on the X axis and on the Y axis
+        ax.set_xlabel('Longitude (km)')
+        ax.xaxis.set_major_formatter(get_km_formatter())
+        ax.set_ylabel('Latitude (km)')
+        ax.yaxis.set_major_formatter(get_km_formatter())
         # Display the name or value of the massif
         if add_text:
             for _, row in self.massifs_coordinates.df_all_coordinates.iterrows():

@@ -255,7 +255,7 @@ class StudyVisualizer(object):
 
     @staticmethod
     def clean_axes_write_title_on_the_left(axes, title):
-        for ax in axes:
+        for ax in axes[1:]:
             ax.tick_params(axis=u'both', which=u'both', length=0)
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
@@ -266,7 +266,10 @@ class StudyVisualizer(object):
             ax.set_aspect('equal')
         ax0 = axes[0]
         ax0.get_yaxis().set_visible(True)
-        ax0.set_ylabel(title)
+        sub_title = ax0.yaxis.get_label()
+        full_title = title + '\n\n' + sub_title._text
+        ax0.set_ylabel(full_title)
+        ax0.set_ylabel(full_title)
         ax0.tick_params(axis=u'both', which=u'both', length=0)
 
     def show_or_save_to_file(self):

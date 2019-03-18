@@ -49,15 +49,15 @@ def extended_visualization():
     #         study_visualizer.visualize_all_experimental_law()
 
 
-def annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True):
+def annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=1800):
     if safran:
         for study_class in [SafranTotalPrecip, SafranRainfall, SafranSnowfall, SafranTemperature][2:3]:
-            study = study_class(altitude=1800, year_min=1958, year_max=2002)
+            study = study_class(altitude=altitude, year_min=1958, year_max=2002)
             study_visualizer = StudyVisualizer(study)
             study_visualizer.visualize_annual_mean_values(take_mean_value=True)
     else:
         for study_class in [CrocusSwe, CrocusDepth, CrocusDaysWithSnowOnGround][-1:]:
-            study = study_class(altitude=1800, year_min=1958, year_max=2005)
+            study = study_class(altitude=altitude, year_min=1958, year_max=2005)
             study_visualizer = StudyVisualizer(study)
             study_visualizer.visualize_annual_mean_values(take_mean_value=take_mean_value)
 
@@ -90,7 +90,7 @@ def complete_analysis(only_first_one=False):
 
 
 if __name__ == '__main__':
-    # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True)
+    # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2400)
     normal_visualization()
     # extended_visualization()
     # complete_analysis()
