@@ -9,13 +9,15 @@ from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.plot.create_shifted_cmap import plot_extreme_param, imshow_shifted
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.slicer.split import Split
+from utils import cached_property
 
 
 class AbstractMarginFunction(object):
     """ Class of function mapping points from a space S (could be 1D, 2D,...) to R^3 (the 3 parameters of the GEV)"""
 
-    def __init__(self, coordinates: AbstractCoordinates):
+    def __init__(self, coordinates: AbstractCoordinates, resolution=100):
         self.coordinates = coordinates
+        self.resolution = resolution
 
         # Visualization parameters
         self.visualization_axes = None
@@ -28,6 +30,14 @@ class AbstractMarginFunction(object):
 
         self._grid_2D = None
         self._grid_1D = None
+
+    @property
+    def x(self):
+        return self.coordinates.x_coordinates
+
+    @property
+    def y(self):
+        return self.coordinates.y_coordinates
 
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
         """Main method that maps each coordinate to its GEV parameters"""
@@ -131,14 +141,11 @@ class AbstractMarginFunction(object):
     # Visualization 2D
 
     def visualize_2D(self, gev_param_name=GevParams.LOC, ax=None, show=True):
-        x = self.coordinates.x_coordinates
-        y = self.coordinates.y_coordinates
-        grid = self.grid_2D(x, y)
         if ax is None:
             ax = plt.gca()
 
         # Special display
-        imshow_shifted(ax, gev_param_name, grid[gev_param_name], x, y)
+        imshow_shifted(ax, gev_param_name, self.grid_2D[gev_param_name], self.x, self.y)
 
         # X axis
         ax.set_xlabel('coordinate X')
@@ -152,13 +159,15 @@ class AbstractMarginFunction(object):
         if show:
             plt.show()
 
-    def grid_2D(self, x, y):
-        resolution = 100
+    @cached_property
+    def grid_2D(self):
+        x = self.x
+        y = self.y
         grid = []
-        for i, xi in enumerate(np.linspace(x.min(), x.max(), resolution)):
-            for j, yj in enumerate(np.linspace(y.min(), y.max(), resolution)):
+        for i, xi in enumerate(np.linspace(x.min(), x.max(), self.resolution)):
+            for j, yj in enumerate(np.linspace(y.min(), y.max(), self.resolution)):
                 grid.append(self.get_gev_params(np.array([xi, yj])).summary_dict)
-        grid = {value_name: np.array([g[value_name] for g in grid]).reshape([resolution, resolution])
+        grid = {value_name: np.array([g[value_name] for g in grid]).reshape([self.resolution, self.resolution])
                 for value_name in GevParams.SUMMARY_NAMES}
         return grid
 

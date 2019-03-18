@@ -53,5 +53,6 @@ def imshow_shifted(ax, gev_param_name, values, x, y):
         value = np.min(values)
         # The right blue corner will be blue (but most of the time, another display will be on top)
         masked_array[-1, -1] = value - epsilon
-    ax.imshow(masked_array, extent=(x.min(), x.max(), y.min(), y.max()), cmap=shifted_cmap)
+    # IMPORTANT: Origin for all the plots is at the bottom left corner
+    ax.imshow(masked_array, extent=(x.min(), x.max(), y.min(), y.max()), cmap=shifted_cmap, origin='lower')
 

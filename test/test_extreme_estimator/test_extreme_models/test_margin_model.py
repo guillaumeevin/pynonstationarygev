@@ -1,16 +1,18 @@
+import numpy as np
 import unittest
 
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearShapeDim1MarginModel, \
     LinearAllParametersAllDimsMarginModel
+from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_2D import LinSpaceSpatial2DCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
     CircleSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import LinSpaceSpatialCoordinates
 from test.test_utils import load_test_spatiotemporal_coordinates
 
 
-class VisualizationMarginModel(unittest.TestCase):
+class TestVisualizationMarginModel(unittest.TestCase):
     DISPLAY = False
     nb_points = 2
     margin_model_class = [LinearShapeDim1MarginModel, LinearAllParametersAllDimsMarginModel][-1]
@@ -24,8 +26,13 @@ class VisualizationMarginModel(unittest.TestCase):
         self.margin_model = self.margin_model_class(coordinates=coordinates, params_sample={(GevParams.SHAPE, 1): 0.02})
 
     def test_example_visualization_2D_spatial(self):
-        spatial_coordinates = CircleSpatialCoordinates.from_nb_points(nb_points=self.nb_points)
+        spatial_coordinates = LinSpaceSpatial2DCoordinates.from_nb_points(nb_points=self.nb_points)
         self.margin_model = self.margin_model_class(coordinates=spatial_coordinates)
+        # Assert that the grid correspond to what we expect in a simple case
+        self.margin_model.margin_function_sample.resolution = 2
+        grid = self.margin_model.margin_function_sample.grid_2D['loc']
+        true_grid = np.array([[0.98, 1.0], [1.0, 1.02]])
+        self.assertTrue((grid == true_grid).all(), msg="\nexpected:\n{}, \nfound:\n{}".format(true_grid, grid))
 
     # def test_example_visualization_2D_spatio_temporal(self):
     #     self.nb_steps = 2
@@ -49,5 +56,6 @@ class VisualizationMarginModel(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-    # v = VisualizationMarginModel()
-    # v.test_example_visualization_2D_spatio_temporal()
+    # v = TestVisualizationMarginModel()
+    # v.test_example_visualization_2D_spatial()
+    # v.tearDown()
