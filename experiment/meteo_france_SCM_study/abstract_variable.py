@@ -7,6 +7,7 @@ class AbstractVariable(object):
     """
 
     NAME = ''
+    UNIT = ''
 
     def __init__(self, dataset, altitude):
         self.dataset = dataset

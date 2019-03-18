@@ -202,7 +202,11 @@ class AbstractStudy(object):
 
     @property
     def variable_name(self):
-        return self.variable_class.NAME
+        return self.variable_class.NAME + ' (in {})'.format(self.variable_unit)
+
+    @property
+    def variable_unit(self):
+        return self.variable_class.UNIT
 
     @property
     def relative_path(self) -> str:
