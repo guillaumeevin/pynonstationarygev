@@ -243,17 +243,12 @@ class StudyVisualizer(object):
     def fit_and_visualize_estimator(self, estimator, axes=None, title=None):
         estimator.fit()
 
+        # Set visualization attributes for margin_fct
         margin_fct = estimator.margin_function_fitted
-
-        # margin_fct.visualization_x_limits = self.study.
         margin_fct._visualization_x_limits = self.study.visualization_x_limits
         margin_fct._visualization_y_limits = self.study.visualization_y_limits
-        # Example of mask 2D
-        mask_2D = np.zeros([margin_fct.resolution, margin_fct.resolution], dtype=bool)
-        lim = 5
-        mask_2D[lim:-lim, lim:-lim] = True
+        margin_fct.mask_2D = self.study.mask_french_alps
 
-        margin_fct.mask_2D = mask_2D
         axes = margin_fct.visualize_function(show=False, axes=axes, title='')
 
         self.visualize_contour_and_move_axes_limits(axes)

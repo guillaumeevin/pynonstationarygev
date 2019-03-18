@@ -14,10 +14,10 @@ from utils import cached_property
 
 class AbstractMarginFunction(object):
     """ Class of function mapping points from a space S (could be 1D, 2D,...) to R^3 (the 3 parameters of the GEV)"""
+    VISUALIZATION_RESOLUTION = 100
 
     def __init__(self, coordinates: AbstractCoordinates):
         self.coordinates = coordinates
-        self.resolution = 100
         self.mask_2D = None
 
         # Visualization parameters
@@ -185,10 +185,10 @@ class AbstractMarginFunction(object):
     @cached_property
     def grid_2D(self):
         grid = []
-        for xi in np.linspace(*self.visualization_x_limits, self.resolution):
-            for yj in np.linspace(*self.visualization_y_limits, self.resolution):
+        for xi in np.linspace(*self.visualization_x_limits, self.VISUALIZATION_RESOLUTION):
+            for yj in np.linspace(*self.visualization_y_limits, self.VISUALIZATION_RESOLUTION):
                 grid.append(self.get_gev_params(np.array([xi, yj])).summary_dict)
-        grid = {value_name: np.array([g[value_name] for g in grid]).reshape([self.resolution, self.resolution])
+        grid = {value_name: np.array([g[value_name] for g in grid]).reshape([self.VISUALIZATION_RESOLUTION, self.VISUALIZATION_RESOLUTION])
                 for value_name in GevParams.SUMMARY_NAMES}
         return grid
 

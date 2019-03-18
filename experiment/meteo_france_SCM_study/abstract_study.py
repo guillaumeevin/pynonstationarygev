@@ -1,15 +1,20 @@
 import os
+import numpy as np
+from PIL import Image, ImageDraw
 import os.path as op
 from collections import OrderedDict
 from typing import List, Dict
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from PIL import Image
 from netCDF4 import Dataset
 
 from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
 from experiment.meteo_france_SCM_study.massif import safran_massif_names_from_datasets
 from experiment.meteo_france_SCM_study.visualization.utils import get_km_formatter
+from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
+    AbstractMarginFunction
 from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
@@ -219,6 +224,24 @@ class AbstractStudy(object):
     @property
     def visualization_y_limits(self):
         return min(self.all_coords_list[1]), max(self.all_coords_list[1])
+
+    @cached_property
+    def mask_french_alps(self):
+        resolution = AbstractMarginFunction.VISUALIZATION_RESOLUTION
+        mask_french_alps = np.zeros([resolution, resolution])
+        for polygon in self.idx_to_coords_list.values():
+            xy_values = list(zip(*polygon))
+            normalized_polygon = []
+            for values, (minlim, max_lim) in zip(xy_values, [self.visualization_x_limits, self.visualization_y_limits]):
+                values -= minlim
+                values *= resolution / (max_lim - minlim)
+                normalized_polygon.append(values)
+            normalized_polygon = list(zip(*normalized_polygon))
+            img = Image.new('L', (resolution, resolution), 0)
+            ImageDraw.Draw(img).polygon(normalized_polygon, outline=1, fill=1)
+            mask_massif = np.array(img)
+            mask_french_alps += mask_massif
+        return ~np.array(mask_french_alps, dtype=bool)
 
     """ Some properties """
 

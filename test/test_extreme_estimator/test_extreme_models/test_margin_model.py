@@ -1,6 +1,8 @@
 import numpy as np
 import unittest
 
+from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
+    AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearShapeDim1MarginModel, \
@@ -29,7 +31,7 @@ class TestVisualizationMarginModel(unittest.TestCase):
         spatial_coordinates = LinSpaceSpatial2DCoordinates.from_nb_points(nb_points=self.nb_points)
         self.margin_model = self.margin_model_class(coordinates=spatial_coordinates)
         # Assert that the grid correspond to what we expect in a simple case
-        self.margin_model.margin_function_sample.resolution = 2
+        AbstractMarginFunction.VISUALIZATION_RESOLUTION = 2
         grid = self.margin_model.margin_function_sample.grid_2D['loc']
         true_grid = np.array([[0.98, 1.0], [1.0, 1.02]])
         self.assertTrue((grid == true_grid).all(), msg="\nexpected:\n{}, \nfound:\n{}".format(true_grid, grid))
