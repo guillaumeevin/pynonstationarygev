@@ -13,6 +13,7 @@ from experiment.utils import average_smoothing_with_sliding_window
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import SmoothMarginEstimator
+from extreme_estimator.extreme_models.margin_model.param_function.param_function import ParamFunction
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearAllParametersAllDimsMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
 from extreme_estimator.margin_fits.abstract_params import AbstractParams
@@ -52,7 +53,10 @@ class StudyVisualizer(object):
         else:
             self.figsize = (16.0, 10.0)
         self.subplot_space = 0.5
-        self.coef_zoom_map = 0
+        self.coef_zoom_map = 1
+
+        # Remove some assert
+        ParamFunction.OUT_OF_BOUNDS_ASSERT = False
 
     @property
     def observations(self):
@@ -214,6 +218,8 @@ class StudyVisualizer(object):
         max_stable_models = load_test_max_stable_models(default_covariance_function=default_covariance_function)
         if only_first_max_stable:
             max_stable_models = max_stable_models[:1]
+        if only_first_max_stable is None:
+            max_stable_models = []
         fig, axes = plt.subplots(len(max_stable_models) + 2, len(GevParams.SUMMARY_NAMES), figsize=self.figsize)
         fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
         margin_class = LinearAllParametersAllDimsMarginModel
@@ -238,20 +244,33 @@ class StudyVisualizer(object):
         estimator.fit()
 
         margin_fct = estimator.margin_function_fitted
+
+        # margin_fct.visualization_x_limits = self.study.
+        margin_fct._visualization_x_limits = self.study.visualization_x_limits
+        margin_fct._visualization_y_limits = self.study.visualization_y_limits
+        # Example of mask 2D
+        mask_2D = np.zeros([margin_fct.resolution, margin_fct.resolution], dtype=bool)
+        lim = 5
+        mask_2D[lim:-lim, lim:-lim] = True
+
+        margin_fct.mask_2D = mask_2D
         axes = margin_fct.visualize_function(show=False, axes=axes, title='')
 
+        self.visualize_contour_and_move_axes_limits(axes)
+        self.clean_axes_write_title_on_the_left(axes, title)
+
+    def visualize_contour_and_move_axes_limits(self, axes):
         def get_lim_array(ax_with_lim_to_measure):
             return np.array([np.array(ax_with_lim_to_measure.get_xlim()), np.array(ax_with_lim_to_measure.get_ylim())])
 
         for ax in axes:
-            old_lim = get_lim_array(ax)
+            # old_lim = get_lim_array(ax)
             self.study.visualize_study(ax, fill=False, show=False)
-            new_lim = get_lim_array(ax)
-            assert 0 <= self.coef_zoom_map <= 1
-            updated_lim = new_lim * self.coef_zoom_map + (1 - self.coef_zoom_map) * old_lim
-            for i, method in enumerate([ax.set_xlim, ax.set_ylim]):
-                method(updated_lim[i, 0], updated_lim[i, 1])
-        self.clean_axes_write_title_on_the_left(axes, title)
+            # new_lim = get_lim_array(ax)
+            # assert 0 <= self.coef_zoom_map <= 1
+            # updated_lim = new_lim * self.coef_zoom_map + (1 - self.coef_zoom_map) * old_lim
+            # for i, method in enumerate([ax.set_xlim, ax.set_ylim]):
+            #     method(updated_lim[i, 0], updated_lim[i, 1])
 
     @staticmethod
     def clean_axes_write_title_on_the_left(axes, title):

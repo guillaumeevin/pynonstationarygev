@@ -44,8 +44,11 @@ def get_color_rbga_shifted(ax, replace_blue_by_white: bool, values: np.ndarray, 
     return colors
 
 
-def imshow_shifted(ax, gev_param_name, values, x, y):
-    masked_array = np.ma.masked_where(np.isnan(values), values)
+def imshow_shifted(ax, gev_param_name, values, visualization_extend, mask_2D=None):
+    condition = np.isnan(values)
+    if mask_2D is not None:
+        condition |= mask_2D
+    masked_array = np.ma.masked_where(condition, values)
     norm, shifted_cmap = plot_extreme_param(ax, gev_param_name, masked_array)
     shifted_cmap.set_bad(color='white')
     if gev_param_name != ExtremeParams.SHAPE:
@@ -54,5 +57,5 @@ def imshow_shifted(ax, gev_param_name, values, x, y):
         # The right blue corner will be blue (but most of the time, another display will be on top)
         masked_array[-1, -1] = value - epsilon
     # IMPORTANT: Origin for all the plots is at the bottom left corner
-    ax.imshow(masked_array, extent=(x.min(), x.max(), y.min(), y.max()), cmap=shifted_cmap, origin='lower')
+    ax.imshow(masked_array, extent=visualization_extend, cmap=shifted_cmap, origin='lower')
 

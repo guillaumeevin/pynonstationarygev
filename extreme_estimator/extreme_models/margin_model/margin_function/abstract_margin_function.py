@@ -15,9 +15,10 @@ from utils import cached_property
 class AbstractMarginFunction(object):
     """ Class of function mapping points from a space S (could be 1D, 2D,...) to R^3 (the 3 parameters of the GEV)"""
 
-    def __init__(self, coordinates: AbstractCoordinates, resolution=100):
+    def __init__(self, coordinates: AbstractCoordinates):
         self.coordinates = coordinates
-        self.resolution = resolution
+        self.resolution = 100
+        self.mask_2D = None
 
         # Visualization parameters
         self.visualization_axes = None
@@ -30,6 +31,10 @@ class AbstractMarginFunction(object):
 
         self._grid_2D = None
         self._grid_1D = None
+
+        # Visualization limits
+        self._visualization_x_limits = None
+        self._visualization_y_limits = None
 
     @property
     def x(self):
@@ -145,7 +150,7 @@ class AbstractMarginFunction(object):
             ax = plt.gca()
 
         # Special display
-        imshow_shifted(ax, gev_param_name, self.grid_2D[gev_param_name], self.x, self.y)
+        imshow_shifted(ax, gev_param_name, self.grid_2D[gev_param_name], self.visualization_extend, self.mask_2D)
 
         # X axis
         ax.set_xlabel('coordinate X')
@@ -159,13 +164,29 @@ class AbstractMarginFunction(object):
         if show:
             plt.show()
 
+    @property
+    def visualization_x_limits(self):
+        if self._visualization_x_limits is None:
+            return self.x.min(), self.x.max()
+        else:
+            return self._visualization_x_limits
+
+    @property
+    def visualization_y_limits(self):
+        if self._visualization_y_limits is None:
+            return self.y.min(), self.y.max()
+        else:
+            return self._visualization_y_limits
+
+    @property
+    def visualization_extend(self):
+        return self.visualization_x_limits + self.visualization_y_limits
+
     @cached_property
     def grid_2D(self):
-        x = self.x
-        y = self.y
         grid = []
-        for i, xi in enumerate(np.linspace(x.min(), x.max(), self.resolution)):
-            for j, yj in enumerate(np.linspace(y.min(), y.max(), self.resolution)):
+        for xi in np.linspace(*self.visualization_x_limits, self.resolution):
+            for yj in np.linspace(*self.visualization_y_limits, self.resolution):
                 grid.append(self.get_gev_params(np.array([xi, yj])).summary_dict)
         grid = {value_name: np.array([g[value_name] for g in grid]).reshape([self.resolution, self.resolution])
                 for value_name in GevParams.SUMMARY_NAMES}

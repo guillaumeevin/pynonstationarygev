@@ -4,6 +4,7 @@ from extreme_estimator.extreme_models.margin_model.param_function.linear_coef im
 
 
 class ParamFunction(object):
+    OUT_OF_BOUNDS_ASSERT = True
 
     def get_gev_param_value(self, coordinate: np.ndarray) -> float:
         pass
@@ -31,7 +32,8 @@ class LinearOneAxisParamFunction(ParamFunction):
 
     def get_gev_param_value(self, coordinate: np.ndarray) -> float:
         t = coordinate[self.linear_axis]
-        assert self.t_min <= t <= self.t_max, 'Out of bounds'
+        if self.OUT_OF_BOUNDS_ASSERT:
+            assert self.t_min <= t <= self.t_max, 'Out of bounds'
         return t * self.coef
 
 

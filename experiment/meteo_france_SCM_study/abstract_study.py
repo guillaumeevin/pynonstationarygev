@@ -158,14 +158,10 @@ class AbstractStudy(object):
 
         if ax is None:
             ax = plt.gca()
-        df_massif = pd.read_csv(op.join(self.map_full_path, 'massifsalpes.csv'))
-        coord_tuples = [(row_massif['idx'], row_massif[AbstractCoordinates.COORDINATE_X],
-                         row_massif[AbstractCoordinates.COORDINATE_Y])
-                        for _, row_massif in df_massif.iterrows()]
 
-        for _, coordinate_id in enumerate(set([t[0] for t in coord_tuples])):
+        for coordinate_id, coords_list in self.idx_to_coords_list.items():
             # Retrieve the list of coords (x,y) that define the contour of the massif of id coordinate_id
-            coords_list = [coords for idx, *coords in coord_tuples if idx == coordinate_id]
+
             # if j == 0:
             #     mask_outside_polygon(poly_verts=l, ax=ax)
             # Plot the contour of the massif
@@ -199,6 +195,30 @@ class AbstractStudy(object):
 
         if show:
             plt.show()
+
+    @property
+    def idx_to_coords_list(self):
+        df_massif = pd.read_csv(op.join(self.map_full_path, 'massifsalpes.csv'))
+        coord_tuples = [(row_massif['idx'], row_massif[AbstractCoordinates.COORDINATE_X],
+                         row_massif[AbstractCoordinates.COORDINATE_Y])
+                        for _, row_massif in df_massif.iterrows()]
+        all_idxs = set([t[0] for t in coord_tuples])
+        return {idx: [coords for idx_loop, *coords in coord_tuples if idx == idx_loop] for idx in all_idxs}
+
+    @property
+    def all_coords_list(self):
+        all_values = []
+        for e in self.idx_to_coords_list.values():
+            all_values.extend(e)
+        return list(zip(*all_values))
+
+    @property
+    def visualization_x_limits(self):
+        return min(self.all_coords_list[0]), max(self.all_coords_list[0])
+
+    @property
+    def visualization_y_limits(self):
+        return min(self.all_coords_list[1]), max(self.all_coords_list[1])
 
     """ Some properties """
 
