@@ -57,18 +57,18 @@ class LinearMarginModel(AbstractMarginModel):
                 params[(gev_param_name, dim)] = coef
         return cls(coordinates, params_sample=params, params_start_fit=params)
 
-    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, df_coordinates_spatial: pd.DataFrame,
-                                  df_coordinates_temporal: pd.DataFrame) -> ResultFromFit:
+    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, df_coordinates_spat: pd.DataFrame,
+                                  df_coordinates_temp: pd.DataFrame) -> ResultFromFit:
         # The reshaping on the line below is only valid if we have a single observation per spatio-temporal point
         if maxima_gev.shape[1] == 1:
-            maxima_gev = maxima_gev.reshape([len(df_coordinates_temporal), len(df_coordinates_spatial)])
+            maxima_gev = maxima_gev.reshape([len(df_coordinates_temp), len(df_coordinates_spat)])
         data = np.transpose(maxima_gev)
 
         fit_params = get_margin_formula(self.margin_function_start_fit.form_dict)
 
         # Covariables
-        covariables = get_coord(df_coordinates=df_coordinates_spatial)
-        fit_params['temp.cov'] = get_coord(df_coordinates=df_coordinates_temporal)
+        covariables = get_coord(df_coordinates=df_coordinates_spat)
+        fit_params['temp.cov'] = get_coord(df_coordinates=df_coordinates_temp)
 
         # Start parameters
         coef_dict = self.margin_function_start_fit.coef_dict

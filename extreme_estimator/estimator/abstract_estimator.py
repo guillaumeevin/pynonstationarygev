@@ -64,15 +64,7 @@ class AbstractEstimator(object):
     def train_split(self):
         return self.dataset.train_split
 
-    def scalars(self, true_max_stable_params: dict):
-        error = self._error(true_max_stable_params)
-        return {**error, **self.additional_information}
-
     # Methods to override in the child class
 
     def _fit(self):
         raise NotImplementedError
-
-    def _error(self, true_max_stable_params: dict):
-        raise NotImplementedError
-

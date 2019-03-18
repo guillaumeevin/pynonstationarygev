@@ -23,6 +23,10 @@ class MaxStableEstimator(AbstractMaxStableEstimator):
             df_coordinates=self.dataset.df_coordinates(split=self.train_split))
         self.max_stable_params_fitted = self.fitted_values
 
+    def scalars(self, true_max_stable_params: dict):
+        error = self._error(true_max_stable_params)
+        return {**error, **self.additional_information}
+
     def _error(self, true_max_stable_params: dict):
         absolute_errors = {param_name: np.abs(param_true_value - self.max_stable_params_fitted[param_name])
                            for param_name, param_true_value in true_max_stable_params.items()}

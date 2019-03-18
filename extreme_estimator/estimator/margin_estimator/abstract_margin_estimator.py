@@ -28,6 +28,9 @@ class PointWiseMarginEstimator(AbstractMarginEstimator):
 class SmoothMarginEstimator(AbstractMarginEstimator):
     """# with different type of marginals: cosntant, linear...."""
 
+    def _error(self, true_max_stable_params: dict):
+        pass
+
     def __init__(self, dataset: AbstractDataset, margin_model: LinearMarginModel):
         super().__init__(dataset)
         assert isinstance(margin_model, LinearMarginModel)
@@ -35,10 +38,10 @@ class SmoothMarginEstimator(AbstractMarginEstimator):
 
     def _fit(self):
         maxima_gev = self.dataset.maxima_gev(split=self.train_split)
-        df_coordinates_spatial = self.dataset.coordinates.df_spatial_coordinates(self.train_split)
-        df_coordinates_temporal = self.dataset.coordinates.df_temporal_coordinates(self.train_split)
+        df_coordinates_spat = self.dataset.coordinates.df_spatial_coordinates(self.train_split)
+        df_coordinates_temp = self.dataset.coordinates.df_temporal_coordinates(self.train_split)
         self._result_from_fit = self.margin_model.fitmargin_from_maxima_gev(maxima_gev=maxima_gev,
-                                                                            df_coordinates_spatial=df_coordinates_spatial,
-                                                                            df_coordinates_temporal=df_coordinates_temporal)
+                                                                            df_coordinates_spat=df_coordinates_spat,
+                                                                            df_coordinates_temp=df_coordinates_temp)
         self.extract_fitted_models_from_fitted_params(self.margin_model.margin_function_start_fit, self.fitted_values)
         assert isinstance(self.margin_function_fitted, AbstractMarginFunction)
