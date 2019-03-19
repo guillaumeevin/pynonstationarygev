@@ -62,6 +62,11 @@ def annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, alt
             study_visualizer.visualize_annual_mean_values(take_mean_value=take_mean_value)
 
 
+def max_stable_process_vizu_compare_gaume_study(altitude=1800, nb_days=1):
+    study = SafranSnowfall(altitude=altitude, nb_consecutive_days=nb_days)
+    study_visualizer = StudyVisualizer(study)
+    study_visualizer.visualize_brown_resnick_fit()
+
 def normal_visualization():
     save_to_file = False
     only_first_one = True
@@ -91,6 +96,7 @@ def complete_analysis(only_first_one=False):
 
 if __name__ == '__main__':
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2400)
-    normal_visualization()
+    # normal_visualization()
+    max_stable_process_vizu_compare_gaume_study(altitude=1800, nb_days=1)
     # extended_visualization()
     # complete_analysis()

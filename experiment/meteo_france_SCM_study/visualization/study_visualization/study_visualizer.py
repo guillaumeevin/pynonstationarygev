@@ -16,6 +16,7 @@ from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator impo
 from extreme_estimator.extreme_models.margin_model.param_function.param_function import ParamFunction
 from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearAllParametersAllDimsMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
+from extreme_estimator.extreme_models.max_stable_model.max_stable_models import BrownResnick
 from extreme_estimator.margin_fits.abstract_params import AbstractParams
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
@@ -209,6 +210,10 @@ class StudyVisualizer(object):
         ax.set_xlabel('year')
         ax.set_title(self.study.safran_massif_names[massif_id])
 
+    def visualize_brown_resnick_fit(self):
+        pass
+
+
     def visualize_linear_margin_fit(self, only_first_max_stable=False):
         default_covariance_function = CovarianceFunction.cauchy
         plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
@@ -217,9 +222,12 @@ class StudyVisualizer(object):
         self.plot_name = plot_name
         max_stable_models = load_test_max_stable_models(default_covariance_function=default_covariance_function)
         if only_first_max_stable:
-            max_stable_models = max_stable_models[:1]
+            # Keep only the BrownResnick model
+            max_stable_models = max_stable_models[1:2]
         if only_first_max_stable is None:
             max_stable_models = []
+
+
         fig, axes = plt.subplots(len(max_stable_models) + 2, len(GevParams.SUMMARY_NAMES), figsize=self.figsize)
         fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
         margin_class = LinearAllParametersAllDimsMarginModel
