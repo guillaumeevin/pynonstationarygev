@@ -46,7 +46,7 @@ class AbstractMarginFunction(object):
 
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
         """Main method that maps each coordinate to its GEV parameters"""
-        pass
+        raise NotImplementedError
 
     @property
     def gev_value_name_to_serie(self) -> Dict[str, pd.Series]:

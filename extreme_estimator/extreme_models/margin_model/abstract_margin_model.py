@@ -1,17 +1,21 @@
+from abc import ABC
+
 import numpy as np
 import pandas as pd
 
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function \
     import AbstractMarginFunction
+from extreme_estimator.extreme_models.result_from_fit import ResultFromFit
 from extreme_estimator.extreme_models.utils import r
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
-class AbstractMarginModel(AbstractModel):
+class AbstractMarginModel(AbstractModel, ABC):
 
-    def __init__(self, coordinates: AbstractCoordinates, use_start_value=False, params_start_fit=None, params_sample=None):
+    def __init__(self, coordinates: AbstractCoordinates, use_start_value=False,
+                 params_start_fit=None, params_sample=None):
         super().__init__(use_start_value, params_start_fit, params_sample)
         assert isinstance(coordinates, AbstractCoordinates), type(coordinates)
         self.coordinates = coordinates
@@ -20,7 +24,7 @@ class AbstractMarginModel(AbstractModel):
         self.load_margin_functions()
 
     def load_margin_functions(self):
-        pass
+        raise NotImplementedError
 
     def default_load_margin_functions(self, margin_function_class):
         self.margin_function_sample = margin_function_class(coordinates=self.coordinates,
@@ -70,7 +74,7 @@ class AbstractMarginModel(AbstractModel):
     # Fitting methods needs to be defined in child classes
 
     def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, df_coordinates_spatial: pd.DataFrame,
-                                  df_coordinates_temporal: pd.DataFrame) -> AbstractMarginFunction:
+                                  df_coordinates_temporal: pd.DataFrame) -> ResultFromFit:
         raise NotImplementedError
 
 

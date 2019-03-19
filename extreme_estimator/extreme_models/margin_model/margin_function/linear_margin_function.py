@@ -1,7 +1,7 @@
 from typing import Dict, List
 
-from extreme_estimator.extreme_models.margin_model.margin_function.independent_margin_function import \
-    IndependentMarginFunction
+from extreme_estimator.extreme_models.margin_model.margin_function.parametric_margin_function import \
+    ParametricMarginFunction
 from extreme_estimator.extreme_models.margin_model.param_function.linear_coef import LinearCoef
 from extreme_estimator.extreme_models.margin_model.param_function.param_function import ConstantParamFunction, \
     ParamFunction, LinearParamFunction
@@ -9,7 +9,7 @@ from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
-class LinearMarginFunction(IndependentMarginFunction):
+class LinearMarginFunction(ParametricMarginFunction):
     """ Margin Function, where each parameter can augment linearly along any dimension.
 
         dim = 0 correspond to the intercept

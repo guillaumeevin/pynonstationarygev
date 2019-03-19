@@ -4,6 +4,7 @@ import unittest
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_estimator.extreme_models.margin_model.spline_margin_model import SplineMarginModel
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearShapeDim1MarginModel, \
     LinearAllParametersAllDimsMarginModel
@@ -14,14 +15,16 @@ from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D impo
 from test.test_utils import load_test_spatiotemporal_coordinates
 
 
-class TestVisualizationMarginModel(unittest.TestCase):
+class TestVisualizationLinearMarginModel(unittest.TestCase):
     DISPLAY = False
     nb_points = 2
-    margin_model_class = [LinearShapeDim1MarginModel, LinearAllParametersAllDimsMarginModel][-1]
+    margin_model_class = LinearAllParametersAllDimsMarginModel
 
     def tearDown(self) -> None:
         self.margin_model.margin_function_sample.visualize_function(show=self.DISPLAY)
         self.assertTrue(True)
+
+
 
     def test_example_visualization_1D(self):
         coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=self.nb_points)
@@ -54,6 +57,27 @@ class TestVisualizationMarginModel(unittest.TestCase):
     #     self.margin_model.margin_function_sample.visualize_2D(show=True)
     #
     #     # Load
+
+
+# class TestVisualizationSplineMarginModel(TestVisualizationMarginModel):
+#     margin_model_class = SplineMarginModel
+#
+#     def tearDown(self) -> None:
+#         self.margin_model.margin_function_sample.visualize_function(show=self.DISPLAY)
+#         self.assertTrue(True)
+
+    # def test_example_visualization_1D_spline(self):
+    #     coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=self.nb_points)
+    #     self.margin_model = self.margin_model_class(coordinates=coordinates, params_sample={(GevParams.SHAPE, 1): 0.02})
+
+    # def test_example_visualization_2D_spatial_spline(self):
+    #     spatial_coordinates = LinSpaceSpatial2DCoordinates.from_nb_points(nb_points=self.nb_points)
+    #     self.margin_model = self.margin_model_class(coordinates=spatial_coordinates)
+    #     # Assert that the grid correspond to what we expect in a simple case
+    #     AbstractMarginFunction.VISUALIZATION_RESOLUTION = 2
+    #     grid = self.margin_model.margin_function_sample.grid_2D['loc']
+    #     true_grid = np.array([[0.98, 1.0], [1.0, 1.02]])
+    #     self.assertTrue((grid == true_grid).all(), msg="\nexpected:\n{}, \nfound:\n{}".format(true_grid, grid))
 
 
 if __name__ == '__main__':
