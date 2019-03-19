@@ -5,7 +5,7 @@ from extreme_estimator.extreme_models.margin_model.margin_function.abstract_marg
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
-from extreme_estimator.extreme_models.margin_model.smooth_margin_model import LinearShapeDim1MarginModel, \
+from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearShapeDim1MarginModel, \
     LinearAllParametersAllDimsMarginModel
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_2D import LinSpaceSpatial2DCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \

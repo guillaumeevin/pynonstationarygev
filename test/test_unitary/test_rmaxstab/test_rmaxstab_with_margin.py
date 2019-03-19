@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from extreme_estimator.extreme_models.margin_model.smooth_margin_model import ConstantMarginModel, \
+from extreme_estimator.extreme_models.margin_model.linear_margin_model import ConstantMarginModel, \
     LinearAllParametersAllDimsMarginModel
 from extreme_estimator.extreme_models.utils import r
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
