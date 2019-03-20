@@ -13,6 +13,11 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 
 class AbstractMarginModel(AbstractModel, ABC):
+    """
+    An AbstractMarginModel has two main AbstractMarginFunction attributes:
+        -margin_function_sample for sampling
+        -margin_function_start_fit for starting to fit
+    """
 
     def __init__(self, coordinates: AbstractCoordinates, use_start_value=False,
                  params_start_fit=None, params_sample=None):

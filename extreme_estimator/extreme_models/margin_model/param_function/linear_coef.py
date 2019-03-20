@@ -1,9 +1,10 @@
 from typing import Dict, List
 
+from extreme_estimator.extreme_models.margin_model.param_function.abstract_coef import AbstractCoef
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
-class LinearCoef(object):
+class LinearCoef(AbstractCoef):
     """
     Object that maps each dimension to its corresponding coefficient.
         dim = 0 correspond to the intercept
@@ -14,20 +15,9 @@ class LinearCoef(object):
     INTERCEPT_NAME = 'intercept'
     COEFF_STR = 'Coeff'
 
-    def __init__(self, gev_param_name: str, dim_to_coef: Dict[int, float] = None, default_value: float = 0.0):
-        self.gev_param_name = gev_param_name
-        self.dim_to_coef = dim_to_coef
-        self.default_value = default_value
-
-    def get_coef(self, dim: int) -> float:
-        if self.dim_to_coef is None:
-            return self.default_value
-        else:
-            return self.dim_to_coef.get(dim, self.default_value)
-
     @property
     def intercept(self) -> float:
-        return self.get_coef(dim=0)
+        return self.get_coef(idx=-1)
 
     @classmethod
     def coef_template_str(cls, gev_param_name: str, coefficient_name: str) -> str:
@@ -53,40 +43,37 @@ class LinearCoef(object):
                     for coefficient_name in dim_to_coefficient_name.values()])
 
     @classmethod
-    def add_intercept_dim(cls, dims):
-        return [0] + dims
+    def add_intercept_idx(cls, dims):
+        return [-1] + dims
+
+    """ Coef dict """
 
     @classmethod
-    def from_coef_dict(cls, coef_dict: Dict[str, float], gev_param_name: str, linear_dims: List[int],
-                       dim_to_coefficient_name: Dict[int, str]):
-        dims = cls.add_intercept_dim(linear_dims)
-        dim_to_coef = {}
-        j = 1
+    def from_coef_dict(cls, coef_dict: Dict[str, float], gev_param_name: str, dims: List[int],
+                       coordinates: AbstractCoordinates):
+        idx_to_coef = {-1: coef_dict[cls.coef_template_str(gev_param_name, coefficient_name=cls.INTERCEPT_NAME).format(1)]}
+        j = 2
         for dim in dims:
-            coefficient_name = dim_to_coefficient_name[dim]
+            coefficient_name = coordinates.coordinates_names[dim]
             if coefficient_name == AbstractCoordinates.COORDINATE_T:
                 j = 1
             coef = coef_dict[cls.coef_template_str(gev_param_name, coefficient_name).format(j)]
-            dim_to_coef[dim] = coef
+            idx_to_coef[dim] = coef
             j += 1
-        return cls(gev_param_name, dim_to_coef)
+        return cls(gev_param_name=gev_param_name, idx_to_coef=idx_to_coef)
 
-    def coef_dict(self, linear_dims, dim_to_coefficient_name: Dict[int, str]) -> Dict[str, float]:
-        dims = self.add_intercept_dim(linear_dims)
+    def coef_dict(self, dims, dim_to_coefficient_name: Dict[int, str]) -> Dict[str, float]:
+        dims = self.add_intercept_idx(dims)
         coef_dict = {}
         j = 1
         for dim in dims:
             coefficient_name = dim_to_coefficient_name[dim]
             if coefficient_name == AbstractCoordinates.COORDINATE_T:
                 j = 1
-            coef = self.dim_to_coef[dim]
+            coef = self.idx_to_coef[dim]
             coef_dict[self.coef_template_str(self.gev_param_name, coefficient_name).format(j)] = coef
             j += 1
         return coef_dict
-
-    def form_dict(self, names: List[str]) -> Dict[str, str]:
-        formula_str = '1' if not names else '+'.join(names)
-        return {self.gev_param_name + '.form': self.gev_param_name + ' ~ ' + formula_str}
 
     def spatial_form_dict(self, coordinate_spatial_names: List[str]) -> Dict[str, str]:
         """
@@ -105,7 +92,7 @@ class LinearCoef(object):
         Example of formula that could be specified:
         temp.form.loc = loc ~ coord_t
         Example of formula that could not be specified
-        temp.loc.form = shape ~ 1
+        temp.loc.form = loc ~ 1
         :return:
         """
         assert all([name in [AbstractCoordinates.COORDINATE_T] for name in coordinate_temporal_names])

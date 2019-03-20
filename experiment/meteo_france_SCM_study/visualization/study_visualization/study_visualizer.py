@@ -13,7 +13,7 @@ from experiment.utils import average_smoothing_with_sliding_window
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import SmoothMarginEstimator
-from extreme_estimator.extreme_models.margin_model.param_function.param_function import ParamFunction
+from extreme_estimator.extreme_models.margin_model.param_function.param_function import AbstractParamFunction
 from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import BrownResnick
@@ -57,7 +57,7 @@ class StudyVisualizer(object):
         self.coef_zoom_map = 1
 
         # Remove some assert
-        ParamFunction.OUT_OF_BOUNDS_ASSERT = False
+        AbstractParamFunction.OUT_OF_BOUNDS_ASSERT = False
 
     @property
     def observations(self):

@@ -13,7 +13,9 @@ from utils import cached_property
 
 
 class AbstractMarginFunction(object):
-    """ Class of function mapping points from a space S (could be 1D, 2D,...) to R^3 (the 3 parameters of the GEV)"""
+    """
+    AbstractMarginFunction maps points from a space S (could be 1D, 2D,...) to R^3 (the 3 parameters of the GEV)
+    """
     VISUALIZATION_RESOLUTION = 100
 
     def __init__(self, coordinates: AbstractCoordinates):
@@ -138,7 +140,8 @@ class AbstractMarginFunction(object):
         grid = []
         for i, xi in enumerate(linspace):
             gev_param = self.get_gev_params(np.array([xi]))
-            assert not gev_param.has_undefined_parameters, 'This case needs to be handled during display'
+            assert not gev_param.has_undefined_parameters, 'This case needs to be handled during display,' \
+                                                           'gev_parameter for xi={} is undefined'.format(xi)
             grid.append(gev_param.summary_dict)
         grid = {gev_param: [g[gev_param] for g in grid] for gev_param in GevParams.SUMMARY_NAMES}
         return grid, linspace

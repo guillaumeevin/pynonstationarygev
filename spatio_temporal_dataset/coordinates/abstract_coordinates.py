@@ -148,6 +148,10 @@ class AbstractCoordinates(object):
     def nb_coordinates(self) -> int:
         return len(self.coordinates_names)
 
+    @property
+    def coordinates_dims(self) -> List[int]:
+        return list(range(self.nb_coordinates))
+
     # Spatial attributes
 
     @property
