@@ -61,25 +61,25 @@ class ConstantMarginModel(LinearMarginModel):
         super().load_margin_functions({})
 
 
-class LinearShapeDim1MarginModel(LinearMarginModel):
+class LinearShapeDim0MarginModel(LinearMarginModel):
 
     def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
         super().load_margin_functions({GevParams.SHAPE: [0]})
 
 
-class LinearScaleDim1MarginModel(LinearMarginModel):
+class LinearScaleDim0MarginModel(LinearMarginModel):
 
     def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
         super().load_margin_functions({GevParams.SCALE: [0]})
 
 
-class LinearShapeDim1and2MarginModel(LinearMarginModel):
+class LinearShapeDim0and1MarginModel(LinearMarginModel):
 
     def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
         super().load_margin_functions({GevParams.SHAPE: [0, 1]})
 
 
-class LinearAllParametersDim1MarginModel(LinearMarginModel):
+class LinearAllParametersDim0MarginModel(LinearMarginModel):
 
     def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
         super().load_margin_functions({GevParams.SHAPE: [0],

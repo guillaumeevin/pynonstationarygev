@@ -1,21 +1,11 @@
-import numpy as np
 from typing import Dict, List
 
-import numpy as np
-
-from extreme_estimator.extreme_models.margin_model.margin_function.parametric_margin_function import \
-    ParametricMarginFunction
+from extreme_estimator.extreme_models.margin_model.margin_function.spline_margin_function import SplineMarginFunction
 from extreme_estimator.extreme_models.margin_model.param_function.abstract_coef import AbstractCoef
-from extreme_estimator.extreme_models.margin_model.param_function.param_function import AbstractParamFunction, \
-    SplineParamFunction
 from extreme_estimator.extreme_models.margin_model.param_function.spline_coef import SplineCoef, KnotCoef, \
     PolynomialCoef
-from extreme_estimator.margin_fits.gev.gev_params import GevParams
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-
-from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
-from extreme_estimator.extreme_models.margin_model.margin_function.spline_margin_function import SplineMarginFunction
 from extreme_estimator.extreme_models.margin_model.parametric_margin_model import ParametricMarginModel
+from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
@@ -30,6 +20,8 @@ class SplineMarginModel(ParametricMarginModel):
                               gev_param_name_to_nb_knots: Dict[str, int] = None,
                               degree=3):
         # Default parameters
+        # todo: for the default parameters: take inspiration from the linear_margin_model
+        # also implement the class method thing
         if gev_param_name_to_dims is None:
             gev_param_name_to_dims = {gev_param_name: self.coordinates.coordinates_dims
                                       for gev_param_name in GevParams.PARAM_NAMES}
