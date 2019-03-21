@@ -102,6 +102,7 @@ class TestSlicerForSpatioTemporalDataset(TestSlicerForDataset):
         coordinates_list = load_test_spatiotemporal_coordinates(nb_points=self.nb_points,
                                                                 nb_steps=self.nb_steps,
                                                                 train_split_ratio=train_split_ratio)
+        coordinates_list = [coordinates for coordinates in coordinates_list if coordinates.nb_coordinates <= 2]
         dataset_list = [FullSimulatedDataset.from_double_sampling(nb_obs=self.nb_obs,
                                                                   margin_model=ConstantMarginModel(
                                                                       coordinates=coordinates),

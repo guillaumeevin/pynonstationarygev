@@ -15,3 +15,14 @@ class AbstractSpatioTemporalCoordinates(AbstractCoordinates):
         first_time_step_for_all_points = df.iloc[:nb_points][cls.COORDINATE_T]
         assert len(set(first_time_step_for_all_points)) == 1
         return super().from_df_and_slicer(df, SpatioTemporalSlicer, train_split_ratio)
+
+    @classmethod
+    def generate_df_spatio_temporal(cls, df_spatial, nb_steps):
+        # df_temporal = ConsecutiveTemporalCoordinates.df_temporal(nb_temporal_steps=nb_temporal_steps)
+        df_time_steps = []
+        for t in range(nb_steps):
+            df_time_step = df_spatial.copy()
+            df_time_step[cls.COORDINATE_T] = t
+            df_time_steps.append(df_time_step)
+        df_time_steps = pd.concat(df_time_steps, ignore_index=True)
+        return df_time_steps

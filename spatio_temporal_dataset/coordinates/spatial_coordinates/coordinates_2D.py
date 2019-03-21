@@ -15,7 +15,12 @@ class LinSpaceSpatial2DCoordinates(AbstractBiDimensionalSpatialCoordinates):
 
     @classmethod
     def from_nb_points(cls, nb_points, train_split_ratio: float = None, start=-1.0, end=1.0):
+        df = cls.df_spatial(nb_points, start, end)
+        return cls.from_df(df, train_split_ratio)
+
+    @classmethod
+    def df_spatial(cls, nb_points, start=-1.0, end=1.0):
         axis_coordinates = np.linspace(start, end, nb_points)
         df = pd.DataFrame.from_dict({cls.COORDINATE_X: axis_coordinates,
                                      cls.COORDINATE_Y: axis_coordinates})
-        return cls.from_df(df, train_split_ratio)
+        return df

@@ -46,6 +46,7 @@ class FullSimulatedDataset(SimulatedDataset):
     def from_double_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel,
                              coordinates: AbstractCoordinates,
                              margin_model: AbstractMarginModel):
+        assert coordinates.nb_coordinates <= 2, 'rmaxstable available only for 2D coordinates'
         observations = FullAnnualMaxima.from_double_sampling(nb_obs, max_stable_model,
                                                              coordinates, margin_model)
         return cls(observations=observations, coordinates=coordinates,
