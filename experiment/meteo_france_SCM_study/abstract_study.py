@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 import os.path as op
 from collections import OrderedDict
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -70,6 +70,11 @@ class AbstractStudy(object):
             if self.year_min <= year < self.year_max:
                 year_to_dataset[year] = Dataset(op.join(self.safran_full_path, nc_file))
         return year_to_dataset
+
+    @property
+    def start_year_and_end_year(self) -> Tuple[int, int]:
+        ordered_years = list(self.year_to_dataset_ordered_dict.keys())
+        return ordered_years[0], ordered_years[-1]
 
     @cached_property
     def year_to_daily_time_serie_array(self) -> OrderedDict:

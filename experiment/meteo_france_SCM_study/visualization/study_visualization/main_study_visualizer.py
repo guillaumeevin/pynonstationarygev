@@ -68,13 +68,13 @@ def max_stable_process_vizu_compare_gaume_study(altitude=1800, nb_days=1):
     study_visualizer.visualize_brown_resnick_fit()
 
 
-def normal_visualization():
+def normal_visualization(temporal_non_stationarity=False):
     save_to_file = False
     only_first_one = True
     # for study_class in SCM_STUDIES[:1]:
     for study_class in [SafranSnowfall, SafranRainfall, SafranTemperature][:1]:
         for study in study_iterator(study_class, only_first_one=only_first_one):
-            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file)
+            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, temporal_non_stationarity=temporal_non_stationarity)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
             # study_visualizer.visualize_annual_mean_values()
             study_visualizer.visualize_linear_margin_fit(only_first_max_stable=None)
@@ -97,7 +97,7 @@ def complete_analysis(only_first_one=False):
 
 if __name__ == '__main__':
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2400)
-    normal_visualization()
+    normal_visualization(temporal_non_stationarity=True)
     # max_stable_process_vizu_compare_gaume_study(altitude=1800, nb_days=1)
     # extended_visualization()
     # complete_analysis()

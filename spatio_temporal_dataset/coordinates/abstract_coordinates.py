@@ -162,6 +162,10 @@ class AbstractCoordinates(object):
     def nb_coordinates_spatial(self) -> int:
         return len(self.coordinates_spatial_names)
 
+    @property
+    def has_spatial_coordinates(self):
+        return self.nb_coordinates_spatial > 0
+
     def df_spatial_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
         if self.nb_coordinates_spatial == 0:
             return pd.DataFrame()
@@ -184,6 +188,10 @@ class AbstractCoordinates(object):
     @property
     def has_temporal_coordinates(self):
         return self.nb_coordinates_temporal > 0
+
+    @property
+    def has_spatio_temporal_coordinates(self):
+        return self.has_spatial_coordinates and self.has_temporal_coordinates
 
     def df_temporal_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
         if self.nb_coordinates_temporal == 0:
