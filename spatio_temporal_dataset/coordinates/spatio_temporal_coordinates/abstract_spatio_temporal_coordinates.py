@@ -17,12 +17,15 @@ class AbstractSpatioTemporalCoordinates(AbstractCoordinates):
         return super().from_df_and_slicer(df, SpatioTemporalSlicer, train_split_ratio)
 
     @classmethod
-    def generate_df_spatio_temporal(cls, df_spatial, nb_steps):
-        # df_temporal = ConsecutiveTemporalCoordinates.df_temporal(nb_temporal_steps=nb_temporal_steps)
+    def from_df_spatial_and_nb_steps(cls, df_spatial, nb_steps, train_split_ratio: float = None, start=0):
         df_time_steps = []
+        index_type = type(df_spatial.index[0])
         for t in range(nb_steps):
             df_time_step = df_spatial.copy()
-            df_time_step[cls.COORDINATE_T] = t
+            df_time_step[cls.COORDINATE_T] = start + t
+            index_suffix = index_type(t + len(df_spatial))
+            time_step_index = [i + index_suffix for i in df_spatial.index] if t > 0 else df_spatial.index
+            df_time_step.index = time_step_index
             df_time_steps.append(df_time_step)
-        df_time_steps = pd.concat(df_time_steps, ignore_index=True)
-        return df_time_steps
+        df_time_steps = pd.concat(df_time_steps)
+        return cls.from_df(df=df_time_steps, train_split_ratio=train_split_ratio)

@@ -15,8 +15,7 @@ class GeneratedSpatioTemporalCoordinates(AbstractSpatioTemporalCoordinates):
         assert cls.SPATIAL_COORDINATES_CLASS is not None
         assert hasattr(cls.SPATIAL_COORDINATES_CLASS, 'df_spatial')
         df_spatial = cls.SPATIAL_COORDINATES_CLASS.df_spatial(nb_points=nb_points)
-        df_time_steps = cls.generate_df_spatio_temporal(df_spatial, nb_steps)
-        return cls.from_df(df=df_time_steps, train_split_ratio=train_split_ratio)
+        return cls.from_df_spatial_and_nb_steps(df_spatial, nb_steps, train_split_ratio)
 
 
 class UniformSpatioTemporalCoordinates(GeneratedSpatioTemporalCoordinates):

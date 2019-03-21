@@ -4,8 +4,9 @@ from collections import Counter, OrderedDict
 
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
-    UniformSpatioTemporalCoordinates
-from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import UniformSpatialCoordinates
+    UniformSpatioTemporalCoordinates, GeneratedSpatioTemporalCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import UniformSpatialCoordinates, \
+    LinSpaceSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_2D_coordinates import \
     AlpsStation2DCoordinatesBetweenZeroAndOne
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
@@ -51,6 +52,23 @@ class SpatioTemporalCoordinates(unittest.TestCase):
         c = Counter([len(self.coordinates.df_coordinates(split)) for split in SpatioTemporalSlicer.SPLITS])
         good_count = c == Counter([2, 2, 2, 2]) or c == Counter([0, 0, 4, 4])
         self.assertTrue(good_count)
+
+    def test_unique_spatio_temporal_index_and_matching_spatial_index(self):
+        spatial_coordinates = LinSpaceSpatialCoordinates.from_nb_points(self.nb_points)
+        spatial_indexes = [[10, 11, 12, 13], ['a', 'b', 'c', 'd']]
+        for spatial_index in spatial_indexes:
+            spatial_coordinates.df_all_coordinates.index = spatial_index
+            df_spatial = spatial_coordinates.df_spatial_coordinates()
+            coordinates = GeneratedSpatioTemporalCoordinates.from_df_spatial_and_nb_steps(df_spatial=df_spatial,
+                                                                                          nb_steps=self.nb_steps)
+
+            # the uniqueness of each spatio temporal index is not garanteed by the current algo
+            # it will work in classical cases, and raise an assert when uniqueness is needed (when using a slicer)
+            index1 = pd.Series(spatial_coordinates.spatial_index())
+            index2 = pd.Series(coordinates.spatial_index())
+            ind = index1 != index2  # type: pd.Series
+            self.assertEqual(sum(ind), 0, msg="spatial_coordinates:\n{} \n!= spatio_temporal_coordinates \n{}".
+                             format(index1.loc[ind], index2.loc[ind]))
 
     def test_ordered_coordinates(self):
         # Order coordinates, to ensure that the first dimension/the second dimension and so on..

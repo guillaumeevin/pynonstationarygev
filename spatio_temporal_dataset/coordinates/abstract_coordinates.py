@@ -168,6 +168,9 @@ class AbstractCoordinates(object):
         else:
             return self.df_coordinates(split).loc[:, self.coordinates_spatial_names].drop_duplicates()
 
+    def spatial_index(self, split: Split = Split.all) -> pd.Index:
+        return self.df_spatial_coordinates(split).index
+
     # Temporal attributes
 
     @property
