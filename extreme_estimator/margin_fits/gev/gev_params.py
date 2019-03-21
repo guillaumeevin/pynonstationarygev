@@ -9,6 +9,7 @@ class GevParams(ExtremeParams):
     PARAM_NAMES = [ExtremeParams.LOC, ExtremeParams.SCALE, ExtremeParams.SHAPE]
     # Summary
     SUMMARY_NAMES = PARAM_NAMES + ExtremeParams.QUANTILE_NAMES
+    NB_SUMMARY_NAMES = len(SUMMARY_NAMES)
 
     def __init__(self, loc: float, scale: float, shape: float, block_size: int = None):
         super().__init__(loc, scale, shape)

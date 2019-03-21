@@ -9,10 +9,13 @@ import pandas as pd
 import seaborn as sns
 
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
+from experiment.meteo_france_SCM_study.visualization.utils import create_adjusted_axes
 from experiment.utils import average_smoothing_with_sliding_window
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import SmoothMarginEstimator
+from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
+    AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.param_function.param_function import AbstractParamFunction
 from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
@@ -27,6 +30,7 @@ from test.test_utils import load_test_max_stable_models
 from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits
 
 BLOCK_MAXIMA_DISPLAY_NAME = 'block maxima '
+
 
 
 class StudyVisualizer(object):
@@ -202,7 +206,8 @@ class StudyVisualizer(object):
         # Counting the sum of 3-consecutive days of snowfall does not have any physical meaning,
         # as we are counting twice some days
         color_mean = 'g'
-        tuples_x_y = [(year, np.mean(data[:, massif_id])) for year, data in self.study.year_to_daily_time_serie_array.items()]
+        tuples_x_y = [(year, np.mean(data[:, massif_id])) for year, data in
+                      self.study.year_to_daily_time_serie_array.items()]
         x, y = list(zip(*tuples_x_y))
         x, y = average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
         ax.plot(x, y, color=color_mean)
@@ -213,13 +218,14 @@ class StudyVisualizer(object):
     def visualize_brown_resnick_fit(self):
         pass
 
-
     def visualize_linear_margin_fit(self, only_first_max_stable=False):
-        default_covariance_function = CovarianceFunction.cauchy
+        default_covariance_function = CovarianceFunction.powexp
         plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
         plot_name += '\n(with {} covariance structure when a covariance is needed)'.format(
             str(default_covariance_function).split('.')[-1])
         self.plot_name = plot_name
+
+        # Load max stable models
         max_stable_models = load_test_max_stable_models(default_covariance_function=default_covariance_function)
         if only_first_max_stable:
             # Keep only the BrownResnick model
@@ -227,9 +233,19 @@ class StudyVisualizer(object):
         if only_first_max_stable is None:
             max_stable_models = []
 
-
-        fig, axes = plt.subplots(len(max_stable_models) + 2, len(GevParams.SUMMARY_NAMES), figsize=self.figsize)
-        fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
+        # Load axes (either a 2D or 3D array depending on self.coordinates)
+        nb_max_stable_models = len(max_stable_models) + 2
+        nb_summary_names = GevParams.NB_SUMMARY_NAMES
+        if self.coordinates.has_temporal_coordinates:
+            nb_times_steps = AbstractMarginFunction.VISUALIZATION_TEMPORAL_STEPS
+            # Create one plot for each max stable models
+            axes = []
+            for _ in range(nb_max_stable_models):
+                axes.append(create_adjusted_axes(nb_rows=nb_summary_names, nb_columns=nb_times_steps,
+                                                 figsize=self.figsize, subplot_space=self.subplot_space))
+        else:
+            axes = create_adjusted_axes(nb_rows=nb_max_stable_models, nb_columns=nb_summary_names,
+                                        figsize=self.figsize, subplot_space=self.subplot_space)
         margin_class = LinearAllParametersAllDimsMarginModel
 
         # Plot the margin fit independently

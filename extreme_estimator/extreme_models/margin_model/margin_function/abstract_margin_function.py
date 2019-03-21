@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from experiment.meteo_france_SCM_study.visualization.utils import create_adjusted_axes
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.plot.create_shifted_cmap import plot_extreme_param, imshow_shifted
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -17,6 +18,7 @@ class AbstractMarginFunction(object):
     AbstractMarginFunction maps points from a space S (could be 1D, 2D,...) to R^3 (the 3 parameters of the GEV)
     """
     VISUALIZATION_RESOLUTION = 100
+    VISUALIZATION_TEMPORAL_STEPS = 2
 
     def __init__(self, coordinates: AbstractCoordinates):
         self.coordinates = coordinates
@@ -30,9 +32,11 @@ class AbstractMarginFunction(object):
         self.color = 'skyblue'
         self.filter = None
         self.linewidth = 1
+        self.subplot_space = 1.0
 
-        self._grid_2D = None
+        self.temporal_step_to_grid_2D = {}
         self._grid_1D = None
+        self.title = None
 
         # Visualization limits
         self._visualization_x_limits = None
@@ -75,28 +79,37 @@ class AbstractMarginFunction(object):
         self.color = color
 
     def visualize_function(self, axes=None, show=True, dot_display=False, title=None):
+        self.title = title
         self.datapoint_display = dot_display
         if axes is None:
-            fig, axes = plt.subplots(1, len(GevParams.SUMMARY_NAMES))
-            fig.subplots_adjust(hspace=1.0, wspace=1.0)
+            if self.coordinates.has_temporal_coordinates:
+                axes = create_adjusted_axes(GevParams.NB_SUMMARY_NAMES, self.VISUALIZATION_TEMPORAL_STEPS)
+            else:
+                axes = create_adjusted_axes(1, GevParams.NB_SUMMARY_NAMES, subplot_space=self.subplot_space)
         self.visualization_axes = axes
-        for i, gev_value_name in enumerate(GevParams.SUMMARY_NAMES):
-            ax = axes[i]
+        assert len(axes) == GevParams.NB_SUMMARY_NAMES
+        for ax, gev_value_name in zip(axes, GevParams.SUMMARY_NAMES):
             self.visualize_single_param(gev_value_name, ax, show=False)
-            title_str = gev_value_name if title is None else title
-            ax.set_title(title_str)
+            self.set_title(ax, gev_value_name)
         if show:
             plt.show()
         return axes
 
+    def set_title(self, ax, gev_value_name):
+        if hasattr(ax, 'set_title'):
+            title_str = gev_value_name if self.title is None else self.title
+            ax.set_title(title_str)
+
     def visualize_single_param(self, gev_value_name=GevParams.LOC, ax=None, show=True):
         assert gev_value_name in GevParams.SUMMARY_NAMES
-        if self.coordinates.nb_coordinates_spatial == 1:
+        nb_coordinates_spatial = self.coordinates.nb_coordinates_spatial
+        has_temporal_coordinates = self.coordinates.has_temporal_coordinates
+        if nb_coordinates_spatial == 1 and not has_temporal_coordinates:
             self.visualize_1D(gev_value_name, ax, show)
-        elif self.coordinates.nb_coordinates_spatial == 2:
+        elif nb_coordinates_spatial == 2 and not has_temporal_coordinates:
             self.visualize_2D(gev_value_name, ax, show)
-        elif self.coordinates.nb_coordinates_spatial == 3:
-            self.visualize_3D(gev_value_name, ax, show)
+        elif nb_coordinates_spatial == 2 and has_temporal_coordinates:
+            self.visualize_2D_spatial_1D_temporal(gev_value_name, ax, show)
         else:
             raise NotImplementedError('Other visualization not yet implemented')
 
@@ -148,12 +161,12 @@ class AbstractMarginFunction(object):
 
     # Visualization 2D
 
-    def visualize_2D(self, gev_param_name=GevParams.LOC, ax=None, show=True):
+    def visualize_2D(self, gev_param_name=GevParams.LOC, ax=None, show=True, temporal_step=None):
         if ax is None:
             ax = plt.gca()
 
         # Special display
-        imshow_shifted(ax, gev_param_name, self.grid_2D[gev_param_name], self.visualization_extend, self.mask_2D)
+        imshow_shifted(ax, gev_param_name, self.grid_2D(temporal_step)[gev_param_name], self.visualization_extend, self.mask_2D)
 
         # X axis
         ax.set_xlabel('coordinate X')
@@ -185,19 +198,44 @@ class AbstractMarginFunction(object):
     def visualization_extend(self):
         return self.visualization_x_limits + self.visualization_y_limits
 
-    @cached_property
-    def grid_2D(self):
+    def grid_2D(self, temporal_step=None):
+        # Cache the results
+        if temporal_step not in self.temporal_step_to_grid_2D:
+            self.temporal_step_to_grid_2D[temporal_step] = self._grid_2D(temporal_step)
+        return self.temporal_step_to_grid_2D[temporal_step]
+
+    def _grid_2D(self, temporal_step=None):
         grid = []
         for xi in np.linspace(*self.visualization_x_limits, self.VISUALIZATION_RESOLUTION):
             for yj in np.linspace(*self.visualization_y_limits, self.VISUALIZATION_RESOLUTION):
-                grid.append(self.get_gev_params(np.array([xi, yj])).summary_dict)
-        grid = {value_name: np.array([g[value_name] for g in grid]).reshape([self.VISUALIZATION_RESOLUTION, self.VISUALIZATION_RESOLUTION])
+                # Build spatio temporal coordinate
+                coordinate = [xi, yj]
+                if temporal_step is not None:
+                    coordinate.append(temporal_step)
+                grid.append(self.get_gev_params(np.array(coordinate)).summary_dict)
+        grid = {value_name: np.array([g[value_name] for g in grid]).reshape(
+            [self.VISUALIZATION_RESOLUTION, self.VISUALIZATION_RESOLUTION])
                 for value_name in GevParams.SUMMARY_NAMES}
         return grid
 
     # Visualization 3D
 
-    def visualize_3D(self, gev_param_name=GevParams.LOC, ax=None, show=True):
-        # Make the first/the last time step 2D visualization side by side
-        # self.visualize_2D(gev_param_name=gev_param_name, ax=ax, show=show)
-        pass
+    def visualize_2D_spatial_1D_temporal(self, gev_param_name=GevParams.LOC, axes=None, show=True,
+                                         add_future_temporal_steps=False):
+        if axes is None:
+            axes = create_adjusted_axes(self.VISUALIZATION_TEMPORAL_STEPS, 1)
+        assert len(axes) == self.VISUALIZATION_TEMPORAL_STEPS
+
+        # Build temporal_steps a list of time steps
+        future_temporal_steps = [10, 100] if add_future_temporal_steps else []
+        nb_past_temporal_step = self.VISUALIZATION_TEMPORAL_STEPS - len(future_temporal_steps)
+        start, stop = self.coordinates.df_temporal_range()
+        temporal_steps = list(np.linspace(start, stop, num=nb_past_temporal_step)) + future_temporal_steps
+        assert len(temporal_steps) == self.VISUALIZATION_TEMPORAL_STEPS
+
+        for ax, temporal_step in zip(axes, temporal_steps):
+            self.visualize_2D(gev_param_name, ax, show=False, temporal_step=temporal_step)
+            self.set_title(ax, gev_param_name)
+
+        if show:
+            plt.show()

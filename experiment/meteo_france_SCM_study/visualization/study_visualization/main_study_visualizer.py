@@ -77,7 +77,7 @@ def normal_visualization():
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
             # study_visualizer.visualize_annual_mean_values()
-            study_visualizer.visualize_linear_margin_fit(only_first_max_stable=True)
+            study_visualizer.visualize_linear_margin_fit(only_first_max_stable=None)
 
 
 def complete_analysis(only_first_one=False):

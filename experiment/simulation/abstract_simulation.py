@@ -127,7 +127,7 @@ class AbstractSimulation(object):
 
     @staticmethod
     def load_fig_and_axes():
-        fig, axes = plt.subplots(len(GevParams.SUMMARY_NAMES), 2)
+        fig, axes = plt.subplots(GevParams.NB_SUMMARY_NAMES, 2)
         fig.subplots_adjust(hspace=0.4, wspace=0.4)
         return fig, axes
 

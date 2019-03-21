@@ -35,5 +35,11 @@ def get_km_formatter():
     return tkr.FuncFormatter(numfmt)  # create your custom formatter function
 
 
+def create_adjusted_axes(nb_rows, nb_columns, figsize=(16,10), subplot_space=0.5):
+    fig, axes = plt.subplots(nb_rows, nb_columns, figsize=figsize)
+    fig.subplots_adjust(hspace=subplot_space, wspace=subplot_space)
+    return axes
+
+
 if __name__ == '__main__':
     example_plot_df()

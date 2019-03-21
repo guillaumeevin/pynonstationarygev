@@ -1,5 +1,5 @@
 import os.path as op
-from typing import List
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -178,11 +178,19 @@ class AbstractCoordinates(object):
     def nb_coordinates_temporal(self) -> int:
         return len(self.coordinates_temporal_names)
 
+    @property
+    def has_temporal_coordinates(self):
+        return self.nb_coordinates_temporal > 0
+
     def df_temporal_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
         if self.nb_coordinates_temporal == 0:
             return pd.DataFrame()
         else:
             return self.df_coordinates(split).loc[:, self.coordinates_temporal_names].drop_duplicates()
+
+    def df_temporal_range(self, split: Split = Split.all) -> Tuple[float, float]:
+        df_temporal_coordinates = self.df_temporal_coordinates(split)
+        return float(df_temporal_coordinates.min()), float(df_temporal_coordinates.max()),
 
     #  Visualization
 
