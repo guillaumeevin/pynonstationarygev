@@ -29,26 +29,11 @@ class TestVisualizationLinearMarginModel(unittest.TestCase):
     def test_example_visualization_2D_spatial(self):
         spatial_coordinates = LinSpaceSpatial2DCoordinates.from_nb_points(nb_points=self.nb_points)
         self.margin_model = self.margin_model_class(coordinates=spatial_coordinates)
-        # Assert that the grid correspond to what we expect in a simple case
-        AbstractMarginFunction.VISUALIZATION_RESOLUTION = 2
-        grid = self.margin_model.margin_function_sample.grid_2D()['loc']
-        true_grid = np.array([[0.98, 1.0], [1.0, 1.02]])
-        self.assertTrue((grid == true_grid).all(), msg="\nexpected:\n{}, \nfound:\n{}".format(true_grid, grid))
 
     def test_example_visualization_2D_spatio_temporal(self):
         self.nb_steps = 2
         coordinates = load_test_spatiotemporal_coordinates(nb_steps=self.nb_steps, nb_points=self.nb_points)[1]
         self.margin_model = self.margin_model_class(coordinates)
-        # Test to check loading of margin function from coef dict
-        # coef_dict = {'locCoeff1': 0, 'locCoeff2': 1, 'scaleCoeff1': 0,
-        #              'scaleCoeff2': 1, 'shapeCoeff1': 0,
-        #              'shapeCoeff2': 1,
-        #              'tempCoeffLoc1': 1, 'tempCoeffScale1': 1,
-        #              'tempCoeffShape1': 1}
-        # margin_function = LinearMarginFunction.from_coef_dict(coordinates,
-        #                                                       self.margin_model.margin_function_sample.gev_param_name_to_linear_dims,
-        #                                                       coef_dict)
-        # self.margin_model.margin_function_sample = margin_function
 
 
 class TestVisualizationSplineMarginModel(unittest.TestCase):
