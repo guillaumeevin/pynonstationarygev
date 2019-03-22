@@ -56,8 +56,9 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
     def _fit(self):
         # Estimate both the margin and the max-stable structure
         self._result_from_fit = self.max_stable_model.fitmaxstab(
-            maxima_gev=self.dataset.maxima_gev(split=self.train_split),
-            df_coordinates=self.dataset.df_coordinates(split=self.train_split),
+            data_gev=self.dataset.maxima_gev_for_spatial_extremes_package(self.train_split),
+            df_coordinates_spat=self.dataset.coordinates.df_spatial_coordinates(self.train_split),
+            df_coordinates_temp=self.dataset.coordinates.df_temporal_coordinates(self.train_split),
             fit_marge=True,
             fit_marge_form_dict=self.linear_margin_function_to_fit.form_dict,
             margin_start_dict=self.linear_margin_function_to_fit.coef_dict

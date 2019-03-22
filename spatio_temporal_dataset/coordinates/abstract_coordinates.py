@@ -166,7 +166,7 @@ class AbstractCoordinates(object):
         return len(self.coordinates_spatial_names)
 
     @property
-    def has_spatial_coordinates(self):
+    def has_spatial_coordinates(self) -> bool:
         return self.nb_coordinates_spatial > 0
 
     def df_spatial_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
@@ -189,12 +189,8 @@ class AbstractCoordinates(object):
         return len(self.coordinates_temporal_names)
 
     @property
-    def has_temporal_coordinates(self):
+    def has_temporal_coordinates(self) -> bool:
         return self.nb_coordinates_temporal > 0
-
-    @property
-    def has_spatio_temporal_coordinates(self):
-        return self.has_spatial_coordinates and self.has_temporal_coordinates
 
     def df_temporal_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
         if self.nb_coordinates_temporal == 0:
@@ -205,6 +201,15 @@ class AbstractCoordinates(object):
     def df_temporal_range(self, split: Split = Split.all) -> Tuple[int, int]:
         df_temporal_coordinates = self.df_temporal_coordinates(split)
         return int(df_temporal_coordinates.min()), int(df_temporal_coordinates.max()),
+
+    # Spatio temporal attributes
+
+    @property
+    def has_spatio_temporal_coordinates(self) -> bool:
+        return self.has_spatial_coordinates and self.has_temporal_coordinates
+
+    def spatio_temporal_shape(self, split: Split.all) -> Tuple[int, int]:
+        return len(self.df_spatial_coordinates(split)), len(self.df_temporal_coordinates(split))
 
     #  Visualization
 

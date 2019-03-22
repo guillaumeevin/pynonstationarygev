@@ -20,16 +20,11 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         self.margin_function_start_fit = None  # type: ParametricMarginFunction
         super().__init__(coordinates, use_start_value, params_start_fit, params_sample)
 
-    def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, df_coordinates_spat: pd.DataFrame,
+    def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
                                   df_coordinates_temp: pd.DataFrame) -> ResultFromFit:
-        # The reshaping on the line below is only valid if we have a single observation per spatio-temporal point
-        if maxima_gev.shape[1] == 1:
-            maxima_gev = maxima_gev.reshape([len(df_coordinates_spat), len(df_coordinates_temp)])
-        data = np.transpose(maxima_gev)
         assert data.shape[1] == len(df_coordinates_spat)
 
         fit_params = get_margin_formula(self.margin_function_start_fit.form_dict)
-
 
         # Covariables
         covariables = get_coord(df_coordinates=df_coordinates_spat)

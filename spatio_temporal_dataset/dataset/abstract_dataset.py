@@ -51,6 +51,20 @@ class AbstractDataset(object):
     def set_maxima_frech(self, maxima_frech_values: np.ndarray, split: Split = Split.all):
         self.observations.set_maxima_frech(maxima_frech_values, split, self.slicer)
 
+    # Observation wrapper for fit function
+
+    def transform_maxima_for_spatial_extreme_package(self, maxima_function, split) -> np.ndarray:
+        array = maxima_function(split)
+        if self.coordinates.has_spatio_temporal_coordinates:
+            array = array.reshape(self.coordinates.spatio_temporal_shape(split))
+        return np.transpose(array)
+
+    def maxima_gev_for_spatial_extremes_package(self, split: Split = Split.all) -> np.ndarray:
+        return self.transform_maxima_for_spatial_extreme_package(self.maxima_gev, split)
+
+    def maxima_frech_for_spatial_extremes_package(self, split: Split = Split.all) -> np.ndarray:
+        return self.transform_maxima_for_spatial_extreme_package(self.maxima_frech, split)
+
     # Coordinates wrapper
 
     def df_coordinates(self, split: Split = Split.all) -> pd.DataFrame:

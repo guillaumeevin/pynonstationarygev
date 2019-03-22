@@ -20,32 +20,30 @@ class AbstractMaxStableModel(AbstractModel):
     def cov_mod_param(self):
         return {'cov.mod': self.cov_mod}
 
-    def fitmaxstab(self, df_coordinates: pd.DataFrame, maxima_frech: np.ndarray = None, maxima_gev: np.ndarray = None,
+    def fitmaxstab(self, df_coordinates_spat: pd.DataFrame, df_coordinates_temp: pd.DataFrame = None,
+                   data_frech: np.ndarray = None, data_gev: np.ndarray = None,
                    fit_marge=False, fit_marge_form_dict=None, margin_start_dict=None) -> ResultFromFit:
-        assert isinstance(df_coordinates, pd.DataFrame)
+        assert isinstance(df_coordinates_spat, pd.DataFrame)
         if fit_marge:
             assert fit_marge_form_dict is not None
             assert margin_start_dict is not None
 
         # Prepare the data
-        maxima = maxima_gev if fit_marge else maxima_frech
-        assert isinstance(maxima, np.ndarray)
-        assert len(df_coordinates) == len(maxima), 'Coordinates and observations sizes should match,' \
-                                                   'check that the same split was used for both objects, \n' \
-                                                   'df_coordinates size: {}, data size {}'.format(len(df_coordinates),
-                                                                                                  len(maxima))
-        data = np.transpose(maxima)
+        data = data_gev if fit_marge else data_frech
+        assert isinstance(data, np.ndarray)
+        assert len(df_coordinates_spat) == data.shape[1]
 
         # Prepare the coord
-        df_coordinates = df_coordinates.copy()
+        df_coordinates_spat = df_coordinates_spat.copy()
         # In the one dimensional case, fitmaxstab isn't working
         # therefore, we treat our 1D coordinate as 2D coordinate on the line y=x, and enforce iso=TRUE
-        fitmaxstab_with_one_dimensional_data = len(df_coordinates.columns) == 1
+        fitmaxstab_with_one_dimensional_data = len(df_coordinates_spat.columns) == 1
         if fitmaxstab_with_one_dimensional_data:
-            assert AbstractCoordinates.COORDINATE_X in df_coordinates.columns
-            df_coordinates[AbstractCoordinates.COORDINATE_Y] = df_coordinates[AbstractCoordinates.COORDINATE_X]
+            assert AbstractCoordinates.COORDINATE_X in df_coordinates_spat.columns
+            df_coordinates_spat[AbstractCoordinates.COORDINATE_Y] = df_coordinates_spat[
+                AbstractCoordinates.COORDINATE_X]
         # Give names to columns to enable a specification of the shape of each marginal parameter
-        coord = get_coord(df_coordinates)
+        coord = get_coord(df_coordinates_spat)
 
         #  Prepare the fit_params (a dictionary containing all additional parameters)
         fit_params = self.cov_mod_param.copy()
@@ -61,8 +59,16 @@ class AbstractMaxStableModel(AbstractModel):
         fit_params['start'] = r.list(**start_dict)
         fit_params['fit.marge'] = fit_marge
 
+        # Add some temporal covariates
+        # Check the shape of the data
+        has_temp_cov = df_coordinates_temp is not None and len(df_coordinates_temp) > 0
+        if has_temp_cov:
+            assert len(df_coordinates_temp) == len(data)
+            fit_params['temp.cov'] = get_coord(df_coordinates_temp)
+
         # Run the fitmaxstab in R
-        return safe_run_r_estimator(function=r.fitmaxstab, use_start=self.use_start_value, data=data, coord=coord, **fit_params)
+        return safe_run_r_estimator(function=r.fitmaxstab, use_start=self.use_start_value, data=data, coord=coord,
+                                    **fit_params)
 
     def rmaxstab(self, nb_obs: int, coordinates_values: np.ndarray) -> np.ndarray:
         """
@@ -86,7 +92,8 @@ class CovarianceFunction(Enum):
 
 class AbstractMaxStableModelWithCovarianceFunction(AbstractMaxStableModel):
 
-    def __init__(self, use_start_value=False, params_start_fit=None, params_sample=None, covariance_function: CovarianceFunction = None):
+    def __init__(self, use_start_value=False, params_start_fit=None, params_sample=None,
+                 covariance_function: CovarianceFunction = None):
         super().__init__(use_start_value, params_start_fit, params_sample)
         assert covariance_function is not None
         self.covariance_function = covariance_function
