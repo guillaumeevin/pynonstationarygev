@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
@@ -37,6 +37,7 @@ class AbstractMarginFunction(object):
         self.temporal_step_to_grid_2D = {}
         self._grid_1D = None
         self.title = None
+        self.add_future_temporal_steps = False
 
         # Visualization limits
         self._visualization_x_limits = None
@@ -220,22 +221,25 @@ class AbstractMarginFunction(object):
 
     # Visualization 3D
 
-    def visualize_2D_spatial_1D_temporal(self, gev_param_name=GevParams.LOC, axes=None, show=True,
-                                         add_future_temporal_steps=False):
+    def visualize_2D_spatial_1D_temporal(self, gev_param_name=GevParams.LOC, axes=None, show=True):
         if axes is None:
             axes = create_adjusted_axes(self.VISUALIZATION_TEMPORAL_STEPS, 1)
         assert len(axes) == self.VISUALIZATION_TEMPORAL_STEPS
 
         # Build temporal_steps a list of time steps
-        future_temporal_steps = [10, 100] if add_future_temporal_steps else []
-        nb_past_temporal_step = self.VISUALIZATION_TEMPORAL_STEPS - len(future_temporal_steps)
-        start, stop = self.coordinates.df_temporal_range()
-        temporal_steps = list(np.linspace(start, stop, num=nb_past_temporal_step)) + future_temporal_steps
-        assert len(temporal_steps) == self.VISUALIZATION_TEMPORAL_STEPS
-
-        for ax, temporal_step in zip(axes, temporal_steps):
+        assert len(self.temporal_steps) == self.VISUALIZATION_TEMPORAL_STEPS
+        for ax, temporal_step in zip(axes, self.temporal_steps):
             self.visualize_2D(gev_param_name, ax, show=False, temporal_step=temporal_step)
             self.set_title(ax, gev_param_name)
 
         if show:
             plt.show()
+
+    @cached_property
+    def temporal_steps(self) -> List[int]:
+        future_temporal_steps = [10, 100] if self.add_future_temporal_steps else []
+        nb_past_temporal_step = self.VISUALIZATION_TEMPORAL_STEPS - len(future_temporal_steps)
+        start, stop = self.coordinates.df_temporal_range()
+        temporal_steps = [int(step) for step in np.linspace(start, stop, num=nb_past_temporal_step)]
+        temporal_steps += [stop + step for step in future_temporal_steps]
+        return temporal_steps

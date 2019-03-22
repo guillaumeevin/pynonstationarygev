@@ -72,7 +72,7 @@ class AbstractStudy(object):
         return year_to_dataset
 
     @property
-    def start_year_and_end_year(self) -> Tuple[int, int]:
+    def start_year_and_stop_year(self) -> Tuple[int, int]:
         ordered_years = list(self.year_to_dataset_ordered_dict.keys())
         return ordered_years[0], ordered_years[-1]
 

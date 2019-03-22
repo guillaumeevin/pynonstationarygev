@@ -202,9 +202,9 @@ class AbstractCoordinates(object):
         else:
             return self.df_coordinates(split).loc[:, self.coordinates_temporal_names].drop_duplicates()
 
-    def df_temporal_range(self, split: Split = Split.all) -> Tuple[float, float]:
+    def df_temporal_range(self, split: Split = Split.all) -> Tuple[int, int]:
         df_temporal_coordinates = self.df_temporal_coordinates(split)
-        return float(df_temporal_coordinates.min()), float(df_temporal_coordinates.max()),
+        return int(df_temporal_coordinates.min()), int(df_temporal_coordinates.max()),
 
     #  Visualization
 

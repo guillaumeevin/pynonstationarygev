@@ -28,7 +28,7 @@ class SafranFrequency(Safran):
 
     @property
     def variable_name(self):
-        return super().variable_name + ' cumulated over {} days'.format(self.nb_consecutive_days)
+        return super().variable_name + ' cumulated over {} day(s)'.format(self.nb_consecutive_days)
 
     def annual_aggregation_function(self, *args, **kwargs):
         return np.sum(*args, **kwargs)

@@ -18,6 +18,7 @@ class AbstractMarginEstimator(AbstractEstimator, ABC):
     @property
     def margin_function_fitted(self) -> AbstractMarginFunction:
         assert self._margin_function_fitted is not None, 'Error: estimator has not been fitted'
+        assert isinstance(self._margin_function_fitted, AbstractMarginFunction)
         return self._margin_function_fitted
 
 
@@ -44,4 +45,4 @@ class SmoothMarginEstimator(AbstractMarginEstimator):
                                                                             df_coordinates_spat=df_coordinates_spat,
                                                                             df_coordinates_temp=df_coordinates_temp)
         self.extract_fitted_models_from_fitted_params(self.margin_model.margin_function_start_fit, self.fitted_values)
-        assert isinstance(self.margin_function_fitted, AbstractMarginFunction)
+

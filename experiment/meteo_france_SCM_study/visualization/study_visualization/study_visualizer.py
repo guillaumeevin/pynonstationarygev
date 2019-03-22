@@ -14,12 +14,11 @@ from experiment.utils import average_smoothing_with_sliding_window
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import SmoothMarginEstimator
+from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.param_function.param_function import AbstractParamFunction
-from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
-from extreme_estimator.extreme_models.max_stable_model.max_stable_models import BrownResnick
 from extreme_estimator.margin_fits.abstract_params import AbstractParams
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
@@ -69,8 +68,11 @@ class StudyVisualizer(object):
         self.subplot_space = 0.5
         self.coef_zoom_map = 1
 
+        # Modify some class attributes
         # Remove some assert
         AbstractParamFunction.OUT_OF_BOUNDS_ASSERT = False
+        # INCREASE THE TEMPORAL STEPS FOR VISUALIZATION
+        AbstractMarginFunction.VISUALIZATION_TEMPORAL_STEPS = 5
 
     @property
     def dataset(self):
@@ -85,8 +87,8 @@ class StudyVisualizer(object):
             if self.temporal_non_stationarity:
                 # Build spatio temporal dataset from a temporal dataset
                 df_spatial = coordinates.df_spatial_coordinates()
-                start, end = self.study.start_year_and_end_year
-                nb_steps = end - start + 1
+                start, stop = self.study.start_year_and_stop_year
+                nb_steps = stop - start + 1
                 coordinates = AbstractSpatioTemporalCoordinates.from_df_spatial_and_nb_steps(df_spatial=df_spatial,
                                                                                              nb_steps=nb_steps,
                                                                                              start=start)
@@ -246,6 +248,7 @@ class StudyVisualizer(object):
 
     def visualize_linear_margin_fit(self, only_first_max_stable=False):
         default_covariance_function = CovarianceFunction.powexp
+        margin_class = LinearAllParametersAllDimsMarginModel
         plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
         plot_name += '\n(with {} covariance structure when a covariance is needed)'.format(
             str(default_covariance_function).split('.')[-1])
@@ -277,7 +280,6 @@ class StudyVisualizer(object):
             # Plot the margin fit independently on the additional row
             self.visualize_independent_margin_fits(threshold=None, axes=axes[-1], show=False)
 
-        margin_class = LinearAllParametersAllDimsMarginModel
         # Plot the smooth margin only
         margin_model = margin_class(coordinates=self.coordinates)
         estimator = SmoothMarginEstimator(dataset=self.dataset, margin_model=margin_model)
@@ -300,30 +302,23 @@ class StudyVisualizer(object):
         margin_fct._visualization_x_limits = self.study.visualization_x_limits
         margin_fct._visualization_y_limits = self.study.visualization_y_limits
         margin_fct.mask_2D = self.study.mask_french_alps
+        if self.temporal_non_stationarity:
+            margin_fct.add_future_temporal_steps = True
 
-        axes = margin_fct.visualize_function(show=False, axes=axes, title='') # type: np.ndarray
+        axes = margin_fct.visualize_function(show=False, axes=axes, title='')  # type: np.ndarray
 
         if axes.ndim == 1:
             self.visualize_contour_and_move_axes_limits(axes)
             self.clean_axes_write_title_on_the_left(axes, title)
         else:
             axes = np.transpose(axes)
-            for axes_line in axes:
+            for temporal_step, axes_line in zip(margin_fct.temporal_steps, axes):
                 self.visualize_contour_and_move_axes_limits(axes_line)
-                self.clean_axes_write_title_on_the_left(axes_line, title, left_border=False)
+                self.clean_axes_write_title_on_the_left(axes_line, str(temporal_step) + title, left_border=False)
 
     def visualize_contour_and_move_axes_limits(self, axes):
-        def get_lim_array(ax_with_lim_to_measure):
-            return np.array([np.array(ax_with_lim_to_measure.get_xlim()), np.array(ax_with_lim_to_measure.get_ylim())])
-
         for ax in axes:
-            # old_lim = get_lim_array(ax)
             self.study.visualize_study(ax, fill=False, show=False)
-            # new_lim = get_lim_array(ax)
-            # assert 0 <= self.coef_zoom_map <= 1
-            # updated_lim = new_lim * self.coef_zoom_map + (1 - self.coef_zoom_map) * old_lim
-            # for i, method in enumerate([ax.set_xlim, ax.set_ylim]):
-            #     method(updated_lim[i, 0], updated_lim[i, 1])
 
     @staticmethod
     def clean_axes_write_title_on_the_left(axes, title, left_border=True):
