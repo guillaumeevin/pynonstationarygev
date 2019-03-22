@@ -2,9 +2,13 @@ import numpy as np
 from collections import OrderedDict
 
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
+from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
+    AbstractSpatialCoordinates
 
 
 class AbstractExtendedStudy(AbstractStudy):
+
+
 
     @property
     def region_names(self):
@@ -39,6 +43,9 @@ class AbstractExtendedStudy(AbstractStudy):
         return region_name_to_massifs_ids
 
     """ Properties """
+
+    def massifs_coordinates(self) -> AbstractSpatialCoordinates:
+        raise ValueError('Coordinates are meaningless for an extended study')
 
     @property
     def _year_to_daily_time_serie_array(self) -> OrderedDict:

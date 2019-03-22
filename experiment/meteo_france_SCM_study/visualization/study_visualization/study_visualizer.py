@@ -25,6 +25,8 @@ from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
 from extreme_estimator.margin_fits.gpd.gpd_params import GpdParams
 from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
+from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
+    AbstractSpatioTemporalCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from test.test_utils import load_test_max_stable_models
 from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits
@@ -32,16 +34,23 @@ from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_
 BLOCK_MAXIMA_DISPLAY_NAME = 'block maxima '
 
 
-
 class StudyVisualizer(object):
 
     def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False,
-                 vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False):
+                 vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False,
+                 temporal_non_stationarity=False):
+        self.temporal_non_stationarity = temporal_non_stationarity
         self.only_first_row = only_first_row
         self.only_one_graph = only_one_graph
         self.save_to_file = save_to_file
         self.study = study
         self.plot_name = None
+
+        # Load some attributes
+        self._dataset = None
+        self._coordinates = None
+        self._observations = None
+
         # KDE PLOT ARGUMENTS
         self.vertical_kde_plot = vertical_kde_plot
         self.year_for_kde_plot = year_for_kde_plot
@@ -64,16 +73,33 @@ class StudyVisualizer(object):
         AbstractParamFunction.OUT_OF_BOUNDS_ASSERT = False
 
     @property
-    def observations(self):
-        return self.study.observations_annual_maxima
+    def dataset(self):
+        if self._dataset is None:
+            self._dataset = AbstractDataset(self.observations, self.coordinates)
+        return self._dataset
 
     @property
     def coordinates(self):
-        return self.study.massifs_coordinates
+        if self._coordinates is None:
+            coordinates = self.study.massifs_coordinates
+            if self.temporal_non_stationarity:
+                # Build spatio temporal dataset from a temporal dataset
+                df_spatial = coordinates.df_spatial_coordinates()
+                start, end = self.study.start_year_and_end_year
+                nb_steps = end - start + 1
+                coordinates = AbstractSpatioTemporalCoordinates.from_df_spatial_and_nb_steps(df_spatial=df_spatial,
+                                                                                             nb_steps=nb_steps,
+                                                                                             start=start)
+            self._coordinates = coordinates
+        return self._coordinates
 
     @property
-    def dataset(self):
-        return AbstractDataset(self.observations, self.coordinates)
+    def observations(self):
+        if self._observations is None:
+            self._observations = self.study.observations_annual_maxima
+            if self.temporal_non_stationarity:
+                self._observations.convert_to_spatio_temporal_index(self.coordinates)
+        return self._observations
 
     # Graph for each massif / or groups of massifs
 
@@ -234,29 +260,31 @@ class StudyVisualizer(object):
             max_stable_models = []
 
         # Load axes (either a 2D or 3D array depending on self.coordinates)
-        nb_max_stable_models = len(max_stable_models) + 2
+        nb_models = len(max_stable_models) + 1
         nb_summary_names = GevParams.NB_SUMMARY_NAMES
-        if self.coordinates.has_temporal_coordinates:
-            nb_times_steps = AbstractMarginFunction.VISUALIZATION_TEMPORAL_STEPS
+        if self.temporal_non_stationarity:
+            nb_visualization_times_steps = AbstractMarginFunction.VISUALIZATION_TEMPORAL_STEPS
             # Create one plot for each max stable models
             axes = []
-            for _ in range(nb_max_stable_models):
-                axes.append(create_adjusted_axes(nb_rows=nb_summary_names, nb_columns=nb_times_steps,
+            for _ in range(nb_models):
+                axes.append(create_adjusted_axes(nb_rows=nb_summary_names, nb_columns=nb_visualization_times_steps,
                                                  figsize=self.figsize, subplot_space=self.subplot_space))
+            # todo: add a fake vizu step at the end, where I could add the independent margin !!
+            # rajouter une colonne poru chaque plot, et donner cette colonne à independent margin
         else:
-            axes = create_adjusted_axes(nb_rows=nb_max_stable_models, nb_columns=nb_summary_names,
+            axes = create_adjusted_axes(nb_rows=nb_models + 1, nb_columns=nb_summary_names,
                                         figsize=self.figsize, subplot_space=self.subplot_space)
-        margin_class = LinearAllParametersAllDimsMarginModel
+            # Plot the margin fit independently on the additional row
+            self.visualize_independent_margin_fits(threshold=None, axes=axes[-1], show=False)
 
-        # Plot the margin fit independently
-        self.visualize_independent_margin_fits(threshold=None, axes=axes[0], show=False)
+        margin_class = LinearAllParametersAllDimsMarginModel
         # Plot the smooth margin only
         margin_model = margin_class(coordinates=self.coordinates)
         estimator = SmoothMarginEstimator(dataset=self.dataset, margin_model=margin_model)
-        self.fit_and_visualize_estimator(estimator, axes[1], title='without max stable')
+        self.fit_and_visualize_estimator(estimator, axes[0], title='without max stable')
 
         # Plot the smooth margin fitted with a max stable
-        for i, max_stable_model in enumerate(max_stable_models, 2):
+        for i, max_stable_model in enumerate(max_stable_models, 1):
             margin_model = margin_class(coordinates=self.coordinates)
             estimator = FullEstimatorInASingleStepWithSmoothMargin(self.dataset, margin_model, max_stable_model)
             title = get_display_name_from_object_type(type(max_stable_model))
@@ -273,10 +301,16 @@ class StudyVisualizer(object):
         margin_fct._visualization_y_limits = self.study.visualization_y_limits
         margin_fct.mask_2D = self.study.mask_french_alps
 
-        axes = margin_fct.visualize_function(show=False, axes=axes, title='')
+        axes = margin_fct.visualize_function(show=False, axes=axes, title='') # type: np.ndarray
 
-        self.visualize_contour_and_move_axes_limits(axes)
-        self.clean_axes_write_title_on_the_left(axes, title)
+        if axes.ndim == 1:
+            self.visualize_contour_and_move_axes_limits(axes)
+            self.clean_axes_write_title_on_the_left(axes, title)
+        else:
+            axes = np.transpose(axes)
+            for axes_line in axes:
+                self.visualize_contour_and_move_axes_limits(axes_line)
+                self.clean_axes_write_title_on_the_left(axes_line, title, left_border=False)
 
     def visualize_contour_and_move_axes_limits(self, axes):
         def get_lim_array(ax_with_lim_to_measure):
@@ -292,8 +326,12 @@ class StudyVisualizer(object):
             #     method(updated_lim[i, 0], updated_lim[i, 1])
 
     @staticmethod
-    def clean_axes_write_title_on_the_left(axes, title):
-        for ax in axes[1:]:
+    def clean_axes_write_title_on_the_left(axes, title, left_border=True):
+        if left_border:
+            ax0, *clean_axes = axes
+        else:
+            *clean_axes, ax0 = axes
+        for ax in clean_axes:
             ax.tick_params(axis=u'both', which=u'both', length=0)
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
@@ -302,12 +340,11 @@ class StudyVisualizer(object):
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
             ax.set_aspect('equal')
-        ax0 = axes[0]
         ax0.get_yaxis().set_visible(True)
         sub_title = ax0.yaxis.get_label()
         full_title = title + '\n\n' + sub_title._text
-        ax0.set_ylabel(full_title)
-        ax0.set_ylabel(full_title)
+        label_function = ax0.set_ylabel if left_border else ax0.set_xlabel
+        label_function(full_title)
         ax0.tick_params(axis=u'both', which=u'both', length=0)
 
     def show_or_save_to_file(self):

@@ -15,6 +15,9 @@ from spatio_temporal_dataset.slicer.temporal_slicer import TemporalSlicer
 
 class AbstractCoordinates(object):
     """
+    Main attribute of the class is the DataFrame df_all_coordinates
+    Index are coordinates index
+    Columns are the value of each coordinates
 
     So far, the train_split_ratio is the same between the spatial part of the data, and the temporal part
     """
