@@ -97,7 +97,7 @@ def complete_analysis(only_first_one=False):
 
 if __name__ == '__main__':
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2400)
-    normal_visualization(temporal_non_stationarity=True)
+    normal_visualization(temporal_non_stationarity=False)
     # max_stable_process_vizu_compare_gaume_study(altitude=1800, nb_days=1)
     # extended_visualization()
     # complete_analysis()
