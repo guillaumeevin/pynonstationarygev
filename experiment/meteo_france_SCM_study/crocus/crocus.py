@@ -17,7 +17,7 @@ class Crocus(AbstractStudy):
 
     @property
     def variable_name(self):
-        suffix = '' if self.altitude == 2400 else ' instantaneous data observed sampled every 24 hours'
+        suffix = '' if self.altitude == 2400 else ' sampled every 24 hours'
         return super().variable_name + suffix
 
     def annual_aggregation_function(self, *args, **kwargs):

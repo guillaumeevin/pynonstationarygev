@@ -126,8 +126,8 @@ class StudyVisualizer(object):
 
     def visualize_all_experimental_law(self):
         self.visualize_massif_graphs(self.visualize_experimental_law)
-        self.plot_name = ' Empirical distribution '
-        self.plot_name += 'with all available data' if self.year_for_kde_plot is None else \
+        self.plot_name = ' Empirical distribution \n'
+        self.plot_name += 'with data from the 23 mountain chains of the French Alps ' if self.year_for_kde_plot is None else \
             'for the year {}'.format(self.year_for_kde_plot)
         self.show_or_save_to_file()
 
@@ -194,7 +194,7 @@ class StudyVisualizer(object):
         # extraticks = [float(float_to_str_with_only_some_significant_digits(x, nb_digits=2))
         #               for x in sorted_x_levels]
         # Display only some specific ticks
-        extraticks_names = ['mean', AbstractParams.QUANTILE_100]
+        extraticks_names = ['mean', AbstractParams.QUANTILE_10, AbstractParams.QUANTILE_100, 'maxima']
         if self.plot_block_maxima_quantiles:
             extraticks_names += [name for name in name_to_xlevel_and_color.keys() if BLOCK_MAXIMA_DISPLAY_NAME in name]
         extraticks = [name_to_xlevel_and_color[name][0] for name in extraticks_names]
