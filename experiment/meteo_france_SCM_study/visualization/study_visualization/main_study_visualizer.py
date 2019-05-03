@@ -19,7 +19,7 @@ def study_iterator(study_class, only_first_one=False, both_altitude=False, verbo
     if verbose:
         print('Loading studies....')
     for nb_day in nb_days:
-        for alti in AbstractStudy.ALTITUDES[::1]:
+        for alti in [1800]:
             if verbose:
                 print('alti: {}, nb_day: {}'.format(alti, nb_day))
             study = study_class(altitude=alti, nb_consecutive_days=nb_day) if is_safran_study \
@@ -51,7 +51,7 @@ def extended_visualization():
 
 def annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=1800):
     if safran:
-        for study_class in [SafranTotalPrecip, SafranRainfall, SafranSnowfall, SafranTemperature][2:3]:
+        for study_class in [SafranTotalPrecip, SafranRainfall, SafranSnowfall, SafranTemperature][-1:]:
             study = study_class(altitude=altitude, year_min=1958, year_max=2002)
             study_visualizer = StudyVisualizer(study)
             study_visualizer.visualize_annual_mean_values(take_mean_value=True)
@@ -69,10 +69,10 @@ def max_stable_process_vizu_compare_gaume_study(altitude=1800, nb_days=1):
 
 
 def normal_visualization(temporal_non_stationarity=False):
-    save_to_file = False
+    save_to_file = True
     only_first_one = True
     # for study_class in SCM_STUDIES[:1]:
-    for study_class in [CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][:1]:
+    for study_class in [CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][:]:
         for study in study_iterator(study_class, only_first_one=only_first_one):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, temporal_non_stationarity=temporal_non_stationarity)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
@@ -91,13 +91,13 @@ def complete_analysis(only_first_one=False):
             study_visualizer.visualize_all_experimental_law()
         print('Study normal')
         for study in study_iterator(study_class, only_first_one=only_first_one):
-            study_visualizer = StudyVisualizer(study, save_to_file=True)
-            study_visualizer.visualize_linear_margin_fit()
+                study_visualizer = StudyVisualizer(study, save_to_file=True)
+                study_visualizer.visualize_linear_margin_fit()
 
 
 if __name__ == '__main__':
-    # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2400)
-    # normal_visualization(temporal_non_stationarity=False)
+    annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2100)
+    # normal_visualization(temporal_non_stationarity=True)
     # max_stable_process_vizu_compare_gaume_study(altitude=1800, nb_days=1)
-    extended_visualization()
+    # extended_visualization()
     # complete_analysis()

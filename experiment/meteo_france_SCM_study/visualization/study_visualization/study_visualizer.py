@@ -111,15 +111,15 @@ class StudyVisualizer(object):
             visualize_function(ax, 0)
         else:
             nb_columns = 5
-            nb_rows = 1 if self.only_first_row else math.ceil(len(self.study.safran_massif_names) / nb_columns)
+            nb_rows = 1 if self.only_first_row else math.ceil(len(self.study.study_massif_names) / nb_columns)
             fig, axes = plt.subplots(nb_rows, nb_columns, figsize=self.figsize)
             fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
             if self.only_first_row:
-                for massif_id, massif_name in enumerate(self.study.safran_massif_names[:nb_columns]):
+                for massif_id, massif_name in enumerate(self.study.study_massif_names[:nb_columns]):
                     ax = axes[massif_id]
                     visualize_function(ax, massif_id)
             else:
-                for massif_id, massif_name in enumerate(self.study.safran_massif_names):
+                for massif_id, massif_name in enumerate(self.study.study_massif_names):
                     row_id, column_id = massif_id // nb_columns, massif_id % nb_columns
                     ax = axes[row_id, column_id]
                     visualize_function(ax, massif_id)
@@ -204,7 +204,7 @@ class StudyVisualizer(object):
         extraticks = [float(float_to_str_with_only_some_significant_digits(t, nb_digits=2)) for t in extraticks]
         set_ticks_function(extraticks)
         if not self.only_one_graph:
-            ax.set_title(self.study.safran_massif_names[massif_id])
+            ax.set_title(self.study.study_massif_names[massif_id])
         ax.legend()
 
     def get_all_massif_data(self, massif_id):
@@ -241,7 +241,7 @@ class StudyVisualizer(object):
         ax.plot(x, y, color=color_mean)
         ax.set_ylabel('mean with sliding window of size {}'.format(self.window_size_for_smoothing), color=color_mean)
         ax.set_xlabel('year')
-        ax.set_title(self.study.safran_massif_names[massif_id])
+        ax.set_title(self.study.study_massif_names[massif_id])
 
     def visualize_brown_resnick_fit(self):
         pass
@@ -391,11 +391,13 @@ class StudyVisualizer(object):
 
         massif_name_to_value = OrderedDict()
         df_annual_total = self.study.df_annual_total
-        for massif_id, massif_name in enumerate(self.study.safran_massif_names):
+        for massif_name in self.study.study_massif_names:
             # We take the mean over all the annual values, otherwise we take the max
             value = df_annual_total.loc[:, massif_name]
             value = value.mean() if take_mean_value else value.max()
             massif_name_to_value[massif_name] = value
+        print(len(massif_name_to_value))
+        print(massif_name_to_value)
         self.study.visualize_study(ax=ax, massif_name_to_value=massif_name_to_value, show=self.show, add_text=True,
                                    label=self.study.variable_name)
 
@@ -409,12 +411,12 @@ class StudyVisualizer(object):
     def df_gev_mle(self) -> pd.DataFrame:
         # Fit a margin_fits on each massif
         massif_to_gev_mle = {massif_name: GevMleFit(self.df_maxima_gev.loc[massif_name]).gev_params.summary_serie
-                             for massif_name in self.study.safran_massif_names}
-        return pd.DataFrame(massif_to_gev_mle, columns=self.study.safran_massif_names)
+                             for massif_name in self.study.study_massif_names}
+        return pd.DataFrame(massif_to_gev_mle, columns=self.study.study_massif_names)
 
     def df_gpd_mle(self, threshold) -> pd.DataFrame:
         # Fit a margin fit on each massif
         massif_to_gev_mle = {massif_name: GpdMleFit(self.study.df_all_daily_time_series_concatenated[massif_name],
                                                     threshold=threshold).gpd_params.summary_serie
-                             for massif_name in self.study.safran_massif_names}
-        return pd.DataFrame(massif_to_gev_mle, columns=self.study.safran_massif_names)
+                             for massif_name in self.study.study_massif_names}
+        return pd.DataFrame(massif_to_gev_mle, columns=self.study.study_massif_names)

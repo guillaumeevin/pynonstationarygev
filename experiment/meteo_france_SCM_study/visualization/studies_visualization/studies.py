@@ -2,6 +2,7 @@ from collections import OrderedDict
 from typing import Dict
 
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
+from experiment.meteo_france_SCM_study.altitude import ALTITUDES
 
 
 class Studies(object):
@@ -11,11 +12,11 @@ class Studies(object):
     def __init__(self, study_type, altitude_list=None) -> None:
         # Load altitude_list attribute
         if altitude_list is None:
-            altitude_list = AbstractStudy.ALTITUDES
+            altitude_list = ALTITUDES
         else:
             assert isinstance(altitude_list, list)
             assert len(altitude_list) > 0
-            assert all([altitudes in AbstractStudy.ALTITUDES for altitudes in altitude_list])
+            assert all([altitudes in ALTITUDES for altitudes in altitude_list])
             altitude_list = sorted(altitude_list)
         self.altitude_list = altitude_list
         # Load altitude_to_study attribute

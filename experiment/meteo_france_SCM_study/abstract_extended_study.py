@@ -19,8 +19,8 @@ class AbstractExtendedStudy(AbstractStudy):
         return len(self.region_names)
 
     @property
-    def safran_massif_names(self):
-        return self.region_names + super().safran_massif_names
+    def study_massif_names(self):
+        return self.region_names + super().study_massif_names
 
     @property
     def massif_name_to_region_name(self):
@@ -58,7 +58,7 @@ class AbstractExtendedStudy(AbstractStudy):
     def _year_to_extended_time_serie(self, aggregation_function) -> OrderedDict:
         year_to_extended_time_serie = OrderedDict()
         for year, old_time_serie in super()._year_to_daily_time_serie_array.items():
-            new_time_serie = np.zeros([len(old_time_serie), len(self.safran_massif_names)])
+            new_time_serie = np.zeros([len(old_time_serie), len(self.study_massif_names)])
             new_time_serie[:, self.nb_region_names:] = old_time_serie
             for i, region_name in enumerate(self.region_names):
                 massifs_ids_belong_to_region = self.region_name_to_massif_ids[region_name]

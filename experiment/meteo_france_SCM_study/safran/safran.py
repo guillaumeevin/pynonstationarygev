@@ -70,12 +70,15 @@ class SafranTemperature(Safran):
 
 
 if __name__ == '__main__':
-    study = SafranSnowfall(altitude=2400)
-    for year, dataset in study.year_to_dataset_ordered_dict.items():
-        print('{}: {}'.format(year, dataset.massifsList))
+    study = SafranSnowfall(altitude=1800)
     d = study.year_to_dataset_ordered_dict[1958]
-    print(d.variables['time'])
-    print(study.year_to_daily_time_serie_array[1958].shape)
+    # print(d.variables['time'])
+    # print(study.all_massif_names)
+    # print(study.massif_name_to_altitudes)
+    # print(study.year_to_daily_time_serie_array[1958].shape)
+    print(study.missing_massif_name)
+
+
     # print(len(d.variables['time']))
     # print(study.year_to_annual_total)
     # print(study.df_annual_total.columns)

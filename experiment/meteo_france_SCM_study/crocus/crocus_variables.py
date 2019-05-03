@@ -13,18 +13,7 @@ class CrocusVariable(AbstractVariable):
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:
-        time_serie_every_6_hours = np.array(self.dataset.variables[self.variable_name])[:, 0, :]
-        if self.altitude == 2400:
-            time_serie_daily = time_serie_every_6_hours
-        else:
-            nb_days = len(time_serie_every_6_hours) // 4
-            # The first value of each day is selected (in order to be comparable to an instantaneous value)
-            time_serie_daily = np.array([time_serie_every_6_hours[4 * i] for i in range(nb_days)])
-            # Take the mean over a full day (WARNING: by doing that I am potentially destroying some maxima)
-            # (I could also create a special mode where I take the maximum instead of the mean here)
-            # time_serie_daily = np.array([np.mean(time_serie_every_6_hours[4 * i:4 * (i + 1)], axis=0)
-            #                              for i in range(nb_days)])
-        return time_serie_daily
+        return np.array(self.dataset.variables[self.variable_name])
 
 
 class CrocusSweVariable(CrocusVariable):
@@ -32,7 +21,7 @@ class CrocusSweVariable(CrocusVariable):
     UNIT = 'kg/m2 or mm'
 
     def __init__(self, dataset, altitude):
-        super().__init__(dataset, altitude, 'SNOWSWE')
+        super().__init__(dataset, altitude, 'SWE_1DY_ISBA')
 
 
 class CrocusDepthVariable(CrocusVariable):
@@ -40,5 +29,5 @@ class CrocusDepthVariable(CrocusVariable):
     UNIT = 'm'
 
     def __init__(self, dataset, altitude):
-        super().__init__(dataset, altitude, "SNOWDEPTH")
+        super().__init__(dataset, altitude, "SD_1DY_ISBA")
 

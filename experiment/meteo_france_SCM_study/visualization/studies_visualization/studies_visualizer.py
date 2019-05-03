@@ -23,7 +23,7 @@ class StudiesVisualizer(object):
             assert isinstance(self.first_study, AbstractExtendedStudy)
             massif_names = self.first_study.region_names
         else:
-            massif_names = self.first_study.safran_massif_names
+            massif_names = self.first_study.study_massif_names
         # Load the dictionary that maps each massif_name to its corresponding time series
         mean_series = []
         for study in self.studies.altitude_to_study.values():

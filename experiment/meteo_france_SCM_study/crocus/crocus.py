@@ -67,8 +67,8 @@ class CrocusDaysWithSnowOnGround(Crocus):
 
 
 if __name__ == '__main__':
-    for variable_clas in [CrocusSweVariable, CrocusDepthVariable]:
-        study = Crocus(variable_class=variable_clas, altitude=2400)
+    for variable_class in [CrocusSweVariable, CrocusDepthVariable]:
+        study = Crocus(variable_class=variable_class, altitude=2400)
         d = study.year_to_dataset_ordered_dict[1960]
         time_arr = np.array(d.variables['time'])
         print(time_arr)

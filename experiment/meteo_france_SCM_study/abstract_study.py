@@ -1,17 +1,19 @@
+import io
 import os
-import numpy as np
-from PIL import Image, ImageDraw
 import os.path as op
 from collections import OrderedDict
+from contextlib import redirect_stdout
 from typing import List, Dict, Tuple
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from PIL import Image
+from PIL import ImageDraw
 from netCDF4 import Dataset
 
 from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
-from experiment.meteo_france_SCM_study.massif import safran_massif_names_from_datasets
+from experiment.meteo_france_SCM_study.altitude import ALTITUDES, ZS_INT_23, ZS_INT_MASK
 from experiment.meteo_france_SCM_study.visualization.utils import get_km_formatter
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
@@ -22,12 +24,19 @@ from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_co
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 from utils import get_full_path, cached_property
 
+f = io.StringIO()
+with redirect_stdout(f):
+    from simpledbf import Dbf5
+
 
 class AbstractStudy(object):
-    ALTITUDES = [1800, 2400]
+    """
+    Les fichiers netcdf sont autodocumentés (on peut les comprendre avec ncdump -h notamment).
+    """
+    REANALYSIS_FOLDER = 'alp_flat/reanalysis'
 
     def __init__(self, variable_class: type, altitude: int = 1800, year_min=1000, year_max=3000):
-        assert altitude in self.ALTITUDES, altitude
+        assert altitude in ALTITUDES, altitude
         self.altitude = altitude
         self.model_name = None
         self.variable_class = variable_class
@@ -43,18 +52,18 @@ class AbstractStudy(object):
 
     @property
     def df_all_daily_time_series_concatenated(self) -> pd.DataFrame:
-        df_list = [pd.DataFrame(time_serie, columns=self.safran_massif_names) for time_serie in
+        df_list = [pd.DataFrame(time_serie, columns=self.study_massif_names) for time_serie in
                    self.year_to_daily_time_serie_array.values()]
         df_concatenated = pd.concat(df_list)
         return df_concatenated
 
     @property
     def observations_annual_maxima(self) -> AnnualMaxima:
-        return AnnualMaxima(df_maxima_gev=pd.DataFrame(self.year_to_annual_maxima, index=self.safran_massif_names))
+        return AnnualMaxima(df_maxima_gev=pd.DataFrame(self.year_to_annual_maxima, index=self.study_massif_names))
 
     @property
     def df_annual_total(self) -> pd.DataFrame:
-        return pd.DataFrame(self.year_to_annual_total, index=self.safran_massif_names).transpose()
+        return pd.DataFrame(self.year_to_annual_total, index=self.study_massif_names).transpose()
 
     def annual_aggregation_function(self, *args, **kwargs):
         raise NotImplementedError()
@@ -65,10 +74,10 @@ class AbstractStudy(object):
     def year_to_dataset_ordered_dict(self) -> OrderedDict:
         # Map each year to the correspond netCDF4 Dataset
         year_to_dataset = OrderedDict()
-        nc_files = [(int(f.split('_')[-2][:4]), f) for f in os.listdir(self.safran_full_path) if f.endswith('.nc')]
+        nc_files = [(int(f.split('_')[-2][:4]), f) for f in os.listdir(self.study_full_path) if f.endswith('.nc')]
         for year, nc_file in sorted(nc_files, key=lambda t: t[0]):
             if self.year_min <= year < self.year_max:
-                year_to_dataset[year] = Dataset(op.join(self.safran_full_path, nc_file))
+                year_to_dataset[year] = Dataset(op.join(self.study_full_path, nc_file))
         return year_to_dataset
 
     @property
@@ -111,7 +120,13 @@ class AbstractStudy(object):
                             self.year_to_dataset_ordered_dict.items()}
         year_to_daily_time_serie_array = OrderedDict()
         for year in self.year_to_dataset_ordered_dict.keys():
-            year_to_daily_time_serie_array[year] = year_to_variable[year].daily_time_serie_array
+            # Check daily data
+            daily_time_serie = year_to_variable[year].daily_time_serie_array
+            assert daily_time_serie.shape[0] in [365, 366]
+            assert daily_time_serie.shape[1] == len(ZS_INT_MASK)
+            # Filter only the data corresponding to the altitude of interest
+            daily_time_serie = daily_time_serie[:, self.altitude_mask]
+            year_to_daily_time_serie_array[year] = daily_time_serie
         return year_to_daily_time_serie_array
 
     @property
@@ -121,17 +136,27 @@ class AbstractStudy(object):
     ##########
 
     @property
-    def safran_massif_names(self) -> List[str]:
-        return self.original_safran_massif_names
+    def study_massif_names(self) -> List[str]:
+        return self.altitude_to_massif_names[self.altitude]
 
-    @property
-    def original_safran_massif_names(self) -> List[str]:
-        # Load the names of the massif as defined by SAFRAN
-        return safran_massif_names_from_datasets(list(self.year_to_dataset_ordered_dict.values()), self.altitude)
+    @cached_property
+    def all_massif_names(self) -> List[str]:
+        """
+        Pour l'identification des massifs, le numéro de la variable massif_num correspond à celui de l'attribut num_opp
+        """
+        metadata_path = op.join(self.full_path, self.REANALYSIS_FOLDER, 'metadata')
+        dbf = Dbf5(op.join(metadata_path, 'massifs_alpes.dbf'))
+        df = dbf.to_dataframe().copy()  # type: pd.DataFrame
+        dbf.f.close()
+        df.sort_values(by='num_opp', inplace=True)
+        all_massif_names = list(df['nom'])
+        # Correct a massif name
+        all_massif_names[all_massif_names.index('Beaufortin')] = 'Beaufortain'
+        return all_massif_names
 
     @property
     def original_safran_massif_id_to_massif_name(self) -> Dict[int, str]:
-        return {massif_id: massif_name for massif_id, massif_name in enumerate(self.original_safran_massif_names)}
+        return {massif_id: massif_name for massif_id, massif_name in enumerate(self.all_massif_names)}
 
     @cached_property
     def massifs_coordinates(self) -> AbstractSpatialCoordinates:
@@ -143,10 +168,14 @@ class AbstractStudy(object):
         return AbstractSpatialCoordinates.from_df(df_centroid)
 
     def load_df_centroid(self) -> pd.DataFrame:
+        # Load df_centroid containing all the massif names
         df_centroid = pd.read_csv(op.join(self.map_full_path, 'coordonnees_massifs_alpes.csv'))
         df_centroid.set_index('NOM', inplace=True)
+        # Check that the names of massifs are the same
+        symmetric_difference = set(df_centroid.index).symmetric_difference(self.all_massif_names)
+        assert len(symmetric_difference) == 0, symmetric_difference
         # Sort the column in the order of the SAFRAN dataset
-        df_centroid = df_centroid.loc[self.original_safran_massif_names]
+        df_centroid = df_centroid.reindex(self.all_massif_names, axis=0)
         return df_centroid
 
     @property
@@ -250,6 +279,36 @@ class AbstractStudy(object):
 
     """ Some properties """
 
+    @cached_property
+    def massif_name_to_altitudes(self) -> Dict[str, List[int]]:
+        s = ZS_INT_23 + [0]
+        zs_list = []
+        zs_all_list = []
+        for a, b in zip(s[:-1], s[1:]):
+            zs_list.append(a)
+            if a > b:
+                zs_all_list.append(zs_list)
+                zs_list = []
+        return dict(zip(self.all_massif_names, zs_all_list))
+
+    @cached_property
+    def altitude_to_massif_names(self) -> Dict[int, List[str]]:
+        altitude_to_massif_names = {altitude: [] for altitude in ALTITUDES}
+        for massif_name in self.massif_name_to_altitudes.keys():
+            for altitude in self.massif_name_to_altitudes[massif_name]:
+                altitude_to_massif_names[altitude].append(massif_name)
+        return altitude_to_massif_names
+
+    @property
+    def missing_massif_name(self):
+        return set(self.all_massif_names) - set(self.altitude_to_massif_names[self.altitude])
+
+    @cached_property
+    def altitude_mask(self):
+        altitude_mask = ZS_INT_MASK == self.altitude
+        assert np.sum(altitude_mask) == len(self.altitude_to_massif_names[self.altitude])
+        return altitude_mask
+
     @property
     def title(self):
         return "{} at altitude {}m".format(self.variable_name, self.altitude)
@@ -262,6 +321,8 @@ class AbstractStudy(object):
     def variable_unit(self):
         return self.variable_class.UNIT
 
+    """ Some path properties """
+
     @property
     def relative_path(self) -> str:
         return r'local/spatio_temporal_datasets'
@@ -271,14 +332,19 @@ class AbstractStudy(object):
         return get_full_path(relative_path=self.relative_path)
 
     @property
-    def safran_full_path(self) -> str:
-        assert self.model_name in ['Safran', 'Crocus']
-        return op.join(self.full_path, 'safran-crocus_{}'.format(self.altitude), self.model_name)
-
-    @property
     def map_full_path(self) -> str:
         return op.join(self.full_path, 'map')
 
     @property
     def result_full_path(self) -> str:
         return op.join(self.full_path, 'results')
+
+    @property
+    def study_full_path(self) -> str:
+        assert self.model_name in ['Safran', 'Crocus']
+        study_folder = 'meteo' if self.model_name is 'Safran' else 'pro'
+        return op.join(self.full_path, self.REANALYSIS_FOLDER, study_folder)
+
+
+
+

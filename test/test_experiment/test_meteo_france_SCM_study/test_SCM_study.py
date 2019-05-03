@@ -10,7 +10,6 @@ from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, Exte
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
 from test.test_utils import load_scm_studies
 
-
 class TestSCMAllStudy(unittest.TestCase):
 
     def test_extended_run(self):
@@ -24,7 +23,6 @@ class TestSCMAllStudy(unittest.TestCase):
         for study in load_scm_studies():
             time_serie = study.year_to_daily_time_serie_array[1958]
             self.assertTrue(time_serie.ndim == 2, msg='for {} ndim={}'.format(study.__repr__(), time_serie.ndim))
-            self.assertTrue(time_serie.shape[1] in [21, 23])
             self.assertTrue(len(time_serie) in [365, 366],
                             msg="current time serie length for {} is {}".format(study.__repr__(), len(time_serie)))
 
@@ -54,7 +52,7 @@ class TestSCMSafranSnowfall(TestSCMStudy):
     def test_massif_safran(self):
         df_centroid = pd.read_csv(op.join(self.study.map_full_path, 'coordonnees_massifs_alpes.csv'))
         # Assert that the massif names are the same between SAFRAN and the coordinate file
-        assert not set(self.study.safran_massif_names).symmetric_difference(set(df_centroid['NOM']))
+        assert not set(self.study.study_massif_names).symmetric_difference(set(df_centroid['NOM']))
 
 
 class TestSCMPrecipitation(TestSCMStudy):
@@ -68,8 +66,8 @@ class TestSCMPrecipitation(TestSCMStudy):
         # (some small differences probably due to the fact that SAFRAN model has evolved since then)
         # Test for the mean total precipitation (rainfall + snowfall) between 1958 and 2002
         self.check({
-            "Mercantour": 1346,
-            'Chablais': 1928,
+            "Mercantour": 1281,
+            'Chablais': 1922,
         })
 
     def round(self, f):
@@ -86,12 +84,12 @@ class TestSafranTemperature(TestSCMStudy):
         # Test based on Durand paper
         # Test for the mean temperature between 1958 and 2002
         self.check({
-            "Mercantour": 5.1,
-            'Chablais': 3.4,
+            "Mercantour": 5.3,
+            'Chablais': 3.5,
         })
 
     def round(self, f):
-        return round(f, 1)
+        return round(float(f), 1)
 
 
 if __name__ == '__main__':
