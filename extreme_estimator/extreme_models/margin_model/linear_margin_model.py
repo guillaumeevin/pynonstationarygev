@@ -17,7 +17,7 @@ class LinearMarginModel(ParametricMarginModel):
 
     def load_margin_functions(self, gev_param_name_to_dims=None):
         assert gev_param_name_to_dims is not None, 'LinearMarginModel cannot be used for sampling/fitting \n' \
-                                                          'load_margin_functions needs to be implemented in child class'
+                                                   'load_margin_functions needs to be implemented in child class'
         # Load default params (with a dictionary format to enable quick replacement)
         # IMPORTANT: Using a dictionary format enable using the default/user params methodology
         self.default_params_sample = self.default_param_name_and_dim_to_coef
@@ -27,13 +27,15 @@ class LinearMarginModel(ParametricMarginModel):
         coef_sample = self.gev_param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_sample)
         self.margin_function_sample = LinearMarginFunction(coordinates=self.coordinates,
                                                            gev_param_name_to_coef=coef_sample,
-                                                           gev_param_name_to_dims=gev_param_name_to_dims)
+                                                           gev_param_name_to_dims=gev_param_name_to_dims,
+                                                           starting_point=self.starting_point)
 
         # Load start fit coef
         coef_start_fit = self.gev_param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_start_fit)
         self.margin_function_start_fit = LinearMarginFunction(coordinates=self.coordinates,
                                                               gev_param_name_to_coef=coef_start_fit,
-                                                              gev_param_name_to_dims=gev_param_name_to_dims)
+                                                              gev_param_name_to_dims=gev_param_name_to_dims,
+                                                              starting_point=self.starting_point)
 
     @property
     def default_param_name_and_dim_to_coef(self) -> dict:
@@ -49,7 +51,8 @@ class LinearMarginModel(ParametricMarginModel):
     def gev_param_name_to_linear_coef(self, param_name_and_dim_to_coef):
         gev_param_name_to_linear_coef = {}
         for gev_param_name in GevParams.PARAM_NAMES:
-            idx_to_coef = {idx: param_name_and_dim_to_coef[(gev_param_name, idx)] for idx in [-1] + self.coordinates.coordinates_dims}
+            idx_to_coef = {idx: param_name_and_dim_to_coef[(gev_param_name, idx)] for idx in
+                           [-1] + self.coordinates.coordinates_dims}
             linear_coef = LinearCoef(gev_param_name=gev_param_name, idx_to_coef=idx_to_coef)
             gev_param_name_to_linear_coef[gev_param_name] = linear_coef
         return gev_param_name_to_linear_coef
@@ -101,3 +104,28 @@ class LinearAllParametersAllDimsMarginModel(LinearMarginModel):
         super().load_margin_functions({GevParams.SHAPE: self.coordinates.coordinates_dims,
                                        GevParams.LOC: self.coordinates.coordinates_dims,
                                        GevParams.SCALE: self.coordinates.coordinates_dims})
+
+
+class LinearAllParametersTwoFirstCoordinatesMarginModel(LinearMarginModel):
+
+    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+        super().load_margin_functions({GevParams.SHAPE: [0, 1],
+                                       GevParams.LOC: [0, 1],
+                                       GevParams.SCALE: [0, 1]})
+
+
+class LinearAllTwoStatialCoordinatesLocationLinearMarginModel(LinearMarginModel):
+
+    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+        super().load_margin_functions({GevParams.SHAPE: [0, 1],
+                                       GevParams.LOC: [0, 1, 2],
+                                       GevParams.SCALE: [0, 1]})
+
+
+# Some renaming that defines the stationary and non-stationary models of reference
+class LinearStationaryMarginModel(LinearAllParametersTwoFirstCoordinatesMarginModel):
+    pass
+
+
+class LinearNonStationaryMarginModel(LinearAllTwoStatialCoordinatesLocationLinearMarginModel):
+    pass

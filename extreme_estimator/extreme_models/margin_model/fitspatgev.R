@@ -74,8 +74,8 @@ fitspatgev_3D_test <- function (n.obs){
     # Add the temporal covariates
     temp.form.loc = loc ~ T
     temp.form.scale = scale ~ T
-    temp.form.shape = shape ~ T
-    # temp.form.shape = NULL
+    # temp.form.shape = shape ~ T
+    temp.form.shape = NULL
 
     temp.cov = matrix(1:n.obs, ncol=1)
     colnames(temp.cov) = c("T")
@@ -89,6 +89,8 @@ fitspatgev_3D_test <- function (n.obs){
 
     start = list(locCoeff1=0.0, locCoeff2=1.0, scaleCoeff1=0.1, shapeCoeff1=1.0, scaleCoeff2=0.1, shapeCoeff2=1.0,
                     tempCoeffLoc1=0.0, tempCoeffScale1=0.1, tempCoeffShape1=0.1)
+        start = list(locCoeff1=0.0, locCoeff2=1.0, scaleCoeff1=0.1, shapeCoeff1=1.0, scaleCoeff2=0.1, shapeCoeff2=1.0,
+                    tempCoeffLoc1=0.0, tempCoeffScale1=0.1)
     res = fitspatgev(data=data, covariables=covariables, start=start, loc.form=loc.form, scale.form=scale.form,shape.form=shape.form,
                 temp.cov=temp.cov, temp.form.loc=temp.form.loc, temp.form.scale=temp.form.scale, temp.form.shape = temp.form.shape)
 
@@ -105,6 +107,7 @@ fitspatgev_3D_test <- function (n.obs){
     loc.form <- update(loc.form, y ~ .)
     scale.form <- update(scale.form, y ~ .)
     shape.form <- update(shape.form, y ~ .)
+    print('here')
     print(use.temp.cov)
     if (use.temp.cov[1])
         temp.form.loc <- update(temp.form.loc, y ~ . + 0)

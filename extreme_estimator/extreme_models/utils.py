@@ -83,7 +83,9 @@ def get_coord(df_coordinates: pd.DataFrame):
 
 
 def get_margin_formula(fit_marge_form_dict) -> Dict:
-    return {k: robjects.Formula(v) for k, v in fit_marge_form_dict.items()}
+    as_null = r['as.null']
+    margin_formula = {k: robjects.Formula(v) if v != 'NULL' else as_null(1.0) for k, v in fit_marge_form_dict.items()}
+    return margin_formula
 
 # def conversion_to_FloatVector(data):
 #     """Convert DataFrame or numpy array into FloatVector for r"""
@@ -91,3 +93,4 @@ def get_margin_formula(fit_marge_form_dict) -> Dict:
 #         data = data.values
 #     assert isinstance(data, np.ndarray)
 #     return npr.numpy2ri(data)
+

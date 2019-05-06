@@ -14,7 +14,8 @@ from experiment.utils import average_smoothing_with_sliding_window
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import SmoothMarginEstimator
-from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel
+from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
+    LinearNonStationaryMarginModel, LinearStationaryMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.param_function.param_function import AbstractParamFunction
@@ -248,7 +249,7 @@ class StudyVisualizer(object):
 
     def visualize_linear_margin_fit(self, only_first_max_stable=False):
         default_covariance_function = CovarianceFunction.powexp
-        margin_class = LinearAllParametersAllDimsMarginModel
+        margin_class = LinearNonStationaryMarginModel if self.temporal_non_stationarity else LinearStationaryMarginModel
         plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
         plot_name += '\n(with {} covariance structure when a covariance is needed)'.format(
             str(default_covariance_function).split('.')[-1])
@@ -281,13 +282,13 @@ class StudyVisualizer(object):
             self.visualize_independent_margin_fits(threshold=None, axes=axes[-1], show=False)
 
         # Plot the smooth margin only
-        margin_model = margin_class(coordinates=self.coordinates)
+        margin_model = margin_class(coordinates=self.coordinates, starting_point=None)
         estimator = SmoothMarginEstimator(dataset=self.dataset, margin_model=margin_model)
         self.fit_and_visualize_estimator(estimator, axes[0], title='without max stable')
 
         # Plot the smooth margin fitted with a max stable
         for i, max_stable_model in enumerate(max_stable_models, 1):
-            margin_model = margin_class(coordinates=self.coordinates)
+            margin_model = margin_class(coordinates=self.coordinates, starting_point=None)
             estimator = FullEstimatorInASingleStepWithSmoothMargin(self.dataset, margin_model, max_stable_model)
             title = get_display_name_from_object_type(type(max_stable_model))
             self.fit_and_visualize_estimator(estimator, axes[i], title=title)

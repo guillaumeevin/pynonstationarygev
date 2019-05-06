@@ -1,5 +1,7 @@
 from typing import Dict, List
 
+import numpy as np
+
 from extreme_estimator.extreme_models.margin_model.margin_function.parametric_margin_function import \
     ParametricMarginFunction
 from extreme_estimator.extreme_models.margin_model.param_function.abstract_coef import AbstractCoef
@@ -27,7 +29,10 @@ class LinearMarginFunction(ParametricMarginFunction):
     COEF_CLASS = LinearCoef
 
     def __init__(self, coordinates: AbstractCoordinates, gev_param_name_to_dims: Dict[str, List[int]],
-                 gev_param_name_to_coef: Dict[str, AbstractCoef]):
+                 gev_param_name_to_coef: Dict[str, AbstractCoef],
+                 starting_point=None):
+        # Starting point for the trend is the same for all the parameters
+        self.starting_point = starting_point
         self.gev_param_name_to_coef = None  # type: Dict[str, LinearCoef]
         super().__init__(coordinates, gev_param_name_to_dims, gev_param_name_to_coef)
 
@@ -35,6 +40,16 @@ class LinearMarginFunction(ParametricMarginFunction):
         return LinearParamFunction(dims=self.gev_param_name_to_dims[gev_param_name],
                                    coordinates=self.coordinates.coordinates_values(),
                                    linear_coef=self.gev_param_name_to_coef[gev_param_name])
+
+    def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
+        if self.starting_point is not None:
+            # Shift temporal coordinate to enable to model temporal trend with starting point
+            assert self.coordinates.has_temporal_coordinates
+            idx_coordinate_t = self.coordinates.coordinates_names.index(self.coordinates.COORDINATE_T)
+            assert 0 <= idx_coordinate_t < len(coordinate)
+            if coordinate[idx_coordinate_t] < self.starting_point:
+                coordinate[idx_coordinate_t] = self.starting_point
+        return super().get_gev_params(coordinate)
 
     @classmethod
     def idx_to_coefficient_name(cls, coordinates: AbstractCoordinates) -> Dict[int, str]:

@@ -50,8 +50,11 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
         super().__init__(dataset)
         self.max_stable_model = max_stable_model
         self.linear_margin_model = margin_model
-        self.linear_margin_function_to_fit = self.linear_margin_model.margin_function_start_fit
         assert isinstance(self.linear_margin_function_to_fit, LinearMarginFunction)
+
+    @property
+    def linear_margin_function_to_fit(self):
+        return self.linear_margin_model.margin_function_start_fit
 
     def _fit(self):
         # Estimate both the margin and the max-stable structure

@@ -15,7 +15,11 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 class ParametricMarginModel(AbstractMarginModel, ABC):
 
     def __init__(self, coordinates: AbstractCoordinates, use_start_value=False, params_start_fit=None,
-                 params_sample=None):
+                 params_sample=None, starting_point=None):
+        """
+        :param starting_point: starting coordinate for the temporal trend
+        """
+        self.starting_point = starting_point  # type: int
         self.margin_function_sample = None  # type: ParametricMarginFunction
         self.margin_function_start_fit = None  # type: ParametricMarginFunction
         super().__init__(coordinates, use_start_value, params_start_fit, params_sample)
@@ -23,6 +27,15 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
                                   df_coordinates_temp: pd.DataFrame) -> ResultFromFit:
         assert data.shape[1] == len(df_coordinates_spat)
+        # assert data.shape[0] == len(df_coordinates_temp)
+
+        # Enforce a starting point for the temporal trend
+        if self.starting_point is not None:
+            ind_to_modify = df_coordinates_temp.iloc[:, 0] <= self.starting_point  # type: pd.Series
+            # Assert that some coordinates are selected but not all (at least 20 data should be left for temporal trend)
+            assert 0 < sum(ind_to_modify) < len(ind_to_modify) - 20
+            # Modify the temporal coordinates to enforce the stationarity
+            df_coordinates_temp.loc[ind_to_modify] = self.starting_point
 
         fit_params = get_margin_formula(self.margin_function_start_fit.form_dict)
 
