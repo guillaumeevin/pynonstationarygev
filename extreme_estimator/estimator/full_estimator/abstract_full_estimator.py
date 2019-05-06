@@ -1,5 +1,5 @@
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
-from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import SmoothMarginEstimator
+from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_estimator.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
 from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
@@ -20,7 +20,7 @@ class SmoothMarginalsThenUnitaryMsp(AbstractFullEstimator):
                  max_stable_model: AbstractMaxStableModel):
         super().__init__(dataset)
         # Instantiate the two associated estimators
-        self.margin_estimator = SmoothMarginEstimator(dataset=dataset, margin_model=margin_model)
+        self.margin_estimator = LinearMarginEstimator(dataset=dataset, margin_model=margin_model)
         self.max_stable_estimator = MaxStableEstimator(dataset=dataset, max_stable_model=max_stable_model)
 
     def _fit(self):
@@ -50,10 +50,10 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
         super().__init__(dataset)
         self.max_stable_model = max_stable_model
         self.linear_margin_model = margin_model
-        assert isinstance(self.linear_margin_function_to_fit, LinearMarginFunction)
+        assert isinstance(self.margin_function_start_fit, LinearMarginFunction)
 
     @property
-    def linear_margin_function_to_fit(self):
+    def margin_function_start_fit(self):
         return self.linear_margin_model.margin_function_start_fit
 
     def _fit(self):
@@ -63,11 +63,12 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
             df_coordinates_spat=self.dataset.coordinates.df_spatial_coordinates(self.train_split),
             df_coordinates_temp=self.dataset.coordinates.df_temporal_coordinates(self.train_split),
             fit_marge=True,
-            fit_marge_form_dict=self.linear_margin_function_to_fit.form_dict,
-            margin_start_dict=self.linear_margin_function_to_fit.coef_dict
+            fit_marge_form_dict=self.margin_function_start_fit.form_dict,
+            margin_start_dict=self.margin_function_start_fit.coef_dict
         )
-        # Create the fitted margin function
-        self.extract_fitted_models_from_fitted_params(self.linear_margin_function_to_fit, self.fitted_values)
+
+    def extract_function_fitted(self):
+        return self.extract_function_fitted_from_function_to_fit(self.margin_function_start_fit)
 
 
 class PointwiseAndThenUnitaryMsp(AbstractFullEstimator):

@@ -4,6 +4,7 @@ import numpy as np
 
 from extreme_estimator.extreme_models.utils import r, set_seed_r
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
+from extreme_estimator.margin_fits.gev.ismev_gev_fit import IsmevGevFit
 
 
 class TestGevMleFit(unittest.TestCase):
@@ -18,16 +19,20 @@ class TestGevMleFit(unittest.TestCase):
         """)
 
     def test_gevmle_fit(self):
-        # Get the MLE estimator
         estimator = GevMleFit(x_gev=np.array(r['x_gev']))
-        self.fit_estimator(estimator)
-
-    def fit_estimator(self, estimator):
-        # Compare the MLE estimated parameters to the reference
-        mle_params_estimated = estimator.mle_params
         mle_params_ref = {'loc': 0.0219, 'scale': 1.0347, 'shape': 0.8290}
-        for key in mle_params_ref.keys():
-            self.assertAlmostEqual(mle_params_ref[key], mle_params_estimated[key], places=3)
+        self.fit_estimator(estimator, ref=mle_params_ref)
+
+    def test_ismev_gev_fit(self):
+        estimator = IsmevGevFit(x_gev=np.array(r['x_gev']))
+        ismev_ref = {'loc': 0.0219, 'scale': 1.0347, 'shape': 0.8295}
+        self.fit_estimator(estimator, ismev_ref)
+
+    def fit_estimator(self, estimator, ref):
+        # Compare the MLE estimated parameters to the reference
+        mle_params_estimated = estimator.gev_params
+        for key in ref.keys():
+            self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
 
 
 if __name__ == '__main__':

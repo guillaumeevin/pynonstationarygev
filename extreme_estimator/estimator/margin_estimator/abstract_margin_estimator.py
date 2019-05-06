@@ -15,18 +15,8 @@ class AbstractMarginEstimator(AbstractEstimator, ABC):
         assert self.dataset.maxima_gev() is not None
         self._margin_function_fitted = None
 
-    @property
-    def margin_function_fitted(self) -> AbstractMarginFunction:
-        assert self._margin_function_fitted is not None, 'Error: estimator has not been fitted'
-        assert isinstance(self._margin_function_fitted, AbstractMarginFunction)
-        return self._margin_function_fitted
 
-
-class PointWiseMarginEstimator(AbstractMarginEstimator):
-    pass
-
-
-class SmoothMarginEstimator(AbstractMarginEstimator):
+class LinearMarginEstimator(AbstractMarginEstimator):
     """# with different type of marginals: cosntant, linear...."""
 
     def _error(self, true_max_stable_params: dict):
@@ -44,5 +34,7 @@ class SmoothMarginEstimator(AbstractMarginEstimator):
         self._result_from_fit = self.margin_model.fitmargin_from_maxima_gev(data=maxima_gev_specialized,
                                                                             df_coordinates_spat=df_coordinates_spat,
                                                                             df_coordinates_temp=df_coordinates_temp)
-        self.extract_fitted_models_from_fitted_params(self.margin_model.margin_function_start_fit, self.fitted_values)
+
+    def extract_function_fitted(self):
+        return self.extract_function_fitted_from_function_to_fit(self.margin_model.margin_function_start_fit)
 

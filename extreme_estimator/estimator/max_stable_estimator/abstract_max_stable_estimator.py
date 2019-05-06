@@ -21,7 +21,7 @@ class MaxStableEstimator(AbstractMaxStableEstimator):
         self._result_from_fit = self.max_stable_model.fitmaxstab(
             data_frech=self.dataset.maxima_frech_for_spatial_extremes_package(split=self.train_split),
             df_coordinates_spat=self.dataset.df_coordinates(split=self.train_split))
-        self.max_stable_params_fitted = self.fitted_values
+        self.max_stable_params_fitted = self.result_from_fit.all_parameters
 
     def scalars(self, true_max_stable_params: dict):
         error = self._error(true_max_stable_params)

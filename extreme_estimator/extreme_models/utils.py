@@ -16,12 +16,13 @@ from rpy2.rinterface._rinterface import RRuntimeError
 from rpy2.robjects import numpy2ri
 from rpy2.robjects import pandas2ri
 
-from extreme_estimator.extreme_models.result_from_fit import ResultFromFit
+from extreme_estimator.extreme_models.result_from_fit import ResultFromFit, ResultFromSpatialExtreme
 
 r = ro.R()
 numpy2ri.activate()
 pandas2ri.activate()
 r.library('SpatialExtremes')
+r.library('ismev')
 
 
 # Notice: R is not reloading all the time, the SpatialExtremes, so it's quite hard to debug or print in the code...
@@ -43,16 +44,18 @@ class WarningMaximumAbsoluteValueTooHigh(Warning):
     pass
 
 
-def safe_run_r_estimator(function, data, use_start=False, threshold_max_abs_value=100, **parameters) -> ResultFromFit:
-    # Raise warning if the maximum absolute value is above a threshold
-    assert isinstance(data, np.ndarray)
-    maximum_absolute_value = np.max(np.abs(data))
-    if maximum_absolute_value > threshold_max_abs_value:
-        msg = "maxmimum absolute value in data {} is too high, i.e. above the defined threshold {}"\
-            .format(maximum_absolute_value, threshold_max_abs_value)
-        msg += '\nPotentially in that case, data should be re-normalized'
-        warnings.warn(msg, WarningMaximumAbsoluteValueTooHigh)
-    parameters['data'] = data
+def safe_run_r_estimator(function, data=None, use_start=False, threshold_max_abs_value=100, **parameters) -> robjects.ListVector:
+    # Some checks for Spatial Extremes
+    if data is not None:
+        # Raise warning if the maximum absolute value is above a threshold
+        assert isinstance(data, np.ndarray)
+        maximum_absolute_value = np.max(np.abs(data))
+        if maximum_absolute_value > threshold_max_abs_value:
+            msg = "maxmimum absolute value in data {} is too high, i.e. above the defined threshold {}" \
+                .format(maximum_absolute_value, threshold_max_abs_value)
+            msg += '\nPotentially in that case, data should be re-normalized'
+            warnings.warn(msg, WarningMaximumAbsoluteValueTooHigh)
+        parameters['data'] = data
     # First run without using start value
     # Then if it crashes, use start value
     run_successful = False
@@ -73,7 +76,7 @@ def safe_run_r_estimator(function, data, use_start=False, threshold_max_abs_valu
             if isinstance(e, RRuntimeWarning):
                 print(e.__repr__())
                 print('WARNING')
-    return ResultFromFit(res)
+    return res
 
 
 def get_coord(df_coordinates: pd.DataFrame):
@@ -82,9 +85,13 @@ def get_coord(df_coordinates: pd.DataFrame):
     return coord
 
 
-def get_margin_formula(fit_marge_form_dict) -> Dict:
+def get_null():
     as_null = r['as.null']
-    margin_formula = {k: robjects.Formula(v) if v != 'NULL' else as_null(1.0) for k, v in fit_marge_form_dict.items()}
+    return as_null(1.0)
+
+
+def get_margin_formula(fit_marge_form_dict) -> Dict:
+    margin_formula = {k: robjects.Formula(v) if v != 'NULL' else get_null() for k, v in fit_marge_form_dict.items()}
     return margin_formula
 
 # def conversion_to_FloatVector(data):
@@ -93,4 +100,3 @@ def get_margin_formula(fit_marge_form_dict) -> Dict:
 #         data = data.values
 #     assert isinstance(data, np.ndarray)
 #     return npr.numpy2ri(data)
-

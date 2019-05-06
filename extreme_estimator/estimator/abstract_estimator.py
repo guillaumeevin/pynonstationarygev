@@ -37,30 +37,29 @@ class AbstractEstimator(object):
         self.additional_information[self.DURATION] = int((te - ts) * 1000)
 
     @property
-    def fitted_values(self):
-        assert self.is_fitted
-        return self._result_from_fit.fitted_values
+    def result_from_fit(self) -> ResultFromFit:
+        assert self._result_from_fit is not None, 'Fit has not be done'
+        return self._result_from_fit
+
+    @property
+    def margin_function_fitted(self) -> AbstractMarginFunction:
+        if self._margin_function_fitted is None:
+            self._margin_function_fitted = self.extract_function_fitted()
+        assert self._margin_function_fitted is not None, 'No margin function has been fitted'
+        return self._margin_function_fitted
+
+    def extract_function_fitted(self) -> AbstractMarginFunction:
+        raise NotImplementedError
+
+    def extract_function_fitted_from_function_to_fit(self, margin_function_to_fit: ParametricMarginFunction):
+        return LinearMarginFunction.from_coef_dict(coordinates=self.dataset.coordinates,
+                                                   gev_param_name_to_dims=margin_function_to_fit.gev_param_name_to_dims,
+                                                   coef_dict=self.result_from_fit.margin_coef_dict)
 
     # @property
     # def max_stable_fitted(self) -> AbstractMarginFunction:
     #     assert self._margin_function_fitted is not None, 'Error: estimator has not been fitted'
     #     return self._margin_function_fitted
-
-    @property
-    def margin_function_fitted(self) -> AbstractMarginFunction:
-        assert self.is_fitted
-        assert self._margin_function_fitted is not None, 'No margin function has been fitted'
-        return self._margin_function_fitted
-
-    def extract_fitted_models_from_fitted_params(self, margin_function_to_fit: ParametricMarginFunction, full_params_fitted):
-        coef_dict = {k: v for k, v in full_params_fitted.items() if LinearCoef.COEFF_STR in k}
-        self._margin_function_fitted = LinearMarginFunction.from_coef_dict(coordinates=self.dataset.coordinates,
-                                                                           gev_param_name_to_dims=margin_function_to_fit.gev_param_name_to_dims,
-                                                                           coef_dict=coef_dict)
-
-    @property
-    def is_fitted(self):
-        return self._result_from_fit is not None
 
     @property
     def train_split(self):

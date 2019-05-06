@@ -13,7 +13,7 @@ from experiment.meteo_france_SCM_study.visualization.utils import create_adjuste
 from experiment.utils import average_smoothing_with_sliding_window
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
-from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import SmoothMarginEstimator
+from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
     LinearNonStationaryMarginModel, LinearStationaryMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
@@ -283,7 +283,7 @@ class StudyVisualizer(object):
 
         # Plot the smooth margin only
         margin_model = margin_class(coordinates=self.coordinates, starting_point=None)
-        estimator = SmoothMarginEstimator(dataset=self.dataset, margin_model=margin_model)
+        estimator = LinearMarginEstimator(dataset=self.dataset, margin_model=margin_model)
         self.fit_and_visualize_estimator(estimator, axes[0], title='without max stable')
 
         # Plot the smooth margin fitted with a max stable

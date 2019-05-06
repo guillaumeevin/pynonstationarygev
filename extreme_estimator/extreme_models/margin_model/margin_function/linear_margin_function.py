@@ -36,6 +36,11 @@ class LinearMarginFunction(ParametricMarginFunction):
         self.gev_param_name_to_coef = None  # type: Dict[str, LinearCoef]
         super().__init__(coordinates, gev_param_name_to_dims, gev_param_name_to_coef)
 
+    # @classmethod
+    # def from_coef_dict(cls, coordinates: AbstractCoordinates, gev_param_name_to_dims: Dict[str, List[int]],
+    #                    coef_dict: Dict[str, float]):
+    #     return super().from_coef_dict(coordinates, gev_param_name_to_dims, coef_dict)
+
     def load_specific_param_function(self, gev_param_name) -> AbstractParamFunction:
         return LinearParamFunction(dims=self.gev_param_name_to_dims[gev_param_name],
                                    coordinates=self.coordinates.coordinates_values(),

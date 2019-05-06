@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
-from extreme_estimator.extreme_models.result_from_fit import ResultFromFit
+from extreme_estimator.extreme_models.result_from_fit import ResultFromFit, ResultFromSpatialExtreme
 from extreme_estimator.extreme_models.utils import r, safe_run_r_estimator, get_coord, \
     get_margin_formula
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -67,8 +67,9 @@ class AbstractMaxStableModel(AbstractModel):
             fit_params['temp.cov'] = get_coord(df_coordinates_temp)
 
         # Run the fitmaxstab in R
-        return safe_run_r_estimator(function=r.fitmaxstab, use_start=self.use_start_value, data=data, coord=coord,
-                                    **fit_params)
+        res = safe_run_r_estimator(function=r.fitmaxstab, use_start=self.use_start_value, data=data, coord=coord,
+                                   **fit_params)
+        return ResultFromSpatialExtreme(res)
 
     def rmaxstab(self, nb_obs: int, coordinates_values: np.ndarray) -> np.ndarray:
         """
