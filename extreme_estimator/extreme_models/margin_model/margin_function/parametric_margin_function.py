@@ -62,7 +62,6 @@ class ParametricMarginFunction(IndependentMarginFunction):
         raise NotImplementedError
 
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
-        print('here get gev', self.starting_point)
         if self.starting_point is not None:
             # Shift temporal coordinate to enable to model temporal trend with starting point
             assert self.coordinates.has_temporal_coordinates

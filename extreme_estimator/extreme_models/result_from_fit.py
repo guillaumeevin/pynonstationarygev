@@ -1,5 +1,6 @@
 from typing import Dict
 
+import numpy as np
 from rpy2 import robjects
 
 from extreme_estimator.extreme_models.margin_model.param_function.linear_coef import LinearCoef
@@ -8,6 +9,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 
 class ResultFromFit(object):
+
 
     def __init__(self, result_from_fit: robjects.ListVector) -> None:
         if hasattr(result_from_fit, 'names'):
@@ -25,6 +27,14 @@ class ResultFromFit(object):
 
     @property
     def margin_coef_dict(self):
+        raise NotImplementedError
+
+    @property
+    def nllh(self):
+        raise NotImplementedError
+
+    @property
+    def deviance(self):
         raise NotImplementedError
 
 
@@ -47,7 +57,8 @@ class ResultFromIsmev(ResultFromFit):
             i += 1
             # Add a potential linear temporal trend
             if gev_param_name in self.gev_param_name_to_dim:
-                temporal_coef_name = LinearCoef.coef_template_str(gev_param_name, AbstractCoordinates.COORDINATE_T).format(1)
+                temporal_coef_name = LinearCoef.coef_template_str(gev_param_name,
+                                                                  AbstractCoordinates.COORDINATE_T).format(1)
                 coef_dict[temporal_coef_name] = mle_values[i]
                 i += 1
         return coef_dict
@@ -58,7 +69,7 @@ class ResultFromIsmev(ResultFromFit):
 
     @property
     def nllh(self):
-        return self.res['nllh']
+        return self.name_to_value['nllh']
 
 
 class ResultFromSpatialExtreme(ResultFromFit):
@@ -67,6 +78,10 @@ class ResultFromSpatialExtreme(ResultFromFit):
     """
     FITTED_VALUES_NAME = 'fitted.values'
     CONVERGENCE_NAME = 'convergence'
+
+    @property
+    def deviance(self):
+        return np.array(self.name_to_value['deviance'])[0]
 
     @property
     def convergence(self) -> str:

@@ -9,13 +9,15 @@ import pandas as pd
 import seaborn as sns
 
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
+from experiment.meteo_france_SCM_study.visualization.study_visualization.non_stationary_trends import \
+    ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest
 from experiment.meteo_france_SCM_study.visualization.utils import create_adjusted_axes
 from experiment.utils import average_smoothing_with_sliding_window
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
-    LinearNonStationaryMarginModel, LinearStationaryMarginModel
+    LinearNonStationaryLocationMarginModel, LinearStationaryMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.param_function.param_function import AbstractParamFunction
@@ -50,6 +52,8 @@ class StudyVisualizer(object):
         self._dataset = None
         self._coordinates = None
         self._observations = None
+
+        self.default_covariance_function = CovarianceFunction.powexp
 
         # KDE PLOT ARGUMENTS
         self.vertical_kde_plot = vertical_kde_plot
@@ -130,6 +134,25 @@ class StudyVisualizer(object):
         self.plot_name = ' Empirical distribution \n'
         self.plot_name += 'with data from the 23 mountain chains of the French Alps ' if self.year_for_kde_plot is None else \
             'for the year {}'.format(self.year_for_kde_plot)
+        self.show_or_save_to_file()
+
+    def visualize_temporal_trend_relevance(self, complete_analysis):
+        self.temporal_non_stationarity = True
+        trend_tests = [ConditionalIndedendenceLocationTrendTest(self.dataset)]
+
+        max_stable_models = load_test_max_stable_models(default_covariance_function=self.default_covariance_function)
+        for max_stable_model in max_stable_models[:1]:
+            trend_tests.append(MaxStableLocationTrendTest(self.dataset, max_stable_model))
+
+        nb_trend_tests = len(trend_tests)
+        fig, axes = plt.subplots(1, nb_trend_tests, figsize=self.figsize)
+        if nb_trend_tests == 1:
+            axes = [axes]
+        fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
+        for ax, trend_test in zip(axes, trend_tests):
+            trend_test.visualize(ax, complete_analysis=complete_analysis)
+
+        self.plot_name = 'trend tests'
         self.show_or_save_to_file()
 
     def visualize_experimental_law(self, ax, massif_id):
@@ -248,15 +271,14 @@ class StudyVisualizer(object):
         pass
 
     def visualize_linear_margin_fit(self, only_first_max_stable=False):
-        default_covariance_function = CovarianceFunction.powexp
-        margin_class = LinearNonStationaryMarginModel if self.temporal_non_stationarity else LinearStationaryMarginModel
+        margin_class = LinearNonStationaryLocationMarginModel if self.temporal_non_stationarity else LinearStationaryMarginModel
         plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
         plot_name += '\n(with {} covariance structure when a covariance is needed)'.format(
-            str(default_covariance_function).split('.')[-1])
+            str(self.default_covariance_function).split('.')[-1])
         self.plot_name = plot_name
 
         # Load max stable models
-        max_stable_models = load_test_max_stable_models(default_covariance_function=default_covariance_function)
+        max_stable_models = load_test_max_stable_models(default_covariance_function=self.default_covariance_function)
         if only_first_max_stable:
             # Keep only the BrownResnick model
             max_stable_models = max_stable_models[1:2]

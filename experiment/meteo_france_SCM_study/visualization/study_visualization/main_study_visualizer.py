@@ -95,9 +95,18 @@ def complete_analysis(only_first_one=False):
                 study_visualizer.visualize_linear_margin_fit()
 
 
+def trend_analysis():
+    save_to_file = False
+    only_first_one = True
+    for study_class in [CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][1:2]:
+        for study in study_iterator(study_class, only_first_one=only_first_one):
+            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file)
+            study_visualizer.visualize_temporal_trend_relevance(complete_analysis=False)
+
 if __name__ == '__main__':
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2100)
-    normal_visualization(temporal_non_stationarity=True)
+    # normal_visualization(temporal_non_stationarity=True)
+    trend_analysis()
     # max_stable_process_vizu_compare_gaume_study(altitude=1800, nb_days=1)
     # extended_visualization()
     # complete_analysis()

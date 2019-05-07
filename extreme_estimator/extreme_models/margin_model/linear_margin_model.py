@@ -127,5 +127,5 @@ class LinearStationaryMarginModel(LinearAllParametersTwoFirstCoordinatesMarginMo
     pass
 
 
-class LinearNonStationaryMarginModel(LinearAllTwoStatialCoordinatesLocationLinearMarginModel):
+class LinearNonStationaryLocationMarginModel(LinearAllTwoStatialCoordinatesLocationLinearMarginModel):
     pass
