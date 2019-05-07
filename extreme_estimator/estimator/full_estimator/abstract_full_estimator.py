@@ -63,12 +63,12 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
             df_coordinates_spat=self.dataset.coordinates.df_spatial_coordinates(self.train_split),
             df_coordinates_temp=self.dataset.coordinates.df_temporal_coordinates(self.train_split),
             fit_marge=True,
-            fit_marge_form_dict=self.margin_function_start_fit.form_dict,
-            margin_start_dict=self.margin_function_start_fit.coef_dict
+            fit_marge_form_dict=self.linear_margin_model.margin_function_start_fit.form_dict,
+            margin_start_dict=self.linear_margin_model.margin_function_start_fit.coef_dict
         )
 
     def extract_function_fitted(self):
-        return self.extract_function_fitted_from_function_to_fit(self.margin_function_start_fit)
+        return self.extract_function_fitted_from_the_model_shape(self.linear_margin_model)
 
 
 class PointwiseAndThenUnitaryMsp(AbstractFullEstimator):

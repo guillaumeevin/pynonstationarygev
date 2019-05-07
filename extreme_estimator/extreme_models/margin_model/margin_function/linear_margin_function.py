@@ -1,13 +1,11 @@
-from typing import Dict, List
-
-import numpy as np
+from typing import Dict, List, Union
 
 from extreme_estimator.extreme_models.margin_model.margin_function.parametric_margin_function import \
     ParametricMarginFunction
 from extreme_estimator.extreme_models.margin_model.param_function.abstract_coef import AbstractCoef
 from extreme_estimator.extreme_models.margin_model.param_function.linear_coef import LinearCoef
-from extreme_estimator.extreme_models.margin_model.param_function.param_function import ConstantParamFunction, \
-    AbstractParamFunction, LinearParamFunction
+from extreme_estimator.extreme_models.margin_model.param_function.param_function import AbstractParamFunction, \
+    LinearParamFunction
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
@@ -29,31 +27,14 @@ class LinearMarginFunction(ParametricMarginFunction):
     COEF_CLASS = LinearCoef
 
     def __init__(self, coordinates: AbstractCoordinates, gev_param_name_to_dims: Dict[str, List[int]],
-                 gev_param_name_to_coef: Dict[str, AbstractCoef],
-                 starting_point=None):
-        # Starting point for the trend is the same for all the parameters
-        self.starting_point = starting_point
-        self.gev_param_name_to_coef = None  # type: Dict[str, LinearCoef]
-        super().__init__(coordinates, gev_param_name_to_dims, gev_param_name_to_coef)
-
-    # @classmethod
-    # def from_coef_dict(cls, coordinates: AbstractCoordinates, gev_param_name_to_dims: Dict[str, List[int]],
-    #                    coef_dict: Dict[str, float]):
-    #     return super().from_coef_dict(coordinates, gev_param_name_to_dims, coef_dict)
+                 gev_param_name_to_coef: Dict[str, AbstractCoef], starting_point: Union[None, int] = None):
+        self.gev_param_name_to_coef = None  # type: Union[None, Dict[str, LinearCoef]]
+        super().__init__(coordinates, gev_param_name_to_dims, gev_param_name_to_coef, starting_point)
 
     def load_specific_param_function(self, gev_param_name) -> AbstractParamFunction:
         return LinearParamFunction(dims=self.gev_param_name_to_dims[gev_param_name],
                                    coordinates=self.coordinates.coordinates_values(),
                                    linear_coef=self.gev_param_name_to_coef[gev_param_name])
-
-    def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
-        if self.starting_point is not None:
-            # Shift temporal coordinate to enable to model temporal trend with starting point
-            assert self.coordinates.has_temporal_coordinates
-            assert 0 <= self.coordinates.idx_temporal_coordinates < len(coordinate)
-            if coordinate[self.coordinates.idx_temporal_coordinates] < self.starting_point:
-                coordinate[self.coordinates.idx_temporal_coordinates] = self.starting_point
-        return super().get_gev_params(coordinate)
 
     @classmethod
     def idx_to_coefficient_name(cls, coordinates: AbstractCoordinates) -> Dict[int, str]:
@@ -67,6 +48,15 @@ class LinearMarginFunction(ParametricMarginFunction):
     @classmethod
     def coefficient_name_to_dim(cls, coordinates: AbstractCoordinates) -> Dict[int, str]:
         return {v: k for k, v in cls.idx_to_coefficient_name(coordinates).items()}
+
+    @property
+    def coef_dict(self) -> Dict[str, float]:
+        coef_dict = {}
+        for gev_param_name in GevParams.PARAM_NAMES:
+            dims = self.gev_param_name_to_dims.get(gev_param_name, [])
+            coef = self.gev_param_name_to_coef[gev_param_name]
+            coef_dict.update(coef.coef_dict(dims, self.idx_to_coefficient_name(self.coordinates)))
+        return coef_dict
 
     @property
     def form_dict(self) -> Dict[str, str]:

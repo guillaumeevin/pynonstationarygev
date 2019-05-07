@@ -1,4 +1,6 @@
-from typing import Dict, List
+from typing import Dict, List, Union
+
+import numpy as np
 
 from extreme_estimator.extreme_models.margin_model.margin_function.independent_margin_function import \
     IndependentMarginFunction
@@ -29,7 +31,9 @@ class ParametricMarginFunction(IndependentMarginFunction):
     COEF_CLASS = None
 
     def __init__(self, coordinates: AbstractCoordinates, gev_param_name_to_dims: Dict[str, List[int]],
-                 gev_param_name_to_coef: Dict[str, AbstractCoef]):
+                 gev_param_name_to_coef: Dict[str, AbstractCoef], starting_point: Union[None, int] = None):
+        # Starting point for the trend is the same for all the parameters
+        self.starting_point = starting_point
         super().__init__(coordinates)
         self.gev_param_name_to_dims = gev_param_name_to_dims  # type: Dict[str, List[int]]
 
@@ -57,9 +61,19 @@ class ParametricMarginFunction(IndependentMarginFunction):
     def load_specific_param_function(self, gev_param_name) -> AbstractParamFunction:
         raise NotImplementedError
 
+    def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
+        print('here get gev', self.starting_point)
+        if self.starting_point is not None:
+            # Shift temporal coordinate to enable to model temporal trend with starting point
+            assert self.coordinates.has_temporal_coordinates
+            assert 0 <= self.coordinates.idx_temporal_coordinates < len(coordinate)
+            if coordinate[self.coordinates.idx_temporal_coordinates] < self.starting_point:
+                coordinate[self.coordinates.idx_temporal_coordinates] = self.starting_point
+        return super().get_gev_params(coordinate)
+
     @classmethod
     def from_coef_dict(cls, coordinates: AbstractCoordinates, gev_param_name_to_dims: Dict[str, List[int]],
-                       coef_dict: Dict[str, float]):
+                       coef_dict: Dict[str, float], starting_point: Union[None, int] = None):
         assert cls.COEF_CLASS is not None, 'a COEF_CLASS class attributes needs to be defined'
         gev_param_name_to_coef = {}
         for gev_param_name in GevParams.PARAM_NAMES:
@@ -67,16 +81,7 @@ class ParametricMarginFunction(IndependentMarginFunction):
             coef = cls.COEF_CLASS.from_coef_dict(coef_dict=coef_dict, gev_param_name=gev_param_name, dims=dims,
                                                  coordinates=coordinates)
             gev_param_name_to_coef[gev_param_name] = coef
-        return cls(coordinates, gev_param_name_to_dims, gev_param_name_to_coef)
-
-    @property
-    def coef_dict(self) -> Dict[str, float]:
-        coef_dict = {}
-        for gev_param_name in GevParams.PARAM_NAMES:
-            dims = self.gev_param_name_to_dims.get(gev_param_name, [])
-            coef = self.gev_param_name_to_coef[gev_param_name]
-            coef_dict.update(coef.coef_dict(dims, self.idx_to_coefficient_name(self.coordinates)))
-        return coef_dict
+        return cls(coordinates, gev_param_name_to_dims, gev_param_name_to_coef, starting_point)
 
     @property
     def form_dict(self) -> Dict[str, str]:

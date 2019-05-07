@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 
 import numpy as np
 
@@ -17,7 +17,7 @@ class IndependentMarginFunction(AbstractMarginFunction):
     def __init__(self, coordinates: AbstractCoordinates):
         """Attribute 'gev_param_name_to_param_function' maps each GEV parameter to its corresponding function"""
         super().__init__(coordinates)
-        self.gev_param_name_to_param_function = None  # type: Dict[str, AbstractParamFunction]
+        self.gev_param_name_to_param_function = None  # type: Union[None, Dict[str, AbstractParamFunction]]
 
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
         """Each GEV parameter is computed independently through its corresponding param_function"""

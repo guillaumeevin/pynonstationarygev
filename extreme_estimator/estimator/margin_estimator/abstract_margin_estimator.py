@@ -5,6 +5,7 @@ from extreme_estimator.extreme_models.margin_model.margin_function.abstract_marg
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearMarginModel, \
     LinearAllParametersAllDimsMarginModel
+from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
@@ -35,6 +36,10 @@ class LinearMarginEstimator(AbstractMarginEstimator):
                                                                             df_coordinates_spat=df_coordinates_spat,
                                                                             df_coordinates_temp=df_coordinates_temp)
 
-    def extract_function_fitted(self):
-        return self.extract_function_fitted_from_function_to_fit(self.margin_model.margin_function_start_fit)
+    @property
+    def margin_function_fitted(self) -> LinearMarginFunction:
+        return super().margin_function_fitted
+
+    def extract_function_fitted(self) -> LinearMarginFunction:
+        return self.extract_function_fitted_from_the_model_shape(self.margin_model)
 

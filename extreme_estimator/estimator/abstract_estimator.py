@@ -1,5 +1,6 @@
 import time
 
+from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.parametric_margin_function import \
     ParametricMarginFunction
 from extreme_estimator.extreme_models.result_from_fit import ResultFromFit
@@ -51,10 +52,11 @@ class AbstractEstimator(object):
     def extract_function_fitted(self) -> AbstractMarginFunction:
         raise NotImplementedError
 
-    def extract_function_fitted_from_function_to_fit(self, margin_function_to_fit: ParametricMarginFunction):
+    def extract_function_fitted_from_the_model_shape(self, margin_model: LinearMarginModel):
         return LinearMarginFunction.from_coef_dict(coordinates=self.dataset.coordinates,
-                                                   gev_param_name_to_dims=margin_function_to_fit.gev_param_name_to_dims,
-                                                   coef_dict=self.result_from_fit.margin_coef_dict)
+                                                   gev_param_name_to_dims=margin_model.margin_function_start_fit.gev_param_name_to_dims,
+                                                   coef_dict=self.result_from_fit.margin_coef_dict,
+                                                   starting_point=margin_model.starting_point)
 
     # @property
     # def max_stable_fitted(self) -> AbstractMarginFunction:
