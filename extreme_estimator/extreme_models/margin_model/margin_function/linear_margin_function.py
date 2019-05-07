@@ -50,10 +50,9 @@ class LinearMarginFunction(ParametricMarginFunction):
         if self.starting_point is not None:
             # Shift temporal coordinate to enable to model temporal trend with starting point
             assert self.coordinates.has_temporal_coordinates
-            idx_coordinate_t = self.coordinates.coordinates_names.index(self.coordinates.COORDINATE_T)
-            assert 0 <= idx_coordinate_t < len(coordinate)
-            if coordinate[idx_coordinate_t] < self.starting_point:
-                coordinate[idx_coordinate_t] = self.starting_point
+            assert 0 <= self.coordinates.idx_temporal_coordinates < len(coordinate)
+            if coordinate[self.coordinates.idx_temporal_coordinates] < self.starting_point:
+                coordinate[self.coordinates.idx_temporal_coordinates] = self.starting_point
         return super().get_gev_params(coordinate)
 
     @classmethod

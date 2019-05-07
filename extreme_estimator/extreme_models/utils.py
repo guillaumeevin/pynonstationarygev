@@ -16,8 +16,6 @@ from rpy2.rinterface._rinterface import RRuntimeError
 from rpy2.robjects import numpy2ri
 from rpy2.robjects import pandas2ri
 
-from extreme_estimator.extreme_models.result_from_fit import ResultFromFit, ResultFromSpatialExtreme
-
 r = ro.R()
 numpy2ri.activate()
 pandas2ri.activate()

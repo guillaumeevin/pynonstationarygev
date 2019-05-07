@@ -202,6 +202,10 @@ class AbstractCoordinates(object):
         df_temporal_coordinates = self.df_temporal_coordinates(split)
         return int(df_temporal_coordinates.min()), int(df_temporal_coordinates.max()),
 
+    @property
+    def idx_temporal_coordinates(self):
+        return self.coordinates_names.index(self.COORDINATE_T)
+
     # Spatio temporal attributes
 
     @property

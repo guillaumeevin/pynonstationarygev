@@ -12,7 +12,7 @@ class AbstractSpatioTemporalObservations(object):
     OBSERVATIONS_GEV = 'obs_gev'
     OBSERVATIONS_FRECH = 'obs_frech'
 
-    def __init__(self, df_maxima_frech: pd.DataFrame = None, df_maxima_gev: pd.DataFrame = None):
+    def __init__(self, df_maxima_gev: pd.DataFrame = None, df_maxima_frech: pd.DataFrame = None):
         """
         Main attribute of the class is the DataFrame df_maxima
         Index are coordinates index
