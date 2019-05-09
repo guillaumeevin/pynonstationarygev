@@ -56,8 +56,9 @@ class AbstractDataset(object):
     def transform_maxima_for_spatial_extreme_package(self, maxima_function, split) -> np.ndarray:
         array = maxima_function(split)
         if self.coordinates.has_spatio_temporal_coordinates:
-            array = array.reshape(self.coordinates.spatio_temporal_shape(split))
-        return np.transpose(array)
+            return array.reshape(self.coordinates.spatio_temporal_shape(split)[::-1])
+        else:
+            return np.transpose(array)
 
     def maxima_gev_for_spatial_extremes_package(self, split: Split = Split.all) -> np.ndarray:
         return self.transform_maxima_for_spatial_extreme_package(self.maxima_gev, split)
@@ -105,7 +106,7 @@ class AbstractDataset(object):
     # Special methods
 
     def __str__(self) -> str:
-        return 'coordinates: {}\nobservations: {}'.format(self.coordinates.__str__(), self.observations.__str__())
+        return 'coordinates:\n{}\nobservations:\n{}'.format(self.coordinates.__str__(), self.observations.__str__())
 
 
 def get_subset_dataset(dataset: AbstractDataset, subset_id) -> AbstractDataset:

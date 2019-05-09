@@ -215,6 +215,9 @@ class AbstractCoordinates(object):
     def spatio_temporal_shape(self, split: Split.all) -> Tuple[int, int]:
         return len(self.df_spatial_coordinates(split)), len(self.df_temporal_coordinates(split))
 
+    def ind_of_df_all_coordinates(self, coordinate_name, value):
+        return self.df_all_coordinates.loc[:, coordinate_name] == value
+
     #  Visualization
 
     @property

@@ -31,10 +31,10 @@ class TestMarginTemporal(unittest.TestCase):
         self.nb_obs = 1
         # Load some 2D spatial coordinates
         self.coordinates = load_test_spatiotemporal_coordinates(nb_steps=self.nb_steps, nb_points=self.nb_points)[1]
-        smooth_margin_model = LinearNonStationaryLocationMarginModel(coordinates=self.coordinates,
-                                                                      starting_point=2)
+        self.smooth_margin_model = LinearNonStationaryLocationMarginModel(coordinates=self.coordinates,
+                                                                          starting_point=2)
         self.dataset = MarginDataset.from_sampling(nb_obs=self.nb_obs,
-                                                   margin_model=smooth_margin_model,
+                                                   margin_model=self.smooth_margin_model,
                                                    coordinates=self.coordinates)
 
     def test_margin_fit_stationary(self):
@@ -42,7 +42,7 @@ class TestMarginTemporal(unittest.TestCase):
         margin_model = LinearStationaryMarginModel(self.coordinates)
         estimator = LinearMarginEstimator(self.dataset, margin_model)
         estimator.fit()
-        ref = {'loc': 1.3403346591679877, 'scale': 1.054867229157924, 'shape': 0.713700960727747}
+        ref = {'loc': 1.3456595684773085, 'scale': 1.090369430386199, 'shape': 0.6845422250749476}
         for year in range(1, 3):
             coordinate = np.array([0.0, 0.0, year])
             mle_params_estimated = estimator.margin_function_fitted.get_gev_params(coordinate).to_dict()
@@ -65,8 +65,11 @@ class TestMarginTemporal(unittest.TestCase):
     def test_margin_fit_nonstationary_with_start_point(self):
         # Create estimator
         estimator = self.fit_non_stationary_estimator(starting_point=2)
-        print(estimator.margin_function_fitted.mu1_temporal_trend)
+        # By default, estimator find the good margin
         self.assertNotEqual(estimator.margin_function_fitted.mu1_temporal_trend, 0.0)
+        self.assertAlmostEqual(estimator.margin_function_fitted.mu1_temporal_trend,
+                               self.smooth_margin_model.margin_function_sample.mu1_temporal_trend,
+                               places=3)
         # Checks starting point parameter are well passed
         self.assertEqual(2, estimator.margin_function_fitted.starting_point)
         # Checks that parameters returned are indeed different
