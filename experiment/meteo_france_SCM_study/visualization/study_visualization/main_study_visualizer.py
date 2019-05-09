@@ -111,9 +111,9 @@ def complete_analysis(only_first_one=False):
 
 
 def trend_analysis():
-    save_to_file = False
-    only_first_one = True
-    altitudes = [300, 1200, 2100, 3000][3:]
+    save_to_file = True
+    only_first_one = False
+    altitudes = [300, 1200, 2100, 3000][:]
     study_classes = [CrocusSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature]
     for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):
         study_visualizer = StudyVisualizer(study, save_to_file=save_to_file)

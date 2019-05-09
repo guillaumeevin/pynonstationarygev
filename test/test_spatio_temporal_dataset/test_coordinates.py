@@ -65,6 +65,9 @@ class SpatioTemporalCoordinates(unittest.TestCase):
             # the uniqueness of each spatio temporal index is not garanteed by the current algo
             # it will work in classical cases, and raise an assert when uniqueness is needed (when using a slicer)
             index1 = pd.Series(spatial_coordinates.spatial_index())
+            # Add the suffix to the index1
+            suffix = '0' if isinstance(df_spatial.index[0], str) else 0
+            index1 += suffix
             index2 = pd.Series(coordinates.spatial_index())
             ind = index1 != index2  # type: pd.Series
             self.assertEqual(sum(ind), 0, msg="spatial_coordinates:\n{} \n!= spatio_temporal_coordinates \n{}".

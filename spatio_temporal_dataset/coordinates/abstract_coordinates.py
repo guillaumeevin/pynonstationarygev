@@ -84,7 +84,7 @@ class AbstractCoordinates(object):
     @classmethod
     def from_df_and_slicer(cls, df: pd.DataFrame, slicer_class: type, train_split_ratio: float = None):
         # All the index should be unique
-        assert len(set(df.index)) == len(df)
+        assert len(set(df.index)) == len(df), 'df indices are not unique'
 
         # Create a spatial split
         s_split_spatial = s_split_from_df(df, cls.COORDINATE_X, cls.SPATIAL_SPLIT, train_split_ratio, True)

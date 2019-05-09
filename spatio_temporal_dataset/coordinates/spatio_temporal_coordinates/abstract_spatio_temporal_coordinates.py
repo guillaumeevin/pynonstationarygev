@@ -23,8 +23,8 @@ class AbstractSpatioTemporalCoordinates(AbstractCoordinates):
         for t in range(nb_steps):
             df_time_step = df_spatial.copy()
             df_time_step[cls.COORDINATE_T] = start + t
-            index_suffix = index_type(t + len(df_spatial))
-            time_step_index = [i + index_suffix for i in df_spatial.index] if t > 0 else df_spatial.index
+            index_suffix = index_type(t * len(df_spatial))
+            time_step_index = [i + index_suffix for i in df_spatial.index]
             df_time_step.index = time_step_index
             df_time_steps.append(df_time_step)
         df_time_steps = pd.concat(df_time_steps)

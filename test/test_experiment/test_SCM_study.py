@@ -10,10 +10,11 @@ from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, Exte
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
 from test.test_utils import load_scm_studies
 
+
 class TestSCMAllStudy(unittest.TestCase):
 
     def test_extended_run(self):
-        for study_class in [ExtendedSafranSnowfall, ExtendedCrocusSwe]:
+        for study_class in [ExtendedSafranSnowfall]:
             for study in study_iterator(study_class, only_first_one=True, both_altitude=False, verbose=False):
                 study_visualizer = StudyVisualizer(study, show=False, save_to_file=False)
                 study_visualizer.visualize_all_mean_and_max_graphs()
