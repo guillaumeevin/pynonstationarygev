@@ -1,13 +1,15 @@
+import random
 import unittest
 
 import numpy as np
 import pandas as pd
 
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel
+from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel, \
+    LinearStationaryMarginModel
 from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import StationaryStationModel, \
     NonStationaryStationModel
-from extreme_estimator.extreme_models.utils import r, set_seed_r
+from extreme_estimator.extreme_models.utils import r, set_seed_r, set_seed_for_test
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
 from extreme_estimator.margin_fits.gev.ismev_gev_fit import IsmevGevFit
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -23,6 +25,7 @@ from test.test_utils import load_test_spatiotemporal_coordinates, load_smooth_ma
 class TestMarginTemporal(unittest.TestCase):
 
     def setUp(self) -> None:
+        set_seed_for_test(seed=42)
         self.nb_points = 2
         self.nb_steps = 5
         self.nb_obs = 1
@@ -31,23 +34,23 @@ class TestMarginTemporal(unittest.TestCase):
         self.start_year = 2
         smooth_margin_models = LinearNonStationaryLocationMarginModel(coordinates=self.coordinates,
                                                                       starting_point=self.start_year)
+
         self.dataset = MarginDataset.from_sampling(nb_obs=self.nb_obs,
                                                    margin_model=smooth_margin_models,
                                                    coordinates=self.coordinates)
 
-    def test_loading_dataset(self):
-        self.assertTrue(True)
-
-    # def test_gev_temporal_margin_fit_stationary(self):
-    #     # Create estimator
-    #     margin_model = StationaryStationModel(self.coordinates)
-    #     estimator = LinearMarginEstimator(self.dataset, margin_model)
-    #     estimator.fit()
-    #     ref = {'loc': 0.0219, 'scale': 1.0347, 'shape': 0.8295}
-    #     for year in range(1, 3):
-    #         mle_params_estimated = estimator.margin_function_fitted.get_gev_params(np.array([year])).to_dict()
-    #         for key in ref.keys():
-    #             self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
+    def test_margin_fit_stationary(self):
+        # Create estimator
+        margin_model = LinearStationaryMarginModel(self.coordinates)
+        estimator = LinearMarginEstimator(self.dataset, margin_model)
+        estimator.fit()
+        ref = {'loc': 2.2985600257321295, 'scale': 8.937484202730161, 'shape': 5.744352285758161}
+        for year in range(1, 3):
+            coordinate = np.array([0.0, 0.0, year])
+            mle_params_estimated = estimator.margin_function_fitted.get_gev_params(coordinate).to_dict()
+            print(mle_params_estimated)
+            for key in ref.keys():
+                self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
     #
     # def test_gev_temporal_margin_fit_nonstationary(self):
     #     # Create estimator

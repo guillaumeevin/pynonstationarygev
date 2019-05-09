@@ -102,6 +102,11 @@ class AbstractDataset(object):
             column_idxs = [idx for idx in range(self.observations.nb_obs) if idx % nb_subsets == subset_id]
             self.subset_id_to_column_idxs[subset_id] = column_idxs
 
+    # Special methods
+
+    def __str__(self) -> str:
+        return 'coordinates: {}\nobservations: {}'.format(self.coordinates.__str__(), self.observations.__str__())
+
 
 def get_subset_dataset(dataset: AbstractDataset, subset_id) -> AbstractDataset:
     columns_idxs = dataset.subset_id_to_column_idxs[subset_id]

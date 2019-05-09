@@ -274,3 +274,6 @@ class AbstractCoordinates(object):
 
     def __eq__(self, other):
         return self.df_merged.equals(other.df_merged)
+
+    def __str__(self):
+        return self.df_all_coordinates.__str__()

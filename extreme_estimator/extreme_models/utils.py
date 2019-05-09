@@ -27,6 +27,11 @@ r.library('ismev')
 # the best solution for debugging is to copy/paste the code module into a file that belongs to me, and then
 # I can put print & stop in the code, and I can understand where are the problems
 
+def set_seed_for_test(seed=42):
+    set_seed_r(seed=seed)
+    random.seed(seed)
+
+
 def set_seed_r(seed=42):
     r("set.seed({})".format(seed))
 
@@ -42,7 +47,8 @@ class WarningMaximumAbsoluteValueTooHigh(Warning):
     pass
 
 
-def safe_run_r_estimator(function, data=None, use_start=False, threshold_max_abs_value=100, **parameters) -> robjects.ListVector:
+def safe_run_r_estimator(function, data=None, use_start=False, threshold_max_abs_value=100,
+                         **parameters) -> robjects.ListVector:
     # Some checks for Spatial Extremes
     if data is not None:
         # Raise warning if the maximum absolute value is above a threshold

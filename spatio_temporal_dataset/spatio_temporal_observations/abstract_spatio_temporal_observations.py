@@ -95,3 +95,8 @@ class AbstractSpatioTemporalObservations(object):
                          slicer: AbstractSlicer = None):
         df = df_sliced(self.df_maxima_frech, split, slicer)
         df.loc[:] = maxima_frech_values
+
+    def __str__(self) -> str:
+        return self._df_maxima.__str__()
+
+
