@@ -18,7 +18,7 @@ class CrocusVariable(AbstractVariable):
 
 class CrocusSweVariable(CrocusVariable):
     NAME = 'Snow Water Equivalent'
-    UNIT = 'kg/m2 or mm'
+    UNIT = 'kg per m2 or mm'
 
     def __init__(self, dataset, altitude):
         super().__init__(dataset, altitude, 'SWE_1DY_ISBA')

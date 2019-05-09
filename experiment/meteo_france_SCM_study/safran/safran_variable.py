@@ -22,7 +22,7 @@ class SafranSnowfallVariable(AbstractVariable):
     """
 
     NAME = 'Snowfall'
-    UNIT = 'kg/m2 or mm'
+    UNIT = 'kg per m2 or mm'
 
     def __init__(self, dataset, altitude, nb_consecutive_days_of_snowfall=1, keyword='Snowf'):
         super().__init__(dataset, altitude)

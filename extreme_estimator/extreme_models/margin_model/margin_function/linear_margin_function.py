@@ -6,6 +6,7 @@ from extreme_estimator.extreme_models.margin_model.param_function.abstract_coef 
 from extreme_estimator.extreme_models.margin_model.param_function.linear_coef import LinearCoef
 from extreme_estimator.extreme_models.margin_model.param_function.param_function import AbstractParamFunction, \
     LinearParamFunction
+from extreme_estimator.margin_fits.extreme_params import ExtremeParams
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
@@ -57,6 +58,10 @@ class LinearMarginFunction(ParametricMarginFunction):
             coef = self.gev_param_name_to_coef[gev_param_name]
             coef_dict.update(coef.coef_dict(dims, self.idx_to_coefficient_name(self.coordinates)))
         return coef_dict
+
+    @property
+    def mu1_temporal_trend(self):
+        return self.coef_dict[LinearCoef.coef_template_str(ExtremeParams.LOC, AbstractCoordinates.COORDINATE_T).format(1)]
 
     @property
     def form_dict(self) -> Dict[str, str]:

@@ -12,14 +12,15 @@ SCM_EXTENDED_STUDIES = [ExtendedSafranSnowfall, ExtendedCrocusSwe, ExtendedCrocu
 SCM_STUDY_TO_EXTENDED_STUDY = OrderedDict(zip(SCM_STUDIES, SCM_EXTENDED_STUDIES))
 
 
-def study_iterator(study_class, only_first_one=False, both_altitude=False, verbose=True):
+def study_iterator(study_class, only_first_one=False, both_altitude=False, verbose=True, altitudes=None):
     all_studies = []
     is_safran_study = study_class in [SafranSnowfall, ExtendedSafranSnowfall]
     nb_days = [1] if is_safran_study else [1]
     if verbose:
         print('Loading studies....')
     for nb_day in nb_days:
-        for alti in [1800]:
+        altis = [1800] if altitudes is None else altitudes
+        for alti in altis:
             if verbose:
                 print('alti: {}, nb_day: {}'.format(alti, nb_day))
             study = study_class(altitude=alti, nb_consecutive_days=nb_day) if is_safran_study \
@@ -96,12 +97,12 @@ def complete_analysis(only_first_one=False):
 
 
 def trend_analysis():
-    save_to_file = False
+    save_to_file = True
     only_first_one = True
-    for study_class in [CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][1:2]:
-        for study in study_iterator(study_class, only_first_one=only_first_one):
+    for study_class in [CrocusSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][:3]:
+        for study in study_iterator(study_class, only_first_one=only_first_one, altitudes=[1800, 2100, 2400, 2700]):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file)
-            study_visualizer.visualize_temporal_trend_relevance(complete_analysis=False)
+            study_visualizer.visualize_temporal_trend_relevance(complete_analysis=not only_first_one)
 
 if __name__ == '__main__':
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2100)
