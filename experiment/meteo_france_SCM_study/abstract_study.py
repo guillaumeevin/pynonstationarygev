@@ -31,7 +31,7 @@ with redirect_stdout(f):
 
 class AbstractStudy(object):
     """
-    Les fichiers netcdf sont autodocumentés (on peut les comprendre avec ncdump -h notamment).
+    Les fichiers netcdf de SAFRAN et CROCUS sont autodocumentés (on peut les comprendre avec ncdump -h notamment).
     """
     REANALYSIS_FOLDER = 'alp_flat/reanalysis'
 
@@ -164,6 +164,8 @@ class AbstractStudy(object):
         df_centroid = self.load_df_centroid()
         for coord_column in [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_Y]:
             df_centroid.loc[:, coord_column] = df_centroid[coord_column].str.replace(',', '.').astype(float)
+        # Filter, keep massifs present at the altitude of interest
+        df_centroid = df_centroid.loc[self.study_massif_names]
         # Build coordinate object from df_centroid
         return AbstractSpatialCoordinates.from_df(df_centroid)
 
@@ -311,7 +313,8 @@ class AbstractStudy(object):
 
     @property
     def title(self):
-        return "{} at altitude {}m".format(self.variable_name, self.altitude)
+        return "{} at altitude {}m ({} mountain chains)".format(self.variable_name, self.altitude,
+                                                                len(self.study_massif_names))
 
     @property
     def variable_name(self):
@@ -344,7 +347,3 @@ class AbstractStudy(object):
         assert self.model_name in ['Safran', 'Crocus']
         study_folder = 'meteo' if self.model_name is 'Safran' else 'pro'
         return op.join(self.full_path, self.REANALYSIS_FOLDER, study_folder)
-
-
-
-

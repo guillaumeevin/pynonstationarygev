@@ -1,5 +1,6 @@
 from typing import Union
 
+from experiment.meteo_france_SCM_study.visualization.utils import align_yaxis_on_zero
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from scipy.stats import chi2
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
@@ -68,6 +69,14 @@ class AbstractNonStationaryTrendTest(object):
         ax.plot(years, difference, color_difference + 'o-')
         ax.set_ylabel(self.RESULT_ATTRIBUTE_METRIC + ' difference', color=color_difference)
 
+        # Plot zero line
+        years_line = [years[0] -10, years[-1]  + 10]
+        ax.plot(years_line, [0 for _ in years_line], 'k-', label='zero line')
+        # Plot significative line corresponding to 0.05 relevance
+        alpha = 0.05
+        significative_deviance = chi2.ppf(q=1 - alpha, df=1)
+        ax.plot(years_line, [significative_deviance for _ in years_line], 'g-', label='significative line')
+
         # Plot the mu1 parameter
         mu1_trends = [self.get_mu1(starting_point=year) for year in years]
         ax2 = ax.twinx()
@@ -75,16 +84,14 @@ class AbstractNonStationaryTrendTest(object):
         ax.plot(years, mu1_trends, color_mu1 + 'o-')
         ax2.set_ylabel('mu1 parameter', color=color_mu1)
 
-        # Plot zero line
-        ax.plot(years, [0 for _ in years], 'k-', label='zero line')
-        # Plot significative line corresponding to 0.05 relevance
-        alpha = 0.05
-        significative_deviance = chi2.ppf(q=1 - alpha, df=1)
-        ax.plot(years, [significative_deviance for _ in years], 'g-', label='significative line')
-        # Add some informations about the graph
-
-        ax.set_xlabel('year')
-        ax.set_title(self.display_name)
+        ax.set_xlabel('starting year for the linear trend of mu1')
+        align_yaxis_on_zero(ax, ax2)
+        title = self.display_name
+        first = mu1_trends[0]
+        last = mu1_trends[-1]
+        title += '\n mu1: first {}\nlast {}'.format(first, last)
+        title += '; equals? {}'.format(first == last)
+        ax.set_title(title)
         ax.legend()
 
     @property

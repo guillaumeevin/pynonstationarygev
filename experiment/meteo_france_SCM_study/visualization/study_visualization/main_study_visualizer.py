@@ -12,6 +12,14 @@ SCM_EXTENDED_STUDIES = [ExtendedSafranSnowfall, ExtendedCrocusSwe, ExtendedCrocu
 SCM_STUDY_TO_EXTENDED_STUDY = OrderedDict(zip(SCM_STUDIES, SCM_EXTENDED_STUDIES))
 
 
+def study_iterator_global(study_classes, only_first_one=False, both_altitude=False, verbose=True, altitudes=None):
+    for study_class in study_classes:
+        for study in study_iterator(study_class, only_first_one, both_altitude, verbose, altitudes):
+            yield study
+        if only_first_one:
+            break
+
+
 def study_iterator(study_class, only_first_one=False, both_altitude=False, verbose=True, altitudes=None):
     all_studies = []
     is_safran_study = study_class in [SafranSnowfall, ExtendedSafranSnowfall]
@@ -20,11 +28,16 @@ def study_iterator(study_class, only_first_one=False, both_altitude=False, verbo
         print('Loading studies....')
     for nb_day in nb_days:
         altis = [1800] if altitudes is None else altitudes
+
         for alti in altis:
+
             if verbose:
                 print('alti: {}, nb_day: {}'.format(alti, nb_day))
             study = study_class(altitude=alti, nb_consecutive_days=nb_day) if is_safran_study \
                 else study_class(altitude=alti)
+            massifs = study.altitude_to_massif_names[alti]
+            if verbose:
+                print('{} massifs: {}'.format(len(massifs), massifs))
             yield study
             if only_first_one and not both_altitude:
                 break
@@ -75,7 +88,8 @@ def normal_visualization(temporal_non_stationarity=False):
     # for study_class in SCM_STUDIES[:1]:
     for study_class in [CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][1:2]:
         for study in study_iterator(study_class, only_first_one=only_first_one):
-            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, temporal_non_stationarity=temporal_non_stationarity)
+            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
+                                               temporal_non_stationarity=temporal_non_stationarity)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
             # study_visualizer.visualize_annual_mean_values()
             study_visualizer.visualize_linear_margin_fit(only_first_max_stable=None)
@@ -92,17 +106,19 @@ def complete_analysis(only_first_one=False):
             study_visualizer.visualize_all_experimental_law()
         print('Study normal')
         for study in study_iterator(study_class, only_first_one=only_first_one):
-                study_visualizer = StudyVisualizer(study, save_to_file=True)
-                study_visualizer.visualize_linear_margin_fit()
+            study_visualizer = StudyVisualizer(study, save_to_file=True)
+            study_visualizer.visualize_linear_margin_fit()
 
 
 def trend_analysis():
-    save_to_file = True
+    save_to_file = False
     only_first_one = True
-    for study_class in [CrocusSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][:3]:
-        for study in study_iterator(study_class, only_first_one=only_first_one, altitudes=[1800, 2100, 2400, 2700]):
-            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file)
-            study_visualizer.visualize_temporal_trend_relevance(complete_analysis=not only_first_one)
+    altitudes = [300, 1200, 2100, 3000][3:]
+    study_classes = [CrocusSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature]
+    for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):
+        study_visualizer = StudyVisualizer(study, save_to_file=save_to_file)
+        study_visualizer.visualize_temporal_trend_relevance(complete_analysis=False)
+
 
 if __name__ == '__main__':
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2100)

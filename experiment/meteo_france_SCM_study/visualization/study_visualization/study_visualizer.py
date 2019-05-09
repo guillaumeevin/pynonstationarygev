@@ -141,7 +141,7 @@ class StudyVisualizer(object):
         trend_tests = [ConditionalIndedendenceLocationTrendTest(self.dataset)]
 
         max_stable_models = load_test_max_stable_models(default_covariance_function=self.default_covariance_function)
-        for max_stable_model in max_stable_models[:1]:
+        for max_stable_model in [max_stable_models[1], max_stable_models[-2]]:
             trend_tests.append(MaxStableLocationTrendTest(self.dataset, max_stable_model))
 
         nb_trend_tests = len(trend_tests)
