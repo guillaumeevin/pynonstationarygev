@@ -64,6 +64,10 @@ class LinearMarginFunction(ParametricMarginFunction):
         return self.coef_dict[LinearCoef.coef_template_str(ExtremeParams.LOC, AbstractCoordinates.COORDINATE_T).format(1)]
 
     @property
+    def mu0(self):
+        return self.coef_dict[LinearCoef.coef_template_str(ExtremeParams.LOC, LinearCoef.INTERCEPT_NAME).format(1)]
+
+    @property
     def form_dict(self) -> Dict[str, str]:
         form_dict = {}
         for gev_param_name in GevParams.PARAM_NAMES:

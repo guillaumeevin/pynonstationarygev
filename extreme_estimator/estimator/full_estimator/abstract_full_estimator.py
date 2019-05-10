@@ -70,6 +70,10 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
     def extract_function_fitted(self):
         return self.extract_function_fitted_from_the_model_shape(self.linear_margin_model)
 
+    @property
+    def margin_function_fitted(self) -> LinearMarginFunction:
+        return super().margin_function_fitted
+
 
 class PointwiseAndThenUnitaryMsp(AbstractFullEstimator):
     pass
