@@ -114,15 +114,15 @@ def complete_analysis(only_first_one=False):
 
 
 def trend_analysis():
-    save_to_file = False
-    only_first_one = True
+    save_to_file = True
+    only_first_one = False
     # [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 4800] to test for others
     altitudes = [300, 1200, 2100, 3000][-1:]
-    study_classes = [CrocusSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature]
+    study_classes = [CrocusSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][:1]
     for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):
         study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                            transformation_2D=BetweenZeroAndOne2DNormalization())
-        study_visualizer.visualize_temporal_trend_relevance(complete_analysis=False)
+        study_visualizer.visualize_temporal_trend_relevance(complete_analysis=True)
 
 
 if __name__ == '__main__':

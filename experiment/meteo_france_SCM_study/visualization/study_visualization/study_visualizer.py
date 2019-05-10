@@ -385,9 +385,11 @@ class StudyVisualizer(object):
         if self.show:
             plt.show()
         if self.save_to_file:
-            filename = "{}/{}".format(VERSION_TIME, '_'.join(self.study.title.split()))
+            main_title, specific_title = '_'.join(self.study.title.split()).split('/')
+            filename = "{}/{}/".format(VERSION_TIME, main_title)
             if not self.only_one_graph:
-                filename += "/{}".format('_'.join(self.plot_name.split()))
+                filename += "{}".format('_'.join(self.plot_name.split())) + '_'
+            filename += specific_title
             filepath = op.join(self.study.result_full_path, filename + '.png')
             dirname = op.dirname(filepath)
             if not op.exists(dirname):

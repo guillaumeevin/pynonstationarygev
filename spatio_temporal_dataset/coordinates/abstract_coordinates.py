@@ -176,6 +176,10 @@ class AbstractCoordinates(object):
         else:
             return self.df_coordinates(split).loc[:, self.coordinates_spatial_names].drop_duplicates()
 
+    @property
+    def nb_stations(self, split: Split = Split.all) -> int:
+        return len(self.df_spatial_coordinates(split))
+
     def spatial_index(self, split: Split = Split.all) -> pd.Index:
         df_spatial = self.df_spatial_coordinates(split)
         if self.has_spatio_temporal_coordinates:
@@ -205,7 +209,7 @@ class AbstractCoordinates(object):
             return self.df_coordinates(split).loc[:, self.coordinates_temporal_names].drop_duplicates()
 
     @property
-    def nb_steps(self, split: Split = Split.all):
+    def nb_steps(self, split: Split = Split.all) -> int:
         return len(self.df_temporal_coordinates(split))
 
     def df_temporal_range(self, split: Split = Split.all) -> Tuple[int, int]:

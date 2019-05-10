@@ -99,21 +99,17 @@ class TestSpatioTemporalDataset(unittest.TestCase):
             coordinate_name=AbstractCoordinates.COORDINATE_X,
             value=-1)
         observation_at_station_0_v1 = self.dataset.observations.df_maxima_gev.loc[ind_station_0].values.flatten()
-
         # Load observation correspond to time 0
         maxima_gev = self.dataset.maxima_gev_for_spatial_extremes_package()
-        self.assertEqual(maxima_gev.shape[1], self.nb_points)
         maxima_gev = np.transpose(maxima_gev)
         self.assertEqual(maxima_gev.shape, (3, 2 * 2))
-        observation_at_time_0_v2 = maxima_gev[1, :]
-        self.assertEqual(len(observation_at_time_0_v2), 4, msg='{}'.format(observation_at_time_0_v2))
+        observation_at_station_0_v2 = maxima_gev[0, :]
+        self.assertEqual(len(observation_at_station_0_v2), 4, msg='{}'.format(observation_at_station_0_v2))
 
         # The order does not really matter here but we check it anyway
-        self.assertTrue(np.equal(observation_at_station_0_v1, observation_at_time_0_v2).all(),
+        self.assertTrue(np.equal(observation_at_station_0_v1, observation_at_station_0_v2).all(),
                         msg='v1={} is different from v2={}'.format(observation_at_station_0_v1,
-                                                                   observation_at_time_0_v2))
-
-        print(self.dataset.maxima_gev_for_spatial_extremes_package())
+                                                                   observation_at_station_0_v2))
 
 
 if __name__ == '__main__':

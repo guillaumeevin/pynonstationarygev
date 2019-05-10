@@ -313,7 +313,7 @@ class AbstractStudy(object):
 
     @property
     def title(self):
-        return "{} at altitude {}m ({} mountain chains)".format(self.variable_name, self.altitude,
+        return "{}/at altitude {}m ({} mountain chains)".format(self.variable_name, self.altitude,
                                                                 len(self.study_massif_names))
 
     @property

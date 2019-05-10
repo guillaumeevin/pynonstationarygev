@@ -70,12 +70,12 @@ class AbstractNonStationaryTrendTest(object):
         ax.set_ylabel(self.RESULT_ATTRIBUTE_METRIC + ' difference', color=color_difference)
 
         # Plot zero line
-        years_line = [years[0] -10, years[-1]  + 10]
-        ax.plot(years_line, [0 for _ in years_line], 'k-', label='zero line')
+        # years_line = [years[0] -10, years[-1]  + 10]
+        ax.plot(years, [0 for _ in years], 'k-', label='zero line')
         # Plot significative line corresponding to 0.05 relevance
         alpha = 0.05
         significative_deviance = chi2.ppf(q=1 - alpha, df=1)
-        ax.plot(years_line, [significative_deviance for _ in years_line], 'g-', label='significative line')
+        ax.plot(years, [significative_deviance for _ in years], 'g-', label='significative line')
 
         # Plot the mu1 parameter
         mu1_trends = [self.get_mu1(starting_point=year) for year in years]
@@ -111,7 +111,7 @@ class ConditionalIndedendenceLocationTrendTest(AbstractNonStationaryTrendTest):
 
     @property
     def display_name(self):
-        return get_display_name_from_object_type('conditional independence')
+        return 'conditional independence'
 
 
 class MaxStableLocationTrendTest(AbstractNonStationaryTrendTest):

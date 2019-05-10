@@ -56,11 +56,18 @@ class AbstractDataset(object):
     def transform_maxima_for_spatial_extreme_package(self, maxima_function, split) -> np.ndarray:
         array = maxima_function(split)
         if self.coordinates.has_spatio_temporal_coordinates:
-            inverted_shape = list(self.coordinates.spatio_temporal_shape(split)[::-1])
-            inverted_shape[0] *= self.observations.nb_obs
-            return array.reshape(inverted_shape)
-        else:
-            return np.transpose(array)
+            nb_obs = self.observations.nb_obs
+            nb_stations = self.coordinates.nb_stations
+            nb_steps = self.coordinates.nb_steps
+            # Permute array lines
+            time_steps = np.array(range(nb_steps))
+            c = [time_steps * nb_stations + i for i in range(nb_stations)]
+            permutation = np.concatenate(c)
+            array = array[permutation]
+            # Reshape array
+            shape = (nb_stations, nb_steps * nb_obs)
+            array = array.reshape(shape)
+        return np.transpose(array)
 
     def maxima_gev_for_spatial_extremes_package(self, split: Split = Split.all) -> np.ndarray:
         return self.transform_maxima_for_spatial_extreme_package(self.maxima_gev, split)
