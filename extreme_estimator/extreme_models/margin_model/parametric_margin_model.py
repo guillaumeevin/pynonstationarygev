@@ -38,9 +38,6 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
                                   df_coordinates_temp: pd.DataFrame) -> ResultFromFit:
         assert data.shape[1] == len(df_coordinates_spat)
 
-        # Modify df_coordinates_temp
-        df_coordinates_temp = self.add_starting_temporal_point(df_coordinates_temp)
-
         # Margin formula for fitspatgev
         fit_params = get_margin_formula(self.margin_function_start_fit.form_dict)
 

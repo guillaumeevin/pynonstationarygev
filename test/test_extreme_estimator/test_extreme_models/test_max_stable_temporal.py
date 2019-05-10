@@ -99,14 +99,6 @@ class TestMaxStableTemporal(unittest.TestCase):
         # Create two different estimators
         estimator1 = self.fit_non_stationary_estimator(starting_point=3)
         estimator2 = self.fit_non_stationary_estimator(starting_point=20)
-
-        for starting_point in range(3, 20):
-            estimator = self.fit_non_stationary_estimator(starting_point=starting_point)
-            print(estimator.margin_function_fitted.starting_point)
-            print(estimator.margin_function_fitted.coef_dict)
-            print(estimator.margin_function_fitted.mu0)
-            print(estimator.margin_function_fitted.mu1_temporal_trend)
-
         mu1_estimator1 = estimator1.margin_function_fitted.mu1_temporal_trend
         mu1_estimator2 = estimator2.margin_function_fitted.mu1_temporal_trend
         self.assertNotEqual(mu1_estimator1, mu1_estimator2)

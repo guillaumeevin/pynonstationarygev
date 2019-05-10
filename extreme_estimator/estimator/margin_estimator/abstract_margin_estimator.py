@@ -32,6 +32,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         maxima_gev_specialized = self.dataset.maxima_gev_for_spatial_extremes_package(self.train_split)
         df_coordinates_spat = self.dataset.coordinates.df_spatial_coordinates(self.train_split)
         df_coordinates_temp = self.dataset.coordinates.df_temporal_coordinates(self.train_split)
+        df_coordinates_temp = self.margin_model.add_starting_temporal_point(df_coordinates_temp)
         self._result_from_fit = self.margin_model.fitmargin_from_maxima_gev(data=maxima_gev_specialized,
                                                                             df_coordinates_spat=df_coordinates_spat,
                                                                             df_coordinates_temp=df_coordinates_temp)

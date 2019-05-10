@@ -81,16 +81,12 @@ class AbstractNonStationaryTrendTest(object):
         mu1_trends = [self.get_mu1(starting_point=year) for year in years]
         ax2 = ax.twinx()
         color_mu1 = 'c'
-        ax.plot(years, mu1_trends, color_mu1 + 'o-')
+        ax2.plot(years, mu1_trends, color_mu1 + 'o-')
         ax2.set_ylabel('mu1 parameter', color=color_mu1)
 
         ax.set_xlabel('starting year for the linear trend of mu1')
         align_yaxis_on_zero(ax, ax2)
         title = self.display_name
-        first = mu1_trends[0]
-        last = mu1_trends[-1]
-        title += '\n mu1: first {}\nlast {}'.format(first, last)
-        title += '; equals? {}'.format(first == last)
         ax.set_title(title)
         ax.legend()
 
