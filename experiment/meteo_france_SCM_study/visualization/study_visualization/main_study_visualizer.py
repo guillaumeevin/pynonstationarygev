@@ -113,6 +113,7 @@ def complete_analysis(only_first_one=False):
 def trend_analysis():
     save_to_file = True
     only_first_one = False
+    # [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 4800] to test for others
     altitudes = [300, 1200, 2100, 3000][:]
     study_classes = [CrocusSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature]
     for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):

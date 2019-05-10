@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 
+from spatio_temporal_dataset.coordinates.utils import get_index_without_spatio_temporal_index_suffix
 from spatio_temporal_dataset.slicer.abstract_slicer import AbstractSlicer, df_sliced
 from spatio_temporal_dataset.slicer.spatial_slicer import SpatialSlicer
 from spatio_temporal_dataset.slicer.spatio_temporal_slicer import SpatioTemporalSlicer
@@ -176,7 +177,12 @@ class AbstractCoordinates(object):
             return self.df_coordinates(split).loc[:, self.coordinates_spatial_names].drop_duplicates()
 
     def spatial_index(self, split: Split = Split.all) -> pd.Index:
-        return self.df_spatial_coordinates(split).index
+        df_spatial = self.df_spatial_coordinates(split)
+        if self.has_spatio_temporal_coordinates:
+            # Remove the spatio temporal index suffix
+            return get_index_without_spatio_temporal_index_suffix(df_spatial)
+        else:
+            return df_spatial.index
 
     # Temporal attributes
 

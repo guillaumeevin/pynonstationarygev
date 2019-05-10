@@ -53,11 +53,13 @@ class TestSpatioTemporalDataset(unittest.TestCase):
                                                    coordinates=self.coordinates)
 
     def test_spatio_temporal_array(self):
+        # The test could have been on a given station. But we decided to do it for a given time step.
         self.load_dataset(nb_obs=1)
 
         # Load observation for time 0
-        ind_time_0 = self.dataset.coordinates.ind_of_df_all_coordinates(coordinate_name=AbstractCoordinates.COORDINATE_T,
-                                                                        value=0)
+        ind_time_0 = self.dataset.coordinates.ind_of_df_all_coordinates(
+            coordinate_name=AbstractCoordinates.COORDINATE_T,
+            value=0)
         observation_at_time_0_v1 = self.dataset.observations.df_maxima_gev.loc[ind_time_0].values.flatten()
 
         # Load observation correspond to time 0
@@ -70,7 +72,28 @@ class TestSpatioTemporalDataset(unittest.TestCase):
                                                                              observation_at_time_0_v2))
 
     def test_spatio_temporal_case_to_resolve(self):
+        # In this case, we must check that the observations are the same
         self.load_dataset(nb_obs=2)
+
+        # Load observation for time 0
+        ind_station_0 = self.dataset.coordinates.ind_of_df_all_coordinates(
+            coordinate_name=AbstractCoordinates.COORDINATE_X,
+            value=-1)
+        observation_at_station_0_v1 = self.dataset.observations.df_maxima_gev.loc[ind_station_0].values.flatten()
+
+        # Load observation correspond to time 0
+        maxima_gev = self.dataset.maxima_gev_for_spatial_extremes_package()
+        self.assertEqual(maxima_gev.shape[1], self.nb_points)
+        maxima_gev = np.transpose(maxima_gev)
+        self.assertEqual(maxima_gev.shape, (3, 2 * 2))
+        observation_at_time_0_v2 = maxima_gev[1, :]
+        self.assertEqual(len(observation_at_time_0_v2), 4, msg='{}'.format(observation_at_time_0_v2))
+
+        # The order does not really matter here but we check it anyway
+        self.assertTrue(np.equal(observation_at_station_0_v1, observation_at_time_0_v2).all(),
+                        msg='v1={} is different from v2={}'.format(observation_at_station_0_v1,
+                                                                   observation_at_time_0_v2))
+
         print(self.dataset.maxima_gev_for_spatial_extremes_package())
 
 
