@@ -1,5 +1,5 @@
 import os.path as op
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -50,7 +50,7 @@ class AbstractCoordinates(object):
         # Slicing attributes
         self.s_split_spatial = s_split_spatial  # type: pd.Series
         self.s_split_temporal = s_split_temporal  # type: pd.Series
-        self.slicer = None  # type: AbstractSlicer
+        self.slicer = None  # type: Union[None, AbstractSlicer]
 
         # Load the slicer
         if slicer_class is TemporalSlicer:

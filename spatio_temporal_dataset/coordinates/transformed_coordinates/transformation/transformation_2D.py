@@ -40,3 +40,9 @@ class BetweenZeroAndOne2DNormalization(Uniform2DNormalization):
         s_coord_shifted = s_coord - self.min_coord
         s_coord_scaled = s_coord_shifted / (self.max_coord - self.min_coord)
         return s_coord_scaled
+
+
+class BetweenMinusOneAndOne2DNormalization(BetweenZeroAndOne2DNormalization):
+
+    def uniform_normalization(self, s_coord: pd.Series) -> pd.Series:
+        pass

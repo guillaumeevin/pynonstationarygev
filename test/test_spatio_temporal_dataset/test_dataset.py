@@ -52,7 +52,7 @@ class TestSpatioTemporalDataset(unittest.TestCase):
                                                    margin_model=smooth_margin_model,
                                                    coordinates=self.coordinates)
 
-    def test_spatio_temporal_array(self):
+    def test_spatio_temporal_array_wrt_time(self):
         # The test could have been on a given station. But we decided to do it for a given time step.
         self.load_dataset(nb_obs=1)
 
@@ -71,7 +71,26 @@ class TestSpatioTemporalDataset(unittest.TestCase):
         self.assertTrue(equality, msg='v1={} is different from v2={}'.format(observation_at_time_0_v1,
                                                                              observation_at_time_0_v2))
 
-    def test_spatio_temporal_case_to_resolve(self):
+    def test_spatio_temporal_array_wrt_space(self):
+        # The test could have been on a given station. But we decided to do it for a given time step.
+        self.load_dataset(nb_obs=1)
+
+        # Load observation for time 0
+        ind_station_0 = self.dataset.coordinates.ind_of_df_all_coordinates(
+            coordinate_name=AbstractCoordinates.COORDINATE_X,
+            value=-1)
+        observation_at_station_0_v1 = self.dataset.observations.df_maxima_gev.loc[ind_station_0].values.flatten()
+
+        # Load observation correspond to time 0
+        maxima_gev = self.dataset.maxima_gev_for_spatial_extremes_package()
+        maxima_gev = np.transpose(maxima_gev)
+        self.assertEqual(maxima_gev.shape, (3, 2))
+        observation_at_time_0_v2 = maxima_gev[0, :]
+        equality = np.equal(observation_at_station_0_v1, observation_at_time_0_v2).all()
+        self.assertTrue(equality, msg='v1={} is different from v2={}'.format(observation_at_station_0_v1,
+                                                                             observation_at_time_0_v2))
+
+    def test_spatio_temporal_array_with_multiple_observations(self):
         # In this case, we must check that the observations are the same
         self.load_dataset(nb_obs=2)
 

@@ -1,8 +1,9 @@
-import math
 import os
 import os.path as op
 from collections import OrderedDict
+from typing import Union
 
+import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -16,8 +17,8 @@ from experiment.utils import average_smoothing_with_sliding_window
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
-    LinearNonStationaryLocationMarginModel, LinearStationaryMarginModel
+from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel, \
+    LinearStationaryMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.param_function.param_function import AbstractParamFunction
@@ -29,6 +30,9 @@ from extreme_estimator.margin_fits.gpd.gpd_params import GpdParams
 from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
     AbstractSpatioTemporalCoordinates
+from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.transformation_2D import \
+    Transformation2D
+from spatio_temporal_dataset.coordinates.transformed_coordinates.transformed_coordinates import TransformedCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from test.test_utils import load_test_max_stable_models
 from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits
@@ -40,7 +44,8 @@ class StudyVisualizer(object):
 
     def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False,
                  vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False,
-                 temporal_non_stationarity=False):
+                 temporal_non_stationarity=False,
+                 transformation_2D=None):
         self.temporal_non_stationarity = temporal_non_stationarity
         self.only_first_row = only_first_row
         self.only_one_graph = only_one_graph
@@ -54,6 +59,7 @@ class StudyVisualizer(object):
         self._observations = None
 
         self.default_covariance_function = CovarianceFunction.powexp
+        self.transformation_2D = transformation_2D  # type: Union[None, Transformation2D]
 
         # KDE PLOT ARGUMENTS
         self.vertical_kde_plot = vertical_kde_plot
@@ -89,6 +95,9 @@ class StudyVisualizer(object):
     def coordinates(self):
         if self._coordinates is None:
             coordinates = self.study.massifs_coordinates
+            if self.transformation_2D is not None:
+                coordinates = TransformedCoordinates.from_coordinates(coordinates=coordinates,
+                                                                      transformation_function=self.transformation_2D)
             if self.temporal_non_stationarity:
                 # Build spatio temporal dataset from a temporal dataset
                 df_spatial = coordinates.df_spatial_coordinates()
