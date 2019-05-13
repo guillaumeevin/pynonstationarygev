@@ -78,7 +78,6 @@ gev_fit_copy <- function (xdat, ydat = NULL, mul = NULL, sigl = NULL, shl = NULL
         mu <- mulink(mumat %*% (a[1:npmu]))
         sc <- siglink(sigmat %*% (a[seq(npmu + 1, length = npsc)]))
         xi <- shlink(shmat %*% (a[seq(npmu + npsc + 1, length = npsh)]))
-        print('here')
         print(class(xdat))
         print(class(mu))
         y <- (xdat - mu)/sc

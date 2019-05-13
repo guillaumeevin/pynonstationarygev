@@ -28,10 +28,12 @@ from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
 from extreme_estimator.margin_fits.gpd.gpd_params import GpdParams
 from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
+from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
+    AbstractSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
     AbstractSpatioTemporalCoordinates
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.transformation_2D import \
-    Transformation2D
+from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
+    ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformed_coordinates import TransformedCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from test.test_utils import load_test_max_stable_models
@@ -45,7 +47,7 @@ class StudyVisualizer(object):
     def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False,
                  vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False,
                  temporal_non_stationarity=False,
-                 transformation_2D=None):
+                 transformation_class=None):
         self.temporal_non_stationarity = temporal_non_stationarity
         self.only_first_row = only_first_row
         self.only_one_graph = only_one_graph
@@ -59,7 +61,7 @@ class StudyVisualizer(object):
         self._observations = None
 
         self.default_covariance_function = CovarianceFunction.powexp
-        self.transformation_2D = transformation_2D  # type: Union[None, Transformation2D]
+        self.transformation_class = transformation_class
 
         # KDE PLOT ARGUMENTS
         self.vertical_kde_plot = vertical_kde_plot
@@ -92,20 +94,33 @@ class StudyVisualizer(object):
         return self._dataset
 
     @property
+    def spatial_coordinates(self):
+        return AbstractSpatialCoordinates.from_df(df=self.study.df_spatial(),
+                                                  transformation_class=self.transformation_class)
+
+    @property
+    def temporal_coordinates(self):
+        start, stop = self.study.start_year_and_stop_year
+        nb_steps = stop - start + 1
+        temporal_coordinates = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(nb_temporal_steps=nb_steps,
+                                                                                     start=start,
+                                                                                     transformation_class=self.transformation_class)
+        return temporal_coordinates
+
+    @property
+    def spatio_temporal_coordinates(self):
+        return AbstractSpatioTemporalCoordinates.from_spatial_coordinates_and_temporal_coordinates(
+            spatial_coordinates=self.spatial_coordinates, temporal_coordinates=self.temporal_coordinates)
+
+    @property
     def coordinates(self):
         if self._coordinates is None:
-            coordinates = self.study.massifs_coordinates
-            if self.transformation_2D is not None:
-                coordinates = TransformedCoordinates.from_coordinates(coordinates=coordinates,
-                                                                      transformation_function=self.transformation_2D)
             if self.temporal_non_stationarity:
-                # Build spatio temporal dataset from a temporal dataset
-                df_spatial = coordinates.df_spatial_coordinates()
-                start, stop = self.study.start_year_and_stop_year
-                nb_steps = stop - start + 1
-                coordinates = AbstractSpatioTemporalCoordinates.from_df_spatial_and_nb_steps(df_spatial=df_spatial,
-                                                                                             nb_steps=nb_steps,
-                                                                                             start=start)
+                # Build spatio temporal coordinates from a spatial coordinates and a temporal coordinates
+                coordinates = self.spatio_temporal_coordinates
+            else:
+                # By default otherwise, we only keep the spatial coordinates
+                coordinates = self.spatial_coordinates
             self._coordinates = coordinates
         return self._coordinates
 

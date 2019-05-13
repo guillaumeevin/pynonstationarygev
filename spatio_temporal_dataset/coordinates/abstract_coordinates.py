@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 
+from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
+    AbstractTransformation, IdentityTransformation
 from spatio_temporal_dataset.coordinates.utils import get_index_without_spatio_temporal_index_suffix
 from spatio_temporal_dataset.slicer.abstract_slicer import AbstractSlicer, df_sliced
 from spatio_temporal_dataset.slicer.spatial_slicer import SpatialSlicer
@@ -35,7 +37,7 @@ class AbstractCoordinates(object):
     COORDINATES_NAMES = COORDINATE_SPATIAL_NAMES + [COORDINATE_T]
 
     def __init__(self, df: pd.DataFrame, slicer_class: type, s_split_spatial: pd.Series = None,
-                 s_split_temporal: pd.Series = None):
+                 s_split_temporal: pd.Series = None, transformation_class: type = None):
         # Extract df_all_coordinates from df
         coordinate_columns = [c for c in df.columns if c in self.COORDINATES_NAMES]
         assert len(coordinate_columns) > 0
@@ -51,6 +53,13 @@ class AbstractCoordinates(object):
         self.s_split_spatial = s_split_spatial  # type: pd.Series
         self.s_split_temporal = s_split_temporal  # type: pd.Series
         self.slicer = None  # type: Union[None, AbstractSlicer]
+
+        # Transformation attribute
+        if transformation_class is None:
+            transformation_class = IdentityTransformation
+        # Transformation class is instantiated with all coordinates
+        self.transformation = transformation_class(self.df_all_coordinates)
+        assert isinstance(self.transformation, AbstractTransformation)
 
         # Load the slicer
         if slicer_class is TemporalSlicer:
@@ -83,7 +92,8 @@ class AbstractCoordinates(object):
         return cls(df=df, slicer_class=slicer_class, s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal)
 
     @classmethod
-    def from_df_and_slicer(cls, df: pd.DataFrame, slicer_class: type, train_split_ratio: float = None):
+    def from_df_and_slicer(cls, df: pd.DataFrame, slicer_class: type, train_split_ratio: float = None,
+                           transformation_class: type = None):
         # All the index should be unique
         assert len(set(df.index)) == len(df), 'df indices are not unique'
 
@@ -92,7 +102,8 @@ class AbstractCoordinates(object):
         # Create a temporal split
         s_split_temporal = s_split_from_df(df, cls.COORDINATE_T, cls.TEMPORAL_SPLIT, train_split_ratio, False)
 
-        return cls(df=df, slicer_class=slicer_class, s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal)
+        return cls(df=df, slicer_class=slicer_class, s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal,
+                   transformation_class=transformation_class)
 
     @classmethod
     def from_csv(cls, csv_path: str = None):
@@ -114,10 +125,17 @@ class AbstractCoordinates(object):
         # Merged DataFrame of df_coord with s_split
         return self.df_all_coordinates.join(self.df_split)
 
+    # Normalize
+
+    def transform(self, coordinate: np.ndarray) -> np.ndarray:
+        return self.transformation.transform_array(coordinate=coordinate)
+
     # Split
 
     def df_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
-        return df_sliced(df=self.df_all_coordinates, split=split, slicer=self.slicer)
+        print(type(self.transformation))
+        df_transformed_coordinates = self.transformation.transform_df(df_coord=self.df_all_coordinates)
+        return df_sliced(df=df_transformed_coordinates, split=split, slicer=self.slicer)
 
     def coordinates_values(self, split: Split = Split.all) -> np.ndarray:
         return self.df_coordinates(split).values
@@ -293,4 +311,4 @@ class AbstractCoordinates(object):
         return self.df_merged.equals(other.df_merged)
 
     def __str__(self):
-        return self.df_all_coordinates.__str__()
+        return self.df_coordinates().__str__()

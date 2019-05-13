@@ -10,6 +10,10 @@ from extreme_estimator.extreme_models.margin_model.abstract_margin_model import 
 from extreme_estimator.extreme_models.utils import safe_run_r_estimator, r, get_coord, \
     get_margin_formula
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
+    AbstractSpatioTemporalCoordinates
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
+    AbstractTemporalCoordinates
 
 
 class ParametricMarginModel(AbstractMarginModel, ABC):
@@ -19,19 +23,28 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         """
         :param starting_point: starting coordinate for the temporal trend
         """
-        self.starting_point = starting_point  # type: int
+        # Load transformed starting point
+        if starting_point is None:
+            self.transformed_starting_point = None
+        else:
+            assert isinstance(coordinates, (AbstractSpatioTemporalCoordinates, AbstractTemporalCoordinates))
+            temporal_coordinate = np.array([starting_point])
+            self.transformed_starting_point = coordinates.temporal_coordinates.transform(temporal_coordinate)[0]
+
         self.margin_function_sample = None  # type: ParametricMarginFunction
         self.margin_function_start_fit = None  # type: ParametricMarginFunction
         super().__init__(coordinates, use_start_value, params_start_fit, params_sample)
 
     def add_starting_temporal_point(self, df_coordinates_temp: pd.DataFrame):
         # Enforce a starting point for the temporal trend
-        if self.starting_point is not None:
-            ind_to_modify = df_coordinates_temp.iloc[:, 0] <= self.starting_point  # type: pd.Series
+        if self.transformed_starting_point is not None:
+            # Compute the indices to modify
+            print('transformed starting point', self.transformed_starting_point)
+            ind_to_modify = df_coordinates_temp.iloc[:, 0] <= self.transformed_starting_point  # type: pd.Series
             # Assert that some coordinates are selected but not all (at least 20 data should be left for temporal trend)
             assert 0 < sum(ind_to_modify) < len(ind_to_modify) - 20
             # Modify the temporal coordinates to enforce the stationarity
-            df_coordinates_temp.loc[ind_to_modify] = self.starting_point
+            df_coordinates_temp.loc[ind_to_modify] = self.transformed_starting_point
         return df_coordinates_temp
 
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
@@ -50,5 +63,5 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         fit_params['start'] = r.list(**coef_dict)
 
         res = safe_run_r_estimator(function=r.fitspatgev, use_start=self.use_start_value, data=data,
-                                    covariables=covariables, **fit_params)
+                                   covariables=covariables, **fit_params)
         return ResultFromSpatialExtreme(res)

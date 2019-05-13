@@ -160,14 +160,17 @@ class AbstractStudy(object):
 
     @cached_property
     def massifs_coordinates(self) -> AbstractSpatialCoordinates:
+        # Build coordinate object from df_centroid
+        return AbstractSpatialCoordinates.from_df(self.df_spatial())
+
+    def df_spatial(self):
         # Coordinate object that represents the massif coordinates in Lambert extended
         df_centroid = self.load_df_centroid()
         for coord_column in [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_Y]:
             df_centroid.loc[:, coord_column] = df_centroid[coord_column].str.replace(',', '.').astype(float)
         # Filter, keep massifs present at the altitude of interest
         df_centroid = df_centroid.loc[self.study_massif_names]
-        # Build coordinate object from df_centroid
-        return AbstractSpatialCoordinates.from_df(df_centroid)
+        return df_centroid
 
     def load_df_centroid(self) -> pd.DataFrame:
         # Load df_centroid containing all the massif names

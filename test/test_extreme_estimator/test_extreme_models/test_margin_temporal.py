@@ -71,7 +71,7 @@ class TestMarginTemporal(unittest.TestCase):
                                self.smooth_margin_model.margin_function_sample.mu1_temporal_trend,
                                places=3)
         # Checks starting point parameter are well passed
-        self.assertEqual(2, estimator.margin_function_fitted.starting_point)
+        self.assertEqual(2, estimator.margin_function_fitted.transformed_starting_point)
         # Checks that parameters returned are indeed different
         coordinate1 = np.array([0.0, 0.0, 1])
         mle_params_estimated_year1 = estimator.margin_function_fitted.get_gev_params(coordinate1).to_dict()

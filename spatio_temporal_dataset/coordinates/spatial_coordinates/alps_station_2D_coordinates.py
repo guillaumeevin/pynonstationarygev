@@ -1,6 +1,6 @@
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import AlpsStation3DCoordinates
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.transformation_2D import \
-    BetweenZeroAndOne2DNormalization
+from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
+    BetweenZeroAndOneNormalization
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformed_coordinates import TransformedCoordinates
 
 
@@ -20,8 +20,7 @@ class AlpsStation2DCoordinatesBetweenZeroAndOne(AlpsStation2DCoordinates):
     def from_csv(cls, csv_file='coord-lambert2'):
         coord = super().from_csv(csv_file)
         return TransformedCoordinates.from_coordinates(coordinates=coord,
-                                                       transformation_function=BetweenZeroAndOne2DNormalization())
-
+                                                       transformation_class=BetweenZeroAndOneNormalization)
 
 class AlpsStationCoordinatesBetweenZeroAndTwo(AlpsStation2DCoordinatesBetweenZeroAndOne):
 

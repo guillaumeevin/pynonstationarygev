@@ -54,12 +54,7 @@ class AbstractNonStationaryTrendTest(object):
         return margin_function.mu1_temporal_trend
 
     def visualize(self, ax, complete_analysis=True):
-        # Define the year_min and year_max for the starting point
-        if complete_analysis:
-            year_min, year_max, step = 1960, 1990, 1
-        else:
-            year_min, year_max, step = 1960, 1990, 10
-        years = list(range(year_min, year_max + 1, step))
+        years = self.years(complete_analysis)
 
         # Plot differences
         stationary_metric = self.get_metric(self.stationary_margin_model_class, starting_point=None)
@@ -89,6 +84,15 @@ class AbstractNonStationaryTrendTest(object):
         title = self.display_name
         ax.set_title(title)
         ax.legend()
+
+    def years(self, complete_analysis=True):
+        # Define the year_min and year_max for the starting point
+        if complete_analysis:
+            year_min, year_max, step = 1960, 1990, 1
+        else:
+            year_min, year_max, step = 1960, 1990, 10
+        years = list(range(year_min, year_max + 1, step))
+        return years
 
     @property
     def display_name(self):

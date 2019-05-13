@@ -107,7 +107,6 @@ fitspatgev_3D_test <- function (n.obs){
     loc.form <- update(loc.form, y ~ .)
     scale.form <- update(scale.form, y ~ .)
     shape.form <- update(shape.form, y ~ .)
-    print('here')
     print(use.temp.cov)
     if (use.temp.cov[1])
         temp.form.loc <- update(temp.form.loc, y ~ . + 0)
