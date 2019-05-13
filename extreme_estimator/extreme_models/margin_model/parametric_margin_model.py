@@ -39,7 +39,6 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         # Enforce a starting point for the temporal trend
         if self.transformed_starting_point is not None:
             # Compute the indices to modify
-            print('transformed starting point', self.transformed_starting_point)
             ind_to_modify = df_coordinates_temp.iloc[:, 0] <= self.transformed_starting_point  # type: pd.Series
             # Assert that some coordinates are selected but not all (at least 20 data should be left for temporal trend)
             assert 0 < sum(ind_to_modify) < len(ind_to_modify) - 20
