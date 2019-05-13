@@ -31,7 +31,7 @@ class LinearOneAxisParamFunction(AbstractParamFunction):
     def get_gev_param_value(self, coordinate: np.ndarray) -> float:
         t = coordinate[self.dim]
         if self.OUT_OF_BOUNDS_ASSERT:
-            assert self.t_min <= t <= self.t_max, 'Out of bounds'
+            assert self.t_min <= t <= self.t_max, '{} is out of bounds ({}, {})'.format(t, self.t_min, self.t_max)
         return t * self.coef
 
 
