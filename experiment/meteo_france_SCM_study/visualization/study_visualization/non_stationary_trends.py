@@ -33,6 +33,9 @@ class AbstractNonStationaryTrendTest(object):
         if (margin_model_class, starting_point) not in self._margin_model_class_and_starting_point_to_estimator:
             margin_model = margin_model_class(coordinates=self.dataset.coordinates, starting_point=starting_point)
             estimator = self._load_estimator(margin_model)
+            estimator_name = get_display_name_from_object_type(estimator)
+            margin_model_name = get_display_name_from_object_type(margin_model)
+            print('Fitting {} with margin: {} for starting_point={}'.format(estimator_name, margin_model_name, starting_point))
             estimator.fit()
             self._margin_model_class_and_starting_point_to_estimator[(margin_model_class, starting_point)] = estimator
         return self._margin_model_class_and_starting_point_to_estimator[(margin_model_class, starting_point)]
@@ -76,11 +79,12 @@ class AbstractNonStationaryTrendTest(object):
         mu1_trends = [self.get_mu1(starting_point=year) for year in years]
         ax2 = ax.twinx()
         color_mu1 = 'c'
+        print(mu1_trends)
         ax2.plot(years, mu1_trends, color_mu1 + 'o-')
         ax2.set_ylabel('mu1 parameter', color=color_mu1)
 
         ax.set_xlabel('starting year for the linear trend of mu1')
-        align_yaxis_on_zero(ax, ax2)
+        # align_yaxis_on_zero(ax, ax2)
         title = self.display_name
         ax.set_title(title)
         ax.legend()

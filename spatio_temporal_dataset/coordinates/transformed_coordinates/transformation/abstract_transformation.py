@@ -5,7 +5,7 @@ import numpy as np
 class AbstractTransformation(object):
 
     def __init__(self, df_coordinates):
-        self.df_coordinates = df_coordinates
+        self.df_coordinates = df_coordinates.copy()
 
     @property
     def nb_dimensions(self):
@@ -19,6 +19,7 @@ class AbstractTransformation(object):
         return pd.Series(self.transform_array(s_coord.values), index=s_coord.index)
 
     def transform_df(self, df_coord: pd.DataFrame) -> pd.DataFrame:
+        df_coord = df_coord.copy()
         data = [self.transform_serie(r) for _, r in df_coord.iterrows()]
         return pd.DataFrame(data, index=df_coord.index, columns=df_coord.columns)
 

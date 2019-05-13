@@ -10,17 +10,28 @@ class GeneratedSpatioTemporalCoordinates(AbstractSpatioTemporalCoordinates):
     SPATIAL_COORDINATES_CLASS = None
 
     @classmethod
-    def from_nb_points_and_nb_steps(cls, nb_points, nb_steps, train_split_ratio: float = None):
+    def from_nb_points_and_nb_steps(cls, nb_points, nb_steps, train_split_ratio: float = None,
+                                    transformation_class: type = None):
         assert isinstance(nb_steps, int) and nb_steps >= 1
-        assert cls.SPATIAL_COORDINATES_CLASS is not None
-        assert hasattr(cls.SPATIAL_COORDINATES_CLASS, 'df_spatial')
-        df_spatial = cls.SPATIAL_COORDINATES_CLASS.df_spatial(nb_points=nb_points)
-        return cls.from_df_spatial_and_nb_steps(df_spatial, nb_steps, train_split_ratio)
+        assert hasattr(cls.spatial_coordinate_class(), 'df_spatial')
+        df_spatial = cls.spatial_coordinate_class().df_spatial(nb_points=nb_points)
+        return cls.from_df_spatial_and_nb_steps(df_spatial, nb_steps, train_split_ratio,
+                                                transformation_class=transformation_class)
+
+    @classmethod
+    def spatial_coordinate_class(cls):
+        raise NotImplementedError
 
 
 class UniformSpatioTemporalCoordinates(GeneratedSpatioTemporalCoordinates):
-    SPATIAL_COORDINATES_CLASS = UniformSpatialCoordinates
+
+    @classmethod
+    def spatial_coordinate_class(cls):
+        return UniformSpatialCoordinates
 
 
 class LinSpaceSpatial2DSpatioTemporalCoordinates(GeneratedSpatioTemporalCoordinates):
-    SPATIAL_COORDINATES_CLASS = LinSpaceSpatial2DCoordinates
+
+    @classmethod
+    def spatial_coordinate_class(cls):
+        return LinSpaceSpatial2DCoordinates

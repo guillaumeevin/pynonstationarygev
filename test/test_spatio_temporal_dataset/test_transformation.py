@@ -2,6 +2,8 @@ import unittest
 
 import numpy as np
 
+from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
+    GeneratedSpatioTemporalCoordinates, UniformSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
@@ -20,6 +22,22 @@ class TestTransformation(unittest.TestCase):
                                                                                          start=start,
                                                                                          transformation_class=transformation_class)
             normalized_coordinates = temporal_coordinates.df_coordinates().iloc[:, 0].values
+            expected_coordinates = np.array(expected)
+            equals = normalized_coordinates == expected_coordinates
+            self.assertTrue(equals.all(),
+                            msg="expected: {}, res:{}".format(expected_coordinates, normalized_coordinates))
+
+    def test_spatio_temporal_normalization(self):
+
+        transformation_class_to_expected = {BetweenZeroAndOneNormalization: [0.0, 1.0],
+                                            BetweenMinusOneAndOneNormalization: [-1.0, 1.0]}
+
+        for transformation_class, expected in transformation_class_to_expected.items():
+            coordinates = UniformSpatioTemporalCoordinates.from_nb_points_and_nb_steps(nb_points=2, nb_steps=50,
+                                                                                       transformation_class=transformation_class)
+            temporal_coordinates = coordinates.temporal_coordinates
+            normalized_coordinates = temporal_coordinates.df_coordinates().iloc[:, 0].values
+            normalized_coordinates = np.array([normalized_coordinates[0], normalized_coordinates[-1]])
             expected_coordinates = np.array(expected)
             equals = normalized_coordinates == expected_coordinates
             self.assertTrue(equals.all(),
