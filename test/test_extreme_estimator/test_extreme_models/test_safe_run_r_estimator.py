@@ -4,7 +4,7 @@ import unittest
 from extreme_estimator.extreme_models.utils import safe_run_r_estimator, WarningMaximumAbsoluteValueTooHigh
 
 
-def function(data):
+def function(data=None, control=None):
     pass
 
 

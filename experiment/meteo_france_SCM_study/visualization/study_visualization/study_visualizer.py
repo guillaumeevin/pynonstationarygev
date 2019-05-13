@@ -47,7 +47,8 @@ class StudyVisualizer(object):
     def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False,
                  vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False,
                  temporal_non_stationarity=False,
-                 transformation_class=None):
+                 transformation_class=None,
+                 normalization_under_one_observations=True):
         self.temporal_non_stationarity = temporal_non_stationarity
         self.only_first_row = only_first_row
         self.only_one_graph = only_one_graph
@@ -55,6 +56,7 @@ class StudyVisualizer(object):
         self.study = study
         self.plot_name = None
 
+        self.normalization_under_one_observations = normalization_under_one_observations
         # Load some attributes
         self._dataset = None
         self._coordinates = None
@@ -130,6 +132,8 @@ class StudyVisualizer(object):
             self._observations = self.study.observations_annual_maxima
             if self.temporal_non_stationarity:
                 self._observations.convert_to_spatio_temporal_index(self.coordinates)
+                if self.normalization_under_one_observations:
+                    self._observations.normalize()
         return self._observations
 
     # Graph for each massif / or groups of massifs
@@ -160,13 +164,13 @@ class StudyVisualizer(object):
             'for the year {}'.format(self.year_for_kde_plot)
         self.show_or_save_to_file()
 
-    def visualize_temporal_trend_relevance(self, complete_analysis):
+    def visualize_temporal_trend_relevance(self, complete_analysis, verbose=True):
         self.temporal_non_stationarity = True
-        trend_tests = [ConditionalIndedendenceLocationTrendTest(self.dataset)]
+        trend_tests = [ConditionalIndedendenceLocationTrendTest(self.dataset, verbose=verbose)]
 
         max_stable_models = load_test_max_stable_models(default_covariance_function=self.default_covariance_function)
         for max_stable_model in [max_stable_models[1], max_stable_models[-2]]:
-            trend_tests.append(MaxStableLocationTrendTest(self.dataset, max_stable_model))
+            trend_tests.append(MaxStableLocationTrendTest(self.dataset, max_stable_model, verbose=verbose))
 
         nb_trend_tests = len(trend_tests)
         fig, axes = plt.subplots(1, nb_trend_tests, figsize=self.figsize)
@@ -176,7 +180,11 @@ class StudyVisualizer(object):
         for ax, trend_test in zip(axes, trend_tests):
             trend_test.visualize(ax, complete_analysis=complete_analysis)
 
-        self.plot_name = 'trend tests'
+        plot_name = 'trend tests'
+        plot_name += ' with {} applied spatially & temporally'.format(get_display_name_from_object_type(self.transformation_class))
+        if self.normalization_under_one_observations:
+            plot_name += '(and maxima <= 1)'
+        self.plot_name = plot_name
         self.show_or_save_to_file()
 
     def visualize_experimental_law(self, ax, massif_id):

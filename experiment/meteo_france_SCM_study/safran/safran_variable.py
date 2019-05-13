@@ -57,6 +57,9 @@ class SafranSnowfallVariable(AbstractVariable):
 
 class SafranRainfallVariable(SafranSnowfallVariable):
 
+    NAME = 'Rainfall'
+    UNIT = 'kg per m2 or mm'
+
     def __init__(self, dataset, altitude, nb_consecutive_days_of_snowfall=1, keyword='Rainf'):
         super().__init__(dataset, altitude, nb_consecutive_days_of_snowfall, keyword)
 
@@ -74,6 +77,9 @@ class SafranTotalPrecipVariable(AbstractVariable):
 
 
 class SafranTemperatureVariable(AbstractVariable):
+
+    NAME = 'Temperature'
+    UNIT = 'Celsius Degrees'
 
     def __init__(self, dataset, altitude, keyword='Tair'):
         super().__init__(dataset, altitude)

@@ -1,3 +1,4 @@
+import time
 from typing import Union
 
 from experiment.meteo_france_SCM_study.visualization.utils import align_yaxis_on_zero
@@ -11,6 +12,7 @@ from extreme_estimator.extreme_models.margin_model.linear_margin_model import \
     LinearAllParametersTwoFirstCoordinatesMarginModel, LinearAllTwoStatialCoordinatesLocationLinearMarginModel, \
     LinearStationaryMarginModel, LinearNonStationaryLocationMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_estimator.extreme_models.utils import OptimizationConstants
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from utils import get_display_name_from_object_type
 
@@ -38,7 +40,11 @@ class AbstractNonStationaryTrendTest(object):
                 estimator_name = get_display_name_from_object_type(estimator)
                 margin_model_name = get_display_name_from_object_type(margin_model)
                 print('Fitting {} with margin: {} for starting_point={}'.format(estimator_name, margin_model_name, starting_point))
+            start = time.time()
             estimator.fit()
+            duration = time.time() - start
+            if self.verbose:
+                print('Fit took {}s and was {}'.format(round(duration, 1), estimator.result_from_fit.convergence))
             self._margin_model_class_and_starting_point_to_estimator[(margin_model_class, starting_point)] = estimator
         return self._margin_model_class_and_starting_point_to_estimator[(margin_model_class, starting_point)]
 
@@ -83,7 +89,7 @@ class AbstractNonStationaryTrendTest(object):
         color_mu1 = 'c'
 
         if self.verbose:
-            print(mu1_trends)
+            print('mu1 trends:', mu1_trends, '\n')
         ax2.plot(years, mu1_trends, color_mu1 + 'o-')
         ax2.set_ylabel('mu1 parameter', color=color_mu1)
 
@@ -98,6 +104,7 @@ class AbstractNonStationaryTrendTest(object):
         # Define the year_min and year_max for the starting point
         if complete_analysis:
             year_min, year_max, step = 1960, 1990, 1
+            OptimizationConstants.USE_MAXIT = True
         else:
             year_min, year_max, step = 1960, 1990, 5
         years = list(range(year_min, year_max + 1, step))

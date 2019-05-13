@@ -27,6 +27,7 @@ warnings.filterwarnings("ignore")
 r.library('ismev')
 warnings.filters = default_filters
 
+
 # Notice: R is not reloading all the time, the SpatialExtremes, so it's quite hard to debug or print in the code...
 # the best solution for debugging is to copy/paste the code module into a file that belongs to me, and then
 # I can put print & stop in the code, and I can understand where are the problems
@@ -54,9 +55,18 @@ class WarningWhileRunningR(Warning):
 class WarningMaximumAbsoluteValueTooHigh(Warning):
     pass
 
+class OptimizationConstants(object):
 
-def safe_run_r_estimator(function, data=None, use_start=False, threshold_max_abs_value=100,
+    USE_MAXIT = False
+
+
+def safe_run_r_estimator(function, data=None, use_start=False, threshold_max_abs_value=100, maxit=1000000,
                          **parameters) -> robjects.ListVector:
+    if OptimizationConstants.USE_MAXIT:
+        # Add optimization parameters
+        optim_dict = {'maxit': maxit}
+        parameters['control'] = r.list(**optim_dict)
+
     # Some checks for Spatial Extremes
     if data is not None:
         # Raise warning if the maximum absolute value is above a threshold

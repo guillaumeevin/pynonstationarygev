@@ -70,7 +70,6 @@ rmaxstab2D <- function (n.obs){
 #     print(res['fitted.values'])
 # }
 
-fitspatgev()
 
 # rmaxstab with 1D data
 rmaxstab1D <- function (n.obs){
@@ -90,7 +89,10 @@ rmaxstab1D <- function (n.obs){
 
     # GAUSS
     namedlist = list(cov=1.0, locCoeff1=1.0, scaleCoeff1=1.0, shapeCoeff1=1.0)
-    res = fitmaxstab(data=data, coord=coord, cov.mod="gauss", start=namedlist, fit.marge=TRUE, loc.form=loc.form, scale.form=scale.form,shape.form=shape.form, iso=TRUE)
+    res = fitmaxstab(data=data, coord=coord, cov.mod="gauss", start=namedlist, fit.marge=TRUE, loc.form=loc.form, scale.form=scale.form,shape.form=shape.form, iso=TRUE, control=list(maxit=1000))
+
+    # ‘eval.max’
+    # ‘iter.max’
 
     # BROWN
     # namedlist = list(range = 3, smooth = 0.5, locCoeff1=1.0, scaleCoeff1=1.0, shapeCoeff1=1.0)
@@ -107,7 +109,7 @@ if (call_main) {
     n.obs = 500
     # rmaxstab2D(n.obs)
     # rmaxstab3D(n.obs)
-    # rmaxstab1D(n.obs)
+    rmaxstab1D(n.obs)
 
     # namedlist = list(cov11 = 1.0, cov12 = 1.2, cov22 = 2.2)
     # res = fitmaxstab(data=data, coord=coord, cov.mod="gauss", start=namedlist)
