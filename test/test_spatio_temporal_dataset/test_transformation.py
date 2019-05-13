@@ -35,12 +35,19 @@ class TestTransformation(unittest.TestCase):
         for transformation_class, expected in transformation_class_to_expected.items():
             coordinates = UniformSpatioTemporalCoordinates.from_nb_points_and_nb_steps(nb_points=2, nb_steps=50,
                                                                                        transformation_class=transformation_class)
-            temporal_coordinates = coordinates.temporal_coordinates
-            normalized_coordinates = temporal_coordinates.df_coordinates().iloc[:, 0].values
+            # Temporal coordinates, the order is known
+            normalized_coordinates = coordinates.temporal_coordinates.df_coordinates().iloc[:, 0].values
             normalized_coordinates = np.array([normalized_coordinates[0], normalized_coordinates[-1]])
             expected_coordinates = np.array(expected)
             equals = normalized_coordinates == expected_coordinates
             self.assertTrue(equals.all(),
+                            msg="expected: {}, res:{}".format(expected_coordinates, normalized_coordinates))
+            # Spatial coordinates, we do not know the order
+            normalized_coordinates = coordinates.temporal_coordinates.df_coordinates().iloc[:, 0].values
+            normalized_coordinates = {normalized_coordinates[0], normalized_coordinates[-1]}
+            expected_coordinates = set(expected)
+            equals = normalized_coordinates == expected_coordinates
+            self.assertTrue(equals,
                             msg="expected: {}, res:{}".format(expected_coordinates, normalized_coordinates))
 
 
