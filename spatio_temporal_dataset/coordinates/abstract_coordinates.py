@@ -35,6 +35,8 @@ class AbstractCoordinates(object):
     TEMPORAL_SPLIT = 'temporal_split'
     # Coordinates columns
     COORDINATES_NAMES = COORDINATE_SPATIAL_NAMES + [COORDINATE_T]
+    # Coordinate type
+    COORDINATE_TYPE = 'float64'
 
     def __init__(self, df: pd.DataFrame, slicer_class: type, s_split_spatial: pd.Series = None,
                  s_split_temporal: pd.Series = None, transformation_class: type = None):
@@ -44,10 +46,8 @@ class AbstractCoordinates(object):
         # Sort coordinates according to a specified order
         sorted_coordinates_columns = [c for c in self.COORDINATES_NAMES if c in coordinate_columns]
         self.df_all_coordinates = df.loc[:, sorted_coordinates_columns].copy()  # type: pd.DataFrame
-        # Check the data type of the coordinate columns
-        accepted_dtypes = ['float64', 'int64']
-        assert len(self.df_all_coordinates.select_dtypes(include=accepted_dtypes).columns) == len(coordinate_columns), \
-            'coordinates columns dtypes should belong to {}'.format(accepted_dtypes)
+        # Cast df_all_coordinates to the desired type
+        self.df_all_coordinates = self.df_all_coordinates.astype(self.COORDINATE_TYPE)
 
         # Slicing attributes
         self.s_split_spatial = s_split_spatial  # type: pd.Series
@@ -133,7 +133,6 @@ class AbstractCoordinates(object):
     # Split
 
     def df_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
-        print(type(self.transformation))
         df_transformed_coordinates = self.transformation.transform_df(df_coord=self.df_all_coordinates)
         return df_sliced(df=df_transformed_coordinates, split=split, slicer=self.slicer)
 
