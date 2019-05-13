@@ -37,6 +37,10 @@ class ResultFromFit(object):
     def deviance(self):
         raise NotImplementedError
 
+    @property
+    def convergence(self) -> str:
+        raise NotImplementedError
+
 
 class ResultFromIsmev(ResultFromFit):
 

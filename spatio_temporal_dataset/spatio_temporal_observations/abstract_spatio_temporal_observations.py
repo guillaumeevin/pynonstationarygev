@@ -38,6 +38,12 @@ class AbstractSpatioTemporalObservations(object):
         else:
             return self.df_maxima_gev
 
+    def normalize(self):
+        # It should stay superior to 0 and lower or equal to 1
+        # Thus the easiest way to do that is to divide by the maximum
+        maxima = self._df_maxima.values.flatten().max()
+        self._df_maxima /= maxima
+
     @property
     def df_maxima_merged(self) -> pd.DataFrame:
         df_maxima_list = []
@@ -98,5 +104,9 @@ class AbstractSpatioTemporalObservations(object):
 
     def __str__(self) -> str:
         return self._df_maxima.__str__()
+
+    @_df_maxima.setter
+    def _df_maxima(self, value):
+        self.__df_maxima = value
 
 

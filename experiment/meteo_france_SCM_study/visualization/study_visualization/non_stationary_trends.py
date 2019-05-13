@@ -18,8 +18,9 @@ from utils import get_display_name_from_object_type
 class AbstractNonStationaryTrendTest(object):
     RESULT_ATTRIBUTE_METRIC = 'deviance'
 
-    def __init__(self, dataset: AbstractDataset, estimator_class,
+    def __init__(self, dataset: AbstractDataset, verbose, estimator_class,
                  stationary_margin_model_class, non_stationary_margin_model_class):
+        self.verbose = verbose
         self.dataset = dataset
         self.estimator_class = estimator_class
         self.stationary_margin_model_class = stationary_margin_model_class
@@ -33,9 +34,10 @@ class AbstractNonStationaryTrendTest(object):
         if (margin_model_class, starting_point) not in self._margin_model_class_and_starting_point_to_estimator:
             margin_model = margin_model_class(coordinates=self.dataset.coordinates, starting_point=starting_point)
             estimator = self._load_estimator(margin_model)
-            estimator_name = get_display_name_from_object_type(estimator)
-            margin_model_name = get_display_name_from_object_type(margin_model)
-            print('Fitting {} with margin: {} for starting_point={}'.format(estimator_name, margin_model_name, starting_point))
+            if self.verbose:
+                estimator_name = get_display_name_from_object_type(estimator)
+                margin_model_name = get_display_name_from_object_type(margin_model)
+                print('Fitting {} with margin: {} for starting_point={}'.format(estimator_name, margin_model_name, starting_point))
             estimator.fit()
             self._margin_model_class_and_starting_point_to_estimator[(margin_model_class, starting_point)] = estimator
         return self._margin_model_class_and_starting_point_to_estimator[(margin_model_class, starting_point)]
@@ -79,12 +81,15 @@ class AbstractNonStationaryTrendTest(object):
         mu1_trends = [self.get_mu1(starting_point=year) for year in years]
         ax2 = ax.twinx()
         color_mu1 = 'c'
-        print(mu1_trends)
+
+        if self.verbose:
+            print(mu1_trends)
         ax2.plot(years, mu1_trends, color_mu1 + 'o-')
         ax2.set_ylabel('mu1 parameter', color=color_mu1)
 
         ax.set_xlabel('starting year for the linear trend of mu1')
-        # align_yaxis_on_zero(ax, ax2)
+        if min(mu1_trends) < 0.0 < max(mu1_trends):
+            align_yaxis_on_zero(ax, ax2)
         title = self.display_name
         ax.set_title(title)
         ax.legend()
@@ -94,7 +99,7 @@ class AbstractNonStationaryTrendTest(object):
         if complete_analysis:
             year_min, year_max, step = 1960, 1990, 1
         else:
-            year_min, year_max, step = 1960, 1990, 10
+            year_min, year_max, step = 1960, 1990, 5
         years = list(range(year_min, year_max + 1, step))
         return years
 
@@ -111,8 +116,9 @@ class IndependenceLocationTrendTest(AbstractNonStationaryTrendTest):
 
 class ConditionalIndedendenceLocationTrendTest(AbstractNonStationaryTrendTest):
 
-    def __init__(self, dataset):
+    def __init__(self, dataset, verbose=False):
         super().__init__(dataset=dataset,
+                         verbose=verbose,
                          estimator_class=LinearMarginEstimator,
                          stationary_margin_model_class=LinearStationaryMarginModel,
                          non_stationary_margin_model_class=LinearNonStationaryLocationMarginModel)
@@ -124,8 +130,9 @@ class ConditionalIndedendenceLocationTrendTest(AbstractNonStationaryTrendTest):
 
 class MaxStableLocationTrendTest(AbstractNonStationaryTrendTest):
 
-    def __init__(self, dataset, max_stable_model):
+    def __init__(self, dataset, max_stable_model, verbose=False):
         super().__init__(dataset=dataset,
+                         verbose=verbose,
                          estimator_class=FullEstimatorInASingleStepWithSmoothMargin,
                          stationary_margin_model_class=LinearStationaryMarginModel,
                          non_stationary_margin_model_class=LinearNonStationaryLocationMarginModel)

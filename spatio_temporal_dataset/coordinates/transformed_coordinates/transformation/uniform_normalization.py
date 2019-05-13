@@ -31,6 +31,31 @@ class BetweenZeroAndOneNormalization(UniformNormalization):
         return coord_scaled
 
 
+class BetweenZeroAndTenNormalization(BetweenZeroAndOneNormalization):
+
+    def uniform_normalization(self, coordinate_value: np.ndarray) -> np.ndarray:
+        return super().uniform_normalization(coordinate_value) / 10
+
+
+epsilon = 0.001
+
+
+class BetweenZeroAndOneNormalizationMinEpsilon(BetweenZeroAndOneNormalization):
+
+    def __init__(self, df_coordinates):
+        super().__init__(df_coordinates)
+        gap = self.max_coord - self.min_coord
+        self.min_coord -= gap * epsilon
+
+
+class BetweenZeroAndOneNormalizationMaxEpsilon(BetweenZeroAndOneNormalization):
+
+    def __init__(self, df_coordinates):
+        super().__init__(df_coordinates)
+        gap = self.max_coord - self.min_coord
+        self.max_coord += gap * epsilon
+
+
 class BetweenMinusOneAndOneNormalization(BetweenZeroAndOneNormalization):
     """Normalize such that min(coord) >= (-1,-1) and max(coord) <= (1,1)"""
 
