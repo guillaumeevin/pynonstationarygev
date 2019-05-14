@@ -97,8 +97,10 @@ def normal_visualization(temporal_non_stationarity=False):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                                temporal_non_stationarity=temporal_non_stationarity)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
-            study_visualizer.visualize_annual_mean_values()
-            study_visualizer.visualize_linear_margin_fit(only_first_max_stable=None)
+            # study_visualizer.visualize_annual_mean_values()
+            study_visualizer.visualize_all_mean_and_max_graphs()
+
+            # study_visualizer.visualize_linear_margin_fit(only_first_max_stable=None)
 
 
 def complete_analysis(only_first_one=False):
@@ -133,8 +135,8 @@ def trend_analysis():
 
 def main_run():
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2100)
-    # normal_visualization(temporal_non_stationarity=True)
-    trend_analysis()
+    normal_visualization(temporal_non_stationarity=True)
+    # trend_analysis()
 
 
     # max_stable_process_vizu_compare_gaume_study(altitude=1800, nb_days=1)

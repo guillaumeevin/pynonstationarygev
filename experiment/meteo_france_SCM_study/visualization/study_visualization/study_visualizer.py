@@ -49,6 +49,7 @@ class StudyVisualizer(object):
                  temporal_non_stationarity=False,
                  transformation_class=None,
                  normalization_under_one_observations=True):
+        self.massif_id_to_smooth_maxima = {}
         self.temporal_non_stationarity = temporal_non_stationarity
         self.only_first_row = only_first_row
         self.only_one_graph = only_one_graph
@@ -139,7 +140,7 @@ class StudyVisualizer(object):
 
     # Graph for each massif / or groups of massifs
 
-    def visualize_massif_graphs(self, visualize_function):
+    def visualize_massif_graphs(self, visualize_function, specified_massif_names=None):
         if self.only_one_graph:
             fig, ax = plt.subplots(1, 1, figsize=self.figsize)
             visualize_function(ax, 0)
@@ -153,12 +154,16 @@ class StudyVisualizer(object):
                     ax = axes[massif_id]
                     visualize_function(ax, massif_id)
             else:
-                for massif_id, massif_name in enumerate(self.study.study_massif_names):
-                    row_id, column_id = massif_id // nb_columns, massif_id % nb_columns
+                if specified_massif_names is None:
+                    massif_ids = list(range(len(self.study.study_massif_names)))
+                else:
+                    massif_ids = [self.study.study_massif_names.index(massif_name) for massif_name in specified_massif_names]
+                for j, massif_id in enumerate(massif_ids):
+                    row_id, column_id = j // nb_columns, j % nb_columns
                     ax = axes[row_id, column_id]
                     visualize_function(ax, massif_id)
 
-    def visualize_all_experimental_law(self):
+    def visualize_all_experimental_law( self):
         self.visualize_massif_graphs(self.visualize_experimental_law)
         self.plot_name = ' Empirical distribution \n'
         self.plot_name += 'with data from the 23 mountain chains of the French Alps ' if self.year_for_kde_plot is None else \
@@ -277,16 +282,20 @@ class StudyVisualizer(object):
         return all_massif_data
 
     def visualize_all_mean_and_max_graphs(self):
-        self.visualize_massif_graphs(self.visualize_mean_and_max_graph)
-        self.plot_name = ' mean with sliding window of size {}'.format(self.window_size_for_smoothing)
+        # Compute the order of massif names
+        massif_name_to_score = {}
+        for massif_id, massif_name in enumerate(self.study.study_massif_names):
+            score = self.smooth_maxima_x_y(massif_id)[1].argmax()
+            massif_name_to_score[massif_name] = score
+        ordered_massif_names = sorted(self.study.study_massif_names[:], key=lambda s: massif_name_to_score[s])
+        self.visualize_massif_graphs(self.visualize_mean_and_max_graph, specified_massif_names=ordered_massif_names)
+        self.plot_name = ' smoothing values temporally with sliding window of size {}'.format(self.window_size_for_smoothing)
         self.show_or_save_to_file()
 
     def visualize_mean_and_max_graph(self, ax, massif_id):
         # Display the graph of the max on top
         color_maxima = 'r'
-        tuples_x_y = [(year, annual_maxima[massif_id]) for year, annual_maxima in
-                      self.study.year_to_annual_maxima.items()]
-        x, y = list(zip(*tuples_x_y))
+        x, y = self.smooth_maxima_x_y(massif_id)
         ax2 = ax.twinx()
         ax2.plot(x, y, color=color_maxima)
         ax2.set_ylabel('maxima', color=color_maxima)
@@ -299,9 +308,20 @@ class StudyVisualizer(object):
         x, y = list(zip(*tuples_x_y))
         x, y = average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
         ax.plot(x, y, color=color_mean)
-        ax.set_ylabel('mean with sliding window of size {}'.format(self.window_size_for_smoothing), color=color_mean)
+        ax.set_ylabel('mean'.format(self.window_size_for_smoothing), color=color_mean)
         ax.set_xlabel('year')
         ax.set_title(self.study.study_massif_names[massif_id])
+        ax.xaxis.set_ticks(x[2::10])
+
+
+    def smooth_maxima_x_y(self, massif_id):
+        if massif_id not in self.massif_id_to_smooth_maxima:
+            tuples_x_y = [(year, annual_maxima[massif_id]) for year, annual_maxima in
+                          self.study.year_to_annual_maxima.items()]
+            x, y = list(zip(*tuples_x_y))
+            x, y = average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
+            self.massif_id_to_smooth_maxima[massif_id] = (x, y)
+        return self.massif_id_to_smooth_maxima[massif_id]
 
     def visualize_brown_resnick_fit(self):
         pass
