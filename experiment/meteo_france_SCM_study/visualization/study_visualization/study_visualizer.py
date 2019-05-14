@@ -134,6 +134,14 @@ class StudyVisualizer(object):
                 self._observations.convert_to_spatio_temporal_index(self.coordinates)
                 if self.normalization_under_one_observations:
                     self._observations.normalize()
+                # Write a summary of observations
+                df = self._observations.df_maxima_gev
+                print('Observations summary:', '        ', end='')
+                print('Mean value:', df.mean().mean(), '        ', end='')
+                print('Min value:', df.min().min(), '        ', end='')
+                print('Max value:', df.max().max(), '        ', end='')
+                print('# of zero values:', df.size - np.count_nonzero(df.values), '\n')
+
         return self._observations
 
     # Graph for each massif / or groups of massifs
