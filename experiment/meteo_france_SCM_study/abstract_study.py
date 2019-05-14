@@ -159,18 +159,27 @@ class AbstractStudy(object):
         return {massif_id: massif_name for massif_id, massif_name in enumerate(self.all_massif_names)}
 
     @cached_property
-    def massifs_coordinates(self) -> AbstractSpatialCoordinates:
-        # Build coordinate object from df_centroid
-        return AbstractSpatialCoordinates.from_df(self.df_spatial())
-
-    def df_spatial(self):
+    def massifs_coordinates_for_display(self) -> AbstractSpatialCoordinates:
         # Coordinate object that represents the massif coordinates in Lambert extended
-        df_centroid = self.load_df_centroid()
+        # extracted for a csv file, and used only for display purposes
+        df = self.load_df_centroid()
         for coord_column in [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_Y]:
-            df_centroid.loc[:, coord_column] = df_centroid[coord_column].str.replace(',', '.').astype(float)
+            df.loc[:, coord_column] = df[coord_column].str.replace(',', '.').astype(float)
         # Filter, keep massifs present at the altitude of interest
-        df_centroid = df_centroid.loc[self.study_massif_names]
-        return df_centroid
+        df = df.loc[self.study_massif_names]
+        # Build coordinate object from df_centroid
+        return AbstractSpatialCoordinates.from_df(df)
+
+    @property
+    def df_massifs_longitude_and_latitude(self) -> pd.DataFrame:
+        # DataFrame object that represents the massif coordinates in degrees extracted from the SCM data
+        any_ordered_dict = list(self.year_to_dataset_ordered_dict.values())[0]
+        longitude = np.array(any_ordered_dict.variables['longitude'])[self.altitude_mask]
+        latitude = np.array(any_ordered_dict.variables['latitude'])[self.altitude_mask]
+        index = self.altitude_to_massif_names[self.altitude]
+        columns = [AbstractSpatialCoordinates.COORDINATE_X, AbstractSpatialCoordinates.COORDINATE_Y]
+        data = dict(zip(columns, [longitude, latitude]))
+        return pd.DataFrame(data=data, index=index, columns=columns)
 
     def load_df_centroid(self) -> pd.DataFrame:
         # Load df_centroid containing all the massif names
@@ -223,7 +232,7 @@ class AbstractStudy(object):
                 # ax.scatter(x, y)
                 # ax.text(x, y, massif_name)
         # Display the center of the massif
-        ax.scatter(self.massifs_coordinates.x_coordinates, self.massifs_coordinates.y_coordinates, s=1)
+        ax.scatter(self.massifs_coordinates_for_display.x_coordinates, self.massifs_coordinates_for_display.y_coordinates, s=1)
         # Improve some explanation on the X axis and on the Y axis
         ax.set_xlabel('Longitude (km)')
         ax.xaxis.set_major_formatter(get_km_formatter())
@@ -231,7 +240,7 @@ class AbstractStudy(object):
         ax.yaxis.set_major_formatter(get_km_formatter())
         # Display the name or value of the massif
         if add_text:
-            for _, row in self.massifs_coordinates.df_all_coordinates.iterrows():
+            for _, row in self.massifs_coordinates_for_display.df_all_coordinates.iterrows():
                 x, y = list(row)
                 massif_name = row.name
                 value = massif_name_to_value[massif_name]

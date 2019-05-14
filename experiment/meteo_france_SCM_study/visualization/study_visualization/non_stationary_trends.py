@@ -49,9 +49,9 @@ class AbstractNonStationaryTrendTest(object):
                 if self.verbose:
                     estimator_name = get_display_name_from_object_type(estimator)
                     margin_model_name = get_display_name_from_object_type(margin_model)
-                    text = 'Fittig {} with margin: {} for starting_point={}'.format(estimator_name,
-                                                                                             margin_model_name,
-                                                                                             starting_point)
+                    text = 'Fittig {} with margin: {} for starting_point={}\n'.format(estimator_name,
+                                                                                      margin_model_name,
+                                                                                      starting_point)
                     text += 'Fit took {}s and was {}'.format(round(duration, 1), estimator.result_from_fit.convergence)
                     print(text)
             self._margin_model_class_and_starting_point_to_estimator[(margin_model_class, starting_point)] = estimator

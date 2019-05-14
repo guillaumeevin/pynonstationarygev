@@ -44,7 +44,7 @@ class AbstractExtendedStudy(AbstractStudy):
 
     """ Properties """
 
-    def massifs_coordinates(self) -> AbstractSpatialCoordinates:
+    def massifs_coordinates_for_display(self) -> AbstractSpatialCoordinates:
         raise ValueError('Coordinates are meaningless for an extended study')
 
     @property

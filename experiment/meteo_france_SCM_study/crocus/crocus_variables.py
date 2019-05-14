@@ -4,8 +4,6 @@ from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
 
 
 class CrocusVariable(AbstractVariable):
-    """Crocus data is every 6 hours. To obtain daily data, we select one data out of 4
-    (in order to have data that will still be comparable to an instantaneous variable"""
 
     def __init__(self, dataset, altitude, variable_name):
         super().__init__(dataset, altitude)

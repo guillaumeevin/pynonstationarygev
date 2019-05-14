@@ -97,7 +97,7 @@ class StudyVisualizer(object):
 
     @property
     def spatial_coordinates(self):
-        return AbstractSpatialCoordinates.from_df(df=self.study.df_spatial(),
+        return AbstractSpatialCoordinates.from_df(df=self.study.df_massifs_longitude_and_latitude,
                                                   transformation_class=self.transformation_class)
 
     @property

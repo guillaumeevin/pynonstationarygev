@@ -15,11 +15,6 @@ class Crocus(AbstractStudy):
         super().__init__(variable_class, *args, **kwargs)
         self.model_name = 'Crocus'
 
-    @property
-    def variable_name(self):
-        suffix = '' if self.altitude == 2400 else ' sampled every 24 hours'
-        return super().variable_name + suffix
-
     def annual_aggregation_function(self, *args, **kwargs):
         return np.mean(*args, **kwargs)
 
@@ -67,11 +62,10 @@ class CrocusDaysWithSnowOnGround(Crocus):
 
 
 if __name__ == '__main__':
-    for variable_class in [CrocusSweVariable, CrocusDepthVariable]:
+    for variable_class in [CrocusSweVariable, CrocusDepthVariable][:1]:
         study = Crocus(variable_class=variable_class, altitude=2400)
         d = study.year_to_dataset_ordered_dict[1960]
+        print(study.df_massifs_longitude_and_latitude)
         time_arr = np.array(d.variables['time'])
-        print(time_arr)
-        # print(d)
         a = study.year_to_daily_time_serie_array[1960]
         print(a.shape)
