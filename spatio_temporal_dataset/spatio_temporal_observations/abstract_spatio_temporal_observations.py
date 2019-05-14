@@ -105,6 +105,15 @@ class AbstractSpatioTemporalObservations(object):
     def __str__(self) -> str:
         return self._df_maxima.__str__()
 
+    def print_summary(self):
+        # Write a summary of observations
+        df = self.df_maxima_gev
+        print('Observations summary:', '        ', end='')
+        print('Mean value:', df.mean().mean(), '        ', end='')
+        print('Min value:', df.min().min(), '        ', end='')
+        print('Max value:', df.max().max(), '        ', end='')
+        print('# of zero values:', df.size - np.count_nonzero(df.values), '\n')
+
     @_df_maxima.setter
     def _df_maxima(self, value):
         self.__df_maxima = value

@@ -17,7 +17,8 @@ class TestCoordinateSensitivity(unittest.TestCase):
 
     def test_coordinate_normalization_sensitivity(self):
         altitudes = [300, 600, 900, 1200, 2100, 3000][-1:]
-        transformation_classes = [None, BetweenZeroAndOneNormalization, BetweenZeroAndOneNormalizationMinEpsilon, BetweenZeroAndOneNormalizationMaxEpsilon][1:2]
+        transformation_classes = [None, BetweenZeroAndOneNormalization, BetweenZeroAndOneNormalizationMinEpsilon,
+                                  BetweenZeroAndOneNormalizationMaxEpsilon][1:2]
 
         study_classes = [CrocusSwe]
         for study in study_iterator_global(study_classes, altitudes=altitudes, verbose=False):
@@ -28,19 +29,19 @@ class TestCoordinateSensitivity(unittest.TestCase):
                 study_visualizer.temporal_non_stationarity = True
                 trend_test = ConditionalIndedendenceLocationTrendTest(study_visualizer.dataset)
                 years = [1960, 1990]
-                mu1s = [trend_test.get_mu1(year) for year in years]
+                mu1s = [trend_test.get_mu_coefs(year)['mu_temporal'] for year in years]
                 if self.DISPLAY:
                     print('Stationary')
-                    stationary_est = trend_test.get_estimator(trend_test.stationary_margin_model_class,
-                                                      starting_point=None)
+                    stationary_est = trend_test.load_estimator(trend_test.stationary_margin_model_class,
+                                                               starting_point=None)
                     print(stationary_est.result_from_fit.convergence)
                     print(stationary_est.margin_function_fitted.coef_dict)
                     print('Non Stationary')
-                    non_stationary_est = trend_test.get_estimator(trend_test.non_stationary_margin_model_class,
-                                                         starting_point=1960)
+                    non_stationary_est = trend_test.load_estimator(trend_test.non_stationary_margin_model_class,
+                                                                   starting_point=1960)
                     print(non_stationary_est.result_from_fit.convergence)
-                    non_stationary_est = trend_test.get_estimator(trend_test.non_stationary_margin_model_class,
-                                                         starting_point=1990)
+                    non_stationary_est = trend_test.load_estimator(trend_test.non_stationary_margin_model_class,
+                                                                   starting_point=1990)
                     print(non_stationary_est.result_from_fit.convergence)
                     print(non_stationary_est.margin_function_fitted.coef_dict)
                     print(get_display_name_from_object_type(transformation_class), 'mu1s: ', mu1s)

@@ -177,11 +177,11 @@ class StudyVisualizer(object):
         trend_tests = [ConditionalIndedendenceLocationTrendTest(dataset=self.dataset, verbose=verbose,
                                                                 multiprocessing=multiprocessing)]
 
-        max_stable_models = load_test_max_stable_models(default_covariance_function=self.default_covariance_function)
-        for max_stable_model in [max_stable_models[1], max_stable_models[-2]]:
-            trend_tests.append(MaxStableLocationTrendTest(dataset=self.dataset,
-                                                          max_stable_model=max_stable_model, verbose=verbose,
-                                                          multiprocessing=multiprocessing))
+        # max_stable_models = load_test_max_stable_models(default_covariance_function=self.default_covariance_function)
+        # for max_stable_model in [max_stable_models[1], max_stable_models[-2]]:
+        #     trend_tests.append(MaxStableLocationTrendTest(dataset=self.dataset,
+        #                                                   max_stable_model=max_stable_model, verbose=verbose,
+        #                                                   multiprocessing=multiprocessing))
 
         nb_trend_tests = len(trend_tests)
         fig, axes = plt.subplots(1, nb_trend_tests, figsize=self.figsize)

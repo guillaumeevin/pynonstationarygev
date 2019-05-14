@@ -2,6 +2,8 @@ import time
 from multiprocessing import Pool
 from typing import Union
 
+import pandas as pd
+
 from experiment.meteo_france_SCM_study.visualization.utils import align_yaxis_on_zero
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from scipy.stats import chi2
@@ -32,89 +34,124 @@ class AbstractNonStationaryTrendTest(object):
         self.non_stationary_margin_model_class = non_stationary_margin_model_class
         # Compute a dictionary that maps couple (margin model class, starting point)
         # to the corresponding fitted estimator
-        self._margin_model_class_and_starting_point_to_estimator = {}
+        self._starting_point_to_estimator = {}
         # parallelization arguments
         self.multiprocessing = multiprocessing
         self.nb_cores = 7
 
-    def get_estimator(self, margin_model_class, starting_point) -> Union[
+    def get_estimator(self, starting_point):
+        if starting_point not in self._starting_point_to_estimator:
+            estimator = self.load_estimator(starting_point)
+            self._starting_point_to_estimator[starting_point] = estimator
+        return self._starting_point_to_estimator[starting_point]
+
+
+    def load_estimator(self, starting_point) -> Union[
         AbstractFullEstimator, AbstractMarginEstimator]:
-        if (margin_model_class, starting_point) not in self._margin_model_class_and_starting_point_to_estimator:
-            margin_model = margin_model_class(coordinates=self.dataset.coordinates, starting_point=starting_point)
-            estimator = self._load_estimator(margin_model)
-            start = time.time()
-            estimator.fit()
-            duration = time.time() - start
-            if self.verbose:
-                if self.verbose:
-                    estimator_name = get_display_name_from_object_type(estimator)
-                    margin_model_name = get_display_name_from_object_type(margin_model)
-                    text = 'Fittig {} with margin: {} for starting_point={}\n'.format(estimator_name,
-                                                                                      margin_model_name,
-                                                                                      starting_point)
-                    text += 'Fit took {}s and was {}'.format(round(duration, 1), estimator.result_from_fit.convergence)
-                    print(text)
-            self._margin_model_class_and_starting_point_to_estimator[(margin_model_class, starting_point)] = estimator
-        return self._margin_model_class_and_starting_point_to_estimator[(margin_model_class, starting_point)]
+        margin_model_class = self.stationary_margin_model_class if starting_point is None else self.non_stationary_margin_model_class
+        assert starting_point not in self._starting_point_to_estimator
+        margin_model = margin_model_class(coordinates=self.dataset.coordinates, starting_point=starting_point)
+        estimator = self._load_estimator(margin_model)
+        start = time.time()
+        estimator.fit()
+        duration = time.time() - start
+        if self.verbose:
+            estimator_name = get_display_name_from_object_type(estimator)
+            margin_model_name = get_display_name_from_object_type(margin_model)
+            text = 'Fittig {} with margin: {} for starting_point={}\n'.format(estimator_name,
+                                                                              margin_model_name,
+                                                                              starting_point)
+            text += 'Fit took {}s and was {}'.format(round(duration, 1), estimator.result_from_fit.convergence)
+            print(text)
+        return estimator
 
     def _load_estimator(self, margin_model) -> Union[AbstractFullEstimator, AbstractMarginEstimator]:
         return self.estimator_class(self.dataset, margin_model)
 
     def get_metric(self, starting_point):
-        margin_model_class = self.stationary_margin_model_class if starting_point is None else self.non_stationary_margin_model_class
-        estimator = self.get_estimator(margin_model_class, starting_point)
+        estimator = self.get_estimator(starting_point)
         metric = estimator.result_from_fit.__getattribute__(self.RESULT_ATTRIBUTE_METRIC)
         assert isinstance(metric, float)
         return metric
 
-    def get_mu1(self, starting_point):
+    def get_mu_coefs(self, starting_point):
         # for the non stationary model gives the mu1 parameters that was fitted
-        estimator = self.get_estimator(self.non_stationary_margin_model_class, starting_point)
+        estimator = self.get_estimator(starting_point)
         margin_function = estimator.margin_function_fitted  # type: LinearMarginFunction
         assert isinstance(margin_function, LinearMarginFunction)
-        return margin_function.mu1_temporal_trend
+        mu_coefs = [margin_function.mu_intercept, margin_function.mu_longitude_trend, margin_function.mu_latitude_trend,
+                    margin_function.mu1_temporal_trend]
+        return dict(zip(self.mu_coef_names, mu_coefs))
+
+    @property
+    def mu_coef_names(self):
+        return ['mu_intercept', 'mu_longitude', 'mu_latitude', 'mu_temporal']
+
+    @property
+    def mu_coef_colors(self):
+        return ['b', 'g', 'y', 'c']
 
     def visualize(self, ax, complete_analysis=True):
         years = self.years(complete_analysis)
 
-        # Compute metric with parallelization or not
+        # Load the estimator only once
         if self.multiprocessing:
             with Pool(self.nb_cores) as p:
-                stationary_metric, *non_stationary_metrics = p.map(self.get_metric, [None] + years)
+                stationary_estimator, *non_stationary_estimators = p.map(self.load_estimator, [None] + years)
         else:
-            stationary_metric = self.get_metric(starting_point=None)
-            non_stationary_metrics = [self.get_metric(year) for year in years]
+            stationary_estimator = self.load_estimator(None)
+            non_stationary_estimators = [self.load_estimator(year) for year in years]
+        self._starting_point_to_estimator[None] = stationary_estimator
+        for year, non_stationary_estimator in zip(years, non_stationary_estimators):
+            self._starting_point_to_estimator[year] = non_stationary_estimator
 
         # Plot differences
+        stationary_metric, *non_stationary_metrics = [self.get_metric(starting_point) for starting_point in
+                                                      [None] + years]
         difference = [m - stationary_metric for m in non_stationary_metrics]
-        color_difference = 'b'
-        ax.plot(years, difference, color_difference + 'o-')
-        ax.set_ylabel(self.RESULT_ATTRIBUTE_METRIC + ' difference', color=color_difference)
+        color_difference = 'r'
+        label_difference = self.RESULT_ATTRIBUTE_METRIC + ' difference'
+        ax.plot(years, difference, color_difference + 'x-', label=label_difference)
+        ax.set_ylabel(label_difference, color=color_difference, )
 
         # Plot zero line
         # years_line = [years[0] -10, years[-1]  + 10]
-        ax.plot(years, [0 for _ in years], 'k-', label='zero line')
+        # ax.plot(years, [0 for _ in years], 'kx-', label='zero line')
         # Plot significative line corresponding to 0.05 relevance
         alpha = 0.05
         significative_deviance = chi2.ppf(q=1 - alpha, df=1)
-        ax.plot(years, [significative_deviance for _ in years], 'g-', label='significative line')
+        ax.plot(years, [significative_deviance for _ in years], 'mx-', label='significative line')
+
+        all_deviance_data = [significative_deviance] + difference
+        min_deviance_data, max_deviance_data = min(all_deviance_data), max(all_deviance_data)
 
         # Plot the mu1 parameter
-        mu1_trends = [self.get_mu1(starting_point=year) for year in years]
+        mu_trends = [self.get_mu_coefs(starting_point=year) for year in years]
+        mus = {mu_coef_name: [mu_trend[mu_coef_name] for mu_trend in mu_trends] for mu_coef_name in self.mu_coef_names}
+
         ax2 = ax.twinx()
-        color_mu1 = 'c'
 
-        if self.verbose:
-            print('mu1 trends:', mu1_trends, '\n')
-        ax2.plot(years, mu1_trends, color_mu1 + 'o-')
-        ax2.set_ylabel('mu1 parameter', color=color_mu1)
+        for j, (mu_coef_name, mu_coef_values) in enumerate(mus.items()):
+            color_mu_coef = self.mu_coef_colors[j]
+            if self.verbose:
+                print(mu_coef_name, mu_coef_values)
+            ax2.plot(years, mu_coef_values, color_mu_coef + 'o-', label=mu_coef_name)
+            # ax2.set_ylabel(mu_coef_name, color=color_mu_coef)
 
-        ax.set_xlabel('starting year for the linear trend of mu1')
-        if min(mu1_trends) < 0.0 < max(mu1_trends):
-            align_yaxis_on_zero(ax, ax2)
+        df_mus = pd.DataFrame(mus)
+        min_mus, max_mus = df_mus.min().min(), df_mus.max().max()
+        min_global, max_global = min(min_deviance_data, min_mus), max(max_deviance_data, max_mus)
+        ax2.set_ylim(min_global, max_global)
+
+        ax.set_xlabel('starting year for the linear trend of {}'.format(self.mu_coef_names[-1]))
+        if min_mus < 0.0 < max_mus:
+            align_yaxis_on_zero(ax2, ax)
+
         title = self.display_name
         ax.set_title(title)
-        ax.legend()
+        ax.grid()
+        ax.legend(loc=6)
+        ax2.legend(loc=7)
 
     def years(self, complete_analysis=True):
         # Define the year_min and year_max for the starting point

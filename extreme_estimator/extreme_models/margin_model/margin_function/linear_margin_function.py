@@ -60,14 +60,6 @@ class LinearMarginFunction(ParametricMarginFunction):
         return coef_dict
 
     @property
-    def mu1_temporal_trend(self):
-        return self.coef_dict[LinearCoef.coef_template_str(ExtremeParams.LOC, AbstractCoordinates.COORDINATE_T).format(1)]
-
-    @property
-    def mu0(self):
-        return self.coef_dict[LinearCoef.coef_template_str(ExtremeParams.LOC, LinearCoef.INTERCEPT_NAME).format(1)]
-
-    @property
     def form_dict(self) -> Dict[str, str]:
         form_dict = {}
         for gev_param_name in GevParams.PARAM_NAMES:
@@ -87,3 +79,21 @@ class LinearMarginFunction(ParametricMarginFunction):
                 assert not any(['1' in formula for formula in temporal_form.values()])
                 form_dict.update(temporal_form)
         return form_dict
+
+    # Properties for the location parameter
+
+    @property
+    def mu1_temporal_trend(self):
+        return self.coef_dict[LinearCoef.coef_template_str(ExtremeParams.LOC, AbstractCoordinates.COORDINATE_T).format(1)]
+
+    @property
+    def mu_intercept(self):
+        return self.coef_dict[LinearCoef.coef_template_str(ExtremeParams.LOC, LinearCoef.INTERCEPT_NAME).format(1)]
+
+    @property
+    def mu_longitude_trend(self):
+        return self.coef_dict[LinearCoef.coef_template_str(ExtremeParams.LOC, AbstractCoordinates.COORDINATE_X).format(2)]
+
+    @property
+    def mu_latitude_trend(self):
+        return self.coef_dict[LinearCoef.coef_template_str(ExtremeParams.LOC, AbstractCoordinates.COORDINATE_Y).format(3)]
