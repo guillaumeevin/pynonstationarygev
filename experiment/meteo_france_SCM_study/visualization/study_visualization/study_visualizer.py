@@ -134,14 +134,7 @@ class StudyVisualizer(object):
                 self._observations.convert_to_spatio_temporal_index(self.coordinates)
                 if self.normalization_under_one_observations:
                     self._observations.normalize()
-                # Write a summary of observations
-                df = self._observations.df_maxima_gev
-                print('Observations summary:', '        ', end='')
-                print('Mean value:', df.mean().mean(), '        ', end='')
-                print('Min value:', df.min().min(), '        ', end='')
-                print('Max value:', df.max().max(), '        ', end='')
-                print('# of zero values:', df.size - np.count_nonzero(df.values), '\n')
-
+                self._observations.print_summary()
         return self._observations
 
     # Graph for each massif / or groups of massifs
@@ -177,11 +170,11 @@ class StudyVisualizer(object):
         trend_tests = [ConditionalIndedendenceLocationTrendTest(dataset=self.dataset, verbose=verbose,
                                                                 multiprocessing=multiprocessing)]
 
-        # max_stable_models = load_test_max_stable_models(default_covariance_function=self.default_covariance_function)
-        # for max_stable_model in [max_stable_models[1], max_stable_models[-2]]:
-        #     trend_tests.append(MaxStableLocationTrendTest(dataset=self.dataset,
-        #                                                   max_stable_model=max_stable_model, verbose=verbose,
-        #                                                   multiprocessing=multiprocessing))
+        max_stable_models = load_test_max_stable_models(default_covariance_function=self.default_covariance_function)
+        for max_stable_model in [max_stable_models[1], max_stable_models[-2]]:
+            trend_tests.append(MaxStableLocationTrendTest(dataset=self.dataset,
+                                                          max_stable_model=max_stable_model, verbose=verbose,
+                                                          multiprocessing=multiprocessing))
 
         nb_trend_tests = len(trend_tests)
         fig, axes = plt.subplots(1, nb_trend_tests, figsize=self.figsize)

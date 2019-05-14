@@ -1,3 +1,4 @@
+import time
 from typing import Generator, List
 
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
@@ -37,7 +38,7 @@ def study_iterator(study_class, only_first_one=False, both_altitude=False, verbo
         for alti in altis:
 
             if verbose:
-                print('alti: {}, nb_day: {}'.format(alti, nb_day), end='')
+                print('alti: {}, nb_day: {}     '.format(alti, nb_day), end='')
             study = study_class(altitude=alti, nb_consecutive_days=nb_day) if is_safran_study \
                 else study_class(altitude=alti)
             massifs = study.altitude_to_massif_names[alti]
@@ -119,20 +120,29 @@ def trend_analysis():
     save_to_file = True
     only_first_one = False
     short_altitudes = [300, 1200, 2100, 3000][:1]
-    full_altitude_with_at_least_2_stations = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200][-5:]
-    altitudes = full_altitude_with_at_least_2_stations
+    full_altitude_with_at_least_2_stations = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200][:]
+    durand_altitude = [1800]
+    altitudes = durand_altitude
     normalization_class = [None, BetweenMinusOneAndOneNormalization, BetweenZeroAndOneNormalization][-1]
-    study_classes = [CrocusSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][:1]
+    study_classes = [CrocusSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][2:3]
     for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):
         study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                            transformation_class=normalization_class)
         study_visualizer.visualize_temporal_trend_relevance(complete_analysis=False, multiprocessing=True)
 
 
-if __name__ == '__main__':
+def main_run():
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2100)
     # normal_visualization(temporal_non_stationarity=True)
     trend_analysis()
+
+
     # max_stable_process_vizu_compare_gaume_study(altitude=1800, nb_days=1)
     # extended_visualization()
     # complete_analysis()
+
+if __name__ == '__main__':
+    start = time.time()
+    main_run()
+    duration = time.time() - start
+    print('Full run took {}s'.format(round(duration, 1)))

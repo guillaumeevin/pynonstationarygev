@@ -112,7 +112,8 @@ class AbstractSpatioTemporalObservations(object):
         print('Mean value:', df.mean().mean(), '        ', end='')
         print('Min value:', df.min().min(), '        ', end='')
         print('Max value:', df.max().max(), '        ', end='')
-        print('# of zero values:', df.size - np.count_nonzero(df.values), '\n')
+        percentage = round(100 * (df.size - np.count_nonzero(df.values)) / df.size, 1)
+        print('Percentage of zero values {} out of {} observations'.format(percentage, df.size), '\n')
 
     @_df_maxima.setter
     def _df_maxima(self, value):

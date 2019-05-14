@@ -13,7 +13,7 @@ from PIL import ImageDraw
 from netCDF4 import Dataset
 
 from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
-from experiment.meteo_france_SCM_study.altitude import ALTITUDES, ZS_INT_23, ZS_INT_MASK
+from experiment.meteo_france_SCM_study.scm_constants import ALTITUDES, ZS_INT_23, ZS_INT_MASK, LONGITUDES, LATITUDES
 from experiment.meteo_france_SCM_study.visualization.utils import get_km_formatter
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
@@ -173,12 +173,14 @@ class AbstractStudy(object):
     @property
     def df_massifs_longitude_and_latitude(self) -> pd.DataFrame:
         # DataFrame object that represents the massif coordinates in degrees extracted from the SCM data
-        any_ordered_dict = list(self.year_to_dataset_ordered_dict.values())[0]
-        longitude = np.array(any_ordered_dict.variables['longitude'])[self.altitude_mask]
-        latitude = np.array(any_ordered_dict.variables['latitude'])[self.altitude_mask]
+        # any_ordered_dict = list(self.year_to_dataset_ordered_dict.values())[0]
+        # longitude = np.array(any_ordered_dict.variables['longitude'])
+        # latitude = np.array(any_ordered_dict.variables['latitude'])
+        longitude = np.array(LONGITUDES)
+        latitude = np.array(LATITUDES)
         index = self.altitude_to_massif_names[self.altitude]
         columns = [AbstractSpatialCoordinates.COORDINATE_X, AbstractSpatialCoordinates.COORDINATE_Y]
-        data = dict(zip(columns, [longitude, latitude]))
+        data = dict(zip(columns, [longitude[self.altitude_mask], latitude[self.altitude_mask]]))
         return pd.DataFrame(data=data, index=index, columns=columns)
 
     def load_df_centroid(self) -> pd.DataFrame:
