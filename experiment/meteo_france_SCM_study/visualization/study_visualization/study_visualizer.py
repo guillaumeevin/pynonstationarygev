@@ -164,13 +164,16 @@ class StudyVisualizer(object):
             'for the year {}'.format(self.year_for_kde_plot)
         self.show_or_save_to_file()
 
-    def visualize_temporal_trend_relevance(self, complete_analysis, verbose=True):
+    def visualize_temporal_trend_relevance(self, complete_analysis, verbose=True, multiprocessing=False):
         self.temporal_non_stationarity = True
-        trend_tests = [ConditionalIndedendenceLocationTrendTest(self.dataset, verbose=verbose)]
+        trend_tests = [ConditionalIndedendenceLocationTrendTest(dataset=self.dataset, verbose=verbose,
+                                                                multiprocessing=multiprocessing)]
 
         max_stable_models = load_test_max_stable_models(default_covariance_function=self.default_covariance_function)
         for max_stable_model in [max_stable_models[1], max_stable_models[-2]]:
-            trend_tests.append(MaxStableLocationTrendTest(self.dataset, max_stable_model, verbose=verbose))
+            trend_tests.append(MaxStableLocationTrendTest(dataset=self.dataset,
+                                                          max_stable_model=max_stable_model, verbose=verbose,
+                                                          multiprocessing=multiprocessing))
 
         nb_trend_tests = len(trend_tests)
         fig, axes = plt.subplots(1, nb_trend_tests, figsize=self.figsize)

@@ -96,7 +96,7 @@ def normal_visualization(temporal_non_stationarity=False):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                                temporal_non_stationarity=temporal_non_stationarity)
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
-            # study_visualizer.visualize_annual_mean_values()
+            study_visualizer.visualize_annual_mean_values()
             study_visualizer.visualize_linear_margin_fit(only_first_max_stable=None)
 
 
@@ -116,17 +116,17 @@ def complete_analysis(only_first_one=False):
 
 
 def trend_analysis():
-    save_to_file = True
-    only_first_one = False
+    save_to_file = False
+    only_first_one = True
     short_altitudes = [300, 1200, 2100, 3000][:1]
-    full_altitude_with_at_least_2_stations = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200][:]
+    full_altitude_with_at_least_2_stations = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200][-1:]
     altitudes = full_altitude_with_at_least_2_stations
     normalization_class = [None, BetweenMinusOneAndOneNormalization, BetweenZeroAndOneNormalization][-1]
     study_classes = [CrocusSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][:]
     for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):
         study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                            transformation_class=normalization_class)
-        study_visualizer.visualize_temporal_trend_relevance(complete_analysis=True)
+        study_visualizer.visualize_temporal_trend_relevance(complete_analysis=True, multiprocessing=True)
 
 
 if __name__ == '__main__':
