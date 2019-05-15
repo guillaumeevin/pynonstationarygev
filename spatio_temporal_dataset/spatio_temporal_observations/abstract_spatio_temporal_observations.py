@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
+    AbstractTemporalCoordinates
 from spatio_temporal_dataset.slicer.abstract_slicer import df_sliced, AbstractSlicer
 from spatio_temporal_dataset.slicer.split import Split
 
@@ -91,6 +93,24 @@ class AbstractSpatioTemporalObservations(object):
         if df is not None:
             return pd.DataFrame(np.concatenate([df[c].values for c in df.columns]), index=index)
 
+    def convert_to_temporal_index(self, temporal_coordinates: AbstractTemporalCoordinates, spatial_idx: int):
+        assert len(self.index) > len(temporal_coordinates) and len(self.index) % len(temporal_coordinates) == 0
+        spatial_len = len(self.index) // len(temporal_coordinates)
+        assert 0 <= spatial_idx < spatial_len
+        # Build ind to select the observations of interest
+        ind = np.zeros(spatial_len, dtype=bool)
+        ind[spatial_idx] = True
+        ind = np.concatenate([ind for _ in range(len(temporal_coordinates))])
+        self.df_maxima_frech = self.loc_df(self.df_maxima_frech, ind, temporal_coordinates.index)
+        self.df_maxima_gev = self.loc_df(self.df_maxima_gev, ind, temporal_coordinates.index)
+
+    @staticmethod
+    def loc_df(df, ind, new_index):
+        if df is not None:
+            df = df.loc[ind]
+            df.index = new_index
+            return df
+
     def maxima_gev(self, split: Split = Split.all, slicer: AbstractSlicer = None) -> np.ndarray:
         return df_sliced(self.df_maxima_gev, split, slicer).values
 
@@ -118,5 +138,3 @@ class AbstractSpatioTemporalObservations(object):
     @_df_maxima.setter
     def _df_maxima(self, value):
         self.__df_maxima = value
-
-

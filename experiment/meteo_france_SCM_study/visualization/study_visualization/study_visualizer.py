@@ -1,6 +1,7 @@
 import os
 import os.path as op
 from collections import OrderedDict
+from copy import deepcopy
 from typing import Union
 
 import math
@@ -11,7 +12,7 @@ import seaborn as sns
 
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.visualization.study_visualization.non_stationary_trends import \
-    ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest
+    ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
 from experiment.meteo_france_SCM_study.visualization.utils import create_adjusted_axes
 from experiment.utils import average_smoothing_with_sliding_window
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
@@ -36,6 +37,9 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal
     ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformed_coordinates import TransformedCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
+from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
+    AbstractSpatioTemporalObservations
+from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 from test.test_utils import load_test_max_stable_models
 from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits
 
@@ -48,7 +52,11 @@ class StudyVisualizer(object):
                  vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False,
                  temporal_non_stationarity=False,
                  transformation_class=None,
+                 verbose=False,
+                 multiprocessing=False,
+                 complete_non_stationary_trend_analysis=False,
                  normalization_under_one_observations=True):
+
         self.massif_id_to_smooth_maxima = {}
         self.temporal_non_stationarity = temporal_non_stationarity
         self.only_first_row = only_first_row
@@ -58,6 +66,10 @@ class StudyVisualizer(object):
         self.plot_name = None
 
         self.normalization_under_one_observations = normalization_under_one_observations
+        self.multiprocessing = multiprocessing
+        self.verbose = verbose
+        self.complete_non_stationary_trend_analysis = complete_non_stationary_trend_analysis
+
         # Load some attributes
         self._dataset = None
         self._coordinates = None
@@ -135,10 +147,21 @@ class StudyVisualizer(object):
                 self._observations.convert_to_spatio_temporal_index(self.coordinates)
                 if self.normalization_under_one_observations:
                     self._observations.normalize()
-                self._observations.print_summary()
+                if self.verbose:
+                    self._observations.print_summary()
         return self._observations
 
-    # Graph for each massif / or groups of massifs
+    def observation_massif_id(self, massif_id):
+        annual_maxima = [data[massif_id] for data in self.study.year_to_annual_maxima.values()]
+        df_annual_maxima = pd.DataFrame(annual_maxima, index=self.temporal_coordinates.index)
+        observation_massif_id = AnnualMaxima(df_maxima_gev=df_annual_maxima)
+        if self.normalization_under_one_observations:
+            observation_massif_id.normalize()
+        if self.verbose:
+            observation_massif_id.print_summary()
+        return observation_massif_id
+
+    # PLOT FOR SEVERAL MASSIFS
 
     def visualize_massif_graphs(self, visualize_function, specified_massif_names=None):
         if self.only_one_graph:
@@ -157,29 +180,39 @@ class StudyVisualizer(object):
                 if specified_massif_names is None:
                     massif_ids = list(range(len(self.study.study_massif_names)))
                 else:
-                    massif_ids = [self.study.study_massif_names.index(massif_name) for massif_name in specified_massif_names]
+                    massif_ids = [self.study.study_massif_names.index(massif_name) for massif_name in
+                                  specified_massif_names]
                 for j, massif_id in enumerate(massif_ids):
                     row_id, column_id = j // nb_columns, j % nb_columns
                     ax = axes[row_id, column_id]
                     visualize_function(ax, massif_id)
 
-    def visualize_all_experimental_law( self):
-        self.visualize_massif_graphs(self.visualize_experimental_law)
-        self.plot_name = ' Empirical distribution \n'
-        self.plot_name += 'with data from the 23 mountain chains of the French Alps ' if self.year_for_kde_plot is None else \
-            'for the year {}'.format(self.year_for_kde_plot)
+    # TEMPORAL TREND
+
+    def visualize_all_independent_temporal_trend(self):
+        self.visualize_massif_graphs(self.visualize_independent_temporal_trend)
+        self.plot_name = ' Independent temporal trend \n'
         self.show_or_save_to_file()
 
-    def visualize_temporal_trend_relevance(self, complete_analysis, verbose=True, multiprocessing=False):
-        self.temporal_non_stationarity = True
-        trend_tests = [ConditionalIndedendenceLocationTrendTest(dataset=self.dataset, verbose=verbose,
-                                                                multiprocessing=multiprocessing)]
+    def visualize_independent_temporal_trend(self, ax, massif_id):
+        assert self.temporal_non_stationarity
+        # Create a dataset with temporal coordinates from the massif id
+        dataset_massif_id = AbstractDataset(self.observation_massif_id(massif_id), self.temporal_coordinates)
+        trend_test = IndependenceLocationTrendTest(station_name=self.study.study_massif_names[massif_id],
+                                                   dataset=dataset_massif_id, verbose=self.verbose,
+                                                   multiprocessing=self.multiprocessing)
+        trend_test.visualize(ax, self.complete_non_stationary_trend_analysis)
+
+    def visualize_temporal_trend_relevance(self):
+        assert self.temporal_non_stationarity
+        trend_tests = [ConditionalIndedendenceLocationTrendTest(dataset=self.dataset, verbose=self.verbose,
+                                                                multiprocessing=self.multiprocessing)]
 
         max_stable_models = load_test_max_stable_models(default_covariance_function=self.default_covariance_function)
         for max_stable_model in [max_stable_models[1], max_stable_models[-2]]:
             trend_tests.append(MaxStableLocationTrendTest(dataset=self.dataset,
-                                                          max_stable_model=max_stable_model, verbose=verbose,
-                                                          multiprocessing=multiprocessing))
+                                                          max_stable_model=max_stable_model, verbose=self.verbose,
+                                                          multiprocessing=self.multiprocessing))
 
         nb_trend_tests = len(trend_tests)
         fig, axes = plt.subplots(1, nb_trend_tests, figsize=self.figsize)
@@ -187,13 +220,23 @@ class StudyVisualizer(object):
             axes = [axes]
         fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
         for ax, trend_test in zip(axes, trend_tests):
-            trend_test.visualize(ax, complete_analysis=complete_analysis)
+            trend_test.visualize(ax, complete_analysis=self.complete_non_stationary_trend_analysis)
 
         plot_name = 'trend tests'
-        plot_name += ' with {} applied spatially & temporally'.format(get_display_name_from_object_type(self.transformation_class))
+        plot_name += ' with {} applied spatially & temporally'.format(
+            get_display_name_from_object_type(self.transformation_class))
         if self.normalization_under_one_observations:
             plot_name += '(and maxima <= 1)'
         self.plot_name = plot_name
+        self.show_or_save_to_file()
+
+    # EXPERIMENTAL LAW
+
+    def visualize_all_experimental_law(self):
+        self.visualize_massif_graphs(self.visualize_experimental_law)
+        self.plot_name = ' Empirical distribution \n'
+        self.plot_name += 'with data from the 23 mountain chains of the French Alps ' if self.year_for_kde_plot is None else \
+            'for the year {}'.format(self.year_for_kde_plot)
         self.show_or_save_to_file()
 
     def visualize_experimental_law(self, ax, massif_id):
@@ -281,6 +324,8 @@ class StudyVisualizer(object):
         all_massif_data = np.sort(all_massif_data)
         return all_massif_data
 
+    #
+
     def visualize_all_mean_and_max_graphs(self):
         # Compute the order of massif names
         massif_name_to_score = {}
@@ -289,7 +334,8 @@ class StudyVisualizer(object):
             massif_name_to_score[massif_name] = score
         ordered_massif_names = sorted(self.study.study_massif_names[:], key=lambda s: massif_name_to_score[s])
         self.visualize_massif_graphs(self.visualize_mean_and_max_graph, specified_massif_names=ordered_massif_names)
-        self.plot_name = ' smoothing values temporally with sliding window of size {}'.format(self.window_size_for_smoothing)
+        self.plot_name = ' smoothing values temporally with sliding window of size {}'.format(
+            self.window_size_for_smoothing)
         self.show_or_save_to_file()
 
     def visualize_mean_and_max_graph(self, ax, massif_id):
@@ -312,7 +358,6 @@ class StudyVisualizer(object):
         ax.set_xlabel('year')
         ax.set_title(self.study.study_massif_names[massif_id])
         ax.xaxis.set_ticks(x[2::10])
-
 
     def smooth_maxima_x_y(self, massif_id):
         if massif_id not in self.massif_id_to_smooth_maxima:

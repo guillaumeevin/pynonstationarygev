@@ -119,8 +119,8 @@ def complete_analysis(only_first_one=False):
 
 
 def trend_analysis():
-    save_to_file = True
-    only_first_one = False
+    save_to_file = False
+    only_first_one = True
     short_altitudes = [300, 1200, 2100, 3000][:1]
     full_altitude_with_at_least_2_stations = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200][:]
     durand_altitude = [1800]
@@ -129,14 +129,23 @@ def trend_analysis():
     study_classes = [CrocusSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][2:3]
     for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):
         study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
-                                           transformation_class=normalization_class)
-        study_visualizer.visualize_temporal_trend_relevance(complete_analysis=False, multiprocessing=True)
+                                           transformation_class=normalization_class,
+                                           temporal_non_stationarity=True,
+                                           verbose=True,
+                                           multiprocessing=True,
+                                           complete_non_stationary_trend_analysis=False)
+        # study_visualizer.only_one_graph = True
+        study_visualizer.visualize_all_independent_temporal_trend()
+        # study_visualizer.visualize_temporal_trend_relevance()
 
 
 def main_run():
+    # normal_visualization(temporal_non_stationarity=True)
+    trend_analysis()
+
+
+
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2100)
-    normal_visualization(temporal_non_stationarity=True)
-    # trend_analysis()
 
 
     # max_stable_process_vizu_compare_gaume_study(altitude=1800, nb_days=1)

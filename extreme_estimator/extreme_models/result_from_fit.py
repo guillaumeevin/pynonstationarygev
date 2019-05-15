@@ -8,8 +8,10 @@ from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
-class ResultFromFit(object):
+def convertFloatVector_to_float(f):
+    return np.array(f)[0]
 
+class ResultFromFit(object):
 
     def __init__(self, result_from_fit: robjects.ListVector) -> None:
         if hasattr(result_from_fit, 'names'):
@@ -73,7 +75,16 @@ class ResultFromIsmev(ResultFromFit):
 
     @property
     def nllh(self):
-        return self.name_to_value['nllh']
+        return convertFloatVector_to_float(self.name_to_value['nllh'])
+
+    @property
+    def deviance(self):
+        return - 2 * self.nllh
+
+    @property
+    def convergence(self) -> str:
+        return convertFloatVector_to_float(self.name_to_value['conv']) == 0
+
 
 
 class ResultFromSpatialExtreme(ResultFromFit):

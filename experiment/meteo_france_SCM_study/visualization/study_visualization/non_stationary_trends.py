@@ -15,6 +15,8 @@ from extreme_estimator.extreme_models.margin_model.linear_margin_model import \
     LinearAllParametersTwoFirstCoordinatesMarginModel, LinearAllTwoStatialCoordinatesLocationLinearMarginModel, \
     LinearStationaryMarginModel, LinearNonStationaryLocationMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import StationaryStationModel, \
+    NonStationaryStationModel
 from extreme_estimator.extreme_models.utils import OptimizationConstants
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from utils import get_display_name_from_object_type
@@ -44,7 +46,6 @@ class AbstractNonStationaryTrendTest(object):
             estimator = self.load_estimator(starting_point)
             self._starting_point_to_estimator[starting_point] = estimator
         return self._starting_point_to_estimator[starting_point]
-
 
     def load_estimator(self, starting_point) -> Union[
         AbstractFullEstimator, AbstractMarginEstimator]:
@@ -79,17 +80,25 @@ class AbstractNonStationaryTrendTest(object):
         estimator = self.get_estimator(starting_point)
         margin_function = estimator.margin_function_fitted  # type: LinearMarginFunction
         assert isinstance(margin_function, LinearMarginFunction)
-        mu_coefs = [margin_function.mu_intercept, margin_function.mu_longitude_trend, margin_function.mu_latitude_trend,
-                    margin_function.mu1_temporal_trend]
+        mu_coefs = [margin_function.mu_intercept, margin_function.mu1_temporal_trend]
+        if self.has_spatial_coordinates:
+            mu_coefs += [margin_function.mu_longitude_trend, margin_function.mu_latitude_trend]
         return dict(zip(self.mu_coef_names, mu_coefs))
 
     @property
     def mu_coef_names(self):
-        return ['mu_intercept', 'mu_longitude', 'mu_latitude', 'mu_temporal']
+        mu_coef_names = ['mu_intercept', 'mu_temporal']
+        if self.has_spatial_coordinates:
+            mu_coef_names += ['mu_longitude', 'mu_latitude']
+        return mu_coef_names
+
+    @property
+    def has_spatial_coordinates(self):
+        return self.dataset.coordinates.has_spatial_coordinates
 
     @property
     def mu_coef_colors(self):
-        return ['b', 'g', 'y', 'c']
+        return ['b', 'c', 'g', 'y', ]
 
     def visualize(self, ax, complete_analysis=True):
         years = self.years(complete_analysis)
@@ -141,17 +150,17 @@ class AbstractNonStationaryTrendTest(object):
         df_mus = pd.DataFrame(mus)
         min_mus, max_mus = df_mus.min().min(), df_mus.max().max()
         min_global, max_global = min(min_deviance_data, min_mus), max(max_deviance_data, max_mus)
-        ax2.set_ylim(min_global, max_global)
+        # ax2.set_ylim(min_global, max_global)
+        # if min_mus < 0.0 < max_mus:
+        #     align_yaxis_on_zero(ax2, ax)
 
+        ax.set_title(self.display_name)
         ax.set_xlabel('starting year for the linear trend of {}'.format(self.mu_coef_names[-1]))
-        if min_mus < 0.0 < max_mus:
-            align_yaxis_on_zero(ax2, ax)
-
-        title = self.display_name
-        ax.set_title(title)
         ax.grid()
-        ax.legend(loc=6)
-        ax2.legend(loc=7)
+
+        prop = {'size': 5} if not self.has_spatial_coordinates else None
+        ax.legend(loc=6, prop=prop)
+        ax2.legend(loc=7, prop=prop)
 
     def years(self, complete_analysis=True):
         # Define the year_min and year_max for the starting point
@@ -170,8 +179,16 @@ class AbstractNonStationaryTrendTest(object):
 
 class IndependenceLocationTrendTest(AbstractNonStationaryTrendTest):
 
-    def __init__(self, dataset, coordinate_idx):
-        pass
+    def __init__(self, station_name, *args, **kwargs):
+        super().__init__(*args, **kwargs,
+                         estimator_class=LinearMarginEstimator,
+                         stationary_margin_model_class=StationaryStationModel,
+                         non_stationary_margin_model_class=NonStationaryStationModel)
+        self.station_name = station_name
+
+    @property
+    def display_name(self):
+        return self.station_name
 
 
 class ConditionalIndedendenceLocationTrendTest(AbstractNonStationaryTrendTest):
