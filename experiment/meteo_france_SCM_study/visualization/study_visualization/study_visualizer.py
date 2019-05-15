@@ -27,6 +27,7 @@ from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model
 from extreme_estimator.margin_fits.abstract_params import AbstractParams
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
+from extreme_estimator.margin_fits.gev.ismev_gev_fit import IsmevGevFit
 from extreme_estimator.margin_fits.gpd.gpd_params import GpdParams
 from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
@@ -41,7 +42,8 @@ from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_tempor
     AbstractSpatioTemporalObservations
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 from test.test_utils import load_test_max_stable_models
-from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits
+from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits, \
+    cached_property
 
 BLOCK_MAXIMA_DISPLAY_NAME = 'block maxima '
 
@@ -83,7 +85,8 @@ class StudyVisualizer(object):
         self.year_for_kde_plot = year_for_kde_plot
         self.plot_block_maxima_quantiles = plot_block_maxima_quantiles
 
-        self.window_size_for_smoothing = 21
+        self.window_size_for_smoothing = 1  # other value could be
+        self.number_of_top_values = 10  # 1 if we just want the maxima
 
         # PLOT ARGUMENTS
         self.show = False if self.save_to_file else show
@@ -163,7 +166,7 @@ class StudyVisualizer(object):
 
     # PLOT FOR SEVERAL MASSIFS
 
-    def visualize_massif_graphs(self, visualize_function, specified_massif_names=None):
+    def visualize_massif_graphs(self, visualize_function, use_ordered_massif_names=False):
         if self.only_one_graph:
             fig, ax = plt.subplots(1, 1, figsize=self.figsize)
             visualize_function(ax, 0)
@@ -177,11 +180,11 @@ class StudyVisualizer(object):
                     ax = axes[massif_id]
                     visualize_function(ax, massif_id)
             else:
-                if specified_massif_names is None:
-                    massif_ids = list(range(len(self.study.study_massif_names)))
-                else:
+                if use_ordered_massif_names:
                     massif_ids = [self.study.study_massif_names.index(massif_name) for massif_name in
-                                  specified_massif_names]
+                                  self.ordered_massif_names]
+                else:
+                    massif_ids = list(range(len(self.study.study_massif_names)))
                 for j, massif_id in enumerate(massif_ids):
                     row_id, column_id = j // nb_columns, j % nb_columns
                     ax = axes[row_id, column_id]
@@ -324,18 +327,29 @@ class StudyVisualizer(object):
         all_massif_data = np.sort(all_massif_data)
         return all_massif_data
 
-    #
-
-    def visualize_all_mean_and_max_graphs(self):
-        # Compute the order of massif names
+    @cached_property
+    def massif_name_to_score(self):
+        # Ordered massif by scores
         massif_name_to_score = {}
         for massif_id, massif_name in enumerate(self.study.study_massif_names):
-            score = self.smooth_maxima_x_y(massif_id)[1].argmax()
-            massif_name_to_score[massif_name] = score
-        ordered_massif_names = sorted(self.study.study_massif_names[:], key=lambda s: massif_name_to_score[s])
-        self.visualize_massif_graphs(self.visualize_mean_and_max_graph, specified_massif_names=ordered_massif_names)
-        self.plot_name = ' smoothing values temporally with sliding window of size {}'.format(
-            self.window_size_for_smoothing)
+            years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
+            start_year = years[0]
+            sorted_indices = [i for i, e in sorted(enumerate(smooth_maxima), key=lambda s: s[1])]
+            mean_max_year = np.mean(sorted_indices[-self.number_of_top_values:]) + start_year
+            mean_min_years = np.mean(sorted_indices[:self.number_of_top_values]) + start_year
+            score = mean_max_year - mean_min_years
+            massif_name_to_score[massif_name] = (score, mean_max_year, mean_min_years)
+        return massif_name_to_score
+
+    @cached_property
+    def ordered_massif_names(self):
+        return sorted(self.study.study_massif_names[:], key=lambda s: self.massif_name_to_score[s][0])
+
+    def visualize_all_mean_and_max_graphs(self):
+        self.visualize_massif_graphs(self.visualize_mean_and_max_graph, use_ordered_massif_names=True)
+        self.plot_name = ' smoothing values temporally with sliding window of size {}' \
+                         'and {} top values taking into account'.format(
+            self.window_size_for_smoothing, self.number_of_top_values)
         self.show_or_save_to_file()
 
     def visualize_mean_and_max_graph(self, ax, massif_id):
@@ -355,9 +369,11 @@ class StudyVisualizer(object):
         x, y = average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
         ax.plot(x, y, color=color_mean)
         ax.set_ylabel('mean'.format(self.window_size_for_smoothing), color=color_mean)
-        ax.set_xlabel('year')
-        ax.set_title(self.study.study_massif_names[massif_id])
-        ax.xaxis.set_ticks(x[2::10])
+        massif_name = self.study.study_massif_names[massif_id]
+        title = massif_name
+        title += ' {}={}-{}'.format(*[round(e, 1) for e in list(self.massif_name_to_score[massif_name])])
+        ax.set_title(title)
+        ax.xaxis.set_ticks(x[2::20])
 
     def smooth_maxima_x_y(self, massif_id):
         if massif_id not in self.massif_id_to_smooth_maxima:
@@ -536,7 +552,7 @@ class StudyVisualizer(object):
     @property
     def df_gev_mle(self) -> pd.DataFrame:
         # Fit a margin_fits on each massif
-        massif_to_gev_mle = {massif_name: GevMleFit(self.df_maxima_gev.loc[massif_name]).gev_params.summary_serie
+        massif_to_gev_mle = {massif_name: IsmevGevFit(self.df_maxima_gev.loc[massif_name]).gev_params.summary_serie
                              for massif_name in self.study.study_massif_names}
         return pd.DataFrame(massif_to_gev_mle, columns=self.study.study_massif_names)
 
