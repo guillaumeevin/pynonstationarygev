@@ -104,9 +104,8 @@ def normal_visualization(temporal_non_stationarity=False):
         for study in study_iterator(study_class, only_first_one=only_first_one, altitudes=[300]):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                                temporal_non_stationarity=temporal_non_stationarity)
-            study_visualizer.window_size_for_smoothing = 1
-            study_visualizer.number_of_top_values = 10
-            study_visualizer.visualize_all_mean_and_max_graphs()
+            print(study_visualizer.massif_name_to_scores)
+            # study_visualizer.visualize_all_mean_and_max_graphs()
 
             # study_visualizer.visualize_independent_margin_fits(threshold=[None, 20, 40, 60][0])
             # study_visualizer.visualize_annual_mean_values()
@@ -116,6 +115,18 @@ def all_normal_vizu():
     for study in study_iterator_global(study_classes=ALL_STUDIES, only_first_one=False, altitudes=ALL_ALTITUDES):
         study_visualizer = StudyVisualizer(study, save_to_file=True, temporal_non_stationarity=True)
         study_visualizer.visualize_all_mean_and_max_graphs()
+
+def scores_vizu():
+    for study in study_iterator_global(study_classes=ALL_STUDIES, only_first_one=True, altitudes=[1800]):
+        study_visualizer = StudyVisualizer(study, save_to_file=False, temporal_non_stationarity=True)
+        # study_visualizer.visualize_all_score_wrt_starting_year()
+        study_visualizer.visualize_all_score_wrt_starting_year()
+
+
+def all_scores_vizu():
+    for study in study_iterator_global(study_classes=[SafranSnowfall], only_first_one=False, altitudes=ALL_ALTITUDES):
+        study_visualizer = StudyVisualizer(study, save_to_file=True, temporal_non_stationarity=True)
+        study_visualizer.visualize_all_score_wrt_starting_year()
 
 def complete_analysis(only_first_one=False):
     """An overview of everything that is possible with study OR extended study"""
@@ -157,14 +168,15 @@ def trend_analysis():
 def main_run():
     # normal_visualization(temporal_non_stationarity=True)
     # trend_analysis()
-    all_normal_vizu()
+    # all_normal_vizu()
 
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2100)
 
     # max_stable_process_vizu_compare_gaume_study(altitude=1800, nb_days=1)
     # extended_visualization()
     # complete_analysis()
-
+    # scores_vizu()
+    all_scores_vizu()
 
 if __name__ == '__main__':
     start = time.time()

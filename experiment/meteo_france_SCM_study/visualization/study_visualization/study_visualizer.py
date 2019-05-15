@@ -166,7 +166,7 @@ class StudyVisualizer(object):
 
     # PLOT FOR SEVERAL MASSIFS
 
-    def visualize_massif_graphs(self, visualize_function, use_ordered_massif_names=False):
+    def visualize_massif_graphs(self, visualize_function, specified_massif_ids=None):
         if self.only_one_graph:
             fig, ax = plt.subplots(1, 1, figsize=self.figsize)
             visualize_function(ax, 0)
@@ -180,12 +180,9 @@ class StudyVisualizer(object):
                     ax = axes[massif_id]
                     visualize_function(ax, massif_id)
             else:
-                if use_ordered_massif_names:
-                    massif_ids = [self.study.study_massif_names.index(massif_name) for massif_name in
-                                  self.ordered_massif_names]
-                else:
-                    massif_ids = list(range(len(self.study.study_massif_names)))
-                for j, massif_id in enumerate(massif_ids):
+                if specified_massif_ids is None:
+                    specified_massif_ids = list(range(len(self.study.study_massif_names)))
+                for j, massif_id in enumerate(specified_massif_ids):
                     row_id, column_id = j // nb_columns, j % nb_columns
                     ax = axes[row_id, column_id]
                     visualize_function(ax, massif_id)
@@ -328,15 +325,16 @@ class StudyVisualizer(object):
         return all_massif_data
 
     @cached_property
-    def massif_name_to_score(self):
+    def massif_name_to_score(self, starting_year=1958):
         # Ordered massif by scores
         massif_name_to_score = {}
         for massif_id, massif_name in enumerate(self.study.study_massif_names):
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
-            start_year = years[0]
+            idx_starting_year = years.index(starting_year)
+            smooth_maxima = smooth_maxima[idx_starting_year:]
             sorted_indices = [i for i, e in sorted(enumerate(smooth_maxima), key=lambda s: s[1])]
-            mean_max_year = np.mean(sorted_indices[-self.number_of_top_values:]) + start_year
-            mean_min_years = np.mean(sorted_indices[:self.number_of_top_values]) + start_year
+            mean_max_year = np.mean(sorted_indices[-self.number_of_top_values:]) + starting_year
+            mean_min_years = np.mean(sorted_indices[:self.number_of_top_values]) + starting_year
             score = mean_max_year - mean_min_years
             massif_name_to_score[massif_name] = (score, mean_max_year, mean_min_years)
         return massif_name_to_score
@@ -345,11 +343,96 @@ class StudyVisualizer(object):
     def ordered_massif_names(self):
         return sorted(self.study.study_massif_names[:], key=lambda s: self.massif_name_to_score[s][0])
 
+    @property
+    def starting_years(self):
+        start_year, stop_year = self.study.start_year_and_stop_year
+        return list(range(start_year, stop_year - 2 * self.number_of_top_values))
+
+    @cached_property
+    def massif_name_to_scores(self):
+        """
+        This score respect the following property.
+        Between two successive score, then if the starting year was neither a top10 maxima nor a top10 minima,
+        then the score will not change
+
+        The following case for instance gives a constant score wrt to the starting year
+        because all the maxima and all the minima are at the end
+            smooth_maxima = [0 for _ in years]
+            smooth_maxima[-20:-10] = [i for i in range(10)]
+            smooth_maxima[-10:] = [-i for i in range(10)]
+        :return:
+        """
+        # Ordered massif by scores
+        massif_name_to_scores = {}
+        for massif_id, massif_name in enumerate(self.study.study_massif_names):
+            years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
+            sorted_years = [i + self.study.start_year_and_stop_year[0]
+                            for i, e in sorted(enumerate(smooth_maxima), key=lambda s: s[1])]
+            scores = []
+            for j, starting_year in enumerate(self.starting_years):
+                mean_max_year = np.mean(sorted_years[-self.number_of_top_values:])
+                mean_min_years = np.mean(sorted_years[:self.number_of_top_values])
+                score = mean_max_year - mean_min_years
+                scores.append(score)
+                sorted_years.remove(starting_year)
+            massif_name_to_scores[massif_name] = scores
+        return massif_name_to_scores
+
+    def visualize_all_score_wrt_starting_year(self):
+        # Build
+        specified_massif_names = sorted(self.study.study_massif_names,
+                                        key=lambda s: np.mean(self.massif_name_to_scores[s]))
+        specified_massif_names = sorted(self.study.study_massif_names, key=lambda s: self.massif_name_to_scores[s][0])
+        # Add one graph at the end
+        specified_massif_names += [None]
+        self.visualize_massif_graphs(self.visualize_score_wrt_starting_year,
+                                     specified_massif_ids=specified_massif_names)
+        plot_name = ''
+        plot_name += '{} top values for each score, abscisse represents starting year for a trend'.format(
+            self.number_of_top_values)
+        self.plot_name = plot_name
+        self.show_or_save_to_file()
+
+    def visualize_score_wrt_starting_year(self, ax, massif_name):
+        if massif_name is None:
+            percentage, title = self.percentage_of_negative_trends()
+            scores = percentage
+            ax.set_ylabel('% of negative trends')
+        else:
+            ax.set_ylabel('max score - min score ')
+            scores = self.massif_name_to_scores[massif_name]
+            title = massif_name
+        ax.plot(self.starting_years, scores)
+        ax.set_title(title)
+        ax.xaxis.set_ticks(self.starting_years[2::20])
+
+    def percentage_of_negative_trends(self):
+        mean = np.mean([np.array(v) < 0 for v in self.massif_name_to_scores.values()], axis=0)
+        percentage = 100 * mean
+        argmin, argmax = np.argmin(mean), np.argmax(mean)
+        top_starting_year_for_positive_trend = self.starting_years[argmin]
+        top_starting_year_for_negative_trend = self.starting_years[argmax]
+        top_percentage_positive_trend = round(100 - percentage[argmin], 0)
+        top_percentage_negative_trend = round(percentage[argmax], 0)
+        title = "Global trend; > 0: {}% in {}; < 0: {}% in {}".format(top_percentage_negative_trend,
+                                                                  top_starting_year_for_positive_trend,
+                                                                  top_percentage_positive_trend,
+                                                                  top_starting_year_for_negative_trend)
+
+        return percentage, title
+
     def visualize_all_mean_and_max_graphs(self):
-        self.visualize_massif_graphs(self.visualize_mean_and_max_graph, use_ordered_massif_names=True)
-        self.plot_name = ' smoothing values temporally with sliding window of size {}' \
-                         'and {} top values taking into account'.format(
-            self.window_size_for_smoothing, self.number_of_top_values)
+        specified_massif_ids = [self.study.study_massif_names.index(massif_name)
+                                for massif_name in
+                                sorted(self.study.study_massif_names, key=lambda s: self.massif_name_to_score[s])]
+        self.visualize_massif_graphs(self.visualize_mean_and_max_graph,
+                                     specified_massif_ids=specified_massif_ids)
+        plot_name = ''
+        if self.window_size_for_smoothing > 1:
+            plot_name += ' smoothing values temporally with sliding window of size {}'.format(
+                self.window_size_for_smoothing)
+        plot_name += '{} top values taken into account for the metric'.format(self.number_of_top_values)
+        self.plot_name = plot_name
         self.show_or_save_to_file()
 
     def visualize_mean_and_max_graph(self, ax, massif_id):
