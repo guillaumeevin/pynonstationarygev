@@ -402,7 +402,7 @@ class StudyVisualizer(object):
 
     def visualize_score_wrt_starting_year(self, ax, massif_name):
         if massif_name is None:
-            percentage, title = self.percentage_of_negative_trends()
+            percentage, title = self.percentages_of_negative_trends()
             scores = percentage
             ax.set_ylabel('% of negative trends')
             # Add two lines of interest
@@ -420,24 +420,27 @@ class StudyVisualizer(object):
         ax.set_title(title)
         ax.xaxis.set_ticks(self.starting_years[2::20])
 
-    def percentage_of_negative_trends(self):
+    def percentages_of_negative_trends(self):
+        print('start computing percentages negative trends')
         # scores = np.median([np.array(v) < 0 for v in self.massif_name_to_scores.values()], axis=0)
+        # Take the mean with respect to the massifs
+        # We obtain an array whose length equal the length of starting years
         scores = np.mean([np.array(v) < 0 for v in self.massif_name_to_scores.values()], axis=0)
-        percentage = 100 * scores
+        percentages = 100 * scores
         # First argmin, first argmax
         argmin, argmax = np.argmin(scores), np.argmax(scores)
         # Last argmin, last argmax
         # argmin, argmax = len(scores) - 1 - np.argmin(scores[::-1]), len(scores) - 1 - np.argmax(scores[::-1])
         top_starting_year_for_positive_trend = self.starting_years[argmin]
         top_starting_year_for_negative_trend = self.starting_years[argmax]
-        top_percentage_positive_trend = round(100 - percentage[argmin], 0)
-        top_percentage_negative_trend = round(percentage[argmax], 0)
+        top_percentage_positive_trend = round(100 - percentages[argmin], 0)
+        top_percentage_negative_trend = round(percentages[argmax], 0)
         title = "Global trend; > 0: {}% in {}; < 0: {}% in {}".format(top_percentage_positive_trend,
                                                                       top_starting_year_for_positive_trend,
                                                                       top_percentage_negative_trend,
                                                                       top_starting_year_for_negative_trend)
 
-        return percentage, title
+        return percentages, title
 
     def visualize_all_mean_and_max_graphs(self):
         specified_massif_ids = [self.study.study_massif_names.index(massif_name)
