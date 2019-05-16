@@ -3,7 +3,7 @@ from typing import Generator, List
 
 import numpy as np
 
-from experiment.meteo_france_SCM_study.abstract_score import WeigthedScore
+from experiment.meteo_france_SCM_study.abstract_score import WeigthedScore, MannKendall
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
     ExtendedCrocusSwe, CrocusDaysWithSnowOnGround
@@ -187,8 +187,8 @@ def maxima_analysis():
                                            temporal_non_stationarity=True,
                                            verbose=True,
                                            multiprocessing=True,
-                                           complete_non_stationary_trend_analysis=True)
-        study_visualizer.score = WeigthedScore
+                                           complete_non_stationary_trend_analysis=True,
+                                           score_class=MannKendall)
         study_visualizer.visualize_all_score_wrt_starting_year()
         # study_visualizer.visualize_all_independent_temporal_trend()
         # study_visualizer.visualize_all_mean_and_max_graphs()
@@ -196,9 +196,8 @@ def maxima_analysis():
 def main_run():
     # normal_visualization(temporal_non_stationarity=True)
     # trend_analysis()
-    all_scores_vizu()
-
-    # maxima_analysis()
+    # all_scores_vizu()
+    maxima_analysis()
     # all_normal_vizu()
 
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2100)

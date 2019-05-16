@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from experiment.meteo_france_SCM_study.abstract_score import MeanScore, WeigthedScore
+from experiment.meteo_france_SCM_study.abstract_score import MeanScore, WeigthedScore, AbstractTrendScore
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.visualization.study_visualization.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
@@ -58,7 +58,8 @@ class StudyVisualizer(object):
                  verbose=False,
                  multiprocessing=False,
                  complete_non_stationary_trend_analysis=False,
-                 normalization_under_one_observations=True):
+                 normalization_under_one_observations=True,
+                 score_class=MeanScore):
 
         self.massif_id_to_smooth_maxima = {}
         self.temporal_non_stationarity = temporal_non_stationarity
@@ -88,7 +89,8 @@ class StudyVisualizer(object):
 
         self.window_size_for_smoothing = 1  # other value could be
         self.number_of_top_values = 10  # 1 if we just want the maxima
-        self.score = WeigthedScore
+        self.score_class = score_class
+        self.score = self.score_class(self.starting_years, self.number_of_top_values) # type: AbstractTrendScore
 
         # PLOT ARGUMENTS
         self.show = False if self.save_to_file else show
@@ -357,13 +359,12 @@ class StudyVisualizer(object):
         massif_name_to_scores = {}
         for massif_id, massif_name in enumerate(self.study.study_massif_names):
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
-            sorted_years, sorted_maxima = zip(*[(i + self.study.start_year_and_stop_year[0], e)
-                                                for i, e in sorted(enumerate(smooth_maxima), key=lambda s: s[1])])
-            sorted_years, sorted_maxima = list(sorted_years), list(sorted_maxima)
             detailed_scores = []
             for j, starting_year in enumerate(self.starting_years):
-                detailed_scores.append(self.score.get_detailed_score(sorted_years, sorted_maxima, self.number_of_top_values))
-                sorted_years.remove(starting_year)
+                detailed_scores.append(self.score.get_detailed_score(years, smooth_maxima))
+                assert years[0] == starting_year, "{} {}".format(years[0], starting_year)
+                years = years[1:]
+                smooth_maxima = smooth_maxima[1:]
             massif_name_to_scores[massif_name] = np.array(detailed_scores)
         return massif_name_to_scores
 
