@@ -8,7 +8,7 @@ from experiment.meteo_france_SCM_study.visualization.studies_visualization.studi
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies_visualizer import StudiesVisualizer, \
     AltitudeVisualizer
 from experiment.meteo_france_SCM_study.visualization.study_visualization.main_study_visualizer import ALL_ALTITUDES, \
-    study_iterator_global
+    study_iterator_global, SCM_STUDIES
 
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
 from collections import OrderedDict
@@ -22,18 +22,20 @@ def normal_visualization():
 
 
 def altitude_trends():
-    save_to_file = False
+    save_to_file = True
     only_first_one = False
     # altitudes that have 20 massifs at least
     altitudes = ALL_ALTITUDES[3:-6]
     # altitudes = ALL_ALTITUDES[:2]
-    visualizers = [StudyVisualizer(study, save_to_file=save_to_file, temporal_non_stationarity=True, verbose=True,
-                                   score_class=MedianScore)
-                   for study in study_iterator_global(study_classes=[SafranSnowfall], only_first_one=only_first_one,
-                                                      altitudes=altitudes)]
-    altitude_to_visualizer = OrderedDict(zip(altitudes, visualizers))
-    visualizer = AltitudeVisualizer(altitude_to_visualizer)
-    visualizer.negative_trend_percentages_evolution()
+    for study_class in SCM_STUDIES[:]:
+        for score_class in [MedianScore, MeanScore, MannKendall, WeigthedScore]:
+            visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=True,
+                                           score_class=score_class)
+                           for study in study_iterator_global(study_classes=[study_class], only_first_one=only_first_one,
+                                                              altitudes=altitudes)]
+            altitude_to_visualizer = OrderedDict(zip(altitudes, visualizers))
+            visualizer = AltitudeVisualizer(altitude_to_visualizer, multiprocessing=False, save_to_file=save_to_file)
+            visualizer.negative_trend_percentages_evolution(reverse=True)
 
 
 if __name__ == '__main__':

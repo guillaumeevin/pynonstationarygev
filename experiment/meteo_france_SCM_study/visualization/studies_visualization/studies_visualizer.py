@@ -1,4 +1,7 @@
 from collections import OrderedDict, Counter
+import os
+import os.path as op
+from multiprocessing.dummy import Pool
 from typing import Dict
 
 import numpy as np
@@ -11,7 +14,7 @@ from experiment.meteo_france_SCM_study.visualization.studies_visualization.studi
     Studies
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
 from experiment.meteo_france_SCM_study.visualization.utils import plot_df
-from utils import cached_property, get_display_name_from_object_type
+from utils import cached_property, get_display_name_from_object_type, VERSION_TIME
 
 
 class StudiesVisualizer(object):
@@ -40,9 +43,16 @@ class StudiesVisualizer(object):
         plot_df(df_mean)
 
 
+def get_percentages(v):
+    return v.percentages_of_negative_trends()[0]
+
+
 class AltitudeVisualizer(object):
 
-    def __init__(self, altitude_to_study_visualizer: Dict[int, StudyVisualizer]):
+    def __init__(self, altitude_to_study_visualizer: Dict[int, StudyVisualizer], multiprocessing=False,
+                 save_to_file=False):
+        self.save_to_file = save_to_file
+        self.multiprocessing = multiprocessing
         assert isinstance(altitude_to_study_visualizer, OrderedDict)
         self.altitude_to_study_visualizer = altitude_to_study_visualizer
 
@@ -52,11 +62,20 @@ class AltitudeVisualizer(object):
 
     @cached_property
     def all_percentages(self):
-        return [v.percentages_of_negative_trends()[0] for v in self.altitude_to_study_visualizer.values()]
+        if self.multiprocessing:
+            with Pool(4) as p:
+                l = p.map(get_percentages, list(self.altitude_to_study_visualizer.values()))
+        else:
+            l = [get_percentages(v) for v in self.altitude_to_study_visualizer.values()]
+        return l
 
     @property
     def any_study_visualizer(self) -> StudyVisualizer:
         return list(self.altitude_to_study_visualizer.values())[0]
+
+    @property
+    def study(self):
+        return self.any_study_visualizer.study
 
     def get_item_fct(self, year):
         idx = self.any_study_visualizer.starting_years.index(year)
@@ -78,12 +97,25 @@ class AltitudeVisualizer(object):
         years = [y + self.starting_year for y in years]
         return years
 
-    def negative_trend_percentages_evolution(self):
+    def show_or_save_to_file(self, specific_title=''):
+        if self.save_to_file:
+            main_title, _ = '_'.join(self.study.title.split()).split('/')
+            filename = "{}/{}/".format(VERSION_TIME, main_title)
+            filename += specific_title
+            filepath = op.join(self.study.result_full_path, filename + '.png')
+            dirname = op.dirname(filepath)
+            if not op.exists(dirname):
+                os.makedirs(dirname, exist_ok=True)
+            plt.savefig(filepath)
+        else:
+            plt.show()
+
+    def negative_trend_percentages_evolution(self, reverse=True):
         curve_name__metric_and_color = [
-            ('max', np.max, 'r'),
+            ('max', np.max, 'g'),
             ('mean', np.mean, 'b'),
             ('median', np.median, 'c'),
-            ('min', np.min, 'g'),
+            ('min', np.min, 'r'),
         ]
         # Add some years
         # spotted_years = [1963, 1976]
@@ -94,10 +126,10 @@ class AltitudeVisualizer(object):
         #     curve_name__metric_and_color.append(new)
 
         for year, marker in zip(self.get_top_potential_years(), str_markers):
-            new = (str(year), self.get_item_fct(year), 'm', marker + ':')
+            new = (str(year), self.get_item_fct(year), 'y', marker + ':')
             curve_name__metric_and_color.append(new)
         for year, marker in zip(self.get_top_potential_years(reverse=True), str_markers):
-            new = (str(year), self.get_item_fct(year), 'y', marker + ':')
+            new = (str(year), self.get_item_fct(year), 'm', marker + ':')
             curve_name__metric_and_color.append(new)
 
         fig, ax = plt.subplots(1, 1, figsize=self.any_study_visualizer.figsize)
@@ -105,6 +137,13 @@ class AltitudeVisualizer(object):
             marker, curve_name = (marker[0], curve_name + ' starting year') if marker \
                 else ('-', curve_name + ' over the starting years')
             values = [metric(p) for p in self.all_percentages]
+            if reverse:
+                values = [100 - v for v in values]
+                k = ['max', 'min']
+                for before, new in zip(k, k[::-1]):
+                    if before in curve_name:
+                        curve_name = curve_name.replace(before, new)
+                        break
             ax.plot(self.altitudes, values, color + marker, label=curve_name)
         ax.legend()
         ax.set_xticks(self.altitudes)
@@ -112,9 +151,11 @@ class AltitudeVisualizer(object):
         ax.grid()
 
         ax.axhline(y=50, color='k')
-        ax.set_ylabel('% of negative trends')
+        word = 'positive' if reverse else 'negative'
+        ax.set_ylabel('% of massifs with {} trends'.format(word))
         ax.set_xlabel('altitude')
-        scoer_class_name = get_display_name_from_object_type(self.any_study_visualizer.score_class)
-        title = 'Distribution of negative trend for the {}'.format(scoer_class_name)
+        variable_name = self.study.variable_class.NAME
+        score_name = get_display_name_from_object_type(self.any_study_visualizer.score_class)
+        title = 'Evolution of {} trends wrt to the altitude with {}'.format(variable_name, score_name)
         ax.set_title(title)
-        plt.show()
+        self.show_or_save_to_file(specific_title=title)
