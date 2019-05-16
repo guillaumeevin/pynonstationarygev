@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+from experiment.meteo_france_SCM_study.abstract_score import MeanScore, WeigthedScore
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.visualization.study_visualization.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
@@ -87,6 +88,7 @@ class StudyVisualizer(object):
 
         self.window_size_for_smoothing = 1  # other value could be
         self.number_of_top_values = 10  # 1 if we just want the maxima
+        self.score = WeigthedScore
 
         # PLOT ARGUMENTS
         self.show = False if self.save_to_file else show
@@ -172,7 +174,8 @@ class StudyVisualizer(object):
             visualize_function(ax, 0)
         else:
             nb_columns = 5
-            nb_rows = 1 if self.only_first_row else math.ceil(len(self.study.study_massif_names) / nb_columns)
+            nb_plots = len(self.study.study_massif_names) if specified_massif_ids is None else len(specified_massif_ids)
+            nb_rows = 1 if self.only_first_row else math.ceil(nb_plots / nb_columns)
             fig, axes = plt.subplots(nb_rows, nb_columns, figsize=self.figsize)
             fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
             if self.only_first_row:
@@ -184,13 +187,17 @@ class StudyVisualizer(object):
                     specified_massif_ids = list(range(len(self.study.study_massif_names)))
                 for j, massif_id in enumerate(specified_massif_ids):
                     row_id, column_id = j // nb_columns, j % nb_columns
-                    ax = axes[row_id, column_id]
+                    if len(specified_massif_ids) < nb_columns:
+                        ax = axes[column_id]
+                    else:
+                        ax = axes[row_id, column_id]
                     visualize_function(ax, massif_id)
 
     # TEMPORAL TREND
 
     def visualize_all_independent_temporal_trend(self):
-        self.visualize_massif_graphs(self.visualize_independent_temporal_trend)
+        massifs_ids = [self.study.study_massif_names.index(name) for name in self.specified_massif_names_median_scores]
+        self.visualize_massif_graphs(self.visualize_independent_temporal_trend, specified_massif_ids=massifs_ids)
         self.plot_name = ' Independent temporal trend \n'
         self.show_or_save_to_file()
 
@@ -324,32 +331,16 @@ class StudyVisualizer(object):
         all_massif_data = np.sort(all_massif_data)
         return all_massif_data
 
-    @cached_property
-    def massif_name_to_score(self, starting_year=1958):
-        # Ordered massif by scores
-        massif_name_to_score = {}
-        for massif_id, massif_name in enumerate(self.study.study_massif_names):
-            years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
-            idx_starting_year = years.index(starting_year)
-            smooth_maxima = smooth_maxima[idx_starting_year:]
-            sorted_indices = [i for i, e in sorted(enumerate(smooth_maxima), key=lambda s: s[1])]
-            mean_max_year = np.mean(sorted_indices[-self.number_of_top_values:]) + starting_year
-            mean_min_years = np.mean(sorted_indices[:self.number_of_top_values]) + starting_year
-            score = mean_max_year - mean_min_years
-            massif_name_to_score[massif_name] = (score, mean_max_year, mean_min_years)
-        return massif_name_to_score
 
-    @cached_property
-    def ordered_massif_names(self):
-        return sorted(self.study.study_massif_names[:], key=lambda s: self.massif_name_to_score[s][0])
 
     @property
     def starting_years(self):
         start_year, stop_year = self.study.start_year_and_stop_year
-        return list(range(start_year, stop_year - 2 * self.number_of_top_values))
+        # return list(range(start_year, stop_year - 2 * self.number_of_top_values))
+        return list(range(start_year, 1991))
 
     @cached_property
-    def massif_name_to_scores(self):
+    def massif_name_to_detailed_scores(self):
         """
         This score respect the following property.
         Between two successive score, then if the starting year was neither a top10 maxima nor a top10 minima,
@@ -366,23 +357,38 @@ class StudyVisualizer(object):
         massif_name_to_scores = {}
         for massif_id, massif_name in enumerate(self.study.study_massif_names):
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
-            sorted_years = [i + self.study.start_year_and_stop_year[0]
-                            for i, e in sorted(enumerate(smooth_maxima), key=lambda s: s[1])]
-            scores = []
+            sorted_years, sorted_maxima = zip(*[(i + self.study.start_year_and_stop_year[0], e)
+                                                for i, e in sorted(enumerate(smooth_maxima), key=lambda s: s[1])])
+            sorted_years, sorted_maxima = list(sorted_years), list(sorted_maxima)
+            detailed_scores = []
             for j, starting_year in enumerate(self.starting_years):
-                mean_max_year = np.mean(sorted_years[-self.number_of_top_values:])
-                mean_min_years = np.mean(sorted_years[:self.number_of_top_values])
-                score = mean_max_year - mean_min_years
-                scores.append(score)
+                detailed_scores.append(self.score.get_detailed_score(sorted_years, sorted_maxima, self.number_of_top_values))
                 sorted_years.remove(starting_year)
-            massif_name_to_scores[massif_name] = scores
+            massif_name_to_scores[massif_name] = np.array(detailed_scores)
         return massif_name_to_scores
 
+    @cached_property
+    def massif_name_to_scores(self):
+        return {k: v[:, 0] for k, v in self.massif_name_to_detailed_scores.items()}
+
+    @cached_property
+    def massif_name_to_first_detailed_score(self):
+        return {k: v[0] for k, v in self.massif_name_to_detailed_scores.items()}
+
+    @cached_property
+    def massif_name_to_first_score(self):
+        return {k: v[0] for k, v in self.massif_name_to_scores.items()}
+
+    @property
+    def specified_massif_names_median_scores(self):
+        return sorted(self.study.study_massif_names, key=lambda s: np.median(self.massif_name_to_scores[s]))
+
+    @property
+    def specified_massif_names_first_score(self):
+        return sorted(self.study.study_massif_names, key=lambda s: self.massif_name_to_scores[s][0])
+
     def visualize_all_score_wrt_starting_year(self):
-        # Build
-        specified_massif_names = sorted(self.study.study_massif_names,
-                                        key=lambda s: np.mean(self.massif_name_to_scores[s]))
-        specified_massif_names = sorted(self.study.study_massif_names, key=lambda s: self.massif_name_to_scores[s][0])
+        specified_massif_names = self.specified_massif_names_median_scores
         # Add one graph at the end
         specified_massif_names += [None]
         self.visualize_massif_graphs(self.visualize_score_wrt_starting_year,
@@ -398,8 +404,15 @@ class StudyVisualizer(object):
             percentage, title = self.percentage_of_negative_trends()
             scores = percentage
             ax.set_ylabel('% of negative trends')
+            # Add two lines of interest
+            years_of_interest = [1963, 1976]
+            colors = ['g', 'r']
+            for year_interest, color in zip(years_of_interest, colors):
+                ax.axvline(x=year_interest, color=color)
+                year_score = scores[self.starting_years.index(year_interest)]
+                ax.axhline(y=year_score, color=color)
         else:
-            ax.set_ylabel('max score - min score ')
+            ax.set_ylabel(get_display_name_from_object_type(self.score))
             scores = self.massif_name_to_scores[massif_name]
             title = massif_name
         ax.plot(self.starting_years, scores)
@@ -407,24 +420,28 @@ class StudyVisualizer(object):
         ax.xaxis.set_ticks(self.starting_years[2::20])
 
     def percentage_of_negative_trends(self):
-        mean = np.mean([np.array(v) < 0 for v in self.massif_name_to_scores.values()], axis=0)
-        percentage = 100 * mean
-        argmin, argmax = np.argmin(mean), np.argmax(mean)
+        # scores = np.median([np.array(v) < 0 for v in self.massif_name_to_scores.values()], axis=0)
+        scores = np.mean([np.array(v) < 0 for v in self.massif_name_to_scores.values()], axis=0)
+        percentage = 100 * scores
+        # First argmin, first argmax
+        argmin, argmax = np.argmin(scores), np.argmax(scores)
+        # Last argmin, last argmax
+        # argmin, argmax = len(scores) - 1 - np.argmin(scores[::-1]), len(scores) - 1 - np.argmax(scores[::-1])
         top_starting_year_for_positive_trend = self.starting_years[argmin]
         top_starting_year_for_negative_trend = self.starting_years[argmax]
         top_percentage_positive_trend = round(100 - percentage[argmin], 0)
         top_percentage_negative_trend = round(percentage[argmax], 0)
-        title = "Global trend; > 0: {}% in {}; < 0: {}% in {}".format(top_percentage_negative_trend,
-                                                                  top_starting_year_for_positive_trend,
-                                                                  top_percentage_positive_trend,
-                                                                  top_starting_year_for_negative_trend)
+        title = "Global trend; > 0: {}% in {}; < 0: {}% in {}".format(top_percentage_positive_trend,
+                                                                      top_starting_year_for_positive_trend,
+                                                                      top_percentage_negative_trend,
+                                                                      top_starting_year_for_negative_trend)
 
         return percentage, title
 
     def visualize_all_mean_and_max_graphs(self):
         specified_massif_ids = [self.study.study_massif_names.index(massif_name)
                                 for massif_name in
-                                sorted(self.study.study_massif_names, key=lambda s: self.massif_name_to_score[s])]
+                                sorted(self.study.study_massif_names, key=lambda s: self.massif_name_to_first_score[s])]
         self.visualize_massif_graphs(self.visualize_mean_and_max_graph,
                                      specified_massif_ids=specified_massif_ids)
         plot_name = ''
@@ -454,7 +471,7 @@ class StudyVisualizer(object):
         ax.set_ylabel('mean'.format(self.window_size_for_smoothing), color=color_mean)
         massif_name = self.study.study_massif_names[massif_id]
         title = massif_name
-        title += ' {}={}-{}'.format(*[round(e, 1) for e in list(self.massif_name_to_score[massif_name])])
+        title += ' {}={}-{}'.format(*[round(e, 1) for e in list(self.massif_name_to_first_detailed_score[massif_name])])
         ax.set_title(title)
         ax.xaxis.set_ticks(x[2::20])
 

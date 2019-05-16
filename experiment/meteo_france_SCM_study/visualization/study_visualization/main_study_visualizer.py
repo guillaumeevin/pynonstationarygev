@@ -1,6 +1,9 @@
 import time
 from typing import Generator, List
 
+import numpy as np
+
+from experiment.meteo_france_SCM_study.abstract_score import WeigthedScore
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
     ExtendedCrocusSwe, CrocusDaysWithSnowOnGround
@@ -18,6 +21,7 @@ SCM_EXTENDED_STUDIES = [ExtendedSafranSnowfall, ExtendedCrocusSwe, ExtendedCrocu
 SCM_STUDY_TO_EXTENDED_STUDY = OrderedDict(zip(SCM_STUDIES, SCM_EXTENDED_STUDIES))
 
 ALL_ALTITUDES = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 4800]
+ALL_ALTITUDES_WITHOUT_NAN = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 4800]
 full_altitude_with_at_least_2_stations = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900,
                                           4200]
 
@@ -117,15 +121,20 @@ def all_normal_vizu():
         study_visualizer.visualize_all_mean_and_max_graphs()
 
 def scores_vizu():
-    for study in study_iterator_global(study_classes=ALL_STUDIES, only_first_one=True, altitudes=[1800]):
-        study_visualizer = StudyVisualizer(study, save_to_file=False, temporal_non_stationarity=True)
+    save_to_file = False
+    only_first_one = True
+    for study in study_iterator_global(study_classes=ALL_STUDIES, only_first_one=only_first_one, altitudes=[1800]):
+        study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, temporal_non_stationarity=True)
         # study_visualizer.visualize_all_score_wrt_starting_year()
         study_visualizer.visualize_all_score_wrt_starting_year()
 
 
 def all_scores_vizu():
-    for study in study_iterator_global(study_classes=[SafranSnowfall], only_first_one=False, altitudes=ALL_ALTITUDES):
-        study_visualizer = StudyVisualizer(study, save_to_file=True, temporal_non_stationarity=True)
+    save_to_file = True
+    only_first_one = False
+    for study in study_iterator_global(study_classes=[SafranSnowfall], only_first_one=only_first_one, altitudes=ALL_ALTITUDES):
+        study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, temporal_non_stationarity=True, verbose=True)
+        # study_visualizer.visualize_all_mean_and_max_graphs()
         study_visualizer.visualize_all_score_wrt_starting_year()
 
 def complete_analysis(only_first_one=False):
@@ -165,9 +174,31 @@ def trend_analysis():
         # study_visualizer.visualize_temporal_trend_relevance()
 
 
+def maxima_analysis():
+    save_to_file = False
+    only_first_one = True
+    durand_altitude = [1800]
+    altitudes = durand_altitude
+    normalization_class = BetweenZeroAndOneNormalization
+    study_classes = [ SafranSnowfall][:]
+    for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):
+        study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
+                                           transformation_class=normalization_class,
+                                           temporal_non_stationarity=True,
+                                           verbose=True,
+                                           multiprocessing=True,
+                                           complete_non_stationary_trend_analysis=True)
+        study_visualizer.score = WeigthedScore
+        study_visualizer.visualize_all_score_wrt_starting_year()
+        # study_visualizer.visualize_all_independent_temporal_trend()
+        # study_visualizer.visualize_all_mean_and_max_graphs()
+
 def main_run():
     # normal_visualization(temporal_non_stationarity=True)
     # trend_analysis()
+    all_scores_vizu()
+
+    # maxima_analysis()
     # all_normal_vizu()
 
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2100)
@@ -176,7 +207,7 @@ def main_run():
     # extended_visualization()
     # complete_analysis()
     # scores_vizu()
-    all_scores_vizu()
+
 
 if __name__ == '__main__':
     start = time.time()
