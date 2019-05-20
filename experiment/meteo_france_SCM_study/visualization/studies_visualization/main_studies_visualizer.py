@@ -1,10 +1,6 @@
-from experiment.meteo_france_SCM_study.abstract_score import MannKendall, WeigthedScore, MeanScore, MedianScore
-from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
-from experiment.meteo_france_SCM_study.abstract_trend_test import MannKendallTrendTest, ExampleRandomTrendTest
-from experiment.meteo_france_SCM_study.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
-    ExtendedCrocusSwe
-from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
-    ExtendedSafranTotalPrecip
+from experiment.trend_analysis.abstract_score import MannKendall, WeigthedScore, MeanScore, MedianScore
+from experiment.trend_analysis.abstract_trend_test import MannKendallTrendTest
+from experiment.meteo_france_SCM_study.safran.safran import ExtendedSafranTotalPrecip
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies import Studies
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies_visualizer import StudiesVisualizer, \
     AltitudeVisualizer

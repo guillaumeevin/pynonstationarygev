@@ -2,7 +2,7 @@ from collections import OrderedDict, Counter
 import os
 import os.path as op
 from multiprocessing.dummy import Pool
-from typing import Dict, List
+from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 from experiment.meteo_france_SCM_study.abstract_extended_study import AbstractExtendedStudy
-from experiment.meteo_france_SCM_study.abstract_trend_test import AbstractTrendTest
+from experiment.trend_analysis.abstract_trend_test import AbstractTrendTest
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies import \
     Studies
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer

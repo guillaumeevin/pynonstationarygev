@@ -1,8 +1,6 @@
 import os
 import os.path as op
 from collections import OrderedDict
-from copy import deepcopy
-from typing import Union
 
 import math
 import matplotlib.pyplot as plt
@@ -10,10 +8,10 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from experiment.meteo_france_SCM_study.abstract_score import MeanScore, WeigthedScore, AbstractTrendScore
+from experiment.trend_analysis.abstract_score import MeanScore, AbstractTrendScore
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
-from experiment.meteo_france_SCM_study.abstract_trend_test import AbstractTrendTest
-from experiment.meteo_france_SCM_study.visualization.study_visualization.non_stationary_trends import \
+from experiment.trend_analysis.abstract_trend_test import AbstractTrendTest
+from experiment.trend_analysis.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
 from experiment.meteo_france_SCM_study.visualization.utils import create_adjusted_axes
 from experiment.utils import average_smoothing_with_sliding_window
@@ -28,7 +26,6 @@ from extreme_estimator.extreme_models.margin_model.param_function.param_function
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
 from extreme_estimator.margin_fits.abstract_params import AbstractParams
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
-from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
 from extreme_estimator.margin_fits.gev.ismev_gev_fit import IsmevGevFit
 from extreme_estimator.margin_fits.gpd.gpd_params import GpdParams
 from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
@@ -38,10 +35,7 @@ from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_sp
     AbstractSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformed_coordinates import TransformedCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
-from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
-    AbstractSpatioTemporalObservations
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 from test.test_utils import load_test_max_stable_models
 from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits, \

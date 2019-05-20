@@ -2,8 +2,8 @@ import random
 
 import numpy as np
 
-from experiment.meteo_france_SCM_study.mann_kendall_test import mann_kendall_test
-from experiment.meteo_france_SCM_study.abstract_score import MannKendall
+from experiment.trend_analysis.mann_kendall_test import mann_kendall_test
+from experiment.trend_analysis.abstract_score import MannKendall
 
 
 class AbstractTrendTest(object):
@@ -95,3 +95,11 @@ class MannKendallTrendTest(AbstractTrendTest):
     def is_significant(self) -> bool:
         assert 'reject' in self.MK or 'accept' in self.MK
         return 'accept' in self.MK
+
+
+class SpearmanRhoTrendTest(AbstractTrendTest):
+    pass
+
+
+class AbstractNonStationaryGevTrendTest(AbstractTrendTest):
+    pass

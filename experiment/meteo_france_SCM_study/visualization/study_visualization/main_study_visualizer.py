@@ -1,9 +1,7 @@
 import time
-from typing import Generator, List
+from typing import List
 
-import numpy as np
-
-from experiment.meteo_france_SCM_study.abstract_score import WeigthedScore, MannKendall
+from experiment.trend_analysis.abstract_score import MannKendall
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_study.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
     ExtendedCrocusSwe, CrocusDaysWithSnowOnGround
