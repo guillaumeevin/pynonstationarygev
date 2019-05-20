@@ -9,9 +9,8 @@ class AbstractTrendScore(object):
     We don't care what happen before the change point.
     All we want to focus on, is the potential trend that could exist in the data after a potential change point"""
 
-    def __init__(self, starting_years, number_of_top_values) -> None:
+    def __init__(self, number_of_top_values) -> None:
         self.number_of_top_values = number_of_top_values
-        self.starting_years = starting_years
 
     def get_detailed_score(self, years_after_change_point, maxima_after_change_point):
         raise NotImplementedError

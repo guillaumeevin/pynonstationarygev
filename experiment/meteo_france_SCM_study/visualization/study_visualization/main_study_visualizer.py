@@ -153,8 +153,8 @@ def complete_analysis(only_first_one=False):
 
 
 def trend_analysis():
-    save_to_file = False
-    only_first_one = True
+    save_to_file = True
+    only_first_one = False
     short_altitudes = [300, 1200, 2100, 3000][:1]
     full_altitude_with_at_least_2_stations = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600,
                                               3900, 4200][:]
@@ -168,10 +168,9 @@ def trend_analysis():
                                            temporal_non_stationarity=True,
                                            verbose=True,
                                            multiprocessing=True,
-                                           complete_non_stationary_trend_analysis=False)
-        # study_visualizer.only_one_graph = True
+                                           complete_non_stationary_trend_analysis=True)
         study_visualizer.visualize_all_independent_temporal_trend()
-        # study_visualizer.visualize_temporal_trend_relevance()
+        study_visualizer.visualize_temporal_trend_relevance()
 
 
 def maxima_analysis():
@@ -195,9 +194,9 @@ def maxima_analysis():
 
 def main_run():
     # normal_visualization(temporal_non_stationarity=True)
-    # trend_analysis()
+    trend_analysis()
     # all_scores_vizu()
-    maxima_analysis()
+    # maxima_analysis()
     # all_normal_vizu()
 
     # annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=2100)

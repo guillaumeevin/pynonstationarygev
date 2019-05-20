@@ -2,7 +2,7 @@ from collections import OrderedDict, Counter
 import os
 import os.path as op
 from multiprocessing.dummy import Pool
-from typing import Dict
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 from experiment.meteo_france_SCM_study.abstract_extended_study import AbstractExtendedStudy
+from experiment.meteo_france_SCM_study.abstract_trend_test import AbstractTrendTest
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies import \
     Studies
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
@@ -54,7 +55,7 @@ class AltitudeVisualizer(object):
         self.save_to_file = save_to_file
         self.multiprocessing = multiprocessing
         assert isinstance(altitude_to_study_visualizer, OrderedDict)
-        self.altitude_to_study_visualizer = altitude_to_study_visualizer
+        self.altitude_to_study_visualizer = altitude_to_study_visualizer  # type: Dict[int, StudyVisualizer]
 
     @property
     def altitudes(self):
@@ -90,10 +91,11 @@ class AltitudeVisualizer(object):
         top_n = 5
         top_top = 3
         # keep the top_n for each altitude
-        all_years = [[year for year, _ in sorted(enumerate(p), key=lambda s:s[1], reverse=reverse)[-top_n:]] for p in self.all_percentages]
+        all_years = [[year for year, _ in sorted(enumerate(p), key=lambda s: s[1], reverse=reverse)[-top_n:]] for p in
+                     self.all_percentages]
         from itertools import chain
         all_years = list(chain(*all_years))
-        years = [y for y, _ in sorted(Counter(all_years).items(), key=lambda s:s[1])[-top_top:]]
+        years = [y for y, _ in sorted(Counter(all_years).items(), key=lambda s: s[1])[-top_top:]]
         years = [y + self.starting_year for y in years]
         return years
 
@@ -147,7 +149,7 @@ class AltitudeVisualizer(object):
             ax.plot(self.altitudes, values, color + marker, label=curve_name)
         ax.legend()
         ax.set_xticks(self.altitudes)
-        ax.set_yticks(list(range(0,101, 10)))
+        ax.set_yticks(list(range(0, 101, 10)))
         ax.grid()
 
         ax.axhline(y=50, color='k')
@@ -159,3 +161,69 @@ class AltitudeVisualizer(object):
         title = 'Evolution of {} trends wrt to the altitude with {}'.format(variable_name, score_name)
         ax.set_title(title)
         self.show_or_save_to_file(specific_title=title)
+
+    # Trend tests evolution
+
+    def trend_tests_percentage_evolution(self, trend_test_classes, starting_year_to_weights: None):
+        # Load uniform weights by default
+        if starting_year_to_weights is None:
+            startings_years = self.any_study_visualizer.starting_years
+            uniform_weight = 1 / len(startings_years)
+            starting_year_to_weights = {year: uniform_weight for year in startings_years}
+        else:
+            uniform_weight = 0.0
+
+        fig, ax = plt.subplots(1, 1, figsize=self.any_study_visualizer.figsize)
+
+        # Create one display for each trend test class
+        markers = ['o', '+']
+        assert len(markers) >= len(trend_test_classes)
+        # Add a second legend for the color and to explain the line
+
+        for marker, trend_test_class in zip(markers, trend_test_classes):
+            self.trend_test_percentages_evolution(ax, marker, trend_test_class, starting_year_to_weights)
+
+        # Add the color legend
+        handles, labels = ax.get_legend_handles_labels()
+        handles_ax, labels_ax = handles[:5], labels[:5]
+        ax.legend(handles_ax, labels_ax, markerscale=0.0, loc=1)
+        ax.set_xticks(self.altitudes)
+        ax.set_yticks(list(range(0, 101, 10)))
+        ax.grid()
+
+        # Add the marker legend
+        names = [get_display_name_from_object_type(c) for c in trend_test_classes]
+        handles_ax2, labels_ax2 = handles[::5], names
+        ax2 = ax.twinx()
+        ax2.legend(handles_ax2, labels_ax2, loc=2)
+        ax2.set_yticks([])
+
+        # Global information
+        added_str = ''if uniform_weight > 0.0 else 'weighted '
+        ylabel = '% averaged on massifs & {}averaged on starting years'.format(added_str)
+        ylabel += ' (with uniform weights)'
+        ax.set_ylabel(ylabel)
+        ax.set_xlabel('altitude')
+        variable_name = self.study.variable_class.NAME
+        title = 'Evolution of {} trends (significative or not) wrt to the altitude with {}'.format(variable_name, ', '.join(names))
+        ax.set_title(title)
+        self.show_or_save_to_file(specific_title=title)
+
+    def trend_test_percentages_evolution(self, ax, marker, trend_test_class, starting_year_to_weights):
+        """
+        Positive trend in green
+        Negative trend in red
+        Non significative trend with dotted line
+        Significative trend with real line
+
+        :return:
+        """
+        # Build OrderedDict mapping altitude to a mean serie
+        altitude_to_serie_with_mean_percentages = OrderedDict()
+        for altitude, study_visualizer in self.altitude_to_study_visualizer.items():
+            s = study_visualizer.serie_mean_trend_test_count(trend_test_class, starting_year_to_weights)
+            altitude_to_serie_with_mean_percentages[altitude] = s
+        # Plot lines
+        for trend_type, style in AbstractTrendTest.TREND_TYPE_TO_STYLE.items():
+            percentages = [v.loc[trend_type] for v in altitude_to_serie_with_mean_percentages.values()]
+            ax.plot(self.altitudes, percentages, style + marker, label=trend_type)

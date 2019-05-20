@@ -12,6 +12,7 @@ import seaborn as sns
 
 from experiment.meteo_france_SCM_study.abstract_score import MeanScore, WeigthedScore, AbstractTrendScore
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
+from experiment.meteo_france_SCM_study.abstract_trend_test import AbstractTrendTest
 from experiment.meteo_france_SCM_study.visualization.study_visualization.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
 from experiment.meteo_france_SCM_study.visualization.utils import create_adjusted_axes
@@ -90,7 +91,7 @@ class StudyVisualizer(object):
         self.window_size_for_smoothing = 1  # other value could be
         self.number_of_top_values = 10  # 1 if we just want the maxima
         self.score_class = score_class
-        self.score = self.score_class(self.starting_years, self.number_of_top_values) # type: AbstractTrendScore
+        self.score = self.score_class(self.number_of_top_values)  # type: AbstractTrendScore
 
         # PLOT ARGUMENTS
         self.show = False if self.save_to_file else show
@@ -333,8 +334,6 @@ class StudyVisualizer(object):
         all_massif_data = np.sort(all_massif_data)
         return all_massif_data
 
-
-
     @property
     def starting_years(self):
         start_year, stop_year = self.study.start_year_and_stop_year
@@ -363,10 +362,33 @@ class StudyVisualizer(object):
             for j, starting_year in enumerate(self.starting_years):
                 detailed_scores.append(self.score.get_detailed_score(years, smooth_maxima))
                 assert years[0] == starting_year, "{} {}".format(years[0], starting_year)
+                # Remove the first element from the list
                 years = years[1:]
                 smooth_maxima = smooth_maxima[1:]
             massif_name_to_scores[massif_name] = np.array(detailed_scores)
         return massif_name_to_scores
+
+    def massif_name_to_trend_test_count(self, trend_test_class, starting_year_to_weight):
+        massif_name_to_serie_percentages = {}
+        for massif_id, massif_name in enumerate(self.study.study_massif_names):
+            trend_type_and_weight = []
+            years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
+            for starting_year, weight in starting_year_to_weight.items():
+                idx = years.index(starting_year)
+                years, smooth_maxima = years[idx:], smooth_maxima[idx:]
+                assert years[0] == starting_year, "{} {}".format(years[0], starting_year)
+                trend_test = trend_test_class(years, smooth_maxima) # type: AbstractTrendTest
+                trend_type_and_weight.append((trend_test.test_trend_type, weight))
+            df = pd.DataFrame(trend_type_and_weight, columns=['trend type', 'weight'])
+            serie = df.groupby(['trend type']).sum()
+            massif_name_to_serie_percentages[massif_name] = serie * 100
+        return massif_name_to_serie_percentages
+
+    def serie_mean_trend_test_count(self, trend_test_class, starting_year_to_weight):
+        massif_name_to_trend_test_count = self.massif_name_to_trend_test_count(trend_test_class, starting_year_to_weight)
+        df = pd.concat(list(massif_name_to_trend_test_count.values()), axis=1, sort=False)
+        df.fillna(0.0, inplace=True)
+        return df.mean(axis=1)
 
     @cached_property
     def massif_name_to_scores(self):
