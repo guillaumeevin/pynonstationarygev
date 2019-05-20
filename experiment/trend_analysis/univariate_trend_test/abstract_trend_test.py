@@ -1,4 +1,5 @@
 import random
+from collections import OrderedDict
 
 import numpy as np
 
@@ -17,16 +18,15 @@ class AbstractTrendTest(object):
 
     SIGNIFICANCE_LEVEL = 0.05
 
-    # todo: maybe create ordered dict
-    TREND_TYPE_TO_STYLE = {
-        NO_TREND: 'k--',
-        POSITIVE_TREND: 'g--',
-        SIGNIFICATIVE_POSITIVE_TREND: 'g-',
-        SIGNIFICATIVE_NEGATIVE_TREND: 'r-',
-        NEGATIVE_TREND: 'r--',
-    }
-
-    TREND_TYPES = list(TREND_TYPE_TO_STYLE.keys())
+    @classmethod
+    def trend_type_to_style(cls):
+        d = OrderedDict()
+        d[cls.POSITIVE_TREND] = 'g--'
+        d[cls.NEGATIVE_TREND] = 'r--'
+        d[cls.SIGNIFICATIVE_POSITIVE_TREND] = 'g-'
+        d[cls.SIGNIFICATIVE_NEGATIVE_TREND] = 'r-'
+        d[cls.NO_TREND] = 'k--'
+        return d
 
     def __init__(self, years_after_change_point, maxima_after_change_point):
         self.years_after_change_point = years_after_change_point
@@ -47,7 +47,7 @@ class AbstractTrendTest(object):
             trend_type = self.POSITIVE_TREND if test_sign > 0 else self.NEGATIVE_TREND
             if self.is_significant:
                 trend_type = self.SIGNIFICATIVE + ' ' + trend_type
-        assert trend_type in self.TREND_TYPE_TO_STYLE
+        assert trend_type in self.trend_type_to_style()
         return trend_type
 
     @property

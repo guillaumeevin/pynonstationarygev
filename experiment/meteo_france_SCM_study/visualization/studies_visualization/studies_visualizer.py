@@ -176,7 +176,7 @@ class AltitudeVisualizer(object):
         fig, ax = plt.subplots(1, 1, figsize=self.any_study_visualizer.figsize)
 
         # Create one display for each trend test class
-        markers = ['o', '+']
+        markers = ['o', '*', 's', 'D']
         assert len(markers) >= len(trend_test_classes)
         # Add a second legend for the color and to explain the line
 
@@ -185,7 +185,8 @@ class AltitudeVisualizer(object):
 
         # Add the color legend
         handles, labels = ax.get_legend_handles_labels()
-        handles_ax, labels_ax = handles[:5], labels[:5]
+        nb_trend_types = len(AbstractTrendTest.trend_type_to_style())
+        handles_ax, labels_ax = handles[:nb_trend_types], labels[:nb_trend_types]
         ax.legend(handles_ax, labels_ax, markerscale=0.0, loc=1)
         ax.set_xticks(self.altitudes)
         ax.set_yticks(list(range(0, 101, 10)))
@@ -193,7 +194,7 @@ class AltitudeVisualizer(object):
 
         # Add the marker legend
         names = [get_display_name_from_object_type(c) for c in trend_test_classes]
-        handles_ax2, labels_ax2 = handles[::5], names
+        handles_ax2, labels_ax2 = handles[::nb_trend_types], names
         ax2 = ax.twinx()
         ax2.legend(handles_ax2, labels_ax2, loc=2)
         ax2.set_yticks([])
@@ -224,7 +225,7 @@ class AltitudeVisualizer(object):
             s = study_visualizer.serie_mean_trend_test_count(trend_test_class, starting_year_to_weights)
             altitude_to_serie_with_mean_percentages[altitude] = s
         # Plot lines
-        for trend_type, style in AbstractTrendTest.TREND_TYPE_TO_STYLE.items():
+        for trend_type, style in AbstractTrendTest.trend_type_to_style().items():
             percentages = [v.loc[trend_type] if trend_type in v.index else 0.0
                            for v in altitude_to_serie_with_mean_percentages.values()]
             if set(percentages) == {0.0}:

@@ -44,9 +44,9 @@ def altitude_trends_significant():
     # altitudes that have 20 massifs at least
     altitudes = ALL_ALTITUDES[3:-6]
     # altitudes = ALL_ALTITUDES[3:5]
-    # altitudes = ALL_ALTITUDES[2:4]
+    altitudes = ALL_ALTITUDES[2:4]
     for study_class in SCM_STUDIES[:1]:
-        trend_test_classes = [MannKendallTrendTest, GevLocationTrendTest, GevScaleTrendTest, GevShapeTrendTest][2:]
+        trend_test_classes = [MannKendallTrendTest, GevLocationTrendTest, GevScaleTrendTest, GevShapeTrendTest][3:]
         visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False)
                        for study in study_iterator_global(study_classes=[study_class], only_first_one=only_first_one,
                                                           altitudes=altitudes)]

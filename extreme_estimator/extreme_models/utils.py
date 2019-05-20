@@ -59,6 +59,9 @@ class OptimizationConstants(object):
 
     USE_MAXIT = False
 
+class SafeRunException(Exception):
+    pass
+
 
 def safe_run_r_estimator(function, data=None, use_start=False, threshold_max_abs_value=100, maxit=1000000,
                          **parameters) -> robjects.ListVector:
@@ -96,7 +99,7 @@ def safe_run_r_estimator(function, data=None, use_start=False, threshold_max_abs
                     use_start = True
                     continue
                 elif isinstance(e, RRuntimeError):
-                    raise Exception('Some R exception have been launched at RunTime: \n {}'.format(e.__repr__()))
+                    raise SafeRunException('Some R exception have been launched at RunTime: \n {}'.format(e.__repr__()))
                 if isinstance(e, RRuntimeWarning):
                     warnings.warn(e.__repr__(), WarningWhileRunningR)
     return res
