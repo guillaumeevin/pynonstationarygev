@@ -162,6 +162,21 @@ class AltitudeVisualizer(object):
         ax.set_title(title)
         self.show_or_save_to_file(specific_title=title)
 
+    """
+    Trends tests
+    
+    In all the cases, I use all the massifs and I use all the altitude
+    
+    The only thing that can change, is that I use a different starting year distribution 
+    (specified with starting_year_to_weights) dict
+    """
+
+    # Trend tests repartition
+
+    def trend_tests_percentage_repartition_spatially(self, trend_test_classes, starting_year_to_weights: None):
+        pass
+
+
     # Trend tests evolution
 
     def trend_tests_percentage_evolution_with_altitude(self, trend_test_classes, starting_year_to_weights: None):
@@ -179,17 +194,17 @@ class AltitudeVisualizer(object):
         fig, ax = plt.subplots(1, 1, figsize=self.any_study_visualizer.figsize)
 
         # Create one display for each trend test class
-        markers = ['o', '*', 's', 'D']
+        markers = ['o', 's', 'D', '*']
         assert len(markers) >= len(trend_test_classes)
         # Add a second legend for the color and to explain the line
-
         for marker, trend_test_class in zip(markers, trend_test_classes):
-            self.trend_test_weighted_percentages(ax, marker, trend_test_class, starting_year_to_weights)
+            self.trend_test_class_weighted_percentages(ax, marker, trend_test_class, starting_year_to_weights)
 
         # Add the color legend
         handles, labels = ax.get_legend_handles_labels()
-        nb_trend_types = len(AbstractTrendTest.trend_type_to_style())
-        handles_ax, labels_ax = handles[:nb_trend_types], labels[:nb_trend_types]
+        unique_labels = set(labels)
+        idx_labels = sorted([labels.index(label) for label in unique_labels])
+        handles_ax, labels_ax = [handles[i] for i in idx_labels], [labels[i] for i in idx_labels]
         ax.legend(handles_ax, labels_ax, markerscale=0.0, loc=1)
         ax.set_xticks(self.altitudes)
         ax.set_yticks(list(range(0, 101, 10)))
@@ -197,9 +212,8 @@ class AltitudeVisualizer(object):
 
         # Add the marker legend
         names = [get_display_name_from_object_type(c) for c in trend_test_classes]
-        handles_ax2, labels_ax2 = handles[::nb_trend_types], names
-        for handle in handles_ax2:
-            handle.set_color('k')
+        idx_for_positive_trend = [i for i, label in enumerate(labels) if label == AbstractTrendTest.POSITIVE_TREND]
+        handles_ax2, labels_ax2 = [handles[i] for i in idx_for_positive_trend], names
         ax2 = ax.twinx()
         ax2.legend(handles_ax2, labels_ax2, loc=2)
         ax2.set_yticks([])
@@ -215,7 +229,7 @@ class AltitudeVisualizer(object):
         ax.set_title(title)
         self.show_or_save_to_file(specific_title=title)
 
-    def trend_test_weighted_percentages(self, ax, marker, trend_test_class, starting_year_to_weights):
+    def trend_test_class_weighted_percentages(self, ax, marker, trend_test_class, starting_year_to_weights):
         # Build OrderedDict mapping altitude to a mean serie
         altitude_to_serie_with_mean_percentages = OrderedDict()
         for altitude, study_visualizer in self.altitude_to_study_visualizer.items():
@@ -229,4 +243,7 @@ class AltitudeVisualizer(object):
             if set(weighted_percentages) == {0.0}:
                 ax.plot([], [], style + marker, label=trend_type)
             else:
-                ax.plot(self.altitudes, weighted_percentages, style + marker, label=trend_type)
+                ax.plot(self.altitudes, weighted_percentages, style + marker, label=trend_type
+                        )
+        # todo: If  I wanted I could display here with a degradé, all the year composing the keys of starting_year_to_weights dictionary
+        # maybe I could do that only when the dictionary is small for instance
