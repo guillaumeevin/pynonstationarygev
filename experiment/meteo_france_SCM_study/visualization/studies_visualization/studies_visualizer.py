@@ -164,12 +164,15 @@ class AltitudeVisualizer(object):
 
     # Trend tests evolution
 
-    def trend_tests_percentage_evolution(self, trend_test_classes, starting_year_to_weights: None):
+    def trend_tests_percentage_evolution_with_altitude(self, trend_test_classes, starting_year_to_weights: None):
         # Load uniform weights by default
         if starting_year_to_weights is None:
             startings_years = self.any_study_visualizer.starting_years
             uniform_weight = 1 / len(startings_years)
             starting_year_to_weights = {year: uniform_weight for year in startings_years}
+
+            # To get a single year, I could do:
+            # starting_year_to_weights = {1980: 1.0}
         else:
             uniform_weight = 0.0
 
@@ -181,7 +184,7 @@ class AltitudeVisualizer(object):
         # Add a second legend for the color and to explain the line
 
         for marker, trend_test_class in zip(markers, trend_test_classes):
-            self.trend_test_percentages_evolution(ax, marker, trend_test_class, starting_year_to_weights)
+            self.trend_test_weighted_percentages(ax, marker, trend_test_class, starting_year_to_weights)
 
         # Add the color legend
         handles, labels = ax.get_legend_handles_labels()
@@ -195,6 +198,8 @@ class AltitudeVisualizer(object):
         # Add the marker legend
         names = [get_display_name_from_object_type(c) for c in trend_test_classes]
         handles_ax2, labels_ax2 = handles[::nb_trend_types], names
+        for handle in handles_ax2:
+            handle.set_color('k')
         ax2 = ax.twinx()
         ax2.legend(handles_ax2, labels_ax2, loc=2)
         ax2.set_yticks([])
@@ -210,25 +215,18 @@ class AltitudeVisualizer(object):
         ax.set_title(title)
         self.show_or_save_to_file(specific_title=title)
 
-    def trend_test_percentages_evolution(self, ax, marker, trend_test_class, starting_year_to_weights):
-        """
-        Positive trend in green
-        Negative trend in red
-        Non significative trend with dotted line
-        Significative trend with real line
-
-        :return:
-        """
+    def trend_test_weighted_percentages(self, ax, marker, trend_test_class, starting_year_to_weights):
         # Build OrderedDict mapping altitude to a mean serie
         altitude_to_serie_with_mean_percentages = OrderedDict()
         for altitude, study_visualizer in self.altitude_to_study_visualizer.items():
-            s = study_visualizer.serie_mean_trend_test_count(trend_test_class, starting_year_to_weights)
+            s = study_visualizer.df_trend_test_count(trend_test_class, starting_year_to_weights).mean(axis=1)
             altitude_to_serie_with_mean_percentages[altitude] = s
-        # Plot lines
-        for trend_type, style in AbstractTrendTest.trend_type_to_style().items():
-            percentages = [v.loc[trend_type] if trend_type in v.index else 0.0
+        # Plot weighted percentages over the years
+        for trend_type, style in trend_test_class.trend_type_to_style().items():
+
+            weighted_percentages = [v.loc[trend_type] if trend_type in v.index else 0.0
                            for v in altitude_to_serie_with_mean_percentages.values()]
-            if set(percentages) == {0.0}:
-                continue
+            if set(weighted_percentages) == {0.0}:
+                ax.plot([], [], style + marker, label=trend_type)
             else:
-                ax.plot(self.altitudes, percentages, style + marker, label=trend_type)
+                ax.plot(self.altitudes, weighted_percentages, style + marker, label=trend_type)

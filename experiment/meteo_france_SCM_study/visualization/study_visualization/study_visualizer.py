@@ -362,34 +362,46 @@ class StudyVisualizer(object):
             massif_name_to_scores[massif_name] = np.array(detailed_scores)
         return massif_name_to_scores
 
-    def massif_name_to_trend_test_count(self, trend_test_class, starting_year_to_weight):
-        massif_name_to_serie_percentages = {}
+    def massif_name_to_df_trend_type(self, trend_test_class, starting_year_to_weight):
+        """
+        Create a DataFrame with massif as index
+        :param trend_test_class:
+        :param starting_year_to_weight:
+        :return:
+        """
+        massif_name_to_df_trend_type = {}
         for massif_id, massif_name in enumerate(self.study.study_massif_names):
             trend_type_and_weight = []
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
             for starting_year, weight in starting_year_to_weight.items():
                 idx = years.index(starting_year)
-                years, smooth_maxima = years[idx:], smooth_maxima[idx:]
-                assert years[0] == starting_year, "{} {}".format(years[0], starting_year)
-                trend_test = trend_test_class(years, smooth_maxima) # type: AbstractTrendTest
+                # assert years[0] == starting_year, "{} {}".format(years[0], starting_year)
+                trend_test = trend_test_class(years[:][idx:], smooth_maxima[:][idx:])  # type: AbstractTrendTest
                 trend_type_and_weight.append((trend_test.test_trend_type, weight))
             df = pd.DataFrame(trend_type_and_weight, columns=['trend type', 'weight'])
-            serie = df.groupby(['trend type']).sum()
-            massif_name_to_serie_percentages[massif_name] = serie * 100
-        return massif_name_to_serie_percentages
+            massif_name_to_df_trend_type[massif_name] = df
+        return massif_name_to_df_trend_type
 
-    def serie_mean_trend_test_count(self, trend_test_class, starting_year_to_weight):
-        massif_name_to_trend_test_count = self.massif_name_to_trend_test_count(trend_test_class, starting_year_to_weight)
-        df = pd.concat(list(massif_name_to_trend_test_count.values()), axis=1, sort=False)
+    def df_trend_test_count(self, trend_test_class, starting_year_to_weight):
+        """
+        Index are the trend type
+        Columns are the massif
+
+        :param starting_year_to_weight:
+        :param trend_test_class:
+        :return:
+        """
+        massif_name_to_df_trend_type = self.massif_name_to_df_trend_type(trend_test_class, starting_year_to_weight)
+        df = pd.concat([100 * v.groupby(['trend type']).sum()
+                        for v in massif_name_to_df_trend_type.values()], axis=1, sort=False)
         df.fillna(0.0, inplace=True)
-        s = df.mean(axis=1)
-        assert np.allclose(df.sum(), 100)
+        assert np.allclose(df.sum(axis=0), 100)
         # Add the significant trend into the count of normal trend
-        if AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND in s.index:
-            s[AbstractTrendTest.POSITIVE_TREND] += s[AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND]
-        if AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND in s.index:
-            s[AbstractTrendTest.NEGATIVE_TREND] += s[AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND]
-        return s
+        if AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND in df.index:
+            df.loc[AbstractTrendTest.POSITIVE_TREND] += df.loc[AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND]
+        if AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND in df.index:
+            df.loc[AbstractTrendTest.NEGATIVE_TREND] += df.loc[AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND]
+        return df
 
     @cached_property
     def massif_name_to_scores(self):

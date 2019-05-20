@@ -46,13 +46,13 @@ def altitude_trends_significant():
     # altitudes = ALL_ALTITUDES[3:5]
     altitudes = ALL_ALTITUDES[2:4]
     for study_class in SCM_STUDIES[:1]:
-        trend_test_classes = [MannKendallTrendTest, GevLocationTrendTest, GevScaleTrendTest, GevShapeTrendTest][3:]
+        trend_test_classes = [MannKendallTrendTest, GevLocationTrendTest, GevScaleTrendTest, GevShapeTrendTest][:1]
         visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False)
                        for study in study_iterator_global(study_classes=[study_class], only_first_one=only_first_one,
                                                           altitudes=altitudes)]
         altitude_to_visualizer = OrderedDict(zip(altitudes, visualizers))
         visualizer = AltitudeVisualizer(altitude_to_visualizer, multiprocessing=False, save_to_file=save_to_file)
-        visualizer.trend_tests_percentage_evolution(trend_test_classes, starting_year_to_weights=None)
+        visualizer.trend_tests_percentage_evolution_with_altitude(trend_test_classes, starting_year_to_weights=None)
 
 
 if __name__ == '__main__':
