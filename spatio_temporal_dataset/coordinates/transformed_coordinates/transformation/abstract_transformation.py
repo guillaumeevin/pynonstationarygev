@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import Normalizer
+from sklearn.preprocessing import Normalizer, StandardScaler
 
 
 class AbstractTransformation(object):
@@ -37,9 +37,9 @@ class CenteredScaledNormalization(AbstractTransformation):
     def __init__(self, df_coordinates):
         super().__init__(df_coordinates)
         assert self.nb_dimensions == 1
-        self.transformer = Normalizer().fit(df_coordinates.transpose().values.reshape(-1, 1))
+        self.scaler = StandardScaler().fit(df_coordinates.transpose().values.reshape(-1, 1))
 
     def transform_array(self, coordinate: np.ndarray):
-        return self.transformer.transform(np.array([coordinate]))[0]
+        return self.scaler.transform(np.array([coordinate]))[0]
 
 
