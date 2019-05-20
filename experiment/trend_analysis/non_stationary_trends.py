@@ -16,7 +16,7 @@ from extreme_estimator.extreme_models.margin_model.linear_margin_model import \
     LinearStationaryMarginModel, LinearNonStationaryLocationMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import StationaryStationModel, \
-    NonStationaryStationModel
+    NonStationaryLocationStationModel
 from extreme_estimator.extreme_models.utils import OptimizationConstants
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from utils import get_display_name_from_object_type
@@ -183,7 +183,7 @@ class IndependenceLocationTrendTest(AbstractNonStationaryTrendTest):
         super().__init__(*args, **kwargs,
                          estimator_class=LinearMarginEstimator,
                          stationary_margin_model_class=StationaryStationModel,
-                         non_stationary_margin_model_class=NonStationaryStationModel)
+                         non_stationary_margin_model_class=NonStationaryLocationStationModel)
         self.station_name = station_name
 
     @property

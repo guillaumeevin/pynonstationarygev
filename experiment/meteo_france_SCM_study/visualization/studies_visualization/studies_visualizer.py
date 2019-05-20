@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 from experiment.meteo_france_SCM_study.abstract_extended_study import AbstractExtendedStudy
-from experiment.trend_analysis.abstract_trend_test import AbstractTrendTest
+from experiment.trend_analysis.univariate_trend_test.abstract_trend_test import AbstractTrendTest
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies import \
     Studies
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer

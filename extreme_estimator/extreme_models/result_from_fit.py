@@ -46,12 +46,13 @@ class ResultFromFit(object):
 
 class ResultFromIsmev(ResultFromFit):
 
-    def __init__(self, result_from_fit: robjects.ListVector, gev_param_name_to_dim) -> None:
+    def __init__(self, result_from_fit: robjects.ListVector, gev_param_name_to_dim=None) -> None:
         super().__init__(result_from_fit)
         self.gev_param_name_to_dim = gev_param_name_to_dim
 
     @property
     def margin_coef_dict(self):
+        assert self.gev_param_name_to_dim is not None
         # Build the Coeff dict from gev_param_name_to_dim
         coef_dict = {}
         i = 0

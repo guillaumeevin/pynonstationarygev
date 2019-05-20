@@ -1,5 +1,6 @@
 from experiment.trend_analysis.abstract_score import MannKendall, WeigthedScore, MeanScore, MedianScore
-from experiment.trend_analysis.abstract_trend_test import MannKendallTrendTest
+from experiment.trend_analysis.univariate_trend_test.abstract_gev_trend_test import GevLocationTrendTest
+from experiment.trend_analysis.univariate_trend_test.abstract_trend_test import MannKendallTrendTest
 from experiment.meteo_france_SCM_study.safran.safran import ExtendedSafranTotalPrecip
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies import Studies
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies_visualizer import StudiesVisualizer, \
@@ -42,9 +43,9 @@ def altitude_trends_significant():
     # altitudes that have 20 massifs at least
     altitudes = ALL_ALTITUDES[3:-6]
     # altitudes = ALL_ALTITUDES[3:5]
-    # altitudes = ALL_ALTITUDES[:2]
+    # altitudes = ALL_ALTITUDES[2:4]
     for study_class in SCM_STUDIES[:1]:
-        trend_test_classes = [MannKendallTrendTest][:]
+        trend_test_classes = [MannKendallTrendTest, GevLocationTrendTest][1:]
         visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False)
                        for study in study_iterator_global(study_classes=[study_class], only_first_one=only_first_one,
                                                           altitudes=altitudes)]

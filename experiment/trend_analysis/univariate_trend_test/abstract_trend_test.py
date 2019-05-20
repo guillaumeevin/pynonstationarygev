@@ -99,7 +99,3 @@ class MannKendallTrendTest(AbstractTrendTest):
 
 class SpearmanRhoTrendTest(AbstractTrendTest):
     pass
-
-
-class AbstractNonStationaryGevTrendTest(AbstractTrendTest):
-    pass

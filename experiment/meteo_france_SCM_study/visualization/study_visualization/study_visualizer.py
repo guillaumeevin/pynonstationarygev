@@ -10,7 +10,7 @@ import seaborn as sns
 
 from experiment.trend_analysis.abstract_score import MeanScore, AbstractTrendScore
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
-from experiment.trend_analysis.abstract_trend_test import AbstractTrendTest
+from experiment.trend_analysis.univariate_trend_test.abstract_trend_test import AbstractTrendTest
 from experiment.trend_analysis.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
 from experiment.meteo_france_SCM_study.visualization.utils import create_adjusted_axes
@@ -382,14 +382,14 @@ class StudyVisualizer(object):
         massif_name_to_trend_test_count = self.massif_name_to_trend_test_count(trend_test_class, starting_year_to_weight)
         df = pd.concat(list(massif_name_to_trend_test_count.values()), axis=1, sort=False)
         df.fillna(0.0, inplace=True)
-        df = df.mean(axis=1)
+        s = df.mean(axis=1)
         assert np.allclose(df.sum(), 100)
         # Add the significant trend into the count of normal trend
-        if AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND in df.columns:
-            df[AbstractTrendTest.POSITIVE_TREND] += df[AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND]
-        if AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND in df.columns:
-            df[AbstractTrendTest.NEGATIVE_TREND] += df[AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND]
-        return df
+        if AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND in s.index:
+            s[AbstractTrendTest.POSITIVE_TREND] += s[AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND]
+        if AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND in s.index:
+            s[AbstractTrendTest.NEGATIVE_TREND] += s[AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND]
+        return s
 
     @cached_property
     def massif_name_to_scores(self):

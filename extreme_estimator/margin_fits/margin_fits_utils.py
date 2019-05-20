@@ -1,7 +1,8 @@
 import numpy as np
 import rpy2.robjects as ro
 
-from extreme_estimator.extreme_models.utils import r, get_null
+from extreme_estimator.extreme_models.result_from_fit import ResultFromIsmev
+from extreme_estimator.extreme_models.utils import r, get_null, safe_run_r_estimator
 
 """
 These two functions are “extremely light” functions to fit the GEV/GPD. These functions are mainlyuseful 
@@ -29,6 +30,13 @@ IsMev fit functions
 
 
 def ismev_gev_fit(x_gev, y, mul):
+    """
+    For non-stationary fitting it is recommended that the covariates within the generalized linear models are
+    (at least approximately) centered and scaled (i.e.the columns of ydat should be approximately centered and scaled).
+    """
+    # print('Mean x={}, variance x={}'.format(np.mean(x_gev), np.var(x_gev)))
+    # print('Mean y={}, variance y={}'.format(np.mean(y), np.var(y)))
+
     xdat = ro.FloatVector(x_gev)
     gev_fit = r('gev.fit')
     y = y if y is not None else get_null()

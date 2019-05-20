@@ -1,27 +1,14 @@
-import random
 import unittest
 
 import numpy as np
-import pandas as pd
 
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
-from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel, \
     LinearStationaryMarginModel
-from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import StationaryStationModel, \
-    NonStationaryStationModel
-from extreme_estimator.extreme_models.utils import r, set_seed_r, set_seed_for_test
-from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
-from extreme_estimator.margin_fits.gev.ismev_gev_fit import IsmevGevFit
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
-    AbstractTemporalCoordinates
-from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
-from spatio_temporal_dataset.dataset.simulation_dataset import MarginDataset, FullSimulatedDataset
-from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
-    AbstractSpatioTemporalObservations
-from test.test_utils import load_test_spatiotemporal_coordinates, load_smooth_margin_models, load_test_max_stable_models
+from extreme_estimator.extreme_models.utils import set_seed_for_test
+from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
+from test.test_utils import load_test_spatiotemporal_coordinates, load_test_max_stable_models
 
 
 class TestMaxStableTemporal(unittest.TestCase):

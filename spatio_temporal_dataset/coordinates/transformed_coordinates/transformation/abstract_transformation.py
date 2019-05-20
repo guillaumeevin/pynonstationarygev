@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import Normalizer
 
 
 class AbstractTransformation(object):
@@ -29,3 +30,16 @@ class IdentityTransformation(AbstractTransformation):
     def transform_array(self, coordinate: np.ndarray):
         super().transform_array(coordinate)
         return coordinate
+
+
+class CenteredScaledNormalization(AbstractTransformation):
+
+    def __init__(self, df_coordinates):
+        super().__init__(df_coordinates)
+        assert self.nb_dimensions == 1
+        self.transformer = Normalizer().fit(df_coordinates.transpose().values.reshape(-1, 1))
+
+    def transform_array(self, coordinate: np.ndarray):
+        return self.transformer.transform(np.array([coordinate]))[0]
+
+

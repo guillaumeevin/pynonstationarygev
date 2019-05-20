@@ -7,6 +7,7 @@ from extreme_estimator.margin_fits.margin_fits_utils import spatial_extreme_gevm
 
 class IsmevGevFit(GevFit):
     # todo: this could be modeled with a margin_function depending only on time
+    # todo: I should remove the call to this object, in order to centralize all the calls
 
     def __init__(self, x_gev: np.ndarray, y=None, mul=None):
         super().__init__(x_gev)
