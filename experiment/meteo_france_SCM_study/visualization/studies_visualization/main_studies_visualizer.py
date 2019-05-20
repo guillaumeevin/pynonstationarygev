@@ -1,6 +1,6 @@
 from experiment.meteo_france_SCM_study.abstract_score import MannKendall, WeigthedScore, MeanScore, MedianScore
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
-from experiment.meteo_france_SCM_study.abstract_trend_test import MannKendallTrendTest, ExampleTrendTest
+from experiment.meteo_france_SCM_study.abstract_trend_test import MannKendallTrendTest, ExampleRandomTrendTest
 from experiment.meteo_france_SCM_study.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
     ExtendedCrocusSwe
 from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
@@ -45,10 +45,10 @@ def altitude_trends_significant():
     only_first_one = False
     # altitudes that have 20 massifs at least
     altitudes = ALL_ALTITUDES[3:-6]
-    altitudes = ALL_ALTITUDES[3:5]
+    # altitudes = ALL_ALTITUDES[3:5]
     # altitudes = ALL_ALTITUDES[:2]
     for study_class in SCM_STUDIES[:1]:
-        trend_test_classes = [ExampleTrendTest, ExampleTrendTest, MannKendallTrendTest][:2]
+        trend_test_classes = [MannKendallTrendTest][:]
         visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False)
                        for study in study_iterator_global(study_classes=[study_class], only_first_one=only_first_one,
                                                           altitudes=altitudes)]

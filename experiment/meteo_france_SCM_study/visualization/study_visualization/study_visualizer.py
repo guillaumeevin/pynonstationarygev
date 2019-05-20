@@ -388,7 +388,14 @@ class StudyVisualizer(object):
         massif_name_to_trend_test_count = self.massif_name_to_trend_test_count(trend_test_class, starting_year_to_weight)
         df = pd.concat(list(massif_name_to_trend_test_count.values()), axis=1, sort=False)
         df.fillna(0.0, inplace=True)
-        return df.mean(axis=1)
+        df = df.mean(axis=1)
+        assert np.allclose(df.sum(), 100)
+        # Add the significant trend into the count of normal trend
+        if AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND in df.columns:
+            df[AbstractTrendTest.POSITIVE_TREND] += df[AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND]
+        if AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND in df.columns:
+            df[AbstractTrendTest.NEGATIVE_TREND] += df[AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND]
+        return df
 
     @cached_property
     def massif_name_to_scores(self):

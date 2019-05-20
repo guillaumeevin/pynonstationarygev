@@ -9,7 +9,7 @@ class AbstractTrendScore(object):
     We don't care what happen before the change point.
     All we want to focus on, is the potential trend that could exist in the data after a potential change point"""
 
-    def __init__(self, number_of_top_values) -> None:
+    def __init__(self, number_of_top_values=None) -> None:
         self.number_of_top_values = number_of_top_values
 
     def get_detailed_score(self, years_after_change_point, maxima_after_change_point):
@@ -21,12 +21,16 @@ class MannKendall(AbstractTrendScore):
     def get_detailed_score(self, years_after_change_point, maxima_after_change_point):
         score = 0.0
         for i, xi in enumerate(maxima_after_change_point[:-1]):
-            for xj in maxima_after_change_point[i+1:]:
+            for xj in maxima_after_change_point[i + 1:]:
                 score += np.sign(xj - xi)
         return [score, score, score]
 
 
 class SortedScore(AbstractTrendScore):
+
+    def __init__(self, number_of_top_values=None) -> None:
+        super().__init__(number_of_top_values)
+        assert self.number_of_top_values is not None
 
     def get_detailed_score(self, years_after_change_point, maxima_after_change_point):
         # Get sorted years and sorted maxima

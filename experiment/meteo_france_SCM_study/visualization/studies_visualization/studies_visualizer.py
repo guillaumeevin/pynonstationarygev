@@ -225,5 +225,9 @@ class AltitudeVisualizer(object):
             altitude_to_serie_with_mean_percentages[altitude] = s
         # Plot lines
         for trend_type, style in AbstractTrendTest.TREND_TYPE_TO_STYLE.items():
-            percentages = [v.loc[trend_type] for v in altitude_to_serie_with_mean_percentages.values()]
-            ax.plot(self.altitudes, percentages, style + marker, label=trend_type)
+            percentages = [v.loc[trend_type] if trend_type in v.index else 0.0
+                           for v in altitude_to_serie_with_mean_percentages.values()]
+            if set(percentages) == {0.0}:
+                continue
+            else:
+                ax.plot(self.altitudes, percentages, style + marker, label=trend_type)
