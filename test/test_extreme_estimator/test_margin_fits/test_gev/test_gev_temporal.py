@@ -13,6 +13,7 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
+from test.test_utils import load_non_stationary_temporal_margin_models
 
 
 class TestGevTemporal(unittest.TestCase):
@@ -32,6 +33,8 @@ class TestGevTemporal(unittest.TestCase):
         df2 = pd.DataFrame(data=np.array(r['x_gev']), index=df.index)
         observations = AbstractSpatioTemporalObservations(df_maxima_gev=df2)
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
+        #
+        self.margin_models = load_non_stationary_temporal_margin_models(self.coordinates)
 
     def test_gev_temporal_margin_fit_stationary(self):
         # Create estimator
@@ -46,14 +49,14 @@ class TestGevTemporal(unittest.TestCase):
 
     def test_gev_temporal_margin_fit_nonstationary(self):
         # Create estimator
-        margin_model = NonStationaryLocationStationModel(self.coordinates)
-        estimator = LinearMarginEstimator(self.dataset, margin_model)
-        estimator.fit()
-        self.assertNotEqual(estimator.margin_function_fitted.mu1_temporal_trend, 0.0)
-        # Checks that parameters returned are indeed different
-        mle_params_estimated_year1 = estimator.margin_function_fitted.get_gev_params(np.array([1])).to_dict()
-        mle_params_estimated_year3 = estimator.margin_function_fitted.get_gev_params(np.array([3])).to_dict()
-        self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
+        for margin_model in self.margin_models:
+            # margin_model = NonStationaryLocationStationModel(self.coordinates)
+            estimator = LinearMarginEstimator(self.dataset, margin_model)
+            estimator.fit()
+            # Checks that parameters returned are indeed different
+            mle_params_estimated_year1 = estimator.margin_function_fitted.get_gev_params(np.array([1])).to_dict()
+            mle_params_estimated_year3 = estimator.margin_function_fitted.get_gev_params(np.array([3])).to_dict()
+            self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
 
     def test_gev_temporal_margin_fit_nonstationary_with_start_point(self):
         # Create estimator
@@ -80,7 +83,6 @@ class TestGevTemporal(unittest.TestCase):
         estimator2 = self.fit_non_stationary_estimator(starting_point=28)
         mu1_estimator1 = estimator1.margin_function_fitted.mu1_temporal_trend
         mu1_estimator2 = estimator2.margin_function_fitted.mu1_temporal_trend
-        print(mu1_estimator1, mu1_estimator2)
         self.assertNotEqual(mu1_estimator1, mu1_estimator2)
 
 

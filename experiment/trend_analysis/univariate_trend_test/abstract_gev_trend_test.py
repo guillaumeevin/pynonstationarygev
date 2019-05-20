@@ -5,7 +5,8 @@ from sklearn.preprocessing import normalize
 from experiment.trend_analysis.univariate_trend_test.abstract_trend_test import AbstractTrendTest
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import StationaryStationModel, \
-    NonStationaryLocationStationModel
+    NonStationaryLocationStationModel, NonStationaryScaleStationModel, NonStationaryShapeStationModel
+from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
     AbstractTemporalCoordinates
@@ -55,4 +56,27 @@ class GevLocationTrendTest(AbstractGevTrendTest):
 
     @property
     def test_sign(self) -> int:
-        return np.sign(self.non_stationary_estimator.margin_function_fitted.mu1_temporal_trend)
+        return np.sign(self.non_stationary_estimator.margin_function_fitted.get_coef(GevParams.LOC,
+                                                                                     AbstractCoordinates.COORDINATE_T))
+
+
+class GevScaleTrendTest(AbstractGevTrendTest):
+
+    def __init__(self, years_after_change_point, maxima_after_change_point):
+        super().__init__(years_after_change_point, maxima_after_change_point, NonStationaryScaleStationModel)
+
+    @property
+    def test_sign(self) -> int:
+        return np.sign(self.non_stationary_estimator.margin_function_fitted.get_coef(GevParams.SCALE,
+                                                                                     AbstractCoordinates.COORDINATE_T))
+
+
+class GevShapeTrendTest(AbstractGevTrendTest):
+
+    def __init__(self, years_after_change_point, maxima_after_change_point):
+        super().__init__(years_after_change_point, maxima_after_change_point, NonStationaryShapeStationModel)
+
+    @property
+    def test_sign(self) -> int:
+        return np.sign(self.non_stationary_estimator.margin_function_fitted.get_coef(GevParams.SHAPE,
+                                                                                     AbstractCoordinates.COORDINATE_T))

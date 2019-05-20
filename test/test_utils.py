@@ -9,6 +9,8 @@ from extreme_estimator.estimator.full_estimator.abstract_full_estimator import S
 from extreme_estimator.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
 from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
     ConstantMarginModel
+from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import \
+    NonStationaryLocationStationModel, NonStationaryScaleStationModel, NonStationaryShapeStationModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import \
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, \
@@ -37,8 +39,13 @@ TEST_3D_SPATIAL_COORDINATES = [AlpsStation3DCoordinatesWithAnisotropy]
 TEST_TEMPORAL_COORDINATES = [ConsecutiveTemporalCoordinates]
 TEST_SPATIO_TEMPORAL_COORDINATES = [UniformSpatioTemporalCoordinates, LinSpaceSpatial2DSpatioTemporalCoordinates]
 TEST_MARGIN_TYPES = [ConstantMarginModel, LinearAllParametersAllDimsMarginModel][:]
+TEST_NON_STATIONARY_TEMPORAL_MARGIN_TYPES = [NonStationaryLocationStationModel, NonStationaryScaleStationModel, NonStationaryShapeStationModel]
 TEST_MAX_STABLE_ESTIMATOR = [MaxStableEstimator]
 TEST_FULL_ESTIMATORS = [SmoothMarginalsThenUnitaryMsp, FullEstimatorInASingleStepWithSmoothMargin][:]
+
+
+def load_non_stationary_temporal_margin_models(coordinates):
+    return [margin_class(coordinates=coordinates) for margin_class in TEST_NON_STATIONARY_TEMPORAL_MARGIN_TYPES]
 
 
 def load_test_full_estimators(dataset, margin_model, max_stable_model):
@@ -89,7 +96,8 @@ def load_test_temporal_coordinates(nb_steps, train_split_ratio=None):
             TEST_TEMPORAL_COORDINATES]
 
 
-def load_test_spatiotemporal_coordinates(nb_points, nb_steps, train_split_ratio=None, transformation_class: type = None):
+def load_test_spatiotemporal_coordinates(nb_points, nb_steps, train_split_ratio=None,
+                                         transformation_class: type = None):
     return [coordinate_class.from_nb_points_and_nb_steps(nb_points=nb_points, nb_steps=nb_steps,
                                                          train_split_ratio=train_split_ratio,
                                                          transformation_class=transformation_class)

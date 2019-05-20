@@ -23,22 +23,27 @@ class TemporalLinearMarginModel(LinearMarginModel):
         # Gev Fit
         assert data.shape[1] == len(df_coordinates_temp.values)
         res = safe_run_r_estimator(function=r('gev.fit'), use_start=self.use_start_value,
-                                   xdat=ro.FloatVector(data[0]), y=df_coordinates_temp.values, mul=self.mul)
+                                   xdat=ro.FloatVector(data[0]), y=df_coordinates_temp.values, mul=self.mul,
+                                   sigl=self.sigl, shl=self.shl)
         return ResultFromIsmev(res, self.margin_function_start_fit.gev_param_name_to_dims)
 
     @property
     def mul(self):
-        return NotImplementedError
+        return get_null()
+
+    @property
+    def sigl(self):
+        return get_null()
+
+    @property
+    def shl(self):
+        return get_null()
 
 
 class StationaryStationModel(TemporalLinearMarginModel):
 
     def load_margin_functions(self, gev_param_name_to_dims=None):
         super().load_margin_functions({})
-
-    @property
-    def mul(self):
-        return get_null()
 
 
 class NonStationaryLocationStationModel(TemporalLinearMarginModel):
@@ -51,3 +56,21 @@ class NonStationaryLocationStationModel(TemporalLinearMarginModel):
         return 1
 
 
+class NonStationaryScaleStationModel(TemporalLinearMarginModel):
+
+    def load_margin_functions(self, gev_param_name_to_dims=None):
+        super().load_margin_functions({GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
+
+    @property
+    def sigl(self):
+        return 1
+
+
+class NonStationaryShapeStationModel(TemporalLinearMarginModel):
+
+    def load_margin_functions(self, gev_param_name_to_dims=None):
+        super().load_margin_functions({GevParams.SHAPE: [self.coordinates.idx_temporal_coordinates]})
+
+    @property
+    def shl(self):
+        return 1
