@@ -37,7 +37,7 @@ class AbstractStudy(object):
     REANALYSIS_FOLDER = 'alp_flat/reanalysis'
 
     def __init__(self, variable_class: type, altitude: int = 1800, year_min=1000, year_max=3000,
-                 multiprocessing=False):
+                 multiprocessing=True):
         assert altitude in ALTITUDES, altitude
         self.altitude = altitude
         self.model_name = None
@@ -148,7 +148,7 @@ class AbstractStudy(object):
     @property
     def _year_to_daily_time_serie_array(self) -> OrderedDict:
         # Map each year to a matrix of size 365-nb_days_consecutive+1 x nb_massifs
-        variables = [self.instantiate_variable_object(dataset) for dataset in
+        variables = [self.instantiate_variable_object(variable_array) for variable_array in
                      self.year_to_variable_array.values()]
         year_to_variable = dict(zip(self.ordered_years, variables))
         year_to_daily_time_serie_array = OrderedDict()

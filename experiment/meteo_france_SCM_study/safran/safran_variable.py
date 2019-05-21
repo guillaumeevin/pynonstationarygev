@@ -71,11 +71,10 @@ class SafranRainfallVariable(SafranSnowfallVariable):
 
 class SafranTotalPrecipVariable(AbstractVariable):
 
-    def __init__(self, variable_array):
-        super().__init__(variable_array)
-        snow_variable_array, rain_variable_array = self.variable_array
-        self.snow_precipitation = SafranSnowfallVariable(snow_variable_array)
-        self.rain_precipitation = SafranRainfallVariable(rain_variable_array)
+    def __init__(self, snow_variable_array, rain_variable_array, nb_consecutive_days_of_snowfall=1):
+        super().__init__(None)
+        self.snow_precipitation = SafranSnowfallVariable(snow_variable_array, nb_consecutive_days_of_snowfall)
+        self.rain_precipitation = SafranRainfallVariable(rain_variable_array, nb_consecutive_days_of_snowfall)
 
     @classmethod
     def keyword(cls):

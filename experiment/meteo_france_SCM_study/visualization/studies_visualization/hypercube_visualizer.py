@@ -39,13 +39,14 @@ class HypercubeVisualizer(object):
 
     @cached_property
     def tuple_to_df_trend_type(self):
-        df_spatio_temporal_trend_types = [study_visualizer.df_trend_spatio_temporal(self.trend_class, self.starting_years,
-                                                                                    self.nb_data_for_fast_mode)
-                                          for study_visualizer in self.tuple_to_study_visualizer.values()]
+        df_spatio_temporal_trend_types = [
+            study_visualizer.df_trend_spatio_temporal(self.trend_class, self.starting_years,
+                                                      self.nb_data_for_fast_mode)
+            for study_visualizer in self.tuple_to_study_visualizer.values()]
         return dict(zip(self.tuple_to_study_visualizer.keys(), df_spatio_temporal_trend_types))
 
     @cached_property
-    def hypercube(self):
+    def df_hypercube(self):
         keys = list(self.tuple_to_df_trend_type.keys())
         values = list(self.tuple_to_df_trend_type.values())
         df = pd.concat(values, keys=keys, axis=0)
@@ -82,7 +83,42 @@ class HypercubeVisualizer(object):
 
 
 class AltitudeHypercubeVisualizer(HypercubeVisualizer):
-    pass
+
+    @property
+    def altitudes(self):
+        return list(self.tuple_to_study_visualizer.keys())
+
+    def visualize_trend_test(self, ax=None, marker='o'):
+        if ax is None:
+            fig, ax = plt.subplots(1, 1, figsize=self.study_visualizer.figsize)
+
+        # Plot weighted percentages over the years
+        for trend_type, style in self.trend_class.trend_type_to_style().items():
+            altitude_percentages = (self.df_hypercube == trend_type)
+            # Take the mean with respect to the years
+            altitude_percentages = altitude_percentages.mean(axis=1)
+            # Take the mean with respect the massifs
+            altitude_percentages = altitude_percentages.mean(axis=0, level=0)
+            # Take the numpy array
+            altitude_percentages = altitude_percentages.values * 100
+            # Plot
+            ax.plot(self.altitudes, altitude_percentages, style + marker, label=trend_type)
+
+        # Global information
+        added_str = 'weighted '
+        ylabel = '% averaged on massifs & {}averaged on starting years'.format(added_str)
+        ylabel += ' (with uniform weights)'
+        ax.set_ylabel(ylabel)
+        ax.set_xlabel('altitude')
+        ax.set_xticks(self.altitudes)
+        ax.set_yticks(list(range(0, 101, 10)))
+        ax.grid()
+        ax.legend()
+
+        variable_name = self.study.variable_class.NAME
+        title = 'Evolution of {} trends (significative or not) wrt to the altitude'.format(variable_name)
+        ax.set_title(title)
+        self.show_or_save_to_file(specific_title=title)
 
 
 class QuantitityAltitudeHypercubeVisualizer(HypercubeVisualizer):

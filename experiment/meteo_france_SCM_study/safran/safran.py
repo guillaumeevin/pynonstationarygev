@@ -23,8 +23,8 @@ class SafranFrequency(Safran):
         super().__init__(variable_class, *args, **kwargs)
         self.nb_consecutive_days = nb_consecutive_days
 
-    def instantiate_variable_object(self, dataset) -> AbstractVariable:
-        return self.variable_class(dataset, self.nb_consecutive_days)
+    def instantiate_variable_object(self, variable_array) -> AbstractVariable:
+        return self.variable_class(variable_array, self.nb_consecutive_days)
 
     @property
     def variable_name(self):
@@ -54,6 +54,10 @@ class SafranTotalPrecip(SafranFrequency):
 
     def __init__(self, *args, **kwargs):
         super().__init__(SafranTotalPrecipVariable, *args, **kwargs)
+
+    def instantiate_variable_object(self, variable_array) -> AbstractVariable:
+        variable_array_snowfall, variable_array_rainfall = variable_array
+        return self.variable_class(variable_array_snowfall, variable_array_rainfall, self.nb_consecutive_days)
 
 
 class ExtendedSafranTotalPrecip(AbstractExtendedStudy, SafranTotalPrecip):

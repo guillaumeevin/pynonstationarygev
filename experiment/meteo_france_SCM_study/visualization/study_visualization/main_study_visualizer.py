@@ -35,8 +35,7 @@ List[AbstractStudy]:
             break
 
 
-def study_iterator(study_class, only_first_one=False, both_altitude=False, verbose=True, altitudes=None,
-                   multiprocessing=True) -> List[
+def study_iterator(study_class, only_first_one=False, both_altitude=False, verbose=True, altitudes=None) -> List[
     AbstractStudy]:
     all_studies = []
     is_safran_study = study_class in [SafranSnowfall, ExtendedSafranSnowfall]
@@ -50,7 +49,7 @@ def study_iterator(study_class, only_first_one=False, both_altitude=False, verbo
 
             if verbose:
                 print('alti: {}, nb_day: {}     '.format(alti, nb_day), end='')
-            study = study_class(altitude=alti, multiprocessing=multiprocessing)
+            study = study_class(altitude=alti)
             massifs = study.altitude_to_massif_names[alti]
             if verbose:
                 print('{} massifs: {} \n'.format(len(massifs), massifs))
