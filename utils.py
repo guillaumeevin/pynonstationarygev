@@ -1,5 +1,6 @@
 import datetime
 import os.path as op
+from cached_property import cached_property
 
 VERSION = datetime.datetime.now()
 VERSION_TIME = str(VERSION).split('.')[0]
@@ -32,31 +33,6 @@ def float_to_str_with_only_some_significant_digits(f, nb_digits) -> str:
     assert isinstance(nb_digits, int)
     assert nb_digits > 0
     return '%s' % float('%.{}g'.format(nb_digits) % f)
-
-
-# todo: these cached property have a weird behavior with inheritence,
-#  when we call the super cached_property in the child method
-class cached_property(object):
-    """
-    Descriptor (non-data) for building an attribute on-demand on first use.
-    From: https://stackoverflow.com/questions/4037481/caching-attributes-of-classes-in-python
-    """
-
-    def __init__(self, factory):
-        """
-        <factory> is called such: factory(instance) to build the attribute.
-        """
-        self._attr_name = factory.__name__
-        self._factory = factory
-
-    def __get__(self, instance, owner):
-        # Build the attribute.
-        attr = self._factory(instance)
-
-        # Cache the value; hide ourselves.
-        setattr(instance, self._attr_name, attr)
-
-        return attr
 
 
 class Example(object):

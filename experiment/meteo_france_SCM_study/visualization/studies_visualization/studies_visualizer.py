@@ -219,13 +219,14 @@ class AltitudeVisualizer(object):
         ax2.set_yticks([])
 
         # Global information
-        added_str = ''if uniform_weight > 0.0 else 'weighted '
+        added_str = '' if uniform_weight > 0.0 else 'weighted '
         ylabel = '% averaged on massifs & {}averaged on starting years'.format(added_str)
         ylabel += ' (with uniform weights)'
         ax.set_ylabel(ylabel)
         ax.set_xlabel('altitude')
         variable_name = self.study.variable_class.NAME
-        title = 'Evolution of {} trends (significative or not) wrt to the altitude with {}'.format(variable_name, ', '.join(names))
+        title = 'Evolution of {} trends (significative or not) wrt to the altitude with {}'.format(variable_name,
+                                                                                                   ', '.join(names))
         ax.set_title(title)
         self.show_or_save_to_file(specific_title=title)
 
@@ -239,7 +240,7 @@ class AltitudeVisualizer(object):
         for trend_type, style in trend_test_class.trend_type_to_style().items():
 
             weighted_percentages = [v.loc[trend_type] if trend_type in v.index else 0.0
-                           for v in altitude_to_serie_with_mean_percentages.values()]
+                                    for v in altitude_to_serie_with_mean_percentages.values()]
             if set(weighted_percentages) == {0.0}:
                 ax.plot([], [], style + marker, label=trend_type)
             else:
