@@ -7,7 +7,7 @@ import pandas as pd
 
 from experiment.meteo_france_SCM_study.visualization.utils import create_adjusted_axes
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
-from extreme_estimator.margin_fits.plot.create_shifted_cmap import plot_extreme_param, imshow_shifted
+from extreme_estimator.margin_fits.plot.create_shifted_cmap import imshow_shifted
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.slicer.split import Split
 from utils import cached_property

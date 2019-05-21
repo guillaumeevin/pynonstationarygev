@@ -1,4 +1,5 @@
 import random
+import matplotlib.pyplot as plt
 from collections import OrderedDict
 
 import numpy as np
@@ -27,6 +28,15 @@ class AbstractTrendTest(object):
         d[cls.SIGNIFICATIVE_NEGATIVE_TREND] = 'r-'
         d[cls.NO_TREND] = 'k--'
         return d
+
+    @classmethod
+    def get_cmap_from_trend_type(cls, trend_type):
+        if 'positive' in trend_type:
+            return plt.cm.Greens
+        elif 'negative' in trend_type:
+            return plt.cm.Reds
+        else:
+            return plt.cm.binary
 
     def __init__(self, years_after_change_point, maxima_after_change_point):
         self.years_after_change_point = years_after_change_point

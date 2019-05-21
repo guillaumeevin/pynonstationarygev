@@ -634,7 +634,10 @@ class StudyVisualizer(object):
 
     @staticmethod
     def clean_axes_write_title_on_the_left(axes, title, left_border=True):
-        if left_border:
+        if left_border is None:
+            clean_axes = axes
+            ax0 = axes[0]
+        elif left_border:
             ax0, *clean_axes = axes
         else:
             *clean_axes, ax0 = axes

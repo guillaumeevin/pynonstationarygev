@@ -23,11 +23,17 @@ def plot_extreme_param(ax, label: str, values: np.ndarray):
     cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
     shifted_cmap = shiftedColorMap(cmap, midpoint=midpoint, name='shifted')
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+    norm = create_colorbase_axis(ax, label, shifted_cmap, norm)
+    return norm, shifted_cmap
+
+
+def create_colorbase_axis(ax, label, cmap, norm):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes('right', size='5%', pad=0.03)
-    cb = cbar.ColorbarBase(cax, cmap=shifted_cmap, norm=norm)
-    cb.set_label(label)
-    return norm, shifted_cmap
+    cb = cbar.ColorbarBase(cax, cmap=cmap, norm=norm)
+    if isinstance(label, str):
+        cb.set_label(label)
+    return norm
 
 
 def get_color_rbga_shifted(ax, replace_blue_by_white: bool, values: np.ndarray, label=None):

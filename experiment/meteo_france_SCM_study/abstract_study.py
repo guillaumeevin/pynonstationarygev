@@ -11,6 +11,8 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from PIL import ImageDraw
+from matplotlib import cm
+from matplotlib.colors import Normalize
 from netCDF4 import Dataset
 
 from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
@@ -18,7 +20,7 @@ from experiment.meteo_france_SCM_study.scm_constants import ALTITUDES, ZS_INT_23
 from experiment.meteo_france_SCM_study.visualization.utils import get_km_formatter
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
-from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted
+from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted, create_colorbase_axis
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -235,12 +237,18 @@ class AbstractStudy(object):
     """ Visualization methods """
 
     def visualize_study(self, ax=None, massif_name_to_value=None, show=True, fill=True, replace_blue_by_white=True,
-                        label=None, add_text=False):
+                        label=None, add_text=False, cmap=None):
         if massif_name_to_value is None:
             massif_name_to_fill_kwargs = None
         else:
             massif_names, values = list(zip(*massif_name_to_value.items()))
-            colors = get_color_rbga_shifted(ax, replace_blue_by_white, values, label=label)
+            if cmap is None:
+                colors = get_color_rbga_shifted(ax, replace_blue_by_white, values, label=label)
+            else:
+                norm = Normalize(0, 100)
+                create_colorbase_axis(ax, label, cmap, norm)
+                m = cm.ScalarMappable(norm=norm, cmap=cmap)
+                colors = [m.to_rgba(value) for value in values]
             massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
                                           zip(massif_names, colors)}
 
@@ -258,8 +266,12 @@ class AbstractStudy(object):
             # Potentially, fill the inside of the polygon with some color
             if fill and coordinate_id in self.coordinate_id_to_massif_name:
                 massif_name = self.coordinate_id_to_massif_name[coordinate_id]
-                fill_kwargs = massif_name_to_fill_kwargs[massif_name] if massif_name_to_fill_kwargs is not None else {}
-                ax.fill(*coords_list, **fill_kwargs)
+                if massif_name_to_fill_kwargs is not None and massif_name in massif_name_to_fill_kwargs:
+                    fill_kwargs = massif_name_to_fill_kwargs[massif_name]
+                    ax.fill(*coords_list, **fill_kwargs)
+                # else:
+                #     fill_kwargs = {}
+
                 # x , y = list(self.massifs_coordinates.df_all_coordinates.loc[massif_name])
                 # x , y= coords_list[0][0], coords_list[0][1]
                 # print(x, y)

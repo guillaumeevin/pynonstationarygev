@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
-from utils import cached_property, VERSION_TIME
+from utils import cached_property, VERSION_TIME, get_display_name_from_object_type
 
 
 class HypercubeVisualizer(object):
@@ -17,18 +17,19 @@ class HypercubeVisualizer(object):
     """
 
     def __init__(self, tuple_to_study_visualizer: Dict[Tuple, StudyVisualizer],
-                 trend_class,
+                 trend_test_class,
                  fast=False,
                  save_to_file=False):
-        self.nb_data_for_fast_mode = 2 if fast else None
+        self.nb_data_for_fast_mode = 7 if fast else None
         self.save_to_file = save_to_file
-        self.trend_class = trend_class
+        self.trend_test_class = trend_test_class
         self.tuple_to_study_visualizer = tuple_to_study_visualizer  # type: Dict[Tuple, StudyVisualizer]
 
     # Main attributes defining the hypercube
 
-    def tuple_to_massif_names(self, tuple):
-        return self.tuple_to_study_visualizer[tuple].study.study_massif_names
+    @property
+    def trend_test_name(self):
+        return get_display_name_from_object_type(self.trend_test_class)
 
     @cached_property
     def starting_years(self):
@@ -40,13 +41,13 @@ class HypercubeVisualizer(object):
     @cached_property
     def tuple_to_df_trend_type(self):
         df_spatio_temporal_trend_types = [
-            study_visualizer.df_trend_spatio_temporal(self.trend_class, self.starting_years,
+            study_visualizer.df_trend_spatio_temporal(self.trend_test_class, self.starting_years,
                                                       self.nb_data_for_fast_mode)
             for study_visualizer in self.tuple_to_study_visualizer.values()]
         return dict(zip(self.tuple_to_study_visualizer.keys(), df_spatio_temporal_trend_types))
 
     @cached_property
-    def df_hypercube(self):
+    def df_hypercube(self) -> pd.DataFrame:
         keys = list(self.tuple_to_df_trend_type.keys())
         values = list(self.tuple_to_df_trend_type.values())
         df = pd.concat(values, keys=keys, axis=0)
@@ -88,12 +89,12 @@ class AltitudeHypercubeVisualizer(HypercubeVisualizer):
     def altitudes(self):
         return list(self.tuple_to_study_visualizer.keys())
 
-    def visualize_trend_test(self, ax=None, marker='o'):
+    def visualize_altitude_trend_test(self, ax=None, marker='o'):
         if ax is None:
             fig, ax = plt.subplots(1, 1, figsize=self.study_visualizer.figsize)
 
         # Plot weighted percentages over the years
-        for trend_type, style in self.trend_class.trend_type_to_style().items():
+        for trend_type, style in self.trend_test_class.trend_type_to_style().items():
             altitude_percentages = (self.df_hypercube == trend_type)
             # Take the mean with respect to the years
             altitude_percentages = altitude_percentages.mean(axis=1)
@@ -116,8 +117,35 @@ class AltitudeHypercubeVisualizer(HypercubeVisualizer):
         ax.legend()
 
         variable_name = self.study.variable_class.NAME
-        title = 'Evolution of {} trends (significative or not) wrt to the altitude'.format(variable_name)
+        name = get_display_name_from_object_type(self.trend_test_class)
+        title = 'Evolution of {} trends (significative or not) wrt to the altitude with {}'.format(variable_name,name)
         ax.set_title(title)
+        self.show_or_save_to_file(specific_title=title)
+
+    def visualize_spatial_trend_test(self, axes=None):
+        if axes is None:
+            nb_trend_type = len(self.trend_test_class.trend_type_to_style())
+            fig, axes = plt.subplots(1, nb_trend_type, figsize=self.study_visualizer.figsize)
+
+        # Plot weighted percentages over the years
+        for ax, (trend_type, style) in zip(axes, self.trend_test_class.trend_type_to_style().items()):
+            spatial_percentages = (self.df_hypercube == trend_type)
+            # Take the mean with respect to the years
+            spatial_percentages = spatial_percentages.mean(axis=1)
+            # Take the mean with respect the altitude
+            spatial_percentages = spatial_percentages.mean(axis=0, level=1) * 100
+            # Plot values
+            massif_to_value = dict(spatial_percentages)
+            cmap = self.trend_test_class.get_cmap_from_trend_type(trend_type)
+            self.study.visualize_study(ax, massif_to_value, show=False, cmap=cmap, label=None)
+            ax.set_title(trend_type)
+
+        # Global information
+        name = get_display_name_from_object_type(self.trend_test_class)
+        title = 'Repartition of trends (significative or not) with {}'.format(name)
+        title +=  '\n(in % averaged on altitudes & averaged on starting years)'
+        StudyVisualizer.clean_axes_write_title_on_the_left(axes, title, left_border=None)
+        plt.suptitle(title)
         self.show_or_save_to_file(specific_title=title)
 
 
