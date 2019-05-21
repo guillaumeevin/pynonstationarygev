@@ -5,27 +5,27 @@ from experiment.meteo_france_SCM_study.abstract_variable import AbstractVariable
 
 class CrocusVariable(AbstractVariable):
 
-    def __init__(self, dataset, altitude, variable_name):
-        super().__init__(dataset, altitude)
-        self.variable_name = variable_name
+    def __init__(self, variable_array):
+        super().__init__(variable_array)
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:
-        return np.array(self.dataset.variables[self.variable_name])
+        return self.variable_array
 
 
 class CrocusSweVariable(CrocusVariable):
     NAME = 'Snow Water Equivalent'
     UNIT = 'kg per m2 or mm'
 
-    def __init__(self, dataset, altitude):
-        super().__init__(dataset, altitude, 'SWE_1DY_ISBA')
+    @classmethod
+    def keyword(cls):
+        return 'SWE_1DY_ISBA'
 
 
 class CrocusDepthVariable(CrocusVariable):
     NAME = 'Snow Depth'
     UNIT = 'm'
 
-    def __init__(self, dataset, altitude):
-        super().__init__(dataset, altitude, "SD_1DY_ISBA")
-
+    @classmethod
+    def keyword(cls):
+        return "SD_1DY_ISBA"

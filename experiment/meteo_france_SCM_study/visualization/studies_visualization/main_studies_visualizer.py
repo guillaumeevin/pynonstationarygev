@@ -11,7 +11,7 @@ from experiment.meteo_france_SCM_study.visualization.studies_visualization.studi
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies_visualizer import StudiesVisualizer, \
     AltitudeVisualizer
 from experiment.meteo_france_SCM_study.visualization.study_visualization.main_study_visualizer import ALL_ALTITUDES, \
-    study_iterator_global, SCM_STUDIES
+    study_iterator_global, SCM_STUDIES, study_iterator
 
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
 from collections import OrderedDict
@@ -61,19 +61,17 @@ def altitude_trends_significant():
 
 def hypercube_test():
     save_to_file = False
-    only_first_one = True
+    only_first_one = False
     altitudes = ALL_ALTITUDES[3:-6]
     altitudes = ALL_ALTITUDES[2:4]
     for study_class in SCM_STUDIES[:1]:
         trend_test_class = [MannKendallTrendTest, GevLocationTrendTest, GevScaleTrendTest, GevShapeTrendTest][0]
         visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False, multiprocessing=True)
-                       for study in study_iterator_global(study_classes=[study_class], only_first_one=only_first_one,
-                                                          altitudes=altitudes)]
-        altitudes = [(a) for a in altitudes]
-        print(altitudes)
+                       for study in study_iterator(study_class=study_class, only_first_one=only_first_one,
+                                                       altitudes=altitudes, multiprocessing=True)]
         altitude_to_visualizer = OrderedDict(zip(altitudes, visualizers))
         visualizer = HypercubeVisualizer(altitude_to_visualizer, save_to_file=save_to_file,
-                                         trend_class=trend_test_class)
+                                         trend_class=trend_test_class, fast=True)
         print(visualizer.hypercube)
 
 

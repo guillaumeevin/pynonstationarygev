@@ -9,9 +9,12 @@ class AbstractVariable(object):
     NAME = ''
     UNIT = ''
 
-    def __init__(self, dataset, altitude):
-        self.dataset = dataset
-        self.altitude = altitude
+    def __init__(self, variable_array):
+        self.variable_array = variable_array
+
+    @classmethod
+    def keyword(cls):
+        raise NotImplementedError
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:

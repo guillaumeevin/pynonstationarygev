@@ -7,6 +7,7 @@ VERSION_TIME = str(VERSION).split('.')[0]
 for c in [' ', ':', '-']:
     VERSION_TIME = VERSION_TIME.replace(c, '_')
 
+NB_CORES = 7
 
 def get_root_path() -> str:
     return op.dirname(op.abspath(__file__))

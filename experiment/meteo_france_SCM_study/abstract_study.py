@@ -3,6 +3,7 @@ import os
 import os.path as op
 from collections import OrderedDict
 from contextlib import redirect_stdout
+from multiprocessing.pool import Pool
 from typing import List, Dict, Tuple
 
 import matplotlib.pyplot as plt
@@ -22,7 +23,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
-from utils import get_full_path, cached_property
+from utils import get_full_path, cached_property, NB_CORES
 
 f = io.StringIO()
 with redirect_stdout(f):
@@ -35,13 +36,15 @@ class AbstractStudy(object):
     """
     REANALYSIS_FOLDER = 'alp_flat/reanalysis'
 
-    def __init__(self, variable_class: type, altitude: int = 1800, year_min=1000, year_max=3000):
+    def __init__(self, variable_class: type, altitude: int = 1800, year_min=1000, year_max=3000,
+                 multiprocessing=False):
         assert altitude in ALTITUDES, altitude
         self.altitude = altitude
         self.model_name = None
         self.variable_class = variable_class
         self.year_min = year_min
         self.year_max = year_max
+        self.multiprocessing = multiprocessing
 
     def write_to_file(self, df: pd.DataFrame):
         if not op.exists(self.result_full_path):
@@ -72,17 +75,46 @@ class AbstractStudy(object):
 
     @cached_property
     def year_to_dataset_ordered_dict(self) -> OrderedDict:
+        print('This code is quite long... '
+              'You should consider year_to_variable which is way faster when multiprocessing=True')
         # Map each year to the correspond netCDF4 Dataset
-        year_to_dataset = OrderedDict()
+        path_files, ordered_years = self.ordered_years_and_path_files()
+        datasets = [Dataset(path_file) for path_file in path_files]
+        return OrderedDict(zip(ordered_years, datasets))
+
+    def ordered_years_and_path_files(self):
         nc_files = [(int(f.split('_')[-2][:4]), f) for f in os.listdir(self.study_full_path) if f.endswith('.nc')]
-        for year, nc_file in sorted(nc_files, key=lambda t: t[0]):
-            if self.year_min <= year < self.year_max:
-                year_to_dataset[year] = Dataset(op.join(self.study_full_path, nc_file))
-        return year_to_dataset
+        ordered_years, path_files = zip(*[(year, op.join(self.study_full_path, nc_file))
+                                          for year, nc_file in sorted(nc_files, key=lambda t: t[0])
+                                          if self.year_min <= year < self.year_max])
+        return path_files, ordered_years
+
+    @property
+    def ordered_years(self):
+        return self.ordered_years_and_path_files()[1]
+
+    @cached_property
+    def year_to_variable_array(self) -> OrderedDict:
+        # Map each year to the variable array
+        path_files, ordered_years = self.ordered_years_and_path_files()
+        if self.multiprocessing:
+            with Pool(NB_CORES) as p:
+                variables = p.map(self.load_variable, path_files)
+        else:
+            variables = [self.load_variable(path_file) for path_file in path_files]
+        return OrderedDict(zip(ordered_years, variables))
+
+    def load_variable(self, path_file):
+        dataset = Dataset(path_file)
+        keyword = self.variable_class.keyword()
+        if isinstance(keyword, str):
+            return np.array(dataset.variables[keyword])
+        else:
+            return [np.array(dataset.variables[k]) for k in keyword]
 
     @property
     def start_year_and_stop_year(self) -> Tuple[int, int]:
-        ordered_years = list(self.year_to_dataset_ordered_dict.keys())
+        ordered_years = self.ordered_years
         return ordered_years[0], ordered_years[-1]
 
     @cached_property
@@ -108,18 +140,19 @@ class AbstractStudy(object):
     def apply_annual_aggregation(self, time_serie):
         return self.annual_aggregation_function(time_serie, axis=0)
 
-    def instantiate_variable_object(self, dataset) -> AbstractVariable:
-        return self.variable_class(dataset, self.altitude)
+    def instantiate_variable_object(self, variable_array) -> AbstractVariable:
+        return self.variable_class(variable_array)
 
     """ Private methods to be overwritten """
 
     @property
     def _year_to_daily_time_serie_array(self) -> OrderedDict:
         # Map each year to a matrix of size 365-nb_days_consecutive+1 x nb_massifs
-        year_to_variable = {year: self.instantiate_variable_object(dataset) for year, dataset in
-                            self.year_to_dataset_ordered_dict.items()}
+        variables = [self.instantiate_variable_object(dataset) for dataset in
+                     self.year_to_variable_array.values()]
+        year_to_variable = dict(zip(self.ordered_years, variables))
         year_to_daily_time_serie_array = OrderedDict()
-        for year in self.year_to_dataset_ordered_dict.keys():
+        for year in self.ordered_years:
             # Check daily data
             daily_time_serie = year_to_variable[year].daily_time_serie_array
             assert daily_time_serie.shape[0] in [365, 366]
@@ -234,7 +267,8 @@ class AbstractStudy(object):
                 # ax.scatter(x, y)
                 # ax.text(x, y, massif_name)
         # Display the center of the massif
-        ax.scatter(self.massifs_coordinates_for_display.x_coordinates, self.massifs_coordinates_for_display.y_coordinates, s=1)
+        ax.scatter(self.massifs_coordinates_for_display.x_coordinates,
+                   self.massifs_coordinates_for_display.y_coordinates, s=1)
         # Improve some explanation on the X axis and on the Y axis
         ax.set_xlabel('Longitude (km)')
         ax.xaxis.set_major_formatter(get_km_formatter())

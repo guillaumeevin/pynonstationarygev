@@ -24,11 +24,15 @@ class SafranSnowfallVariable(AbstractVariable):
     NAME = 'Snowfall'
     UNIT = 'kg per m2 or mm'
 
-    def __init__(self, dataset, altitude, nb_consecutive_days_of_snowfall=1, keyword='Snowf'):
-        super().__init__(dataset, altitude)
+    @classmethod
+    def keyword(cls):
+        return 'Snowf'
+
+    def __init__(self, variable_array, nb_consecutive_days_of_snowfall=1):
+        super().__init__(variable_array)
         self.nb_consecutive_days_of_snowfall = nb_consecutive_days_of_snowfall
         # Compute the daily snowfall in kg/m2
-        snowfall_rates = np.array(dataset.variables[keyword])
+        snowfall_rates = variable_array
 
         # Compute the mean snowrate, then multiply it by 60 * 60 * 24
         # day_duration_in_seconds = 24 * 60 * 60
@@ -60,16 +64,22 @@ class SafranRainfallVariable(SafranSnowfallVariable):
     NAME = 'Rainfall'
     UNIT = 'kg per m2 or mm'
 
-    def __init__(self, dataset, altitude, nb_consecutive_days_of_snowfall=1, keyword='Rainf'):
-        super().__init__(dataset, altitude, nb_consecutive_days_of_snowfall, keyword)
+    @classmethod
+    def keyword(cls):
+        return 'Rainf'
 
 
 class SafranTotalPrecipVariable(AbstractVariable):
 
-    def __init__(self, dataset, altitude):
-        super().__init__(dataset, altitude)
-        self.snow_precipitation = SafranSnowfallVariable(dataset=dataset, altitude=altitude)
-        self.rain_precipitation = SafranRainfallVariable(dataset=dataset, altitude=altitude)
+    def __init__(self, variable_array):
+        super().__init__(variable_array)
+        snow_variable_array, rain_variable_array = self.variable_array
+        self.snow_precipitation = SafranSnowfallVariable(snow_variable_array)
+        self.rain_precipitation = SafranRainfallVariable(rain_variable_array)
+
+    @classmethod
+    def keyword(cls):
+        return [SafranSnowfallVariable.keyword(), SafranRainfallVariable.keyword()]
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:
@@ -81,10 +91,14 @@ class SafranTemperatureVariable(AbstractVariable):
     NAME = 'Temperature'
     UNIT = 'Celsius Degrees'
 
-    def __init__(self, dataset, altitude, keyword='Tair'):
-        super().__init__(dataset, altitude)
+    @classmethod
+    def keyword(cls):
+        return 'Tair'
+
+    def __init__(self, variable_array):
+        super().__init__(variable_array)
         # Temperature are in K, I transform them as celsius
-        self.hourly_temperature = np.array(dataset.variables[keyword]) - 273.15
+        self.hourly_temperature = self.variable_array - 273.15
         nb_days = len(self.hourly_temperature) // 24
         self.daily_temperature = [np.mean(self.hourly_temperature[24 * i:24 * (i + 1)], axis=0) for i in range(nb_days)]
 

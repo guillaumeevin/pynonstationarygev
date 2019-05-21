@@ -1,7 +1,5 @@
 import os
-import os
 import os.path as op
-from multiprocessing.dummy import Pool
 from typing import Dict, Tuple
 
 import matplotlib.pyplot as plt
@@ -9,10 +7,6 @@ import pandas as pd
 
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
 from utils import cached_property, VERSION_TIME
-
-
-def get_df_trend_spatio_temporal(study_visualizer, trend_class, starting_years):
-    return study_visualizer.df_trend_spatio_temporal(trend_class, starting_years)
 
 
 class HypercubeVisualizer(object):
@@ -24,7 +18,9 @@ class HypercubeVisualizer(object):
 
     def __init__(self, tuple_to_study_visualizer: Dict[Tuple, StudyVisualizer],
                  trend_class,
+                 fast=False,
                  save_to_file=False):
+        self.nb_data_for_fast_mode = 2 if fast else None
         self.save_to_file = save_to_file
         self.trend_class = trend_class
         self.tuple_to_study_visualizer = tuple_to_study_visualizer  # type: Dict[Tuple, StudyVisualizer]
@@ -36,17 +32,15 @@ class HypercubeVisualizer(object):
 
     @cached_property
     def starting_years(self):
-        return self.study_visualizer.starting_years[:7]
-
-    @property
-    def starting_year_to_weights(self):
-        # Load uniform weights by default
-        uniform_weight = 1 / len(self.starting_years)
-        return {year: uniform_weight for year in self.starting_years}
+        starting_years = self.study_visualizer.starting_years
+        if self.nb_data_for_fast_mode is not None:
+            starting_years = starting_years[:self.nb_data_for_fast_mode]
+        return starting_years
 
     @cached_property
     def tuple_to_df_trend_type(self):
-        df_spatio_temporal_trend_types = [get_df_trend_spatio_temporal(study_visualizer, self.trend_class, self.starting_years)
+        df_spatio_temporal_trend_types = [study_visualizer.df_trend_spatio_temporal(self.trend_class, self.starting_years,
+                                                                                    self.nb_data_for_fast_mode)
                                           for study_visualizer in self.tuple_to_study_visualizer.values()]
         return dict(zip(self.tuple_to_study_visualizer.keys(), df_spatio_temporal_trend_types))
 
@@ -79,6 +73,12 @@ class HypercubeVisualizer(object):
     @property
     def study(self):
         return self.study_visualizer.study
+
+    @property
+    def starting_year_to_weights(self):
+        # Load uniform weights by default
+        uniform_weight = 1 / len(self.starting_years)
+        return {year: uniform_weight for year in self.starting_years}
 
 
 class AltitudeHypercubeVisualizer(HypercubeVisualizer):

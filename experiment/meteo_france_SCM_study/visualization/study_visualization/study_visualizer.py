@@ -40,7 +40,7 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 from test.test_utils import load_test_max_stable_models
 from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits, \
-    cached_property
+    cached_property, NB_CORES
 
 BLOCK_MAXIMA_DISPLAY_NAME = 'block maxima '
 
@@ -382,7 +382,7 @@ class StudyVisualizer(object):
             massif_name_to_df_trend_type[massif_name] = df
         return massif_name_to_df_trend_type
 
-    def df_trend_spatio_temporal(self, trend_test_class, starting_years):
+    def df_trend_spatio_temporal(self, trend_test_class, starting_years, nb_massif_for_fast_mode=None):
         """
         Index are the massif
         Columns are the starting year
@@ -392,11 +392,14 @@ class StudyVisualizer(object):
         :return:
         """
         massif_name_to_trend_types = {}
-        for massif_id, massif_name in enumerate(self.study.study_massif_names):
+        massif_names = self.study.study_massif_names
+        if nb_massif_for_fast_mode is not None:
+            massif_names = massif_names[:nb_massif_for_fast_mode]
+        for massif_id, massif_name in enumerate(massif_names):
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
             if self.multiprocessing:
                 list_args = [(smooth_maxima, starting_year, trend_test_class, years) for starting_year in starting_years]
-                with Pool(self.nb_cores) as p:
+                with Pool(NB_CORES) as p:
                     trend_types = p.starmap(self.compute_trend_test_type, list_args)
             else:
                 trend_types = [self.compute_trend_test_type(smooth_maxima, starting_year, trend_test_class, years)
