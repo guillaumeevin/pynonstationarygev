@@ -81,7 +81,10 @@ class AbstractGevTrendTest(AbstractTrendTest):
 
     @property
     def test_trend_strength(self):
-        return self.percentage_of_change_per_year
+        if self.crashed:
+            return 0.0
+        else:
+            return self.percentage_of_change_per_year
 
     @property
     def percentage_of_change_per_year(self):

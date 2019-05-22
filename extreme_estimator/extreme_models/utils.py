@@ -55,9 +55,10 @@ class WarningWhileRunningR(Warning):
 class WarningMaximumAbsoluteValueTooHigh(Warning):
     pass
 
-class OptimizationConstants(object):
 
+class OptimizationConstants(object):
     USE_MAXIT = False
+
 
 class SafeRunException(Exception):
     pass

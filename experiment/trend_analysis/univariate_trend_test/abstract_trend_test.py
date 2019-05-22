@@ -21,6 +21,11 @@ class AbstractTrendTest(object):
 
     SIGNIFICANCE_LEVEL = 0.05
 
+    def __init__(self, years_after_change_point, maxima_after_change_point):
+        self.years_after_change_point = years_after_change_point
+        self.maxima_after_change_point = maxima_after_change_point
+        assert len(self.years_after_change_point) == len(self.maxima_after_change_point)
+
     @classmethod
     def trend_type_to_style(cls):
         d = OrderedDict()
@@ -49,10 +54,7 @@ class AbstractTrendTest(object):
         else:
             return plt.cm.binary
 
-    def __init__(self, years_after_change_point, maxima_after_change_point):
-        self.years_after_change_point = years_after_change_point
-        self.maxima_after_change_point = maxima_after_change_point
-        assert len(self.years_after_change_point) == len(self.maxima_after_change_point)
+
 
     @property
     def n(self):

@@ -37,10 +37,10 @@ def full_trends_with_quantity_altitude_hypercube():
     save_to_file = True
     only_first_one = False
     fast = False
-    add_detailed_plots = False
+    add_detailed_plots = True
     altitudes = ALL_ALTITUDES[3:-6]
     study_classes = SCM_STUDIES
-    for trend_test_class in [MannKendallTrendTest, GevLocationTrendTest, GevScaleTrendTest, GevShapeTrendTest][1:2]:
+    for trend_test_class in [MannKendallTrendTest, GevLocationTrendTest, GevScaleTrendTest, GevShapeTrendTest][:]:
         visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False, multiprocessing=True)
                        for study in study_iterator_global(study_classes=study_classes, only_first_one=only_first_one,
                                                           altitudes=altitudes)]
@@ -94,8 +94,8 @@ def fast_trends_with_quantity_altitude_hypercube():
 
 def main_run():
     # fast_trends_with_altitude_hypercube()
-    fast_trends_with_quantity_altitude_hypercube()
-    # full_trends_with_quantity_altitude_hypercube()
+    # fast_trends_with_quantity_altitude_hypercube()
+    full_trends_with_quantity_altitude_hypercube()
 
 
 if __name__ == '__main__':
