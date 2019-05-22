@@ -1,7 +1,4 @@
 import time
-
-from experiment.meteo_france_SCM_study.visualization.hypercube_visualization.hypercube_visualizer import \
-    AltitudeHypercubeVisualizer
 from experiment.trend_analysis.abstract_score import MannKendall, WeigthedScore, MeanScore, MedianScore
 from experiment.trend_analysis.univariate_trend_test.abstract_gev_trend_test import GevLocationTrendTest, \
     GevScaleTrendTest, GevShapeTrendTest
@@ -11,7 +8,7 @@ from experiment.meteo_france_SCM_study.visualization.studies_visualization.studi
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies_visualizer import StudiesVisualizer, \
     AltitudeVisualizer
 from experiment.meteo_france_SCM_study.visualization.study_visualization.main_study_visualizer import ALL_ALTITUDES, \
-    study_iterator_global, SCM_STUDIES, study_iterator
+    study_iterator_global, SCM_STUDIES
 
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
 from collections import OrderedDict

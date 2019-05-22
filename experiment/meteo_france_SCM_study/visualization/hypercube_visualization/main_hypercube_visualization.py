@@ -2,8 +2,10 @@ import time
 from itertools import product
 from collections import OrderedDict
 
-from experiment.meteo_france_SCM_study.visualization.hypercube_visualization.hypercube_visualizer import \
-    AltitudeHypercubeVisualizer, QuantityAltitudeHypercubeVisualizer
+from experiment.meteo_france_SCM_study.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
+    AltitudeHypercubeVisualizer
+from experiment.meteo_france_SCM_study.visualization.hypercube_visualization.quantity_altitude_visualizer import \
+    QuantityAltitudeHypercubeVisualizer
 from experiment.meteo_france_SCM_study.visualization.study_visualization.main_study_visualizer import ALL_ALTITUDES, \
     SCM_STUDIES, study_iterator, study_iterator_global
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
@@ -90,9 +92,9 @@ def fast_trends_with_quantity_altitude_hypercube():
 
 
 def main_run():
-    # fast_trends_with_altitude_hypercube()
+    fast_trends_with_altitude_hypercube()
     # fast_trends_with_quantity_altitude_hypercube()
-    full_trends_with_quantity_altitude_hypercube()
+    # full_trends_with_quantity_altitude_hypercube()
 
 
 if __name__ == '__main__':
