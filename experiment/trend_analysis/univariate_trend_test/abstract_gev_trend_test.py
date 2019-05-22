@@ -21,8 +21,9 @@ from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_tempor
 class AbstractGevTrendTest(AbstractTrendTest):
     RRunTimeError_TREND = 'R RunTimeError trend'
 
-    def __init__(self, years_after_change_point, maxima_after_change_point, non_stationary_model_class):
+    def __init__(self, years_after_change_point, maxima_after_change_point, non_stationary_model_class, gev_param_name):
         super().__init__(years_after_change_point, maxima_after_change_point)
+        self.gev_param_name = gev_param_name
         df = pd.DataFrame({AbstractCoordinates.COORDINATE_T: years_after_change_point})
         df_maxima_gev = pd.DataFrame(maxima_after_change_point, index=df.index)
         observations = AbstractSpatioTemporalObservations(df_maxima_gev=df_maxima_gev)
@@ -66,35 +67,42 @@ class AbstractGevTrendTest(AbstractTrendTest):
         else:
             return super().test_trend_type
 
+    def get_coef(self, estimator):
+        return estimator.margin_function_fitted.get_coef(self.gev_param_name, AbstractCoordinates.COORDINATE_T)
+
+    @property
+    def stationary_coef(self):
+        return self.get_coef(self.stationary_estimator)
+
+    @property
+    def non_stationary_coef(self):
+        return self.get_coef(self.non_stationary_estimator)
+
+    @property
+    def ratio_non_stationary_coef(self):
+        pass
+
+    @property
+    def test_sign(self) -> int:
+        return np.sign(self.non_stationary_coef)
+
 
 class GevLocationTrendTest(AbstractGevTrendTest):
 
     def __init__(self, years_after_change_point, maxima_after_change_point):
-        super().__init__(years_after_change_point, maxima_after_change_point, NonStationaryLocationStationModel)
-
-    @property
-    def test_sign(self) -> int:
-        return np.sign(self.non_stationary_estimator.margin_function_fitted.get_coef(GevParams.LOC,
-                                                                                     AbstractCoordinates.COORDINATE_T))
+        super().__init__(years_after_change_point, maxima_after_change_point,
+                         NonStationaryLocationStationModel, GevParams.LOC)
 
 
 class GevScaleTrendTest(AbstractGevTrendTest):
 
     def __init__(self, years_after_change_point, maxima_after_change_point):
-        super().__init__(years_after_change_point, maxima_after_change_point, NonStationaryScaleStationModel)
-
-    @property
-    def test_sign(self) -> int:
-        return np.sign(self.non_stationary_estimator.margin_function_fitted.get_coef(GevParams.SCALE,
-                                                                                     AbstractCoordinates.COORDINATE_T))
+        super().__init__(years_after_change_point, maxima_after_change_point,
+                         NonStationaryScaleStationModel, GevParams.SCALE)
 
 
 class GevShapeTrendTest(AbstractGevTrendTest):
 
     def __init__(self, years_after_change_point, maxima_after_change_point):
-        super().__init__(years_after_change_point, maxima_after_change_point, NonStationaryShapeStationModel)
-
-    @property
-    def test_sign(self) -> int:
-        return np.sign(self.non_stationary_estimator.margin_function_fitted.get_coef(GevParams.SHAPE,
-                                                                                     AbstractCoordinates.COORDINATE_T))
+        super().__init__(years_after_change_point, maxima_after_change_point,
+                         NonStationaryShapeStationModel, GevParams.SHAPE)

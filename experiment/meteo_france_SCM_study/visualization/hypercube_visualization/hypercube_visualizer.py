@@ -59,9 +59,13 @@ class HypercubeVisualizer(object):
 
     # Some properties
 
+    @property
+    def study_title(self):
+        return self.study.title
+
     def show_or_save_to_file(self, specific_title=''):
         if self.save_to_file:
-            main_title, _ = '_'.join(self.study.title.split()).split('/')
+            main_title, *_ = '_'.join(self.study_title.split()).split('/')
             filename = "{}/{}/".format(VERSION_TIME, main_title)
             filename += specific_title
             filepath = op.join(self.study.result_full_path, filename + '.png')
@@ -119,11 +123,21 @@ class AltitudeHypercubeVisualizer(HypercubeVisualizer):
             AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND]
         return trend_type_to_s_percentages
 
-    def visualize_trend_test_evolution(self, reduction_function, xlabel, xlabel_values, ax=None, marker='o'):
+    def subtitle_to_reduction_function(self, reduction_function, level=None, add_detailed_plot=False):
+        def reduction_function_with_level(df_bool):
+            if level is None:
+                return reduction_function(df_bool)
+            else:
+                return reduction_function(df_bool, level)
+        return {'global': reduction_function_with_level}
+
+    def visualize_trend_test_evolution(self, reduction_function, xlabel, xlabel_values, ax=None, marker='o',
+                                       subtitle=''):
         if ax is None:
             fig, ax = plt.subplots(1, 1, figsize=self.study_visualizer.figsize)
 
-        trend_type_to_percentages_values = {k: s.values for k, s in self.trend_type_to_s_percentages(reduction_function).items()}
+        trend_type_to_percentages_values = {k: s.values for k, s in
+                                            self.trend_type_to_s_percentages(reduction_function).items()}
         for trend_type in self.trend_types:
             style = self.trend_type_to_style[trend_type]
             percentages_values = trend_type_to_percentages_values[trend_type]
@@ -149,10 +163,11 @@ class AltitudeHypercubeVisualizer(HypercubeVisualizer):
         name = get_display_name_from_object_type(self.trend_test_class)
         title = 'Evolution of {} trends (significative or not) wrt to the {} with {}'.format(variable_name, xlabel,
                                                                                              name)
+        title += 'with {} data'.format(subtitle)
         ax.set_title(title)
         self.show_or_save_to_file(specific_title=title)
 
-    def visualize_trend_test_repartition(self, reduction_function, axes=None):
+    def visualize_trend_test_repartition(self, reduction_function, axes=None, subtitle=''):
         if axes is None:
             nb_trend_type = len(self.trend_test_class.trend_type_to_style())
             fig, axes = plt.subplots(1, nb_trend_type, figsize=self.study_visualizer.figsize)
@@ -170,47 +185,83 @@ class AltitudeHypercubeVisualizer(HypercubeVisualizer):
         name = get_display_name_from_object_type(self.trend_test_class)
         title = 'Repartition of trends (significative or not) with {}'.format(name)
         title += '\n(in % averaged on altitudes & averaged on starting years)'
+        title += 'with {} data'.format(subtitle)
         StudyVisualizer.clean_axes_write_title_on_the_left(axes, title, left_border=None)
         plt.suptitle(title)
         self.show_or_save_to_file(specific_title=title)
-
-    def visualize_year_trend_test(self, ax=None, marker='o'):
-        def year_reduction(df_bool):
-            # Take the mean with respect to all the first axis indices
-            return df_bool.mean(axis=0)
-
-        self.visualize_trend_test_evolution(reduction_function=year_reduction, xlabel='starting years',
-                                            xlabel_values=self.starting_years, ax=ax, marker=marker)
 
     @property
     def altitude_index_level(self):
         return 0
 
-    def visualize_altitude_trend_test(self, ax=None, marker='o'):
-        def altitude_reduction(df_bool):
-            # Take the mean with respect to the years
-            df_bool = df_bool.mean(axis=1)
-            # Take the mean with respect the massifs
-            return df_bool.mean(level=self.altitude_index_level)
-
-        self.visualize_trend_test_evolution(reduction_function=altitude_reduction, xlabel='altitude',
-                                            xlabel_values=self.altitudes, ax=ax, marker=marker)
-
     @property
     def massif_index_level(self):
         return 1
 
-    def visualize_massif_trend_test(self, axes=None):
-        def massif_reduction(df_bool):
+    def visualize_year_trend_test(self, ax=None, marker='o', add_detailed_plots=False):
+        def year_reduction(df_bool):
+            # Take the mean with respect to all the first axis indices
+            return df_bool.mean(axis=0)
+
+        for subtitle, reduction_function in self.subtitle_to_reduction_function(year_reduction,
+                                                                                add_detailed_plot=add_detailed_plots).items():
+            self.visualize_trend_test_evolution(reduction_function=reduction_function, xlabel='starting years',
+                                                xlabel_values=self.starting_years, ax=ax, marker=marker,
+                                                subtitle=subtitle)
+
+    def visualize_altitude_trend_test(self, ax=None, marker='o', add_detailed_plots=False):
+        def altitude_reduction(df_bool, level):
+            # Take the mean with respect to the years
+            df_bool = df_bool.mean(axis=1)
+            # Take the mean with respect the massifs
+            print(df_bool.head())
+            return df_bool.mean(level=level)
+
+        for subtitle, reduction_function in self.subtitle_to_reduction_function(altitude_reduction, level=self.altitude_index_level,
+                                                                                add_detailed_plot=add_detailed_plots).items():
+            self.visualize_trend_test_evolution(reduction_function=reduction_function, xlabel='altitude',
+                                                xlabel_values=self.altitudes, ax=ax, marker=marker,
+                                                subtitle=subtitle)
+
+    def visualize_massif_trend_test(self, axes=None, add_detailed_plots=False):
+        def massif_reduction(df_bool, level):
             # Take the mean with respect to the years
             df_bool = df_bool.mean(axis=1)
             # Take the mean with respect the altitude
-            return df_bool.mean(level=self.massif_index_level)
+            return df_bool.mean(level=level)
 
-        self.visualize_trend_test_repartition(massif_reduction, axes)
+        for subtitle, reduction_function in self.subtitle_to_reduction_function(massif_reduction,level=self.massif_index_level,
+                                                                                add_detailed_plot=add_detailed_plots).items():
+            self.visualize_trend_test_repartition(reduction_function, axes, subtitle=subtitle)
 
 
 class QuantityAltitudeHypercubeVisualizer(AltitudeHypercubeVisualizer):
+
+    @property
+    def study_title(self):
+        return 'Quantity Altitude Study'
+
+    def subtitle_to_reduction_function(self, reduction_function, level=None, add_detailed_plot=False):
+        subtitle_to_reduction_function = super().subtitle_to_reduction_function(reduction_function, level, add_detailed_plot)
+
+        def get_function_from_tuple(tuple_for_axis_0):
+            def f(df_bool: pd.DataFrame):
+                # Loc with a tuple with respect the axis 0
+                df_bool = df_bool.loc[tuple_for_axis_0, :].copy()
+                # Apply the reduction function
+                if level is None:
+                    return reduction_function(df_bool)
+                else:
+                    return reduction_function(df_bool, level-1)
+
+            return f
+
+        # Add the detailed plot, taken by loc with respect to the first index
+        if add_detailed_plot:
+            tuples_axis_0 = self.tuple_values(idx=0)
+            for tuple_axis_0 in tuples_axis_0:
+                subtitle_to_reduction_function[tuple_axis_0] = get_function_from_tuple(tuple_axis_0)
+        return subtitle_to_reduction_function
 
     @property
     def quantities(self):

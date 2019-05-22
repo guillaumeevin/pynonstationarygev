@@ -85,6 +85,7 @@ class ExampleRandomTrendTest(AbstractTrendTest):
 class WarningScoreValue(Warning):
     pass
 
+
 class MannKendallTrendTest(AbstractTrendTest):
 
     def __init__(self, years_after_change_point, maxima_after_change_point):
