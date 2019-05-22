@@ -32,6 +32,15 @@ class AbstractTrendTest(object):
         return d
 
     @classmethod
+    def get_trend_types(cls, trend_type):
+        if trend_type is cls.POSITIVE_TREND:
+            return [cls.POSITIVE_TREND, cls.SIGNIFICATIVE_POSITIVE_TREND]
+        elif trend_type is cls.NEGATIVE_TREND:
+            return [cls.NEGATIVE_TREND, cls.SIGNIFICATIVE_NEGATIVE_TREND]
+        else:
+            return [trend_type]
+
+    @classmethod
     def get_cmap_from_trend_type(cls, trend_type):
         if 'positive' in trend_type:
             return plt.cm.Greens
@@ -48,6 +57,10 @@ class AbstractTrendTest(object):
     @property
     def n(self):
         return len(self.years_after_change_point)
+
+    @property
+    def test_trend_strength(self):
+        return 0.0
 
     @property
     def test_trend_type(self) -> str:

@@ -10,9 +10,10 @@ class QuantityAltitudeHypercubeVisualizer(AltitudeHypercubeVisualizer):
     def study_title(self):
         return 'Quantity Altitude Study'
 
-    def subtitle_to_reduction_function(self, reduction_function, level=None, add_detailed_plot=False):
+    def subtitle_to_reduction_function(self, reduction_function, level=None, add_detailed_plot=False, subtitle=None):
         subtitle_to_reduction_function = super().subtitle_to_reduction_function(reduction_function,
-                                                                                level, add_detailed_plot)
+                                                                                level, add_detailed_plot,
+                                                                                'global')
 
         def get_function_from_tuple(tuple_for_axis_0):
             def f(df_bool: pd.DataFrame):

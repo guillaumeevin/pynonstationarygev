@@ -83,7 +83,7 @@ class LinearMarginFunction(ParametricMarginFunction):
     # Properties for the location parameter
 
     def get_coef(self, gev_param_name, coef_name):
-        idx = 1 if coef_name in [AbstractCoordinates.COORDINATE_T] \
+        idx = 1 if coef_name in [AbstractCoordinates.COORDINATE_T, LinearCoef.INTERCEPT_NAME] \
             else AbstractCoordinates.COORDINATE_SPATIAL_NAMES.index(coef_name) + 2
         return self.coef_dict[LinearCoef.coef_template_str(gev_param_name, coef_name).format(idx)]
     

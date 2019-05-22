@@ -376,7 +376,8 @@ class StudyVisualizer(object):
             trend_type_and_weight = []
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
             for starting_year, weight in starting_year_to_weight.items():
-                test_trend_type = self.compute_trend_test_type(smooth_maxima, starting_year, trend_test_class, years)
+                test_trend_res = self.compute_trend_test_result(smooth_maxima, starting_year, trend_test_class, years)
+                test_trend_type = test_trend_res[0]
                 trend_type_and_weight.append((test_trend_type, weight))
             df = pd.DataFrame(trend_type_and_weight, columns=['trend type', 'weight'])
             massif_name_to_df_trend_type[massif_name] = df
@@ -391,29 +392,35 @@ class StudyVisualizer(object):
         :param starting_year_to_weight:
         :return:
         """
-        massif_name_to_trend_types = {}
+        massif_name_to_trend_res = {}
         massif_names = self.study.study_massif_names
         if nb_massif_for_fast_mode is not None:
             massif_names = massif_names[:nb_massif_for_fast_mode]
         for massif_id, massif_name in enumerate(massif_names):
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
             if self.multiprocessing:
-                list_args = [(smooth_maxima, starting_year, trend_test_class, years) for starting_year in starting_years]
+                list_args = [(smooth_maxima, starting_year, trend_test_class, years) for starting_year in
+                             starting_years]
                 with Pool(NB_CORES) as p:
-                    trend_types = p.starmap(self.compute_trend_test_type, list_args)
+                    trend_test_res = p.starmap(self.compute_trend_test_result, list_args)
             else:
-                trend_types = [self.compute_trend_test_type(smooth_maxima, starting_year, trend_test_class, years)
-                               for starting_year in starting_years]
-            massif_name_to_trend_types[massif_name] = trend_types
-        df = pd.DataFrame(massif_name_to_trend_types, index=starting_years)
-        return df.transpose()
+                trend_test_res = [self.compute_trend_test_result(smooth_maxima, starting_year, trend_test_class, years)
+                                  for starting_year in starting_years]
+            massif_name_to_trend_res[massif_name] = list(zip(*trend_test_res))
+            # Build one DataFrame per trend test res
+        nb_res = len(list(massif_name_to_trend_res.values())[0])
+        assert nb_res == 2
+        all_massif_name_to_res = [{k: v[idx_res] for k, v in massif_name_to_trend_res.items()}
+                                  for idx_res in range(nb_res)]
+        return [pd.DataFrame(massif_name_to_res, index=starting_years).transpose()
+                for massif_name_to_res in all_massif_name_to_res]
 
     @staticmethod
-    def compute_trend_test_type(smooth_maxima, starting_year, trend_test_class, years):
+    def compute_trend_test_result(smooth_maxima, starting_year, trend_test_class, years):
         idx = years.index(starting_year)
         # assert years[0] == starting_year, "{} {}".format(years[0], starting_year)
         trend_test = trend_test_class(years[:][idx:], smooth_maxima[:][idx:])  # type: AbstractTrendTest
-        return trend_test.test_trend_type
+        return trend_test.test_trend_type, trend_test.test_trend_strength
 
     def df_trend_test_count(self, trend_test_class, starting_year_to_weight):
         """

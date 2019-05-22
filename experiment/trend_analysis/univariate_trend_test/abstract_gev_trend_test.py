@@ -4,6 +4,7 @@ from scipy.stats import chi2
 
 from experiment.trend_analysis.univariate_trend_test.abstract_trend_test import AbstractTrendTest
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
+from extreme_estimator.extreme_models.margin_model.param_function.linear_coef import LinearCoef
 from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import StationaryStationModel, \
     NonStationaryLocationStationModel, NonStationaryScaleStationModel, NonStationaryShapeStationModel
 from extreme_estimator.extreme_models.utils import SafeRunException
@@ -67,24 +68,24 @@ class AbstractGevTrendTest(AbstractTrendTest):
         else:
             return super().test_trend_type
 
-    def get_coef(self, estimator):
-        return estimator.margin_function_fitted.get_coef(self.gev_param_name, AbstractCoordinates.COORDINATE_T)
+    def get_coef(self, estimator, coef_name):
+        return estimator.margin_function_fitted.get_coef(self.gev_param_name, coef_name)
 
     @property
-    def stationary_coef(self):
-        return self.get_coef(self.stationary_estimator)
+    def non_stationary_intercept_coef(self):
+        return self.get_coef(self.non_stationary_estimator, LinearCoef.INTERCEPT_NAME)
 
     @property
-    def non_stationary_coef(self):
-        return self.get_coef(self.non_stationary_estimator)
+    def non_stationary_linear_coef(self):
+        return self.get_coef(self.non_stationary_estimator, AbstractCoordinates.COORDINATE_T)
 
     @property
-    def ratio_non_stationary_coef(self):
-        pass
+    def test_trend_strength(self):
+        return 100 * np.abs(self.non_stationary_linear_coef) / np.abs(self.non_stationary_intercept_coef)
 
     @property
     def test_sign(self) -> int:
-        return np.sign(self.non_stationary_coef)
+        return np.sign(self.non_stationary_linear_coef)
 
 
 class GevLocationTrendTest(AbstractGevTrendTest):

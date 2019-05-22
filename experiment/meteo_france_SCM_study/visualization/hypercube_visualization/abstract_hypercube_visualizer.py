@@ -42,20 +42,20 @@ class AbstractHypercubeVisualizer(object):
         return sorted(set([t[idx] if isinstance(t, tuple) else t for t in self.tuple_to_study_visualizer.keys()]))
 
     @cached_property
+    def df_trends_spatio_temporal(self):
+        return [study_visualizer.df_trend_spatio_temporal(self.trend_test_class, self.starting_years,
+                                                          self.nb_data_for_fast_mode)
+                for study_visualizer in self.tuple_to_study_visualizer.values()]
+
+    @cached_property
     def df_hypercube_trend_type(self) -> pd.DataFrame:
-        df_spatio_temporal_trend_types = [
-            study_visualizer.df_trend_spatio_temporal(self.trend_test_class, self.starting_years,
-                                                      self.nb_data_for_fast_mode)
-            for study_visualizer in self.tuple_to_study_visualizer.values()]
+        df_spatio_temporal_trend_types = [e[0] for e in self.df_trends_spatio_temporal]
         return pd.concat(df_spatio_temporal_trend_types, keys=list(self.tuple_to_study_visualizer.keys()), axis=0)
 
     @cached_property
     def df_hypercube_trend_strength(self) -> pd.DataFrame:
-        df_spatio_temporal_trend_types = [
-            study_visualizer.df_trend_spatio_temporal(self.trend_test_class, self.starting_years,
-                                                      self.nb_data_for_fast_mode)
-            for study_visualizer in self.tuple_to_study_visualizer.values()]
-        return pd.concat(df_spatio_temporal_trend_types, keys=list(self.tuple_to_study_visualizer.keys()), axis=0)
+        df_spatio_temporal_trend_strength = [e[1] for e in self.df_trends_spatio_temporal]
+        return pd.concat(df_spatio_temporal_trend_strength, keys=list(self.tuple_to_study_visualizer.keys()), axis=0)
 
     # Some properties
 
@@ -89,7 +89,3 @@ class AbstractHypercubeVisualizer(object):
         # Load uniform weights by default
         uniform_weight = 1 / len(self.starting_years)
         return {year: uniform_weight for year in self.starting_years}
-
-
-
-
