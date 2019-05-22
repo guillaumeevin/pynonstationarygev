@@ -88,13 +88,13 @@ def fast_trends_with_quantity_altitude_hypercube():
         visualizer = QuantityAltitudeHypercubeVisualizer(quantity_altitude_to_visualizer, save_to_file=save_to_file,
                                                          trend_test_class=trend_test_class, fast=fast)
         visualizer.visualize_year_trend_test()
-        # visualizer.visualize_massif_trend_test()
-        # visualizer.visualize_altitude_trend_test()
+        visualizer.visualize_massif_trend_test()
+        visualizer.visualize_altitude_trend_test()
 
 
 def main_run():
-    fast_trends_with_altitude_hypercube()
-    # fast_trends_with_quantity_altitude_hypercube()
+    # fast_trends_with_altitude_hypercube()
+    fast_trends_with_quantity_altitude_hypercube()
     # full_trends_with_quantity_altitude_hypercube()
 
 

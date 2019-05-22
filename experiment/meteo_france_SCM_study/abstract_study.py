@@ -237,7 +237,7 @@ class AbstractStudy(object):
     """ Visualization methods """
 
     def visualize_study(self, ax=None, massif_name_to_value=None, show=True, fill=True, replace_blue_by_white=True,
-                        label=None, add_text=False, cmap=None):
+                        label=None, add_text=False, cmap=None, vmax=100):
         if massif_name_to_value is None:
             massif_name_to_fill_kwargs = None
         else:
@@ -245,7 +245,7 @@ class AbstractStudy(object):
             if cmap is None:
                 colors = get_color_rbga_shifted(ax, replace_blue_by_white, values, label=label)
             else:
-                norm = Normalize(0, 100)
+                norm = Normalize(0, vmax)
                 create_colorbase_axis(ax, label, cmap, norm)
                 m = cm.ScalarMappable(norm=norm, cmap=cmap)
                 colors = [m.to_rgba(value) for value in values]

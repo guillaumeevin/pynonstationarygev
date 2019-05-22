@@ -660,7 +660,7 @@ class StudyVisualizer(object):
         ax0.get_yaxis().set_visible(True)
         sub_title = ax0.yaxis.get_label()
         full_title = title + '\n\n' + sub_title._text
-        label_function = ax0.set_ylabel if left_border else ax0.set_xlabel
+        label_function = ax0.set_ylabel if left_border or left_border is None else ax0.set_xlabel
         label_function(full_title)
         ax0.tick_params(axis=u'both', which=u'both', length=0)
 
