@@ -18,14 +18,15 @@ class TestTransformation(unittest.TestCase):
         nb_steps = 3
         start = 1950
         transformation_class_to_expected = {
-            BetweenZeroAndOneNormalization: [0.0, 0.5, 1.0],
-            BetweenMinusOneAndOneNormalization: [-1.0, 0.0, 1.0],
-            CenteredScaledNormalization: [-1.22474487, 0., 1.22474487],
+            BetweenZeroAndOneNormalization: (0.5, [0.0, 0.5, 1.0]),
+            BetweenMinusOneAndOneNormalization: (1.0, [-1.0, 0.0, 1.0]),
+            CenteredScaledNormalization: (1.22474487, [-1.22474487, 0., 1.22474487]),
         }
-        for transformation_class, expected in transformation_class_to_expected.items():
+        for transformation_class, (expected_distance, expected) in transformation_class_to_expected.items():
             temporal_coordinates = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(nb_temporal_steps=nb_steps,
                                                                                          start=start,
                                                                                          transformation_class=transformation_class)
+            self.assertTrue(np.allclose(temporal_coordinates.transformed_distance_between_two_successive_years, expected_distance))
             normalized_coordinates = temporal_coordinates.df_coordinates().iloc[:, 0].values
             expected_coordinates = np.array(expected)
             equal = np.allclose(normalized_coordinates , expected_coordinates)

@@ -133,8 +133,8 @@ class AbstractCoordinates(object):
     # Normalize
 
     def transform(self, coordinate: np.ndarray) -> np.ndarray:
-        coordinate_float = coordinate.astype(self.COORDINATE_TYPE)
-        return self.transformation.transform_array(coordinate=coordinate_float)
+        coordinate_array_as_float = coordinate.astype(self.COORDINATE_TYPE)
+        return self.transformation.transform_array(coordinate=coordinate_array_as_float)
 
     # Split
 

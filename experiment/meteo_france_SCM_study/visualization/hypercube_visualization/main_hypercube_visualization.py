@@ -93,9 +93,9 @@ def fast_trends_with_quantity_altitude_hypercube():
 
 
 def main_run():
-    # fast_trends_with_altitude_hypercube()
+    fast_trends_with_altitude_hypercube()
     # fast_trends_with_quantity_altitude_hypercube()
-    full_trends_with_quantity_altitude_hypercube()
+    # full_trends_with_quantity_altitude_hypercube()
 
 
 if __name__ == '__main__':

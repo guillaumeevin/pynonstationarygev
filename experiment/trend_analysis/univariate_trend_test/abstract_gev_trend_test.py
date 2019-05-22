@@ -28,7 +28,7 @@ class AbstractGevTrendTest(AbstractTrendTest):
         df = pd.DataFrame({AbstractCoordinates.COORDINATE_T: years_after_change_point})
         df_maxima_gev = pd.DataFrame(maxima_after_change_point, index=df.index)
         observations = AbstractSpatioTemporalObservations(df_maxima_gev=df_maxima_gev)
-        self.coordinates = AbstractTemporalCoordinates.from_df(df, transformation_class=CenteredScaledNormalization)
+        self.coordinates = AbstractTemporalCoordinates.from_df(df, transformation_class=CenteredScaledNormalization) # type: AbstractTemporalCoordinates
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
 
         try:
@@ -81,7 +81,14 @@ class AbstractGevTrendTest(AbstractTrendTest):
 
     @property
     def test_trend_strength(self):
-        return 100 * np.abs(self.non_stationary_linear_coef) / np.abs(self.non_stationary_intercept_coef)
+        return self.percentage_of_change_per_year
+
+    @property
+    def percentage_of_change_per_year(self):
+        ratio = np.abs(self.non_stationary_linear_coef) / np.abs(self.non_stationary_intercept_coef)
+        scaled_ratio = ratio * self.coordinates.transformed_distance_between_two_successive_years
+        percentage_of_change_per_year = 100 * scaled_ratio
+        return percentage_of_change_per_year
 
     @property
     def test_sign(self) -> int:
