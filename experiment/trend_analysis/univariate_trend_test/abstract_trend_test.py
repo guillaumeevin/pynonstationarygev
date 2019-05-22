@@ -1,4 +1,6 @@
 import random
+import warnings
+
 import matplotlib.pyplot as plt
 from collections import OrderedDict
 
@@ -80,6 +82,9 @@ class ExampleRandomTrendTest(AbstractTrendTest):
         return random.randint(1, 10) == 10
 
 
+class WarningScoreValue(Warning):
+    pass
+
 class MannKendallTrendTest(AbstractTrendTest):
 
     def __init__(self, years_after_change_point, maxima_after_change_point):
@@ -94,7 +99,9 @@ class MannKendallTrendTest(AbstractTrendTest):
                                   eps=1e-5,
                                   alpha=self.SIGNIFICANCE_LEVEL,
                                   Ha='upordown')
-        assert S == self.score_value
+        # Raise warning if scores are differents
+        if S != self.score_value:
+            warnings.warn('S={} is different that score_value={}'.format(S, self.score_value), WarningScoreValue)
         self.MK = MK
 
     @property

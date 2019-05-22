@@ -47,6 +47,9 @@ class HypercubeVisualizer(object):
             for study_visualizer in self.tuple_to_study_visualizer.values()]
         return dict(zip(self.tuple_to_study_visualizer.keys(), df_spatio_temporal_trend_types))
 
+    def tuple_values(self, idx):
+        return sorted(set([t[idx] if isinstance(t, tuple) else t for t in self.tuple_to_study_visualizer.keys()]))
+
     @cached_property
     def df_hypercube(self) -> pd.DataFrame:
         keys = list(self.tuple_to_df_trend_type.keys())
@@ -88,8 +91,8 @@ class AltitudeHypercubeVisualizer(HypercubeVisualizer):
 
     @property
     def altitudes(self):
-        return list(self.tuple_to_study_visualizer.keys())
-    
+        return self.tuple_values(idx=0)
+
     @property
     def trend_type_to_style(self):
         return self.trend_test_class.trend_type_to_style()
@@ -97,7 +100,7 @@ class AltitudeHypercubeVisualizer(HypercubeVisualizer):
     @property
     def trend_types(self):
         return self.trend_type_to_style.keys()
-    
+
     def trend_type_to_s_percentages(self, reduction_function):
         # Map each trend type to its serie with percentages
         trend_type_to_s_percentages = {}
@@ -106,22 +109,30 @@ class AltitudeHypercubeVisualizer(HypercubeVisualizer):
             # Reduce the entire dataframe to a serie
             s_percentages = reduction_function(df_bool)
             assert isinstance(s_percentages, pd.Series)
+            assert not isinstance(s_percentages.index, pd.MultiIndex)
             s_percentages *= 100
             trend_type_to_s_percentages[trend_type] = s_percentages
         # Post processing - Add the significant trend into the count of normal trend
-        trend_type_to_s_percentages[AbstractTrendTest.POSITIVE_TREND] += trend_type_to_s_percentages[AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND]
-        trend_type_to_s_percentages[AbstractTrendTest.NEGATIVE_TREND] += trend_type_to_s_percentages[AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND]
+        trend_type_to_s_percentages[AbstractTrendTest.POSITIVE_TREND] += trend_type_to_s_percentages[
+            AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND]
+        trend_type_to_s_percentages[AbstractTrendTest.NEGATIVE_TREND] += trend_type_to_s_percentages[
+            AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND]
         return trend_type_to_s_percentages
-    
+
     def visualize_trend_test_evolution(self, reduction_function, xlabel, xlabel_values, ax=None, marker='o'):
         if ax is None:
             fig, ax = plt.subplots(1, 1, figsize=self.study_visualizer.figsize)
 
-        trend_type_to_s_percentages = self.trend_type_to_s_percentages(reduction_function)
+        trend_type_to_percentages_values = {k: s.values for k, s in self.trend_type_to_s_percentages(reduction_function).items()}
         for trend_type in self.trend_types:
             style = self.trend_type_to_style[trend_type]
-            s_percentages = trend_type_to_s_percentages[trend_type]
-            ax.plot(xlabel_values, s_percentages.values, style + marker, label=trend_type)
+            percentages_values = trend_type_to_percentages_values[trend_type]
+            ax.plot(xlabel_values, percentages_values, style + marker, label=trend_type)
+
+        # Plot the total value of significative values
+        significative_values = trend_type_to_percentages_values[AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND] \
+                               + trend_type_to_percentages_values[AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND]
+        ax.plot(xlabel_values, significative_values, 'y-' + marker, label=AbstractTrendTest.SIGNIFICATIVE + ' trends')
 
         # Global information
         added_str = 'weighted '
@@ -165,33 +176,54 @@ class AltitudeHypercubeVisualizer(HypercubeVisualizer):
 
     def visualize_year_trend_test(self, ax=None, marker='o'):
         def year_reduction(df_bool):
-            # Take the mean with respect the massifs
-            df_bool = df_bool.mean(axis=0, level=0)
-            # Take the mean with respect to the altitude
+            # Take the mean with respect to all the first axis indices
             return df_bool.mean(axis=0)
 
         self.visualize_trend_test_evolution(reduction_function=year_reduction, xlabel='starting years',
                                             xlabel_values=self.starting_years, ax=ax, marker=marker)
+
+    @property
+    def altitude_index_level(self):
+        return 0
 
     def visualize_altitude_trend_test(self, ax=None, marker='o'):
         def altitude_reduction(df_bool):
             # Take the mean with respect to the years
             df_bool = df_bool.mean(axis=1)
             # Take the mean with respect the massifs
-            return df_bool.mean(axis=0, level=0)
+            return df_bool.mean(level=self.altitude_index_level)
 
         self.visualize_trend_test_evolution(reduction_function=altitude_reduction, xlabel='altitude',
                                             xlabel_values=self.altitudes, ax=ax, marker=marker)
+
+    @property
+    def massif_index_level(self):
+        return 1
 
     def visualize_massif_trend_test(self, axes=None):
         def massif_reduction(df_bool):
             # Take the mean with respect to the years
             df_bool = df_bool.mean(axis=1)
             # Take the mean with respect the altitude
-            return df_bool.mean(axis=0, level=1)
+            return df_bool.mean(level=self.massif_index_level)
 
         self.visualize_trend_test_repartition(massif_reduction, axes)
 
 
-class QuantitityAltitudeHypercubeVisualizer(HypercubeVisualizer):
-    pass
+class QuantityAltitudeHypercubeVisualizer(AltitudeHypercubeVisualizer):
+
+    @property
+    def quantities(self):
+        return self.tuple_values(idx=0)
+
+    @property
+    def altitudes(self):
+        return self.tuple_values(idx=1)
+
+    @property
+    def altitude_index_level(self):
+        return 1
+
+    @property
+    def massif_index_level(self):
+        return 2

@@ -1,7 +1,7 @@
+import numpy as np
 import pandas as pd
 from scipy.stats import chi2
-import numpy as np
-from sklearn.preprocessing import normalize
+
 from experiment.trend_analysis.univariate_trend_test.abstract_trend_test import AbstractTrendTest
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import StationaryStationModel, \
@@ -13,8 +13,6 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_
     AbstractTemporalCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
     CenteredScaledNormalization
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
-    BetweenZeroAndOneNormalization
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
