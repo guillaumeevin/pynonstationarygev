@@ -15,8 +15,10 @@ class AbstractUnivariateTest(object):
     SIGNIFICATIVE = 'significative'
     # 5 possible types of trends
     NO_TREND = 'no trend'
+    ALL_TREND = 'all trend'
     POSITIVE_TREND = 'positive trend'
     NEGATIVE_TREND = 'negative trend'
+    SIGNIFICATIVE_ALL_TREND = SIGNIFICATIVE + ' ' + ALL_TREND
     SIGNIFICATIVE_POSITIVE_TREND = SIGNIFICATIVE + ' ' + POSITIVE_TREND
     SIGNIFICATIVE_NEGATIVE_TREND = SIGNIFICATIVE + ' ' + NEGATIVE_TREND
 
@@ -43,15 +45,21 @@ class AbstractUnivariateTest(object):
     @classmethod
     def trend_type_to_style(cls):
         d = OrderedDict()
+        d[cls.ALL_TREND] = 'k--'
         d[cls.POSITIVE_TREND] = 'g--'
         d[cls.NEGATIVE_TREND] = 'r--'
+        d[cls.SIGNIFICATIVE_ALL_TREND] = 'k-'
         d[cls.SIGNIFICATIVE_POSITIVE_TREND] = 'g-'
         d[cls.SIGNIFICATIVE_NEGATIVE_TREND] = 'r-'
-        d[cls.NO_TREND] = 'k--'
+        # d[cls.NO_TREND] = 'k--'
         return d
 
     @classmethod
     def get_trend_types(cls, trend_type):
+        if trend_type is cls.ALL_TREND:
+            return cls.get_trend_types(cls.POSITIVE_TREND) + cls.get_trend_types(cls.NEGATIVE_TREND)
+        elif trend_type is cls.SIGNIFICATIVE_ALL_TREND:
+            return [cls.SIGNIFICATIVE_POSITIVE_TREND, cls.SIGNIFICATIVE_NEGATIVE_TREND]
         if trend_type is cls.POSITIVE_TREND:
             return [cls.POSITIVE_TREND, cls.SIGNIFICATIVE_POSITIVE_TREND]
         elif trend_type is cls.NEGATIVE_TREND:

@@ -62,11 +62,11 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
 
     # Add a trend type that correspond to run that crashed
 
-    @classmethod
-    def trend_type_to_style(cls):
-        trend_type_to_style = super().trend_type_to_style()
-        trend_type_to_style[cls.RRunTimeError_TREND] = 'b:'
-        return trend_type_to_style
+    # @classmethod
+    # def trend_type_to_style(cls):
+    #     trend_type_to_style = super().trend_type_to_style()
+    #     trend_type_to_style[cls.RRunTimeError_TREND] = 'b:'
+    #     return trend_type_to_style
 
     @property
     def test_trend_type(self) -> str:

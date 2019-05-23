@@ -17,6 +17,7 @@ class AbstractTrendScore(object):
 
 
 class MannKendall(AbstractTrendScore):
+    # see here for the explanation: https://up-rs-esp.github.io/mkt/
 
     def get_detailed_score(self, years_after_change_point, maxima_after_change_point):
         score = 0.0
