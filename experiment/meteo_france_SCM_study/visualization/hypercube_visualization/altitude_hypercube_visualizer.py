@@ -4,7 +4,7 @@ import pandas as pd
 from experiment.meteo_france_SCM_study.visualization.hypercube_visualization.abstract_hypercube_visualizer import \
     AbstractHypercubeVisualizer
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
-from experiment.trend_analysis.univariate_trend_test.abstract_trend_test import AbstractTrendTest
+from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from utils import get_display_name_from_object_type
 
 
@@ -27,7 +27,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         trend_type_to_series = {}
         for trend_type in self.trend_types:
             # Reduce df_bool df to a serie s_trend_type_percentage
-            df_bool = self.df_hypercube_trend_type.isin(AbstractTrendTest.get_trend_types(trend_type))
+            df_bool = self.df_hypercube_trend_type.isin(AbstractUnivariateTest.get_trend_types(trend_type))
             s_trend_type_percentage = reduction_function(df_bool)
             assert isinstance(s_trend_type_percentage, pd.Series)
             assert not isinstance(s_trend_type_percentage.index, pd.MultiIndex)
@@ -50,16 +50,16 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
     def get_title_plot(self, xlabel, ax_idx=None):
         labels = ['altitudes', 'starting years', 'massifs']
         assert xlabel in labels, xlabel
-        labels.remove(xlabel)
-        common_txt = 'averaged on {} & {}'.format(*labels)
-        if ax_idx is None:
-            return common_txt
+        if ax_idx == 1:
+            return '% of change per year for the parameter value'
+        elif ax_idx == 0:
+            return '% of trend type'
         else:
-            assert ax_idx in [0, 1]
-            if ax_idx == 0:
-                return '% of trend type '
-            else:
-                return '% of change per year for the parameter value'
+            labels.remove(xlabel)
+            if xlabel != 'starting years':
+                labels.remove('starting years')
+            common_txt = 'averaged on {}'.format(' & '.join(labels))
+            return common_txt
 
     def visualize_trend_test_evolution(self, reduction_function, xlabel, xlabel_values, axes=None, marker='o',
                                        subtitle=''):
@@ -74,11 +74,11 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                 ax.plot(xlabel_values, percentages_values, style + marker, label=trend_type)
 
             if i == 0:
-                # Plot the total value of significative values
-                significative_values = trend_type_to_series[AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND][i] \
-                                       + trend_type_to_series[AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND][i]
-                ax.plot(xlabel_values, significative_values, 'y-' + marker,
-                        label=AbstractTrendTest.SIGNIFICATIVE + ' trends')
+                # # Plot the total value of significative values
+                # significative_values = trend_type_to_series[AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND][i] \
+                #                        + trend_type_to_series[AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND][i]
+                # ax.plot(xlabel_values, significative_values, 'y-' + marker,
+                #         label=AbstractUnivariateTest.SIGNIFICATIVE + ' trends')
 
                 # Global information
                 ax.set_ylabel(self.get_title_plot(xlabel, ax_idx=0))
@@ -144,7 +144,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
     def visualize_altitude_trend_test(self, axes=None, marker='o', add_detailed_plots=False):
         def altitude_reduction(df_bool, level):
             # Take the mean with respect to the years
-            df_bool = df_bool.mean(axis=1)
+            df_bool = df_bool.any(axis=1)
             # Take the mean with respect the massifs
             return df_bool.mean(level=level)
 
@@ -158,7 +158,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
     def visualize_massif_trend_test(self, axes=None, add_detailed_plots=False):
         def massif_reduction(df_bool, level):
             # Take the mean with respect to the years
-            df_bool = df_bool.mean(axis=1)
+            df_bool = df_bool.any(axis=1)
             # Take the mean with respect the altitude
             return df_bool.mean(level=level)
 

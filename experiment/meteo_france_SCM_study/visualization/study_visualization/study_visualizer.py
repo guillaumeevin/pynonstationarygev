@@ -11,7 +11,8 @@ import seaborn as sns
 
 from experiment.trend_analysis.abstract_score import MeanScore, AbstractTrendScore
 from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
-from experiment.trend_analysis.univariate_trend_test.abstract_trend_test import AbstractTrendTest
+from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import AbstractGevChangePointTest
+from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.trend_analysis.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
 from experiment.meteo_france_SCM_study.visualization.utils import create_adjusted_axes
@@ -376,8 +377,7 @@ class StudyVisualizer(object):
             trend_type_and_weight = []
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
             for starting_year, weight in starting_year_to_weight.items():
-                test_trend_res = self.compute_trend_test_result(smooth_maxima, starting_year, trend_test_class, years)
-                test_trend_type = test_trend_res[0]
+                test_trend_type = self.compute_trend_test_result(smooth_maxima, starting_year, trend_test_class, years)
                 trend_type_and_weight.append((test_trend_type, weight))
             df = pd.DataFrame(trend_type_and_weight, columns=['trend type', 'weight'])
             massif_name_to_df_trend_type[massif_name] = df
@@ -402,12 +402,17 @@ class StudyVisualizer(object):
                 list_args = [(smooth_maxima, starting_year, trend_test_class, years) for starting_year in
                              starting_years]
                 with Pool(NB_CORES) as p:
-                    trend_test_res = p.starmap(self.compute_trend_test_result, list_args)
+                    trend_test_res = p.starmap(self.compute_gev_change_point_test_result, list_args)
             else:
-                trend_test_res = [self.compute_trend_test_result(smooth_maxima, starting_year, trend_test_class, years)
-                                  for starting_year in starting_years]
+                trend_test_res = [
+                    self.compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_test_class, years)
+                    for starting_year in starting_years]
+            # Keep only the most likely starting year
+            # (set all the other data to np.nan so that they will not be taken into account in mean function)
+            best_idx = np.argmax(trend_test_res, axis=0)[-1]
+            trend_test_res = [(a, b) if i == best_idx else (np.nan, np.nan)
+                              for i, (a, b, _) in enumerate(trend_test_res)]
             massif_name_to_trend_res[massif_name] = list(zip(*trend_test_res))
-            # Build one DataFrame per trend test res
         nb_res = len(list(massif_name_to_trend_res.values())[0])
         assert nb_res == 2
         all_massif_name_to_res = [{k: v[idx_res] for k, v in massif_name_to_trend_res.items()}
@@ -416,11 +421,15 @@ class StudyVisualizer(object):
                 for massif_name_to_res in all_massif_name_to_res]
 
     @staticmethod
+    def compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_test_class, years):
+        trend_test = trend_test_class(years, smooth_maxima, starting_year)  # type: AbstractGevChangePointTest
+        assert isinstance(trend_test, AbstractGevChangePointTest)
+        return trend_test.test_trend_type, trend_test.test_trend_strength, trend_test.non_stationary_nllh
+
+    @staticmethod
     def compute_trend_test_result(smooth_maxima, starting_year, trend_test_class, years):
-        idx = years.index(starting_year)
-        # assert years[0] == starting_year, "{} {}".format(years[0], starting_year)
-        trend_test = trend_test_class(years[:][idx:], smooth_maxima[:][idx:])  # type: AbstractTrendTest
-        return trend_test.test_trend_type, trend_test.test_trend_strength
+        trend_test = trend_test_class(years, smooth_maxima, starting_year)  # type: AbstractUnivariateTest
+        return trend_test.test_trend_type
 
     def df_trend_test_count(self, trend_test_class, starting_year_to_weight):
         """
@@ -437,10 +446,10 @@ class StudyVisualizer(object):
         df.fillna(0.0, inplace=True)
         assert np.allclose(df.sum(axis=0), 100)
         # Add the significant trend into the count of normal trend
-        if AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND in df.index:
-            df.loc[AbstractTrendTest.POSITIVE_TREND] += df.loc[AbstractTrendTest.SIGNIFICATIVE_POSITIVE_TREND]
-        if AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND in df.index:
-            df.loc[AbstractTrendTest.NEGATIVE_TREND] += df.loc[AbstractTrendTest.SIGNIFICATIVE_NEGATIVE_TREND]
+        if AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND in df.index:
+            df.loc[AbstractUnivariateTest.POSITIVE_TREND] += df.loc[AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND]
+        if AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND in df.index:
+            df.loc[AbstractUnivariateTest.NEGATIVE_TREND] += df.loc[AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND]
         return df
 
     @cached_property

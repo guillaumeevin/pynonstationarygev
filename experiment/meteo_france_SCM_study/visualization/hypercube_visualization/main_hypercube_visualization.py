@@ -9,9 +9,8 @@ from experiment.meteo_france_SCM_study.visualization.hypercube_visualization.qua
 from experiment.meteo_france_SCM_study.visualization.study_visualization.main_study_visualizer import ALL_ALTITUDES, \
     SCM_STUDIES, study_iterator, study_iterator_global
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
-from experiment.trend_analysis.univariate_trend_test.abstract_gev_trend_test import GevLocationTrendTest, \
-    GevScaleTrendTest, GevShapeTrendTest
-from experiment.trend_analysis.univariate_trend_test.abstract_trend_test import MannKendallTrendTest
+from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest, \
+    GevScaleChangePointTest, GevShapeChangePointTest
 from utils import get_display_name_from_object_type
 
 
@@ -33,14 +32,14 @@ from utils import get_display_name_from_object_type
 #             visualizer.visualize_altitude_trend_test()
 
 
-def full_trends_with_quantity_altitude_hypercube():
+def full_quantity_altitude_hypercube():
     save_to_file = True
     only_first_one = False
     fast = False
     add_detailed_plots = True
     altitudes = ALL_ALTITUDES[3:-6]
     study_classes = SCM_STUDIES
-    for trend_test_class in [MannKendallTrendTest, GevLocationTrendTest, GevScaleTrendTest, GevShapeTrendTest][:]:
+    for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest, GevShapeChangePointTest][:]:
         visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False, multiprocessing=True)
                        for study in study_iterator_global(study_classes=study_classes, only_first_one=only_first_one,
                                                           altitudes=altitudes)]
@@ -54,13 +53,13 @@ def full_trends_with_quantity_altitude_hypercube():
         visualizer.visualize_altitude_trend_test(add_detailed_plots=add_detailed_plots)
 
 
-def fast_trends_with_altitude_hypercube():
+def fast_altitude_hypercube():
     save_to_file = False
     only_first_one = False
     fast = True
     altitudes = ALL_ALTITUDES[2:4]
     for study_class in SCM_STUDIES[:1]:
-        for trend_test_class in [MannKendallTrendTest, GevLocationTrendTest, GevScaleTrendTest, GevShapeTrendTest][1:2]:
+        for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest, GevShapeChangePointTest][1:2]:
             visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False, multiprocessing=True)
                            for study in study_iterator(study_class=study_class, only_first_one=only_first_one,
                                                        altitudes=altitudes)]
@@ -72,13 +71,13 @@ def fast_trends_with_altitude_hypercube():
             visualizer.visualize_altitude_trend_test()
 
 
-def fast_trends_with_quantity_altitude_hypercube():
+def fast_quantity_altitude_hypercube():
     save_to_file = False
     only_first_one = False
     fast = True
     altitudes = ALL_ALTITUDES[2:4]
     study_classes = SCM_STUDIES[:2]
-    for trend_test_class in [MannKendallTrendTest, GevLocationTrendTest, GevScaleTrendTest, GevShapeTrendTest][:1]:
+    for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest, GevShapeChangePointTest][:1]:
         visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False, multiprocessing=True)
                        for study in study_iterator_global(study_classes=study_classes, only_first_one=only_first_one,
                                                           altitudes=altitudes)]
@@ -93,9 +92,9 @@ def fast_trends_with_quantity_altitude_hypercube():
 
 
 def main_run():
-    # fast_trends_with_altitude_hypercube()
-    # fast_trends_with_quantity_altitude_hypercube()
-    full_trends_with_quantity_altitude_hypercube()
+    fast_altitude_hypercube()
+    # fast_quantity_altitude_hypercube()
+    # full_quantity_altitude_hypercube()
 
 
 if __name__ == '__main__':

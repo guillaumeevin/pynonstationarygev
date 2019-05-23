@@ -5,12 +5,13 @@ import matplotlib.pyplot as plt
 from collections import OrderedDict
 
 import numpy as np
+from cached_property import cached_property
 
 from experiment.trend_analysis.mann_kendall_test import mann_kendall_test
 from experiment.trend_analysis.abstract_score import MannKendall
 
 
-class AbstractTrendTest(object):
+class AbstractUnivariateTest(object):
     SIGNIFICATIVE = 'significative'
     # 5 possible types of trends
     NO_TREND = 'no trend'
@@ -21,10 +22,23 @@ class AbstractTrendTest(object):
 
     SIGNIFICANCE_LEVEL = 0.05
 
-    def __init__(self, years_after_change_point, maxima_after_change_point):
-        self.years_after_change_point = years_after_change_point
-        self.maxima_after_change_point = maxima_after_change_point
-        assert len(self.years_after_change_point) == len(self.maxima_after_change_point)
+    def __init__(self, years, maxima, starting_year):
+        self.years = years
+        self.maxima = maxima
+        self.starting_year = starting_year
+        assert len(self.years) == len(self.maxima)
+
+    @cached_property
+    def idx_for_starting_year(self):
+        return self.years.index(self.starting_year)
+
+    @property
+    def years_after_starting_year(self):
+        return self.years[self.idx_for_starting_year:]
+
+    @property
+    def maxima_after_starting_year(self):
+        return self.maxima[self.idx_for_starting_year:]
 
     @classmethod
     def trend_type_to_style(cls):
@@ -54,11 +68,9 @@ class AbstractTrendTest(object):
         else:
             return plt.cm.binary
 
-
-
     @property
     def n(self):
-        return len(self.years_after_change_point)
+        return len(self.years)
 
     @property
     def test_trend_strength(self):
@@ -86,7 +98,7 @@ class AbstractTrendTest(object):
         raise NotImplementedError
 
 
-class ExampleRandomTrendTest(AbstractTrendTest):
+class ExampleRandomTrendTest(AbstractUnivariateTest):
 
     @property
     def test_sign(self) -> int:
@@ -98,37 +110,4 @@ class ExampleRandomTrendTest(AbstractTrendTest):
 
 
 class WarningScoreValue(Warning):
-    pass
-
-
-class MannKendallTrendTest(AbstractTrendTest):
-
-    def __init__(self, years_after_change_point, maxima_after_change_point):
-        super().__init__(years_after_change_point, maxima_after_change_point)
-        score = MannKendall()
-        # Compute score value
-        detailed_score = score.get_detailed_score(years_after_change_point, maxima_after_change_point)
-        self.score_value = detailed_score[0]
-        # Compute the Mann Kendall Test
-        MK, S = mann_kendall_test(t=years_after_change_point,
-                                  x=maxima_after_change_point,
-                                  eps=1e-5,
-                                  alpha=self.SIGNIFICANCE_LEVEL,
-                                  Ha='upordown')
-        # Raise warning if scores are differents
-        if S != self.score_value:
-            warnings.warn('S={} is different that score_value={}'.format(S, self.score_value), WarningScoreValue)
-        self.MK = MK
-
-    @property
-    def test_sign(self) -> int:
-        return np.sign(self.score_value)
-
-    @property
-    def is_significant(self) -> bool:
-        assert 'reject' in self.MK or 'accept' in self.MK
-        return 'accept' in self.MK
-
-
-class SpearmanRhoTrendTest(AbstractTrendTest):
     pass

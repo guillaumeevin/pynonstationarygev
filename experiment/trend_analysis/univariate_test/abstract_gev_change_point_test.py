@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import chi2
 
-from experiment.trend_analysis.univariate_trend_test.abstract_trend_test import AbstractTrendTest
+from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_estimator.extreme_models.margin_model.param_function.linear_coef import LinearCoef
 from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import StationaryStationModel, \
@@ -19,14 +19,14 @@ from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_tempor
     AbstractSpatioTemporalObservations
 
 
-class AbstractGevTrendTest(AbstractTrendTest):
+class AbstractGevChangePointTest(AbstractUnivariateTest):
     RRunTimeError_TREND = 'R RunTimeError trend'
 
-    def __init__(self, years_after_change_point, maxima_after_change_point, non_stationary_model_class, gev_param_name):
-        super().__init__(years_after_change_point, maxima_after_change_point)
+    def __init__(self, years, maxima, starting_year, non_stationary_model_class, gev_param_name):
+        super().__init__(years, maxima, starting_year)
         self.gev_param_name = gev_param_name
-        df = pd.DataFrame({AbstractCoordinates.COORDINATE_T: years_after_change_point})
-        df_maxima_gev = pd.DataFrame(maxima_after_change_point, index=df.index)
+        df = pd.DataFrame({AbstractCoordinates.COORDINATE_T: years})
+        df_maxima_gev = pd.DataFrame(maxima, index=df.index)
         observations = AbstractSpatioTemporalObservations(df_maxima_gev=df_maxima_gev)
         self.coordinates = AbstractTemporalCoordinates.from_df(df, transformation_class=CenteredScaledNormalization) # type: AbstractTemporalCoordinates
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
@@ -37,8 +37,8 @@ class AbstractGevTrendTest(AbstractTrendTest):
             self.stationary_estimator.fit()
 
             # Fit non stationary model
-            self.non_stationary_estimator = LinearMarginEstimator(self.dataset,
-                                                                  non_stationary_model_class(self.coordinates))
+            non_stationary_model = non_stationary_model_class(self.coordinates, starting_point=self.starting_year)
+            self.non_stationary_estimator = LinearMarginEstimator(self.dataset, non_stationary_model)
             self.non_stationary_estimator.fit()
             self.crashed = False
         except SafeRunException:
@@ -48,6 +48,13 @@ class AbstractGevTrendTest(AbstractTrendTest):
     def likelihood_ratio(self):
         return 2 * (self.non_stationary_estimator.result_from_fit.deviance -
                     self.stationary_estimator.result_from_fit.deviance)
+
+    @property
+    def non_stationary_nllh(self):
+        if self.crashed:
+            return -np.inf
+        else:
+            return self.non_stationary_estimator.result_from_fit.nllh
 
     @property
     def is_significant(self) -> bool:
@@ -91,29 +98,29 @@ class AbstractGevTrendTest(AbstractTrendTest):
         ratio = np.abs(self.non_stationary_linear_coef) / np.abs(self.non_stationary_intercept_coef)
         scaled_ratio = ratio * self.coordinates.transformed_distance_between_two_successive_years
         percentage_of_change_per_year = 100 * scaled_ratio
-        return percentage_of_change_per_year
+        return percentage_of_change_per_year[0]
 
     @property
     def test_sign(self) -> int:
         return np.sign(self.non_stationary_linear_coef)
 
 
-class GevLocationTrendTest(AbstractGevTrendTest):
+class GevLocationChangePointTest(AbstractGevChangePointTest):
 
-    def __init__(self, years_after_change_point, maxima_after_change_point):
-        super().__init__(years_after_change_point, maxima_after_change_point,
+    def __init__(self, years, maxima, starting_year):
+        super().__init__(years, maxima, starting_year,
                          NonStationaryLocationStationModel, GevParams.LOC)
 
 
-class GevScaleTrendTest(AbstractGevTrendTest):
+class GevScaleChangePointTest(AbstractGevChangePointTest):
 
-    def __init__(self, years_after_change_point, maxima_after_change_point):
-        super().__init__(years_after_change_point, maxima_after_change_point,
+    def __init__(self, years, maxima, starting_year):
+        super().__init__(years, maxima, starting_year,
                          NonStationaryScaleStationModel, GevParams.SCALE)
 
 
-class GevShapeTrendTest(AbstractGevTrendTest):
+class GevShapeChangePointTest(AbstractGevChangePointTest):
 
-    def __init__(self, years_after_change_point, maxima_after_change_point):
-        super().__init__(years_after_change_point, maxima_after_change_point,
+    def __init__(self, years, maxima, starting_year):
+        super().__init__(years, maxima, starting_year,
                          NonStationaryShapeStationModel, GevParams.SHAPE)

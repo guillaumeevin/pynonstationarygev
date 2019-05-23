@@ -11,6 +11,7 @@ from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, Exte
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
 from collections import OrderedDict
 
+from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization, BetweenMinusOneAndOneNormalization
 
@@ -166,9 +167,10 @@ def trend_analysis():
                                            verbose=True,
                                            multiprocessing=True,
                                            complete_non_stationary_trend_analysis=True)
-        study_visualizer.visualize_all_independent_temporal_trend()
-        study_visualizer.visualize_temporal_trend_relevance()
-
+        # study_visualizer.visualize_all_independent_temporal_trend()
+        # study_visualizer.visualize_temporal_trend_relevance()
+        study_visualizer.df_trend_spatio_temporal(GevLocationChangePointTest,
+                                                  starting_years=[1958, 1980], nb_massif_for_fast_mode=2)
 
 def maxima_analysis():
     save_to_file = False

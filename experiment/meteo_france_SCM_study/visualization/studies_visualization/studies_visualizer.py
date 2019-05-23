@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 from experiment.meteo_france_SCM_study.abstract_extended_study import AbstractExtendedStudy
-from experiment.trend_analysis.univariate_trend_test.abstract_trend_test import AbstractTrendTest
+from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies import \
     Studies
 from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
@@ -212,7 +212,7 @@ class AltitudeVisualizer(object):
 
         # Add the marker legend
         names = [get_display_name_from_object_type(c) for c in trend_test_classes]
-        idx_for_positive_trend = [i for i, label in enumerate(labels) if label == AbstractTrendTest.POSITIVE_TREND]
+        idx_for_positive_trend = [i for i, label in enumerate(labels) if label == AbstractUnivariateTest.POSITIVE_TREND]
         handles_ax2, labels_ax2 = [handles[i] for i in idx_for_positive_trend], names
         ax2 = ax.twinx()
         ax2.legend(handles_ax2, labels_ax2, loc=2)
