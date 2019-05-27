@@ -3,14 +3,14 @@ from experiment.trend_analysis.abstract_score import MannKendall, WeigthedScore,
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest, \
     GevScaleChangePointTest, GevShapeChangePointTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import MannKendallTrendTest
-from experiment.meteo_france_SCM_study.safran.safran import ExtendedSafranTotalPrecip
-from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies import Studies
-from experiment.meteo_france_SCM_study.visualization.studies_visualization.studies_visualizer import StudiesVisualizer, \
+from experiment.meteo_france_SCM_models.study.safran.safran import ExtendedSafranTotalPrecip
+from experiment.meteo_france_SCM_models.visualization.studies_visualization.studies import Studies
+from experiment.meteo_france_SCM_models.visualization.studies_visualization.studies_visualizer import StudiesVisualizer, \
     AltitudeVisualizer
-from experiment.meteo_france_SCM_study.visualization.study_visualization.main_study_visualizer import ALL_ALTITUDES, \
+from experiment.meteo_france_SCM_models.visualization.study_visualization.main_study_visualizer import ALL_ALTITUDES, \
     study_iterator_global, SCM_STUDIES
 
-from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
+from experiment.meteo_france_SCM_models.visualization.study_visualization.study_visualizer import StudyVisualizer
 from collections import OrderedDict
 
 

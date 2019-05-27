@@ -2,13 +2,13 @@ import time
 from typing import List
 
 from experiment.trend_analysis.abstract_score import MannKendall
-from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
-from experiment.meteo_france_SCM_study.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
+from experiment.meteo_france_SCM_models.study.abstract_study import AbstractStudy
+from experiment.meteo_france_SCM_models.study.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
     ExtendedCrocusSwe, CrocusDaysWithSnowOnGround
-from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, SafranRainfall, \
+from experiment.meteo_france_SCM_models.study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, SafranRainfall, \
     SafranTemperature, SafranTotalPrecip
 
-from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
+from experiment.meteo_france_SCM_models.visualization.study_visualization.study_visualizer import StudyVisualizer
 from collections import OrderedDict
 
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest

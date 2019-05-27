@@ -1,7 +1,7 @@
 import numpy as np
 from collections import OrderedDict
 
-from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
+from experiment.meteo_france_SCM_models.study.abstract_study import AbstractStudy
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
 

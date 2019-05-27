@@ -3,12 +3,10 @@ import unittest
 
 import pandas as pd
 
-from experiment.meteo_france_SCM_study.crocus.crocus import ExtendedCrocusSwe
-from experiment.meteo_france_SCM_study.visualization.study_visualization.main_study_visualizer import study_iterator
-from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, SafranTemperature, \
-    SafranRainfall, SafranTotalPrecip
-from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
-from test.test_utils import load_scm_studies
+from experiment.meteo_france_SCM_models.visualization.study_visualization.main_study_visualizer import study_iterator
+from experiment.meteo_france_SCM_models.study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, SafranTemperature, \
+    SafranTotalPrecip
+from experiment.meteo_france_SCM_models.visualization.study_visualization.study_visualizer import StudyVisualizer
 
 
 # TESTS TO REACTIVATE SOMETIMES

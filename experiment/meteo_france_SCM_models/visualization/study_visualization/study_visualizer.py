@@ -10,12 +10,12 @@ import pandas as pd
 import seaborn as sns
 
 from experiment.trend_analysis.abstract_score import MeanScore, AbstractTrendScore
-from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
+from experiment.meteo_france_SCM_models.study.abstract_study import AbstractStudy
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import AbstractGevChangePointTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.trend_analysis.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
-from experiment.meteo_france_SCM_study.visualization.utils import create_adjusted_axes
+from experiment.meteo_france_SCM_models.visualization.utils import create_adjusted_axes
 from experiment.utils import average_smoothing_with_sliding_window
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
@@ -333,9 +333,11 @@ class StudyVisualizer(object):
 
     @property
     def starting_years(self):
+        # Starting years are any potential between the start_year and the end_year.
+        # start_year is a potential starting_year
+        # end_year is not a potential starting_year
         start_year, stop_year = self.study.start_year_and_stop_year
-        # return list(range(start_year, stop_year - 2 * self.number_of_top_values))
-        return list(range(start_year, 1991))
+        return list(range(start_year, stop_year))
 
     @cached_property
     def massif_name_to_detailed_scores(self):

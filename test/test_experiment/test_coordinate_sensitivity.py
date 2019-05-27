@@ -1,11 +1,11 @@
 import unittest
 
-from experiment.meteo_france_SCM_study.crocus.crocus import CrocusSwe
-from experiment.meteo_france_SCM_study.visualization.study_visualization.main_study_visualizer import \
+from experiment.meteo_france_SCM_models.study.crocus.crocus import CrocusSwe
+from experiment.meteo_france_SCM_models.visualization.study_visualization.main_study_visualizer import \
     study_iterator_global
 from experiment.trend_analysis.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest
-from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
+from experiment.meteo_france_SCM_models.visualization.study_visualization.study_visualizer import StudyVisualizer
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization, BetweenZeroAndOneNormalizationMinEpsilon, BetweenZeroAndOneNormalizationMaxEpsilon
 from utils import get_display_name_from_object_type

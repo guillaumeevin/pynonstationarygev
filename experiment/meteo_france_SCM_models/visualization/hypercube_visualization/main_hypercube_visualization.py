@@ -2,13 +2,13 @@ import time
 from itertools import product
 from collections import OrderedDict
 
-from experiment.meteo_france_SCM_study.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
+from experiment.meteo_france_SCM_models.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
     AltitudeHypercubeVisualizer, Altitude_Hypercube_Year_Visualizer
-from experiment.meteo_france_SCM_study.visualization.hypercube_visualization.quantity_altitude_visualizer import \
+from experiment.meteo_france_SCM_models.visualization.hypercube_visualization.quantity_altitude_visualizer import \
     QuantityAltitudeHypercubeVisualizer
-from experiment.meteo_france_SCM_study.visualization.study_visualization.main_study_visualizer import ALL_ALTITUDES, \
+from experiment.meteo_france_SCM_models.visualization.study_visualization.main_study_visualizer import ALL_ALTITUDES, \
     SCM_STUDIES, study_iterator, study_iterator_global
-from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
+from experiment.meteo_france_SCM_models.visualization.study_visualization.study_visualizer import StudyVisualizer
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest, \
     GevScaleChangePointTest, GevShapeChangePointTest
 from utils import get_display_name_from_object_type

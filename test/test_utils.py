@@ -1,9 +1,8 @@
 from itertools import product
 from typing import List
 
-from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
-from experiment.meteo_france_SCM_study.crocus.crocus import Crocus, CrocusSwe, CrocusDepth
-from experiment.meteo_france_SCM_study.crocus.crocus_variables import CrocusSweVariable, CrocusDepthVariable
+from experiment.meteo_france_SCM_models.study.abstract_study import AbstractStudy
+from experiment.meteo_france_SCM_models.study.crocus.crocus import Crocus, CrocusSwe, CrocusDepth
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import SmoothMarginalsThenUnitaryMsp, \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
@@ -15,7 +14,7 @@ from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, \
     Geometric, ExtremalT, ISchlather
-from experiment.meteo_france_SCM_study.safran.safran import SafranSnowfall, Safran, SafranRainfall, \
+from experiment.meteo_france_SCM_models.study.safran.safran import SafranSnowfall, Safran, SafranRainfall, \
     SafranTemperature, SafranTotalPrecip
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
     AlpsStation3DCoordinatesWithAnisotropy

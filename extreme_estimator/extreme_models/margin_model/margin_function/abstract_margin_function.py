@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from experiment.meteo_france_SCM_study.visualization.utils import create_adjusted_axes
+from experiment.meteo_france_SCM_models.visualization.utils import create_adjusted_axes
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.plot.create_shifted_cmap import imshow_shifted
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates

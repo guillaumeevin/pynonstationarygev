@@ -1,8 +1,8 @@
 from collections import OrderedDict
 from typing import Dict
 
-from experiment.meteo_france_SCM_study.abstract_study import AbstractStudy
-from experiment.meteo_france_SCM_study.scm_constants import ALTITUDES
+from experiment.meteo_france_SCM_models.study.abstract_study import AbstractStudy
+from experiment.meteo_france_SCM_models.study.scm_constants import ALTITUDES
 
 
 class Studies(object):

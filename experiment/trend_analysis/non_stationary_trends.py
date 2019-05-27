@@ -4,7 +4,7 @@ from typing import Union
 
 import pandas as pd
 
-from experiment.meteo_france_SCM_study.visualization.utils import align_yaxis_on_zero
+from experiment.meteo_france_SCM_models.visualization.utils import align_yaxis_on_zero
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from scipy.stats import chi2
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \

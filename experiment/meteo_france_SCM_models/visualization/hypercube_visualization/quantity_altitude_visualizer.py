@@ -1,6 +1,6 @@
 import pandas as pd
 
-from experiment.meteo_france_SCM_study.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
+from experiment.meteo_france_SCM_models.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
     AltitudeHypercubeVisualizer
 
 

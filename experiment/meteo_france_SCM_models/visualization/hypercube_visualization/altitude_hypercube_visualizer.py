@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from experiment.meteo_france_SCM_study.visualization.hypercube_visualization.abstract_hypercube_visualizer import \
+from experiment.meteo_france_SCM_models.visualization.hypercube_visualization.abstract_hypercube_visualizer import \
     AbstractHypercubeVisualizer
-from experiment.meteo_france_SCM_study.visualization.study_visualization.study_visualizer import StudyVisualizer
+from experiment.meteo_france_SCM_models.visualization.study_visualization.study_visualizer import StudyVisualizer
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from utils import get_display_name_from_object_type
 

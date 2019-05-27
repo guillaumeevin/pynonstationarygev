@@ -9,8 +9,9 @@ class AbstractVariable(object):
     NAME = ''
     UNIT = ''
 
-    def __init__(self, variable_array):
+    def __init__(self, variable_array, nb_consecutive_days_of_snowfall=1):
         self.variable_array = variable_array
+        self.nb_consecutive_days_of_snowfall = nb_consecutive_days_of_snowfall
 
     @classmethod
     def keyword(cls):
