@@ -56,7 +56,7 @@ class AbstractEstimator(object):
         return LinearMarginFunction.from_coef_dict(coordinates=self.dataset.coordinates,
                                                    gev_param_name_to_dims=margin_model.margin_function_start_fit.gev_param_name_to_dims,
                                                    coef_dict=self.result_from_fit.margin_coef_dict,
-                                                   starting_point=margin_model.transformed_starting_point)
+                                                   starting_point=margin_model.starting_point)
 
     # @property
     # def max_stable_fitted(self) -> AbstractMarginFunction:

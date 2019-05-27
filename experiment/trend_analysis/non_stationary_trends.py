@@ -106,10 +106,10 @@ class AbstractNonStationaryTrendTest(object):
         # Load the estimator only once
         if self.multiprocessing:
             with Pool(self.nb_cores) as p:
-                stationary_estimator, *non_stationary_estimators = p.map(self.load_estimator, [None] + years)
+                stationary_estimator, *non_stationary_estimators = p.map(self.get_estimator, [None] + years)
         else:
-            stationary_estimator = self.load_estimator(None)
-            non_stationary_estimators = [self.load_estimator(year) for year in years]
+            stationary_estimator = self.get_estimator(None)
+            non_stationary_estimators = [self.get_estimator(year) for year in years]
         self._starting_point_to_estimator[None] = stationary_estimator
         for year, non_stationary_estimator in zip(years, non_stationary_estimators):
             self._starting_point_to_estimator[year] = non_stationary_estimator

@@ -63,7 +63,7 @@ class TestGevTemporal(unittest.TestCase):
         estimator = self.fit_non_stationary_estimator(starting_point=3)
         self.assertNotEqual(estimator.margin_function_fitted.mu1_temporal_trend, 0.0)
         # Checks starting point parameter are well passed
-        self.assertEqual(3, estimator.margin_function_fitted.transformed_starting_point)
+        self.assertEqual(3, estimator.margin_function_fitted.starting_point)
         # Checks that parameters returned are indeed different
         mle_params_estimated_year1 = estimator.margin_function_fitted.get_gev_params(np.array([1])).to_dict()
         mle_params_estimated_year3 = estimator.margin_function_fitted.get_gev_params(np.array([3])).to_dict()

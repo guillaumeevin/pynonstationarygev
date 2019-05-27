@@ -21,8 +21,10 @@ class CircleSpatialCoordinates(AbstractSpatialCoordinates):
         return df
 
     @classmethod
-    def from_nb_points(cls, nb_points, train_split_ratio: float = None, max_radius=1.0, random=True):
-        return cls.from_df(cls.df_spatial(nb_points, max_radius, random), train_split_ratio)
+    def from_nb_points(cls, nb_points, train_split_ratio: float = None, max_radius=1.0, random=True,
+                       transformation_class=None):
+        return cls.from_df(df=cls.df_spatial(nb_points, max_radius, random),
+                           train_split_ratio=train_split_ratio, transformation_class=transformation_class)
 
     def visualization_2D(self):
         radius = 1.0
@@ -36,5 +38,5 @@ class CircleSpatialCoordinates(AbstractSpatialCoordinates):
 class CircleSpatialCoordinatesRadius2(CircleSpatialCoordinates):
 
     @classmethod
-    def from_nb_points(cls, nb_points, train_split_ratio: float = None, max_radius=1.0, random=True):
-        return 2 * super().from_nb_points(nb_points, train_split_ratio, max_radius, random)
+    def from_nb_points(cls, nb_points, train_split_ratio: float = None, max_radius=1.0, random=True, **kwargs):
+        return 2 * super().from_nb_points(nb_points, train_split_ratio, max_radius, random, **kwargs)

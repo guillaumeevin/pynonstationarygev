@@ -24,4 +24,4 @@ class AbstractSpatialCoordinates(AbstractCoordinates):
             raise Exception('Nb coordinates in csv: {} < Nb points desired: {}'.format(nb_coordinates, nb_points))
         # Sample randomly nb_points coordinates
         df_sample = pd.DataFrame.sample(coordinates.df_merged, n=nb_points)
-        return cls.from_df(df=df_sample, train_split_ratio=train_split_ratio)
+        return cls.from_df(df=df_sample, train_split_ratio=train_split_ratio, **kwargs)

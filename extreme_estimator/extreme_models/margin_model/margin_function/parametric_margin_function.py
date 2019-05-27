@@ -31,9 +31,9 @@ class ParametricMarginFunction(IndependentMarginFunction):
     COEF_CLASS = None
 
     def __init__(self, coordinates: AbstractCoordinates, gev_param_name_to_dims: Dict[str, List[int]],
-                 gev_param_name_to_coef: Dict[str, AbstractCoef], transformed_starting_point: Union[None, int] = None):
+                 gev_param_name_to_coef: Dict[str, AbstractCoef], starting_point: Union[None, int] = None):
         # Starting point for the trend is the same for all the parameters
-        self.transformed_starting_point = transformed_starting_point
+        self.starting_point = starting_point
         super().__init__(coordinates)
         self.gev_param_name_to_dims = gev_param_name_to_dims  # type: Dict[str, List[int]]
 
@@ -61,15 +61,19 @@ class ParametricMarginFunction(IndependentMarginFunction):
     def load_specific_param_function(self, gev_param_name) -> AbstractParamFunction:
         raise NotImplementedError
 
-    def get_gev_params(self, coordinate: np.ndarray, already_transformed: bool = False) -> GevParams:
-        transformed_coordinate = self.transform(coordinate)
-        if self.transformed_starting_point is not None:
+    @property
+    def transformed_starting_point(self):
+        return self.coordinates.temporal_coordinates.transformation.transform_array(np.array([self.starting_point]))
+
+    def get_gev_params(self, coordinate: np.ndarray, is_transformed: bool = True) -> GevParams:
+        if self.starting_point is not None:
+            starting_point = self.transformed_starting_point if is_transformed else self.starting_point
             # Shift temporal coordinate to enable to model temporal trend with starting point
             assert self.coordinates.has_temporal_coordinates
             assert 0 <= self.coordinates.idx_temporal_coordinates < len(coordinate)
-            if transformed_coordinate[self.coordinates.idx_temporal_coordinates] < self.transformed_starting_point:
-                transformed_coordinate[self.coordinates.idx_temporal_coordinates] = self.transformed_starting_point
-        return super().get_gev_params(transformed_coordinate, already_transformed=True)
+            if coordinate[self.coordinates.idx_temporal_coordinates] < starting_point:
+                coordinate[self.coordinates.idx_temporal_coordinates] = starting_point
+        return super().get_gev_params(coordinate, is_transformed=is_transformed)
 
     @classmethod
     def from_coef_dict(cls, coordinates: AbstractCoordinates, gev_param_name_to_dims: Dict[str, List[int]],

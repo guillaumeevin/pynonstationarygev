@@ -23,28 +23,10 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         """
         :param starting_point: starting coordinate for the temporal trend
         """
-        # Load transformed starting point
-        if starting_point is None:
-            self.transformed_starting_point = None
-        else:
-            assert isinstance(coordinates, (AbstractSpatioTemporalCoordinates, AbstractTemporalCoordinates))
-            temporal_coordinate = np.array([starting_point])
-            self.transformed_starting_point = coordinates.temporal_coordinates.transform(temporal_coordinate)[0]
-
+        self.starting_point = starting_point
         self.margin_function_sample = None  # type: ParametricMarginFunction
         self.margin_function_start_fit = None  # type: ParametricMarginFunction
         super().__init__(coordinates, use_start_value, params_start_fit, params_sample)
-
-    def add_starting_temporal_point(self, df_coordinates_temp: pd.DataFrame):
-        # Enforce a starting point for the temporal trend
-        if self.transformed_starting_point is not None:
-            # Compute the indices to modify
-            ind_to_modify = df_coordinates_temp.iloc[:, 0] <= self.transformed_starting_point  # type: pd.Series
-            # Assert that some coordinates are selected but not all (at least 20 data should be left for temporal trend)
-            assert 0 < sum(ind_to_modify) < len(ind_to_modify) - 20
-            # Modify the temporal coordinates to enforce the stationarity
-            df_coordinates_temp.loc[ind_to_modify] = self.transformed_starting_point
-        return df_coordinates_temp
 
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
                                   df_coordinates_temp: pd.DataFrame) -> ResultFromFit:

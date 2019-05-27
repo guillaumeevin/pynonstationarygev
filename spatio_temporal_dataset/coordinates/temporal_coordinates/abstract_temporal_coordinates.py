@@ -12,7 +12,7 @@ class AbstractTemporalCoordinates(AbstractCoordinates):
 
     @property
     def transformed_distance_between_two_successive_years(self):
-        return self.transform(np.ones([1])) - self.transform(np.zeros([1]))
+        return self.transformation.transform_array(np.ones([1])) - self.transformation.transform_array(np.zeros([1]))
 
     @classmethod
     def from_df(cls, df: pd.DataFrame, train_split_ratio: float = None, transformation_class: type = None):

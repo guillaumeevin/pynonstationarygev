@@ -77,23 +77,27 @@ def load_test_max_stable_models(default_covariance_function=None):
     return max_stable_models
 
 
-def load_test_spatial_coordinates(nb_points, coordinate_types, train_split_ratio=None):
-    return [coordinate_class.from_nb_points(nb_points=nb_points, train_split_ratio=train_split_ratio)
+def load_test_spatial_coordinates(nb_points, coordinate_types, train_split_ratio=None, transformation_class=None):
+    return [coordinate_class.from_nb_points(nb_points=nb_points, train_split_ratio=train_split_ratio,
+                                            transformation_class=transformation_class)
             for coordinate_class in coordinate_types]
 
 
-def load_test_1D_and_2D_spatial_coordinates(nb_points, train_split_ratio=None):
+def load_test_1D_and_2D_spatial_coordinates(nb_points, train_split_ratio=None, transformation_class=None):
     return load_test_spatial_coordinates(nb_points, TEST_1D_AND_2D_SPATIAL_COORDINATES,
-                                         train_split_ratio=train_split_ratio)
+                                         train_split_ratio=train_split_ratio,
+                                         transformation_class=transformation_class)
 
 
-def load_test_3D_spatial_coordinates(nb_points):
-    return load_test_spatial_coordinates(nb_points, TEST_3D_SPATIAL_COORDINATES)
+def load_test_3D_spatial_coordinates(nb_points, transformation_class=None):
+    return load_test_spatial_coordinates(nb_points, TEST_3D_SPATIAL_COORDINATES, transformation_class=transformation_class)
 
 
-def load_test_temporal_coordinates(nb_steps, train_split_ratio=None):
-    return [coordinate_class.from_nb_temporal_steps(nb_steps, train_split_ratio) for coordinate_class in
-            TEST_TEMPORAL_COORDINATES]
+def load_test_temporal_coordinates(nb_steps, train_split_ratio=None, transformation_class=None):
+    return [coordinate_class.from_nb_temporal_steps(nb_temporal_steps=nb_steps,
+                                                    train_split_ratio=train_split_ratio,
+                                                    transformation_class=transformation_class)
+            for coordinate_class in TEST_TEMPORAL_COORDINATES]
 
 
 def load_test_spatiotemporal_coordinates(nb_points, nb_steps, train_split_ratio=None,

@@ -18,8 +18,6 @@ class TemporalLinearMarginModel(LinearMarginModel):
 
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
                                   df_coordinates_temp: pd.DataFrame) -> ResultFromFit:
-        # Modify df_coordinates_temp
-        df_coordinates_temp = self.add_starting_temporal_point(df_coordinates_temp)
         # Gev Fit
         assert data.shape[1] == len(df_coordinates_temp.values)
         res = safe_run_r_estimator(function=r('gev.fit'), use_start=self.use_start_value,

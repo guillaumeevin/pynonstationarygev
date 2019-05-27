@@ -58,12 +58,13 @@ class AbstractCoordinates(object):
         # Transformation attribute
         if transformation_class is None:
             transformation_class = IdentityTransformation
+        self.transformation_class = transformation_class  # type: type
         # Transformation only works for float coordinates
         accepted_dtypes = [self.COORDINATE_TYPE]
         assert len(self.df_all_coordinates.select_dtypes(include=accepted_dtypes).columns) \
                == len(coordinate_columns), 'coordinates columns dtypes should belong to {}'.format(accepted_dtypes)
         # Transformation class is instantiated with all coordinates
-        self.transformation = transformation_class(self.df_all_coordinates)
+        self.transformation = transformation_class(self.df_all_coordinates)  # type: AbstractTransformation
         assert isinstance(self.transformation, AbstractTransformation)
 
         # Load the slicer
@@ -130,20 +131,17 @@ class AbstractCoordinates(object):
         # Merged DataFrame of df_coord with s_split
         return self.df_all_coordinates.join(self.df_split)
 
-    # Normalize
-
-    def transform(self, coordinate: np.ndarray) -> np.ndarray:
-        coordinate_array_as_float = coordinate.astype(self.COORDINATE_TYPE)
-        return self.transformation.transform_array(coordinate=coordinate_array_as_float)
-
     # Split
 
-    def df_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
-        df_transformed_coordinates = self.transformation.transform_df(self.df_all_coordinates)
+    def df_coordinates(self, split: Split = Split.all, transformed=True) -> pd.DataFrame:
+        if transformed:
+            df_transformed_coordinates = self.transformation.transform_df(self.df_all_coordinates)
+        else:
+            df_transformed_coordinates = self.df_all_coordinates
         return df_sliced(df=df_transformed_coordinates, split=split, slicer=self.slicer)
 
-    def coordinates_values(self, split: Split = Split.all) -> np.ndarray:
-        return self.df_coordinates(split).values
+    def coordinates_values(self, split: Split = Split.all, transformed=True) -> np.ndarray:
+        return self.df_coordinates(split, transformed=transformed).values
 
     def coordinates_index(self, split: Split = Split.all) -> pd.Index:
         return self.df_coordinates(split).index
@@ -193,11 +191,11 @@ class AbstractCoordinates(object):
     def has_spatial_coordinates(self) -> bool:
         return self.nb_coordinates_spatial > 0
 
-    def df_spatial_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
+    def df_spatial_coordinates(self, split: Split = Split.all, transformed=True) -> pd.DataFrame:
         if self.nb_coordinates_spatial == 0:
             return pd.DataFrame()
         else:
-            return self.df_coordinates(split).loc[:, self.coordinates_spatial_names].drop_duplicates()
+            return self.df_coordinates(split, transformed).loc[:, self.coordinates_spatial_names].drop_duplicates()
 
     @property
     def nb_stations(self, split: Split = Split.all) -> int:
@@ -225,11 +223,36 @@ class AbstractCoordinates(object):
     def has_temporal_coordinates(self) -> bool:
         return self.nb_coordinates_temporal > 0
 
-    def df_temporal_coordinates(self, split: Split = Split.all) -> pd.DataFrame:
+    def df_temporal_coordinates(self, split: Split = Split.all, transformed=True) -> pd.DataFrame:
         if self.nb_coordinates_temporal == 0:
             return pd.DataFrame()
         else:
-            return self.df_coordinates(split).loc[:, self.coordinates_temporal_names].drop_duplicates()
+            return self.df_coordinates(split, transformed=transformed).loc[:, self.coordinates_temporal_names] \
+                .drop_duplicates()
+
+    def df_temporal_coordinates_for_fit(self, split=Split.all, starting_point=None) -> pd.DataFrame:
+        if starting_point is None:
+            return self.df_temporal_coordinates(split=split, transformed=True)
+        else:
+            # Load the un transformed coordinates
+            df_temporal_coordinates = self.df_temporal_coordinates(split=split, transformed=False)
+            # If starting point is not None, the transformation has not yet been applied
+            # thus we need to modify the coordinate with the starting point, and then to apply the transformation
+            # Compute the indices to modify
+            ind_to_modify = df_temporal_coordinates.iloc[:, 0] <= starting_point  # type: pd.Series
+            # Assert that some coordinates are selected but not all
+            assert 0 < sum(ind_to_modify) < len(ind_to_modify)
+            # Modify the temporal coordinates to enforce the stationarity
+            df_temporal_coordinates.loc[ind_to_modify] = starting_point
+            # Load the temporal transformation object
+            temporal_transformation = self.temporal_coordinates.transformation_class(
+                df_temporal_coordinates)  # type: AbstractTransformation
+            # Return the result of the temporal transformation
+            return temporal_transformation.transform_df(df_temporal_coordinates)
+
+    @property
+    def temporal_coordinates(self):
+        raise NotImplementedError
 
     @property
     def nb_steps(self, split: Split = Split.all) -> int:

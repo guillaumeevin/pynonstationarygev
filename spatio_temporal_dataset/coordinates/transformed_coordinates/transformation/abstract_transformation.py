@@ -8,6 +8,7 @@ class AbstractTransformation(object):
     def __init__(self, df_coordinates):
         self.df_coordinates = df_coordinates.copy()
 
+    # todo: we could add some checks on the type of the input data
     @property
     def nb_dimensions(self):
         return self.df_coordinates.shape[1]
@@ -23,6 +24,8 @@ class AbstractTransformation(object):
         df_coord = df_coord.copy()
         data = [self.transform_serie(r) for _, r in df_coord.iterrows()]
         return pd.DataFrame(data, index=df_coord.index, columns=df_coord.columns)
+
+
 
 
 class IdentityTransformation(AbstractTransformation):

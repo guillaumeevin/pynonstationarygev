@@ -31,16 +31,14 @@ class TestCoordinateSensitivity(unittest.TestCase):
                 mu1s = [trend_test.get_mu_coefs(year)['mu_temporal'] for year in years]
                 if self.DISPLAY:
                     print('Stationary')
-                    stationary_est = trend_test.load_estimator(trend_test.stationary_margin_model_class,
-                                                               starting_point=None)
+                    stationary_est = trend_test.get_estimator(starting_point=None)
+                    print(stationary_est.margin_function_fitted.coordinates.df_all_coordinates)
                     print(stationary_est.result_from_fit.convergence)
                     print(stationary_est.margin_function_fitted.coef_dict)
                     print('Non Stationary')
-                    non_stationary_est = trend_test.load_estimator(trend_test.non_stationary_margin_model_class,
-                                                                   starting_point=1960)
+                    non_stationary_est = trend_test.get_estimator(starting_point=1960)
                     print(non_stationary_est.result_from_fit.convergence)
-                    non_stationary_est = trend_test.load_estimator(trend_test.non_stationary_margin_model_class,
-                                                                   starting_point=1990)
+                    non_stationary_est = trend_test.get_estimator(starting_point=1990)
                     print(non_stationary_est.result_from_fit.convergence)
                     print(non_stationary_est.margin_function_fitted.coef_dict)
                     print(get_display_name_from_object_type(transformation_class), 'mu1s: ', mu1s)

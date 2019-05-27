@@ -62,8 +62,8 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
 
     @property
     def df_coordinates_temp(self):
-        df_coordinates_temp = self.dataset.coordinates.df_temporal_coordinates(self.train_split)
-        return self.linear_margin_model.add_starting_temporal_point(df_coordinates_temp)
+        return self.dataset.coordinates.df_temporal_coordinates_for_fit(split=self.train_split,
+                                                                        starting_point=self.linear_margin_model.starting_point)
 
     def _fit(self):
         # Estimate both the margin and the max-stable structure
