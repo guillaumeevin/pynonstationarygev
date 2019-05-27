@@ -75,7 +75,7 @@ class AbstractStudy(object):
 
     """ Load some attributes only once """
 
-    @cached_property
+    @property
     def year_to_dataset_ordered_dict(self) -> OrderedDict:
         print('This code is quite long... '
               'You should consider year_to_variable which is way faster when multiprocessing=True')
@@ -101,12 +101,12 @@ class AbstractStudy(object):
         path_files, ordered_years = self.ordered_years_and_path_files()
         if self.multiprocessing:
             with Pool(NB_CORES) as p:
-                variables = p.map(self.load_variable, path_files)
+                variables = p.map(self.load_variables, path_files)
         else:
-            variables = [self.load_variable(path_file) for path_file in path_files]
+            variables = [self.load_variables(path_file) for path_file in path_files]
         return OrderedDict(zip(ordered_years, variables))
 
-    def load_variable(self, path_file):
+    def load_variables(self, path_file):
         dataset = Dataset(path_file)
         keyword = self.variable_class.keyword()
         if isinstance(keyword, str):

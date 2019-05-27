@@ -3,6 +3,7 @@ import numpy as np
 from experiment.meteo_france_SCM_models.study.abstract_extended_study import AbstractExtendedStudy
 from experiment.meteo_france_SCM_models.study.abstract_study import AbstractStudy
 from experiment.meteo_france_SCM_models.study.crocus.crocus_variables import CrocusSweVariable, CrocusDepthVariable
+from experiment.meteo_france_SCM_models.study.cumulated_study import CumulatedStudy
 
 
 class Crocus(AbstractStudy):
@@ -25,10 +26,11 @@ class Crocus(AbstractStudy):
         return super().apply_annual_aggregation(time_serie[91:-92, ...])
 
 
-class CrocusSwe(Crocus):
+class CrocusSwe(Crocus, CumulatedStudy):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(CrocusSweVariable, *args, **kwargs)
+        CumulatedStudy.__init__(self, CrocusSweVariable, *args, **kwargs)
+        Crocus.__init__(self, CrocusSweVariable, *args, **kwargs)
 
     def apply_annual_aggregation(self, time_serie):
         return self.winter_annual_aggregation(time_serie)
@@ -62,8 +64,7 @@ class CrocusDaysWithSnowOnGround(Crocus):
 
 
 if __name__ == '__main__':
-    for variable_class in [CrocusSweVariable, CrocusDepthVariable][:1]:
-        study = Crocus(variable_class=variable_class, altitude=2400)
+    for study in [CrocusSwe(altitude=900)]:
         d = study.year_to_dataset_ordered_dict[1960]
         print(study.df_massifs_longitude_and_latitude)
         time_arr = np.array(d.variables['time'])

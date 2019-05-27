@@ -27,40 +27,39 @@ full_altitude_with_at_least_2_stations = [0, 300, 600, 900, 1200, 1500, 1800, 21
 ALL_STUDIES = SCM_STUDIES + [SafranTemperature, SafranRainfall]
 
 
-def study_iterator_global(study_classes, only_first_one=False, both_altitude=False, verbose=True, altitudes=None) -> \
+def study_iterator_global(study_classes, only_first_one=False, verbose=True, altitudes=None, nb_days=None) -> \
 List[AbstractStudy]:
     for study_class in study_classes:
-        for study in study_iterator(study_class, only_first_one, both_altitude, verbose, altitudes):
+        for study in study_iterator(study_class, only_first_one, verbose, altitudes, nb_days):
             yield study
         if only_first_one:
             break
 
 
-def study_iterator(study_class, only_first_one=False, both_altitude=False, verbose=True, altitudes=None) -> List[
-    AbstractStudy]:
-    all_studies = []
-    is_safran_study = study_class in [SafranSnowfall, ExtendedSafranSnowfall]
-    nb_days = [1] if is_safran_study else [1]
+def study_iterator(study_class, only_first_one=False, verbose=True, altitudes=None, nb_days=None) -> List[AbstractStudy]:
+    # Default argument
+    nb_days = [1] if nb_days is None else nb_days
+    altis = [1800] if altitudes is None else altitudes
+
     if verbose:
-        print('\n\n\n\n\nLoading studies....', end='')
+        print('\n\n\n\n\nLoading studies....')
     for nb_day in nb_days:
-        altis = [1800] if altitudes is None else altitudes
-
         for alti in altis:
-
             if verbose:
                 print('alti: {}, nb_day: {}     '.format(alti, nb_day), end='')
+
             study = study_class(altitude=alti)
-            massifs = study.altitude_to_massif_names[alti]
+
             if verbose:
+                massifs = study.altitude_to_massif_names[alti]
                 print('{} massifs: {} \n'.format(len(massifs), massifs))
             yield study
-            if only_first_one and not both_altitude:
+
+            # Stop iterations on purpose
+            if only_first_one:
                 break
         if only_first_one:
             break
-
-    return all_studies
 
 
 def extended_visualization():
