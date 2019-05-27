@@ -237,7 +237,7 @@ class AltitudeVisualizer(object):
             s = study_visualizer.df_trend_test_count(trend_test_class, starting_year_to_weights).mean(axis=1)
             altitude_to_serie_with_mean_percentages[altitude] = s
         # Plot weighted percentages over the years
-        for trend_type, style in trend_test_class.trend_type_to_style().items():
+        for trend_type, style in trend_test_class.display_trend_type_to_style().items():
 
             weighted_percentages = [v.loc[trend_type] if trend_type in v.index else 0.0
                                     for v in altitude_to_serie_with_mean_percentages.values()]

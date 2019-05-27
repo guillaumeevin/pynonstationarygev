@@ -132,8 +132,8 @@ def fast_quantity_altitude_hypercube():
 
 def main_run():
     # fast_altitude_hypercube()
-    # fast_altitude_year_hypercube()
-    full_altitude_year_hypercube()
+    fast_altitude_year_hypercube()
+    # full_altitude_year_hypercube()
     # fast_quantity_altitude_hypercube()
     # full_quantity_altitude_hypercube()
 

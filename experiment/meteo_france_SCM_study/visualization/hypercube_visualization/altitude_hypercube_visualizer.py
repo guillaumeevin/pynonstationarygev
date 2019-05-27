@@ -16,12 +16,12 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         return self.tuple_values(idx=0)
 
     @property
-    def trend_type_to_style(self):
-        return self.trend_test_class.trend_type_to_style()
+    def display_trend_type_to_style(self):
+        return self.trend_test_class.display_trend_type_to_style()
 
     @property
-    def trend_types(self):
-        return self.trend_type_to_style.keys()
+    def display_trend_types(self):
+        return self.display_trend_type_to_style.keys()
 
     @property
     def nb_axes(self):
@@ -29,12 +29,12 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
     def trend_type_to_series(self, reduction_function):
         # Map each trend type to its serie with percentages
-        return {trend_type: self.trend_type_reduction(reduction_function, trend_type)[0]
-                for trend_type in self.trend_types}
+        return {display_trend_type: self.trend_type_reduction(reduction_function, display_trend_type)[0]
+                for display_trend_type in self.display_trend_types}
 
-    def trend_type_reduction(self, reduction_function, trend_type):
+    def trend_type_reduction(self, reduction_function, display_trend_type):
         # Reduce df_bool df to a serie s_trend_type_percentage
-        df_bool = self.df_hypercube_trend_type.isin(AbstractUnivariateTest.get_trend_types(trend_type))
+        df_bool = self.df_hypercube_trend_type.isin(AbstractUnivariateTest.get_real_trend_types(display_trend_type))
         s_trend_type_percentage = reduction_function(df_bool)
         assert isinstance(s_trend_type_percentage, pd.Series)
         assert not isinstance(s_trend_type_percentage.index, pd.MultiIndex)
@@ -75,8 +75,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
         trend_type_to_series = self.trend_type_to_series(reduction_function)
         for ax_idx, ax in enumerate(axes):
-            for trend_type in self.trend_types:
-                style = self.trend_type_to_style[trend_type]
+            for trend_type in self.display_trend_types:
+                style = self.display_trend_type_to_style[trend_type]
                 percentages_values = trend_type_to_series[trend_type][ax_idx]
                 ax.plot(xlabel_values, percentages_values, style + marker, label=trend_type)
 
@@ -101,7 +101,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
     def visualize_trend_test_repartition(self, reduction_function, axes=None, subtitle=''):
         if axes is None:
-            nb_trend_type = len(self.trend_test_class.trend_type_to_style())
+            nb_trend_type = len(self.display_trend_type_to_style)
             fig, axes = plt.subplots(self.nb_axes, nb_trend_type, figsize=self.study_visualizer.figsize)
 
         for i, axes_row in enumerate(axes):
@@ -109,7 +109,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             vmax = max([s.max() for s in trend_type_to_serie.values()])
             vmin = min([s.min() for s in trend_type_to_serie.values()])
             vmax = max(vmax, 0.01)
-            for ax, trend_type in zip(axes_row, self.trend_types):
+            for ax, trend_type in zip(axes_row, self.display_trend_types):
                 s_percentages = trend_type_to_serie[trend_type]
                 massif_to_value = dict(s_percentages)
                 cmap = self.trend_test_class.get_cmap_from_trend_type(trend_type)
@@ -183,8 +183,8 @@ class Altitude_Hypercube_Year_Visualizer(AltitudeHypercubeVisualizer):
         # Take the mean with respect to the level of interest
         return df.mean(level=level)
 
-    def trend_type_reduction(self, reduction_function, trend_type):
-        series, df_bool = super().trend_type_reduction(reduction_function, trend_type)
+    def trend_type_reduction(self, reduction_function, display_trend_type):
+        series, df_bool = super().trend_type_reduction(reduction_function, display_trend_type)
         # Create df argmax
         df = df_bool.copy()
         df = (df * df.columns)[df_bool]

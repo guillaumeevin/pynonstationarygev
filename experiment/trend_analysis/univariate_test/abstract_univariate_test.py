@@ -21,7 +21,9 @@ class AbstractUnivariateTest(object):
     SIGNIFICATIVE_ALL_TREND = SIGNIFICATIVE + ' ' + ALL_TREND
     SIGNIFICATIVE_POSITIVE_TREND = SIGNIFICATIVE + ' ' + POSITIVE_TREND
     SIGNIFICATIVE_NEGATIVE_TREND = SIGNIFICATIVE + ' ' + NEGATIVE_TREND
+    NON_SIGNIFICATIVE_TREND = 'non ' + SIGNIFICATIVE + ' trend'
 
+    # this is the most common level of significance
     SIGNIFICANCE_LEVEL = 0.05
 
     def __init__(self, years, maxima, starting_year):
@@ -43,29 +45,37 @@ class AbstractUnivariateTest(object):
         return self.maxima[self.idx_for_starting_year:]
 
     @classmethod
-    def trend_type_to_style(cls):
+    def real_trend_types(cls):
+        return [cls.POSITIVE_TREND, cls.NEGATIVE_TREND,
+                cls.SIGNIFICATIVE_POSITIVE_TREND, cls.SIGNIFICATIVE_NEGATIVE_TREND, cls.NO_TREND]
+
+    @classmethod
+    def display_trend_type_to_style(cls):
         d = OrderedDict()
+        # d[cls.POSITIVE_TREND] = 'g--'
+        # d[cls.NEGATIVE_TREND] = 'r--'
         d[cls.ALL_TREND] = 'k--'
-        d[cls.POSITIVE_TREND] = 'g--'
-        d[cls.NEGATIVE_TREND] = 'r--'
-        d[cls.SIGNIFICATIVE_ALL_TREND] = 'k-'
+        d[cls.NON_SIGNIFICATIVE_TREND] = 'b--'
+        # d[cls.SIGNIFICATIVE_ALL_TREND] = 'k-'
         d[cls.SIGNIFICATIVE_POSITIVE_TREND] = 'g-'
         d[cls.SIGNIFICATIVE_NEGATIVE_TREND] = 'r-'
         # d[cls.NO_TREND] = 'k--'
         return d
 
     @classmethod
-    def get_trend_types(cls, trend_type):
-        if trend_type is cls.ALL_TREND:
-            return cls.get_trend_types(cls.POSITIVE_TREND) + cls.get_trend_types(cls.NEGATIVE_TREND)
-        elif trend_type is cls.SIGNIFICATIVE_ALL_TREND:
+    def get_real_trend_types(cls, display_trend_type):
+        if display_trend_type is cls.ALL_TREND:
+            return cls.real_trend_types()
+        elif display_trend_type is cls.SIGNIFICATIVE_ALL_TREND:
             return [cls.SIGNIFICATIVE_POSITIVE_TREND, cls.SIGNIFICATIVE_NEGATIVE_TREND]
-        if trend_type is cls.POSITIVE_TREND:
+        if display_trend_type is cls.POSITIVE_TREND:
             return [cls.POSITIVE_TREND, cls.SIGNIFICATIVE_POSITIVE_TREND]
-        elif trend_type is cls.NEGATIVE_TREND:
+        elif display_trend_type is cls.NEGATIVE_TREND:
             return [cls.NEGATIVE_TREND, cls.SIGNIFICATIVE_NEGATIVE_TREND]
+        elif display_trend_type is cls.NON_SIGNIFICATIVE_TREND:
+            return [cls.POSITIVE_TREND, cls.NEGATIVE_TREND, cls.NO_TREND]
         else:
-            return [trend_type]
+            return [display_trend_type]
 
     @classmethod
     def get_cmap_from_trend_type(cls, trend_type):
@@ -94,7 +104,7 @@ class AbstractUnivariateTest(object):
             trend_type = self.POSITIVE_TREND if test_sign > 0 else self.NEGATIVE_TREND
             if self.is_significant:
                 trend_type = self.SIGNIFICATIVE + ' ' + trend_type
-        assert trend_type in self.trend_type_to_style()
+        assert trend_type in self.real_trend_types(), trend_type
         return trend_type
 
     @property
