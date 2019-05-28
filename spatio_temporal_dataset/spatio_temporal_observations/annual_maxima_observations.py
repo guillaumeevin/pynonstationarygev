@@ -33,8 +33,10 @@ class MarginAnnualMaxima(AnnualMaxima):
 class MaxStableAnnualMaxima(AnnualMaxima):
 
     @classmethod
-    def from_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel, coordinates: AbstractCoordinates):
-        maxima_frech = max_stable_model.rmaxstab(nb_obs=nb_obs, coordinates_values=coordinates.coordinates_values())
+    def from_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel, coordinates: AbstractCoordinates,
+                      use_rmaxstab_with_2_coordinates=False):
+        maxima_frech = max_stable_model.rmaxstab(nb_obs=nb_obs, coordinates_values=coordinates.coordinates_values(),
+                                                 use_rmaxstab_with_2_coordinates=use_rmaxstab_with_2_coordinates)
         df_maxima_frech = pd.DataFrame(data=maxima_frech, index=coordinates.index)
         return cls(df_maxima_frech=df_maxima_frech)
 

@@ -7,6 +7,8 @@ from rpy2.rinterface import RRuntimeError
 from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel
 from extreme_estimator.extreme_models.utils import set_seed_for_test
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
+    BetweenZeroAndOneNormalization
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset, MarginDataset
 from test.test_utils import load_test_max_stable_models, load_test_3D_spatial_coordinates, \
     load_test_1D_and_2D_spatial_coordinates, load_test_spatiotemporal_coordinates
@@ -34,6 +36,16 @@ class TestDataset(unittest.TestCase):
             MaxStableDataset.from_sampling(nb_obs=self.nb_obs,
                                            max_stable_model=smith_process,
                                            coordinates=coordinates)
+
+    def test_max_stable_dataset_R3_with_R2_spatial_structure(self):
+        """Test to create a dataset in R3, but where the spatial structure is only with respect to the 2 fisrt coordinates"""
+        coordinates = load_test_3D_spatial_coordinates(nb_points=self.nb_points, transformation_class=BetweenZeroAndOneNormalization)[0]
+        smith_process = load_test_max_stable_models()[0]
+        MaxStableDataset.from_sampling(nb_obs=self.nb_obs,
+                                       max_stable_model=smith_process,
+                                       coordinates=coordinates,
+                                       use_rmaxstab_with_2_coordinates=True)
+
 
 
 class TestSpatioTemporalDataset(unittest.TestCase):

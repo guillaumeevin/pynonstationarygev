@@ -71,13 +71,17 @@ class AbstractMaxStableModel(AbstractModel):
                                    **fit_params)
         return ResultFromSpatialExtreme(res)
 
-    def rmaxstab(self, nb_obs: int, coordinates_values: np.ndarray) -> np.ndarray:
+    def rmaxstab(self, nb_obs: int, coordinates_values: np.ndarray, use_rmaxstab_with_2_coordinates=False) -> np.ndarray:
         """
         Return an numpy of maxima. With rows being the stations and columns being the years of maxima
         """
+        if use_rmaxstab_with_2_coordinates and coordinates_values.shape[1] > 2:
+            # When we have more than 2 coordinates, then sample based on the 2 first coordinates only
+            coordinates_values = coordinates_values[:, :2]
 
         maxima_frech = np.array(
             r.rmaxstab(nb_obs, coordinates_values, *list(self.cov_mod_param.values()), **self.params_sample))
+
         return np.transpose(maxima_frech)
 
     def remove_unused_parameters(self, start_dict, coordinate_dim):

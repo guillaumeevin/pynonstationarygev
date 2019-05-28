@@ -29,8 +29,10 @@ class SimulatedDataset(AbstractDataset):
 class MaxStableDataset(SimulatedDataset):
 
     @classmethod
-    def from_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel, coordinates: AbstractCoordinates):
-        observations = MaxStableAnnualMaxima.from_sampling(nb_obs, max_stable_model, coordinates)
+    def from_sampling(cls, nb_obs: int, max_stable_model: AbstractMaxStableModel, coordinates: AbstractCoordinates,
+                      use_rmaxstab_with_2_coordinates=False):
+        observations = MaxStableAnnualMaxima.from_sampling(nb_obs, max_stable_model, coordinates,
+                                                           use_rmaxstab_with_2_coordinates)
         return cls(observations=observations, coordinates=coordinates, max_stable_model=max_stable_model)
 
 
