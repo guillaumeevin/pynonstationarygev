@@ -97,6 +97,10 @@ class LinearMarginModelExample(LinearMarginModel):
                                        GevParams.LOC: [1],
                                        GevParams.SCALE: [0]})
 
+class LinearLocationAllDimsMarginModel(LinearMarginModel):
+
+    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+        super().load_margin_functions({GevParams.LOC: self.coordinates.coordinates_dims})
 
 class LinearAllParametersAllDimsMarginModel(LinearMarginModel):
 

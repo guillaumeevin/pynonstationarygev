@@ -45,7 +45,6 @@ class TestMaxStableFitWithLinearMargin(TestUnitaryAbstract):
         TestRMaxStabWithMarginConstant.r_code()
         r("""
         loc.form <- loc ~ lat
-        ##scale.form <- scale ~ lon + I(lat^2)
         scale.form <- scale ~ lon
         shape.form <- shape ~ lon
         res = fitmaxstab(data, locations, "whitmat", loc.form, scale.form, shape.form)

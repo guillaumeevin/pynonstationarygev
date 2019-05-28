@@ -1,11 +1,15 @@
 from collections import OrderedDict
-from collections import Counter
 
 from cached_property import cached_property
 
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall
 from experiment.meteo_france_data.visualization.study_visualization.main_study_visualizer import \
-    ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST, ALL_ALTITUDES
+    ALL_ALTITUDES
+from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
+    FullEstimatorInASingleStepWithSmoothMargin
+from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
+    LinearLocationAllDimsMarginModel
+from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -14,20 +18,20 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
-from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
+from test.test_utils import load_test_max_stable_models
+from utils import get_display_name_from_object_type
 
 DATA_PATH = r'/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/Johan_data/PrecipitationsAvalanches_MaxPrecipit_ParPoste_ParHiver_traites.xls'
 
 import pandas as pd
 
 
-class Stations(object):
+class ComparisonAnalysis(object):
 
-    def __init__(self, altitude=900, use_study_coordinate_with_latitude_and_longitude=False):
+    def __init__(self, altitude=900):
         assert altitude in [900, 1200]
         self.altitude = altitude
         self.transformation_class = BetweenZeroAndOneNormalization
-        self.use_study_coordinate_with_latitude_and_longitude = use_study_coordinate_with_latitude_and_longitude
         self.year_min = 1958
         self.year_max = 2004
 
@@ -100,10 +104,9 @@ class Stations(object):
         assert not diff_due_to_wrong_names, diff_due_to_wrong_names
         return intersection_of_massif_names
 
-    @property
-    def study_coordinates(self):
+    def study_coordinates(self, use_study_coordinate_with_latitude_and_longitude=True):
         # Build coordinate, from two possibles dataframes for the coordinates
-        if self.use_study_coordinate_with_latitude_and_longitude:
+        if use_study_coordinate_with_latitude_and_longitude:
             df = self.study.df_massifs_longitude_and_latitude
         else:
             df = self.study.load_df_centroid()
@@ -120,9 +123,15 @@ class Stations(object):
         return observations
 
     @property
-    def study_dataset(self):
+    def study_dataset_latitude_longitude(self):
         dataset = AbstractDataset(observations=self.study_observations,
-                                  coordinates=self.study_coordinates)
+                                  coordinates=self.study_coordinates(use_study_coordinate_with_latitude_and_longitude=True))
+        return dataset
+
+    @property
+    def study_dataset_lambert(self):
+        dataset = AbstractDataset(observations=self.study_observations,
+                                  coordinates=self.study_coordinates(use_study_coordinate_with_latitude_and_longitude=False))
         return dataset
 
     # After a short analysis (run df_altitude to check) we decided on the altitude
@@ -159,10 +168,20 @@ class Stations(object):
         # Finally I might prefer the altitude 900, which seems to have less missing values
         print(df)
 
+    ##################### COMPARE THE TWO DATASETS BY FITTING THE SAME MODEL ############################
+
+    def spatial_comparison(self):
+        max_stable_models = load_test_max_stable_models(default_covariance_function=CovarianceFunction.powexp)
+        for max_stable_model in [max_stable_models[1], max_stable_models[-2]]:
+            print('\n\n', get_display_name_from_object_type(type(max_stable_model)))
+            for dataset in [self.station_dataset, self.study_dataset_latitude_longitude, self.study_dataset_lambert][1:]:
+                margin_model = LinearLocationAllDimsMarginModel(coordinates=dataset.coordinates)
+                estimator = FullEstimatorInASingleStepWithSmoothMargin(dataset=dataset,
+                                                                       margin_model=margin_model,
+                                                                       max_stable_model=max_stable_model)
+                estimator.fit()
+                print(estimator.margin_function_fitted.coef_dict)
 
 if __name__ == '__main__':
-    s = Stations(altitude=1200)
-    print(len(s.stations_coordinates))
-    print(len(s.study_coordinates))
-    print(s.station_dataset)
-    print(s.study_dataset)
+    s = ComparisonAnalysis(altitude=1200)
+    s.spatial_comparison()
