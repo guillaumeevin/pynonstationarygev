@@ -125,6 +125,9 @@ class AbstractSpatioTemporalObservations(object):
     def __str__(self) -> str:
         return self._df_maxima.__str__()
 
+    def __len__(self):
+        return self._df_maxima.__len__()
+
     def print_summary(self):
         # Write a summary of observations
         df = self.df_maxima_gev
