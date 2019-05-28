@@ -1,6 +1,6 @@
 import numpy as np
 
-from experiment.meteo_france_SCM_models.study.abstract_variable import AbstractVariable
+from experiment.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
 
 
 class CrocusVariable(AbstractVariable):

@@ -1,9 +1,9 @@
 import numpy as np
 
-from experiment.meteo_france_SCM_models.study.abstract_extended_study import AbstractExtendedStudy
-from experiment.meteo_france_SCM_models.study.abstract_study import AbstractStudy
-from experiment.meteo_france_SCM_models.study.crocus.crocus_variables import CrocusSweVariable, CrocusDepthVariable
-from experiment.meteo_france_SCM_models.study.cumulated_study import CumulatedStudy
+from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
+from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusSweVariable, CrocusDepthVariable
+from experiment.meteo_france_data.scm_models_data.cumulated_study import CumulatedStudy
 
 
 class Crocus(AbstractStudy):

@@ -9,12 +9,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-from experiment.meteo_france_SCM_models.study.abstract_extended_study import AbstractExtendedStudy
+from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
-from experiment.meteo_france_SCM_models.visualization.studies_visualization.studies import \
+from experiment.meteo_france_data.visualization.studies_visualization.studies import \
     Studies
-from experiment.meteo_france_SCM_models.visualization.study_visualization.study_visualizer import StudyVisualizer
-from experiment.meteo_france_SCM_models.visualization.utils import plot_df
+from experiment.meteo_france_data.visualization.study_visualization.study_visualizer import StudyVisualizer
+from experiment.meteo_france_data.visualization.utils import plot_df
 from utils import cached_property, get_display_name_from_object_type, VERSION_TIME
 
 

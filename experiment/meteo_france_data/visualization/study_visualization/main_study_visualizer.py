@@ -2,13 +2,13 @@ import time
 from typing import List
 
 from experiment.trend_analysis.abstract_score import MannKendall
-from experiment.meteo_france_SCM_models.study.abstract_study import AbstractStudy
-from experiment.meteo_france_SCM_models.study.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
+from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
     ExtendedCrocusSwe, CrocusDaysWithSnowOnGround
-from experiment.meteo_france_SCM_models.study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, SafranRainfall, \
+from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, SafranRainfall, \
     SafranTemperature, SafranTotalPrecip
 
-from experiment.meteo_france_SCM_models.visualization.study_visualization.study_visualizer import StudyVisualizer
+from experiment.meteo_france_data.visualization.study_visualization.study_visualizer import StudyVisualizer
 from collections import OrderedDict
 
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
@@ -23,6 +23,7 @@ ALL_ALTITUDES = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 330
 ALL_ALTITUDES_WITHOUT_NAN = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 4800]
 full_altitude_with_at_least_2_stations = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900,
                                           4200]
+ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST = ALL_ALTITUDES[3:-6][:]
 
 ALL_STUDIES = SCM_STUDIES + [SafranTemperature, SafranRainfall]
 

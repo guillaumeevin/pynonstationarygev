@@ -1,5 +1,5 @@
-from experiment.meteo_france_SCM_models.study.abstract_study import AbstractStudy
-from experiment.meteo_france_SCM_models.study.abstract_variable import AbstractVariable
+from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from experiment.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
 
 NB_DAYS = [1, 3, 5, 7]
 
