@@ -36,28 +36,26 @@ List[AbstractStudy]:
             break
 
 
-def study_iterator(study_class, only_first_one=False, verbose=True, altitudes=None, nb_days=None) -> List[AbstractStudy]:
+def study_iterator(study_class, only_first_one=False, verbose=True, altitudes=None, nb_consecutive_days=None) -> List[AbstractStudy]:
     # Default argument
-    nb_days = [1] if nb_days is None else nb_days
+    nb_consecutive_days = 1 if nb_consecutive_days is None else nb_consecutive_days
     altis = [1800] if altitudes is None else altitudes
 
     if verbose:
         print('\n\n\n\n\nLoading studies....')
-    for nb_day in nb_days:
-        for alti in altis:
-            if verbose:
-                print('alti: {}, nb_day: {}     '.format(alti, nb_day), end='')
+    for alti in altis:
+        if verbose:
+            print('alti: {}, nb_day: {}     '.format(alti, nb_consecutive_days), end='')
 
-            study = study_class(altitude=alti)
+        study = study_class(altitude=alti,
+                            nb_consecutive_days=nb_consecutive_days)
 
-            if verbose:
-                massifs = study.altitude_to_massif_names[alti]
-                print('{} massifs: {} \n'.format(len(massifs), massifs))
-            yield study
+        if verbose:
+            massifs = study.altitude_to_massif_names[alti]
+            print('{} massifs: {} \n'.format(len(massifs), massifs))
+        yield study
 
-            # Stop iterations on purpose
-            if only_first_one:
-                break
+        # Stop iterations on purpose
         if only_first_one:
             break
 

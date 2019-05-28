@@ -108,11 +108,14 @@ class AbstractStudy(object):
 
     def load_variables(self, path_file):
         dataset = Dataset(path_file)
-        keyword = self.variable_class.keyword()
+        keyword = self.load_keyword()
         if isinstance(keyword, str):
             return np.array(dataset.variables[keyword])
         else:
             return [np.array(dataset.variables[k]) for k in keyword]
+
+    def load_keyword(self):
+        return self.variable_class.keyword()
 
     @property
     def start_year_and_stop_year(self) -> Tuple[int, int]:

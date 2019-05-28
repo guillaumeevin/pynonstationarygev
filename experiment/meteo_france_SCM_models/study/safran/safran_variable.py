@@ -25,12 +25,12 @@ class SafranSnowfallVariable(AbstractVariable):
     UNIT = 'kg per m2 or mm'
 
     @classmethod
-    def keyword(cls):
+    def keyword(cls, nb_consecutive_days=3):
         return 'Snowf'
 
-    def __init__(self, variable_array, nb_consecutive_days_of_snowfall=1):
+    def __init__(self, variable_array, nb_consecutive_days):
         super().__init__(variable_array)
-        self.nb_consecutive_days_of_snowfall = nb_consecutive_days_of_snowfall
+        self.nb_consecutive_days_of_snowfall = nb_consecutive_days
         # Compute the daily snowfall in kg/m2
         snowfall_rates = variable_array
 
@@ -56,10 +56,12 @@ class SafranSnowfallVariable(AbstractVariable):
         # The zip is done with respect to the shortest list
         snowfall_in_consecutive_days = np.array([sum(e) for e in zip(*shifted_list)])
         # The returned array is of size n-nb_days+1 x nb_massif
-
         # so that the length of the vector match a year, we can add zeros (since it corresponds to the July month,
         # we are sure that there is no snowfall at this period) However such trick does not work for other variable such as Temperature
-
+        nb_days_in_a_year = len(self.daily_snowfall)
+        nb_days_in_vector, nb_altitudes = snowfall_in_consecutive_days.shape
+        zeros_to_add = np.zeros([nb_days_in_a_year - nb_days_in_vector, nb_altitudes])
+        snowfall_in_consecutive_days = np.concatenate([snowfall_in_consecutive_days, zeros_to_add])
         return snowfall_in_consecutive_days
 
 
@@ -68,19 +70,19 @@ class SafranRainfallVariable(SafranSnowfallVariable):
     UNIT = 'kg per m2 or mm'
 
     @classmethod
-    def keyword(cls):
+    def keyword(cls, nb_consecutive_days=3):
         return 'Rainf'
 
 
 class SafranTotalPrecipVariable(AbstractVariable):
 
-    def __init__(self, snow_variable_array, rain_variable_array, nb_consecutive_days_of_snowfall=1):
+    def __init__(self, snow_variable_array, rain_variable_array, nb_consecutive_days):
         super().__init__(None)
-        self.snow_precipitation = SafranSnowfallVariable(snow_variable_array, nb_consecutive_days_of_snowfall)
-        self.rain_precipitation = SafranRainfallVariable(rain_variable_array, nb_consecutive_days_of_snowfall)
+        self.snow_precipitation = SafranSnowfallVariable(snow_variable_array, nb_consecutive_days)
+        self.rain_precipitation = SafranRainfallVariable(rain_variable_array, nb_consecutive_days)
 
     @classmethod
-    def keyword(cls):
+    def keyword(cls, nb_consecutive_days=3):
         return [SafranSnowfallVariable.keyword(), SafranRainfallVariable.keyword()]
 
     @property
@@ -93,7 +95,7 @@ class SafranTemperatureVariable(AbstractVariable):
     UNIT = 'Celsius Degrees'
 
     @classmethod
-    def keyword(cls):
+    def keyword(cls, nb_consecutive_days=3):
         return 'Tair'
 
     def __init__(self, variable_array):

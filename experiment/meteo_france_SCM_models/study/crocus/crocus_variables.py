@@ -15,8 +15,8 @@ class CrocusSweVariable(CrocusVariable):
     UNIT = 'kg per m2 or mm'
 
     @classmethod
-    def keyword(cls):
-        return 'SWE_1DY_ISBA'
+    def keyword(cls, nb_consecutive_days=3):
+        return 'SWE_{}DY_ISBA'.format(nb_consecutive_days)
 
 
 class CrocusDepthVariable(CrocusVariable):
@@ -24,5 +24,5 @@ class CrocusDepthVariable(CrocusVariable):
     UNIT = 'm'
 
     @classmethod
-    def keyword(cls):
-        return "SD_1DY_ISBA"
+    def keyword(cls, nb_consecutive_days=3):
+        return "SD_{}DY_ISBA".format(nb_consecutive_days)

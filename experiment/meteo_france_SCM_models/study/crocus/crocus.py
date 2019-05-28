@@ -40,10 +40,11 @@ class ExtendedCrocusSwe(AbstractExtendedStudy, CrocusSwe):
     pass
 
 
-class CrocusDepth(Crocus):
+class CrocusDepth(Crocus, CumulatedStudy):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(CrocusDepthVariable, *args, **kwargs)
+        CumulatedStudy.__init__(self, CrocusDepthVariable, *args, **kwargs)
+        Crocus.__init__(self, CrocusDepthVariable, *args, **kwargs)
 
     def apply_annual_aggregation(self, time_serie):
         return self.winter_annual_aggregation(time_serie)

@@ -1,24 +1,42 @@
 import os.path as op
 import unittest
+from random import sample
 
 import pandas as pd
 
-from experiment.meteo_france_SCM_models.visualization.study_visualization.main_study_visualizer import study_iterator
-from experiment.meteo_france_SCM_models.study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, SafranTemperature, \
+from experiment.meteo_france_SCM_models.study.cumulated_study import NB_DAYS
+from experiment.meteo_france_SCM_models.study.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
+    SafranTemperature, \
     SafranTotalPrecip
+from experiment.meteo_france_SCM_models.visualization.study_visualization.main_study_visualizer import study_iterator, \
+    study_iterator_global, SCM_STUDIES, ALL_ALTITUDES
 from experiment.meteo_france_SCM_models.visualization.study_visualization.study_visualizer import StudyVisualizer
+from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
+from utils import get_display_name_from_object_type
 
-
-# TESTS TO REACTIVATE SOMETIMES
 
 class TestSCMAllStudy(unittest.TestCase):
 
     def test_extended_run(self):
         for study_class in [ExtendedSafranSnowfall]:
             for study in study_iterator(study_class, only_first_one=True, verbose=False):
-                study_visualizer = StudyVisualizer(study, show=False, save_to_file=False)
-                study_visualizer.visualize_all_mean_and_max_graphs()
+                study_visualizer = StudyVisualizer(study, show=False, save_to_file=False, multiprocessing=True)
+                study_visualizer.df_trend_spatio_temporal(GevLocationChangePointTest, [1958, 1959, 1960],
+                                                          nb_massif_for_fast_mode=1)
         self.assertTrue(True)
+
+    def test_instantiate_studies(self):
+        nb_sample = 2
+        for nb_days in sample(set(NB_DAYS), k=nb_sample):
+            for study in study_iterator_global(study_classes=SCM_STUDIES,
+                                               only_first_one=False, verbose=False,
+                                               altitudes=sample(set(ALL_ALTITUDES), k=nb_sample), nb_days=nb_days):
+                self.assertTrue('day' in study.variable_name)
+                first_path_file = study.ordered_years_and_path_files()[0][0]
+                variable_array = study.load_variables(path_file=first_path_file)
+                variable_object = study.instantiate_variable_object(variable_array)
+                self.assertEqual((365, 263), variable_object.daily_time_serie_array.shape,
+                                 msg='{} days for type {}'.format(nb_days, get_display_name_from_object_type(type(variable_object))))
 
 
 class TestSCMStudy(unittest.TestCase):
@@ -53,7 +71,7 @@ class TestSCMPrecipitation(TestSCMStudy):
 
     def setUp(self) -> None:
         super().setUp()
-        self.study = SafranTotalPrecip(altitude=1800, year_min=1958, year_max=2002)
+        self.study = SafranTotalPrecip(altitude=1800, year_min=1958, year_max=2002, nb_consecutive_days=1)
 
     def test_durand(self):
         # Test based on Durand paper
