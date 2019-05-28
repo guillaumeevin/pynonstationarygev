@@ -37,7 +37,8 @@ class TestSpatialCoordinates(unittest.TestCase):
     def tearDown(self):
         if self.DISPLAY:
             self.coord.visualize()
-        self.assertTrue(True)
+        first_coordinate = self.coord.df_all_coordinates.iloc[0, 0]
+        self.assertFalse(np.isnan(first_coordinate))
 
     def test_unif(self):
         self.coord = UniformSpatialCoordinates.from_nb_points(nb_points=10)

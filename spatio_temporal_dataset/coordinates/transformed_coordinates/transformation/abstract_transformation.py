@@ -26,8 +26,6 @@ class AbstractTransformation(object):
         return pd.DataFrame(data, index=df_coord.index, columns=df_coord.columns)
 
 
-
-
 class IdentityTransformation(AbstractTransformation):
 
     def transform_array(self, coordinate: np.ndarray):
@@ -44,5 +42,3 @@ class CenteredScaledNormalization(AbstractTransformation):
 
     def transform_array(self, coordinate: np.ndarray):
         return self.scaler.transform(np.array([coordinate]))[0]
-
-

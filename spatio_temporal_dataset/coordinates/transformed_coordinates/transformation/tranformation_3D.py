@@ -6,14 +6,7 @@ import math
 
 
 class Transformation3D(AbstractTransformation):
-
-    def transform_df(self, df_coord: pd.DataFrame) -> pd.DataFrame:
-        df_coord = super().transform_df(df_coord=df_coord)
-        normalized_values = self.transform_values(df_coord.values)
-        return pd.DataFrame(data=normalized_values, index=df_coord.index, columns=df_coord.columns)
-
-    def transform_values(self, coord_arr: np.ndarray) -> np.ndarray:
-        return coord_arr
+    pass
 
 
 class AnisotropyTransformation(Transformation3D):
@@ -32,7 +25,8 @@ class AnisotropyTransformation(Transformation3D):
         assert 0 <= self.phi < math.pi
         assert self.w1 > 0
 
-    def transform_values(self, coord_arr: np.ndarray) -> np.ndarray:
+    def transform_array(self, coordinate: np.ndarray):
+        super().transform_array(coordinate)
         cosinus, sinus = math.cos(self.phi), math.sin(self.phi)
         inverse_w1 = 1 / self.w1
         V = np.array([
@@ -40,6 +34,6 @@ class AnisotropyTransformation(Transformation3D):
             [inverse_w1 * sinus, inverse_w1 * cosinus, 0],
             [0, 0, self.w2],
         ])
-        coord_arr = np.transpose(coord_arr)
+        coord_arr = np.transpose(coordinate)
         coord_arr = np.dot(V, coord_arr)
         return np.transpose(coord_arr)
