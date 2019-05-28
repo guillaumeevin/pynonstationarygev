@@ -2,11 +2,13 @@ from enum import Enum
 
 import numpy as np
 import pandas as pd
+from rpy2.rinterface import RRuntimeWarning
+from rpy2.rinterface._rinterface import RRuntimeError
 
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
 from extreme_estimator.extreme_models.result_from_fit import ResultFromFit, ResultFromSpatialExtreme
 from extreme_estimator.extreme_models.utils import r, safe_run_r_estimator, get_coord, \
-    get_margin_formula
+    get_margin_formula, SafeRunException
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
@@ -71,7 +73,8 @@ class AbstractMaxStableModel(AbstractModel):
                                    **fit_params)
         return ResultFromSpatialExtreme(res)
 
-    def rmaxstab(self, nb_obs: int, coordinates_values: np.ndarray, use_rmaxstab_with_2_coordinates=False) -> np.ndarray:
+    def rmaxstab(self, nb_obs: int, coordinates_values: np.ndarray,
+                 use_rmaxstab_with_2_coordinates=False) -> np.ndarray:
         """
         Return an numpy of maxima. With rows being the stations and columns being the years of maxima
         """
@@ -79,8 +82,13 @@ class AbstractMaxStableModel(AbstractModel):
             # When we have more than 2 coordinates, then sample based on the 2 first coordinates only
             coordinates_values = coordinates_values[:, :2]
 
-        maxima_frech = np.array(
-            r.rmaxstab(nb_obs, coordinates_values, *list(self.cov_mod_param.values()), **self.params_sample))
+        try:
+            maxima_frech = np.array(
+                r.rmaxstab(nb_obs, coordinates_values, *list(self.cov_mod_param.values()), **self.params_sample))
+        except (RRuntimeError, RRuntimeWarning) as e:
+            raise SafeRunException('\n\nSome R exception have been launched at RunTime: \n{} \n{}'.format(e.__repr__(),
+                                   'To sample from 3D data we advise to set the function argument '
+                                   '"use_rmaxstab_with_2_coordinates" to True'))
 
         return np.transpose(maxima_frech)
 

@@ -5,7 +5,7 @@ import numpy as np
 from rpy2.rinterface import RRuntimeError
 
 from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel
-from extreme_estimator.extreme_models.utils import set_seed_for_test
+from extreme_estimator.extreme_models.utils import set_seed_for_test, SafeRunException
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization
@@ -30,7 +30,7 @@ class TestDataset(unittest.TestCase):
 
     def test_max_stable_dataset_crash_R3(self):
         """Test to warn me when spatialExtremes handles R3"""
-        with self.assertRaises(RRuntimeError):
+        with self.assertRaises(SafeRunException):
             smith_process = load_test_max_stable_models()[0]
             coordinates = load_test_3D_spatial_coordinates(nb_points=self.nb_points)[0]
             MaxStableDataset.from_sampling(nb_obs=self.nb_obs,
@@ -39,13 +39,14 @@ class TestDataset(unittest.TestCase):
 
     def test_max_stable_dataset_R3_with_R2_spatial_structure(self):
         """Test to create a dataset in R3, but where the spatial structure is only with respect to the 2 fisrt coordinates"""
-        coordinates = load_test_3D_spatial_coordinates(nb_points=self.nb_points, transformation_class=BetweenZeroAndOneNormalization)[0]
+        coordinates = \
+        load_test_3D_spatial_coordinates(nb_points=self.nb_points, transformation_class=BetweenZeroAndOneNormalization)[
+            0]
         smith_process = load_test_max_stable_models()[0]
         MaxStableDataset.from_sampling(nb_obs=self.nb_obs,
                                        max_stable_model=smith_process,
                                        coordinates=coordinates,
                                        use_rmaxstab_with_2_coordinates=True)
-
 
 
 class TestSpatioTemporalDataset(unittest.TestCase):
