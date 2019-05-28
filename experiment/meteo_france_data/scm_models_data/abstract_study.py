@@ -201,8 +201,6 @@ class AbstractStudy(object):
         # Coordinate object that represents the massif coordinates in Lambert extended
         # extracted for a csv file, and used only for display purposes
         df = self.load_df_centroid()
-        for coord_column in [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_Y]:
-            df.loc[:, coord_column] = df[coord_column].str.replace(',', '.').astype(float)
         # Filter, keep massifs present at the altitude of interest
         df = df.loc[self.study_massif_names]
         # Build coordinate object from df_centroid
@@ -230,6 +228,8 @@ class AbstractStudy(object):
         assert len(symmetric_difference) == 0, symmetric_difference
         # Sort the column in the order of the SAFRAN dataset
         df_centroid = df_centroid.reindex(self.all_massif_names, axis=0)
+        for coord_column in [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_Y]:
+            df_centroid.loc[:, coord_column] = df_centroid[coord_column].str.replace(',', '.').astype(float)
         return df_centroid
 
     @property
