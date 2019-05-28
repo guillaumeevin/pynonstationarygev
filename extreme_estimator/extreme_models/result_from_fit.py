@@ -32,6 +32,10 @@ class ResultFromFit(object):
         raise NotImplementedError
 
     @property
+    def other_coef_dict(self):
+        raise NotImplementedError
+
+    @property
     def nllh(self):
         raise NotImplementedError
 
@@ -116,3 +120,7 @@ class ResultFromSpatialExtreme(ResultFromFit):
     @property
     def margin_coef_dict(self):
         return {k: v for k, v in self.all_parameters.items() if LinearCoef.COEFF_STR in k}
+
+    @property
+    def other_coef_dict(self):
+        return {k: v for k, v in self.all_parameters.items() if LinearCoef.COEFF_STR not in k}

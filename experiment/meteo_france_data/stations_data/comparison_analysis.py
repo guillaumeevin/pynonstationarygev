@@ -10,6 +10,7 @@ from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
 from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
     LinearLocationAllDimsMarginModel, LinearShapeAllDimsMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
+from extreme_estimator.extreme_models.max_stable_model.max_stable_models import ExtremalT, BrownResnick
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -203,24 +204,30 @@ class ComparisonAnalysis(object):
 
     ##################### COMPARE THE TWO DATASETS BY FITTING THE SAME MODEL ############################
 
-    def spatial_comparison(self, margin_model_class):
-        max_stable_models = load_test_max_stable_models(default_covariance_function=CovarianceFunction.powexp)
-        for max_stable_model in [max_stable_models[1], max_stable_models[-2]]:
+    def spatial_comparison(self, margin_model_class, default_covariance_function=CovarianceFunction.powexp):
+        # max_stable_models = load_test_max_stable_models(default_covariance_function=CovarianceFunction.powexp)
+        # max_stable_models = [max_stable_models[1], max_stable_models[-2]]
+        max_stable_models = load_test_max_stable_models(default_covariance_function=default_covariance_function)
+        max_stable_models = [m for m in max_stable_models if isinstance(m, (BrownResnick, ExtremalT))]
+        for max_stable_model in max_stable_models:
             print('\n\n', get_display_name_from_object_type(type(max_stable_model)))
+            if hasattr(max_stable_model, 'covariance_function'):
+                print(max_stable_model.covariance_function)
             for dataset in [self.station_dataset, self.study_dataset_lambert]:
                 margin_model = margin_model_class(coordinates=dataset.coordinates)
                 estimator = FullEstimatorInASingleStepWithSmoothMargin(dataset=dataset,
                                                                        margin_model=margin_model,
                                                                        max_stable_model=max_stable_model)
                 estimator.fit()
-                print(estimator.margin_function_fitted.coef_dict)
+                print(estimator.result_from_fit.margin_coef_dict)
+                print(estimator.result_from_fit.other_coef_dict)
                 # print(estimato)
 
 
 def choice_of_altitude_and_nb_border_data_to_remove_to_get_data_without_nan():
     for margin in [50, 100, 150, 200, 250, 300][2:3]:
-        for altitude in [900, 1200, 1800][-1:]:
-            for nb in range(1, 15):
+        for altitude in [900, 1200, 1800][:1]:
+            for nb in range(1, 4):
                 s = ComparisonAnalysis(altitude=altitude, nb_border_data_to_remove=nb, margin=margin)
                 print(margin, altitude, nb, 'nb massifs', len(s.intersection_massif_names), 'nb stations',
                       len(s.stations_observations), 'nb observations', s.stations_observations.nb_obs,
@@ -235,7 +242,7 @@ def run_comparison_for_optimal_parameters_for_altitude_900():
                                             exclude_some_massifs_from_the_intersection=nb == 2,
                                             transformation_class=transformation_class,
                                             normalize_observations=True)
-            print('nb:', nb, comparison.intersection_massif_names)
+            print('\n-----------\nnb:', nb, comparison.intersection_massif_names)
             # margin_model_classes = [LinearShapeAllDimsMarginModel, LinearLocationAllDimsMarginModel,
             #           LinearAllParametersAllDimsMarginModel]
             for margin_model_class in [LinearAllParametersAllDimsMarginModel]:
@@ -279,5 +286,5 @@ Then I should find a way to remove the same years in the study
 """
 
 if __name__ == '__main__':
-    # run_comparison_for_optimal_parameters_for_altitude_900()
-    choice_of_altitude_and_nb_border_data_to_remove_to_get_data_without_nan()
+    run_comparison_for_optimal_parameters_for_altitude_900()
+    # choice_of_altitude_and_nb_border_data_to_remove_to_get_data_without_nan()
