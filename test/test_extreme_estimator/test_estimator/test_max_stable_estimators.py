@@ -26,7 +26,7 @@ class TestMaxStableEstimators(unittest.TestCase):
     def fit_max_stable_estimator_for_all_coordinates(self):
         for coordinates in self.coordinates:
             for max_stable_model in self.max_stable_models:
-                use_rmaxstab_with_2_coordinates = coordinates.nb_coordinates_spatial > 2
+                use_rmaxstab_with_2_coordinates = coordinates.nb_spatial_coordinates > 2
                 dataset = MaxStableDataset.from_sampling(nb_obs=self.nb_obs,
                                                          max_stable_model=max_stable_model,
                                                          coordinates=coordinates,

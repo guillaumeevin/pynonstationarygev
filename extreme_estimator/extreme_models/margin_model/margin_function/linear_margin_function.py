@@ -65,14 +65,14 @@ class LinearMarginFunction(ParametricMarginFunction):
         for gev_param_name in GevParams.PARAM_NAMES:
             linear_dims = self.gev_param_name_to_dims.get(gev_param_name, [])
             # Load spatial form_dict (only if we have some spatial coordinates)
-            if self.coordinates.coordinates_spatial_names:
-                spatial_names = [name for name in self.coordinates.coordinates_spatial_names
+            if self.coordinates.has_spatial_coordinates:
+                spatial_names = [name for name in self.coordinates.spatial_coordinates_names
                                  if self.coefficient_name_to_dim(self.coordinates)[name] in linear_dims]
                 spatial_form = self.gev_param_name_to_coef[gev_param_name].spatial_form_dict(spatial_names)
                 form_dict.update(spatial_form)
             # Load temporal form dict (only if we have some temporal coordinates)
-            if self.coordinates.coordinates_temporal_names:
-                temporal_names = [name for name in self.coordinates.coordinates_temporal_names
+            if self.coordinates.has_temporal_coordinates:
+                temporal_names = [name for name in self.coordinates.temporal_coordinates_names
                                   if self.coefficient_name_to_dim(self.coordinates)[name] in linear_dims]
                 temporal_form = self.gev_param_name_to_coef[gev_param_name].temporal_form_dict(temporal_names)
                 # Specifying a formula '~ 1' creates a bug in fitspatgev of SpatialExtreme R package

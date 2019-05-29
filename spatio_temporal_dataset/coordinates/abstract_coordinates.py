@@ -167,7 +167,7 @@ class AbstractCoordinates(object):
 
     @property
     def coordinates_names(self) -> List[str]:
-        return self.coordinates_spatial_names + self.coordinates_temporal_names
+        return self.spatial_coordinates_names + self.temporal_coordinates_names
 
     @property
     def nb_coordinates(self) -> int:
@@ -180,22 +180,26 @@ class AbstractCoordinates(object):
     # Spatial attributes
 
     @property
-    def coordinates_spatial_names(self) -> List[str]:
+    def spatial_coordinates_dims(self):
+        return list(range(self.nb_spatial_coordinates))
+
+    @property
+    def spatial_coordinates_names(self) -> List[str]:
         return [name for name in self.COORDINATE_SPATIAL_NAMES if name in self.df_all_coordinates.columns]
 
     @property
-    def nb_coordinates_spatial(self) -> int:
-        return len(self.coordinates_spatial_names)
+    def nb_spatial_coordinates(self) -> int:
+        return len(self.spatial_coordinates_names)
 
     @property
     def has_spatial_coordinates(self) -> bool:
-        return self.nb_coordinates_spatial > 0
+        return self.nb_spatial_coordinates > 0
 
     def df_spatial_coordinates(self, split: Split = Split.all, transformed=True) -> pd.DataFrame:
-        if self.nb_coordinates_spatial == 0:
+        if self.nb_spatial_coordinates == 0:
             return pd.DataFrame()
         else:
-            return self.df_coordinates(split, transformed).loc[:, self.coordinates_spatial_names].drop_duplicates()
+            return self.df_coordinates(split, transformed).loc[:, self.spatial_coordinates_names].drop_duplicates()
 
     @property
     def nb_stations(self, split: Split = Split.all) -> int:
@@ -212,22 +216,28 @@ class AbstractCoordinates(object):
     # Temporal attributes
 
     @property
-    def coordinates_temporal_names(self) -> List[str]:
+    def temporal_dims(self):
+        start = self.nb_spatial_coordinates
+        end = start + self.nb_temporal_coordinates
+        return list(range(start, end))
+
+    @property
+    def temporal_coordinates_names(self) -> List[str]:
         return [self.COORDINATE_T] if self.COORDINATE_T in self.df_all_coordinates else []
 
     @property
-    def nb_coordinates_temporal(self) -> int:
-        return len(self.coordinates_temporal_names)
+    def nb_temporal_coordinates(self) -> int:
+        return len(self.temporal_coordinates_names)
 
     @property
     def has_temporal_coordinates(self) -> bool:
-        return self.nb_coordinates_temporal > 0
+        return self.nb_temporal_coordinates > 0
 
     def df_temporal_coordinates(self, split: Split = Split.all, transformed=True) -> pd.DataFrame:
-        if self.nb_coordinates_temporal == 0:
+        if self.nb_temporal_coordinates == 0:
             return pd.DataFrame()
         else:
-            return self.df_coordinates(split, transformed=transformed).loc[:, self.coordinates_temporal_names] \
+            return self.df_coordinates(split, transformed=transformed).loc[:, self.temporal_coordinates_names] \
                 .drop_duplicates()
 
     def df_temporal_coordinates_for_fit(self, split=Split.all, starting_point=None) -> pd.DataFrame:
@@ -297,27 +307,27 @@ class AbstractCoordinates(object):
         return self.df_all_coordinates[self.COORDINATE_T].values.copy()
 
     def visualize(self):
-        if self.nb_coordinates_spatial == 1:
+        if self.nb_spatial_coordinates == 1:
             self.visualization_1D()
-        elif self.nb_coordinates_spatial == 2:
+        elif self.nb_spatial_coordinates == 2:
             self.visualization_2D()
         else:
             self.visualization_3D()
 
     def visualization_1D(self):
-        assert self.nb_coordinates_spatial >= 1
+        assert self.nb_spatial_coordinates >= 1
         x = self.x_coordinates
         y = np.zeros(len(x))
         plt.scatter(x, y)
         plt.show()
 
     def visualization_2D(self):
-        assert self.nb_coordinates_spatial >= 2
+        assert self.nb_spatial_coordinates >= 2
         plt.scatter(self.x_coordinates, self.y_coordinates)
         plt.show()
 
     def visualization_3D(self):
-        assert self.nb_coordinates_spatial == 3
+        assert self.nb_spatial_coordinates == 3
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')  # type: Axes3D
         ax.scatter(self.x_coordinates, self.y_coordinates, self.z_coordinates, marker='^')

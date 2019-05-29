@@ -103,7 +103,7 @@ class AbstractMarginFunction(object):
 
     def visualize_single_param(self, gev_value_name=GevParams.LOC, ax=None, show=True):
         assert gev_value_name in GevParams.SUMMARY_NAMES
-        nb_coordinates_spatial = self.coordinates.nb_coordinates_spatial
+        nb_coordinates_spatial = self.coordinates.nb_spatial_coordinates
         has_temporal_coordinates = self.coordinates.has_temporal_coordinates
         if nb_coordinates_spatial == 1 and not has_temporal_coordinates:
             self.visualize_1D(gev_value_name, ax, show)

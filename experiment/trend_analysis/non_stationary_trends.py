@@ -11,7 +11,6 @@ from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator, \
     AbstractMarginEstimator
 from extreme_estimator.extreme_models.margin_model.linear_margin_model import \
-    LinearAllParametersTwoFirstCoordinatesMarginModel, LinearAllTwoStatialCoordinatesLocationLinearMarginModel, \
     LinearStationaryMarginModel, LinearNonStationaryLocationMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import StationaryStationModel, \
@@ -46,8 +45,7 @@ class AbstractNonStationaryTrendTest(object):
             self._starting_point_to_estimator[starting_point] = estimator
         return self._starting_point_to_estimator[starting_point]
 
-    def load_estimator(self, starting_point) -> Union[
-        AbstractFullEstimator, AbstractMarginEstimator]:
+    def load_estimator(self, starting_point) -> Union[AbstractFullEstimator, AbstractMarginEstimator]:
         margin_model_class = self.stationary_margin_model_class if starting_point is None else self.non_stationary_margin_model_class
         assert starting_point not in self._starting_point_to_estimator
         margin_model = margin_model_class(coordinates=self.dataset.coordinates, starting_point=starting_point)

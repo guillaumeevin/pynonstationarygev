@@ -118,26 +118,17 @@ class LinearAllParametersAllDimsMarginModel(LinearMarginModel):
                                        GevParams.SCALE: self.coordinates.coordinates_dims})
 
 
-class LinearAllParametersTwoFirstCoordinatesMarginModel(LinearMarginModel):
+class LinearStationaryMarginModel(LinearMarginModel):
 
     def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SHAPE: [0, 1],
-                                       GevParams.LOC: [0, 1],
-                                       GevParams.SCALE: [0, 1]})
+        super().load_margin_functions({GevParams.SHAPE: self.coordinates.spatial_coordinates_dims,
+                                       GevParams.LOC: self.coordinates.spatial_coordinates_dims,
+                                       GevParams.SCALE: self.coordinates.spatial_coordinates_dims})
 
 
-class LinearAllTwoStatialCoordinatesLocationLinearMarginModel(LinearMarginModel):
+class LinearNonStationaryLocationMarginModel(LinearMarginModel):
 
     def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SHAPE: [0, 1],
-                                       GevParams.LOC: [0, 1, 2],
-                                       GevParams.SCALE: [0, 1]})
-
-
-# Some renaming that defines the stationary and non-stationary models of reference
-class LinearStationaryMarginModel(LinearAllParametersTwoFirstCoordinatesMarginModel):
-    pass
-
-
-class LinearNonStationaryLocationMarginModel(LinearAllTwoStatialCoordinatesLocationLinearMarginModel):
-    pass
+        super().load_margin_functions({GevParams.SHAPE: self.coordinates.spatial_coordinates_dims,
+                                       GevParams.LOC: self.coordinates.coordinates_dims,
+                                       GevParams.SCALE: self.coordinates.spatial_coordinates_dims})
