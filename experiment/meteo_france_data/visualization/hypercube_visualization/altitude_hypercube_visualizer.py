@@ -25,7 +25,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
     @property
     def nb_axes(self):
-        return 2
+        return 1
 
     def trend_type_to_series(self, reduction_function):
         # Map each trend type to its serie with percentages
@@ -72,6 +72,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                        subtitle=''):
         if axes is None:
             fig, axes = plt.subplots(self.nb_axes, 1, figsize=self.study_visualizer.figsize)
+            if not isinstance(axes, np.ndarray):
+                axes = [axes]
 
         trend_type_to_series = self.trend_type_to_series(reduction_function)
         for ax_idx, ax in enumerate(axes):
@@ -168,13 +170,14 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 class Altitude_Hypercube_Year_Visualizer(AltitudeHypercubeVisualizer):
 
     def get_title_plot(self, xlabel, ax_idx=None):
-        if ax_idx == 2:
+        if ax_idx == self.nb_axes - 1:
             return 'mean starting year'
         return super().get_title_plot(xlabel, ax_idx)
 
     @property
     def nb_axes(self):
-        return 3
+        return super().nb_axes + 1
+
 
     @staticmethod
     def index_reduction(df, level):

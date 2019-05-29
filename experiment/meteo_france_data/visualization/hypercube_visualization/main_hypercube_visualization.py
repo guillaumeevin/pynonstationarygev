@@ -54,7 +54,7 @@ def full_quantity_altitude_hypercube():
 
 
 def fast_altitude_hypercube():
-    save_to_file = True
+    save_to_file = False
     only_first_one = False
     fast = True
     altitudes = ALL_ALTITUDES[2:4]
@@ -131,8 +131,8 @@ def fast_quantity_altitude_hypercube():
 
 
 def main_run():
-    fast_altitude_hypercube()
-    # fast_altitude_year_hypercube()
+    # fast_altitude_hypercube()
+    fast_altitude_year_hypercube()
     # full_altitude_year_hypercube()
     # fast_quantity_altitude_hypercube()
     # full_quantity_altitude_hypercube()
