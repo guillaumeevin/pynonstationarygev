@@ -749,9 +749,16 @@ class StudyVisualizer(object):
                              for massif_name in self.study.study_massif_names}
         return pd.DataFrame(massif_to_gev_mle, columns=self.study.study_massif_names)
 
+    @property
+    def df_all_daily_time_series_concatenated(self) -> pd.DataFrame:
+        df_list = [pd.DataFrame(time_serie, columns=self.study.study_massif_names) for time_serie in
+                   self.study.year_to_daily_time_serie_array.values()]
+        df_concatenated = pd.concat(df_list)
+        return df_concatenated
+
     def df_gpd_mle(self, threshold) -> pd.DataFrame:
         # Fit a margin fit on each massif
-        massif_to_gev_mle = {massif_name: GpdMleFit(self.study.df_all_daily_time_series_concatenated[massif_name],
+        massif_to_gev_mle = {massif_name: GpdMleFit(self.df_all_daily_time_series_concatenated[massif_name],
                                                     threshold=threshold).gpd_params.summary_serie
                              for massif_name in self.study.study_massif_names}
         return pd.DataFrame(massif_to_gev_mle, columns=self.study.study_massif_names)

@@ -32,7 +32,7 @@ class TestSCMAllStudy(unittest.TestCase):
                                                only_first_one=False, verbose=False,
                                                altitudes=sample(set(ALL_ALTITUDES), k=nb_sample), nb_days=nb_days):
                 self.assertTrue('day' in study.variable_name)
-                first_path_file = study.ordered_years_and_path_files()[0][0]
+                first_path_file = study.ordered_years_and_path_files[0][0]
                 variable_array = study.load_variables(path_file=first_path_file)
                 variable_object = study.instantiate_variable_object(variable_array)
                 self.assertEqual((365, 263), variable_object.daily_time_serie_array.shape,

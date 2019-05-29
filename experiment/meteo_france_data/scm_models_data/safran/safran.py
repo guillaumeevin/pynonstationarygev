@@ -67,7 +67,7 @@ if __name__ == '__main__':
     # print(study.all_massif_names)
     # print(study.massif_name_to_altitudes)
     # print(study.year_to_daily_time_serie_array[1958].shape)
-    print(study.missing_massif_name)
+    # print(study.missing_massif_name)
 
     # print(len(d.variables['time']))
     # print(study.year_to_annual_total)
