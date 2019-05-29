@@ -39,6 +39,13 @@ class BetweenZeroAndTenNormalization(BetweenZeroAndOneNormalization):
 
 epsilon = 0.001
 
+"""
+Deux manières possiblede tester la stabilité par rapport aux coordonées
+on peut utiliser BetweenZeroAndOneNormalizationMinEpsiloncela permet d utiliser des coordonnées [epsilon, 1] et [0, 1-epsilon]
+et voir l effet sur le fit
+ou bien utiliser [0, 2] [0, 10] par exemple, -> mais ca peut créer des effets vraiment différents
+"""
+
 
 class BetweenZeroAndOneNormalizationMinEpsilon(BetweenZeroAndOneNormalization):
 

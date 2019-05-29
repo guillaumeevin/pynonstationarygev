@@ -62,8 +62,12 @@ class AbstractSpatioTemporalObservations(object):
         return self._df_maxima.index
 
     @property
+    def columns(self) -> pd.Index:
+        return self._df_maxima.columns
+
+    @property
     def nb_obs(self) -> int:
-        return len(self._df_maxima.columns)
+        return len(self.columns)
 
     @classmethod
     def from_df(cls, df):

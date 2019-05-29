@@ -1,14 +1,15 @@
 from collections import OrderedDict
+import numpy as np
+from typing import List
 
 from cached_property import cached_property
 
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall
 from experiment.meteo_france_data.visualization.study_visualization.main_study_visualizer import \
-    ALL_ALTITUDES, ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST
+    ALL_ALTITUDES
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
-from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
-    LinearLocationAllDimsMarginModel, LinearShapeAllDimsMarginModel
+from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import ExtremalT, BrownResnick
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -66,6 +67,10 @@ class ComparisonAnalysis(object):
         df = df.loc[ind_massif]
         # Keep only one station per massif, to have the same number of points (the first by default)
         df = df.drop_duplicates(subset='MASSIF_PRA')
+        # Sort all the DataFrame so that the massif order correspond
+        df['MASSIF_IDX'] = [self.intersection_massif_names.index(m) for m in df['MASSIF_PRA']]
+        df = df.sort_values(['MASSIF_IDX'])
+        df.drop(labels='MASSIF_IDX', axis=1, inplace=True)
         return df
 
     @property
@@ -148,14 +153,14 @@ class ComparisonAnalysis(object):
         return observations
 
     @property
-    def study_dataset_latitude_longitude(self):
+    def study_dataset_latitude_longitude(self) -> AbstractDataset:
         dataset = AbstractDataset(observations=self.study_observations,
                                   coordinates=self.study_coordinates(
                                       use_study_coordinate_with_latitude_and_longitude=True))
         return dataset
 
     @property
-    def study_dataset_lambert(self):
+    def study_dataset_lambert(self) -> AbstractDataset:
         dataset = AbstractDataset(observations=self.study_observations,
                                   coordinates=self.study_coordinates(
                                       use_study_coordinate_with_latitude_and_longitude=False))
@@ -213,7 +218,12 @@ class ComparisonAnalysis(object):
             print('\n\n', get_display_name_from_object_type(type(max_stable_model)))
             if hasattr(max_stable_model, 'covariance_function'):
                 print(max_stable_model.covariance_function)
-            for dataset in [self.station_dataset, self.study_dataset_lambert]:
+            estimators = []
+            datasets = [self.station_dataset, self.study_dataset_lambert]  # type: List[AbstractDataset]
+            # Checks that the dataset have the same index
+            assert pd.Index.equals(datasets[0].observations.columns, datasets[1].observations.columns)
+            # assert datasets[0].observations.columns
+            for dataset in datasets:
                 margin_model = margin_model_class(coordinates=dataset.coordinates)
                 estimator = FullEstimatorInASingleStepWithSmoothMargin(dataset=dataset,
                                                                        margin_model=margin_model,
@@ -221,8 +231,11 @@ class ComparisonAnalysis(object):
                 estimator.fit()
                 print(estimator.result_from_fit.margin_coef_dict)
                 print(estimator.result_from_fit.other_coef_dict)
-                # print(estimato)
-
+                estimators.append(estimator)
+            # Compare the sign of them margin coefficient for the estimators
+            coefs = [{k: v for k, v in e.result_from_fit.margin_coef_dict.items() if 'Coeff1' not in k} for e in estimators]
+            different_sign = [k for k, v in coefs[0].items() if np.sign(coefs[1][k]) != np.sign(v) ]
+            print('All linear coefficient have the same sign: {}, different_signs for: {}'.format(len(different_sign) == 0, different_sign))
 
 def choice_of_altitude_and_nb_border_data_to_remove_to_get_data_without_nan():
     for margin in [50, 100, 150, 200, 250, 300][2:3]:
