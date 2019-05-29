@@ -54,7 +54,7 @@ def full_quantity_altitude_hypercube():
 
 
 def fast_altitude_hypercube():
-    save_to_file = False
+    save_to_file = True
     only_first_one = False
     fast = True
     altitudes = ALL_ALTITUDES[2:4]

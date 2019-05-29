@@ -35,6 +35,11 @@ with redirect_stdout(f):
 
 class AbstractStudy(object):
     """
+    A Study is defined by:
+        - a variable class that correspond to the meteorogical quantity of interest
+        - an altitude of interest
+        - a start and a end year
+
     Les fichiers netcdf de SAFRAN et CROCUS sont autodocumentés (on peut les comprendre avec ncdump -h notamment).
     """
     REANALYSIS_FOLDER = 'alp_flat/reanalysis'
@@ -96,13 +101,10 @@ class AbstractStudy(object):
     @property
     def _year_to_daily_time_serie_array(self) -> OrderedDict:
         # Map each year to a matrix of size 365-nb_days_consecutive+1 x nb_massifs
-        variables = [self.instantiate_variable_object(variable_array) for variable_array in
-                     self.year_to_variable_array.values()]
-        year_to_variable = dict(zip(self.ordered_years, variables))
         year_to_daily_time_serie_array = OrderedDict()
         for year in self.ordered_years:
             # Check daily data
-            daily_time_serie = year_to_variable[year].daily_time_serie_array
+            daily_time_serie = self.year_to_variable_object[year].daily_time_serie_array
             assert daily_time_serie.shape[0] in [365, 366]
             assert daily_time_serie.shape[1] == len(ZS_INT_MASK)
             # Filter only the data corresponding to the altitude of interest
@@ -110,29 +112,31 @@ class AbstractStudy(object):
             year_to_daily_time_serie_array[year] = daily_time_serie
         return year_to_daily_time_serie_array
 
-    def instantiate_variable_object(self, variable_array) -> AbstractVariable:
-        return self.variable_class(variable_array)
+
 
     """ Load Variables and Datasets """
 
     @cached_property
-    def year_to_variable_array(self) -> OrderedDict:
+    def year_to_variable_object(self) -> OrderedDict:
         # Map each year to the variable array
         path_files, ordered_years = self.ordered_years_and_path_files
         if self.multiprocessing:
             with Pool(NB_CORES) as p:
-                variables = p.map(self.load_variables, path_files)
+                variables = p.map(self.load_variable_object, path_files)
         else:
-            variables = [self.load_variables(path_file) for path_file in path_files]
+            variables = [self.load_variable_object(path_file) for path_file in path_files]
         return OrderedDict(zip(ordered_years, variables))
 
-    def load_variables(self, path_file):
+    def instantiate_variable_object(self, variable_array) -> AbstractVariable:
+        return self.variable_class(variable_array)
+
+    def load_variable_array(self, dataset):
+        return np.array(dataset.variables[self.load_keyword()])
+
+    def load_variable_object(self, path_file):
         dataset = Dataset(path_file)
-        keyword = self.load_keyword()
-        if isinstance(keyword, str):
-            return np.array(dataset.variables[keyword])
-        else:
-            return [np.array(dataset.variables[k]) for k in keyword]
+        variable_array = self.load_variable_array(dataset)
+        return self.instantiate_variable_object(variable_array)
 
     def load_keyword(self):
         return self.variable_class.keyword()

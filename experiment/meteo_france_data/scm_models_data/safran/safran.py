@@ -42,6 +42,9 @@ class SafranTotalPrecip(CumulatedStudy, Safran):
     def __init__(self, *args, **kwargs):
         super().__init__(SafranTotalPrecipVariable, *args, **kwargs)
 
+    def load_variable_array(self, dataset):
+        return [np.array(dataset.variables[k]) for k in self.load_keyword()]
+
     def instantiate_variable_object(self, variable_array) -> AbstractVariable:
         variable_array_snowfall, variable_array_rainfall = variable_array
         return self.variable_class(variable_array_snowfall, variable_array_rainfall, self.nb_consecutive_days)
