@@ -90,6 +90,37 @@ rmaxstab3Dimprovedbrown <- function (n.obs){
     print(res['fitted.values'])
 }
 
+rmaxstab4Dimprovedbrown <- function (n.obs){
+    n.site = 2
+    coord_sample <- matrix(rnorm(2*n.site, sd = sqrt(.2)), ncol = 2)
+    colnames(coord_sample) = c("E", "N")
+
+    #  Generate the data
+    data <- rmaxstab(n.obs, coord_sample, "gauss", cov11 = 100, cov12 = 25, cov22 = 220)
+    # data <- rmaxstab(n.obs, coord, "brown", range = 3, smooth = 0.5)
+    # data <- rmaxstab(n.obs, coord, "whitmat", nugget = 0.0, range = 3, smooth = 0.5)
+    #  Fit back the data
+    # print(data)n
+    # res = fitmaxstab(data, coord, "gauss", fit.marge=FALSE, )
+    # res = fitmaxstab(data, coord, "brown")
+    # res = fitmaxstab(data, coord, "whitmat", start=)
+
+    coord_fit <- matrix(rnorm(4*n.site, sd = sqrt(.2)), ncol = 4)
+    colnames(coord_fit) = c("E", "N", "A", "B")
+
+    print(class(coord_fit))
+    print(colnames(coord_fit))
+
+    loc.form = loc ~ N + E + A + B
+    scale.form = scale ~ 1
+    shape.form = shape ~ 1
+
+    # namedlist = list(cov11 = 1.0, cov12 = 1.2, cov22 = 2.2, cov13 = 1.0, cov23 = 1.2, cov33 = 2.2, locCoeff1=1.0, locCoeff2=1.0, scaleCoeff1=2.0, shapeCoeff1=0.1)
+    res = fitmaxstab(data=data, coord=coord_fit, cov.mod="brown", fit.marge=TRUE, loc.form=loc.form, scale.form=scale.form,shape.form=shape.form)
+    print(res['fitted.values'])
+}
+
+
 rmaxstab3Dimprovedtpowexp <- function (n.obs){
     n.site = 2
     coord_sample <- matrix(rnorm(2*n.site, sd = sqrt(.2)), ncol = 2)
@@ -199,7 +230,8 @@ call_main = !exists("python_wrapping")
 if (call_main) {
     set.seed(42)
     n.obs = 50
-    rmaxstab3Dimprovedgauss(n.obs)
+    # rmaxstab3Dimprovedgauss(n.obs)
+    rmaxstab4Dimprovedbrown(n.obs)
     # rmaxstab3Dimprovedbrown(n.obs)
     # rmaxstab3Dimprovedtpowexp(n.obs)
     # rmaxstab2D(n.obs)
