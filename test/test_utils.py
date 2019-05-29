@@ -16,6 +16,8 @@ from extreme_estimator.extreme_models.max_stable_model.max_stable_models import 
     Geometric, ExtremalT, ISchlather
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, Safran, SafranRainfall, \
     SafranTemperature, SafranTotalPrecip
+from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
+    AbstractSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
     AlpsStation3DCoordinatesWithAnisotropy
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
@@ -82,13 +84,13 @@ def load_test_spatial_coordinates(nb_points, coordinate_types, train_split_ratio
             for coordinate_class in coordinate_types]
 
 
-def load_test_1D_and_2D_spatial_coordinates(nb_points, train_split_ratio=None, transformation_class=None):
+def load_test_1D_and_2D_spatial_coordinates(nb_points, train_split_ratio=None, transformation_class=None) -> List[AbstractSpatialCoordinates]:
     return load_test_spatial_coordinates(nb_points, TEST_1D_AND_2D_SPATIAL_COORDINATES,
                                          train_split_ratio=train_split_ratio,
                                          transformation_class=transformation_class)
 
 
-def load_test_3D_spatial_coordinates(nb_points, transformation_class=None):
+def load_test_3D_spatial_coordinates(nb_points, transformation_class=None) -> List[AbstractSpatialCoordinates]:
     return load_test_spatial_coordinates(nb_points, TEST_3D_SPATIAL_COORDINATES, transformation_class=transformation_class)
 
 
