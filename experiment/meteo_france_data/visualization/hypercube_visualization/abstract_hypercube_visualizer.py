@@ -20,12 +20,18 @@ class AbstractHypercubeVisualizer(object):
                  trend_test_class,
                  nb_data_reduced_for_speed=False,
                  save_to_file=False,
-                 nb_top_likelihood_values=1):
+                 nb_top_likelihood_values=1,
+                 last_starting_year=None):
+        self.last_starting_year = last_starting_year
         self.nb_data_for_fast_mode = 7 if nb_data_reduced_for_speed else None
         self.nb_top_likelihood_values = nb_top_likelihood_values
         self.save_to_file = save_to_file
         self.trend_test_class = trend_test_class
         self.tuple_to_study_visualizer = tuple_to_study_visualizer  # type: Dict[Tuple, StudyVisualizer]
+        print('Hypercube with parameters:')
+        print(self.last_starting_year)
+        print(self.trend_test_class)
+        # print(self.nb_data_for_fast_mode)
 
     # Main attributes defining the hypercube
 
@@ -35,7 +41,9 @@ class AbstractHypercubeVisualizer(object):
 
     @cached_property
     def starting_years(self):
-        starting_years = self.study_visualizer.starting_years[:]
+        starting_years = self.study_visualizer.starting_years
+        if self.last_starting_year is not None:
+            starting_years = [year for year in starting_years if year <= self.last_starting_year]
         if self.nb_data_for_fast_mode is not None:
             starting_years = starting_years[:self.nb_data_for_fast_mode]
         return starting_years
@@ -86,9 +94,3 @@ class AbstractHypercubeVisualizer(object):
     @property
     def study(self):
         return self.study_visualizer.study
-
-    @property
-    def starting_year_to_weights(self):
-        # Load uniform weights by default
-        uniform_weight = 1 / len(self.starting_years)
-        return {year: uniform_weight for year in self.starting_years}
