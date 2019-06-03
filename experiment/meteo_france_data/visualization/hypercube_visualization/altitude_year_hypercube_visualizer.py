@@ -16,9 +16,13 @@ class Altitude_Hypercube_Year_Visualizer(AltitudeHypercubeVisualizer):
         return super().nb_axes + 1
 
     @staticmethod
-    def index_reduction(df, level):
+    def index_reduction(df, level, **kwargs):
+        replace_zero_with_nan = kwargs.get('replace_zero_with_nan')
         # Take the sum with respect to the years, replace any missing data with np.nan
-        df = df.sum(axis=1).replace(0.0, np.nan)
+        if replace_zero_with_nan:
+            df = df.sum(axis=1).replace(0.0, np.nan)
+        else:
+            df = df.sum(axis=1)
         # Take the mean with respect to the level of interest
         return df.mean(level=level)
 
@@ -28,6 +32,6 @@ class Altitude_Hypercube_Year_Visualizer(AltitudeHypercubeVisualizer):
         df = df_bool.copy()
         df = (df * df.columns)[df_bool]
         # Reduce and append
-        serie = reduction_function(df)
+        serie = reduction_function(df, replace_zero_with_nan=True)
         series.append(serie)
         return series, df_bool

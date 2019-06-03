@@ -48,8 +48,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         return series, df_bool
 
     def subtitle_to_reduction_function(self, reduction_function, level=None, add_detailed_plot=False, subtitle=None):
-        def reduction_function_with_level(df_bool):
-            return reduction_function(df_bool) if level is None else reduction_function(df_bool, level)
+        def reduction_function_with_level(df_bool, **kwargs):
+            return reduction_function(df_bool, **kwargs) if level is None else reduction_function(df_bool, level, **kwargs)
 
         if subtitle is None:
             subtitle = self.study.variable_name
@@ -136,7 +136,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         return 1
 
     def visualize_year_trend_test(self, axes=None, marker='o', add_detailed_plots=False):
-        def year_reduction(df):
+        def year_reduction(df, **kwargs):
             # Take the mean with respect to all the first axis indices
             return df.mean(axis=0)
 
