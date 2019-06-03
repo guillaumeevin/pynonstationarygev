@@ -3,7 +3,9 @@ from itertools import product
 from collections import OrderedDict
 
 from experiment.meteo_france_data.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
-    AltitudeHypercubeVisualizer, Altitude_Hypercube_Year_Visualizer
+    AltitudeHypercubeVisualizer
+from experiment.meteo_france_data.visualization.hypercube_visualization.altitude_year_hypercube_visualizer import \
+    Altitude_Hypercube_Year_Visualizer
 from experiment.meteo_france_data.visualization.hypercube_visualization.quantity_altitude_visualizer import \
     QuantityAltitudeHypercubeVisualizer
 from experiment.meteo_france_data.visualization.study_visualization.main_study_visualizer import ALL_ALTITUDES, \
@@ -77,7 +79,7 @@ def fast_altitude_year_hypercube():
     fast = True
     altitudes = ALL_ALTITUDES[2:4]
     for study_class in SCM_STUDIES[:1]:
-        for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest, GevShapeChangePointTest][1:2]:
+        for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest, GevShapeChangePointTest][:1]:
             visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False, multiprocessing=True)
                            for study in study_iterator(study_class=study_class, only_first_one=only_first_one,
                                                        altitudes=altitudes)]
@@ -85,14 +87,14 @@ def fast_altitude_year_hypercube():
             visualizer = Altitude_Hypercube_Year_Visualizer(altitude_to_visualizer, save_to_file=save_to_file,
                                                             trend_test_class=trend_test_class, fast=fast)
             visualizer.visualize_year_trend_test()
-            visualizer.visualize_massif_trend_test()
-            visualizer.visualize_altitude_trend_test()
+            # visualizer.visualize_massif_trend_test()
+            # visualizer.visualize_altitude_trend_test()
 
 
 def full_altitude_year_hypercube():
-    save_to_file = False
+    save_to_file = True
     only_first_one = False
-    fast = False
+    nb_data_reduced_for_speed = False
     altitudes = ALL_ALTITUDES[3:-6]
     for study_class in SCM_STUDIES[:1]:
         for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest,
@@ -104,7 +106,7 @@ def full_altitude_year_hypercube():
             altitude_to_visualizer = OrderedDict(zip(altitudes, visualizers))
             visualizer = Altitude_Hypercube_Year_Visualizer(altitude_to_visualizer,
                                                             save_to_file=save_to_file,
-                                                            trend_test_class=trend_test_class, fast=fast)
+                                                            trend_test_class=trend_test_class, nb_data_reduced_for_speed=nb_data_reduced_for_speed)
             visualizer.visualize_year_trend_test()
             visualizer.visualize_massif_trend_test()
             visualizer.visualize_altitude_trend_test()
@@ -132,8 +134,8 @@ def fast_quantity_altitude_hypercube():
 
 def main_run():
     # fast_altitude_hypercube()
-    fast_altitude_year_hypercube()
-    # full_altitude_year_hypercube()
+    # fast_altitude_year_hypercube()
+    full_altitude_year_hypercube()
     # fast_quantity_altitude_hypercube()
     # full_quantity_altitude_hypercube()
 

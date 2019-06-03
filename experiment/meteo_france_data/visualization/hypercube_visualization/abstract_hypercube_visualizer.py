@@ -18,9 +18,9 @@ class AbstractHypercubeVisualizer(object):
 
     def __init__(self, tuple_to_study_visualizer: Dict[Tuple, StudyVisualizer],
                  trend_test_class,
-                 fast=False,
+                 nb_data_reduced_for_speed=False,
                  save_to_file=False):
-        self.nb_data_for_fast_mode = 7 if fast else None
+        self.nb_data_for_fast_mode = 7 if nb_data_reduced_for_speed else None
         self.save_to_file = save_to_file
         self.trend_test_class = trend_test_class
         self.tuple_to_study_visualizer = tuple_to_study_visualizer  # type: Dict[Tuple, StudyVisualizer]

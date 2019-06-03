@@ -237,7 +237,7 @@ class AbstractStudy(object):
                 norm = Normalize(vmin, vmax)
                 create_colorbase_axis(ax, label, cmap, norm)
                 m = cm.ScalarMappable(norm=norm, cmap=cmap)
-                colors = [m.to_rgba(value) for value in values]
+                colors = [m.to_rgba(value) if not np.isnan(value) else 'w' for value in values]
             massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
                                           zip(massif_names, colors)}
 

@@ -39,11 +39,12 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         assert isinstance(s_trend_type_percentage, pd.Series)
         assert not isinstance(s_trend_type_percentage.index, pd.MultiIndex)
         s_trend_type_percentage *= 100
-        # Reduce df_strength to a serie s_trend_strength
-        df_strength = self.df_hypercube_trend_strength[df_bool]
-        s_trend_strength = reduction_function(df_strength)
-        # Group result
-        series = [s_trend_type_percentage, s_trend_strength]
+        series = [s_trend_type_percentage]
+        # # Reduce df_strength to a serie s_trend_strength
+        # df_strength = self.df_hypercube_trend_strength[df_bool]
+        # s_trend_strength = reduction_function(df_strength)
+        # # Group result
+        # series = [s_trend_type_percentage, s_trend_strength]
         return series, df_bool
 
     def subtitle_to_reduction_function(self, reduction_function, level=None, add_detailed_plot=False, subtitle=None):
@@ -112,8 +113,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             vmin = min([s.min() for s in trend_type_to_serie.values()])
             vmax = max(vmax, 0.01)
             for ax, trend_type in zip(axes_row, self.display_trend_types):
-                s_percentages = trend_type_to_serie[trend_type]
-                massif_to_value = dict(s_percentages)
+                serie = trend_type_to_serie[trend_type]
+                massif_to_value = dict(serie)
                 cmap = self.trend_test_class.get_cmap_from_trend_type(trend_type)
                 self.study.visualize_study(ax, massif_to_value, show=False, cmap=cmap, label=None, vmax=vmax, vmin=vmin)
                 ax.set_title(trend_type)
@@ -166,33 +167,4 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                                                 add_detailed_plot=add_detailed_plots).items():
             self.visualize_trend_test_repartition(reduction_function, axes, subtitle=subtitle)
 
-
-class Altitude_Hypercube_Year_Visualizer(AltitudeHypercubeVisualizer):
-
-    def get_title_plot(self, xlabel, ax_idx=None):
-        if ax_idx == self.nb_axes - 1:
-            return 'mean starting year'
-        return super().get_title_plot(xlabel, ax_idx)
-
-    @property
-    def nb_axes(self):
-        return super().nb_axes + 1
-
-
-    @staticmethod
-    def index_reduction(df, level):
-        # Take the sum with respect to the years, replace any missing data with np.nan
-        df = df.sum(axis=1).replace(0.0, np.nan)
-        # Take the mean with respect to the level of interest
-        return df.mean(level=level)
-
-    def trend_type_reduction(self, reduction_function, display_trend_type):
-        series, df_bool = super().trend_type_reduction(reduction_function, display_trend_type)
-        # Create df argmax
-        df = df_bool.copy()
-        df = (df * df.columns)[df_bool]
-        # Reduce and append
-        serie = reduction_function(df)
-        series.append(serie)
-        return series, df_bool
 
