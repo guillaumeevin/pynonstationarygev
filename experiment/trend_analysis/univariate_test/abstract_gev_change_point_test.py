@@ -57,7 +57,7 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
 
     @property
     def likelihood_ratio(self):
-        return 2 * (self.non_stationary_deviance - self.stationary_deviance)
+        return self.non_stationary_deviance - self.stationary_deviance
 
     @property
     def non_stationary_nllh(self):
