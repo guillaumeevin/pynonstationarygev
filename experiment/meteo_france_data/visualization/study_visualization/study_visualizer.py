@@ -411,8 +411,9 @@ class StudyVisualizer(object):
                     self.compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_test_class, years)
                     for starting_year in starting_years]
             # Keep only the most likely starting year
+            # (i.e. the starting year that minimizes its negative log likelihood)
             # (set all the other data to np.nan so that they will not be taken into account in mean function)
-            best_idx = list(np.argmax(trend_test_res, axis=0))[2]
+            best_idx = list(np.argmin(trend_test_res, axis=0))[2]
             # print(best_idx, trend_test_res)
             best_idxs = [best_idx]
             # todo: by doing a sorting on the deviance, I could get the nb_top_likelihood_values values

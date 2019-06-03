@@ -74,12 +74,12 @@ def fast_altitude_hypercube():
 
 
 def fast_altitude_year_hypercube():
-    save_to_file = True
+    save_to_file = False
     only_first_one = False
     nb_data_reduced_for_speed = True
     altitudes = [ALL_ALTITUDES[3], ALL_ALTITUDES[-7]]
     for study_class in SCM_STUDIES[:1]:
-        for last_starting_year in [1989, 1999]:
+        for last_starting_year in [None, 1989, 1999][:1]:
             for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest, GevShapeChangePointTest][:1]:
                 visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False, multiprocessing=True)
                                for study in study_iterator(study_class=study_class, only_first_one=only_first_one,
@@ -102,7 +102,7 @@ def full_altitude_year_hypercube():
     for study_class in SCM_STUDIES[:1]:
         for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest,
                                  GevShapeChangePointTest][:1]:
-            for last_starting_year in [1967, 1977, 1987, 1997, 2007, None]:
+            for last_starting_year in [1967, 1977, 1987, 1997, 2007, None][-2::-1]:
                 visualizers = [
                     StudyVisualizer(study, temporal_non_stationarity=True, verbose=False, multiprocessing=True)
                     for study in study_iterator(study_class=study_class, only_first_one=only_first_one,

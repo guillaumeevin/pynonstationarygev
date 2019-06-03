@@ -118,7 +118,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         # Figure title
         specific_title += '\n'
 
-        trend_types = [AbstractUnivariateTest.SIGNIFICATIVE_ALL_TREND,
+        trend_types = [AbstractUnivariateTest.ALL_TREND,
+            AbstractUnivariateTest.SIGNIFICATIVE_ALL_TREND,
                        AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND,
                        AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND]
         series = [trend_type_to_series[trend_type][0] for trend_type in trend_types]
@@ -126,7 +127,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         percents = [round(p) for p in percents]
 
         specific_title += 'Total ' if xlabel == STARTING_YEARS_XLABEL else 'Mean '
-        specific_title += 'of significative trends: {} (+:{}  -{})'.format(*percents)
+        specific_title += 'all trend {}, all significative trends: {} (+:{}  -{})'.format(*percents)
         plt.suptitle(specific_title)
 
         self.show_or_save_to_file(specific_title=specific_title)
