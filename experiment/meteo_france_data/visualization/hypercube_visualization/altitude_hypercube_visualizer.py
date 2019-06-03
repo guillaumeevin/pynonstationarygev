@@ -8,6 +8,10 @@ from experiment.meteo_france_data.visualization.study_visualization.study_visual
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from utils import get_display_name_from_object_type
 
+ALTITUDES_XLABEL = 'altitudes'
+
+STARTING_YEARS_XLABEL = 'starting years'
+
 
 class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
@@ -86,14 +90,18 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             if ax_idx == 0:
                 # Global information
                 ax.set_ylabel(self.get_title_plot(xlabel, ax_idx=0))
-                ax.set_yticks(list(range(0, 101, 10)))
+                if xlabel != STARTING_YEARS_XLABEL:
+                    ax.set_yticks(list(range(0, 101, 10)))
             else:
                 ax.set_ylabel(self.get_title_plot(xlabel, ax_idx=ax_idx))
 
             # Common function functions
+            if xlabel == STARTING_YEARS_XLABEL:
+                ax.set_xticks(xlabel_values[::3])
+            else:
+                ax.set_xticks(xlabel_values)
             ax.set_xlabel(xlabel)
             ax.grid()
-            ax.set_xticks(xlabel_values)
             ax.legend()
 
         title = 'Evolution of {} trends (significative or not) wrt to the {} with {}'.format(subtitle, xlabel,
@@ -135,14 +143,15 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
     def massif_index_level(self):
         return 1
 
-    def visualize_year_trend_test(self, axes=None, marker='o', add_detailed_plots=False):
-        def year_reduction(df, **kwargs):
-            # Take the mean with respect to all the first axis indices
-            return df.mean(axis=0)
+    @staticmethod
+    def year_reduction(df, **kwargs):
+        # Take the mean with respect to all the first axis indices
+        return df.mean(axis=0)
 
-        for subtitle, reduction_function in self.subtitle_to_reduction_function(year_reduction,
+    def visualize_year_trend_test(self, axes=None, marker='o', add_detailed_plots=False):
+        for subtitle, reduction_function in self.subtitle_to_reduction_function(self.year_reduction,
                                                                                 add_detailed_plot=add_detailed_plots).items():
-            self.visualize_trend_test_evolution(reduction_function=reduction_function, xlabel='starting years',
+            self.visualize_trend_test_evolution(reduction_function=reduction_function, xlabel=STARTING_YEARS_XLABEL,
                                                 xlabel_values=self.starting_years, axes=axes, marker=marker,
                                                 subtitle=subtitle)
 
@@ -157,7 +166,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.index_reduction,
                                                                                 level=self.altitude_index_level,
                                                                                 add_detailed_plot=add_detailed_plots).items():
-            self.visualize_trend_test_evolution(reduction_function=reduction_function, xlabel='altitudes',
+            self.visualize_trend_test_evolution(reduction_function=reduction_function, xlabel=ALTITUDES_XLABEL,
                                                 xlabel_values=self.altitudes, axes=axes, marker=marker,
                                                 subtitle=subtitle)
 

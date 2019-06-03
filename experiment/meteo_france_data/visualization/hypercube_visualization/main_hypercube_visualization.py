@@ -87,8 +87,8 @@ def fast_altitude_year_hypercube():
             visualizer = Altitude_Hypercube_Year_Visualizer(altitude_to_visualizer, save_to_file=save_to_file,
                                                             trend_test_class=trend_test_class, nb_data_reduced_for_speed=nb_data_reduced_for_speed)
             visualizer.visualize_year_trend_test()
-            visualizer.visualize_massif_trend_test()
-            visualizer.visualize_altitude_trend_test()
+            # visualizer.visualize_altitude_trend_test()
+            # visualizer.visualize_massif_trend_test()
 
 
 def full_altitude_year_hypercube():
@@ -134,8 +134,8 @@ def fast_quantity_altitude_hypercube():
 
 def main_run():
     # fast_altitude_hypercube()
-    fast_altitude_year_hypercube()
-    # full_altitude_year_hypercube()
+    # fast_altitude_year_hypercube()
+    full_altitude_year_hypercube()
     # fast_quantity_altitude_hypercube()
     # full_quantity_altitude_hypercube()
 
