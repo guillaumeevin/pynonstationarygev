@@ -385,7 +385,8 @@ class StudyVisualizer(object):
             massif_name_to_df_trend_type[massif_name] = df
         return massif_name_to_df_trend_type
 
-    def df_trend_spatio_temporal(self, trend_test_class, starting_years, nb_massif_for_fast_mode=None):
+    def df_trend_spatio_temporal(self, trend_test_class, starting_years, nb_massif_for_fast_mode=None,
+                                 nb_top_likelihood_values=1):
         """
         Index are the massif
         Columns are the starting year
@@ -411,9 +412,13 @@ class StudyVisualizer(object):
                     for starting_year in starting_years]
             # Keep only the most likely starting year
             # (set all the other data to np.nan so that they will not be taken into account in mean function)
-            best_idx = np.argmax(trend_test_res, axis=0)[-1]
-            trend_test_res = [(a, b) if i == best_idx else (np.nan, np.nan)
-                              for i, (a, b, _) in enumerate(trend_test_res)]
+            best_idx = list(np.argmax(trend_test_res, axis=0))[2]
+            # print(best_idx, trend_test_res)
+            best_idxs = [best_idx]
+            # todo: by doing a sorting on the deviance, I could get the nb_top_likelihood_values values
+            # best_idxs = list(np.argmax(trend_test_res, axis=0))[-nb_top_likelihood_values:]
+            trend_test_res = [(a, b) if i in best_idxs else (np.nan, np.nan)
+                              for i, (a, b, *_) in enumerate(trend_test_res)]
             massif_name_to_trend_res[massif_name] = list(zip(*trend_test_res))
         nb_res = len(list(massif_name_to_trend_res.values())[0])
         assert nb_res == 2
@@ -426,7 +431,7 @@ class StudyVisualizer(object):
     def compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_test_class, years):
         trend_test = trend_test_class(years, smooth_maxima, starting_year)  # type: AbstractGevChangePointTest
         assert isinstance(trend_test, AbstractGevChangePointTest)
-        return trend_test.test_trend_type, trend_test.test_trend_strength, trend_test.non_stationary_nllh
+        return trend_test.test_trend_type, trend_test.test_trend_strength, trend_test.non_stationary_nllh, trend_test.non_stationary_deviance, trend_test.stationary_deviance
 
     @staticmethod
     def compute_trend_test_result(smooth_maxima, starting_year, trend_test_class, years):

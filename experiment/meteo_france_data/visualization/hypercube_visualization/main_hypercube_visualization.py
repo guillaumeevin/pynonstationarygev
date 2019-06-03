@@ -85,7 +85,8 @@ def fast_altitude_year_hypercube():
                                                        altitudes=altitudes)]
             altitude_to_visualizer = OrderedDict(zip(altitudes, visualizers))
             visualizer = Altitude_Hypercube_Year_Visualizer(altitude_to_visualizer, save_to_file=save_to_file,
-                                                            trend_test_class=trend_test_class, nb_data_reduced_for_speed=nb_data_reduced_for_speed)
+                                                            trend_test_class=trend_test_class,
+                                                            nb_data_reduced_for_speed=nb_data_reduced_for_speed)
             visualizer.visualize_year_trend_test()
             # visualizer.visualize_altitude_trend_test()
             # visualizer.visualize_massif_trend_test()

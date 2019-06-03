@@ -57,8 +57,7 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
 
     @property
     def likelihood_ratio(self):
-        return 2 * (self.non_stationary_estimator.result_from_fit.deviance -
-                    self.stationary_estimator.result_from_fit.deviance)
+        return 2 * (self.non_stationary_deviance - self.stationary_deviance)
 
     @property
     def non_stationary_nllh(self):
@@ -66,6 +65,14 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
             return -np.inf
         else:
             return self.non_stationary_estimator.result_from_fit.nllh
+
+    @property
+    def stationary_deviance(self):
+        return self.stationary_estimator.result_from_fit.deviance
+
+    @property
+    def non_stationary_deviance(self):
+        return self.non_stationary_estimator.result_from_fit.deviance
 
     @property
     def is_significant(self) -> bool:

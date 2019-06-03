@@ -19,8 +19,10 @@ class AbstractHypercubeVisualizer(object):
     def __init__(self, tuple_to_study_visualizer: Dict[Tuple, StudyVisualizer],
                  trend_test_class,
                  nb_data_reduced_for_speed=False,
-                 save_to_file=False):
+                 save_to_file=False,
+                 nb_top_likelihood_values=1):
         self.nb_data_for_fast_mode = 7 if nb_data_reduced_for_speed else None
+        self.nb_top_likelihood_values = nb_top_likelihood_values
         self.save_to_file = save_to_file
         self.trend_test_class = trend_test_class
         self.tuple_to_study_visualizer = tuple_to_study_visualizer  # type: Dict[Tuple, StudyVisualizer]
@@ -33,7 +35,7 @@ class AbstractHypercubeVisualizer(object):
 
     @cached_property
     def starting_years(self):
-        starting_years = self.study_visualizer.starting_years
+        starting_years = self.study_visualizer.starting_years[:]
         if self.nb_data_for_fast_mode is not None:
             starting_years = starting_years[:self.nb_data_for_fast_mode]
         return starting_years
@@ -44,7 +46,8 @@ class AbstractHypercubeVisualizer(object):
     @cached_property
     def df_trends_spatio_temporal(self):
         return [study_visualizer.df_trend_spatio_temporal(self.trend_test_class, self.starting_years,
-                                                          self.nb_data_for_fast_mode)
+                                                          self.nb_data_for_fast_mode,
+                                                          self.nb_top_likelihood_values)
                 for study_visualizer in self.tuple_to_study_visualizer.values()]
 
     @cached_property
