@@ -1,6 +1,8 @@
 import time
 from typing import List
 
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
+    StudyVisualizer
 from experiment.trend_analysis.abstract_score import MannKendall
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
@@ -8,7 +10,6 @@ from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDep
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, SafranRainfall, \
     SafranTemperature, SafranTotalPrecip
 
-from experiment.meteo_france_data.visualization.study_visualization.study_visualizer import StudyVisualizer
 from collections import OrderedDict
 
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest

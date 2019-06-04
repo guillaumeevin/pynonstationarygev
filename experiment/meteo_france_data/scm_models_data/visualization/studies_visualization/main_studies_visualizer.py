@@ -4,13 +4,13 @@ from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test im
     GevScaleChangePointTest, GevShapeChangePointTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import MannKendallTrendTest
 from experiment.meteo_france_data.scm_models_data.safran.safran import ExtendedSafranTotalPrecip
-from experiment.meteo_france_data.visualization.studies_visualization.studies import Studies
-from experiment.meteo_france_data.visualization.studies_visualization.studies_visualizer import StudiesVisualizer, \
+from experiment.meteo_france_data.scm_models_data.visualization import Studies
+from experiment.meteo_france_data.scm_models_data.visualization import StudiesVisualizer, \
     AltitudeVisualizer
-from experiment.meteo_france_data.visualization.study_visualization.main_study_visualizer import ALL_ALTITUDES, \
+from experiment.meteo_france_data.scm_models_data.visualization import ALL_ALTITUDES, \
     study_iterator_global, SCM_STUDIES
 
-from experiment.meteo_france_data.visualization.study_visualization.study_visualizer import StudyVisualizer
+from experiment.meteo_france_data.scm_models_data.visualization import StudyVisualizer
 from collections import OrderedDict
 
 

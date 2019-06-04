@@ -8,9 +8,10 @@ from experiment.meteo_france_data.scm_models_data.cumulated_study import NB_DAYS
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranTemperature, \
     SafranTotalPrecip
-from experiment.meteo_france_data.visualization.study_visualization.main_study_visualizer import study_iterator, \
-    study_iterator_global, SCM_STUDIES, ALL_ALTITUDES
-from experiment.meteo_france_data.visualization.study_visualization.study_visualizer import StudyVisualizer
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
+    study_iterator, study_iterator_global, SCM_STUDIES, ALL_ALTITUDES
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
+    StudyVisualizer
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
 from utils import get_display_name_from_object_type
 

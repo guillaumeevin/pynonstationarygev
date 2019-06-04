@@ -18,7 +18,7 @@ from netCDF4 import Dataset
 from experiment.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
 from experiment.meteo_france_data.scm_models_data.scm_constants import ALTITUDES, ZS_INT_23, ZS_INT_MASK, LONGITUDES, \
     LATITUDES
-from experiment.meteo_france_data.visualization.utils import get_km_formatter
+from experiment.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted, create_colorbase_axis

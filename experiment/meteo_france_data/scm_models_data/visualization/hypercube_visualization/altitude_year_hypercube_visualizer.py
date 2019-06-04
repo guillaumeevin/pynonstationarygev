@@ -1,6 +1,6 @@
 import numpy as np
 
-from experiment.meteo_france_data.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
+from experiment.meteo_france_data.scm_models_data.visualization import \
     AltitudeHypercubeVisualizer
 
 

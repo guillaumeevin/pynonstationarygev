@@ -1,16 +1,16 @@
 import time
-from itertools import product
 from collections import OrderedDict
+from itertools import product
 
-from experiment.meteo_france_data.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
+from experiment.meteo_france_data.scm_models_data.visualization import \
     AltitudeHypercubeVisualizer
-from experiment.meteo_france_data.visualization.hypercube_visualization.altitude_year_hypercube_visualizer import \
+from experiment.meteo_france_data.scm_models_data.visualization import \
     Altitude_Hypercube_Year_Visualizer
-from experiment.meteo_france_data.visualization.hypercube_visualization.quantity_altitude_visualizer import \
+from experiment.meteo_france_data.scm_models_data.visualization import \
     QuantityAltitudeHypercubeVisualizer
-from experiment.meteo_france_data.visualization.study_visualization.main_study_visualizer import ALL_ALTITUDES, \
+from experiment.meteo_france_data.scm_models_data.visualization import ALL_ALTITUDES, \
     SCM_STUDIES, study_iterator, study_iterator_global
-from experiment.meteo_france_data.visualization.study_visualization.study_visualizer import StudyVisualizer
+from experiment.meteo_france_data.scm_models_data.visualization import StudyVisualizer
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest, \
     GevScaleChangePointTest, GevShapeChangePointTest
 from utils import get_display_name_from_object_type
@@ -102,7 +102,8 @@ def full_altitude_year_hypercube():
     for study_class in SCM_STUDIES[:1]:
         for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest,
                                  GevShapeChangePointTest][:1]:
-            for last_starting_year in [1967, 1977, 1987, 1997, 2007, None][-1:]:
+            years = [1967, 1977, 1987, 1997, 2007, None][:-1][::-1]
+            for last_starting_year in years:
                 visualizers = [
                     StudyVisualizer(study, temporal_non_stationarity=True, verbose=False, multiprocessing=True)
                     for study in study_iterator(study_class=study_class, only_first_one=only_first_one,
@@ -110,7 +111,8 @@ def full_altitude_year_hypercube():
                 altitude_to_visualizer = OrderedDict(zip(altitudes, visualizers))
                 visualizer = Altitude_Hypercube_Year_Visualizer(altitude_to_visualizer,
                                                                 save_to_file=save_to_file,
-                                                                trend_test_class=trend_test_class, nb_data_reduced_for_speed=nb_data_reduced_for_speed,
+                                                                trend_test_class=trend_test_class,
+                                                                nb_data_reduced_for_speed=nb_data_reduced_for_speed,
                                                                 last_starting_year=last_starting_year)
                 visualizer.visualize_year_trend_test()
                 visualizer.visualize_massif_trend_test()
