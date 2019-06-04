@@ -246,7 +246,8 @@ class ComparisonAnalysis(object):
         df_study = pd.concat([df, df_coord, df_obs], axis=1)
         return df_study
 
-    def load_main_df_merged_intersection_clean(self):
+    @cached_property
+    def df_merged_intersection_clean(self):
         df_stations = self.load_main_df_station_intersection_clean()
         df_study = self.load_main_df_study_intersection_clean()
         diff = set(df_study.columns).symmetric_difference(set(df_stations.columns))

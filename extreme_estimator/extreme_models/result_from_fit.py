@@ -11,6 +11,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 def convertFloatVector_to_float(f):
     return np.array(f)[0]
 
+
 class ResultFromFit(object):
 
     def __init__(self, result_from_fit: robjects.ListVector) -> None:
@@ -75,6 +76,12 @@ class ResultFromIsmev(ResultFromFit):
         return coef_dict
 
     @property
+    def stationary_gev_params(self) -> GevParams:
+        params = {k.split('Coeff1')[0]: v for k, v in self.margin_coef_dict.items()
+                  if 'Coeff1' in k and 'temp' not in k}
+        return GevParams.from_dict(params)
+
+    @property
     def all_parameters(self):
         return self.margin_coef_dict
 
@@ -89,7 +96,6 @@ class ResultFromIsmev(ResultFromFit):
     @property
     def convergence(self) -> str:
         return convertFloatVector_to_float(self.name_to_value['conv']) == 0
-
 
 
 class ResultFromSpatialExtreme(ResultFromFit):

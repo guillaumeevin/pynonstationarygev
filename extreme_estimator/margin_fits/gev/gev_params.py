@@ -21,9 +21,22 @@ class GevParams(ExtremeParams):
         else:
             return r.qgev(p, self.location, self.scale, self.shape)[0]
 
+    def density(self, x):
+        if self.has_undefined_parameters:
+            return np.nan
+        else:
+            res = r.dgev(x, self.location, self.scale, self.shape)
+            if isinstance(x, float):
+                return res[0]
+            else:
+                return np.array(res)
+
     @property
     def param_values(self):
         if self.has_undefined_parameters:
             return [np.nan for _ in range(3)]
         else:
             return [self.location, self.scale, self.shape]
+
+    def __str__(self):
+        return self.to_dict().__str__()
