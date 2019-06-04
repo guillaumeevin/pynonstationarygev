@@ -46,18 +46,33 @@ from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_
 BLOCK_MAXIMA_DISPLAY_NAME = 'block maxima '
 
 
-class StudyVisualizer(object):
+class VisualizationParameters(object):
+
+    def __init__(self, save_to_file=False, only_one_graph=False, only_first_row=False, show=True):
+        self.only_first_row = only_first_row
+        self.only_one_graph = only_one_graph
+        self.save_to_file = save_to_file
+
+        # PLOT ARGUMENTS
+        self.show = False if self.save_to_file else show
+        if self.only_one_graph:
+            self.figsize = (6.0, 4.0)
+        elif self.only_first_row:
+            self.figsize = (8.0, 6.0)
+        else:
+            self.figsize = (16.0, 10.0)
+        self.subplot_space = 0.5
+        self.coef_zoom_map = 1
+
+
+class StudyVisualizer(VisualizationParameters):
 
     def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False,
                  vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False,
-                 temporal_non_stationarity=False,
-                 transformation_class=None,
-                 verbose=False,
-                 multiprocessing=False,
-                 complete_non_stationary_trend_analysis=False,
-                 normalization_under_one_observations=True,
+                 temporal_non_stationarity=False, transformation_class=None, verbose=False, multiprocessing=False,
+                 complete_non_stationary_trend_analysis=False, normalization_under_one_observations=True,
                  score_class=MeanScore):
-
+        super().__init__(save_to_file, only_one_graph, only_first_row, show)
         self.nb_cores = 7
         self.massif_id_to_smooth_maxima = {}
         self.temporal_non_stationarity = temporal_non_stationarity
@@ -89,17 +104,6 @@ class StudyVisualizer(object):
         self.number_of_top_values = 10  # 1 if we just want the maxima
         self.score_class = score_class
         self.score = self.score_class(self.number_of_top_values)  # type: AbstractTrendScore
-
-        # PLOT ARGUMENTS
-        self.show = False if self.save_to_file else show
-        if self.only_one_graph:
-            self.figsize = (6.0, 4.0)
-        elif self.only_first_row:
-            self.figsize = (8.0, 6.0)
-        else:
-            self.figsize = (16.0, 10.0)
-        self.subplot_space = 0.5
-        self.coef_zoom_map = 1
 
         # Modify some class attributes
         # Remove some assert
