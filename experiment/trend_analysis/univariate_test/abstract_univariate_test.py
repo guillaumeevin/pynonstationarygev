@@ -63,6 +63,13 @@ class AbstractUnivariateTest(object):
         return d
 
     @classmethod
+    def get_display_trend_type(cls, real_trend_type):
+        if cls.SIGNIFICATIVE in real_trend_type:
+            return real_trend_type
+        else:
+            return cls.NON_SIGNIFICATIVE_TREND
+
+    @classmethod
     def get_real_trend_types(cls, display_trend_type):
         if display_trend_type is cls.ALL_TREND:
             return cls.real_trend_types()

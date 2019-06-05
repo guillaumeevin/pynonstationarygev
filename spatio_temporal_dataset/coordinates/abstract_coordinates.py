@@ -251,7 +251,7 @@ class AbstractCoordinates(object):
             # Compute the indices to modify
             ind_to_modify = df_temporal_coordinates.iloc[:, 0] <= starting_point  # type: pd.Series
             # Assert that some coordinates are selected but not all
-            assert 0 < sum(ind_to_modify) < len(ind_to_modify)
+            assert 0 < sum(ind_to_modify) < len(ind_to_modify), sum(ind_to_modify)
             # Modify the temporal coordinates to enforce the stationarity
             df_temporal_coordinates.loc[ind_to_modify] = starting_point
             # Load the temporal transformation object

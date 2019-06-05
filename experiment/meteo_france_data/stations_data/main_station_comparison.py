@@ -13,22 +13,23 @@ def visualize_all_stations():
 def visualize_non_nan_station():
     vizu = ComparisonsVisualization(altitudes=ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST,
                                     keep_only_station_without_nan_values=True,
-                                    normalize_observations=True)
-    # vizu.visualize_maximum()
-    vizu.visualize_gev()
+                                    normalize_observations=False)
+    vizu.visualize_maximum()
+    # vizu.visualize_gev()
 
 
 def example():
     # this is a really good example for the maxima at least
-    vizu = ComparisonsVisualization(altitudes=[900], normalize_observations=False)
-    vizu._visualize_ax_main(vizu.plot_maxima, vizu.comparisons[0], 'Beaufortain', show=True)
+    # vizu = ComparisonsVisualization(altitudes=[900], normalize_observations=False)
+    # vizu._visualize_ax_main(vizu.plot_maxima, vizu.comparisons[0], 'Beaufortain', show=True)
 
-    # vizu = ComparisonsVisualization(altitudes=[900], normalize_observations=False, keep_only_station_without_nan_values=True)
+    vizu = ComparisonsVisualization(altitudes=[900], normalize_observations=False, keep_only_station_without_nan_values=True)
     # vizu._visualize_ax_main(vizu.plot_gev, vizu.comparisons[0], 'Beaufortain', show=True)
+    vizu._visualize_ax_main(vizu.plot_maxima, vizu.comparisons[0], 'Beaufortain', show=True)
 
 if __name__ == '__main__':
     # visualize_fast_comparison()
-    # visualize_all_stations()
+    visualize_all_stations()
     # visualize_non_nan_station()
-    example()
+    # example()
 

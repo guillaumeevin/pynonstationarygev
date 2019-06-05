@@ -10,6 +10,9 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     VisualizationParameters
 from experiment.meteo_france_data.stations_data.comparison_analysis import ComparisonAnalysis, MASSIF_COLUMN_NAME, \
     REANALYSE_STR, ALTITUDE_COLUMN_NAME
+from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
+from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
+from experiment.trend_analysis.univariate_test.utils import compute_gev_change_point_test_results
 from extreme_estimator.extreme_models.result_from_fit import ResultFromIsmev
 from extreme_estimator.extreme_models.utils import r, safe_run_r_estimator, ro
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -67,6 +70,7 @@ class ComparisonsVisualization(VisualizationParameters):
     def _visualize_ax_main(self, plot_function, comparison: ComparisonAnalysis, massif, ax=None, show=False):
         if ax is None:
             _, ax = plt.subplots(1, 1, figsize=self.figsize)
+        ax2 = ax.twinx()
 
         df = comparison.df_merged_intersection_clean.copy()
         ind = df[MASSIF_COLUMN_NAME] == massif
@@ -78,19 +82,21 @@ class ComparisonsVisualization(VisualizationParameters):
         ind_location = df.index.str.contains(REANALYSE_STR)
         df[DISTANCE_COLUMN_NAME] = 0
         for coordinate_name in [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_Y]:
-            print(df[DISTANCE_COLUMN_NAME])
             center = df.loc[ind_location, coordinate_name].values[0]
-            print(center)
             df[DISTANCE_COLUMN_NAME] += (center - df[coordinate_name]).pow(2)
         df[DISTANCE_COLUMN_NAME] = df[DISTANCE_COLUMN_NAME].pow(0.5)
         df[DISTANCE_COLUMN_NAME] = (df[DISTANCE_COLUMN_NAME] / 1000).round(1)
+
         for color, (i, s) in zip(colors_station, df.iterrows()):
             label = i
             label += ' ({}m)'.format(s[ALTITUDE_COLUMN_NAME])
             label += ' ({}km)'.format(s[DISTANCE_COLUMN_NAME])
             s_values = s.iloc[3:-1].to_dict()
+            years, maxima = list(s_values.keys()), list(s_values.values())
+
             plot_color = color if REANALYSE_STR not in label else 'g'
-            plot_function(ax, s_values, label, plot_color)
+
+            plot_function(ax, ax2, years, maxima, label, plot_color)
             ax.set_title('{} at {}m'.format(massif, comparison.altitude))
             ax.legend(prop={'size': 5})
 
@@ -100,13 +106,30 @@ class ComparisonsVisualization(VisualizationParameters):
     def visualize_maximum(self):
         return self._visualize_main(self.plot_maxima, 'Recent trend of Annual maxima of snowfall')
 
-    def plot_maxima(self, ax, s_values, label, plot_color):
-        ax.plot(list(s_values.keys()), list(s_values.values()), label=label, color=plot_color)
+    def plot_maxima(self, ax, ax2, years, maxima, label, plot_color):
+        if self.keep_only_station_without_nan_values:
+            # Run trend test to improve the label
+            starting_years = years[:-1]
+            trend_test_res, best_idxs = compute_gev_change_point_test_results(multiprocessing=True,
+                                                                              maxima=maxima, starting_years=starting_years,
+                                                                              trend_test_class=GevLocationChangePointTest,
+                                                                              years=years)
+            best_idx = best_idxs[0]
+            most_likely_year = years[best_idx]
+            most_likely_trend_type = trend_test_res[best_idx][0]
+            display_trend_type = AbstractUnivariateTest.get_display_trend_type(real_trend_type=most_likely_trend_type)
+            label += "\n {} starting in {}".format(display_trend_type, most_likely_year)
+            # Display the nllh against the starting year
+            step = 10
+            ax2.plot(starting_years[::step], [t[3] for t in trend_test_res][::step], color=plot_color, marker='o')
+            ax2.plot(starting_years[::step], [t[4] for t in trend_test_res][::step], color=plot_color, marker='x')
+        # Plot maxima
+        ax.plot(years, maxima, label=label, color=plot_color)
 
     def visualize_gev(self):
         return self._visualize_main(self.plot_gev)
 
-    def plot_gev(self, ax, s_values, label, plot_color):
+    def plot_gev(self, ax, ax2, s_values, label, plot_color):
         # todo should I normalize here ?
         # fit gev
         data = list(s_values.values())
@@ -120,4 +143,3 @@ class ComparisonsVisualization(VisualizationParameters):
         y = gev_params.density(x)
         # display the gev distribution that was obtained
         ax.plot(x, y, label=label, color=plot_color)
-

@@ -16,6 +16,7 @@ from experiment.trend_analysis.univariate_test.abstract_univariate_test import A
 from experiment.trend_analysis.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
+from experiment.trend_analysis.univariate_test.utils import compute_gev_change_point_test_results
 from experiment.utils import average_smoothing_with_sliding_window
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
@@ -405,23 +406,8 @@ class StudyVisualizer(VisualizationParameters):
             massif_names = massif_names[:nb_massif_for_fast_mode]
         for massif_id, massif_name in enumerate(massif_names):
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
-            if self.multiprocessing:
-                list_args = [(smooth_maxima, starting_year, trend_test_class, years) for starting_year in
-                             starting_years]
-                with Pool(NB_CORES) as p:
-                    trend_test_res = p.starmap(self.compute_gev_change_point_test_result, list_args)
-            else:
-                trend_test_res = [
-                    self.compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_test_class, years)
-                    for starting_year in starting_years]
-            # Keep only the most likely starting year
-            # (i.e. the starting year that minimizes its negative log likelihood)
-            # (set all the other data to np.nan so that they will not be taken into account in mean function)
-            best_idx = list(np.argmin(trend_test_res, axis=0))[2]
-            # print(best_idx, trend_test_res)
-            best_idxs = [best_idx]
-            # todo: by doing a sorting on the deviance, I could get the nb_top_likelihood_values values
-            # best_idxs = list(np.argmax(trend_test_res, axis=0))[-nb_top_likelihood_values:]
+            trend_test_res, best_idxs = compute_gev_change_point_test_results(self.multiprocessing, smooth_maxima, starting_years,
+                                                                   trend_test_class, years)
             trend_test_res = [(a, b) if i in best_idxs else (np.nan, np.nan)
                               for i, (a, b, *_) in enumerate(trend_test_res)]
             massif_name_to_trend_res[massif_name] = list(zip(*trend_test_res))
@@ -431,12 +417,6 @@ class StudyVisualizer(VisualizationParameters):
                                   for idx_res in range(nb_res)]
         return [pd.DataFrame(massif_name_to_res, index=starting_years).transpose()
                 for massif_name_to_res in all_massif_name_to_res]
-
-    @staticmethod
-    def compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_test_class, years):
-        trend_test = trend_test_class(years, smooth_maxima, starting_year)  # type: AbstractGevChangePointTest
-        assert isinstance(trend_test, AbstractGevChangePointTest)
-        return trend_test.test_trend_type, trend_test.test_trend_strength, trend_test.non_stationary_nllh, trend_test.non_stationary_deviance, trend_test.stationary_deviance
 
     @staticmethod
     def compute_trend_test_result(smooth_maxima, starting_year, trend_test_class, years):
