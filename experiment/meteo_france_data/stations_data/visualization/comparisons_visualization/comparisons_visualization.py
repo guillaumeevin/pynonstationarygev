@@ -60,10 +60,15 @@ class ComparisonsVisualization(VisualizationParameters):
         axes = axes.flatten()
 
         ax_idx = 0
+        massif_and_altitude_and_metric = []
         for massif in self.massifs:
             for c in [c for c in self.comparisons if massif in c.intersection_massif_names]:
-                self._visualize_ax_main(plot_function, c, massif, axes[ax_idx])
+                metric = self._visualize_ax_main(plot_function, c, massif, axes[ax_idx])
+                massif_and_altitude_and_metric.append((massif, c.altitude, metric))
                 ax_idx += 1
+        metrics = [t[-1] for t in massif_and_altitude_and_metric]
+        print('max', [t for t in massif_and_altitude_and_metric if t[-1] == max(metrics)])
+        print('min', [t for t in massif_and_altitude_and_metric if t[-1] == min(metrics)])
         plt.suptitle(title)
         plt.show()
 
@@ -79,29 +84,49 @@ class ComparisonsVisualization(VisualizationParameters):
         df = df.loc[ind]  # type: pd.DataFrame
         colors_station = ['r', 'tab:orange', 'tab:purple', 'm', 'k']
         # Compute a distance column
-        ind_location = df.index.str.contains(REANALYSE_STR)
+        ind_reanalysis_data = df.index.str.contains(REANALYSE_STR)
         df[DISTANCE_COLUMN_NAME] = 0
         for coordinate_name in [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_Y]:
-            center = df.loc[ind_location, coordinate_name].values[0]
+            center = df.loc[ind_reanalysis_data, coordinate_name].values[0]
             df[DISTANCE_COLUMN_NAME] += (center - df[coordinate_name]).pow(2)
         df[DISTANCE_COLUMN_NAME] = df[DISTANCE_COLUMN_NAME].pow(0.5)
         df[DISTANCE_COLUMN_NAME] = (df[DISTANCE_COLUMN_NAME] / 1000).round(1)
+        # Compute
+        maxima_center, _ = self.get_maxima_and_year(df.loc[ind_reanalysis_data].iloc[0])
 
+        metrics = []
         for color, (i, s) in zip(colors_station, df.iterrows()):
             label = i
             label += ' ({}m)'.format(s[ALTITUDE_COLUMN_NAME])
             label += ' ({}km)'.format(s[DISTANCE_COLUMN_NAME])
-            s_values = s.iloc[3:-1].to_dict()
-            years, maxima = list(s_values.keys()), list(s_values.values())
+            maxima, years = self.get_maxima_and_year(s)
+            # Compute the distance between maxima and maxima_center
+            # In percent the number of times the observations is stricty higher than the reanalysis
+            mask = ~np.isnan(maxima_center) & ~np.isnan(maxima)
 
+            metric = np.round(np.mean(np.abs(maxima[mask] - maxima_center[mask])), 0)
+            label += 'Mean absolute diff {}mm'.format(metric)
+
+
+            # metric = np.mean(np.sign(maxima[mask] - maxima_center[mask]) == 1)
+            # metric = np.round(metric * 100, 0)
+            # label += '{}% strictly above'.format(metric)
+            metrics.append(metric)
             plot_color = color if REANALYSE_STR not in label else 'g'
-
             plot_function(ax, ax2, years, maxima, label, plot_color)
             ax.set_title('{} at {}m'.format(massif, comparison.altitude))
             ax.legend(prop={'size': 5})
 
         if show:
             plt.show()
+
+        return max(metrics)
+
+    def get_maxima_and_year(self, s):
+        assert isinstance(s, pd.Series)
+        s_values = s.iloc[3:-1].to_dict()
+        years, maxima = np.array(list(s_values.keys())), np.array(list(s_values.values()))
+        return maxima, years
 
     def visualize_maximum(self):
         return self._visualize_main(self.plot_maxima, 'Recent trend of Annual maxima of snowfall')
@@ -124,6 +149,8 @@ class ComparisonsVisualization(VisualizationParameters):
             ax2.plot(starting_years[::step], [t[3] for t in trend_test_res][::step], color=plot_color, marker='o')
             ax2.plot(starting_years[::step], [t[4] for t in trend_test_res][::step], color=plot_color, marker='x')
         # Plot maxima
+        ax.grid()
+        # print("here")
         ax.plot(years, maxima, label=label, color=plot_color)
 
     def visualize_gev(self):

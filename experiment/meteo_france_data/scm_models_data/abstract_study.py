@@ -359,7 +359,7 @@ class AbstractStudy(object):
             if a > b:
                 zs_all_list.append(zs_list)
                 zs_list = []
-        return dict(zip(self.all_massif_names, zs_all_list))
+        return OrderedDict(zip(self.all_massif_names, zs_all_list))
 
     @cached_property
     def altitude_to_massif_names(self) -> Dict[int, List[str]]:

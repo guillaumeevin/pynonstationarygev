@@ -117,6 +117,17 @@ def all_normal_vizu():
         study_visualizer = StudyVisualizer(study, save_to_file=True, temporal_non_stationarity=True)
         study_visualizer.visualize_all_mean_and_max_graphs()
 
+def case_study():
+    for study in study_iterator(study_class=SafranSnowfall, only_first_one=False, altitudes=[2100], nb_consecutive_days=3):
+        study_visualizer = StudyVisualizer(study, save_to_file=False, temporal_non_stationarity=False)
+        study_visualizer.visualize_all_mean_and_max_graphs()
+        massif_id = study.study_massif_names.index('Chablais')
+        print(massif_id)
+        x, y = study_visualizer.smooth_maxima_x_y(massif_id)
+        print(x)
+        print(y)
+
+
 def scores_vizu():
     save_to_file = False
     only_first_one = True
@@ -192,7 +203,8 @@ def maxima_analysis():
 
 def main_run():
     # normal_visualization(temporal_non_stationarity=True)
-    trend_analysis()
+    # trend_analysis()
+    case_study()
     # all_scores_vizu()
     # maxima_analysis()
     # all_normal_vizu()

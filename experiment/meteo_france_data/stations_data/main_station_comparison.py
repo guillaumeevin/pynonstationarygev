@@ -27,9 +27,25 @@ def example():
     # vizu._visualize_ax_main(vizu.plot_gev, vizu.comparisons[0], 'Beaufortain', show=True)
     vizu._visualize_ax_main(vizu.plot_maxima, vizu.comparisons[0], 'Beaufortain', show=True)
 
+def wrong_example():
+    vizu = ComparisonsVisualization(altitudes=[1200], normalize_observations=False)
+    # vizu._visualize_ax_main(vizu.plot_gev, vizu.comparisons[0], 'Beaufortain', show=True)
+    vizu._visualize_ax_main(vizu.plot_maxima, vizu.comparisons[0], 'Chablais', show=True)
+
+def wrong_example2():
+    vizu = ComparisonsVisualization(altitudes=[1200], normalize_observations=False)
+    vizu._visualize_ax_main(vizu.plot_maxima, vizu.comparisons[0], 'Vanoise', show=True)
+
+    vizu = ComparisonsVisualization(altitudes=[1800], normalize_observations=False)
+    vizu._visualize_ax_main(vizu.plot_maxima, vizu.comparisons[0], 'Haute-Maurienne', show=True)
+
+    vizu = ComparisonsVisualization(altitudes=[600], normalize_observations=False)
+    vizu._visualize_ax_main(vizu.plot_maxima, vizu.comparisons[0], 'Mercantour', show=True)
+
 if __name__ == '__main__':
     # visualize_fast_comparison()
-    visualize_all_stations()
+    # visualize_all_stations()
+    wrong_example2()
     # visualize_non_nan_station()
     # example()
 
