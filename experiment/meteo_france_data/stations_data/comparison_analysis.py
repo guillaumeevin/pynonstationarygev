@@ -51,7 +51,8 @@ class ComparisonAnalysis(object):
     ##################### STATION ATTRIBUTES ############################
 
     def load_main_df(self):
-        df = pd.read_excel(DATA_PATH, sheet_name='max alpes 2500m presentes')
+        # this sheet name: Mean metrics 24.666666666666668 for the sheet name it was worse Mean metrics 36.022222222222226
+        df = pd.read_excel(DATA_PATH, sheet_name='max alpes')
         df = df.iloc[:78]
 
         ind_altitude = self.altitude - self.margin < df[ALTITUDE_COLUMN_NAME]

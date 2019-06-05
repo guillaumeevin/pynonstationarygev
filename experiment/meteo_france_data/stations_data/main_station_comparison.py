@@ -44,8 +44,8 @@ def wrong_example2():
 
 if __name__ == '__main__':
     # visualize_fast_comparison()
-    # visualize_all_stations()
-    wrong_example2()
+    visualize_all_stations()
+    # wrong_example2()
     # visualize_non_nan_station()
     # example()
 

@@ -67,6 +67,7 @@ class ComparisonsVisualization(VisualizationParameters):
                 massif_and_altitude_and_metric.append((massif, c.altitude, metric))
                 ax_idx += 1
         metrics = [t[-1] for t in massif_and_altitude_and_metric]
+        print('Mean metrics', np.mean(metrics))
         print('max', [t for t in massif_and_altitude_and_metric if t[-1] == max(metrics)])
         print('min', [t for t in massif_and_altitude_and_metric if t[-1] == min(metrics)])
         plt.suptitle(title)

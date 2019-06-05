@@ -66,6 +66,14 @@ I should find the "optimal" years to remove
 Then I should find a way to remove the same years in the study
 """
 
+def test_data():
+    s = ComparisonAnalysis(altitude=900)
+    df = s.load_main_df()
+    print(df)
+    print(df.columns)
+    print(len(df))
+
 if __name__ == '__main__':
-    run_comparison_for_optimal_parameters_for_altitude_900()
+    test_data()
+    # run_comparison_for_optimal_parameters_for_altitude_900()
     # choice_of_altitude_and_nb_border_data_to_remove_to_get_data_without_nan()
