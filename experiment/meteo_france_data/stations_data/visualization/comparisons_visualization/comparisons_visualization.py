@@ -12,6 +12,9 @@ from experiment.meteo_france_data.stations_data.comparison_analysis import Compa
     REANALYSE_STR, ALTITUDE_COLUMN_NAME
 from extreme_estimator.extreme_models.result_from_fit import ResultFromIsmev
 from extreme_estimator.extreme_models.utils import r, safe_run_r_estimator, ro
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+
+DISTANCE_COLUMN_NAME = 'distance'
 
 
 class ComparisonsVisualization(VisualizationParameters):
@@ -71,13 +74,24 @@ class ComparisonsVisualization(VisualizationParameters):
         assert sum(ind) > 0
         df = df.loc[ind]  # type: pd.DataFrame
         colors_station = ['r', 'tab:orange', 'tab:purple', 'm', 'k']
+        # Compute a distance column
+        ind_location = df.index.str.contains(REANALYSE_STR)
+        df[DISTANCE_COLUMN_NAME] = 0
+        for coordinate_name in [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_Y]:
+            print(df[DISTANCE_COLUMN_NAME])
+            center = df.loc[ind_location, coordinate_name].values[0]
+            print(center)
+            df[DISTANCE_COLUMN_NAME] += (center - df[coordinate_name]).pow(2)
+        df[DISTANCE_COLUMN_NAME] = df[DISTANCE_COLUMN_NAME].pow(0.5)
+        df[DISTANCE_COLUMN_NAME] = (df[DISTANCE_COLUMN_NAME] / 1000).round(1)
         for color, (i, s) in zip(colors_station, df.iterrows()):
             label = i
             label += ' ({}m)'.format(s[ALTITUDE_COLUMN_NAME])
-            s_values = s.iloc[3:].to_dict()
+            label += ' ({}km)'.format(s[DISTANCE_COLUMN_NAME])
+            s_values = s.iloc[3:-1].to_dict()
             plot_color = color if REANALYSE_STR not in label else 'g'
             plot_function(ax, s_values, label, plot_color)
-            ax.set_title('{} at {}'.format(massif, comparison.altitude))
+            ax.set_title('{} at {}m'.format(massif, comparison.altitude))
             ax.legend(prop={'size': 5})
 
         if show:

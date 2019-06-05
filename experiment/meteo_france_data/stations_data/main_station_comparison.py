@@ -29,6 +29,6 @@ def example():
 if __name__ == '__main__':
     # visualize_fast_comparison()
     # visualize_all_stations()
-    visualize_non_nan_station()
-    # example()
+    # visualize_non_nan_station()
+    example()
 
