@@ -14,7 +14,7 @@ def visualize_non_nan_station():
     vizu = ComparisonsVisualization(altitudes=ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST,
                                     keep_only_station_without_nan_values=True,
                                     normalize_observations=False)
-    vizu.visualize_maximum()
+    vizu.visualize_maximum(visualize_metric_only=True)
     # vizu.visualize_gev()
 
 
@@ -42,10 +42,20 @@ def wrong_example2():
     vizu = ComparisonsVisualization(altitudes=[600], normalize_observations=False)
     vizu._visualize_ax_main(vizu.plot_maxima, vizu.comparisons[0], 'Mercantour', show=True)
 
+def wrong_example3():
+    vizu = ComparisonsVisualization(altitudes=[1200], normalize_observations=False, keep_only_station_without_nan_values=True)
+    vizu._visualize_ax_main(vizu.plot_maxima, vizu.comparisons[0], 'Devoluy', show=True)
+
+
+def quick_metric_analysis():
+    ComparisonsVisualization.visualize_metric()
+
 if __name__ == '__main__':
+    # wrong_example3()
     # visualize_fast_comparison()
-    visualize_all_stations()
+    # visualize_all_stations()
     # wrong_example2()
     # visualize_non_nan_station()
+    quick_metric_analysis()
     # example()
 

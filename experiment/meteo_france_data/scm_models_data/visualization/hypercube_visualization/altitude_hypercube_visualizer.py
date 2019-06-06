@@ -4,7 +4,8 @@ import pandas as pd
 
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.abstract_hypercube_visualizer import \
     AbstractHypercubeVisualizer
-from experiment.meteo_france_data.scm_models_data.visualization import StudyVisualizer
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
+    StudyVisualizer
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 
 ALTITUDES_XLABEL = 'altitudes'

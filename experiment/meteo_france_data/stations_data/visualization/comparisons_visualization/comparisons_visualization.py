@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from itertools import chain
 from typing import Dict, List
 
@@ -9,7 +10,7 @@ import pandas as pd
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     VisualizationParameters
 from experiment.meteo_france_data.stations_data.comparison_analysis import ComparisonAnalysis, MASSIF_COLUMN_NAME, \
-    REANALYSE_STR, ALTITUDE_COLUMN_NAME
+    REANALYSE_STR, ALTITUDE_COLUMN_NAME, STATION_COLUMN_NAME
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.trend_analysis.univariate_test.utils import compute_gev_change_point_test_results
@@ -18,6 +19,7 @@ from extreme_estimator.extreme_models.utils import r, safe_run_r_estimator, ro
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 DISTANCE_COLUMN_NAME = 'distance'
+path_df_location_to_value_csv_example = r'/home/erwan/Documents/projects/spatiotemporalextremes/experiment/meteo_france_data/stations_data/csv/example.csv'
 
 
 class ComparisonsVisualization(VisualizationParameters):
@@ -53,25 +55,48 @@ class ComparisonsVisualization(VisualizationParameters):
     def massifs(self):
         return sorted(set(chain(*[c.intersection_massif_names for c in self.comparisons])))
 
-    def _visualize_main(self, plot_function, title=''):
+    def _visualize_main(self, plot_function, title='', show=True):
         nb_rows = math.ceil(self.nb_plot / self.nb_columns)
         fig, axes = plt.subplots(nb_rows, self.nb_columns, figsize=self.figsize)
         fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
         axes = axes.flatten()
 
         ax_idx = 0
-        massif_and_altitude_and_metric = []
+        tuple_location_to_values = {}
+        index = None
         for massif in self.massifs:
             for c in [c for c in self.comparisons if massif in c.intersection_massif_names]:
-                metric = self._visualize_ax_main(plot_function, c, massif, axes[ax_idx])
-                massif_and_altitude_and_metric.append((massif, c.altitude, metric))
+                res = self._visualize_ax_main(plot_function, c, massif, axes[ax_idx])
                 ax_idx += 1
-        metrics = [t[-1] for t in massif_and_altitude_and_metric]
-        print('Mean metrics', np.mean(metrics))
-        print('max', [t for t in massif_and_altitude_and_metric if t[-1] == max(metrics)])
-        print('min', [t for t in massif_and_altitude_and_metric if t[-1] == min(metrics)])
+                for station_name, ordered_dict in res:
+                    if index is None:
+                        index = list(ordered_dict.keys())
+                    else:
+                        assert all([i == k for i, k in zip(index, ordered_dict.keys())])
+                    tuple_location_to_values[(c.altitude, massif, station_name)] = list(ordered_dict.values())
+
         plt.suptitle(title)
-        plt.show()
+        if show:
+            plt.show()
+
+        # Build dataframe from the dictionary
+        df = pd.DataFrame(tuple_location_to_values, index=index).transpose()
+        df.index.names = [ALTITUDE_COLUMN_NAME, MASSIF_COLUMN_NAME, STATION_COLUMN_NAME]
+        return df
+
+    @classmethod
+    def visualize_metric(cls, df_location_to_value=None):
+        # Load or update df value from example file
+        if df_location_to_value is None:
+            df_location_to_value = pd.read_csv(path_df_location_to_value_csv_example, index_col=[0, 1, 2])
+        else:
+            df_location_to_value.to_csv(path_df_location_to_value_csv_example)
+
+        print(df_location_to_value)
+        print(df_location_to_value.index)
+        print(df_location_to_value.columns)
+
+        # Display some score spatially
 
     def _visualize_ax_main(self, plot_function, comparison: ComparisonAnalysis, massif, ax=None, show=False):
         if ax is None:
@@ -95,33 +120,52 @@ class ComparisonsVisualization(VisualizationParameters):
         # Compute
         maxima_center, _ = self.get_maxima_and_year(df.loc[ind_reanalysis_data].iloc[0])
 
-        metrics = []
+        res = []
+        plot_station_ordered_value_dict = None
         for color, (i, s) in zip(colors_station, df.iterrows()):
+            ordered_value_dict = OrderedDict()
+
             label = i
             label += ' ({}m)'.format(s[ALTITUDE_COLUMN_NAME])
             label += ' ({}km)'.format(s[DISTANCE_COLUMN_NAME])
             maxima, years = self.get_maxima_and_year(s)
+
             # Compute the distance between maxima and maxima_center
             # In percent the number of times the observations is stricty higher than the reanalysis
             mask = ~np.isnan(maxima_center) & ~np.isnan(maxima)
-
-            metric = np.round(np.mean(np.abs(maxima[mask] - maxima_center[mask])), 0)
-            label += 'Mean absolute diff {}mm'.format(metric)
-
+            mean_absolute_difference = np.round(np.mean(np.abs(maxima[mask] - maxima_center[mask])), 0)
+            label += 'Mean absolute diff {}mm'.format(mean_absolute_difference)
+            ordered_value_dict['mean absolute difference'] = mean_absolute_difference
 
             # metric = np.mean(np.sign(maxima[mask] - maxima_center[mask]) == 1)
             # metric = np.round(metric * 100, 0)
             # label += '{}% strictly above'.format(metric)
-            metrics.append(metric)
+
             plot_color = color if REANALYSE_STR not in label else 'g'
-            plot_function(ax, ax2, years, maxima, label, plot_color)
+            plot_ordered_value_dict = plot_function(ax, ax2, years, maxima, label, plot_color)
+
+            if isinstance(plot_ordered_value_dict, dict):
+                if REANALYSE_STR in i:
+                    plot_station_ordered_value_dict = OrderedDict([(k + ' ' + REANALYSE_STR, v)
+                                                                   for k, v in plot_ordered_value_dict.items()])
+                else:
+                    ordered_value_dict.update(plot_ordered_value_dict)
+
             ax.set_title('{} at {}m'.format(massif, comparison.altitude))
             ax.legend(prop={'size': 5})
+
+            # Store only results for the stations
+            if REANALYSE_STR not in i:
+                res.append((i, ordered_value_dict))
+
+        # Add the station ordered dict
+        for _, ordered_dict in res:
+            ordered_dict.update(plot_station_ordered_value_dict)
 
         if show:
             plt.show()
 
-        return max(metrics)
+        return res
 
     def get_maxima_and_year(self, s):
         assert isinstance(s, pd.Series)
@@ -129,15 +173,22 @@ class ComparisonsVisualization(VisualizationParameters):
         years, maxima = np.array(list(s_values.keys())), np.array(list(s_values.values()))
         return maxima, years
 
-    def visualize_maximum(self):
-        return self._visualize_main(self.plot_maxima, 'Recent trend of Annual maxima of snowfall')
+    def visualize_maximum(self, visualize_metric_only=None):
+        show = visualize_metric_only is None or not visualize_metric_only
+        df_location_to_value = self._visualize_main(plot_function=self.plot_maxima,
+                                                    title='Recent trend of Annual maxima of snowfall',
+                                                    show=show)
+        if visualize_metric_only is not None:
+            self.visualize_metric(df_location_to_value)
 
     def plot_maxima(self, ax, ax2, years, maxima, label, plot_color):
+        ordered_dict = OrderedDict()
         if self.keep_only_station_without_nan_values:
             # Run trend test to improve the label
-            starting_years = years[:-1]
+            starting_years = years[:-4]
             trend_test_res, best_idxs = compute_gev_change_point_test_results(multiprocessing=True,
-                                                                              maxima=maxima, starting_years=starting_years,
+                                                                              maxima=maxima,
+                                                                              starting_years=starting_years,
                                                                               trend_test_class=GevLocationChangePointTest,
                                                                               years=years)
             best_idx = best_idxs[0]
@@ -145,22 +196,25 @@ class ComparisonsVisualization(VisualizationParameters):
             most_likely_trend_type = trend_test_res[best_idx][0]
             display_trend_type = AbstractUnivariateTest.get_display_trend_type(real_trend_type=most_likely_trend_type)
             label += "\n {} starting in {}".format(display_trend_type, most_likely_year)
+            ordered_dict['display trend type'] = display_trend_type
+            ordered_dict['most likely year'] = most_likely_year
             # Display the nllh against the starting year
-            step = 10
+            step = 1
             ax2.plot(starting_years[::step], [t[3] for t in trend_test_res][::step], color=plot_color, marker='o')
             ax2.plot(starting_years[::step], [t[4] for t in trend_test_res][::step], color=plot_color, marker='x')
         # Plot maxima
         ax.grid()
         # print("here")
         ax.plot(years, maxima, label=label, color=plot_color)
+        return ordered_dict
 
     def visualize_gev(self):
         return self._visualize_main(self.plot_gev)
 
-    def plot_gev(self, ax, ax2, s_values, label, plot_color):
+    def plot_gev(self, ax, ax2, years, maxima, label, plot_color):
         # todo should I normalize here ?
         # fit gev
-        data = list(s_values.values())
+        data = maxima
         res = safe_run_r_estimator(function=r('gev.fit'), xdat=ro.FloatVector(data),
                                    use_start=True)
         res = ResultFromIsmev(res, {})

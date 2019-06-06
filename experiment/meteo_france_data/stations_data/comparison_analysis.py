@@ -25,6 +25,7 @@ from utils import get_display_name_from_object_type
 REANALYSE_STR = 'reanalyse'
 ALTITUDE_COLUMN_NAME = 'ALTITUDE'
 MASSIF_COLUMN_NAME = 'MASSIF_PRA'
+STATION_COLUMN_NAME = 'STATION'
 
 DATA_PATH = r'/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/Johan_data/PrecipitationsAvalanches_MaxPrecipit_ParPoste_ParHiver_traites.xls'
 
