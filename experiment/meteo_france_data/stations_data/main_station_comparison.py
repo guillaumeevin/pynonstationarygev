@@ -2,7 +2,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST
 from experiment.meteo_france_data.stations_data.comparison_analysis import ComparisonAnalysis
 from experiment.meteo_france_data.stations_data.visualization.comparisons_visualization.comparisons_visualization import \
-    ComparisonsVisualization
+    ComparisonsVisualization, path_backup_csv_file
 
 
 def visualize_all_stations():
@@ -48,13 +48,14 @@ def wrong_example3():
 
 
 def quick_metric_analysis():
-    ComparisonsVisualization.visualize_metric()
+    ComparisonsVisualization.visualize_metric(csv_filepath=path_backup_csv_file)
+    # ComparisonsVisualization.visualize_metric()
 
 if __name__ == '__main__':
     # wrong_example3()
     # visualize_fast_comparison()
-    visualize_all_stations()
-    # quick_metric_analysis()
+    # visualize_all_stations()
+    quick_metric_analysis()
     # wrong_example2()
     # visualize_non_nan_station()
     # example()
