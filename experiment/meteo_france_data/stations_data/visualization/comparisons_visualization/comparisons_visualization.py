@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     VisualizationParameters
 from experiment.meteo_france_data.stations_data.comparison_analysis import ComparisonAnalysis, MASSIF_COLUMN_NAME, \
@@ -17,6 +18,9 @@ from experiment.trend_analysis.univariate_test.utils import compute_gev_change_p
 from extreme_estimator.extreme_models.result_from_fit import ResultFromIsmev
 from extreme_estimator.extreme_models.utils import r, safe_run_r_estimator, ro
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from utils import classproperty
+
+MAE_COLUMN_NAME = 'mean absolute difference'
 
 DISTANCE_COLUMN_NAME = 'distance'
 path_df_location_to_value_csv_example = r'/home/erwan/Documents/projects/spatiotemporalextremes/experiment/meteo_france_data/stations_data/csv/example.csv'
@@ -46,6 +50,14 @@ class ComparisonsVisualization(VisualizationParameters):
     @property
     def comparisons(self) -> List[ComparisonAnalysis]:
         return list(self.altitude_to_comparison.values())
+
+    @property
+    def comparison(self):
+        return self.comparisons[0]
+
+    @property
+    def study(self):
+        return self.comparison.study
 
     @property
     def nb_plot(self):
@@ -78,6 +90,8 @@ class ComparisonsVisualization(VisualizationParameters):
         plt.suptitle(title)
         if show:
             plt.show()
+        else:
+            plt.clf()
 
         # Build dataframe from the dictionary
         df = pd.DataFrame(tuple_location_to_values, index=index).transpose()
@@ -85,18 +99,24 @@ class ComparisonsVisualization(VisualizationParameters):
         return df
 
     @classmethod
-    def visualize_metric(cls, df_location_to_value=None):
+    def visualize_metric(cls, df=None):
         # Load or update df value from example file
-        if df_location_to_value is None:
-            df_location_to_value = pd.read_csv(path_df_location_to_value_csv_example, index_col=[0, 1, 2])
+        if df is None:
+            df = pd.read_csv(path_df_location_to_value_csv_example, index_col=[0, 1, 2])
         else:
-            df_location_to_value.to_csv(path_df_location_to_value_csv_example)
+            df.to_csv(path_df_location_to_value_csv_example)
 
-        print(df_location_to_value)
-        print(df_location_to_value.index)
-        print(df_location_to_value.columns)
+        # Compute some column like a classication boolean
 
         # Display some score spatially
+        df_score = df.groupby([MASSIF_COLUMN_NAME]).mean()
+        s_mae = df_score[MAE_COLUMN_NAME]
+        massif_name_to_value = s_mae.to_dict()
+        AbstractStudy.visualize_study(massif_name_to_value=massif_name_to_value,
+                                      default_color_for_missing_massif='b',
+                                      cmap=plt.cm.Reds,
+                                      vmin=s_mae.min(),
+                                      vmax=s_mae.max())
 
     def _visualize_ax_main(self, plot_function, comparison: ComparisonAnalysis, massif, ax=None, show=False):
         if ax is None:
@@ -126,21 +146,19 @@ class ComparisonsVisualization(VisualizationParameters):
             ordered_value_dict = OrderedDict()
 
             label = i
-            label += ' ({}m)'.format(s[ALTITUDE_COLUMN_NAME])
-            label += ' ({}km)'.format(s[DISTANCE_COLUMN_NAME])
+
             maxima, years = self.get_maxima_and_year(s)
 
             # Compute the distance between maxima and maxima_center
             # In percent the number of times the observations is stricty higher than the reanalysis
             mask = ~np.isnan(maxima_center) & ~np.isnan(maxima)
             mean_absolute_difference = np.round(np.mean(np.abs(maxima[mask] - maxima_center[mask])), 0)
-            label += 'Mean absolute diff {}mm'.format(mean_absolute_difference)
-            ordered_value_dict['mean absolute difference'] = mean_absolute_difference
 
-            # metric = np.mean(np.sign(maxima[mask] - maxima_center[mask]) == 1)
-            # metric = np.round(metric * 100, 0)
-            # label += '{}% strictly above'.format(metric)
+            ordered_value_dict[MAE_COLUMN_NAME] = mean_absolute_difference
 
+            label += ' ({}m)'.format(s[ALTITUDE_COLUMN_NAME])
+            label += ' ({}km)'.format(s[DISTANCE_COLUMN_NAME])
+            label += '({}mm)'.format(mean_absolute_difference)
             plot_color = color if REANALYSE_STR not in label else 'g'
             plot_ordered_value_dict = plot_function(ax, ax2, years, maxima, label, plot_color)
 

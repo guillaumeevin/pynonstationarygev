@@ -7,7 +7,7 @@ from experiment.meteo_france_data.stations_data.visualization.comparisons_visual
 
 def visualize_all_stations():
     vizu = ComparisonsVisualization(altitudes=ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST, margin=150)
-    vizu.visualize_maximum()
+    vizu.visualize_maximum(visualize_metric_only=False)
 
 
 def visualize_non_nan_station():
@@ -53,9 +53,9 @@ def quick_metric_analysis():
 if __name__ == '__main__':
     # wrong_example3()
     # visualize_fast_comparison()
-    # visualize_all_stations()
+    visualize_all_stations()
+    # quick_metric_analysis()
     # wrong_example2()
     # visualize_non_nan_station()
-    quick_metric_analysis()
     # example()
 

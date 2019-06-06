@@ -4,7 +4,7 @@ import os.path as op
 from collections import OrderedDict
 from contextlib import redirect_stdout
 from multiprocessing.pool import Pool
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,7 +26,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
-from utils import get_full_path, cached_property, NB_CORES
+from utils import get_full_path, cached_property, NB_CORES, classproperty
 
 f = io.StringIO()
 with redirect_stdout(f):
@@ -111,8 +111,6 @@ class AbstractStudy(object):
             daily_time_serie = daily_time_serie[:, self.altitude_mask]
             year_to_daily_time_serie_array[year] = daily_time_serie
         return year_to_daily_time_serie_array
-
-
 
     """ Load Variables and Datasets """
 
@@ -215,20 +213,29 @@ class AbstractStudy(object):
 
     """ Visualization methods """
 
-    @cached_property
-    def massifs_coordinates_for_display(self) -> AbstractSpatialCoordinates:
+    @classmethod
+    def massifs_coordinates_for_display(cls, massif_names) -> AbstractSpatialCoordinates:
         # Coordinate object that represents the massif coordinates in Lambert extended
         # extracted for a csv file, and used only for display purposes
-        df = self.load_df_centroid()
+        df = cls.load_df_centroid()
         # Filter, keep massifs present at the altitude of interest
-        df = df.loc[self.study_massif_names]
+        df = df.loc[massif_names, :]
         # Build coordinate object from df_centroid
         return AbstractSpatialCoordinates.from_df(df)
 
-    def visualize_study(self, ax=None, massif_name_to_value=None, show=True, fill=True, replace_blue_by_white=True,
-                        label=None, add_text=False, cmap=None, vmax=100, vmin=0):
+    @classmethod
+    def visualize_study(cls, ax=None, massif_name_to_value: Union[None, Dict[str, float]] = None, show=True, fill=True,
+                        replace_blue_by_white=True,
+                        label=None, add_text=False, cmap=None, vmax=100, vmin=0,
+                        default_color_for_missing_massif='w',
+                        default_color_for_nan_values='w',
+                        ):
+        if ax is None:
+            ax = plt.gca()
+
         if massif_name_to_value is None:
             massif_name_to_fill_kwargs = None
+            massif_names, values = None, None
         else:
             massif_names, values = list(zip(*massif_name_to_value.items()))
             if cmap is None:
@@ -237,14 +244,11 @@ class AbstractStudy(object):
                 norm = Normalize(vmin, vmax)
                 create_colorbase_axis(ax, label, cmap, norm)
                 m = cm.ScalarMappable(norm=norm, cmap=cmap)
-                colors = [m.to_rgba(value) if not np.isnan(value) else 'w' for value in values]
+                colors = [m.to_rgba(value) if not np.isnan(value) else default_color_for_nan_values for value in values]
             massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
                                           zip(massif_names, colors)}
 
-        if ax is None:
-            ax = plt.gca()
-
-        for coordinate_id, coords_list in self.idx_to_coords_list.items():
+        for coordinate_id, coords_list in cls.idx_to_coords_list.items():
             # Retrieve the list of coords (x,y) that define the contour of the massif of id coordinate_id
 
             # if j == 0:
@@ -253,11 +257,14 @@ class AbstractStudy(object):
             coords_list = list(zip(*coords_list))
             ax.plot(*coords_list, color='black')
             # Potentially, fill the inside of the polygon with some color
-            if fill and coordinate_id in self.coordinate_id_to_massif_name:
-                massif_name = self.coordinate_id_to_massif_name[coordinate_id]
+            if fill and coordinate_id in cls.coordinate_id_to_massif_name:
+                massif_name = cls.coordinate_id_to_massif_name[coordinate_id]
                 if massif_name_to_fill_kwargs is not None and massif_name in massif_name_to_fill_kwargs:
                     fill_kwargs = massif_name_to_fill_kwargs[massif_name]
                     ax.fill(*coords_list, **fill_kwargs)
+                else:
+                    ax.fill(*coords_list, **{'color': default_color_for_missing_massif})
+
                 # else:
                 #     fill_kwargs = {}
 
@@ -268,8 +275,11 @@ class AbstractStudy(object):
                 # ax.scatter(x, y)
                 # ax.text(x, y, massif_name)
         # Display the center of the massif
-        ax.scatter(self.massifs_coordinates_for_display.x_coordinates,
-                   self.massifs_coordinates_for_display.y_coordinates, s=1)
+        print(massif_names)
+        masssif_coordinate_for_display = cls.massifs_coordinates_for_display(massif_names)
+
+        ax.scatter(masssif_coordinate_for_display.x_coordinates,
+                   masssif_coordinate_for_display.y_coordinates, s=1)
         # Improve some explanation on the X axis and on the Y axis
         ax.set_xlabel('Longitude (km)')
         ax.xaxis.set_major_formatter(get_km_formatter())
@@ -277,7 +287,7 @@ class AbstractStudy(object):
         ax.yaxis.set_major_formatter(get_km_formatter())
         # Display the name or value of the massif
         if add_text:
-            for _, row in self.massifs_coordinates_for_display.df_all_coordinates.iterrows():
+            for _, row in masssif_coordinate_for_display.df_all_coordinates.iterrows():
                 x, y = list(row)
                 massif_name = row.name
                 value = massif_name_to_value[massif_name]
@@ -293,15 +303,15 @@ class AbstractStudy(object):
 
     """ Path properties """
 
-    @property
+    @classproperty
     def relative_path(self) -> str:
         return r'local/spatio_temporal_datasets'
 
-    @property
+    @classproperty
     def full_path(self) -> str:
         return get_full_path(relative_path=self.relative_path)
 
-    @property
+    @classproperty
     def map_full_path(self) -> str:
         return op.join(self.full_path, 'map')
 
@@ -321,12 +331,13 @@ class AbstractStudy(object):
     def original_safran_massif_id_to_massif_name(self) -> Dict[int, str]:
         return {massif_id: massif_name for massif_id, massif_name in enumerate(self.all_massif_names)}
 
-    @cached_property
-    def all_massif_names(self) -> List[str]:
+    # @cached_property
+    @classproperty
+    def all_massif_names(cls) -> List[str]:
         """
         Pour l'identification des massifs, le numéro de la variable massif_num correspond à celui de l'attribut num_opp
         """
-        metadata_path = op.join(self.full_path, self.REANALYSIS_FOLDER, 'metadata')
+        metadata_path = op.join(cls.full_path, cls.REANALYSIS_FOLDER, 'metadata')
         dbf = Dbf5(op.join(metadata_path, 'massifs_alpes.dbf'))
         df = dbf.to_dataframe().copy()  # type: pd.DataFrame
         dbf.f.close()
@@ -336,15 +347,16 @@ class AbstractStudy(object):
         all_massif_names[all_massif_names.index('Beaufortin')] = 'Beaufortain'
         return all_massif_names
 
-    def load_df_centroid(self) -> pd.DataFrame:
+    @classmethod
+    def load_df_centroid(cls) -> pd.DataFrame:
         # Load df_centroid containing all the massif names
-        df_centroid = pd.read_csv(op.join(self.map_full_path, 'coordonnees_massifs_alpes.csv'))
+        df_centroid = pd.read_csv(op.join(cls.map_full_path, 'coordonnees_massifs_alpes.csv'))
         df_centroid.set_index('NOM', inplace=True)
         # Check that the names of massifs are the same
-        symmetric_difference = set(df_centroid.index).symmetric_difference(self.all_massif_names)
+        symmetric_difference = set(df_centroid.index).symmetric_difference(cls.all_massif_names)
         assert len(symmetric_difference) == 0, symmetric_difference
         # Sort the column in the order of the SAFRAN dataset
-        df_centroid = df_centroid.reindex(self.all_massif_names, axis=0)
+        df_centroid = df_centroid.reindex(cls.all_massif_names, axis=0)
         for coord_column in [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_Y]:
             df_centroid.loc[:, coord_column] = df_centroid[coord_column].str.replace(',', '.').astype(float)
         return df_centroid
@@ -371,12 +383,12 @@ class AbstractStudy(object):
 
     """ Visualization methods """
 
-    @property
-    def coordinate_id_to_massif_name(self) -> Dict[int, str]:
-        df_centroid = self.load_df_centroid()
+    @classproperty
+    def coordinate_id_to_massif_name(cls) -> Dict[int, str]:
+        df_centroid = cls.load_df_centroid()
         return dict(zip(df_centroid['id'], df_centroid.index))
 
-    @property
+    @classproperty
     def idx_to_coords_list(self):
         df_massif = pd.read_csv(op.join(self.map_full_path, 'massifsalpes.csv'))
         coord_tuples = [(row_massif['idx'], row_massif[AbstractCoordinates.COORDINATE_X],
