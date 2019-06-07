@@ -42,7 +42,8 @@ MAE_COLUMN_NAME = 'mean absolute difference'
 class ComparisonsVisualization(VisualizationParameters):
 
     def __init__(self, altitudes=None, keep_only_station_without_nan_values=False, margin=150,
-                 normalize_observations=False):
+                 normalize_observations=False, trend_test_class=GevLocationChangePointTest):
+        self.trend_test_class = trend_test_class
         self.keep_only_station_without_nan_values = keep_only_station_without_nan_values
         if self.keep_only_station_without_nan_values:
             self.nb_columns = 5
@@ -235,7 +236,7 @@ class ComparisonsVisualization(VisualizationParameters):
             trend_test_res, best_idxs = compute_gev_change_point_test_results(multiprocessing=True,
                                                                               maxima=maxima,
                                                                               starting_years=starting_years,
-                                                                              trend_test_class=GevLocationChangePointTest,
+                                                                              trend_test_class=self.trend_test_class,
                                                                               years=years)
             best_idx = best_idxs[0]
             most_likely_year = years[best_idx]

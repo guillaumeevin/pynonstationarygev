@@ -1,8 +1,9 @@
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST
-from experiment.meteo_france_data.stations_data.comparison_analysis import ComparisonAnalysis
 from experiment.meteo_france_data.stations_data.visualization.comparisons_visualization.comparisons_visualization import \
     ComparisonsVisualization, path_backup_csv_file
+from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest, \
+    GevScaleChangePointTest, GevShapeChangePointTest
 
 
 def visualize_all_stations():
@@ -11,11 +12,13 @@ def visualize_all_stations():
 
 
 def visualize_non_nan_station():
-    vizu = ComparisonsVisualization(altitudes=ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST,
-                                    keep_only_station_without_nan_values=True,
-                                    normalize_observations=False)
-    vizu.visualize_maximum(visualize_metric_only=True)
-    # vizu.visualize_gev()
+    for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest, GevShapeChangePointTest][1:2]:
+        vizu = ComparisonsVisualization(altitudes=ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST,
+                                        keep_only_station_without_nan_values=True,
+                                        normalize_observations=False,
+                                        trend_test_class=trend_test_class)
+        vizu.visualize_maximum(visualize_metric_only=True)
+        # vizu.visualize_gev()
 
 
 def example():
@@ -55,8 +58,8 @@ if __name__ == '__main__':
     # wrong_example3()
     # visualize_fast_comparison()
     # visualize_all_stations()
-    quick_metric_analysis()
+    # quick_metric_analysis()
     # wrong_example2()
-    # visualize_non_nan_station()
+    visualize_non_nan_station()
     # example()
 
