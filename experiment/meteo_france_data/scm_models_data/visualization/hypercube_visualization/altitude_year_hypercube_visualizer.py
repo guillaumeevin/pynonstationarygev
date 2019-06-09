@@ -26,8 +26,8 @@ class Altitude_Hypercube_Year_Visualizer(AltitudeHypercubeVisualizer):
         # Take the mean with respect to the level of interest
         return df.mean(level=level)
 
-    def trend_type_reduction(self, reduction_function, display_trend_type):
-        series = super().trend_type_reduction(reduction_function, display_trend_type)
+    def trend_type_reduction_series(self, reduction_function, display_trend_type):
+        series = super().trend_type_reduction_series(reduction_function, display_trend_type)
         # Create df argmax
         df_bool = self.df_bool(display_trend_type)
         df = df_bool.copy()
