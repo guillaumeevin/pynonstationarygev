@@ -13,9 +13,6 @@ class CumulatedStudy(AbstractStudy):
     def instantiate_variable_object(self, variable_array) -> AbstractVariable:
         return self.variable_class(variable_array, self.nb_consecutive_days)
 
-    def load_keyword(self):
-        return self.variable_class.keyword(self.nb_consecutive_days)
-
     @property
     def variable_name(self):
         return super().variable_name + ' cumulated over {} day(s)'.format(self.nb_consecutive_days)

@@ -25,10 +25,10 @@ class SafranSnowfallVariable(AbstractVariable):
     UNIT = 'kg per m2 or mm'
 
     @classmethod
-    def keyword(cls, nb_consecutive_days=3):
+    def keyword(cls):
         return 'Snowf'
 
-    def __init__(self, variable_array, nb_consecutive_days):
+    def __init__(self, variable_array, nb_consecutive_days=3):
         super().__init__(variable_array)
         self.nb_consecutive_days_of_snowfall = nb_consecutive_days
         # Compute the daily snowfall in kg/m2
@@ -70,7 +70,7 @@ class SafranRainfallVariable(SafranSnowfallVariable):
     UNIT = 'kg per m2 or mm'
 
     @classmethod
-    def keyword(cls, nb_consecutive_days=3):
+    def keyword(cls):
         return 'Rainf'
 
 
@@ -82,7 +82,7 @@ class SafranTotalPrecipVariable(AbstractVariable):
         self.rain_precipitation = SafranRainfallVariable(rain_variable_array, nb_consecutive_days)
 
     @classmethod
-    def keyword(cls, nb_consecutive_days=3):
+    def keyword(cls):
         return [SafranSnowfallVariable.keyword(), SafranRainfallVariable.keyword()]
 
     @property
@@ -95,7 +95,7 @@ class SafranTemperatureVariable(AbstractVariable):
     UNIT = 'Celsius Degrees'
 
     @classmethod
-    def keyword(cls, nb_consecutive_days=3):
+    def keyword(cls):
         return 'Tair'
 
     def __init__(self, variable_array):

@@ -9,12 +9,11 @@ class AbstractVariable(object):
     NAME = ''
     UNIT = ''
 
-    def __init__(self, variable_array, nb_consecutive_days=3):
+    def __init__(self, variable_array):
         self.variable_array = variable_array
-        self.nb_consecutive_days = nb_consecutive_days
 
     @classmethod
-    def keyword(cls, nb_consecutive_days=3):
+    def keyword(cls):
         raise NotImplementedError
 
     @property

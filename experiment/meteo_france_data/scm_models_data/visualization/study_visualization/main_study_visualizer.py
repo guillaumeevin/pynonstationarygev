@@ -38,9 +38,8 @@ List[AbstractStudy]:
             break
 
 
-def study_iterator(study_class, only_first_one=False, verbose=True, altitudes=None, nb_consecutive_days=None) -> List[AbstractStudy]:
+def study_iterator(study_class, only_first_one=False, verbose=True, altitudes=None, nb_consecutive_days=3) -> List[AbstractStudy]:
     # Default argument
-    nb_consecutive_days = 1 if nb_consecutive_days is None else nb_consecutive_days
     altis = [1800] if altitudes is None else altitudes
 
     if verbose:
@@ -49,8 +48,7 @@ def study_iterator(study_class, only_first_one=False, verbose=True, altitudes=No
         if verbose:
             print('alti: {}, nb_day: {}     '.format(alti, nb_consecutive_days), end='')
 
-        study = study_class(altitude=alti,
-                            nb_consecutive_days=nb_consecutive_days)
+        study = study_class(altitude=alti)
 
         if verbose:
             massifs = study.altitude_to_massif_names[alti]
