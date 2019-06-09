@@ -35,13 +35,12 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         # Map each trend type to its serie with percentages
         # Define here all the trend type we might need in the results/displays
         trend_types_to_process = list(self.display_trend_types) + [AbstractUnivariateTest.SIGNIFICATIVE_ALL_TREND]
-        return {trend_type: self.trend_type_reduction(reduction_function, trend_type)[0]
+        return {trend_type: self.trend_type_reduction(reduction_function, trend_type)
                 for trend_type in trend_types_to_process}
 
     def trend_type_reduction(self, reduction_function, display_trend_type):
         # Reduce df_bool df to a serie s_trend_type_percentage
-        df_bool = self.df_hypercube_trend_type.isin(AbstractUnivariateTest.get_real_trend_types(display_trend_type))
-        s_trend_type_percentage = reduction_function(df_bool)
+        s_trend_type_percentage = reduction_function(self.df_bool(display_trend_type))
         assert isinstance(s_trend_type_percentage, pd.Series)
         assert not isinstance(s_trend_type_percentage.index, pd.MultiIndex)
         s_trend_type_percentage *= 100
@@ -51,7 +50,10 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         # s_trend_strength = reduction_function(df_strength)
         # # Group result
         # series = [s_trend_type_percentage, s_trend_strength]
-        return series, df_bool
+        return series
+
+    def df_bool(self, display_trend_type):
+        return self.df_hypercube_trend_type.isin(AbstractUnivariateTest.get_real_trend_types(display_trend_type))
 
     def subtitle_to_reduction_function(self, reduction_function, level=None, add_detailed_plot=False, subtitle=None):
         def reduction_function_with_level(df_bool, **kwargs):

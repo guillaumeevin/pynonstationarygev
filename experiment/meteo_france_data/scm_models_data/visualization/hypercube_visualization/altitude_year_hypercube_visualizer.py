@@ -27,11 +27,12 @@ class Altitude_Hypercube_Year_Visualizer(AltitudeHypercubeVisualizer):
         return df.mean(level=level)
 
     def trend_type_reduction(self, reduction_function, display_trend_type):
-        series, df_bool = super().trend_type_reduction(reduction_function, display_trend_type)
+        series = super().trend_type_reduction(reduction_function, display_trend_type)
         # Create df argmax
+        df_bool = self.df_bool(display_trend_type)
         df = df_bool.copy()
         df = (df * df.columns)[df_bool]
         # Reduce and append
         serie = reduction_function(df, year_visualization=True)
         series.append(serie)
-        return series, df_bool
+        return series
