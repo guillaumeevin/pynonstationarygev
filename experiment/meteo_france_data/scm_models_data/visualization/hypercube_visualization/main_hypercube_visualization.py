@@ -90,9 +90,9 @@ def fast_altitude_year_hypercube():
                                                                 trend_test_class=trend_test_class,
                                                                 nb_data_reduced_for_speed=nb_data_reduced_for_speed,
                                                                 last_starting_year=last_starting_year)
-                visualizer.visualize_year_trend_test()
+                # visualizer.visualize_year_trend_test()
                 visualizer.visualize_altitude_trend_test()
-                visualizer.visualize_massif_trend_test()
+                # visualizer.visualize_massif_trend_test()
 
 
 def full_altitude_year_hypercube():

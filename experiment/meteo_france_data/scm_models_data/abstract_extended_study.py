@@ -4,14 +4,15 @@ from collections import OrderedDict
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
+from utils import classproperty
 
 
 class AbstractExtendedStudy(AbstractStudy):
 
 
 
-    @property
-    def region_names(self):
+    @classproperty
+    def region_names(cls):
         return ['Alps', 'Northern Alps', 'Central Alps', 'Southern Alps', 'Extreme South Alps']
 
     @property
@@ -22,22 +23,27 @@ class AbstractExtendedStudy(AbstractStudy):
     def study_massif_names(self):
         return self.region_names + super().study_massif_names
 
-    @property
-    def massif_name_to_region_name(self):
-        df_centroid = self.load_df_centroid()
+    @classproperty
+    def massif_name_to_region_name(cls):
+        df_centroid = cls.load_df_centroid()
         return OrderedDict(zip(df_centroid.index, df_centroid['REGION']))
 
-    @property
-    def region_name_to_massif_ids(self):
+    @classproperty
+    def region_name_to_massif_names(cls):
+        return {k: [cls.original_safran_massif_id_to_massif_name[i] for i in v]
+                for k, v in cls.region_name_to_massif_ids.items()}
+
+    @classproperty
+    def region_name_to_massif_ids(cls):
         region_name_to_massifs_ids = {}
-        for region_name_loop in self.region_names:
+        for region_name_loop in cls.region_names:
             # We use "is in" so that the "Alps" will automatically regroup all the massif data
             massif_names_belong_to_the_group = [massif_name
-                                                for massif_name, region_name in self.massif_name_to_region_name.items()
+                                                for massif_name, region_name in cls.massif_name_to_region_name.items()
                                                 if region_name_loop in region_name]
             massif_ids_belong_to_the_group = [massif_id
                                               for massif_id, massif_name in
-                                              self.original_safran_massif_id_to_massif_name.items()
+                                              cls.original_safran_massif_id_to_massif_name.items()
                                               if massif_name in massif_names_belong_to_the_group]
             region_name_to_massifs_ids[region_name_loop] = massif_ids_belong_to_the_group
         return region_name_to_massifs_ids
