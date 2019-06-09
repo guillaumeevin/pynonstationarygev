@@ -28,19 +28,23 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         return self.display_trend_type_to_style.keys()
 
     @property
-    def nb_axes(self):
+    def nb_rows(self):
         return 1
 
-    def trend_type_to_series(self, reduction_function):
+    def trend_type_to_series(self, reduction_function, isin_parameters=None):
         # Map each trend type to its serie with percentages
         # Define here all the trend type we might need in the results/displays
         trend_types_to_process = list(self.display_trend_types) + [AbstractUnivariateTest.SIGNIFICATIVE_ALL_TREND]
-        return {trend_type: self.trend_type_reduction_series(reduction_function, trend_type)
+        return {trend_type: self.trend_type_reduction_series(reduction_function=reduction_function,
+                                                             df_bool=self.df_bool(trend_type, isin_parameters).copy())
                 for trend_type in trend_types_to_process}
 
-    def trend_type_reduction_series(self, reduction_function, display_trend_type):
+    def df_bool(self, display_trend_type, isin_parameters=None):
+        return self.df_hypercube_trend_type.isin(AbstractUnivariateTest.get_real_trend_types(display_trend_type))
+
+    def trend_type_reduction_series(self, reduction_function, df_bool):
         # Reduce df_bool df to a serie s_trend_type_percentage
-        s_trend_type_percentage = reduction_function(self.df_bool(display_trend_type))
+        s_trend_type_percentage = reduction_function(df_bool)
         assert isinstance(s_trend_type_percentage, pd.Series)
         assert not isinstance(s_trend_type_percentage.index, pd.MultiIndex)
         s_trend_type_percentage *= 100
@@ -51,9 +55,6 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         # # Group result
         # series = [s_trend_type_percentage, s_trend_strength]
         return series
-
-    def df_bool(self, display_trend_type):
-        return self.df_hypercube_trend_type.isin(AbstractUnivariateTest.get_real_trend_types(display_trend_type))
 
     def subtitle_to_reduction_function(self, reduction_function, level=None, add_detailed_plot=False, subtitle=None):
         def reduction_function_with_level(df_bool, **kwargs):
@@ -77,28 +78,32 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             if xlabel != 'starting years':
                 labels.remove('starting years')
             common_txt = 'averaged on {}'.format(' & '.join(labels))
-            common_txt += 'with any starting year <= {}'.format(str(self.last_starting_year))
+            common_txt += ' with any starting year <= {}'.format(str(self.last_starting_year))
             return common_txt
 
     def visualize_trend_test_evolution(self, reduction_function, xlabel, xlabel_values, axes=None, marker='o',
-                                       subtitle=''):
+                                       subtitle='', isin_parameters=None,
+                                       show_or_save_to_file=True,
+                                       plot_title=None):
         if axes is None:
-            fig, axes = plt.subplots(self.nb_axes, 1, figsize=self.study_visualizer.figsize)
-            if not isinstance(axes, np.ndarray):
-                axes = [axes]
+            axes = self.load_trend_test_evolution_axes(self.nb_rows)
+        else:
+            assert len(axes) == self.nb_rows
 
-        trend_type_to_series = self.trend_type_to_series(reduction_function)
+        trend_type_to_series = self.trend_type_to_series(reduction_function, isin_parameters)
         for ax_idx, ax in enumerate(axes):
             for display_trend_type in self.display_trend_types:
                 style = self.display_trend_type_to_style[display_trend_type]
                 percentages_values = trend_type_to_series[display_trend_type][ax_idx]
+                xlabel_values = list(percentages_values.index)
+                percentages_values = list(percentages_values.values)
                 ax.plot(xlabel_values, percentages_values, style + marker, label=display_trend_type)
 
             if ax_idx == 0:
                 # Global information
                 ax.set_ylabel(self.get_title_plot(xlabel, ax_idx=0))
                 if xlabel != STARTING_YEARS_XLABEL:
-                    ax.set_yticks(list(range(0, 101, 10)))
+                    ax.set_yticks(list(range(0, 101, 20)))
             else:
                 ax.set_ylabel(self.get_title_plot(xlabel, ax_idx=ax_idx))
 
@@ -110,36 +115,46 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             ax.set_xlabel(xlabel)
             ax.grid()
             ax.legend()
+            ax.set_title(plot_title)
 
         specific_title = 'Evolution of {} trends (significative or not) wrt to the {} with {}'.format(subtitle, xlabel,
                                                                                                       self.trend_test_name)
         specific_title += '\n ' + self.get_title_plot(xlabel)
 
         # Figure title
-        specific_title += '\n'
-
-        trend_types = [AbstractUnivariateTest.ALL_TREND,
-            AbstractUnivariateTest.SIGNIFICATIVE_ALL_TREND,
-                       AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND,
-                       AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND]
-        series = [trend_type_to_series[trend_type][0] for trend_type in trend_types]
-        percents = [serie.sum() if xlabel == STARTING_YEARS_XLABEL else serie.mean() for serie in series]
-        percents = [round(p) for p in percents]
-
-        specific_title += 'Total ' if xlabel == STARTING_YEARS_XLABEL else 'Mean '
-        specific_title += 'all trend {}, all significative trends: {} (+:{}  -{})'.format(*percents)
+        # specific_title += '\n'
+        #
+        # trend_types = [AbstractUnivariateTest.ALL_TREND,
+        #                AbstractUnivariateTest.SIGNIFICATIVE_ALL_TREND,
+        #                AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND,
+        #                AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND]
+        # series = [trend_type_to_series[trend_type][0] for trend_type in trend_types]
+        # percents = [serie.sum() if xlabel == STARTING_YEARS_XLABEL else serie.mean() for serie in series]
+        # percents = [np.round(p) for p in percents]
+        # specific_title += 'Total ' if xlabel == STARTING_YEARS_XLABEL else 'Mean '
+        # specific_title += 'all trend {}, all significative trends: {} (+:{}  -{})'.format(*percents)
         plt.suptitle(specific_title)
 
-        self.show_or_save_to_file(specific_title=specific_title)
+        if show_or_save_to_file:
+            self.show_or_save_to_file(specific_title=specific_title)
 
-    def visualize_trend_test_repartition(self, reduction_function, axes=None, subtitle=''):
+        return specific_title
+
+    def load_trend_test_evolution_axes(self, nb_rows):
+        fig, axes = plt.subplots(nb_rows, 1, figsize=self.study_visualizer.figsize)
+        if not isinstance(axes, np.ndarray):
+            axes = [axes]
+        return axes
+
+    def visualize_trend_test_repartition(self, reduction_function, axes=None, subtitle='', isin_parameters=None):
         if axes is None:
-            nb_trend_type = len(self.display_trend_type_to_style)
-            fig, axes = plt.subplots(self.nb_axes, nb_trend_type, figsize=self.study_visualizer.figsize)
+            axes = self.load_axes_for_trend_test_repartition(self.nb_rows)
+        else:
+            assert len(axes) == self.nb_rows
 
         for i, axes_row in enumerate(axes):
             trend_type_to_serie = {k: v[i].replace(0.0, np.nan) for k, v in
-                                   self.trend_type_to_series(reduction_function).items()}
+                                   self.trend_type_to_series(reduction_function, isin_parameters).items()}
             vmax = max([s.max() for s in trend_type_to_serie.values()])
             vmin = min([s.min() for s in trend_type_to_serie.values()])
             vmax = max(vmax, 0.01)
@@ -161,6 +176,11 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         title += '\n ' + self.get_title_plot('massifs')
         plt.suptitle(title)
         self.show_or_save_to_file(specific_title=title)
+
+    def load_axes_for_trend_test_repartition(self, nb_rows):
+        nb_trend_type = len(self.display_trend_type_to_style)
+        fig, axes = plt.subplots(nb_rows, nb_trend_type, figsize=self.study_visualizer.figsize)
+        return axes
 
     @property
     def altitude_index_level(self):
@@ -189,18 +209,23 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         # Take the mean with respect to the level of interest
         return df.mean(level=level)
 
-    def visualize_altitude_trend_test(self, axes=None, marker='o', add_detailed_plots=False):
+    def visualize_altitude_trend_test(self, axes=None, marker='o', add_detailed_plots=False, plot_title=None,
+                                      isin_parameters=None,
+                                      show_or_save_to_file=True):
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.index_reduction,
                                                                                 level=self.altitude_index_level,
                                                                                 add_detailed_plot=add_detailed_plots).items():
-            self.visualize_trend_test_evolution(reduction_function=reduction_function, xlabel=ALTITUDES_XLABEL,
-                                                xlabel_values=self.altitudes, axes=axes, marker=marker,
-                                                subtitle=subtitle)
+            last_result = self.visualize_trend_test_evolution(reduction_function=reduction_function,
+                                                           xlabel=ALTITUDES_XLABEL,
+                                                           xlabel_values=self.altitudes, axes=axes, marker=marker,
+                                                           subtitle=subtitle, isin_parameters=isin_parameters,
+                                                           show_or_save_to_file=show_or_save_to_file,
+                                                           plot_title=plot_title)
+        return last_result
 
-    def visualize_massif_trend_test(self, axes=None, add_detailed_plots=False):
+    def visualize_massif_trend_test(self, axes=None, add_detailed_plots=False, isin_parameters=None):
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.index_reduction,
                                                                                 level=self.massif_index_level,
                                                                                 add_detailed_plot=add_detailed_plots).items():
-            self.visualize_trend_test_repartition(reduction_function, axes, subtitle=subtitle)
-
-
+            self.visualize_trend_test_repartition(reduction_function, axes, subtitle=subtitle,
+                                                  isin_parameters=isin_parameters)

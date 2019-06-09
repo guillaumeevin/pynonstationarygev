@@ -4,16 +4,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
     AltitudeHypercubeVisualizer
 
 
-class Altitude_Hypercube_Year_Visualizer(AltitudeHypercubeVisualizer):
-
-    def get_title_plot(self, xlabel, ax_idx=None):
-        if ax_idx == self.nb_axes - 1:
-            return 'mean starting year'
-        return super().get_title_plot(xlabel, ax_idx)
-
-    @property
-    def nb_axes(self):
-        return super().nb_axes + 1
+class AltitudeHypercubeVisualizerBis(AltitudeHypercubeVisualizer):
 
     @staticmethod
     def index_reduction(df, level, **kwargs):
@@ -26,10 +17,21 @@ class Altitude_Hypercube_Year_Visualizer(AltitudeHypercubeVisualizer):
         # Take the mean with respect to the level of interest
         return df.mean(level=level)
 
-    def trend_type_reduction_series(self, reduction_function, display_trend_type):
-        series = super().trend_type_reduction_series(reduction_function, display_trend_type)
+
+class Altitude_Hypercube_Year_Visualizer(AltitudeHypercubeVisualizerBis):
+
+    def get_title_plot(self, xlabel, ax_idx=None):
+        if ax_idx == self.nb_rows - 1:
+            return 'mean starting year'
+        return super().get_title_plot(xlabel, ax_idx)
+
+    @property
+    def nb_rows(self):
+        return super().nb_rows + 1
+
+    def trend_type_reduction_series(self, reduction_function, df_bool):
+        series = super().trend_type_reduction_series(reduction_function, df_bool)
         # Create df argmax
-        df_bool = self.df_bool(display_trend_type)
         df = df_bool.copy()
         df = (df * df.columns)[df_bool]
         # Reduce and append

@@ -21,17 +21,22 @@ class AbstractHypercubeVisualizer(object):
                  trend_test_class,
                  nb_data_reduced_for_speed=False,
                  save_to_file=False,
-                 nb_top_likelihood_values=1,
-                 last_starting_year=None):
+                 last_starting_year=None,
+                 verbose=True):
+        self.verbose = verbose
         self.last_starting_year = last_starting_year
-        self.nb_data_for_fast_mode = 7 if nb_data_reduced_for_speed else None
+        if isinstance(nb_data_reduced_for_speed, bool):
+            self.nb_data_for_fast_mode = 7 if nb_data_reduced_for_speed else None
+        else:
+            assert isinstance(nb_data_reduced_for_speed, int)
+            self.nb_data_for_fast_mode = nb_data_reduced_for_speed
         self.save_to_file = save_to_file
         self.trend_test_class = trend_test_class
         self.tuple_to_study_visualizer = tuple_to_study_visualizer  # type: Dict[Tuple, StudyVisualizer]
-        print('Hypercube with parameters:')
-        print(self.last_starting_year)
-        print(self.trend_test_class)
-        # print(self.nb_data_for_fast_mode)
+        if self.verbose:
+            print('Hypercube with parameters:')
+            print('Starting year:', self.last_starting_year)
+            print('Trend test class:', get_display_name_from_object_type(self.trend_test_class))
 
     # Main attributes defining the hypercube
 
