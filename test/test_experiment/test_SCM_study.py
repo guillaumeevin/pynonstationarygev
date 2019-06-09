@@ -22,8 +22,7 @@ class TestSCMAllStudy(unittest.TestCase):
         for study_class in [ExtendedSafranSnowfall]:
             for study in study_iterator(study_class, only_first_one=True, verbose=False):
                 study_visualizer = StudyVisualizer(study, show=False, save_to_file=False, multiprocessing=True)
-                study_visualizer.df_trend_spatio_temporal(GevLocationChangePointTest, [1958, 1959, 1960],
-                                                          nb_massif_for_fast_mode=1)
+                study_visualizer.df_trend_spatio_temporal(GevLocationChangePointTest, [1958, 1959, 1960], nb_massif_for_change_point_test=3)
         self.assertTrue(True)
 
     def test_instantiate_studies(self):

@@ -2,6 +2,7 @@ import os
 import os.path as op
 from collections import OrderedDict
 from multiprocessing.pool import Pool
+from random import sample
 
 import math
 import matplotlib.pyplot as plt
@@ -111,6 +112,11 @@ class StudyVisualizer(VisualizationParameters):
         AbstractParamFunction.OUT_OF_BOUNDS_ASSERT = False
         # INCREASE THE TEMPORAL STEPS FOR VISUALIZATION
         AbstractMarginFunction.VISUALIZATION_TEMPORAL_STEPS = 5
+
+        # Change point parameters
+        self.trend_test_class_for_change_point_test = None
+        self.starting_years_for_change_point_test = None
+        self.nb_massif_for_change_point_test = None
 
     @property
     def dataset(self):
@@ -390,8 +396,37 @@ class StudyVisualizer(VisualizationParameters):
             massif_name_to_df_trend_type[massif_name] = df
         return massif_name_to_df_trend_type
 
-    def df_trend_spatio_temporal(self, trend_test_class, starting_years, nb_massif_for_fast_mode=None,
-                                 nb_top_likelihood_values=1):
+    def massif_name_to_gev_change_point_test_results(self, trend_test_class_for_change_point_test,
+                                                     starting_years_for_change_point_test,
+                                                     nb_massif_for_change_point_test=None):
+        if self.trend_test_class_for_change_point_test is None:
+            # Set the attribute is not already done
+            self.trend_test_class_for_change_point_test = trend_test_class_for_change_point_test
+            self.starting_years_for_change_point_test = starting_years_for_change_point_test
+            self.nb_massif_for_change_point_test = nb_massif_for_change_point_test
+        else:
+             # Check that the argument are the same
+            assert self.trend_test_class_for_change_point_test == trend_test_class_for_change_point_test
+            assert self.starting_years == starting_years_for_change_point_test
+            assert self.nb_massif_for_change_point_test == nb_massif_for_change_point_test
+        return self._massif_name_to_gev_change_point_test_results
+
+    @cached_property
+    def _massif_name_to_gev_change_point_test_results(self):
+        massif_name_to_gev_change_point_test_results = {}
+        massif_names = self.study.study_massif_names
+        if self.nb_massif_for_change_point_test is not None:
+            massif_names = sample(massif_names, self.nb_massif_for_change_point_test)
+        for massif_id, massif_name in enumerate(massif_names):
+            years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
+            gev_change_point_test_results = compute_gev_change_point_test_results(self.multiprocessing, smooth_maxima,
+                                                                                  self.starting_years_for_change_point_test,
+                                                                                  self.trend_test_class_for_change_point_test, years)
+            massif_name_to_gev_change_point_test_results[massif_name] = gev_change_point_test_results
+        return massif_name_to_gev_change_point_test_results
+
+    def df_trend_spatio_temporal(self, trend_test_class_for_change_point_test, starting_years_for_change_point_test,
+                                 nb_massif_for_change_point_test=None):
         """
         Index are the massif
         Columns are the starting year
@@ -400,14 +435,14 @@ class StudyVisualizer(VisualizationParameters):
         :param starting_year_to_weight:
         :return:
         """
+        # Set the attributes
+
         massif_name_to_trend_res = {}
-        massif_names = self.study.study_massif_names
-        if nb_massif_for_fast_mode is not None:
-            massif_names = massif_names[:nb_massif_for_fast_mode]
-        for massif_id, massif_name in enumerate(massif_names):
-            years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
-            trend_test_res, best_idxs = compute_gev_change_point_test_results(self.multiprocessing, smooth_maxima, starting_years,
-                                                                   trend_test_class, years)
+        massif_name_to_gev_change_point_test_results = self.massif_name_to_gev_change_point_test_results(trend_test_class_for_change_point_test,
+                                                                                                         starting_years_for_change_point_test,
+                                                                                                         nb_massif_for_change_point_test)
+        for massif_name, gev_change_point_test_results in massif_name_to_gev_change_point_test_results.items():
+            trend_test_res, best_idxs = gev_change_point_test_results
             trend_test_res = [(a, b) if i in best_idxs else (np.nan, np.nan)
                               for i, (a, b, *_) in enumerate(trend_test_res)]
             massif_name_to_trend_res[massif_name] = list(zip(*trend_test_res))
@@ -415,7 +450,7 @@ class StudyVisualizer(VisualizationParameters):
         assert nb_res == 2
         all_massif_name_to_res = [{k: v[idx_res] for k, v in massif_name_to_trend_res.items()}
                                   for idx_res in range(nb_res)]
-        return [pd.DataFrame(massif_name_to_res, index=starting_years).transpose()
+        return [pd.DataFrame(massif_name_to_res, index=self.starting_years_for_change_point_test).transpose()
                 for massif_name_to_res in all_massif_name_to_res]
 
     @staticmethod
