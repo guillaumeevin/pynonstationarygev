@@ -199,10 +199,20 @@ def maxima_analysis():
         # study_visualizer.visualize_all_independent_temporal_trend()
         # study_visualizer.visualize_all_mean_and_max_graphs()
 
+
+def altitude_analysis():
+    study = CrocusSwe(altitude=900)
+    all_names = set(study.study_massif_names)
+    for a, names in study.altitude_to_massif_names.items():
+        print(a, len(names), all_names - set(names))
+
+
 def main_run():
     # normal_visualization(temporal_non_stationarity=True)
     # trend_analysis()
-    case_study()
+
+    altitude_analysis()
+    # case_study()
     # all_scores_vizu()
     # maxima_analysis()
     # all_normal_vizu()
