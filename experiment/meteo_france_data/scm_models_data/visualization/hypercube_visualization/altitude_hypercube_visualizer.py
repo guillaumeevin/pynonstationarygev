@@ -147,6 +147,15 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             axes = [axes]
         return axes
 
+    def load_trend_test_evolution_axes_with_columns(self, nb_rows, nb_columns):
+        fig, axes = plt.subplots(nb_rows, nb_columns, figsize=self.study_visualizer.figsize)
+        if not isinstance(axes, np.ndarray):
+            axes = [axes]
+        else:
+            axes = axes.reshape((nb_rows * nb_columns))
+        return axes
+
+
     def visualize_trend_test_repartition(self, reduction_function, axes=None, subtitle='', isin_parameters=None,
                                          show_or_save_to_file=True, plot_title=None):
         if axes is None:
@@ -205,12 +214,21 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         # Take the mean with respect to all the first axis indices
         return df.mean(axis=0)
 
-    def visualize_year_trend_test(self, axes=None, marker='o', add_detailed_plots=False):
+    def visualize_year_trend_test(self, axes=None, marker='o', add_detailed_plots=False, plot_title=None,
+                                  isin_parameters=None,
+                                  show_or_save_to_file=True):
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.year_reduction,
                                                                                 add_detailed_plot=add_detailed_plots).items():
-            self.visualize_trend_test_evolution(reduction_function=reduction_function, xlabel=STARTING_YEARS_XLABEL,
-                                                xlabel_values=self.starting_years, axes=axes, marker=marker,
-                                                subtitle=subtitle)
+            last_result = self.visualize_trend_test_evolution(reduction_function=reduction_function,
+                                                              xlabel=STARTING_YEARS_XLABEL,
+                                                              xlabel_values=self.starting_years, axes=axes,
+                                                              marker=marker,
+                                                              subtitle=subtitle,
+                                                              isin_parameters=isin_parameters,
+                                                              show_or_save_to_file=show_or_save_to_file,
+                                                              plot_title=plot_title
+                                                              )
+        return last_result
 
     @staticmethod
     def index_reduction(df, level):

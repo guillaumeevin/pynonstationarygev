@@ -97,6 +97,7 @@ class AbstractHypercubeVisualizer(object):
             plt.savefig(filepath)
         else:
             plt.show()
+        plt.close()
 
     @property
     def study_visualizer(self) -> StudyVisualizer:

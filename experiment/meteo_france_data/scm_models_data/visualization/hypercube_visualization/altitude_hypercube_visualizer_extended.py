@@ -23,10 +23,18 @@ class AltitudeHypercubeVisualizerExtended(AltitudeHypercubeVisualizer):
                 df_bool = res.transpose() if transpose else res
         return df_bool
 
-    def _visualize_meta(self, visualization_function, loading_function, name_to_isin_parameters=None):
+    def _visualize_meta(self, visualization_function, loading_function, name_to_isin_parameters=None,
+                        multiplication_factor_column=None):
         assert name_to_isin_parameters is not None, 'this method should not be called directly'
-        multiplication_factor = len(name_to_isin_parameters)
-        all_axes = loading_function(self.nb_rows * multiplication_factor)
+
+        if multiplication_factor_column is None:
+            multiplication_factor_row = len(name_to_isin_parameters)
+            all_axes = loading_function(self.nb_rows * multiplication_factor_row)
+            multiplication_factor = multiplication_factor_row
+        else:
+            multiplication_factor_row = len(name_to_isin_parameters) // multiplication_factor_column
+            multiplication_factor = multiplication_factor_row * multiplication_factor_column
+            all_axes = loading_function(self.nb_rows * multiplication_factor_row, multiplication_factor_column)
         specific_title = ''
         for j, (name, isin_parameters) in enumerate(name_to_isin_parameters.items()):
             axes = all_axes[j::multiplication_factor]
@@ -76,6 +84,24 @@ class AltitudeHypercubeVisualizerExtended(AltitudeHypercubeVisualizer):
     def altitude_band_name_to_isin_parameters(self):
         return {altitude_band_name: [(False, values, self.altitude_index_level)]
                 for altitude_band_name, values in self.altitude_band_name_to_values.items()}
+
+    # Year trends
+
+    @property
+    def massif_name_and_altitude_band_name_to_isin_parameters(self):
+        d = {}
+        for massif_name, isin_parameters1 in self.region_name_to_isin_parameters.items():
+            for altitude_band_name, isin_parameters2 in self.altitude_band_name_to_isin_parameters.items():
+                name = massif_name + ' ' + altitude_band_name
+                isin_parameters = isin_parameters1 + isin_parameters2
+                d[name] = isin_parameters
+        return d
+
+    def vsualize_year_trend_by_regions_and_altitudes(self):
+        return self._visualize_meta(visualization_function=self.visualize_year_trend_test,
+                                    loading_function=self.load_trend_test_evolution_axes_with_columns,
+                                    name_to_isin_parameters=self.massif_name_and_altitude_band_name_to_isin_parameters,
+                                    multiplication_factor_column=len(self.altitude_band_name_to_isin_parameters))
 
 
 
