@@ -405,7 +405,7 @@ class StudyVisualizer(VisualizationParameters):
             self.starting_years_for_change_point_test = starting_years_for_change_point_test
             self.nb_massif_for_change_point_test = nb_massif_for_change_point_test
         else:
-             # Check that the argument are the same
+            # Check that the argument are the same
             assert self.trend_test_class_for_change_point_test == trend_test_class_for_change_point_test
             assert self.starting_years == starting_years_for_change_point_test
             assert self.nb_massif_for_change_point_test == nb_massif_for_change_point_test
@@ -421,11 +421,13 @@ class StudyVisualizer(VisualizationParameters):
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
             gev_change_point_test_results = compute_gev_change_point_test_results(self.multiprocessing, smooth_maxima,
                                                                                   self.starting_years_for_change_point_test,
-                                                                                  self.trend_test_class_for_change_point_test, years)
+                                                                                  self.trend_test_class_for_change_point_test,
+                                                                                  years)
             massif_name_to_gev_change_point_test_results[massif_name] = gev_change_point_test_results
         return massif_name_to_gev_change_point_test_results
 
-    def df_trend_spatio_temporal(self, trend_test_class_for_change_point_test, starting_years_for_change_point_test,
+    def df_trend_spatio_temporal(self, trend_test_class_for_change_point_test,
+                                 starting_years_for_change_point_test,
                                  nb_massif_for_change_point_test=None):
         """
         Index are the massif
@@ -435,12 +437,11 @@ class StudyVisualizer(VisualizationParameters):
         :param starting_year_to_weight:
         :return:
         """
-        # Set the attributes
-
         massif_name_to_trend_res = {}
-        massif_name_to_gev_change_point_test_results = self.massif_name_to_gev_change_point_test_results(trend_test_class_for_change_point_test,
-                                                                                                         starting_years_for_change_point_test,
-                                                                                                         nb_massif_for_change_point_test)
+        massif_name_to_gev_change_point_test_results = self.massif_name_to_gev_change_point_test_results(
+            trend_test_class_for_change_point_test,
+            starting_years_for_change_point_test,
+            nb_massif_for_change_point_test)
         for massif_name, gev_change_point_test_results in massif_name_to_gev_change_point_test_results.items():
             trend_test_res, best_idxs = gev_change_point_test_results
             trend_test_res = [(a, b) if i in best_idxs else (np.nan, np.nan)

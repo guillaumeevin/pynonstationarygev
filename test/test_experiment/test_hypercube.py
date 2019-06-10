@@ -17,7 +17,7 @@ from extreme_estimator.extreme_models.utils import set_seed_for_test
 
 
 class TestHypercube(unittest.TestCase):
-    DISPLAY = True
+    DISPLAY = False
 
     def setUp(self) -> None:
         set_seed_for_test(42)

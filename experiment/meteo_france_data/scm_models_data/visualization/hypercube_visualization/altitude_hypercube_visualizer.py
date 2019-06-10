@@ -115,7 +115,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             ax.set_xlabel(xlabel)
             ax.grid()
             ax.legend()
-            ax.set_title(plot_title)
+            if plot_title is not None:
+                ax.set_title(plot_title)
 
         specific_title = 'Evolution of {} trends (significative or not) wrt to the {} with {}'.format(subtitle, xlabel,
                                                                                                       self.trend_test_name)
@@ -146,7 +147,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             axes = [axes]
         return axes
 
-    def visualize_trend_test_repartition(self, reduction_function, axes=None, subtitle='', isin_parameters=None):
+    def visualize_trend_test_repartition(self, reduction_function, axes=None, subtitle='', isin_parameters=None,
+                                         show_or_save_to_file=True, plot_title=None):
         if axes is None:
             axes = self.load_axes_for_trend_test_repartition(self.nb_rows)
         else:
@@ -162,12 +164,17 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                 epislon = 0.001 * vmax
                 vmin -= epislon
                 vmax += epislon
+
+            if i == 0:
+                vmin, vmax = 0, 100
             for ax, display_trend_type in zip(axes_row, self.display_trend_types):
                 serie = trend_type_to_serie[display_trend_type]
                 massif_to_value = dict(serie)
                 cmap = self.trend_test_class.get_cmap_from_trend_type(display_trend_type)
-                self.study.visualize_study(ax, massif_to_value, show=False, cmap=cmap, label=None, vmax=vmax, vmin=vmin)
-                ax.set_title(display_trend_type)
+                self.study.visualize_study(ax, massif_to_value, show=False, cmap=cmap, label=display_trend_type,
+                                           vmax=vmax, vmin=vmin)
+                if plot_title is not None:
+                    ax.set_title(plot_title)
             row_title = self.get_title_plot(xlabel='massifs', ax_idx=i)
             StudyVisualizer.clean_axes_write_title_on_the_left(axes_row, row_title, left_border=None)
 
@@ -175,7 +182,10 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         title = 'Repartition of {} trends (significative or not) with {}'.format(subtitle, self.trend_test_name)
         title += '\n ' + self.get_title_plot('massifs')
         plt.suptitle(title)
-        self.show_or_save_to_file(specific_title=title)
+
+        if show_or_save_to_file:
+            self.show_or_save_to_file(specific_title=title)
+        return title
 
     def load_axes_for_trend_test_repartition(self, nb_rows):
         nb_trend_type = len(self.display_trend_type_to_style)
@@ -216,16 +226,22 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                                                 level=self.altitude_index_level,
                                                                                 add_detailed_plot=add_detailed_plots).items():
             last_result = self.visualize_trend_test_evolution(reduction_function=reduction_function,
-                                                           xlabel=ALTITUDES_XLABEL,
-                                                           xlabel_values=self.altitudes, axes=axes, marker=marker,
-                                                           subtitle=subtitle, isin_parameters=isin_parameters,
-                                                           show_or_save_to_file=show_or_save_to_file,
-                                                           plot_title=plot_title)
+                                                              xlabel=ALTITUDES_XLABEL,
+                                                              xlabel_values=self.altitudes, axes=axes, marker=marker,
+                                                              subtitle=subtitle, isin_parameters=isin_parameters,
+                                                              show_or_save_to_file=show_or_save_to_file,
+                                                              plot_title=plot_title)
         return last_result
 
-    def visualize_massif_trend_test(self, axes=None, add_detailed_plots=False, isin_parameters=None):
+    def visualize_massif_trend_test(self, axes=None, add_detailed_plots=False, plot_title=None,
+                                    isin_parameters=None,
+                                    show_or_save_to_file=True):
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.index_reduction,
                                                                                 level=self.massif_index_level,
                                                                                 add_detailed_plot=add_detailed_plots).items():
-            self.visualize_trend_test_repartition(reduction_function, axes, subtitle=subtitle,
-                                                  isin_parameters=isin_parameters)
+            last_result = self.visualize_trend_test_repartition(reduction_function, axes, subtitle=subtitle,
+                                                                isin_parameters=isin_parameters,
+                                                                plot_title=plot_title,
+                                                                show_or_save_to_file=show_or_save_to_file)
+
+        return last_result
