@@ -62,15 +62,22 @@ class AbstractHypercubeVisualizer(object):
                                                           self.nb_data_for_fast_mode)
                 for study_visualizer in self.tuple_to_study_visualizer.values()]
 
-    @cached_property
-    def df_hypercube_trend_type(self) -> pd.DataFrame:
-        df_spatio_temporal_trend_types = [e[0] for e in self.df_trends_spatio_temporal]
-        return pd.concat(df_spatio_temporal_trend_types, keys=list(self.tuple_to_study_visualizer.keys()), axis=0)
+    def _df_hypercube_trend_meta(self, idx) -> pd.DataFrame:
+        df_spatio_temporal_trend_strength = [e[idx] for e in self.df_trends_spatio_temporal]
+        return pd.concat(df_spatio_temporal_trend_strength, keys=list(self.tuple_to_study_visualizer.keys()), axis=0)
+
 
     @cached_property
+    def df_hypercube_trend_type(self) -> pd.DataFrame:
+        return self._df_hypercube_trend_meta(idx=0
+                                             )
+    @cached_property
     def df_hypercube_trend_strength(self) -> pd.DataFrame:
-        df_spatio_temporal_trend_strength = [e[1] for e in self.df_trends_spatio_temporal]
-        return pd.concat(df_spatio_temporal_trend_strength, keys=list(self.tuple_to_study_visualizer.keys()), axis=0)
+        return self._df_hypercube_trend_meta(idx=1)
+
+    @cached_property
+    def df_hypercube_trend_nllh(self) -> pd.DataFrame:
+        return self._df_hypercube_trend_meta(idx=2)
 
     # Some properties
 
