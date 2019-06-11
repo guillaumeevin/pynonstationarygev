@@ -84,7 +84,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             if xlabel != 'starting years':
                 labels.remove('starting years')
             common_txt = 'averaged on {}'.format(' & '.join(labels))
-            common_txt += ' with any starting year <= {}'.format(str(self.last_starting_year))
+            common_txt += ' with any starting year between {} and {}'.format(self.first_starting_year,
+                                                                             self.last_starting_year)
             return common_txt
 
     def visualize_trend_test_evolution(self, reduction_function, xlabel, xlabel_values, axes=None, marker='o',
@@ -223,8 +224,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
     def load_axes_for_trend_test_repartition(self, nb_rows):
         nb_trend_type = len(self.display_trend_type_to_style)
-        fig, axes = plt.subplots(nb_rows, nb_trend_type, figsize=self.study_visualizer.figsize,
-                                 constrained_layout=True)
+        fig, axes = plt.subplots(nb_rows, nb_trend_type, figsize=self.study_visualizer.figsize)
         return axes
 
     @property

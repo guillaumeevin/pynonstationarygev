@@ -33,7 +33,7 @@ class AbstractHypercubeVisualizer(object):
         if exact_starting_year is not None:
             assert first_starting_year is None
             assert last_starting_year is None
-            self.first_starting_year, self.first_starting_year = exact_starting_year, exact_starting_year
+            self.first_starting_year, self.last_starting_year = exact_starting_year, exact_starting_year
         else:
             default_first_starting_year, *_, default_last_starting_year = self.all_potential_starting_years
             self.first_starting_year = first_starting_year if first_starting_year is not None else default_first_starting_year
@@ -46,6 +46,7 @@ class AbstractHypercubeVisualizer(object):
 
         if self.verbose:
             print('Hypercube with parameters:')
+            print('First starting year: {}, Last starting year: {}'.format(self.first_starting_year, self.last_starting_year))
             print('Starting years:', self.starting_years)
             print('Trend test class:', get_display_name_from_object_type(self.trend_test_class))
 
@@ -61,7 +62,8 @@ class AbstractHypercubeVisualizer(object):
 
     @cached_property
     def starting_years(self):
-        starting_years = [year for year in self.all_potential_starting_years if self.first_starting_year <= year <= self.last_starting_year]
+        starting_years = [year for year in self.all_potential_starting_years
+                          if self.first_starting_year <= year <= self.last_starting_year]
         if self.nb_data_for_fast_mode is not None:
             starting_years = starting_years[:self.nb_data_for_fast_mode]
         return starting_years
