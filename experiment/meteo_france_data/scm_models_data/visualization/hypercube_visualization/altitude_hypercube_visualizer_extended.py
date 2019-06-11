@@ -30,7 +30,7 @@ class AltitudeHypercubeVisualizerExtended(AltitudeHypercubeVisualizer):
         return df
 
     def _visualize_meta(self, visualization_function, loading_function, name_to_isin_parameters=None,
-                        multiplication_factor_column=None):
+                        multiplication_factor_column=None, add_detailed_plot=False):
         assert name_to_isin_parameters is not None, 'this method should not be called directly'
 
         if multiplication_factor_column is None:
@@ -46,7 +46,8 @@ class AltitudeHypercubeVisualizerExtended(AltitudeHypercubeVisualizer):
             axes = all_axes[j::multiplication_factor]
             specific_title = visualization_function(axes, plot_title=name,
                                                     isin_parameters=isin_parameters,
-                                                    show_or_save_to_file=False)
+                                                    show_or_save_to_file=False,
+                                                    add_detailed_plots=add_detailed_plot)
         self.show_or_save_to_file(specific_title=specific_title)
 
     # Altitude trends
@@ -109,15 +110,15 @@ class AltitudeHypercubeVisualizerExtended(AltitudeHypercubeVisualizer):
                 d[name] = isin_parameters
         return d
 
-    def vsualize_year_trend_by_regions_and_altitudes(self):
+    def vsualize_year_trend_by_regions_and_altitudes(self, add_detailed_plot=False):
         return self._visualize_meta(visualization_function=self.visualize_year_trend_test,
                                     loading_function=self.load_trend_test_evolution_axes_with_columns,
                                     name_to_isin_parameters=self.massif_name_and_altitude_band_name_to_isin_parameters,
-                                    multiplication_factor_column=len(self.altitude_band_name_to_isin_parameters))
+                                    multiplication_factor_column=len(self.altitude_band_name_to_isin_parameters),
+                                    add_detailed_plot=add_detailed_plot)
 
 
-class AltitudeHypercubeVisualizerBisExtended(AltitudeHypercubeVisualizerExtended, AltitudeHypercubeVisualizerBis):
-    pass
+
 
 
 class AltitudeHypercubeVisualizerWithoutTrendExtended(AltitudeHypercubeVisualizerExtended,
@@ -126,6 +127,12 @@ class AltitudeHypercubeVisualizerWithoutTrendExtended(AltitudeHypercubeVisualize
     def df_loglikelihood(self, isin_parameters=None):
         return self.isin_slicing(df=super().df_loglikelihood(), isin_parameters=isin_parameters)
 
+
+
+# Extension
+
+class AltitudeHypercubeVisualizerBisExtended(AltitudeHypercubeVisualizerExtended, AltitudeHypercubeVisualizerBis):
+    pass
 
 class AltitudeYearHypercubeVisualizerExtended(AltitudeHypercubeVisualizerExtended, Altitude_Hypercube_Year_Visualizer):
     pass
@@ -136,5 +143,6 @@ class AltitudeYearHypercubeVisualizerExtended(AltitudeHypercubeVisualizerExtende
 class QuantityHypercubeWithoutTrend(AltitudeHypercubeVisualizerWithoutTrendType, QuantityAltitudeHypercubeVisualizer):
     pass
 
-class QuantityHypercubeWithoutTrendExtended(AltitudeHypercubeVisualizerExtended, QuantityHypercubeWithoutTrend):
+
+class QuantityHypercubeWithoutTrendExtended(AltitudeHypercubeVisualizerWithoutTrendExtended, QuantityHypercubeWithoutTrend):
     pass

@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.abstract_hypercube_visualizer import \
     AbstractHypercubeVisualizer
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
+    SCM_STUDY_NAME_TO_COLOR
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
@@ -69,6 +71,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
         if subtitle is None:
             subtitle = self.study.variable_name[:5]
+            # Ensure that subtitle does not belong to this dictionary so that the plot will be normal
+            assert subtitle not in SCM_STUDY_NAME_TO_COLOR
 
         return {subtitle: reduction_function_with_level}
 
@@ -136,14 +140,18 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             assert isinstance(serie, pd.Series)
             xlabel_values = list(serie.index)
             values = list(serie.values)
-
             if plot_title is not None:
                 argmax_idx = np.argmax(values)
                 best_year = xlabel_values[argmax_idx]
-                plot_title += '{}'.format(best_year)
+                plot_title += '{} {}'.format(subtitle, best_year)
+
+            if subtitle in SCM_STUDY_NAME_TO_COLOR:
+                ax, color, ylabel = ax.twinx(), SCM_STUDY_NAME_TO_COLOR[subtitle], subtitle
+            else:
+                color = 'k'
                 ax.set_title(plot_title)
-            ax.plot(xlabel_values, values)
-            ax.set_ylabel(ylabel)
+            ax.plot(xlabel_values, values, label=subtitle, color=color)
+            ax.set_ylabel(ylabel, color=color)
 
         specific_title = 'Evolution of {} trends (significative or not) wrt to the {} with {}'.format(subtitle, xlabel,
                                                                                                       self.trend_test_name)

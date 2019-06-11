@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import pandas as pd
 
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
@@ -11,23 +13,26 @@ class QuantityAltitudeHypercubeVisualizer(AltitudeHypercubeVisualizer):
         return 'Quantity Altitude Study'
 
     def subtitle_to_reduction_function(self, reduction_function, level=None, add_detailed_plot=False, subtitle=None):
-        subtitle_to_reduction_function = super().subtitle_to_reduction_function(reduction_function,
-                                                                                level, add_detailed_plot,
-                                                                                'global')
-
         def get_function_from_tuple(tuple_for_axis_0):
-            def f(df_bool: pd.DataFrame):
+            def f(df: pd.DataFrame):
                 # Loc with a tuple with respect the axis 0
-                df_bool = df_bool.loc[tuple_for_axis_0, :].copy()
+                df = df.loc[tuple_for_axis_0, :].copy()
                 # Apply the reduction function
-                return reduction_function(df_bool) if level is None else reduction_function(df_bool, level-1)
+                s = reduction_function(df) if level is None else reduction_function(df, level - 1)
+                return s
             return f
 
         # Add the detailed plot, taken by loc with respect to the first index
+        subtitle_to_reduction_function = OrderedDict()
         if add_detailed_plot:
             tuples_axis_0 = self.tuple_values(idx=0)
             for tuple_axis_0 in tuples_axis_0:
                 subtitle_to_reduction_function[tuple_axis_0] = get_function_from_tuple(tuple_axis_0)
+        # Add the super plot at the last rank
+        subtitle_to_reduction_function.update(super().subtitle_to_reduction_function(reduction_function,
+                                                                                level, add_detailed_plot,
+                                                                                'global'))
+
         return subtitle_to_reduction_function
 
     @property
