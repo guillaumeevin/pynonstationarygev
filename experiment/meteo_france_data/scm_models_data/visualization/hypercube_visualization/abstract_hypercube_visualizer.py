@@ -30,6 +30,12 @@ class AbstractHypercubeVisualizer(object):
         self.trend_test_class = trend_test_class
         self.tuple_to_study_visualizer = tuple_to_study_visualizer  # type: Dict[Tuple, StudyVisualizer]
 
+        if isinstance(nb_data_reduced_for_speed, bool):
+            self.nb_data_for_fast_mode = 7 if nb_data_reduced_for_speed else None
+        else:
+            assert isinstance(nb_data_reduced_for_speed, int)
+            self.nb_data_for_fast_mode = nb_data_reduced_for_speed
+
         if exact_starting_year is not None:
             assert first_starting_year is None
             assert last_starting_year is None
@@ -38,15 +44,17 @@ class AbstractHypercubeVisualizer(object):
             default_first_starting_year, *_, default_last_starting_year = self.all_potential_starting_years
             self.first_starting_year = first_starting_year if first_starting_year is not None else default_first_starting_year
             self.last_starting_year = last_starting_year if last_starting_year is not None else default_last_starting_year
-        if isinstance(nb_data_reduced_for_speed, bool):
-            self.nb_data_for_fast_mode = 7 if nb_data_reduced_for_speed else None
-        else:
-            assert isinstance(nb_data_reduced_for_speed, int)
-            self.nb_data_for_fast_mode = nb_data_reduced_for_speed
+        # Load starting year
+        self.starting_years = [year for year in self.all_potential_starting_years
+                               if self.first_starting_year <= year <= self.last_starting_year]
+        if self.nb_data_for_fast_mode is not None:
+            self.starting_years = self.starting_years[:self.nb_data_for_fast_mode]
+            self.last_starting_year = self.starting_years[-1]
 
         if self.verbose:
             print('Hypercube with parameters:')
-            print('First starting year: {}, Last starting year: {}'.format(self.first_starting_year, self.last_starting_year))
+            print('First starting year: {}, Last starting year: {}'.format(self.first_starting_year,
+                                                                           self.last_starting_year))
             print('Starting years:', self.starting_years)
             print('Trend test class:', get_display_name_from_object_type(self.trend_test_class))
 
@@ -59,14 +67,6 @@ class AbstractHypercubeVisualizer(object):
     @property
     def all_potential_starting_years(self):
         return self.study_visualizer.starting_years
-
-    @cached_property
-    def starting_years(self):
-        starting_years = [year for year in self.all_potential_starting_years
-                          if self.first_starting_year <= year <= self.last_starting_year]
-        if self.nb_data_for_fast_mode is not None:
-            starting_years = starting_years[:self.nb_data_for_fast_mode]
-        return starting_years
 
     def tuple_values(self, idx):
         return sorted(set([t[idx] if isinstance(t, tuple) else t for t in self.tuple_to_study_visualizer.keys()]))
@@ -81,11 +81,11 @@ class AbstractHypercubeVisualizer(object):
         df_spatio_temporal_trend_strength = [e[idx] for e in self.df_trends_spatio_temporal]
         return pd.concat(df_spatio_temporal_trend_strength, keys=list(self.tuple_to_study_visualizer.keys()), axis=0)
 
-
     @cached_property
     def df_hypercube_trend_type(self) -> pd.DataFrame:
         return self._df_hypercube_trend_meta(idx=0
                                              )
+
     @cached_property
     def df_hypercube_trend_strength(self) -> pd.DataFrame:
         return self._df_hypercube_trend_meta(idx=1)

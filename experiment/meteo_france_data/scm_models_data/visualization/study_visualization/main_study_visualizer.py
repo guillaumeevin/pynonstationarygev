@@ -15,8 +15,11 @@ from collections import OrderedDict
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization, BetweenMinusOneAndOneNormalization
+from utils import get_display_name_from_object_type
 
 SCM_STUDIES = [SafranSnowfall, CrocusSwe, CrocusDepth]
+SCM_STUDY_NAME_TO_COLOR = {get_display_name_from_object_type(s): color
+                           for s, color in zip(SCM_STUDIES, ['r', 'b', 'g'])}
 SCM_EXTENDED_STUDIES = [ExtendedSafranSnowfall, ExtendedCrocusSwe, ExtendedCrocusDepth]
 SCM_STUDY_TO_EXTENDED_STUDY = OrderedDict(zip(SCM_STUDIES, SCM_EXTENDED_STUDIES))
 

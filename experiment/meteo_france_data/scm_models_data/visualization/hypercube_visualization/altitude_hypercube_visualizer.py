@@ -143,7 +143,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             if plot_title is not None:
                 argmax_idx = np.argmax(values)
                 best_year = xlabel_values[argmax_idx]
-                plot_title += '{} {}'.format(subtitle, best_year)
+                plot_title += ' (max reached in {})'.format(best_year)
 
             if subtitle in SCM_STUDY_NAME_TO_COLOR:
                 ax, color, ylabel = ax.twinx(), SCM_STUDY_NAME_TO_COLOR[subtitle], subtitle
