@@ -134,6 +134,9 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         for ax_idx, (ax, (ylabel, serie)) in enumerate(zip(axes_remaining, ylabel_to_series.items())):
             xlabel_values = list(serie.index)
             values = list(serie.values)
+            argmax_idx = np.argmax(values)
+            best_year = xlabel_values[argmax_idx]
+            plot_title += '{}'.format(best_year)
             ax.plot(xlabel_values, values)
             ax.set_ylabel(ylabel)
             ax.set_title(plot_title)

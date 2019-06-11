@@ -117,8 +117,15 @@ def fast_altitude_without_trend_type_hypercube_extended():
                                                                              trend_test_class=trend_test_class,
                                                                              nb_data_reduced_for_speed=nb_data_reduced_for_speed,
                                                                              last_starting_year=last_starting_year)
-                # visualizer.visualize_year_trend_test()
                 visualizer.vsualize_year_trend_by_regions_and_altitudes()
+
+
+                # visualizer = AltitudeHypercubeVisualizerWithoutTrendType(altitude_to_visualizer,
+                #                                                              save_to_file=save_to_file,
+                #                                                              trend_test_class=trend_test_class,
+                #                                                              nb_data_reduced_for_speed=nb_data_reduced_for_speed,
+                #                                                              last_starting_year=last_starting_year)
+                # visualizer.visualize_year_trend_test()
 
 
 def fast_altitude_year_hypercube_extended():
@@ -207,10 +214,10 @@ def full_altitude_year_hypercube__without_trend_extended():
     only_first_one = False
     nb_data_reduced_for_speed = False
     altitudes = ALL_ALTITUDES[3:-6]
-    for study_class in SCM_STUDIES[:1]:
+    for study_class in SCM_STUDIES[:]:
         for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest,
-                                 GevShapeChangePointTest][2:]:
-            years = [None][:]
+                                 GevShapeChangePointTest][:1]:
+            years = [2007, None][:]
             for last_starting_year in years:
                 for days in [1, 3][1:]:
                     visualizers = [
