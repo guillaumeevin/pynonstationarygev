@@ -5,6 +5,8 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
     AltitudeHypercubeVisualizer
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_year_hypercube_visualizer import \
     Altitude_Hypercube_Year_Visualizer, AltitudeHypercubeVisualizerBis, AltitudeHypercubeVisualizerWithoutTrendType
+from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.quantity_altitude_visualizer import \
+    QuantityAltitudeHypercubeVisualizer
 
 
 class AltitudeHypercubeVisualizerExtended(AltitudeHypercubeVisualizer):
@@ -126,4 +128,13 @@ class AltitudeHypercubeVisualizerWithoutTrendExtended(AltitudeHypercubeVisualize
 
 
 class AltitudeYearHypercubeVisualizerExtended(AltitudeHypercubeVisualizerExtended, Altitude_Hypercube_Year_Visualizer):
+    pass
+
+
+# Quantity hypercube
+
+class QuantityHypercubeWithoutTrend(AltitudeHypercubeVisualizerWithoutTrendType, QuantityAltitudeHypercubeVisualizer):
+    pass
+
+class QuantityHypercubeWithoutTrendExtended(AltitudeHypercubeVisualizerExtended, QuantityHypercubeWithoutTrend):
     pass

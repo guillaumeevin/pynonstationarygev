@@ -132,14 +132,17 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         ylabel_to_series = self.ylabel_to_series(reduction_function, isin_parameters)
         assert len(axes_remaining) == len(ylabel_to_series), '{}, {}'.format(len(axes_remaining), len(ylabel_to_series))
         for ax_idx, (ax, (ylabel, serie)) in enumerate(zip(axes_remaining, ylabel_to_series.items())):
+            assert isinstance(serie, pd.Series)
             xlabel_values = list(serie.index)
             values = list(serie.values)
-            argmax_idx = np.argmax(values)
-            best_year = xlabel_values[argmax_idx]
-            plot_title += '{}'.format(best_year)
+
+            if plot_title is not None:
+                argmax_idx = np.argmax(values)
+                best_year = xlabel_values[argmax_idx]
+                plot_title += '{}'.format(best_year)
+                ax.set_title(plot_title)
             ax.plot(xlabel_values, values)
             ax.set_ylabel(ylabel)
-            ax.set_title(plot_title)
 
         specific_title = 'Evolution of {} trends (significative or not) wrt to the {} with {}'.format(subtitle, xlabel,
                                                                                                       self.trend_test_name)
