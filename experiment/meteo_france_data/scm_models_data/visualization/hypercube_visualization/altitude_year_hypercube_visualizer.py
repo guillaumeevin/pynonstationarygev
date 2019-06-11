@@ -4,6 +4,18 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
     AltitudeHypercubeVisualizer
 
 
+class AltitudeHypercubeVisualizerWithoutTrendType(AltitudeHypercubeVisualizer):
+
+    def trend_type_to_series(self, reduction_function, isin_parameters=None):
+        return {trend_type: [] for trend_type in self.trend_types_to_process}
+
+    def df_loglikelihood(self, isin_parameters=None):
+        return -self.df_hypercube_trend_nllh
+
+    def ylabel_to_series(self, reduction_function, isin_parameters=None):
+        return {'mean LogLik': reduction_function(self.df_loglikelihood(isin_parameters=isin_parameters))}
+
+
 class AltitudeHypercubeVisualizerBis(AltitudeHypercubeVisualizer):
 
     @staticmethod

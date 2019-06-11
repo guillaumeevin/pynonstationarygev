@@ -4,7 +4,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
     AltitudeHypercubeVisualizer
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_year_hypercube_visualizer import \
-    Altitude_Hypercube_Year_Visualizer, AltitudeHypercubeVisualizerBis
+    Altitude_Hypercube_Year_Visualizer, AltitudeHypercubeVisualizerBis, AltitudeHypercubeVisualizerWithoutTrendType
 
 
 class AltitudeHypercubeVisualizerExtended(AltitudeHypercubeVisualizer):
@@ -12,16 +12,20 @@ class AltitudeHypercubeVisualizerExtended(AltitudeHypercubeVisualizer):
     def df_bool(self, display_trend_type, isin_parameters=None):
         df_bool = super().df_bool(display_trend_type)
         # Slice a part of the array
+        df_bool = self.isin_slicing(df_bool, isin_parameters)
+        return df_bool
+
+    def isin_slicing(self, df, isin_parameters):
         if isin_parameters is not None:
             assert isinstance(isin_parameters, list)
             for isin_parameter in isin_parameters:
                 transpose, values, level = isin_parameter
                 if transpose:
-                    df_bool = df_bool.transpose()
-                ind = df_bool.index.isin(values=values, level=level)
-                res = df_bool.loc[ind].copy()
-                df_bool = res.transpose() if transpose else res
-        return df_bool
+                    df = df.transpose()
+                ind = df.index.isin(values=values, level=level)
+                res = df.loc[ind].copy()
+                df = res.transpose() if transpose else res
+        return df
 
     def _visualize_meta(self, visualization_function, loading_function, name_to_isin_parameters=None,
                         multiplication_factor_column=None):
@@ -70,15 +74,21 @@ class AltitudeHypercubeVisualizerExtended(AltitudeHypercubeVisualizer):
 
     @property
     def altitude_band_name_to_values(self):
-        altitude_band = 1000
-        group_idxs = [a // altitude_band for a in self.altitudes]
-        altitude_band_name_to_values = {'All altitudes': self.altitudes}
-        for group_idx in set(group_idxs):
-            values = [a for a, i in zip(self.altitudes, group_idxs) if i == group_idx]
-            altitude_band_name = '{}m <= altitude <={}m'.format(group_idx * altitude_band,
-                                                                (group_idx + 1) * altitude_band)
-            altitude_band_name_to_values[altitude_band_name] = values
-        return altitude_band_name_to_values
+        return {
+            '900m <= alti <= 3000m': self.altitudes,
+            '900m <= alti <= 1800m': [900, 1200, 1500, 1800],
+            '2100m <= alti <= 3000m': [2100, 2400, 2700, 3000],
+        }
+
+        # altitude_band = 1000
+        # group_idxs = [a // altitude_band for a in self.altitudes]
+        # altitude_band_name_to_values = {'All altitudes': self.altitudes}
+        # for group_idx in set(group_idxs):
+        #     values = [a for a, i in zip(self.altitudes, group_idxs) if i == group_idx]
+        #     altitude_band_name = '{}m <= altitude <={}m'.format(group_idx * altitude_band,
+        #                                                         (group_idx + 1) * altitude_band)
+        #     altitude_band_name_to_values[altitude_band_name] = values
+        # return altitude_band_name_to_values
 
     @property
     def altitude_band_name_to_isin_parameters(self):
@@ -104,10 +114,15 @@ class AltitudeHypercubeVisualizerExtended(AltitudeHypercubeVisualizer):
                                     multiplication_factor_column=len(self.altitude_band_name_to_isin_parameters))
 
 
-
-
 class AltitudeHypercubeVisualizerBisExtended(AltitudeHypercubeVisualizerExtended, AltitudeHypercubeVisualizerBis):
     pass
+
+
+class AltitudeHypercubeVisualizerWithoutTrendExtended(AltitudeHypercubeVisualizerExtended,
+                                                      AltitudeHypercubeVisualizerWithoutTrendType):
+
+    def df_loglikelihood(self, isin_parameters=None):
+        return self.isin_slicing(df=super().df_loglikelihood(), isin_parameters=isin_parameters)
 
 
 class AltitudeYearHypercubeVisualizerExtended(AltitudeHypercubeVisualizerExtended, Altitude_Hypercube_Year_Visualizer):
