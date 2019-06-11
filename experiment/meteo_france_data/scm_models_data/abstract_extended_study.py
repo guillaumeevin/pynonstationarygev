@@ -9,11 +9,13 @@ from utils import classproperty
 
 class AbstractExtendedStudy(AbstractStudy):
 
-
-
     @classproperty
     def region_names(cls):
-        return ['Alps', 'Northern Alps', 'Central Alps', 'Southern Alps', 'Extreme South Alps']
+        return ['Alps'] + cls.real_region_names
+
+    @classproperty
+    def real_region_names(self):
+        return ['Northern Alps', 'Central Alps', 'Southern Alps', 'Extreme South Alps']
 
     @property
     def nb_region_names(self):

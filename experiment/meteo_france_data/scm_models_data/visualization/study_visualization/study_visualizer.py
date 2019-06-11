@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.trend_analysis.abstract_score import MeanScore, AbstractTrendScore
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import AbstractGevChangePointTest
@@ -414,9 +415,17 @@ class StudyVisualizer(VisualizationParameters):
     @cached_property
     def _massif_name_to_gev_change_point_test_results(self):
         massif_name_to_gev_change_point_test_results = {}
-        massif_names = self.study.study_massif_names
-        if self.nb_massif_for_change_point_test is not None:
-            massif_names = sample(massif_names, self.nb_massif_for_change_point_test)
+        if self.nb_massif_for_change_point_test is None:
+            massif_names = self.study.study_massif_names
+        else:
+            # Get one massif from each region to ensure that the fast plot will not crash
+            assert self.nb_massif_for_change_point_test >= 4, 'we need at least one massif from each region'
+            massif_names = [AbstractExtendedStudy.region_name_to_massif_names[r][0]
+                            for r in AbstractExtendedStudy.real_region_names]
+            massif_names_for_sampling = list(set(self.study.study_massif_names) - set(massif_names))
+            nb_massif_for_sampling = self.nb_massif_for_change_point_test - len(AbstractExtendedStudy.real_region_names)
+            massif_names += sample(massif_names_for_sampling, k=nb_massif_for_sampling)
+
         for massif_id, massif_name in enumerate(massif_names):
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
             gev_change_point_test_results = compute_gev_change_point_test_results(self.multiprocessing, smooth_maxima,
