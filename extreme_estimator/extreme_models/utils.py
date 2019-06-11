@@ -87,6 +87,7 @@ def safe_run_r_estimator(function, data=None, use_start=False, threshold_max_abs
     run_successful = False
     res = None
     f = io.StringIO()
+    # Warning print will not work in this part
     with redirect_stdout(f):
         while not run_successful:
             current_parameter = parameters.copy()

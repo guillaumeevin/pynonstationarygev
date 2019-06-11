@@ -62,17 +62,23 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
     @property
     def non_stationary_nllh(self):
         if self.crashed:
-            return -np.inf
+            return np.nan
         else:
             return self.non_stationary_estimator.result_from_fit.nllh
 
     @property
     def stationary_deviance(self):
-        return self.stationary_estimator.result_from_fit.deviance
+        if self.crashed:
+            return np.nan
+        else:
+            return self.stationary_estimator.result_from_fit.deviance
 
     @property
     def non_stationary_deviance(self):
-        return self.non_stationary_estimator.result_from_fit.deviance
+        if self.crashed:
+            return np.nan
+        else:
+            return self.non_stationary_estimator.result_from_fit.deviance
 
     @property
     def is_significant(self) -> bool:

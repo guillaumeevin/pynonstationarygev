@@ -207,9 +207,9 @@ def full_altitude_year_hypercube__without_trend_extended():
     only_first_one = False
     nb_data_reduced_for_speed = False
     altitudes = ALL_ALTITUDES[3:-6]
-    for study_class in SCM_STUDIES[1:]:
+    for study_class in SCM_STUDIES[:1]:
         for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest,
-                                 GevShapeChangePointTest][:1]:
+                                 GevShapeChangePointTest][2:]:
             years = [None][:]
             for last_starting_year in years:
                 for days in [1, 3][1:]:
