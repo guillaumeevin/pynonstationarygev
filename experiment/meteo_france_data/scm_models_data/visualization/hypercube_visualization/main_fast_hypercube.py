@@ -4,7 +4,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
     AltitudeHypercubeVisualizer
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_hypercube_visualizer_extended import \
     AltitudeHypercubeVisualizerBisExtended, QuantityHypercubeWithoutTrendExtended, \
-    AltitudeHypercubeVisualizerWithoutTrendExtended
+    AltitudeHypercubeVisualizerWithoutTrendExtended, QuantityHypercubeWithoutTrend
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.quantity_altitude_visualizer import \
     QuantityAltitudeHypercubeVisualizer
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.utils_hypercube import \
@@ -42,8 +42,10 @@ def get_fast_quantity_visualizer(quantity_hypercube_class):
 
 
 def main_mean_log_likelihood():
-    get_fast_quantity_visualizer(QuantityHypercubeWithoutTrendExtended).vsualize_year_trend_by_regions_and_altitudes(
-        add_detailed_plot=True)
+    # Simply the main graph
+    get_fast_quantity_visualizer(QuantityHypercubeWithoutTrend).visualize_year_trend_test(add_detailed_plots=True)
+    # get_fast_quantity_visualizer(QuantityHypercubeWithoutTrendExtended).vsualize_year_trend_by_regions_and_altitudes(
+    #     add_detailed_plot=True)
     # get_fast_altitude_visualizer(AltitudeHypercubeVisualizerWithoutTrendExtended).vsualize_year_trend_by_regions_and_altitudes()
 
 

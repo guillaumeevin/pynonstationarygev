@@ -94,12 +94,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
     def visualize_trend_test_evolution(self, reduction_function, xlabel, xlabel_values, axes=None, marker='o',
                                        subtitle='', isin_parameters=None,
-                                       show_or_save_to_file=True,
                                        plot_title=None):
-        if axes is None:
-            axes = self.load_trend_test_evolution_axes(self.nb_rows)
-        else:
-            assert len(axes) == self.nb_rows
 
         # Plot in one graph several graph that correspond to the same trend_type
         trend_type_to_series = self.trend_type_to_series(reduction_function, isin_parameters)
@@ -171,9 +166,6 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         # specific_title += 'all trend {}, all significative trends: {} (+:{}  -{})'.format(*percents)
         plt.suptitle(specific_title)
 
-        if show_or_save_to_file:
-            self.show_or_save_to_file(specific_title=specific_title)
-
         return specific_title
 
     def load_trend_test_evolution_axes(self, nb_rows):
@@ -191,11 +183,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         return axes
 
     def visualize_trend_test_repartition(self, reduction_function, axes=None, subtitle='', isin_parameters=None,
-                                         show_or_save_to_file=True, plot_title=None):
-        if axes is None:
-            axes = self.load_axes_for_trend_test_repartition(self.nb_rows)
-        else:
-            assert len(axes) == self.nb_rows
+                                         plot_title=None):
 
         for i, axes_row in enumerate(axes):
             trend_type_to_serie = {k: v[i].replace(0.0, np.nan) for k, v in
@@ -226,8 +214,6 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         title += '\n ' + self.get_title_plot('massifs')
         plt.suptitle(title)
 
-        if show_or_save_to_file:
-            self.show_or_save_to_file(specific_title=title)
         return title
 
     def load_axes_for_trend_test_repartition(self, nb_rows):
@@ -251,6 +237,12 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
     def visualize_year_trend_test(self, axes=None, marker='o', add_detailed_plots=False, plot_title=None,
                                   isin_parameters=None,
                                   show_or_save_to_file=True):
+        if axes is None:
+            axes = self.load_trend_test_evolution_axes(self.nb_rows)
+        else:
+            assert len(axes) == self.nb_rows
+
+        last_result = ''
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.year_reduction,
                                                                                 add_detailed_plot=add_detailed_plots).items():
             last_result = self.visualize_trend_test_evolution(reduction_function=reduction_function,
@@ -259,9 +251,10 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                               marker=marker,
                                                               subtitle=subtitle,
                                                               isin_parameters=isin_parameters,
-                                                              show_or_save_to_file=show_or_save_to_file,
                                                               plot_title=plot_title
                                                               )
+        if show_or_save_to_file:
+            self.show_or_save_to_file(specific_title=last_result)
         return last_result
 
     @staticmethod
@@ -274,26 +267,41 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
     def visualize_altitude_trend_test(self, axes=None, marker='o', add_detailed_plots=False, plot_title=None,
                                       isin_parameters=None,
                                       show_or_save_to_file=True):
+        if axes is None:
+            axes = self.load_trend_test_evolution_axes(self.nb_rows)
+        else:
+            assert len(axes) == self.nb_rows
+
+        last_title = ''
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.index_reduction,
                                                                                 level=self.altitude_index_level,
                                                                                 add_detailed_plot=add_detailed_plots).items():
-            last_result = self.visualize_trend_test_evolution(reduction_function=reduction_function,
-                                                              xlabel=ALTITUDES_XLABEL,
-                                                              xlabel_values=self.altitudes, axes=axes, marker=marker,
-                                                              subtitle=subtitle, isin_parameters=isin_parameters,
-                                                              show_or_save_to_file=show_or_save_to_file,
-                                                              plot_title=plot_title)
-        return last_result
+            last_title = self.visualize_trend_test_evolution(reduction_function=reduction_function,
+                                                             xlabel=ALTITUDES_XLABEL,
+                                                             xlabel_values=self.altitudes, axes=axes, marker=marker,
+                                                             subtitle=subtitle, isin_parameters=isin_parameters,
+                                                             plot_title=plot_title)
+        if show_or_save_to_file:
+            self.show_or_save_to_file(specific_title=last_title)
+        return last_title
 
     def visualize_massif_trend_test(self, axes=None, add_detailed_plots=False, plot_title=None,
                                     isin_parameters=None,
                                     show_or_save_to_file=True):
+
+        if axes is None:
+            axes = self.load_axes_for_trend_test_repartition(self.nb_rows)
+        else:
+            assert len(axes) == self.nb_rows
+
+        last_title = ''
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.index_reduction,
                                                                                 level=self.massif_index_level,
                                                                                 add_detailed_plot=add_detailed_plots).items():
-            last_result = self.visualize_trend_test_repartition(reduction_function, axes, subtitle=subtitle,
-                                                                isin_parameters=isin_parameters,
-                                                                plot_title=plot_title,
-                                                                show_or_save_to_file=show_or_save_to_file)
+            last_title = self.visualize_trend_test_repartition(reduction_function, axes, subtitle=subtitle,
+                                                               isin_parameters=isin_parameters,
+                                                               plot_title=plot_title)
+        if show_or_save_to_file:
+            self.show_or_save_to_file(specific_title=last_title)
 
-        return last_result
+        return last_title

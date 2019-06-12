@@ -118,9 +118,6 @@ class AltitudeHypercubeVisualizerExtended(AltitudeHypercubeVisualizer):
                                     add_detailed_plot=add_detailed_plot)
 
 
-
-
-
 class AltitudeHypercubeVisualizerWithoutTrendExtended(AltitudeHypercubeVisualizerExtended,
                                                       AltitudeHypercubeVisualizerWithoutTrendType):
 
@@ -128,11 +125,11 @@ class AltitudeHypercubeVisualizerWithoutTrendExtended(AltitudeHypercubeVisualize
         return self.isin_slicing(df=super().df_loglikelihood(), isin_parameters=isin_parameters)
 
 
-
 # Extension
 
 class AltitudeHypercubeVisualizerBisExtended(AltitudeHypercubeVisualizerExtended, AltitudeHypercubeVisualizerBis):
     pass
+
 
 class AltitudeYearHypercubeVisualizerExtended(AltitudeHypercubeVisualizerExtended, Altitude_Hypercube_Year_Visualizer):
     pass
@@ -144,5 +141,6 @@ class QuantityHypercubeWithoutTrend(AltitudeHypercubeVisualizerWithoutTrendType,
     pass
 
 
-class QuantityHypercubeWithoutTrendExtended(AltitudeHypercubeVisualizerWithoutTrendExtended, QuantityHypercubeWithoutTrend):
+class QuantityHypercubeWithoutTrendExtended(AltitudeHypercubeVisualizerWithoutTrendExtended,
+                                            QuantityHypercubeWithoutTrend):
     pass

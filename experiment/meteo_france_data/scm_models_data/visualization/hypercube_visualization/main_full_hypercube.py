@@ -4,7 +4,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
     AltitudeHypercubeVisualizer
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_hypercube_visualizer_extended import \
     AltitudeHypercubeVisualizerBisExtended, QuantityHypercubeWithoutTrendExtended, \
-    AltitudeHypercubeVisualizerWithoutTrendExtended
+    AltitudeHypercubeVisualizerWithoutTrendExtended, QuantityHypercubeWithoutTrend
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.quantity_altitude_visualizer import \
     QuantityAltitudeHypercubeVisualizer
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.utils_hypercube import \
@@ -24,9 +24,8 @@ def get_full_parameters():
     return altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class
 
 
-def get_full_altitude_visualizer(altitude_hypercube_class, exact_starting_year=None):
+def get_full_altitude_visualizer(altitude_hypercube_class, study_classes, exact_starting_year=None):
     altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class = get_full_parameters()
-    study_classes = SCM_STUDIES[:1]
     if exact_starting_year is not None:
         last_starting_year = None
     visualizer = load_altitude_visualizer(altitude_hypercube_class, altitudes, last_starting_year,
@@ -45,21 +44,28 @@ def get_full_quantity_visualizer(quantity_hypercube_class):
 
 
 def main_mean_log_likelihood():
-    get_full_quantity_visualizer(QuantityHypercubeWithoutTrendExtended).vsualize_year_trend_by_regions_and_altitudes(
-        add_detailed_plot=True)
+    # Main plot
+    get_full_quantity_visualizer(QuantityHypercubeWithoutTrend).visualize_year_trend_test(add_detailed_plots=True)
+    # Detailed plot
+    # get_full_quantity_visualizer(QuantityHypercubeWithoutTrendExtended).vsualize_year_trend_by_regions_and_altitudes(
+    #     add_detailed_plot=True)
+
+
     # get_full_altitude_visualizer(AltitudeHypercubeVisualizerWithoutTrendExtended).vsualize_year_trend_by_regions_and_altitudes()
 
 
 def main_percentage_trend():
-    visualizer = get_full_altitude_visualizer(AltitudeHypercubeVisualizerBisExtended, exact_starting_year=1981)
-    visualizer.vsualize_year_trend_by_regions_and_altitudes()
-    visualizer.visualize_massif_trend_test_by_altitudes()
-    visualizer.visualize_altitute_trend_test_by_regions()
+    for study_class in SCM_STUDIES:
+        study_classees = [study_class]
+        visualizer = get_full_altitude_visualizer(AltitudeHypercubeVisualizerBisExtended, exact_starting_year=1981,
+                                                  study_classes=study_classees)
+        visualizer.visualize_massif_trend_test_by_altitudes()
+        visualizer.visualize_altitute_trend_test_by_regions()
 
 
 def main_run():
-    # main_mean_log_likelihood()
-    main_percentage_trend()
+    main_mean_log_likelihood()
+    # main_percentage_trend()
 
 
 if __name__ == '__main__':
