@@ -432,7 +432,6 @@ class StudyVisualizer(VisualizationParameters):
         else:
             massif_names = sample(self.study.study_massif_names, k=self.nb_massif_for_change_point_test)
 
-
         for massif_id, massif_name in enumerate(massif_names):
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
             gev_change_point_test_results = compute_gev_change_point_test_results(self.multiprocessing, smooth_maxima,
@@ -459,7 +458,7 @@ class StudyVisualizer(VisualizationParameters):
             trend_test_class_for_change_point_test,
             starting_years_for_change_point_test,
             nb_massif_for_change_point_test,
-        sample_one_massif_from_each_region)
+            sample_one_massif_from_each_region)
         for massif_name, gev_change_point_test_results in massif_name_to_gev_change_point_test_results.items():
             trend_test_res, best_idxs = gev_change_point_test_results
             trend_test_res = [(a, b, c) if i in best_idxs else (np.nan, np.nan, c)
@@ -585,6 +584,21 @@ class StudyVisualizer(VisualizationParameters):
         plot_name += '{} top values taken into account for the metric'.format(self.number_of_top_values)
         self.plot_name = plot_name
         self.show_or_save_to_file()
+
+    def visualize_max_graphs_poster(self, massif_name, altitude, snow_abbreviation, color):
+        massif_names = self.study.study_massif_names
+        # Display the graph of the max on top
+        ax = plt.gca()
+        x, y = self.smooth_maxima_x_y(massif_names.index(massif_name))
+        ax.plot(x, y, color=color)
+        ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color)
+        ax.xaxis.set_ticks(x[2::10])
+        # self.visualize_massif_graphs(self.visualize_mean_and_max_graph,
+        #                              specified_massif_ids=specified_massif_ids)
+        plot_name = 'Annual maxima of {} in {} at {}'.format(snow_abbreviation, massif_name, altitude)
+        self.plot_name = plot_name
+        self.show_or_save_to_file(add_classic_title=False)
+        ax.clear()
 
     def visualize_mean_and_max_graph(self, ax, massif_id):
         # Display the graph of the max on top
@@ -719,10 +733,13 @@ class StudyVisualizer(VisualizationParameters):
         label_function(full_title)
         ax0.tick_params(axis=u'both', which=u'both', length=0)
 
-    def show_or_save_to_file(self):
+    def show_or_save_to_file(self, add_classic_title=True):
         assert self.plot_name is not None
-        title = self.study.title
-        title += '\n' + self.plot_name
+        if add_classic_title:
+            title = self.study.title
+            title += '\n' + self.plot_name
+        else:
+            title = self.plot_name
         if self.only_one_graph:
             plt.suptitle(self.plot_name)
         else:

@@ -7,7 +7,8 @@ from experiment.trend_analysis.abstract_score import MannKendall
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
     ExtendedCrocusSwe, CrocusDaysWithSnowOnGround
-from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, SafranRainfall, \
+from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
+    SafranRainfall, \
     SafranTemperature, SafranTotalPrecip
 
 from collections import OrderedDict
@@ -23,16 +24,27 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusSwe: 'SWE',
     CrocusDepth: 'SD',
 }
-SCM_STUDY_NAME_TO_ABBREVIATION = {get_display_name_from_object_type(k): v for k, v in SCM_STUDY_CLASS_TO_ABBREVIATION.items()}
+
+altitude_massif_name_and_study_class_for_poster = [
+    (900, 'Chartreuse', CrocusSwe),
+    (1800, 'Vercors', CrocusDepth),
+    (2700, 'Parpaillon', SafranSnowfall),
+]
+
+SCM_STUDY_NAME_TO_ABBREVIATION = {get_display_name_from_object_type(k): v for k, v in
+                                  SCM_STUDY_CLASS_TO_ABBREVIATION.items()}
+SCM_COLORS = ['tab:orange', 'y', 'tab:purple']
+SCM_STUDY_CLASS_TO_COLOR = dict(zip(SCM_STUDIES, SCM_COLORS))
 SCM_STUDY_NAME_TO_COLOR = {get_display_name_from_object_type(s): color
-                           for s, color in zip(SCM_STUDIES, ['tab:orange', 'y', 'tab:purple'])}
+                           for s, color in zip(SCM_STUDIES, SCM_COLORS)}
 
 SCM_EXTENDED_STUDIES = [ExtendedSafranSnowfall, ExtendedCrocusSwe, ExtendedCrocusDepth]
 SCM_STUDY_TO_EXTENDED_STUDY = OrderedDict(zip(SCM_STUDIES, SCM_EXTENDED_STUDIES))
 
 ALL_ALTITUDES = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 4800]
 ALTITUDES_LOW_MIDDLE_HIGH = [900, 1800, 2700]
-ALL_ALTITUDES_WITHOUT_NAN = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 4800]
+ALL_ALTITUDES_WITHOUT_NAN = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500,
+                             4800]
 full_altitude_with_at_least_2_stations = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900,
                                           4200]
 ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST = ALL_ALTITUDES[3:-6][:]
@@ -41,7 +53,7 @@ ALL_STUDIES = SCM_STUDIES + [SafranTemperature, SafranRainfall]
 
 
 def study_iterator_global(study_classes, only_first_one=False, verbose=True, altitudes=None, nb_days=None) -> \
-List[AbstractStudy]:
+        List[AbstractStudy]:
     for study_class in study_classes:
         for study in study_iterator(study_class, only_first_one, verbose, altitudes, nb_days):
             yield study
@@ -49,7 +61,8 @@ List[AbstractStudy]:
             break
 
 
-def study_iterator(study_class, only_first_one=False, verbose=True, altitudes=None, nb_consecutive_days=3) -> List[AbstractStudy]:
+def study_iterator(study_class, only_first_one=False, verbose=True, altitudes=None, nb_consecutive_days=3) -> List[
+    AbstractStudy]:
     # Default argument
     altis = [1800] if altitudes is None else altitudes
 
@@ -126,8 +139,10 @@ def all_normal_vizu():
         study_visualizer = StudyVisualizer(study, save_to_file=True, temporal_non_stationarity=True)
         study_visualizer.visualize_all_mean_and_max_graphs()
 
+
 def case_study():
-    for study in study_iterator(study_class=SafranSnowfall, only_first_one=False, altitudes=[2100], nb_consecutive_days=3):
+    for study in study_iterator(study_class=SafranSnowfall, only_first_one=False, altitudes=[2100],
+                                nb_consecutive_days=3):
         study_visualizer = StudyVisualizer(study, save_to_file=False, temporal_non_stationarity=False)
         study_visualizer.visualize_all_mean_and_max_graphs()
         massif_id = study.study_massif_names.index('Chablais')
@@ -149,10 +164,13 @@ def scores_vizu():
 def all_scores_vizu():
     save_to_file = True
     only_first_one = False
-    for study in study_iterator_global(study_classes=[SafranSnowfall], only_first_one=only_first_one, altitudes=ALL_ALTITUDES):
-        study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, temporal_non_stationarity=True, verbose=True)
+    for study in study_iterator_global(study_classes=[SafranSnowfall], only_first_one=only_first_one,
+                                       altitudes=ALL_ALTITUDES):
+        study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, temporal_non_stationarity=True,
+                                           verbose=True)
         # study_visualizer.visualize_all_mean_and_max_graphs()
         study_visualizer.visualize_all_score_wrt_starting_year()
+
 
 def complete_analysis(only_first_one=False):
     """An overview of everything that is possible with study OR extended study"""
@@ -191,13 +209,14 @@ def trend_analysis():
         study_visualizer.df_trend_spatio_temporal(GevLocationChangePointTest,
                                                   starting_years=[1958, 1980], nb_massif_for_fast_mode=2)
 
+
 def maxima_analysis():
     save_to_file = False
     only_first_one = True
     durand_altitude = [1800]
     altitudes = durand_altitude
     normalization_class = BetweenZeroAndOneNormalization
-    study_classes = [ SafranSnowfall][:]
+    study_classes = [SafranSnowfall][:]
     for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):
         study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                            transformation_class=normalization_class,
@@ -208,7 +227,19 @@ def maxima_analysis():
                                            score_class=MannKendall)
         study_visualizer.visualize_all_score_wrt_starting_year()
         # study_visualizer.visualize_all_independent_temporal_trend()
-        # study_visualizer.visualize_all_mean_and_max_graphs()
+        study_visualizer.visualize_all_mean_and_max_graphs()
+
+
+def max_graph_annual_maxima_poster():
+    save_to_file = True
+    for altitude, massif_name, study_class in altitude_massif_name_and_study_class_for_poster:
+        for study in study_iterator_global([study_class], altitudes=[altitude]):
+            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
+                                               verbose=True,
+                                               multiprocessing=True)
+            snow_abbreviation = SCM_STUDY_CLASS_TO_ABBREVIATION[study_class]
+            color = SCM_STUDY_CLASS_TO_COLOR[study_class]
+            study_visualizer.visualize_max_graphs_poster(massif_name, altitude, snow_abbreviation, color)
 
 
 def altitude_analysis():
@@ -222,7 +253,8 @@ def main_run():
     # normal_visualization(temporal_non_stationarity=True)
     # trend_analysis()
 
-    altitude_analysis()
+    # altitude_analysis()
+    max_graph_annual_maxima_poster()
     # case_study()
     # all_scores_vizu()
     # maxima_analysis()

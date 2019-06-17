@@ -12,7 +12,7 @@ class CrocusVariable(AbstractVariable):
 
 class CrocusSweVariable(CrocusVariable):
     NAME = 'Snow Water Equivalent'
-    UNIT = 'kg per m2 or mm'
+    UNIT = 'kg per square meter'
 
     @classmethod
     def keyword(cls):

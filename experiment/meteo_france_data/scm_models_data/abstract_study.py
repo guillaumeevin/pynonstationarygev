@@ -46,6 +46,7 @@ class AbstractStudy(object):
 
     def __init__(self, variable_class: type, altitude: int = 1800, year_min=1000, year_max=3000,
                  multiprocessing=True):
+        assert isinstance(altitude, int), type(altitude)
         assert altitude in ALTITUDES, altitude
         self.altitude = altitude
         self.model_name = None

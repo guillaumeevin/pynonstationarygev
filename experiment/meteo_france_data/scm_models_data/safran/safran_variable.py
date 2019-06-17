@@ -22,7 +22,7 @@ class SafranSnowfallVariable(AbstractVariable):
     """
 
     NAME = 'Snowfall'
-    UNIT = 'kg per m2 or mm'
+    UNIT = 'mm'
 
     @classmethod
     def keyword(cls):
