@@ -151,8 +151,9 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             else:
                 ax.set_title(plot_title)
                 ax.legend()
-                ax.set_xlabel(xlabel)
-                plt.setp(ax.get_yticklabels(), visible=False)
+            # Common things to all the graph
+            ax.set_xlabel(xlabel)
+            plt.setp(ax.get_yticklabels(), visible=False)
 
         specific_title = 'Evolution of {} trends wrt to the {} with {}'.format(subtitle, xlabel,
                                                                                self.trend_test_name)
@@ -279,7 +280,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
     def visualize_year_trend_test(self, axes=None, marker='o', add_detailed_plots=False, plot_title=None,
                                   isin_parameters=None,
-                                  show_or_save_to_file=True):
+                                  show_or_save_to_file=True,
+                                  subtitle_specified=None):
         if axes is None:
             axes = self.load_trend_test_evolution_axes(self.nb_rows)
         else:
@@ -287,7 +289,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
         results = []
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.year_reduction,
-                                                                                add_detailed_plot=add_detailed_plots).items():
+                                                                                add_detailed_plot=add_detailed_plots,
+                                                                                subtitle=subtitle_specified).items():
             specific_title, best_year = self.visualize_trend_test_evolution(
                 reduction_function=reduction_function,
                 xlabel=STARTING_YEARS_XLABEL,

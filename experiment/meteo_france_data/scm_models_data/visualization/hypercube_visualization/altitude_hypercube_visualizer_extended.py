@@ -122,7 +122,9 @@ class AltitudeHypercubeVisualizerWithoutTrendExtended(AltitudeHypercubeVisualize
                                                       AltitudeHypercubeVisualizerWithoutTrendType):
 
     def df_loglikelihood(self, isin_parameters=None):
-        return self.isin_slicing(df=super().df_loglikelihood(), isin_parameters=isin_parameters)
+        df = super().df_loglikelihood()
+        df = self.isin_slicing(df=df, isin_parameters=isin_parameters)
+        return df
 
 
 # Extension

@@ -595,7 +595,7 @@ class StudyVisualizer(VisualizationParameters):
         ax.xaxis.set_ticks(x[2::10])
         # self.visualize_massif_graphs(self.visualize_mean_and_max_graph,
         #                              specified_massif_ids=specified_massif_ids)
-        plot_name = 'Annual maxima of {} in {} at {}'.format(snow_abbreviation, massif_name, altitude)
+        plot_name = 'Annual maxima of {} in {} at {}m'.format(snow_abbreviation, massif_name, altitude)
         self.plot_name = plot_name
         self.show_or_save_to_file(add_classic_title=False)
         ax.clear()
