@@ -14,11 +14,14 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
 
 
-def get_fast_parameters():
+def get_fast_parameters(altitude=None):
     save_to_file = False
     only_first_one = False
     nb_data_reduced_for_speed = 4
-    altitudes = [ALL_ALTITUDES[3], ALL_ALTITUDES[-7]]
+    if altitude is not None:
+        altitudes = [altitude]
+    else:
+        altitudes = [ALL_ALTITUDES[3], ALL_ALTITUDES[-7]]
     last_starting_year = None
     trend_test_class = GevLocationChangePointTest
     return altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class

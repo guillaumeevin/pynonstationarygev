@@ -399,17 +399,21 @@ class StudyVisualizer(VisualizationParameters):
 
     def massif_name_to_gev_change_point_test_results(self, trend_test_class_for_change_point_test,
                                                      starting_years_for_change_point_test,
-                                                     nb_massif_for_change_point_test=None):
+                                                     nb_massif_for_change_point_test=None,
+                                                     sample_one_massif_from_each_region=True):
         if self.trend_test_class_for_change_point_test is None:
             # Set the attribute is not already done
             self.trend_test_class_for_change_point_test = trend_test_class_for_change_point_test
             self.starting_years_for_change_point_test = starting_years_for_change_point_test
             self.nb_massif_for_change_point_test = nb_massif_for_change_point_test
+            self.sample_one_massif_from_each_region = sample_one_massif_from_each_region
         else:
             # Check that the argument are the same
             assert self.trend_test_class_for_change_point_test == trend_test_class_for_change_point_test
             assert self.starting_years == starting_years_for_change_point_test
             assert self.nb_massif_for_change_point_test == nb_massif_for_change_point_test
+            assert self.sample_one_massif_from_each_region == sample_one_massif_from_each_region
+
         return self._massif_name_to_gev_change_point_test_results
 
     @cached_property
@@ -417,7 +421,7 @@ class StudyVisualizer(VisualizationParameters):
         massif_name_to_gev_change_point_test_results = {}
         if self.nb_massif_for_change_point_test is None:
             massif_names = self.study.study_massif_names
-        else:
+        elif self.sample_one_massif_from_each_region:
             # Get one massif from each region to ensure that the fast plot will not crash
             assert self.nb_massif_for_change_point_test >= 4, 'we need at least one massif from each region'
             massif_names = [AbstractExtendedStudy.region_name_to_massif_names[r][0]
@@ -425,6 +429,9 @@ class StudyVisualizer(VisualizationParameters):
             massif_names_for_sampling = list(set(self.study.study_massif_names) - set(massif_names))
             nb_massif_for_sampling = self.nb_massif_for_change_point_test - len(AbstractExtendedStudy.real_region_names)
             massif_names += sample(massif_names_for_sampling, k=nb_massif_for_sampling)
+        else:
+            massif_names = sample(self.study.study_massif_names, k=self.nb_massif_for_change_point_test)
+
 
         for massif_id, massif_name in enumerate(massif_names):
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
@@ -437,7 +444,8 @@ class StudyVisualizer(VisualizationParameters):
 
     def df_trend_spatio_temporal(self, trend_test_class_for_change_point_test,
                                  starting_years_for_change_point_test,
-                                 nb_massif_for_change_point_test=None):
+                                 nb_massif_for_change_point_test=None,
+                                 sample_one_massif_from_each_region=True):
         """
         Index are the massif
         Columns are the starting year
@@ -450,7 +458,8 @@ class StudyVisualizer(VisualizationParameters):
         massif_name_to_gev_change_point_test_results = self.massif_name_to_gev_change_point_test_results(
             trend_test_class_for_change_point_test,
             starting_years_for_change_point_test,
-            nb_massif_for_change_point_test)
+            nb_massif_for_change_point_test,
+        sample_one_massif_from_each_region)
         for massif_name, gev_change_point_test_results in massif_name_to_gev_change_point_test_results.items():
             trend_test_res, best_idxs = gev_change_point_test_results
             trend_test_res = [(a, b, c) if i in best_idxs else (np.nan, np.nan, c)

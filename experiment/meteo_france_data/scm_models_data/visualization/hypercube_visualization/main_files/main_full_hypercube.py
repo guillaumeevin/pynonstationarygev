@@ -14,18 +14,21 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
 
 
-def get_full_parameters():
+def get_full_parameters(altitude=None):
     save_to_file = True
     only_first_one = False
     nb_data_reduced_for_speed = False
-    altitudes = ALL_ALTITUDES[3:-6]
+    if altitude is not None:
+        altitudes = [altitude]
+    else:
+        altitudes = ALL_ALTITUDES[3:-6]
     last_starting_year = 2007
     trend_test_class = GevLocationChangePointTest
     return altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class
 
 
-def get_full_altitude_visualizer(altitude_hypercube_class, study_classes, exact_starting_year=None):
-    altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class = get_full_parameters()
+def get_full_altitude_visualizer(altitude_hypercube_class, study_classes, exact_starting_year=None, altitude=None):
+    altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class = get_full_parameters(altitude=altitude)
     if exact_starting_year is not None:
         last_starting_year = None
     visualizer = load_altitude_visualizer(altitude_hypercube_class, altitudes, last_starting_year,
@@ -34,9 +37,10 @@ def get_full_altitude_visualizer(altitude_hypercube_class, study_classes, exact_
     return visualizer
 
 
-def get_full_quantity_visualizer(quantity_hypercube_class):
-    altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class = get_full_parameters()
-    study_classes = SCM_STUDIES[:3]
+def get_full_quantity_visualizer(quantity_hypercube_class, altitude=None, study_classes=None):
+    altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class = get_full_parameters(altitude=altitude)
+    if study_classes is None:
+        study_classes = SCM_STUDIES[:3]
     visualizer = load_quantity_visualizer(quantity_hypercube_class, altitudes, last_starting_year,
                                           nb_data_reduced_for_speed, only_first_one,
                                           save_to_file, study_classes, trend_test_class)

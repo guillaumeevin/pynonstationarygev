@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.abstract_hypercube_visualizer import \
     AbstractHypercubeVisualizer
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
-    SCM_STUDY_NAME_TO_COLOR
+    SCM_STUDY_NAME_TO_COLOR, SCM_STUDY_NAME_TO_ABBREVIATION, SCM_STUDY_CLASS_TO_ABBREVIATION
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
@@ -70,7 +70,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                                                                   **kwargs)
 
         if subtitle is None:
-            subtitle = self.study.variable_name[:5]
+            # subtitle = self.study.variable_name[:6]
+            subtitle = SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)]
             # Ensure that subtitle does not belong to this dictionary so that the plot will be normal
             assert subtitle not in SCM_STUDY_NAME_TO_COLOR
 
@@ -131,26 +132,33 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         axes_remaining = axes[end_idx:]
         ylabel_to_series = self.ylabel_to_series(reduction_function, isin_parameters)
         assert len(axes_remaining) == len(ylabel_to_series), '{}, {}'.format(len(axes_remaining), len(ylabel_to_series))
+        best_year = np.nan
         for ax_idx, (ax, (ylabel, serie)) in enumerate(zip(axes_remaining, ylabel_to_series.items())):
             assert isinstance(serie, pd.Series)
             xlabel_values = list(serie.index)
             values = list(serie.values)
+            argmax_idx = np.argmax(values)
+            best_year = xlabel_values[argmax_idx]
             if plot_title is not None:
-                argmax_idx = np.argmax(values)
-                best_year = xlabel_values[argmax_idx]
                 plot_title += ' (max reached in {})'.format(best_year)
 
             if subtitle in SCM_STUDY_NAME_TO_COLOR:
-                ax, color, ylabel = ax.twinx(), SCM_STUDY_NAME_TO_COLOR[subtitle], subtitle
+                ax_reversed, color = ax.twinx(), SCM_STUDY_NAME_TO_COLOR[subtitle]
+                ylabel = SCM_STUDY_NAME_TO_ABBREVIATION[subtitle]
+                ax.plot([], [], label=ylabel, color=color)
+                ax_reversed.plot(xlabel_values, values, label=ylabel, color=color)
+                ax_reversed.set_ylabel(ylabel, color=color)
             else:
-                color = 'k'
                 ax.set_title(plot_title)
-            ax.plot(xlabel_values, values, label=subtitle, color=color)
-            ax.set_ylabel(ylabel, color=color)
+                ax.legend()
+                ax.set_xlabel(xlabel)
+                plt.setp(ax.get_yticklabels(), visible=False)
 
-        specific_title = 'Evolution of {} trends (significative or not) wrt to the {} with {}'.format(subtitle, xlabel,
-                                                                                                      self.trend_test_name)
+        specific_title = 'Evolution of {} trends wrt to the {} with {}'.format(subtitle, xlabel,
+                                                                               self.trend_test_name)
         specific_title += '\n ' + self.get_title_plot(xlabel)
+        if len(self.altitudes) == 1:
+            specific_title += ' altitude={}'.format(self.altitudes[0])
 
         # Figure title
         # specific_title += '\n'
@@ -166,7 +174,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         # specific_title += 'all trend {}, all significative trends: {} (+:{}  -{})'.format(*percents)
         plt.suptitle(specific_title)
 
-        return specific_title
+        return specific_title, best_year
 
     def load_trend_test_evolution_axes(self, nb_rows):
         fig, axes = plt.subplots(nb_rows, 1, figsize=self.study_visualizer.figsize, constrained_layout=True)
@@ -216,9 +224,44 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
         return title
 
-    def load_axes_for_trend_test_repartition(self, nb_rows):
-        nb_trend_type = len(self.display_trend_type_to_style)
-        fig, axes = plt.subplots(nb_rows, nb_trend_type, figsize=self.study_visualizer.figsize)
+    def visualize_trend_test_repartition_poster(self, reduction_function, axes=None, subtitle='', isin_parameters=None,
+                                                plot_title=None):
+        ax = axes
+        i = 0
+        trend_type_to_serie = {k: v[i].replace(0.0, np.nan) for k, v in
+                               self.trend_type_to_series(reduction_function, isin_parameters).items()}
+
+        massif_to_color = {}
+        poster_trend_types = [AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND,
+                              AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND,
+                              AbstractUnivariateTest.NON_SIGNIFICATIVE_TREND][:2]
+        for display_trend_type, style in self.display_trend_type_to_style.items():
+            if display_trend_type in poster_trend_types:
+                color = style[:1]
+                serie = trend_type_to_serie[display_trend_type]
+                massif_to_value = dict(serie)
+                print(massif_to_value)
+                massif_to_color.update({k: color for k, v in massif_to_value.items() if not np.isnan(v)})
+
+        self.study.visualize_study(ax, massif_name_to_color=massif_to_color, show=False)
+        if plot_title is not None:
+            ax.set_title(plot_title)
+        # row_title = self.get_title_plot(xlabel='massifs', ax_idx=i)
+        # StudyVisualizer.clean_axes_write_title_on_the_left(axes_row, row_title, left_border=None)
+
+        # Global information
+        title = 'Repartition of {} trends'.format(subtitle)
+        title += ' at altitude={} for the starting_year={}'.format(self.altitudes[0], self.starting_years[0])
+        plt.suptitle(title)
+
+        return title
+
+    def load_axes_for_trend_test_repartition(self, nb_rows, nb_columns=None):
+        if nb_columns is None:
+            nb_columns = len(self.display_trend_type_to_style)
+        fig, axes = plt.subplots(nb_rows, nb_columns, figsize=self.study_visualizer.figsize)
+        if isinstance(axes, np.ndarray):
+            axes = axes.reshape((nb_rows, nb_columns))
         return axes
 
     @property
@@ -242,20 +285,23 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         else:
             assert len(axes) == self.nb_rows
 
-        last_result = ''
+        results = []
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.year_reduction,
                                                                                 add_detailed_plot=add_detailed_plots).items():
-            last_result = self.visualize_trend_test_evolution(reduction_function=reduction_function,
-                                                              xlabel=STARTING_YEARS_XLABEL,
-                                                              xlabel_values=self.starting_years, axes=axes,
-                                                              marker=marker,
-                                                              subtitle=subtitle,
-                                                              isin_parameters=isin_parameters,
-                                                              plot_title=plot_title
-                                                              )
+            specific_title, best_year = self.visualize_trend_test_evolution(
+                reduction_function=reduction_function,
+                xlabel=STARTING_YEARS_XLABEL,
+                xlabel_values=self.starting_years, axes=axes,
+                marker=marker,
+                subtitle=subtitle,
+                isin_parameters=isin_parameters,
+                plot_title=plot_title
+            )
+            results.append((specific_title, best_year, subtitle))
         if show_or_save_to_file:
-            self.show_or_save_to_file(specific_title=last_result)
-        return last_result
+            last_specific_title = results[-1][0]
+            self.show_or_save_to_file(specific_title=last_specific_title)
+        return results
 
     @staticmethod
     def index_reduction(df, level):
@@ -288,7 +334,6 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
     def visualize_massif_trend_test(self, axes=None, add_detailed_plots=False, plot_title=None,
                                     isin_parameters=None,
                                     show_or_save_to_file=True):
-
         if axes is None:
             axes = self.load_axes_for_trend_test_repartition(self.nb_rows)
         else:
@@ -301,6 +346,21 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             last_title = self.visualize_trend_test_repartition(reduction_function, axes, subtitle=subtitle,
                                                                isin_parameters=isin_parameters,
                                                                plot_title=plot_title)
+        if show_or_save_to_file:
+            self.show_or_save_to_file(specific_title=last_title)
+
+        return last_title
+
+    def visualize_massif_trend_test_one_altitude(self, axes=None, add_detailed_plots=False, plot_title=None,
+                                                 isin_parameters=None,
+                                                 show_or_save_to_file=True):
+        last_title = ''
+        for subtitle, reduction_function in self.subtitle_to_reduction_function(self.index_reduction,
+                                                                                level=self.massif_index_level,
+                                                                                add_detailed_plot=add_detailed_plots).items():
+            last_title = self.visualize_trend_test_repartition_poster(reduction_function, axes, subtitle=subtitle,
+                                                                      isin_parameters=isin_parameters,
+                                                                      plot_title=plot_title)
         if show_or_save_to_file:
             self.show_or_save_to_file(specific_title=last_title)
 

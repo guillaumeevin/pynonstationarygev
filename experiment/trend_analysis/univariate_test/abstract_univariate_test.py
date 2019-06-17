@@ -58,7 +58,7 @@ class AbstractUnivariateTest(object):
         d = OrderedDict()
         # d[cls.POSITIVE_TREND] = 'g--'
         # d[cls.NEGATIVE_TREND] = 'r--'
-        d[cls.ALL_TREND] = 'k-'
+        # d[cls.ALL_TREND] = 'k-'
         d[cls.NON_SIGNIFICATIVE_TREND] = 'b-'
         # d[cls.SIGNIFICATIVE_ALL_TREND] = 'k-'
         d[cls.SIGNIFICATIVE_POSITIVE_TREND] = 'g-'

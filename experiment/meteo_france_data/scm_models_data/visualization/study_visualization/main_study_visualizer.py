@@ -18,12 +18,20 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
 from utils import get_display_name_from_object_type
 
 SCM_STUDIES = [SafranSnowfall, CrocusSwe, CrocusDepth]
+SCM_STUDY_CLASS_TO_ABBREVIATION = {
+    SafranSnowfall: 'SF3',
+    CrocusSwe: 'SWE',
+    CrocusDepth: 'SD',
+}
+SCM_STUDY_NAME_TO_ABBREVIATION = {get_display_name_from_object_type(k): v for k, v in SCM_STUDY_CLASS_TO_ABBREVIATION.items()}
 SCM_STUDY_NAME_TO_COLOR = {get_display_name_from_object_type(s): color
-                           for s, color in zip(SCM_STUDIES, ['r', 'b', 'g'])}
+                           for s, color in zip(SCM_STUDIES, ['tab:orange', 'y', 'tab:purple'])}
+
 SCM_EXTENDED_STUDIES = [ExtendedSafranSnowfall, ExtendedCrocusSwe, ExtendedCrocusDepth]
 SCM_STUDY_TO_EXTENDED_STUDY = OrderedDict(zip(SCM_STUDIES, SCM_EXTENDED_STUDIES))
 
 ALL_ALTITUDES = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 4800]
+ALTITUDES_LOW_MIDDLE_HIGH = [900, 1800, 2700]
 ALL_ALTITUDES_WITHOUT_NAN = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 4800]
 full_altitude_with_at_least_2_stations = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900,
                                           4200]

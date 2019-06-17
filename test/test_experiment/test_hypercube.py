@@ -28,7 +28,7 @@ class TestHypercube(unittest.TestCase):
                                                    altitudes=altitudes, verbose=self.DISPLAY)]
         self.altitude_to_visualizer = OrderedDict(zip(altitudes, visualizers))
         self.trend_test_class = GevLocationChangePointTest
-        self.nb_data_reduced_for_speed = 2
+        self.nb_data_reduced_for_speed = 4
 
     # def test_altitude_hypercube_visualizer(self):
     #     visualizer = AltitudeHypercubeVisualizer(self.altitude_to_visualizer, save_to_file=False,

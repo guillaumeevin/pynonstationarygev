@@ -229,14 +229,12 @@ class AbstractStudy(object):
                         label=None, add_text=False, cmap=None, vmax=100, vmin=0,
                         default_color_for_missing_massif='w',
                         default_color_for_nan_values='w',
+                        massif_name_to_color=None,
                         ):
         if ax is None:
             ax = plt.gca()
 
-        if massif_name_to_value is None:
-            massif_name_to_fill_kwargs = None
-            massif_names, values = None, None
-        else:
+        if massif_name_to_color is None:
             massif_names, values = list(zip(*massif_name_to_value.items()))
             if cmap is None:
                 colors = get_color_rbga_shifted(ax, replace_blue_by_white, values, label=label)
@@ -245,8 +243,10 @@ class AbstractStudy(object):
                 create_colorbase_axis(ax, label, cmap, norm)
                 m = cm.ScalarMappable(norm=norm, cmap=cmap)
                 colors = [m.to_rgba(value) if not np.isnan(value) else default_color_for_nan_values for value in values]
-            massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
-                                          zip(massif_names, colors)}
+            massif_name_to_color = zip(massif_names, colors)
+        massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
+                                      massif_name_to_color.items()}
+        massif_names = list(massif_name_to_fill_kwargs.keys())
 
         for coordinate_id, coords_list in cls.idx_to_coords_list.items():
             # Retrieve the list of coords (x,y) that define the contour of the massif of id coordinate_id
@@ -275,6 +275,7 @@ class AbstractStudy(object):
                 # ax.scatter(x, y)
                 # ax.text(x, y, massif_name)
         # Display the center of the massif
+        print(massif_names)
         masssif_coordinate_for_display = cls.massifs_coordinates_for_display(massif_names)
 
         ax.scatter(masssif_coordinate_for_display.x_coordinates,
@@ -294,6 +295,8 @@ class AbstractStudy(object):
 
         if show:
             plt.show()
+
+        return ax
 
     """ 
     CLASS ATTRIBUTES COMMON TO ALL OBJECTS 
