@@ -276,7 +276,6 @@ class AbstractStudy(object):
                 # ax.scatter(x, y)
                 # ax.text(x, y, massif_name)
         # Display the center of the massif
-        print(massif_names)
         masssif_coordinate_for_display = cls.massifs_coordinates_for_display(massif_names)
 
         ax.scatter(masssif_coordinate_for_display.x_coordinates,

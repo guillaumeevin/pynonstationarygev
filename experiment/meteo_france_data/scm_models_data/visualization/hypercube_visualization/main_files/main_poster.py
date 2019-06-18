@@ -14,8 +14,6 @@ from utils import get_display_name_from_object_type
 POSTER_ALTITUDES = [900, 1800, 2700]
 
 
-
-
 def fast_poster():
     for altitude in POSTER_ALTITUDES[:1]:
         study_classes = SCM_STUDIES[:2]
@@ -49,6 +47,7 @@ def full_poster():
                                                               exact_starting_year=exact_year, altitude=altitude)
             spatial_visualizer.visualize_massif_trend_test_one_altitude()
 
+
 def example_for_the_starting_years():
     for altitude, massif_name, study_class in altitude_massif_name_and_study_class_for_poster[:]:
         visualizer = get_full_altitude_visualizer(AltitudeHypercubeVisualizerWithoutTrendExtended, altitude=altitude,
@@ -58,7 +57,6 @@ def example_for_the_starting_years():
                                              subtitle_specified=get_display_name_from_object_type(study_class))
 
 
-
 if __name__ == '__main__':
-    # full_poster()
-    example_for_the_starting_years()
+    full_poster()
+    # example_for_the_starting_years()

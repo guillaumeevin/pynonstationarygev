@@ -59,8 +59,8 @@ def main_percentage_trend_poster_2():
 
 
 def main_run():
-    main_mean_log_likelihood_poster_1()
-    # main_percentage_trend_poster_2()
+    # main_mean_log_likelihood_poster_1()
+    main_percentage_trend_poster_2()
 
 
 if __name__ == '__main__':

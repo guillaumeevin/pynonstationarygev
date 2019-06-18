@@ -19,6 +19,7 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
 from utils import get_display_name_from_object_type
 
 SCM_STUDIES = [SafranSnowfall, CrocusSwe, CrocusDepth]
+SCM_STUDIES_NAMES = [get_display_name_from_object_type(k) for k in SCM_STUDIES]
 SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
     CrocusSwe: 'SWE',
