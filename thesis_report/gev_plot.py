@@ -19,6 +19,22 @@ def gev_plot():
     plt.show()
 
 
+def gev_plot_big():
+    lim = 5
+    x = np.linspace(-lim, lim, 100)
+    loc, scale = 1, 1
+    shapes = [-1, 0, 1]
+    for shape in shapes:
+        label = '$\zeta= {} $'.format(shape)
+        y = r.dgev(x, loc, scale, shape)
+        plt.plot(x, y, label=label, linewidth=10)
+    plt.legend(prop={'size': 20})
+    plt.xlabel('$y$', fontsize=15)
+    plt.ylabel('$f_{GEV}(y|1,1,\zeta)$', fontsize=15)
+    plt.tick_params(axis='both', which='major', labelsize=15)
+    plt.show()
+
+
 def max_stable_plot():
     power_n_list = [1, 2, 3]
     fig, axes = plt.subplots(1, len(power_n_list), sharey='row')
@@ -65,7 +81,7 @@ def quantile_function_plot():
         label = '$\zeta= {} $'.format(shape)
         funct = [r.qgev, r.qgpd][0]
         y = funct(1 - p, loc, scale, shape)
-        plt.loglog(1/p, y, basex=10, label=label)
+        plt.loglog(1 / p, y, basex=10, label=label)
     plt.legend()
     plt.xlabel('$1/p$')
     plt.ylabel('$q(1- p|\mu, \sigma, \zeta)$')
@@ -73,7 +89,7 @@ def quantile_function_plot():
 
 
 if __name__ == '__main__':
-    gev_plot()
+    gev_plot_big()
     # max_stable_plot()
     # quantile_function_plot()
     # max_stable_plot_v2()
