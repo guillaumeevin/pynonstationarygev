@@ -22,11 +22,13 @@ class SafranSnowfallVariable(AbstractVariable):
     """
 
     NAME = 'Snowfall'
-    UNIT = 'mm'
+    UNIT = 'kg $m^{-2}$'
+    # this could have been mm w.e (mm in water equivalent)
 
     @classmethod
     def keyword(cls):
         return 'Snowf'
+
 
     def __init__(self, variable_array, nb_consecutive_days=3):
         super().__init__(variable_array)
@@ -67,7 +69,6 @@ class SafranSnowfallVariable(AbstractVariable):
 
 class SafranRainfallVariable(SafranSnowfallVariable):
     NAME = 'Rainfall'
-    UNIT = 'kg per m2 or mm'
 
     @classmethod
     def keyword(cls):
