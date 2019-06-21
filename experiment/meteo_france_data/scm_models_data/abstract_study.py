@@ -231,6 +231,8 @@ class AbstractStudy(object):
                         default_color_for_missing_massif='w',
                         default_color_for_nan_values='w',
                         massif_name_to_color=None,
+                        show_label=True,
+                        scaled=False,
                         ):
         if ax is None:
             ax = plt.gca()
@@ -244,7 +246,7 @@ class AbstractStudy(object):
                 create_colorbase_axis(ax, label, cmap, norm)
                 m = cm.ScalarMappable(norm=norm, cmap=cmap)
                 colors = [m.to_rgba(value) if not np.isnan(value) else default_color_for_nan_values for value in values]
-            massif_name_to_color = zip(massif_names, colors)
+            massif_name_to_color = dict(zip(massif_names, colors))
         massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
                                       massif_name_to_color.items()}
         massif_names = list(massif_name_to_fill_kwargs.keys())
@@ -280,11 +282,17 @@ class AbstractStudy(object):
 
         ax.scatter(masssif_coordinate_for_display.x_coordinates,
                    masssif_coordinate_for_display.y_coordinates, s=1)
-        # Improve some explanation on the X axis and on the Y axis
-        ax.set_xlabel('Longitude (km)')
-        ax.xaxis.set_major_formatter(get_km_formatter())
-        ax.set_ylabel('Latitude (km)')
-        ax.yaxis.set_major_formatter(get_km_formatter())
+        if show_label:
+            # Improve some explanation on the X axis and on the Y axis
+            ax.set_xlabel('Longitude (km)')
+            ax.xaxis.set_major_formatter(get_km_formatter())
+            ax.set_ylabel('Latitude (km)')
+            ax.yaxis.set_major_formatter(get_km_formatter())
+        else:
+            # Remove the ticks
+            ax.get_xaxis().set_visible(False)
+            ax.get_yaxis().set_visible(False)
+
         # Display the name or value of the massif
         if add_text:
             for _, row in masssif_coordinate_for_display.df_all_coordinates.iterrows():
@@ -292,6 +300,9 @@ class AbstractStudy(object):
                 massif_name = row.name
                 value = massif_name_to_value[massif_name]
                 ax.text(x, y, str(round(value, 1)))
+
+        if scaled:
+            plt.axis('scaled')
 
         if show:
             plt.show()

@@ -590,14 +590,16 @@ class StudyVisualizer(VisualizationParameters):
         # Display the graph of the max on top
         ax = plt.gca()
         x, y = self.smooth_maxima_x_y(massif_names.index(massif_name))
-        ax.plot(x, y, color=color)
-        ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color)
+        ax.plot(x, y, color=color, linewidth=5)
+        ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color, fontsize=15)
         ax.xaxis.set_ticks(x[2::10])
+        ax.tick_params(axis='both', which='major', labelsize=13)
+
         # self.visualize_massif_graphs(self.visualize_mean_and_max_graph,
         #                              specified_massif_ids=specified_massif_ids)
         plot_name = 'Annual maxima of {} in {} at {}m'.format(snow_abbreviation, massif_name, altitude)
         self.plot_name = plot_name
-        self.show_or_save_to_file(add_classic_title=False)
+        self.show_or_save_to_file(add_classic_title=False, no_title=True)
         ax.clear()
 
     def visualize_mean_and_max_graph(self, ax, massif_id):
@@ -733,7 +735,7 @@ class StudyVisualizer(VisualizationParameters):
         label_function(full_title)
         ax0.tick_params(axis=u'both', which=u'both', length=0)
 
-    def show_or_save_to_file(self, add_classic_title=True):
+    def show_or_save_to_file(self, add_classic_title=True, no_title=False):
         assert self.plot_name is not None
         if add_classic_title:
             title = self.study.title
@@ -742,7 +744,7 @@ class StudyVisualizer(VisualizationParameters):
             title = self.plot_name
         if self.only_one_graph:
             plt.suptitle(self.plot_name)
-        else:
+        elif not no_title:
             plt.suptitle(title)
         if self.show:
             plt.show()
