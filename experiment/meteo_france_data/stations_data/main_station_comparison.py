@@ -57,9 +57,9 @@ def quick_metric_analysis():
 if __name__ == '__main__':
     # wrong_example3()
     # visualize_fast_comparison()
-    # visualize_all_stations()
+    visualize_all_stations()
     # quick_metric_analysis()
     # wrong_example2()
-    visualize_non_nan_station()
+    # visualize_non_nan_station()
     # example()
 

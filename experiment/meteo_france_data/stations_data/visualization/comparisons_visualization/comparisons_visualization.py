@@ -137,17 +137,22 @@ class ComparisonsVisualization(VisualizationParameters):
                                           cmap=plt.cm.Greens,
                                           vmin=0,
                                           vmax=100,
-                                          label='agreement on trend type classification (%)' )
+                                          label='agreement on trend type classification (%)')
+        # print(df.sort_values([MAE_COLUMN_NAME]))
         # Display the mae score
         serie_mae = df.groupby([MASSIF_COLUMN_NAME]).mean()[MAE_COLUMN_NAME]
+        # Display the sorted mae serie
+
+
         AbstractStudy.visualize_study(massif_name_to_value=serie_mae.to_dict(),
-                                      default_color_for_missing_massif='b',
+                                      default_color_for_missing_massif='w',
                                       cmap=plt.cm.Reds,
                                       vmin=0,
                                       vmax=65,
-                                      label='average absolute difference between annual maxima snowfall (mm)')
+                                      label='average absolute difference between annual maxima snowfall (mm)',
+                                      scaled=False)
 
-    def _visualize_ax_main(self, plot_function, comparison: ComparisonAnalysis, massif, ax=None, show=False):
+    def _visualize_ax_main(self, plot_function, comparison: ComparisonAnalysis, massif, ax=None, show=False, direct=False):
         if ax is None:
             _, ax = plt.subplots(1, 1, figsize=self.figsize)
         ax2 = ax.twinx()
@@ -199,7 +204,8 @@ class ComparisonsVisualization(VisualizationParameters):
                     ordered_value_dict.update(plot_ordered_value_dict)
 
             ax.set_title('{} at {}m'.format(massif, comparison.altitude))
-            ax.legend(prop={'size': 5})
+            size = 5 if not direct else 20
+            ax.legend(prop={'size': size})
 
             # Store only results for the stations
             if REANALYSE_STR not in i:
@@ -251,7 +257,6 @@ class ComparisonsVisualization(VisualizationParameters):
             ax2.plot(starting_years[::step], [t[4] for t in trend_test_res][::step], color=plot_color, marker='x')
         # Plot maxima
         ax.grid()
-        # print("here")
         ax.plot(years, maxima, label=label, color=plot_color)
         return ordered_dict
 
