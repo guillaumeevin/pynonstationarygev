@@ -35,6 +35,25 @@ def gev_plot_big():
     plt.show()
 
 
+def gev_plot_big_non_stationary_location():
+    lim = 5
+    x = np.linspace(-lim, lim, 100)
+    scale, shape = 1, 1
+    locs = [-1, 1]
+    colors = ['red', 'green']
+    y = r.dgev(x, 0.0, scale, shape)
+    plt.plot(x, y, label='distribution of $Y(1968)$', linewidth=5)
+    for loc, color in zip(locs, colors):
+        sign_str = '>' if loc > 0 else '<'
+        label = 'distribution of $Y(1969)$ with $\mu_1 {} 0$'.format(sign_str)
+        y = r.dgev(x, loc, scale, shape)
+        plt.plot(x, y, label=label, linewidth=5, color=color)
+    plt.legend(prop={'size': 20})
+    plt.xlabel('$y$', fontsize=15)
+    plt.tick_params(axis='both', which='major', labelsize=15)
+    plt.show()
+
+
 def max_stable_plot():
     power_n_list = [1, 2, 3]
     fig, axes = plt.subplots(1, len(power_n_list), sharey='row')
@@ -89,7 +108,8 @@ def quantile_function_plot():
 
 
 if __name__ == '__main__':
-    gev_plot_big()
+    # gev_plot_big()
+    gev_plot_big_non_stationary_location()
     # max_stable_plot()
     # quantile_function_plot()
     # max_stable_plot_v2()
