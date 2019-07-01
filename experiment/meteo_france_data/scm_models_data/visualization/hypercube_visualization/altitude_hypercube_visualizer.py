@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter, ScalarFormatter
 
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.abstract_hypercube_visualizer import \
     AbstractHypercubeVisualizer
@@ -13,6 +14,12 @@ from experiment.trend_analysis.univariate_test.abstract_univariate_test import A
 ALTITUDES_XLABEL = 'altitudes'
 
 STARTING_YEARS_XLABEL = 'starting years'
+
+from math import log10, floor
+
+
+def round_sig(x, sig=2):
+    return round(x, sig - int(floor(log10(abs(x)))) - 1)
 
 
 def make_patch_spines_invisible(ax):
@@ -102,7 +109,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
     def visualize_trend_test_evolution(self, reduction_function, xlabel, xlabel_values, axes=None, marker='o',
                                        subtitle='', isin_parameters=None,
-                                       plot_title=None, idx_reduction=None):
+                                       plot_title=None, idx_reduction=None,
+                                       poster_plot=False):
 
         # Plot in one graph several graph that correspond to the same trend_type
         trend_type_to_series = self.trend_type_to_series(reduction_function, isin_parameters)
@@ -153,13 +161,14 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                 ax_reversed, color = ax.twinx(), SCM_STUDY_NAME_TO_COLOR[subtitle]
                 ylabel = 'mean logLik for ' + SCM_STUDY_NAME_TO_ABBREVIATION[subtitle]
                 ax.plot([], [], label=ylabel, color=color)
-                ax_reversed.plot(xlabel_values, values, label=ylabel, color=color)
-                ax_reversed.set_ylabel(ylabel, color=color)
-                ax_reversed.axvline(x=best_year, color=color, linestyle='--')
+                linewidth = 10 if poster_plot else None
+                ax_reversed.plot(xlabel_values, values, label=ylabel, color=color, linewidth=linewidth)
+                fontsize = 30 if poster_plot else None
+                ax_reversed.set_ylabel(ylabel, color=color, fontsize=fontsize, labelpad=-20)
+                ax_reversed.axvline(x=best_year, color=color, linestyle='--', linewidth=linewidth)
 
                 # Offset the right spine of par2.  The ticks and label have already been
                 # placed on the right by twinx above.
-                factor = SCM_STUDIES_NAMES.index(subtitle)
                 position = 1 + idx_reduction * 0.08
                 if idx_reduction > 0:
                     ax_reversed.spines["right"].set_position(("axes", position))
@@ -169,11 +178,21 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                     make_patch_spines_invisible(ax_reversed)
                     # Second, show the right spine.
                     ax_reversed.spines["right"].set_visible(True)
+                if poster_plot:
+                    # ax_reversed.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+                    ax_reversed.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+                    # ax_reversed.tick_params(axis='both', which='major', labelsize=15)
+                    ax_reversed.tick_params(axis='y', which='major', labelsize=25)
+                    # ax.tick_params(axis='x', which='major', labelsize=20)
+                    ax.tick_params(axis='x', which='major', labelsize=25)
+
+                    ax_reversed.yaxis.set_ticks([np.round(min(values), 1), np.round(max(values), 1)])
             else:
                 ax.set_title(plot_title)
                 # ax.legend()
             # Common things to all the graph
-            ax.set_xlabel(xlabel)
+            if not poster_plot:
+                ax.set_xlabel(xlabel)
             plt.setp(ax.get_yticklabels(), visible=False)
 
         specific_title = self.specific_title_trend_evolution(subtitle, xlabel, loglik_title=len(axes_remaining) > 0)
@@ -190,7 +209,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         # percents = [np.round(p) for p in percents]
         # specific_title += 'Total ' if xlabel == STARTING_YEARS_XLABEL else 'Mean '
         # specific_title += 'all trend {}, all significative trends: {} (+:{}  -{})'.format(*percents)
-        plt.suptitle(specific_title)
+        if not poster_plot:
+            plt.suptitle(specific_title)
 
         return specific_title, best_year
 
@@ -270,21 +290,25 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                 massif_to_value = dict(serie)
                 massif_to_color.update({k: color for k, v in massif_to_value.items() if not np.isnan(v)})
 
-        self.study.visualize_study(ax, massif_name_to_color=massif_to_color, show=False)
-        if plot_title is not None:
-            ax.set_title(plot_title)
+        self.study.visualize_study(ax, massif_name_to_color=massif_to_color, show=False,
+                                   show_label=False, scaled=True)
+
+        # ax('scaled')
+        # if plot_title is not None:
+        #     ax.set_title(plot_title)
+        title = self.set_trend_test_reparition_title(subtitle, set=False)
+
         # row_title = self.get_title_plot(xlabel='massifs', ax_idx=i)
         # StudyVisualizer.clean_axes_write_title_on_the_left(axes_row, row_title, left_border=None)
 
-        title = self.set_trend_test_reparition_title(subtitle)
-
         return title
 
-    def set_trend_test_reparition_title(self, subtitle):
+    def set_trend_test_reparition_title(self, subtitle, set=True):
         # Global information
         title = 'Repartition of {} trends'.format(subtitle)
         title += ' at altitude={}m for the starting_year={}'.format(self.altitudes[0], self.starting_years[0])
-        plt.suptitle(title)
+        if set:
+            plt.suptitle(title)
         return title
 
     def load_axes_for_trend_test_repartition(self, nb_rows, nb_columns=None):
@@ -311,7 +335,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
     def visualize_year_trend_test(self, axes=None, marker='o', add_detailed_plots=False, plot_title=None,
                                   isin_parameters=None,
                                   show_or_save_to_file=True,
-                                  subtitle_specified=None):
+                                  subtitle_specified=None,
+                                  poster_plot=False):
         if axes is None:
             axes = self.load_trend_test_evolution_axes(self.nb_rows)
         else:
@@ -330,12 +355,14 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                 subtitle=subtitle,
                 isin_parameters=isin_parameters,
                 plot_title=plot_title,
-                idx_reduction=idx_reduction
+                idx_reduction=idx_reduction,
+                poster_plot=poster_plot
             )
             results.append((specific_title, best_year, subtitle))
         if show_or_save_to_file:
             last_specific_title = results[-1][0]
-            self.show_or_save_to_file(specific_title=last_specific_title)
+            self.show_or_save_to_file(specific_title=last_specific_title,
+                                      )
         return results
 
     @staticmethod
@@ -397,6 +424,6 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                                       isin_parameters=isin_parameters,
                                                                       plot_title=plot_title)
         if show_or_save_to_file:
-            self.show_or_save_to_file(specific_title=last_title)
+            self.show_or_save_to_file(specific_title=last_title, tight=True)
 
         return last_title

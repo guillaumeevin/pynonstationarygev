@@ -44,7 +44,7 @@ def get_fast_quantity_visualizer(quantity_hypercube_class, altitude=1800, study_
 
 def main_mean_log_likelihood_poster_1():
     # Simply the main graph
-    res = get_fast_quantity_visualizer(QuantityHypercubeWithoutTrend).visualize_year_trend_test(add_detailed_plots=True)
+    res = get_fast_quantity_visualizer(QuantityHypercubeWithoutTrend).visualize_year_trend_test(add_detailed_plots=True, poster_plot=True)
     # get_fast_quantity_visualizer(QuantityHypercubeWithoutTrendExtended).vsualize_year_trend_by_regions_and_altitudes(
     #     add_detailed_plot=True)
     # get_fast_altitude_visualizer(AltitudeHypercubeVisualizerWithoutTrendExtended).vsualize_year_trend_by_regions_and_altitudes()
@@ -59,8 +59,8 @@ def main_percentage_trend_poster_2():
 
 
 def main_run():
-    # main_mean_log_likelihood_poster_1()
-    main_percentage_trend_poster_2()
+    main_mean_log_likelihood_poster_1()
+    # main_percentage_trend_poster_2()
 
 
 if __name__ == '__main__':

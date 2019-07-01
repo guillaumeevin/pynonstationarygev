@@ -602,6 +602,36 @@ class StudyVisualizer(VisualizationParameters):
         self.show_or_save_to_file(add_classic_title=False, no_title=True)
         ax.clear()
 
+    @staticmethod
+    def round_sig(x, sig=2):
+        return round(x, sig - int(math.floor(math.log10(abs(x)))) - 1)
+
+    def visualize_gev_graphs_poster(self, massif_name, altitude, snow_abbreviation, color):
+        massif_names = self.study.study_massif_names
+        # Display the graph of the max on top
+        ax = plt.gca()
+        _, y = self.smooth_maxima_x_y(massif_names.index(massif_name))
+        d = IsmevGevFit(x_gev=y).gev_params
+        # Round up
+        d = {k: self.round_sig(v, 2) for k, v in d.items()}
+
+        print(d)
+        gev_param = GevParams.from_dict(d)
+        x_gev = np.linspace(0.0, 1.5 * max(y), num=1000)
+        y_gev = [gev_param.density(x) for x in x_gev]
+        ax.plot(x_gev, y_gev, color=color, linewidth=5)
+        ax.set_xlabel('y = annual maxima of {} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color, fontsize=15)
+        ax.set_ylabel('$f_{GEV}' + '(y|\mu={},\sigma={},\zeta={})$'.format(*gev_param.to_array()), fontsize=15)
+        ax.tick_params(axis='both', which='major', labelsize=13)
+
+        # self.visualize_massif_graphs(self.visualize_mean_and_max_graph,
+        #                              specified_massif_ids=specified_massif_ids)
+        plot_name = 'Gev annual maxima of {} in {} at {}m'.format(snow_abbreviation, massif_name, altitude)
+        self.plot_name = plot_name
+        self.show_or_save_to_file(add_classic_title=False, no_title=True)
+        ax.clear()
+
+
     def visualize_mean_and_max_graph(self, ax, massif_id):
         # Display the graph of the max on top
         color_maxima = 'r'
@@ -735,7 +765,9 @@ class StudyVisualizer(VisualizationParameters):
         label_function(full_title)
         ax0.tick_params(axis=u'both', which=u'both', length=0)
 
-    def show_or_save_to_file(self, add_classic_title=True, no_title=False):
+    def show_or_save_to_file(self, add_classic_title=True, no_title=False, tight_layout=False):
+        if tight_layout:
+            plt.tight_layout()
         assert self.plot_name is not None
         if add_classic_title:
             title = self.study.title

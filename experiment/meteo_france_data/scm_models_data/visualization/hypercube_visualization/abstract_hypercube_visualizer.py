@@ -100,7 +100,7 @@ class AbstractHypercubeVisualizer(object):
     def study_title(self):
         return self.study.title
 
-    def show_or_save_to_file(self, specific_title=''):
+    def show_or_save_to_file(self, specific_title='', tight=False):
         if self.save_to_file:
             main_title, *_ = '_'.join(self.study_title.split()).split('/')
             filename = "{}/{}/".format(VERSION_TIME, main_title)
@@ -109,7 +109,10 @@ class AbstractHypercubeVisualizer(object):
             dirname = op.dirname(filepath)
             if not op.exists(dirname):
                 os.makedirs(dirname, exist_ok=True)
-            plt.savefig(filepath)
+            if tight:
+                plt.savefig(filepath, bbox_inches='tight', pad_inches=-0.03)
+            else:
+                plt.savefig(filepath)
         else:
             plt.show()
         plt.close()
