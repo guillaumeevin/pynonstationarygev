@@ -274,12 +274,12 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
     def visualize_trend_test_repartition_poster(self, reduction_function, axes=None, subtitle='', isin_parameters=None,
                                                 plot_title=None):
-        ax = axes
-        i = 0
-        trend_type_to_serie = {k: v[i].replace(0.0, np.nan) for k, v in
+        trend_type_to_serie = {k: v[0].replace(0.0, np.nan) for k, v in
                                self.trend_type_to_series(reduction_function, isin_parameters).items()}
 
         massif_to_color = {}
+        add_text = self.nb_rows > 1
+        massif_to_year = {}
         poster_trend_types = [AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND,
                               AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND,
                               AbstractUnivariateTest.NON_SIGNIFICATIVE_TREND][:2]
@@ -287,15 +287,18 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             if display_trend_type in poster_trend_types:
                 color = style[:1]
                 serie = trend_type_to_serie[display_trend_type]
-                massif_to_value = dict(serie)
-                massif_to_color.update({k: color for k, v in massif_to_value.items() if not np.isnan(v)})
+                massif_to_color_for_trend_type = {k: color for k, v in dict(serie).items() if not np.isnan(v)}
+                massif_to_color.update(massif_to_color_for_trend_type)
+                if add_text:
+                    massif_to_year_for_trend_type = {k: int(v) for k, v in
+                                                     self.trend_type_to_series(reduction_function, isin_parameters)[
+                                                         display_trend_type][1].items()
+                                                     if k in massif_to_color_for_trend_type}
+                    massif_to_year.update(massif_to_year_for_trend_type)
+        self.study.visualize_study(None, massif_name_to_color=massif_to_color, show=False,
+                                   show_label=False, scaled=True, add_text=add_text,
+                                   massif_name_to_value=massif_to_year)
 
-        self.study.visualize_study(ax, massif_name_to_color=massif_to_color, show=False,
-                                   show_label=False, scaled=True)
-
-        # ax('scaled')
-        # if plot_title is not None:
-        #     ax.set_title(plot_title)
         title = self.set_trend_test_reparition_title(subtitle, set=False)
 
         # row_title = self.get_title_plot(xlabel='massifs', ax_idx=i)
@@ -306,7 +309,9 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
     def set_trend_test_reparition_title(self, subtitle, set=True):
         # Global information
         title = 'Repartition of {} trends'.format(subtitle)
-        title += ' at altitude={}m for the starting_year={}'.format(self.altitudes[0], self.starting_years[0])
+        title += ' at altitude={}m for the starting_year={}'.format(self.altitudes[0], self.first_starting_year)
+        if len(self.starting_years) > 1:
+            title += ' until starting_year={}'.format(self.last_starting_year)
         if set:
             plt.suptitle(title)
         return title

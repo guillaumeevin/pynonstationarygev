@@ -110,7 +110,7 @@ class AbstractHypercubeVisualizer(object):
             if not op.exists(dirname):
                 os.makedirs(dirname, exist_ok=True)
             if tight:
-                plt.savefig(filepath, bbox_inches='tight', pad_inches=-0.03)
+                plt.savefig(filepath, bbox_inches='tight', pad_inches=-0.03, dpi=1000)
             else:
                 plt.savefig(filepath)
         else:

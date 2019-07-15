@@ -32,24 +32,38 @@ def get_fast_altitude_visualizer(altitude_hypercube_class):
 
 def main_fast_spatial_repartition():
     # Simply the main graph
-    get_fast_altitude_visualizer(Altitude_Hypercube_Year_Visualizer).visualize_massif_trend_test()
+    get_fast_altitude_visualizer(Altitude_Hypercube_Year_Visualizer).visualize_massif_trend_test_one_altitude()
 
 
-def get_full_altitude_visualizer(altitude_hypercube_class):
-    altitudes, first_starting_year, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class = get_full_parameters(altitude=900)
+def get_full_altitude_visualizer(altitude_hypercube_class, exact_starting_year=None, altitude=900):
+    altitudes, first_starting_year, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class = get_full_parameters(
+        altitude=altitude)
+    if exact_starting_year is not None:
+        first_starting_year, last_starting_year = None, None
     study_classes = [CrocusRecentSwe]
     visualizer = load_altitude_visualizer(altitude_hypercube_class, altitudes, last_starting_year,
                                           nb_data_reduced_for_speed, only_first_one, save_to_file, study_classes,
-                                          trend_test_class, first_starting_year=first_starting_year)
+                                          trend_test_class, first_starting_year=first_starting_year,
+                                          exact_starting_year=exact_starting_year)
     return visualizer
 
 
+FULL_ALTITUDES = [900, 1500, 2100, 2700]
+
+
 def main_full_spatial_repartition():
-    get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer).visualize_massif_trend_test()
+    for altitude in FULL_ALTITUDES[:]:
+        # Compute for the most likely starting year
+        vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude)
+        vizualiser.visualize_massif_trend_test_one_altitude()
+        # Compute the trend for a linear trend
+        vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude, exact_starting_year=1958)
+        vizualiser.visualize_massif_trend_test_one_altitude()
 
 
 def main_run():
     main_full_spatial_repartition()
+    # main_fast_spatial_repartition()
 
 
 if __name__ == '__main__':
