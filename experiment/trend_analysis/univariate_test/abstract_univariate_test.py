@@ -56,8 +56,8 @@ class AbstractUnivariateTest(object):
     @classmethod
     def display_trend_type_to_style(cls):
         d = OrderedDict()
-        # d[cls.POSITIVE_TREND] = 'g--'
-        # d[cls.NEGATIVE_TREND] = 'r--'
+        d[cls.POSITIVE_TREND] = 'lightgreen-'
+        d[cls.NEGATIVE_TREND] = 'lightcoral-'
         d[cls.ALL_TREND] = 'k-'
         d[cls.NON_SIGNIFICATIVE_TREND] = 'b-'
         # d[cls.SIGNIFICATIVE_ALL_TREND] = 'k-'
@@ -65,6 +65,7 @@ class AbstractUnivariateTest(object):
         d[cls.SIGNIFICATIVE_NEGATIVE_TREND] = 'r-'
         # d[cls.NO_TREND] = 'k--'
         return d
+
 
     @classmethod
     def get_display_trend_type(cls, real_trend_type):

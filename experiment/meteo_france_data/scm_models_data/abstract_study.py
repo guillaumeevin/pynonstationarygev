@@ -228,7 +228,7 @@ class AbstractStudy(object):
     def visualize_study(cls, ax=None, massif_name_to_value: Union[None, Dict[str, float]] = None, show=True, fill=True,
                         replace_blue_by_white=True,
                         label=None, add_text=False, cmap=None, vmax=100, vmin=0,
-                        default_color_for_missing_massif='w',
+                        default_color_for_missing_massif='grey',
                         default_color_for_nan_values='w',
                         massif_name_to_color=None,
                         show_label=True,

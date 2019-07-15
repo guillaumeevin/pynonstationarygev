@@ -282,10 +282,12 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         massif_to_year = {}
         poster_trend_types = [AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND,
                               AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND,
-                              AbstractUnivariateTest.NON_SIGNIFICATIVE_TREND][:2]
+                              AbstractUnivariateTest.NEGATIVE_TREND,
+                              AbstractUnivariateTest.POSITIVE_TREND,
+                              ][:]
         for display_trend_type, style in self.display_trend_type_to_style.items():
             if display_trend_type in poster_trend_types:
-                color = style[:1]
+                color = style[:-1]
                 serie = trend_type_to_serie[display_trend_type]
                 massif_to_color_for_trend_type = {k: color for k, v in dict(serie).items() if not np.isnan(v)}
                 massif_to_color.update(massif_to_color_for_trend_type)
