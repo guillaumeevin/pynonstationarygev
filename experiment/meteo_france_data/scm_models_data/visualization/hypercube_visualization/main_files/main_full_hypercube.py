@@ -22,23 +22,24 @@ def get_full_parameters(altitude=None):
         altitudes = [altitude]
     else:
         altitudes = ALL_ALTITUDES[3:-6]
-    last_starting_year = 2007
+    first_starting_year = 1958 + 10
+    last_starting_year = 2017 - 10
     trend_test_class = GevLocationChangePointTest
-    return altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class
+    return altitudes, first_starting_year, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class
 
 
 def get_full_altitude_visualizer(altitude_hypercube_class, study_classes, exact_starting_year=None, altitude=None):
-    altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class = get_full_parameters(altitude=altitude)
+    altitudes, first_starting_year, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class = get_full_parameters(altitude=altitude)
     if exact_starting_year is not None:
         last_starting_year = None
     visualizer = load_altitude_visualizer(altitude_hypercube_class, altitudes, last_starting_year,
                                           nb_data_reduced_for_speed, only_first_one, save_to_file, study_classes,
-                                          trend_test_class, exact_starting_year=exact_starting_year)
+                                          trend_test_class, exact_starting_year=exact_starting_year, first_starting_year=first_starting_year)
     return visualizer
 
 
 def get_full_quantity_visualizer(quantity_hypercube_class, altitude=None, study_classes=None):
-    altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class = get_full_parameters(altitude=altitude)
+    altitudes, first_starting_year, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class = get_full_parameters(altitude=altitude)
     if study_classes is None:
         study_classes = SCM_STUDIES[:3]
     visualizer = load_quantity_visualizer(quantity_hypercube_class, altitudes, last_starting_year,

@@ -6,7 +6,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.trend_analysis.abstract_score import MannKendall
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusTotalSwe, ExtendedCrocusDepth, \
-    ExtendedCrocusTotalSwe, CrocusDaysWithSnowOnGround
+    ExtendedCrocusTotalSwe, CrocusDaysWithSnowOnGround, CrocusRecentSwe
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranRainfall, \
     SafranTemperature, SafranTotalPrecip
@@ -23,7 +23,8 @@ SCM_STUDIES_NAMES = [get_display_name_from_object_type(k) for k in SCM_STUDIES]
 SCM_STUDY_NAME_TO_SCM_STUDY = dict(zip(SCM_STUDIES_NAMES, SCM_STUDIES))
 SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
-    CrocusTotalSwe: 'SWE',
+    CrocusTotalSwe: 'TSWE',
+    CrocusRecentSwe: 'RSWE',
     CrocusDepth: 'SD',
 }
 
