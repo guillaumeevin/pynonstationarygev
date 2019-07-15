@@ -2,7 +2,7 @@ from itertools import product
 from typing import List
 
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import Crocus, CrocusSwe, CrocusDepth
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import Crocus, CrocusTotalSwe, CrocusDepth
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import SmoothMarginalsThenUnitaryMsp, \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
@@ -119,7 +119,7 @@ def load_safran_studies(altitudes) -> List[Safran]:
 
 
 def load_crocus_studies(altitudes) -> List[Crocus]:
-    crocus_classes = [CrocusSwe, CrocusDepth][:]
+    crocus_classes = [CrocusTotalSwe, CrocusDepth][:]
     return [crocus_class(altitude=altitude) for crocus_class, altitude in product(crocus_classes, altitudes)]
 
 

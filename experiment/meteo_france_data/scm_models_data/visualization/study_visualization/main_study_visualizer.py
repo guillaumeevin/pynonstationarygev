@@ -5,8 +5,8 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 from experiment.trend_analysis.abstract_score import MannKendall
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSwe, ExtendedCrocusDepth, \
-    ExtendedCrocusSwe, CrocusDaysWithSnowOnGround
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusTotalSwe, ExtendedCrocusDepth, \
+    ExtendedCrocusTotalSwe, CrocusDaysWithSnowOnGround
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranRainfall, \
     SafranTemperature, SafranTotalPrecip
@@ -18,17 +18,17 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
     BetweenZeroAndOneNormalization, BetweenMinusOneAndOneNormalization
 from utils import get_display_name_from_object_type
 
-SCM_STUDIES = [SafranSnowfall, CrocusSwe, CrocusDepth]
+SCM_STUDIES = [SafranSnowfall, CrocusTotalSwe, CrocusDepth]
 SCM_STUDIES_NAMES = [get_display_name_from_object_type(k) for k in SCM_STUDIES]
 SCM_STUDY_NAME_TO_SCM_STUDY = dict(zip(SCM_STUDIES_NAMES, SCM_STUDIES))
 SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
-    CrocusSwe: 'SWE',
+    CrocusTotalSwe: 'SWE',
     CrocusDepth: 'SD',
 }
 
 altitude_massif_name_and_study_class_for_poster = [
-    (900, 'Chartreuse', CrocusSwe),
+    (900, 'Chartreuse', CrocusTotalSwe),
     (1800, 'Vanoise', CrocusDepth),
     (2700, 'Parpaillon', SafranSnowfall),
 ]
@@ -40,7 +40,7 @@ SCM_STUDY_CLASS_TO_COLOR = dict(zip(SCM_STUDIES, SCM_COLORS))
 SCM_STUDY_NAME_TO_COLOR = {get_display_name_from_object_type(s): color
                            for s, color in zip(SCM_STUDIES, SCM_COLORS)}
 
-SCM_EXTENDED_STUDIES = [ExtendedSafranSnowfall, ExtendedCrocusSwe, ExtendedCrocusDepth]
+SCM_EXTENDED_STUDIES = [ExtendedSafranSnowfall, ExtendedCrocusTotalSwe, ExtendedCrocusDepth]
 SCM_STUDY_TO_EXTENDED_STUDY = OrderedDict(zip(SCM_STUDIES, SCM_EXTENDED_STUDIES))
 
 ALL_ALTITUDES = [0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 4800]
@@ -109,7 +109,7 @@ def annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, alt
             study_visualizer = StudyVisualizer(study)
             study_visualizer.visualize_annual_mean_values(take_mean_value=True)
     else:
-        for study_class in [CrocusSwe, CrocusDepth, CrocusDaysWithSnowOnGround][-1:]:
+        for study_class in [CrocusTotalSwe, CrocusDepth, CrocusDaysWithSnowOnGround][-1:]:
             study = study_class(altitude=altitude, year_min=1958, year_max=2005)
             study_visualizer = StudyVisualizer(study)
             study_visualizer.visualize_annual_mean_values(take_mean_value=take_mean_value)
@@ -198,7 +198,7 @@ def trend_analysis():
     durand_altitude = [1800]
     altitudes = durand_altitude
     normalization_class = [None, BetweenMinusOneAndOneNormalization, BetweenZeroAndOneNormalization][-1]
-    study_classes = [CrocusSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][2:3]
+    study_classes = [CrocusTotalSwe, CrocusDepth, SafranSnowfall, SafranRainfall, SafranTemperature][2:3]
     for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):
         study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                            transformation_class=normalization_class,
@@ -246,7 +246,7 @@ def max_graph_annual_maxima_poster():
 
 
 def altitude_analysis():
-    study = CrocusSwe(altitude=900)
+    study = CrocusTotalSwe(altitude=900)
     all_names = set(study.study_massif_names)
     for a, names in study.altitude_to_massif_names.items():
         print(a, len(names), all_names - set(names))

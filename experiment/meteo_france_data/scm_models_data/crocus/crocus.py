@@ -2,7 +2,8 @@ import numpy as np
 
 from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusSweVariable, CrocusDepthVariable
+from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusTotalSweVariable, \
+    CrocusDepthVariable, CrocusRecentSweVariable
 
 
 class Crocus(AbstractStudy):
@@ -11,7 +12,7 @@ class Crocus(AbstractStudy):
     """
 
     def __init__(self, variable_class, *args, **kwargs):
-        assert variable_class in [CrocusSweVariable, CrocusDepthVariable]
+        assert variable_class in [CrocusTotalSweVariable, CrocusDepthVariable, CrocusRecentSweVariable]
         super().__init__(variable_class, *args, **kwargs)
         self.model_name = 'Crocus'
 
@@ -25,16 +26,25 @@ class Crocus(AbstractStudy):
         return super().apply_annual_aggregation(time_serie[91:-92, ...])
 
 
-class CrocusSwe(Crocus):
+class CrocusRecentSwe(Crocus):
 
     def __init__(self, *args, **kwargs):
-        Crocus.__init__(self, CrocusSweVariable, *args, **kwargs)
+        Crocus.__init__(self, CrocusRecentSweVariable, *args, **kwargs)
 
     def apply_annual_aggregation(self, time_serie):
         return self.winter_annual_aggregation(time_serie)
 
 
-class ExtendedCrocusSwe(AbstractExtendedStudy, CrocusSwe):
+class CrocusTotalSwe(Crocus):
+
+    def __init__(self, *args, **kwargs):
+        Crocus.__init__(self, CrocusTotalSweVariable, *args, **kwargs)
+
+    def apply_annual_aggregation(self, time_serie):
+        return self.winter_annual_aggregation(time_serie)
+
+
+class ExtendedCrocusTotalSwe(AbstractExtendedStudy, CrocusTotalSwe):
     pass
 
 
@@ -62,6 +72,6 @@ class CrocusDaysWithSnowOnGround(Crocus):
 
 
 if __name__ == '__main__':
-    for study in [CrocusSwe(altitude=900), CrocusSwe(altitude=3000)]:
+    for study in [CrocusRecentSwe(altitude=900)]:
         a = study.year_to_daily_time_serie_array[1960]
-        print(a.shape)
+        print(a)

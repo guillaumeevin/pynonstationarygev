@@ -42,7 +42,7 @@ class AbstractStudy(object):
 
     Les fichiers netcdf de SAFRAN et CROCUS sont autodocumentés (on peut les comprendre avec ncdump -h notamment).
     """
-    REANALYSIS_FOLDER = 'alp_flat/reanalysis'
+    REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_flat/reanalysis'
 
     def __init__(self, variable_class: type, altitude: int = 1800, year_min=1000, year_max=3000,
                  multiprocessing=True):

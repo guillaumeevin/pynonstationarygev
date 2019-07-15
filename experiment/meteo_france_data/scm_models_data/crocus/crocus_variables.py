@@ -10,13 +10,21 @@ class CrocusVariable(AbstractVariable):
         return self.variable_array
 
 
-class CrocusSweVariable(CrocusVariable):
-    NAME = 'Snow Water Equivalent'
+class CrocusTotalSweVariable(CrocusVariable):
+    NAME = 'Snow Water Equivalent total'
     UNIT = 'kg $m^{-2}$'
 
     @classmethod
     def keyword(cls):
         return 'WSN_T_ISBA'
+
+
+class CrocusRecentSweVariable(CrocusTotalSweVariable):
+    NAME = 'Snow Water Equivalent last 3 days'
+
+    @classmethod
+    def keyword(cls):
+        return 'SWE_3DY_ISBA'
 
 
 class CrocusDepthVariable(CrocusVariable):
