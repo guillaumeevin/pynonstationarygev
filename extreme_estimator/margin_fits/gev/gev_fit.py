@@ -12,5 +12,5 @@ class GevFit(object):
         self.x_gev = x_gev
 
     @property
-    def gev_params(self):
+    def gev_params(self) -> GevParams:
         raise NotImplementedError

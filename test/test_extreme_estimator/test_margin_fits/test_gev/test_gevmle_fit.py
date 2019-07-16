@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 
 from extreme_estimator.extreme_models.utils import r, set_seed_r
+from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from extreme_estimator.margin_fits.gev.gevmle_fit import GevMleFit
 from extreme_estimator.margin_fits.gev.ismev_gev_fit import IsmevGevFit
 
@@ -31,6 +32,8 @@ class TestGevMleFit(unittest.TestCase):
     def fit_estimator(self, estimator, ref):
         # Compare the MLE estimated parameters to the reference
         mle_params_estimated = estimator.gev_params
+        self.assertIsInstance(mle_params_estimated, GevParams)
+        mle_params_estimated = mle_params_estimated.to_dict()
         for key in ref.keys():
             self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
 

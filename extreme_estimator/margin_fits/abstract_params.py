@@ -60,3 +60,5 @@ class AbstractParams(object):
     def summary_serie(self) -> pd.Series:
         return pd.Series(self.summary_dict, index=self.SUMMARY_NAMES)
 
+    # Estimators
+

@@ -3,6 +3,7 @@ import os.path as op
 from collections import OrderedDict
 from multiprocessing.pool import Pool
 from random import sample
+from typing import Dict
 
 import math
 import matplotlib.pyplot as plt
@@ -620,7 +621,8 @@ class StudyVisualizer(VisualizationParameters):
         x_gev = np.linspace(0.0, 1.5 * max(y), num=1000)
         y_gev = [gev_param.density(x) for x in x_gev]
         ax.plot(x_gev, y_gev, color=color, linewidth=5)
-        ax.set_xlabel('y = annual maxima of {} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color, fontsize=15)
+        ax.set_xlabel('y = annual maxima of {} (in {})'.format(snow_abbreviation, self.study.variable_unit),
+                      color=color, fontsize=15)
         ax.set_ylabel('$f_{GEV}' + '(y|\mu={},\sigma={},\zeta={})$'.format(*gev_param.to_array()), fontsize=15)
         ax.tick_params(axis='both', which='major', labelsize=13)
 
@@ -630,7 +632,6 @@ class StudyVisualizer(VisualizationParameters):
         self.plot_name = plot_name
         self.show_or_save_to_file(add_classic_title=False, no_title=True)
         ax.clear()
-
 
     def visualize_mean_and_max_graph(self, ax, massif_id):
         # Display the graph of the max on top
@@ -815,6 +816,44 @@ class StudyVisualizer(VisualizationParameters):
         if show:
             plt.show()
 
+    def visualize_summary_of_annual_values_and_stationary_gev_fit(self):
+        fig, axes = plt.subplots(3, 4)
+        fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
+
+        # 1) First row, some experimental indicator
+        axes_first_row = axes[0]
+        df_maxima_gev = self.df_maxima_gev
+        name_to_serie = OrderedDict()
+        name_to_serie['mean'] = df_maxima_gev.mean(axis=1)
+        name_to_serie['std'] = df_maxima_gev.std(axis=1)
+        name_to_serie['quantile 0.9'] = df_maxima_gev.quantile(q=0.9, axis=1)
+        name_to_serie['quantile 0.99'] = df_maxima_gev.quantile(q=0.99, axis=1)
+        for (name, serie), ax in zip(name_to_serie.items(), axes_first_row):
+            self.study.visualize_study(ax=ax,
+                                       massif_name_to_value=serie.to_dict(),
+                                       show=False,
+                                       label='empirical ' + name)
+
+        # 2) Second row, gev parameters fitted independently (and a qqplot)
+        axes_second_row = axes[1]
+        for ax, gev_param_name in zip(axes_second_row, GevParams.PARAM_NAMES):
+            self.study.visualize_study(ax=ax,
+                                       massif_name_to_value=self.df_gev_parameters.loc[gev_param_name, :].to_dict(),
+                                       show=False,
+                                       replace_blue_by_white=gev_param_name != GevParams.SHAPE,
+                                       label=gev_param_name)
+        # self.clean_axes_write_title_on_the_left(axes, title='Independent fits')
+
+        # 3) Third row, gev indicator
+        axes_third_row = axes[2]
+        for ax, indicator_name in zip(axes_third_row, GevParams.indicator_names()):
+            self.study.visualize_study(ax=ax,
+                                       massif_name_to_value=self.df_gev_indicators.loc[indicator_name, :].to_dict(),
+                                       show=False,
+                                       label='gev ' + indicator_name)
+
+        plt.show()
+
     def visualize_annual_mean_values(self, ax=None, take_mean_value=True):
         if ax is None:
             _, ax = plt.subplots(1, 1, figsize=self.figsize)
@@ -837,11 +876,21 @@ class StudyVisualizer(VisualizationParameters):
     def df_maxima_gev(self) -> pd.DataFrame:
         return self.study.observations_annual_maxima.df_maxima_gev
 
-    @property
-    def df_gev_mle(self) -> pd.DataFrame:
-        # Fit a margin_fits on each massif
-        massif_to_gev_mle = {massif_name: IsmevGevFit(self.df_maxima_gev.loc[massif_name]).gev_params.summary_serie
-                             for massif_name in self.study.study_massif_names}
+    @cached_property
+    def massif_name_to_gev_mle_fitted(self) -> Dict[str, GevParams]:
+        return {massif_name: IsmevGevFit(self.df_maxima_gev.loc[massif_name]).gev_params
+                for massif_name in self.study.study_massif_names}
+
+    @cached_property
+    def df_gev_parameters(self) -> pd.DataFrame:
+        massif_to_gev_mle = {massif_name: gev_params.to_dict()
+                             for massif_name, gev_params in self.massif_name_to_gev_mle_fitted.items()}
+        return pd.DataFrame(massif_to_gev_mle, columns=self.study.study_massif_names)
+
+    @cached_property
+    def df_gev_indicators(self) -> pd.DataFrame:
+        massif_to_gev_mle = {massif_name: gev_params.indicator_name_to_value
+                             for massif_name, gev_params in self.massif_name_to_gev_mle_fitted.items()}
         return pd.DataFrame(massif_to_gev_mle, columns=self.study.study_massif_names)
 
     @property

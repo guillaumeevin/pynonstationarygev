@@ -216,10 +216,10 @@ def trend_analysis():
 def maxima_analysis():
     save_to_file = False
     only_first_one = True
-    durand_altitude = [1800]
+    durand_altitude = [2700]
     altitudes = durand_altitude
     normalization_class = BetweenZeroAndOneNormalization
-    study_classes = [SafranSnowfall][:]
+    study_classes = [CrocusRecentSwe][:]
     for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):
         study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                            transformation_class=normalization_class,
@@ -228,9 +228,11 @@ def maxima_analysis():
                                            multiprocessing=True,
                                            complete_non_stationary_trend_analysis=True,
                                            score_class=MannKendall)
-        study_visualizer.visualize_all_score_wrt_starting_year()
+        # study_visualizer.visualize_all_score_wrt_starting_year()
         # study_visualizer.visualize_all_independent_temporal_trend()
-        study_visualizer.visualize_all_mean_and_max_graphs()
+        # study_visualizer.visualize_independent_margin_fits()
+        # study_visualizer.visualize_all_mean_and_max_graphs()
+        study_visualizer.visualize_summary_of_annual_values_and_stationary_gev_fit()
 
 
 def max_graph_annual_maxima_poster():
@@ -258,7 +260,8 @@ def main_run():
     # trend_analysis()
 
     # altitude_analysis()
-    max_graph_annual_maxima_poster()
+    # max_graph_annual_maxima_poster()
+    maxima_analysis()
     # case_study()
     # all_scores_vizu()
     # maxima_analysis()

@@ -1,10 +1,14 @@
+from collections import OrderedDict
+
+from cached_property import cached_property
+
 from extreme_estimator.extreme_models.utils import r
 from extreme_estimator.margin_fits.extreme_params import ExtremeParams
 import numpy as np
+from scipy.special import gamma
 
 
 class GevParams(ExtremeParams):
-
     # Parameters
     PARAM_NAMES = [ExtremeParams.LOC, ExtremeParams.SCALE, ExtremeParams.SHAPE]
     # Summary
@@ -40,3 +44,40 @@ class GevParams(ExtremeParams):
 
     def __str__(self):
         return self.to_dict().__str__()
+
+    def g(self, k):
+        # Compute the g_k parameters as defined in wikipedia
+        # https://fr.wikipedia.org/wiki/Loi_d%27extremum_g%C3%A9n%C3%A9ralis%C3%A9e
+        return gamma(1 - k * self.shape)
+
+    @property
+    def mean(self):
+        if self.shape >= 1:
+            return np.inf
+        else:
+            return self.location + self.scale * (self.g(k=1) - 1) / self.shape
+
+    @property
+    def variance(self):
+        if self.shape >= 0.5:
+            return np.inf
+        else:
+            return ((self.scale / self.shape) ** 2) * (self.g(k=2) - self.g(k=1) ** 2)
+
+    @property
+    def std(self):
+        return np.sqrt(self.variance)
+
+    @classmethod
+    def indicator_names(cls):
+        return ['mean', 'std'] + cls.QUANTILE_NAMES[:2]
+
+    @cached_property
+    def indicator_name_to_value(self) -> OrderedDict:
+        indicator_name_to_value = OrderedDict()
+        indicator_name_to_value['mean'] = self.mean
+        indicator_name_to_value['std'] = self.std
+        for quantile_name, quantile_value in zip(self.QUANTILE_NAMES[:2], self.QUANTILE_P_VALUES):
+            indicator_name_to_value[quantile_name] = self.quantile(quantile_value)
+        assert all([a == b for a, b in zip(self.indicator_names(), indicator_name_to_value.keys())])
+        return indicator_name_to_value

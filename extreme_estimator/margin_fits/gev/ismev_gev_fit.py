@@ -16,9 +16,10 @@ class IsmevGevFit(GevFit):
         self.res = ismev_gev_fit(x_gev, y, mul)
 
     @property
-    def gev_params(self):
+    def gev_params(self) -> GevParams:
         assert self.y is None
-        return dict(zip(GevParams.PARAM_NAMES, self.res['mle']))
+        gev_params_dict = dict(zip(GevParams.PARAM_NAMES, self.res['mle']))
+        return GevParams.from_dict(gev_params_dict)
 
 
 

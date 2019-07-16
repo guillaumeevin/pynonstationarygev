@@ -13,7 +13,7 @@ class GevMleFit(GevFit):
         self.gev_params_object = GevParams.from_dict({**self._gev_params, 'block_size': block_size})
 
     @property
-    def gev_params(self):
-        return self._gev_params
+    def gev_params(self) -> GevParams:
+        return self.gev_params_object
 
 
