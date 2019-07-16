@@ -9,7 +9,9 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     SCM_STUDY_NAME_TO_COLOR, SCM_STUDY_NAME_TO_ABBREVIATION, SCM_STUDY_CLASS_TO_ABBREVIATION, SCM_STUDIES_NAMES
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
+from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import AbstractGevChangePointTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
+from extreme_estimator.margin_fits.gev.gev_params import GevParams
 
 ALTITUDES_XLABEL = 'altitudes'
 
@@ -71,11 +73,13 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         assert not isinstance(s_trend_type_percentage.index, pd.MultiIndex)
         s_trend_type_percentage *= 100
         series = [s_trend_type_percentage]
-        # # Reduce df_strength to a serie s_trend_strength
-        # df_strength = self.df_hypercube_trend_strength[df_bool]
-        # s_trend_strength = reduction_function(df_strength)
-        # # Group result
-        # series = [s_trend_type_percentage, s_trend_strength]
+        if self.reduce_strength_array:
+            # Reduce df_strength to a serie s_trend_strength
+            df_strength = self.df_hypercube_trend_slope_relative_strength[df_bool]
+            s_trend_strength = reduction_function(df_strength)
+            df_constant = self.df_hypercube_trend_constant_quantile[df_bool]
+            s_trend_constant = reduction_function(df_constant)
+            series.extend([s_trend_strength, s_trend_constant])
         return series
 
     def subtitle_to_reduction_function(self, reduction_function, level=None, add_detailed_plot=False, subtitle=None):
@@ -280,6 +284,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         massif_to_color = {}
         add_text = self.nb_rows > 1
         massif_to_year = {}
+        massif_to_strength = {}
+        massif_to_constant = {}
         poster_trend_types = [AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND,
                               AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND,
                               AbstractUnivariateTest.NEGATIVE_TREND,
@@ -292,15 +298,36 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                 massif_to_color_for_trend_type = {k: color for k, v in dict(serie).items() if not np.isnan(v)}
                 massif_to_color.update(massif_to_color_for_trend_type)
                 if add_text:
-                    massif_to_year_for_trend_type = {k: int(v) for k, v in
-                                                     self.trend_type_to_series(reduction_function, isin_parameters)[
-                                                         display_trend_type][1].items()
-                                                     if k in massif_to_color_for_trend_type}
-                    massif_to_year.update(massif_to_year_for_trend_type)
+                    if self.reduce_strength_array:
+                        massif_to_value_for_trend_type = [{k: v for k, v in
+                                                           self.trend_type_to_series(reduction_function,
+                                                                                     isin_parameters)[
+                                                               display_trend_type][i].items()
+                                                           if k in massif_to_color_for_trend_type} for i in [1, 2]]
+                        massif_to_strength.update(massif_to_value_for_trend_type[0])
+                        massif_to_constant.update(massif_to_value_for_trend_type[1])
+                    else:
+                        massif_to_value_for_trend_type = {k: int(v) for k, v in
+                                                          self.trend_type_to_series(reduction_function,
+                                                                                    isin_parameters)[
+                                                              display_trend_type][1].items()
+                                                          if k in massif_to_color_for_trend_type}
+                        massif_to_year.update(massif_to_value_for_trend_type)
+        # Compute massif_to_value
+        if self.reduce_strength_array:
+            massif_name_to_value = {m: "{} {}{} / {} year(s)".format(
+                                                                      int(massif_to_constant[m]),
+                                                                      "+" if massif_to_strength[m] > 0 else "",
+                                                                      round(massif_to_strength[m] * massif_to_constant[m], 1),
+                                                                      AbstractGevChangePointTest.nb_years_for_quantile_evolution)
+                                    for m in massif_to_strength}
+        else:
+            massif_name_to_value = massif_to_year
         self.study.visualize_study(None, massif_name_to_color=massif_to_color, show=False,
                                    show_label=False, scaled=True, add_text=add_text,
-                                   massif_name_to_value=massif_to_year)
+                                   massif_name_to_value=massif_name_to_value)
 
+        print(subtitle)
         title = self.set_trend_test_reparition_title(subtitle, set=False)
 
         # row_title = self.get_title_plot(xlabel='massifs', ax_idx=i)

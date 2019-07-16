@@ -21,6 +21,9 @@ from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_tempor
 
 class AbstractGevChangePointTest(AbstractUnivariateTest):
     RRunTimeError_TREND = 'R RunTimeError trend'
+    # I should use the quantile from the Eurocode for the buildings
+    quantile_for_strength = 0.98
+    nb_years_for_quantile_evolution = 10
 
     def __init__(self, years, maxima, starting_year, non_stationary_model_class, gev_param_name):
         super().__init__(years, maxima, starting_year)
@@ -28,8 +31,12 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
         df = pd.DataFrame({AbstractCoordinates.COORDINATE_T: years})
         df_maxima_gev = pd.DataFrame(maxima, index=df.index)
         observations = AbstractSpatioTemporalObservations(df_maxima_gev=df_maxima_gev)
-        self.coordinates = AbstractTemporalCoordinates.from_df(df, transformation_class=CenteredScaledNormalization) # type: AbstractTemporalCoordinates
+        self.coordinates = AbstractTemporalCoordinates.from_df(df,
+                                                               transformation_class=CenteredScaledNormalization)  # type: AbstractTemporalCoordinates
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
+        # For the moment, we chose:
+        # -the 0.99 quantile (even if for building maybe we should use the 1/50 so 0.98 quantile)
+        # -to see the evolution between two successive years
 
         try:
             # Fit stationary model
@@ -60,11 +67,8 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
         return self.non_stationary_deviance - self.stationary_deviance
 
     @property
-    def non_stationary_nllh(self):
-        if self.crashed:
-            return np.nan
-        else:
-            return self.non_stationary_estimator.result_from_fit.nllh
+    def non_stationary_constant_gev_params(self) -> GevParams:
+        return self.non_stationary_estimator.result_from_fit.constant_gev_params
 
     @property
     def stationary_deviance(self):
@@ -79,6 +83,13 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
             return np.nan
         else:
             return self.non_stationary_estimator.result_from_fit.deviance
+
+    @property
+    def non_stationary_nllh(self):
+        if self.crashed:
+            return np.nan
+        else:
+            return self.non_stationary_estimator.result_from_fit.nllh
 
     @property
     def is_significant(self) -> bool:
@@ -111,11 +122,23 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
         return self.get_coef(self.non_stationary_estimator, AbstractCoordinates.COORDINATE_T)
 
     @property
-    def test_trend_strength(self):
+    def test_trend_slope_strength(self):
         if self.crashed:
             return 0.0
         else:
-            return self.percentage_of_change_per_year
+            slope = self._slope_strength()
+            slope *= self.nb_years_for_quantile_evolution * self.coordinates.transformed_distance_between_two_successive_years[0]
+            return slope
+
+    def _slope_strength(self):
+        raise NotImplementedError
+
+    @property
+    def test_trend_constant_quantile(self):
+        if self.crashed:
+            return 0.0
+        else:
+            return self.non_stationary_constant_gev_params.quantile(p=self.quantile_for_strength)
 
     @property
     def percentage_of_change_per_year(self):
@@ -134,6 +157,10 @@ class GevLocationChangePointTest(AbstractGevChangePointTest):
     def __init__(self, years, maxima, starting_year):
         super().__init__(years, maxima, starting_year,
                          NonStationaryLocationStationModel, GevParams.LOC)
+
+    def _slope_strength(self):
+        return self.non_stationary_constant_gev_params.quantile_strength_evolution_ratio(p=self.quantile_for_strength,
+                                                                                         mu1=self.non_stationary_linear_coef)
 
 
 class GevScaleChangePointTest(AbstractGevChangePointTest):

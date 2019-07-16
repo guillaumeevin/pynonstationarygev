@@ -105,7 +105,7 @@ class AbstractUnivariateTest(object):
         return len(self.years)
 
     @property
-    def test_trend_strength(self):
+    def test_trend_slope_strength(self):
         return 0.0
 
     @property

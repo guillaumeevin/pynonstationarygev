@@ -463,11 +463,11 @@ class StudyVisualizer(VisualizationParameters):
             sample_one_massif_from_each_region)
         for massif_name, gev_change_point_test_results in massif_name_to_gev_change_point_test_results.items():
             trend_test_res, best_idxs = gev_change_point_test_results
-            trend_test_res = [(a, b, c) if i in best_idxs else (np.nan, np.nan, c)
-                              for i, (a, b, c, *_) in enumerate(trend_test_res)]
+            trend_test_res = [(a, b, c, d) if i in best_idxs else (np.nan, np.nan, c, np.nan)
+                              for i, (a, b, c, d, *_) in enumerate(trend_test_res)]
             massif_name_to_trend_res[massif_name] = list(zip(*trend_test_res))
         nb_res = len(list(massif_name_to_trend_res.values())[0])
-        assert nb_res == 3
+        assert nb_res == 4
         all_massif_name_to_res = [{k: v[idx_res] for k, v in massif_name_to_trend_res.items()}
                                   for idx_res in range(nb_res)]
         return [pd.DataFrame(massif_name_to_res, index=self.starting_years_for_change_point_test).transpose()

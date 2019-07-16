@@ -299,7 +299,7 @@ class AbstractStudy(object):
                 x, y = list(row)
                 massif_name = row.name
                 value = massif_name_to_value[massif_name]
-                str_value = str(round(value, 1)) if isinstance(value, str) else str(value)
+                str_value = str(value)
                 ax.text(x, y, str_value, horizontalalignment='center', verticalalignment='center', fontsize=7)
 
         if scaled:

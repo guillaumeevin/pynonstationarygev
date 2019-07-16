@@ -251,10 +251,10 @@ class ComparisonsVisualization(VisualizationParameters):
             label += "\n {} starting in {}".format(display_trend_type, most_likely_year)
             ordered_dict[TREND_TYPE_CNAME] = display_trend_type
             ordered_dict['most likely year'] = most_likely_year
-            # Display the nllh against the starting year
+            # Display the deviance against the starting year
             step = 1
-            ax2.plot(starting_years[::step], [t[3] for t in trend_test_res][::step], color=plot_color, marker='o')
-            ax2.plot(starting_years[::step], [t[4] for t in trend_test_res][::step], color=plot_color, marker='x')
+            ax2.plot(starting_years[::step], [t[4] for t in trend_test_res][::step], color=plot_color, marker='o')
+            ax2.plot(starting_years[::step], [t[5] for t in trend_test_res][::step], color=plot_color, marker='x')
         # Plot maxima
         ax.grid()
         ax.plot(years, maxima, label=label, color=plot_color)
@@ -270,7 +270,7 @@ class ComparisonsVisualization(VisualizationParameters):
         res = safe_run_r_estimator(function=r('gev.fit'), xdat=ro.FloatVector(data),
                                    use_start=True)
         res = ResultFromIsmev(res, {})
-        gev_params = res.stationary_gev_params
+        gev_params = res.constant_gev_params
 
         lim = 1.5 * max(data)
         x = np.linspace(0, lim, 1000)

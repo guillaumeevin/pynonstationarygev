@@ -20,11 +20,13 @@ class AbstractHypercubeVisualizer(object):
     def __init__(self, tuple_to_study_visualizer: Dict[Tuple, StudyVisualizer],
                  trend_test_class,
                  nb_data_reduced_for_speed=False,
+                 reduce_strength_array=False,
                  save_to_file=False,
                  first_starting_year=None,
                  last_starting_year=None,
                  exact_starting_year=None,
                  verbose=True):
+        self.reduce_strength_array = reduce_strength_array
         self.verbose = verbose
         self.save_to_file = save_to_file
         self.trend_test_class = trend_test_class
@@ -87,12 +89,16 @@ class AbstractHypercubeVisualizer(object):
                                              )
 
     @cached_property
-    def df_hypercube_trend_strength(self) -> pd.DataFrame:
+    def df_hypercube_trend_slope_relative_strength(self) -> pd.DataFrame:
         return self._df_hypercube_trend_meta(idx=1)
 
     @cached_property
     def df_hypercube_trend_nllh(self) -> pd.DataFrame:
         return self._df_hypercube_trend_meta(idx=2)
+
+    @cached_property
+    def df_hypercube_trend_constant_quantile(self) -> pd.DataFrame:
+        return self._df_hypercube_trend_meta(idx=3)
 
     # Some properties
 

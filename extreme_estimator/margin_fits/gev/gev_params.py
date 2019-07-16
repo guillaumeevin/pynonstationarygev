@@ -45,6 +45,24 @@ class GevParams(ExtremeParams):
     def __str__(self):
         return self.to_dict().__str__()
 
+    def quantile_strength_evolution_ratio(self, p=0.99, mu1=0.0, sigma1=0.0):
+        """
+        Compute the relative evolution of some quantile with respect to time.
+        (when mu1 and sigma1 can be modified with time)
+
+        :param p: level of the quantile
+        :param mu1: temporal slope of the location parameter
+        :param sigma1: temporal slope of the scale parameter
+        :return: A string summarizing the evolution ratio
+        """
+        initial_quantile = self.quantile(p)
+        quantity_increased = mu1
+        if sigma1 != 0:
+            quantity_increased += (sigma1 / self.shape) * (1 - (- np.float_power(np.log(p), -self.shape)))
+        return quantity_increased / initial_quantile
+
+    # Compute some indicators (such as the mean and the variance)
+
     def g(self, k):
         # Compute the g_k parameters as defined in wikipedia
         # https://fr.wikipedia.org/wiki/Loi_d%27extremum_g%C3%A9n%C3%A9ralis%C3%A9e

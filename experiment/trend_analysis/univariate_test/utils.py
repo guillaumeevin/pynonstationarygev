@@ -9,7 +9,7 @@ from utils import NB_CORES
 def compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_test_class, years):
     trend_test = trend_test_class(years, smooth_maxima, starting_year)  # type: AbstractGevChangePointTest
     assert isinstance(trend_test, AbstractGevChangePointTest)
-    return trend_test.test_trend_type, trend_test.test_trend_strength, trend_test.non_stationary_nllh, trend_test.non_stationary_deviance, trend_test.stationary_deviance
+    return trend_test.test_trend_type, trend_test.test_trend_slope_strength, trend_test.non_stationary_nllh, trend_test.test_trend_constant_quantile, trend_test.non_stationary_deviance, trend_test.stationary_deviance
 
 
 def compute_gev_change_point_test_results(multiprocessing, maxima, starting_years, trend_test_class,
