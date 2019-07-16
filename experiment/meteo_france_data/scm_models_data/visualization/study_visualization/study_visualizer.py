@@ -6,6 +6,7 @@ from random import sample
 from typing import Dict
 
 import math
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -751,20 +752,24 @@ class StudyVisualizer(VisualizationParameters):
         else:
             *clean_axes, ax0 = axes
         for ax in clean_axes:
-            ax.tick_params(axis=u'both', which=u'both', length=0)
-            ax.spines['top'].set_visible(False)
-            ax.spines['right'].set_visible(False)
-            ax.spines['bottom'].set_visible(False)
-            ax.spines['left'].set_visible(False)
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-            ax.set_aspect('equal')
+            StudyVisualizer.clean_ax(ax)
         ax0.get_yaxis().set_visible(True)
         sub_title = ax0.yaxis.get_label()
         full_title = title + '\n\n' + sub_title._text
         label_function = ax0.set_ylabel if left_border or left_border is None else ax0.set_xlabel
         label_function(full_title)
         ax0.tick_params(axis=u'both', which=u'both', length=0)
+
+    @staticmethod
+    def clean_ax(ax):
+        ax.tick_params(axis=u'both', which=u'both', length=0)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        ax.set_aspect('equal')
 
     def show_or_save_to_file(self, add_classic_title=True, no_title=False, tight_layout=False):
         if tight_layout:
@@ -842,7 +847,9 @@ class StudyVisualizer(VisualizationParameters):
                                        show=False,
                                        replace_blue_by_white=gev_param_name != GevParams.SHAPE,
                                        label=gev_param_name)
-        # self.clean_axes_write_title_on_the_left(axes, title='Independent fits')
+        # todo: add qqplot drawn for each massif on the map in the last cell
+        # or just it could be some fitting score based on the qqplot... and we just display the value
+        # like the log likelihood, (or we could also display some uncertainty here)
 
         # 3) Third row, gev indicator
         axes_third_row = axes[2]
@@ -852,7 +859,11 @@ class StudyVisualizer(VisualizationParameters):
                                        show=False,
                                        label='gev ' + indicator_name)
 
-        plt.show()
+        # Clean all ax
+        for ax in axes.flatten():
+            StudyVisualizer.clean_ax(ax)
+        self.plot_name = 'Overview of empirical and stationary gev indicators'
+        self.show_or_save_to_file()
 
     def visualize_annual_mean_values(self, ax=None, take_mean_value=True):
         if ax is None:
