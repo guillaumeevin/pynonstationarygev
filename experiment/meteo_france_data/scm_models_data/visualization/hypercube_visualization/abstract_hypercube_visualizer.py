@@ -39,8 +39,7 @@ class AbstractHypercubeVisualizer(object):
             self.nb_data_for_fast_mode = nb_data_reduced_for_speed
 
         if exact_starting_year is not None:
-            assert first_starting_year is None
-            assert last_starting_year is None
+            assert first_starting_year is None and last_starting_year is None
             self.first_starting_year, self.last_starting_year = exact_starting_year, exact_starting_year
         else:
             default_first_starting_year, *_, default_last_starting_year = self.all_potential_starting_years

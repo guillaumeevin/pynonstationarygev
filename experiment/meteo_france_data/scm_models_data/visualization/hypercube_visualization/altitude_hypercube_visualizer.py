@@ -327,7 +327,6 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                    show_label=False, scaled=True, add_text=add_text,
                                    massif_name_to_value=massif_name_to_value)
 
-        print(subtitle)
         title = self.set_trend_test_reparition_title(subtitle, set=False)
 
         # row_title = self.get_title_plot(xlabel='massifs', ax_idx=i)

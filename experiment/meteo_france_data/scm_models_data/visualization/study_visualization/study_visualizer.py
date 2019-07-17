@@ -2,7 +2,7 @@ import os
 import os.path as op
 from collections import OrderedDict
 from multiprocessing.pool import Pool
-from random import sample
+from random import sample, seed
 from typing import Dict
 
 import math
@@ -423,16 +423,20 @@ class StudyVisualizer(VisualizationParameters):
         massif_name_to_gev_change_point_test_results = {}
         if self.nb_massif_for_change_point_test is None:
             massif_names = self.study.study_massif_names
-        elif self.sample_one_massif_from_each_region:
-            # Get one massif from each region to ensure that the fast plot will not crash
-            assert self.nb_massif_for_change_point_test >= 4, 'we need at least one massif from each region'
-            massif_names = [AbstractExtendedStudy.region_name_to_massif_names[r][0]
-                            for r in AbstractExtendedStudy.real_region_names]
-            massif_names_for_sampling = list(set(self.study.study_massif_names) - set(massif_names))
-            nb_massif_for_sampling = self.nb_massif_for_change_point_test - len(AbstractExtendedStudy.real_region_names)
-            massif_names += sample(massif_names_for_sampling, k=nb_massif_for_sampling)
         else:
-            massif_names = sample(self.study.study_massif_names, k=self.nb_massif_for_change_point_test)
+            # Set the random seed to the same number so that
+            print('Setting the random seed to ensure similar sampling in the fast mode')
+            seed(42)
+            if self.sample_one_massif_from_each_region:
+                # Get one massif from each region to ensure that the fast plot will not crash
+                assert self.nb_massif_for_change_point_test >= 4, 'we need at least one massif from each region'
+                massif_names = [AbstractExtendedStudy.region_name_to_massif_names[r][0]
+                                for r in AbstractExtendedStudy.real_region_names]
+                massif_names_for_sampling = list(set(self.study.study_massif_names) - set(massif_names))
+                nb_massif_for_sampling = self.nb_massif_for_change_point_test - len(AbstractExtendedStudy.real_region_names)
+                massif_names += sample(massif_names_for_sampling, k=nb_massif_for_sampling)
+            else:
+                massif_names = sample(self.study.study_massif_names, k=self.nb_massif_for_change_point_test)
 
         for massif_id, massif_name in enumerate(massif_names):
             years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
