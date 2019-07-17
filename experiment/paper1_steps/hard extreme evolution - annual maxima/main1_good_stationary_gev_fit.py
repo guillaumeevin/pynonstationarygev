@@ -6,7 +6,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 
 
 def maxima_analysis():
-    save_to_file = True
+    save_to_file = False
     only_first_one = False
     durand_altitude = [900, 1500, 2100, 2700]
     altitudes = durand_altitude

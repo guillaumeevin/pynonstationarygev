@@ -14,13 +14,13 @@ FULL_ALTITUDES = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
 
 
 def get_full_altitude_visualizer(altitude_hypercube_class, exact_starting_year=None, altitude=900,
-                                           reduce_strength_array=False):
-    altitudes, first_starting_year, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class = get_full_parameters(
+                                 reduce_strength_array=False,
+                                 trend_test_class = GevLocationChangePointTest):
+    altitudes, first_starting_year, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, _ = get_full_parameters(
         altitude=altitude)
     if exact_starting_year is not None:
         first_starting_year, last_starting_year = None, None
     study_classes = [CrocusRecentSwe]
-    trend_test_class = GevLocationChangePointTest
     visualizer = load_altitude_visualizer(altitude_hypercube_class, altitudes, last_starting_year,
                                           nb_data_reduced_for_speed, only_first_one, save_to_file, study_classes,
                                           trend_test_class, first_starting_year=first_starting_year,

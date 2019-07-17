@@ -58,7 +58,8 @@ class GevParams(ExtremeParams):
         initial_quantile = self.quantile(p)
         quantity_increased = mu1
         if sigma1 != 0:
-            quantity_increased += (sigma1 / self.shape) * (1 - (- np.float_power(np.log(p), -self.shape)))
+            power = np.float_power(- np.log(p), -self.shape)
+            quantity_increased -= (sigma1 / self.shape) * (1 - power)
         return quantity_increased / initial_quantile
 
     # Compute some indicators (such as the mean and the variance)

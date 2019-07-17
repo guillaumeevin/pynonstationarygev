@@ -169,6 +169,11 @@ class GevScaleChangePointTest(AbstractGevChangePointTest):
         super().__init__(years, maxima, starting_year,
                          NonStationaryScaleStationModel, GevParams.SCALE)
 
+    def _slope_strength(self):
+        return self.non_stationary_constant_gev_params.quantile_strength_evolution_ratio(
+            p=self.quantile_for_strength,
+            sigma1=self.non_stationary_linear_coef)
+
 
 class GevShapeChangePointTest(AbstractGevChangePointTest):
 
