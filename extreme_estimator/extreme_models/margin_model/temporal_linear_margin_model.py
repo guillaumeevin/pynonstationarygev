@@ -72,3 +72,18 @@ class NonStationaryShapeStationModel(TemporalLinearMarginModel):
     @property
     def shl(self):
         return 1
+
+
+class NonStationaryLocationAndScaleModel(TemporalLinearMarginModel):
+
+    def load_margin_functions(self, gev_param_name_to_dims=None):
+        super().load_margin_functions({GevParams.LOC: [self.coordinates.idx_temporal_coordinates],
+                                       GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
+
+    @property
+    def mul(self):
+        return 1
+
+    @property
+    def sigl(self):
+        return 1

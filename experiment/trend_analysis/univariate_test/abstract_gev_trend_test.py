@@ -25,9 +25,8 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     quantile_for_strength = 0.98
     nb_years_for_quantile_evolution = 10
 
-    def __init__(self, years, maxima, starting_year, non_stationary_model_class, gev_param_name):
+    def __init__(self, years, maxima, starting_year, non_stationary_model_class):
         super().__init__(years, maxima, starting_year)
-        self.gev_param_name = gev_param_name
         df = pd.DataFrame({AbstractCoordinates.COORDINATE_T: years})
         df_maxima_gev = pd.DataFrame(maxima, index=df.index)
         observations = AbstractSpatioTemporalObservations(df_maxima_gev=df_maxima_gev)
@@ -103,6 +102,14 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
             return self.non_stationary_estimator.result_from_fit.nllh
 
     # Evolution of the GEV parameters and corresponding quantiles
+
+    @property
+    def test_sign(self) -> int:
+        return np.sign(self.test_trend_slope_strength)
+
+    def get_non_stationary_linear_coef(self, gev_param_name):
+        return self.non_stationary_estimator.margin_function_fitted.get_coef(gev_param_name,
+                                                                             AbstractCoordinates.COORDINATE_T)
 
     @property
     def non_stationary_constant_gev_params(self) -> GevParams:
