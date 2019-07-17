@@ -233,6 +233,7 @@ class AbstractStudy(object):
                         massif_name_to_color=None,
                         show_label=True,
                         scaled=False,
+                        fontsize=7,
                         ):
         if ax is None:
             ax = plt.gca()
@@ -300,7 +301,7 @@ class AbstractStudy(object):
                 massif_name = row.name
                 value = massif_name_to_value[massif_name]
                 str_value = str(value)
-                ax.text(x, y, str_value, horizontalalignment='center', verticalalignment='center', fontsize=7)
+                ax.text(x, y, str_value, horizontalalignment='center', verticalalignment='center', fontsize=fontsize)
 
         if scaled:
             plt.axis('scaled')

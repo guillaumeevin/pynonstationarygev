@@ -16,13 +16,13 @@ def main_fast_spatial_risk_evolution():
         vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                   exact_starting_year=1958, reduce_strength_array=True,
                                                   trend_test_class=GevScaleChangePointTest)
-        vizualiser.save_to_file = False
+        # vizualiser.save_to_file = False
         vizualiser.visualize_massif_trend_test_one_altitude()
 
 
 def main_full_spatial_risk_evolution():
     for altitude in FULL_ALTITUDES[:]:
-        for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest][1:]:
+        for trend_test_class in [GevLocationChangePointTest, GevScaleChangePointTest][:]:
             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                       exact_starting_year=1958, reduce_strength_array=True,
                                                       trend_test_class=trend_test_class)

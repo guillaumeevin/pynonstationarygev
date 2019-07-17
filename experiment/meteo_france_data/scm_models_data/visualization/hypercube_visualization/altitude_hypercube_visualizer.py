@@ -12,6 +12,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import AbstractGevChangePointTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
+from utils import get_display_name_from_object_type
 
 ALTITUDES_XLABEL = 'altitudes'
 
@@ -315,7 +316,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                         massif_to_year.update(massif_to_value_for_trend_type)
         # Compute massif_to_value
         if self.reduce_strength_array:
-            massif_name_to_value = {m: "{} {}{} / {} year(s)".format(
+            massif_name_to_value = {m: "{} {}{}".format(
                                                                       int(massif_to_constant[m]),
                                                                       "+" if massif_to_strength[m] > 0 else "",
                                                                       round(massif_to_strength[m] * massif_to_constant[m], 1),
@@ -325,21 +326,24 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             massif_name_to_value = massif_to_year
         self.study.visualize_study(None, massif_name_to_color=massif_to_color, show=False,
                                    show_label=False, scaled=True, add_text=add_text,
-                                   massif_name_to_value=massif_name_to_value)
+                                   massif_name_to_value=massif_name_to_value,
+                                   fontsize=4)
 
-        title = self.set_trend_test_reparition_title(subtitle, set=False)
+        title = self.set_trend_test_reparition_title(subtitle, set=True)
 
-        # row_title = self.get_title_plot(xlabel='massifs', ax_idx=i)
-        # StudyVisualizer.clean_axes_write_title_on_the_left(axes_row, row_title, left_border=None)
 
         return title
 
     def set_trend_test_reparition_title(self, subtitle, set=True):
         # Global information
         title = 'Repartition of {} trends'.format(subtitle)
-        title += ' at altitude={}m for the starting_year={}'.format(self.altitudes[0], self.first_starting_year)
+        title += ' at altitude={}m \nfor the starting_year={}'.format(self.altitudes[0], self.first_starting_year)
         if len(self.starting_years) > 1:
             title += ' until starting_year={}'.format(self.last_starting_year)
+        title += ' with {} test'.format(get_display_name_from_object_type(self.trend_test_class))
+        if self.reduce_strength_array:
+            title += '\nEvolution of the quantile {} every {} years'.format(AbstractGevChangePointTest.quantile_for_strength,
+                                                                   AbstractGevChangePointTest.nb_years_for_quantile_evolution)
         if set:
             plt.suptitle(title)
         return title
@@ -457,6 +461,6 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                                       isin_parameters=isin_parameters,
                                                                       plot_title=plot_title)
         if show_or_save_to_file:
-            self.show_or_save_to_file(specific_title=last_title, tight=True)
+            self.show_or_save_to_file(specific_title=last_title, dpi=1000)
 
         return last_title
