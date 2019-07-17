@@ -7,7 +7,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
     get_full_parameters
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.utils_hypercube import \
     load_altitude_visualizer
-from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevScaleChangePointTest, \
+from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import GevScaleChangePointTest, \
     GevLocationChangePointTest
 
 FULL_ALTITUDES = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]

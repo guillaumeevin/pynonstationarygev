@@ -13,7 +13,7 @@ from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSno
 
 from collections import OrderedDict
 
-from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
+from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevLocationTrendTest
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization, BetweenMinusOneAndOneNormalization
 from utils import get_display_name_from_object_type
@@ -209,7 +209,7 @@ def trend_analysis():
                                            complete_non_stationary_trend_analysis=True)
         # study_visualizer.visualize_all_independent_temporal_trend()
         # study_visualizer.visualize_temporal_trend_relevance()
-        study_visualizer.df_trend_spatio_temporal(GevLocationChangePointTest,
+        study_visualizer.df_trend_spatio_temporal(GevLocationTrendTest,
                                                   starting_years=[1958, 1980], nb_massif_for_fast_mode=2)
 
 

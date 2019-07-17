@@ -12,7 +12,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     study_iterator
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
-from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
+from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevLocationTrendTest
 from extreme_estimator.extreme_models.utils import set_seed_for_test
 
 
@@ -27,7 +27,7 @@ class TestHypercube(unittest.TestCase):
                        for study in study_iterator(study_class=SafranSnowfall, only_first_one=False,
                                                    altitudes=altitudes, verbose=self.DISPLAY)]
         self.altitude_to_visualizer = OrderedDict(zip(altitudes, visualizers))
-        self.trend_test_class = GevLocationChangePointTest
+        self.trend_test_class = GevLocationTrendTest
         self.nb_data_reduced_for_speed = 4
 
     # def test_altitude_hypercube_visualizer(self):

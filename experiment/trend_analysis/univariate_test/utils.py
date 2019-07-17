@@ -2,13 +2,13 @@ from multiprocessing.pool import Pool
 
 import numpy as np
 
-from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import AbstractGevChangePointTest
+from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
 from utils import NB_CORES
 
 
 def compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_test_class, years):
-    trend_test = trend_test_class(years, smooth_maxima, starting_year)  # type: AbstractGevChangePointTest
-    assert isinstance(trend_test, AbstractGevChangePointTest)
+    trend_test = trend_test_class(years, smooth_maxima, starting_year)  # type: AbstractGevTrendTest
+    assert isinstance(trend_test, AbstractGevTrendTest)
     return trend_test.test_trend_type, trend_test.test_trend_slope_strength, trend_test.non_stationary_nllh, trend_test.test_trend_constant_quantile, trend_test.non_stationary_deviance, trend_test.stationary_deviance
 
 

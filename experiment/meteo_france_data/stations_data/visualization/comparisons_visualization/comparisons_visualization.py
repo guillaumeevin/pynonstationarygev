@@ -14,7 +14,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     VisualizationParameters
 from experiment.meteo_france_data.stations_data.comparison_analysis import ComparisonAnalysis, MASSIF_COLUMN_NAME, \
     REANALYSE_STR, ALTITUDE_COLUMN_NAME, STATION_COLUMN_NAME
-from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
+from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import GevLocationChangePointTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.trend_analysis.univariate_test.utils import compute_gev_change_point_test_results
 from extreme_estimator.extreme_models.result_from_fit import ResultFromIsmev

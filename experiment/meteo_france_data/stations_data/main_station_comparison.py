@@ -2,7 +2,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST
 from experiment.meteo_france_data.stations_data.visualization.comparisons_visualization.comparisons_visualization import \
     ComparisonsVisualization, path_backup_csv_file
-from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest, \
+from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import GevLocationChangePointTest, \
     GevScaleChangePointTest, GevShapeChangePointTest
 
 

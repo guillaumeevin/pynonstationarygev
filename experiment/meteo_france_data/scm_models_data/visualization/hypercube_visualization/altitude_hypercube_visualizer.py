@@ -9,7 +9,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     SCM_STUDY_NAME_TO_COLOR, SCM_STUDY_NAME_TO_ABBREVIATION, SCM_STUDY_CLASS_TO_ABBREVIATION, SCM_STUDIES_NAMES
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
-from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import AbstractGevChangePointTest
+from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from utils import get_display_name_from_object_type
@@ -320,7 +320,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                                       int(massif_to_constant[m]),
                                                                       "+" if massif_to_strength[m] > 0 else "",
                                                                       round(massif_to_strength[m] * massif_to_constant[m], 1),
-                                                                      AbstractGevChangePointTest.nb_years_for_quantile_evolution)
+                                                                      AbstractGevTrendTest.nb_years_for_quantile_evolution)
                                     for m in massif_to_strength}
         else:
             massif_name_to_value = massif_to_year
@@ -342,8 +342,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             title += ' until starting_year={}'.format(self.last_starting_year)
         title += ' with {} test'.format(get_display_name_from_object_type(self.trend_test_class))
         if self.reduce_strength_array:
-            title += '\nEvolution of the quantile {} every {} years'.format(AbstractGevChangePointTest.quantile_for_strength,
-                                                                   AbstractGevChangePointTest.nb_years_for_quantile_evolution)
+            title += '\nEvolution of the quantile {} every {} years'.format(AbstractGevTrendTest.quantile_for_strength,
+                                                                            AbstractGevTrendTest.nb_years_for_quantile_evolution)
         if set:
             plt.suptitle(title)
         return title

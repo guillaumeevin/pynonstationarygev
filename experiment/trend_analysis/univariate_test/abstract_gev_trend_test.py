@@ -19,7 +19,7 @@ from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_tempor
     AbstractSpatioTemporalObservations
 
 
-class AbstractGevChangePointTest(AbstractUnivariateTest):
+class AbstractGevTrendTest(AbstractUnivariateTest):
     RRunTimeError_TREND = 'R RunTimeError trend'
     # I should use the quantile from the Eurocode for the buildings
     quantile_for_strength = 0.98
@@ -34,15 +34,11 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
         self.coordinates = AbstractTemporalCoordinates.from_df(df,
                                                                transformation_class=CenteredScaledNormalization)  # type: AbstractTemporalCoordinates
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
-        # For the moment, we chose:
-        # -the 0.99 quantile (even if for building maybe we should use the 1/50 so 0.98 quantile)
-        # -to see the evolution between two successive years
 
         try:
             # Fit stationary model
             self.stationary_estimator = LinearMarginEstimator(self.dataset, StationaryStationModel(self.coordinates))
             self.stationary_estimator.fit()
-
             # Fit non stationary model
             non_stationary_model = non_stationary_model_class(self.coordinates, starting_point=self.starting_year)
             self.non_stationary_estimator = LinearMarginEstimator(self.dataset, non_stationary_model)
@@ -50,6 +46,8 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
             self.crashed = False
         except SafeRunException:
             self.crashed = True
+
+    # Type of trends
 
     @classmethod
     def real_trend_types(cls):
@@ -63,12 +61,25 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
         return real_trend_types
 
     @property
-    def likelihood_ratio(self):
-        return self.non_stationary_deviance - self.stationary_deviance
+    def test_trend_type(self) -> str:
+        if self.crashed:
+            return self.RRunTimeError_TREND
+        else:
+            return super().test_trend_type
+
+    # Likelihood ratio test
 
     @property
-    def non_stationary_constant_gev_params(self) -> GevParams:
-        return self.non_stationary_estimator.result_from_fit.constant_gev_params
+    def is_significant(self) -> bool:
+        return self.likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=self.degree_freedom_chi2)
+
+    @property
+    def degree_freedom_chi2(self) -> int:
+        raise NotImplementedError
+
+    @property
+    def likelihood_ratio(self):
+        return self.non_stationary_deviance - self.stationary_deviance
 
     @property
     def stationary_deviance(self):
@@ -91,35 +102,11 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
         else:
             return self.non_stationary_estimator.result_from_fit.nllh
 
-    @property
-    def is_significant(self) -> bool:
-        return self.likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=1)
-
-    # Add a trend type that correspond to run that crashed
-
-    # @classmethod
-    # def trend_type_to_style(cls):
-    #     trend_type_to_style = super().trend_type_to_style()
-    #     trend_type_to_style[cls.RRunTimeError_TREND] = 'b:'
-    #     return trend_type_to_style
+    # Evolution of the GEV parameters and corresponding quantiles
 
     @property
-    def test_trend_type(self) -> str:
-        if self.crashed:
-            return self.RRunTimeError_TREND
-        else:
-            return super().test_trend_type
-
-    def get_coef(self, estimator, coef_name):
-        return estimator.margin_function_fitted.get_coef(self.gev_param_name, coef_name)
-
-    @property
-    def non_stationary_intercept_coef(self):
-        return self.get_coef(self.non_stationary_estimator, LinearCoef.INTERCEPT_NAME)
-
-    @property
-    def non_stationary_linear_coef(self):
-        return self.get_coef(self.non_stationary_estimator, AbstractCoordinates.COORDINATE_T)
+    def non_stationary_constant_gev_params(self) -> GevParams:
+        return self.non_stationary_estimator.result_from_fit.constant_gev_params
 
     @property
     def test_trend_slope_strength(self):
@@ -140,43 +127,5 @@ class AbstractGevChangePointTest(AbstractUnivariateTest):
         else:
             return self.non_stationary_constant_gev_params.quantile(p=self.quantile_for_strength)
 
-    @property
-    def percentage_of_change_per_year(self):
-        ratio = np.abs(self.non_stationary_linear_coef) / np.abs(self.non_stationary_intercept_coef)
-        scaled_ratio = ratio * self.coordinates.transformed_distance_between_two_successive_years
-        percentage_of_change_per_year = 100 * scaled_ratio
-        return percentage_of_change_per_year[0]
-
-    @property
-    def test_sign(self) -> int:
-        return np.sign(self.non_stationary_linear_coef)
 
 
-class GevLocationChangePointTest(AbstractGevChangePointTest):
-
-    def __init__(self, years, maxima, starting_year):
-        super().__init__(years, maxima, starting_year,
-                         NonStationaryLocationStationModel, GevParams.LOC)
-
-    def _slope_strength(self):
-        return self.non_stationary_constant_gev_params.quantile_strength_evolution_ratio(p=self.quantile_for_strength,
-                                                                                         mu1=self.non_stationary_linear_coef)
-
-
-class GevScaleChangePointTest(AbstractGevChangePointTest):
-
-    def __init__(self, years, maxima, starting_year):
-        super().__init__(years, maxima, starting_year,
-                         NonStationaryScaleStationModel, GevParams.SCALE)
-
-    def _slope_strength(self):
-        return self.non_stationary_constant_gev_params.quantile_strength_evolution_ratio(
-            p=self.quantile_for_strength,
-            sigma1=self.non_stationary_linear_coef)
-
-
-class GevShapeChangePointTest(AbstractGevChangePointTest):
-
-    def __init__(self, years, maxima, starting_year):
-        super().__init__(years, maxima, starting_year,
-                         NonStationaryShapeStationModel, GevParams.SHAPE)

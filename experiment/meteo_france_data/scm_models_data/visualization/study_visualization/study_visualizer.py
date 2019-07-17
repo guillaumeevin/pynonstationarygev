@@ -15,7 +15,7 @@ import seaborn as sns
 from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.trend_analysis.abstract_score import MeanScore, AbstractTrendScore
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import AbstractGevChangePointTest
+from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.trend_analysis.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest

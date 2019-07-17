@@ -12,7 +12,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     study_iterator, study_iterator_global, SCM_STUDIES, ALL_ALTITUDES
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
-from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
+from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevLocationTrendTest
 from utils import get_display_name_from_object_type
 
 
@@ -22,7 +22,8 @@ class TestSCMAllStudy(unittest.TestCase):
         for study_class in [ExtendedSafranSnowfall]:
             for study in study_iterator(study_class, only_first_one=True, verbose=False):
                 study_visualizer = StudyVisualizer(study, show=False, save_to_file=False, multiprocessing=True)
-                study_visualizer.df_trend_spatio_temporal(GevLocationChangePointTest, [1958, 1959, 1960], nb_massif_for_change_point_test=3,
+                study_visualizer.df_trend_spatio_temporal(GevLocationTrendTest, [1958, 1959, 1960],
+                                                          nb_massif_for_change_point_test=3,
                                                           sample_one_massif_from_each_region=False)
         self.assertTrue(True)
 

@@ -11,7 +11,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
     load_altitude_visualizer, load_quantity_visualizer
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     ALL_ALTITUDES, SCM_STUDIES
-from experiment.trend_analysis.univariate_test.abstract_gev_change_point_test import GevLocationChangePointTest
+from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevLocationTrendTest
 
 
 def get_fast_parameters(altitude=None):
@@ -23,7 +23,7 @@ def get_fast_parameters(altitude=None):
     else:
         altitudes = [ALL_ALTITUDES[3], ALL_ALTITUDES[-7]]
     last_starting_year = None
-    trend_test_class = GevLocationChangePointTest
+    trend_test_class = GevLocationTrendTest
     return altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class
 
 
