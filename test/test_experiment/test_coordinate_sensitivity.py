@@ -1,6 +1,6 @@
 import unittest
 
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusTotalSwe
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSweTotal
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     study_iterator_global
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
@@ -20,7 +20,7 @@ class TestCoordinateSensitivity(unittest.TestCase):
         transformation_classes = [None, BetweenZeroAndOneNormalization, BetweenZeroAndOneNormalizationMinEpsilon,
                                   BetweenZeroAndOneNormalizationMaxEpsilon][1:2]
 
-        study_classes = [CrocusTotalSwe]
+        study_classes = [CrocusSweTotal]
         for study in study_iterator_global(study_classes, altitudes=altitudes, verbose=False):
             if self.DISPLAY:
                 print(study.altitude)

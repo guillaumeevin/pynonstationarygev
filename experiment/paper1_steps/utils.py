@@ -1,4 +1,4 @@
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusRecentSwe
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSwe3Days
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.main_files.main_full_hypercube import \
     get_full_parameters
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.utils_hypercube import \
@@ -10,12 +10,13 @@ FULL_ALTITUDES = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
 
 def get_full_altitude_visualizer(altitude_hypercube_class, exact_starting_year=None, altitude=900,
                                  reduce_strength_array=False,
-                                 trend_test_class = GevLocationTrendTest):
+                                 trend_test_class = GevLocationTrendTest,
+                                 offset_starting_year=10):
     altitudes, first_starting_year, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, _ = get_full_parameters(
-        altitude=altitude)
+        altitude=altitude, offset_starting_year=offset_starting_year)
     if exact_starting_year is not None:
         first_starting_year, last_starting_year = None, None
-    study_classes = [CrocusRecentSwe]
+    study_classes = [CrocusSwe3Days]
     visualizer = load_altitude_visualizer(altitude_hypercube_class, altitudes, last_starting_year,
                                           nb_data_reduced_for_speed, only_first_one, save_to_file, study_classes,
                                           trend_test_class, first_starting_year=first_starting_year,

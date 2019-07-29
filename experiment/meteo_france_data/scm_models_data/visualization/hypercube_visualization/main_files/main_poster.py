@@ -17,6 +17,7 @@ POSTER_ALTITUDES = [900, 1800, 2700]
 def fast_poster():
     for altitude in POSTER_ALTITUDES[:1]:
         study_classes = SCM_STUDIES[:2]
+        # The QuantityHypercubeWithoutTrend object is used to have one single plot with all the results
         results = get_fast_quantity_visualizer(QuantityHypercubeWithoutTrend,
                                                altitude=altitude,
                                                study_classes=study_classes).visualize_year_trend_test(

@@ -14,7 +14,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevLocationTrendTest
 
 
-def get_full_parameters(altitude=None):
+def get_full_parameters(altitude=None, offset_starting_year=10):
     save_to_file = True
     only_first_one = False
     nb_data_reduced_for_speed = False
@@ -22,8 +22,8 @@ def get_full_parameters(altitude=None):
         altitudes = [altitude]
     else:
         altitudes = ALL_ALTITUDES[3:-6]
-    first_starting_year = 1958 + 10
-    last_starting_year = 2017 - 10
+    first_starting_year = 1958 + offset_starting_year
+    last_starting_year = 2017 - offset_starting_year
     trend_test_class = GevLocationTrendTest
     return altitudes, first_starting_year, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class
 

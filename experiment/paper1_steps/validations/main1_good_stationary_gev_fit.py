@@ -1,4 +1,4 @@
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusRecentSwe
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSwe3Days
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     study_iterator_global
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
@@ -10,7 +10,7 @@ def maxima_analysis():
     only_first_one = False
     durand_altitude = [900, 1500, 1800, 2100, 2700][2:-2]
     altitudes = durand_altitude
-    study_classes = [CrocusRecentSwe][:]
+    study_classes = [CrocusSwe3Days][:]
     for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):
         study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                            verbose=True,

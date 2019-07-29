@@ -26,7 +26,7 @@ class Crocus(AbstractStudy):
         return super().apply_annual_aggregation(time_serie[91:-92, ...])
 
 
-class CrocusRecentSwe(Crocus):
+class CrocusSwe3Days(Crocus):
 
     def __init__(self, *args, **kwargs):
         Crocus.__init__(self, CrocusRecentSweVariable, *args, **kwargs)
@@ -35,7 +35,7 @@ class CrocusRecentSwe(Crocus):
         return self.winter_annual_aggregation(time_serie)
 
 
-class CrocusTotalSwe(Crocus):
+class CrocusSweTotal(Crocus):
 
     def __init__(self, *args, **kwargs):
         Crocus.__init__(self, CrocusTotalSweVariable, *args, **kwargs)
@@ -44,7 +44,7 @@ class CrocusTotalSwe(Crocus):
         return self.winter_annual_aggregation(time_serie)
 
 
-class ExtendedCrocusTotalSwe(AbstractExtendedStudy, CrocusTotalSwe):
+class ExtendedCrocusSweTotal(AbstractExtendedStudy, CrocusSweTotal):
     pass
 
 
@@ -72,6 +72,6 @@ class CrocusDaysWithSnowOnGround(Crocus):
 
 
 if __name__ == '__main__':
-    for study in [CrocusRecentSwe(altitude=900)]:
+    for study in [CrocusSwe3Days(altitude=900)]:
         a = study.year_to_daily_time_serie_array[1960]
         print(a)
