@@ -25,7 +25,10 @@ class AbstractHypercubeVisualizer(object):
                  first_starting_year=None,
                  last_starting_year=None,
                  exact_starting_year=None,
-                 verbose=True):
+                 verbose=True,
+                 sigma_for_best_year=0.0):
+        assert sigma_for_best_year >= 0.0
+        self.sigma_for_best_year = sigma_for_best_year
         self.reduce_strength_array = reduce_strength_array
         self.verbose = verbose
         self.save_to_file = save_to_file

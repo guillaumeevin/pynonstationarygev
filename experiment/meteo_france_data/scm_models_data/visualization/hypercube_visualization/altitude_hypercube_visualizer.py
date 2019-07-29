@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter, ScalarFormatter
+from scipy.ndimage import gaussian_filter
 
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.abstract_hypercube_visualizer import \
     AbstractHypercubeVisualizer
@@ -157,7 +158,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             assert isinstance(serie, pd.Series)
             xlabel_values = list(serie.index)
             values = list(serie.values)
-            argmax_idx = np.argmax(values)
+            smooth_values = gaussian_filter(values, self.sigma_for_best_year)
+            argmax_idx = np.argmax(smooth_values)
             best_year = xlabel_values[argmax_idx]
             if plot_title is not None:
                 plot_title += ' (max reached in {})'.format(best_year)
@@ -168,6 +170,9 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                 ax.plot([], [], label=ylabel, color=color)
                 linewidth = 10 if poster_plot else None
                 ax_reversed.plot(xlabel_values, values, label=ylabel, color=color, linewidth=linewidth)
+                if self.sigma_for_best_year > 0:
+                    ax_reversed.plot(xlabel_values, smooth_values, label=ylabel + ' smooth', color=color, linestyle=':',
+                                     linewidth=linewidth)
                 fontsize = 30 if poster_plot else None
                 ax_reversed.set_ylabel(ylabel, color=color, fontsize=fontsize, labelpad=-20)
                 ax_reversed.axvline(x=best_year, color=color, linestyle='--', linewidth=linewidth)
@@ -344,6 +349,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         if self.reduce_strength_array:
             title += '\nEvolution of the quantile {} every {} years'.format(AbstractGevTrendTest.quantile_for_strength,
                                                                             AbstractGevTrendTest.nb_years_for_quantile_evolution)
+        else:
+            title += '\nStarting years'
         if set:
             plt.suptitle(title)
         return title

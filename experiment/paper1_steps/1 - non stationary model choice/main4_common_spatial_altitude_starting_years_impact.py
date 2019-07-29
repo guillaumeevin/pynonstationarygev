@@ -13,35 +13,33 @@ from experiment.paper1_steps.utils import get_full_altitude_visualizer, FULL_ALT
 
 
 def main_fast_spatial_risk_evolution():
-    for altitude in [1800]:
-        vizualiser = get_full_altitude_visualizer(AltitudeHypercubeVisualizerWithoutTrendType, altitude=altitude,
-                                                  reduce_strength_array=True,
-                                                  trend_test_class=GevLocationAndScaleTrendTest,
-                                                  offset_starting_year=20)
-        vizualiser.save_to_file = False
-        res = vizualiser.visualize_year_trend_test(subtitle_specified='CrocusSwe3Days')
-        print(res)
-        vizualiser.visualize_massif_trend_test_one_altitude()
-        vizualiser.reduce_strength_array = True
-        vizualiser.visualize_massif_trend_test_one_altitude()
+    vizualiser = get_full_altitude_visualizer(AltitudeHypercubeVisualizerWithoutTrendType, altitude=None,
+                                              reduce_strength_array=True,
+                                              trend_test_class=GevLocationAndScaleTrendTest,
+                                              offset_starting_year=28)
+    vizualiser.save_to_file = False
+    vizualiser.sigma_for_best_year = 1.0
+    res = vizualiser.visualize_year_trend_test(subtitle_specified='CrocusSwe3Days')
+    print(res)
 
 
 def main_full_spatial_risk_evolution():
-    # Compare the risk with and without taking into account the starting year
-    for altitude in FULL_ALTITUDES[:]:
-        for trend_test_class in [GevLocationAndScaleTrendTest]:
+    for trend_test_class in [GevLocationAndScaleTrendTest]:
+        # Compare the risk with and without taking into account the starting year
+        vizualiser = get_full_altitude_visualizer(AltitudeHypercubeVisualizerWithoutTrendType, altitude=None,
+                                                  reduce_strength_array=True,
+                                                  trend_test_class=trend_test_class,
+                                                  offset_starting_year=20)
+        vizualiser.sigma_for_best_year = 1.0
+        res = vizualiser.visualize_year_trend_test(subtitle_specified='CrocusSwe3Days')
+        best_year = res[0][1]
+        for altitude in FULL_ALTITUDES[:]:
             # Starting Year=1958
             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                       exact_starting_year=1958, reduce_strength_array=True,
                                                       trend_test_class=trend_test_class)
             vizualiser.visualize_massif_trend_test_one_altitude()
             # Optimal common starting year
-            vizualiser = get_full_altitude_visualizer(AltitudeHypercubeVisualizerWithoutTrendType, altitude=altitude,
-                                                      reduce_strength_array=True,
-                                                      trend_test_class=trend_test_class,
-                                                      offset_starting_year=20)
-            res = vizualiser.visualize_year_trend_test(subtitle_specified='CrocusSwe3Days')
-            best_year = res[0][1]
             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                       exact_starting_year=best_year, reduce_strength_array=True,
                                                       trend_test_class=trend_test_class)
