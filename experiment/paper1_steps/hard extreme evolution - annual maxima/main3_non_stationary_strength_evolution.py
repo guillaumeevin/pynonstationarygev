@@ -13,7 +13,7 @@ from experiment.paper1_steps.utils import get_full_altitude_visualizer, FULL_ALT
 
 
 def main_fast_spatial_risk_evolution():
-    for altitude in FULL_ALTITUDES[-1:]:
+    for altitude in [1800]:
         vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                   exact_starting_year=1958, reduce_strength_array=True,
                                                   trend_test_class=GevLocationAndScaleTrendTest)
@@ -31,8 +31,8 @@ def main_full_spatial_risk_evolution():
 
 
 def main_run():
-    main_full_spatial_risk_evolution()
-    # main_fast_spatial_risk_evolution()
+    # main_full_spatial_risk_evolution()
+    main_fast_spatial_risk_evolution()
 
 
 if __name__ == '__main__':

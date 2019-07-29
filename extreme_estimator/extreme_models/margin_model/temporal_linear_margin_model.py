@@ -37,6 +37,10 @@ class TemporalLinearMarginModel(LinearMarginModel):
     def shl(self):
         return get_null()
 
+    @property
+    def siglink(self):
+        return r('identity')
+
 
 class StationaryStationModel(TemporalLinearMarginModel):
 
@@ -62,6 +66,16 @@ class NonStationaryScaleStationModel(TemporalLinearMarginModel):
     @property
     def sigl(self):
         return 1
+
+
+class NonStationaryLogScaleStationModel(NonStationaryScaleStationModel):
+
+    def load_margin_functions(self, gev_param_name_to_dims=None):
+        super().load_margin_functions({GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
+
+    @property
+    def siglink(self):
+        return r('exp')
 
 
 class NonStationaryShapeStationModel(TemporalLinearMarginModel):

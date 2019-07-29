@@ -61,8 +61,8 @@ class AbstractUnivariateTest(object):
         d[cls.ALL_TREND] = 'k-'
         d[cls.NON_SIGNIFICATIVE_TREND] = 'b-'
         # d[cls.SIGNIFICATIVE_ALL_TREND] = 'k-'
-        d[cls.SIGNIFICATIVE_POSITIVE_TREND] = 'g-'
-        d[cls.SIGNIFICATIVE_NEGATIVE_TREND] = 'r-'
+        d[cls.SIGNIFICATIVE_POSITIVE_TREND] = 'darkgreen-'
+        d[cls.SIGNIFICATIVE_NEGATIVE_TREND] = 'darkred-'
         # d[cls.NO_TREND] = 'k--'
         return d
 

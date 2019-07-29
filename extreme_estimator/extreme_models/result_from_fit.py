@@ -48,10 +48,6 @@ class ResultFromFit(object):
     def convergence(self) -> str:
         raise NotImplementedError
 
-    @property
-    def constant_gev_params(self) -> GevParams:
-        raise NotImplementedError
-
 
 class ResultFromIsmev(ResultFromFit):
 
@@ -78,12 +74,6 @@ class ResultFromIsmev(ResultFromFit):
                 coef_dict[temporal_coef_name] = mle_values[i]
                 i += 1
         return coef_dict
-
-    @property
-    def constant_gev_params(self) -> GevParams:
-        params = {k.split('Coeff1')[0]: v for k, v in self.margin_coef_dict.items()
-                  if 'Coeff1' in k and 'temp' not in k}
-        return GevParams.from_dict(params)
 
     @property
     def all_parameters(self):

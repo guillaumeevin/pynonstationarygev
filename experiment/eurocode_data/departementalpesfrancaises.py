@@ -51,11 +51,6 @@ class Drome(AbstractDepartementAlpesFrancaises):
         super().__init__(C2)
 
 
-"""
-Quand c'est à cheval, je mets les deux massifs
-Quand juste un bout du massif est dans un autre departement 
-(Chartreuse, Belledonne sont un peu en Savoie
-"""
 massif_name_to_departements = {
     'Chablais': [HauteSavoie],
     'Aravis': [HauteSavoie, Savoie],
@@ -63,8 +58,8 @@ massif_name_to_departements = {
     'Bauges': [HauteSavoie, Savoie],
     'Beaufortain': [HauteSavoie, Savoie],
     'Haute-Tarentaise': [Savoie],
-    'Chartreuse': [Isere],
-    'Belledonne': [Isere],
+    'Chartreuse': [Isere, Savoie],
+    'Belledonne': [Isere, Savoie],
     'Maurienne': [Savoie],
     'Vanoise': [Savoie],
     'Haute-Maurienne': [Savoie],

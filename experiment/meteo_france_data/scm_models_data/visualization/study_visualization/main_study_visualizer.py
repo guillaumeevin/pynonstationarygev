@@ -24,7 +24,7 @@ SCM_STUDY_NAME_TO_SCM_STUDY = dict(zip(SCM_STUDIES_NAMES, SCM_STUDIES))
 SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
     CrocusTotalSwe: 'TSWE',
-    CrocusRecentSwe: 'RSWE',
+    CrocusRecentSwe: 'SWE3',
     CrocusDepth: 'SD',
 }
 

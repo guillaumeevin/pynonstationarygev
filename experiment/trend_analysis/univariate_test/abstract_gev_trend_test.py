@@ -113,14 +113,18 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
 
     @property
     def non_stationary_constant_gev_params(self) -> GevParams:
-        return self.non_stationary_estimator.result_from_fit.constant_gev_params
+        # Constant parameters correspond to the gev params in 1958
+        return self.non_stationary_estimator.margin_function_fitted.get_gev_params(coordinate=np.array([1958]),
+                                                                                   is_transformed=False)
 
     @property
     def test_trend_slope_strength(self):
         if self.crashed:
             return 0.0
         else:
+            # Compute the slope strength
             slope = self._slope_strength()
+            # Delta T must in the same unit as were the parameter of slope mu1 and sigma1
             slope *= self.nb_years_for_quantile_evolution * self.coordinates.transformed_distance_between_two_successive_years[0]
             return slope
 

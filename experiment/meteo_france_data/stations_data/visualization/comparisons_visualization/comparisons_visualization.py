@@ -14,7 +14,6 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     VisualizationParameters
 from experiment.meteo_france_data.stations_data.comparison_analysis import ComparisonAnalysis, MASSIF_COLUMN_NAME, \
     REANALYSE_STR, ALTITUDE_COLUMN_NAME, STATION_COLUMN_NAME
-from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import GevLocationChangePointTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.trend_analysis.univariate_test.utils import compute_gev_change_point_test_results
 from extreme_estimator.extreme_models.result_from_fit import ResultFromIsmev
@@ -259,21 +258,3 @@ class ComparisonsVisualization(VisualizationParameters):
         ax.grid()
         ax.plot(years, maxima, label=label, color=plot_color)
         return ordered_dict
-
-    def visualize_gev(self):
-        return self._visualize_main(self.plot_gev)
-
-    def plot_gev(self, ax, ax2, years, maxima, label, plot_color):
-        # todo should I normalize here ?
-        # fit gev
-        data = maxima
-        res = safe_run_r_estimator(function=r('gev.fit'), xdat=ro.FloatVector(data),
-                                   use_start=True)
-        res = ResultFromIsmev(res, {})
-        gev_params = res.constant_gev_params
-
-        lim = 1.5 * max(data)
-        x = np.linspace(0, lim, 1000)
-        y = gev_params.density(x)
-        # display the gev distribution that was obtained
-        ax.plot(x, y, label=label, color=plot_color)

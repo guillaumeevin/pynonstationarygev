@@ -33,8 +33,6 @@ class TestGevTemporal(unittest.TestCase):
         df2 = pd.DataFrame(data=np.array(r['x_gev']), index=df.index)
         observations = AbstractSpatioTemporalObservations(df_maxima_gev=df2)
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
-        #
-        self.margin_models = load_non_stationary_temporal_margin_models(self.coordinates)
 
     def test_gev_temporal_margin_fit_stationary(self):
         # Create estimator
@@ -49,7 +47,8 @@ class TestGevTemporal(unittest.TestCase):
 
     def test_gev_temporal_margin_fit_nonstationary(self):
         # Create estimator
-        for margin_model in self.margin_models:
+        margin_models = load_non_stationary_temporal_margin_models(self.coordinates)
+        for margin_model in margin_models:
             # margin_model = NonStationaryLocationStationModel(self.coordinates)
             estimator = LinearMarginEstimator(self.dataset, margin_model)
             estimator.fit()
