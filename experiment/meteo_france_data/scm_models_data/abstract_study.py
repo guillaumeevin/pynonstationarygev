@@ -1,8 +1,10 @@
+import datetime
 import io
 import os
 import os.path as op
 from collections import OrderedDict
 from contextlib import redirect_stdout
+from itertools import chain
 from multiprocessing.pool import Pool
 from typing import List, Dict, Tuple, Union
 
@@ -41,8 +43,11 @@ class AbstractStudy(object):
         - a start and a end year
 
     Les fichiers netcdf de SAFRAN et CROCUS sont autodocumentés (on peut les comprendre avec ncdump -h notamment).
+
+    The year 2017 represents the nc file that correspond to the winter between the year 2017 and 2018.
     """
     REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_flat/reanalysis'
+    # REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_allslopes/reanalysis'
     # REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/postes/reanalysis'
 
     def __init__(self, variable_class: type, altitude: int = 1800, year_min=1000, year_max=3000,
@@ -55,6 +60,33 @@ class AbstractStudy(object):
         self.year_min = year_min
         self.year_max = year_max
         self.multiprocessing = multiprocessing
+
+    """ Time """
+
+    @cached_property
+    def year_to_days(self) -> OrderedDict:
+        # Map each year to the 'days since year-08-01 06:00:00'
+        year_to_days = OrderedDict()
+        for year in self.ordered_years:
+            date = datetime.datetime(year=year, month=8, day=1, hour=6, minute=0, second=0)
+            days = []
+            for i in range(366):
+                days.append(str(date).split()[0])
+                date += datetime.timedelta(days=1)
+                if date.month == 8 and date.day == 1:
+                    break
+            year_to_days[year] = days
+        return year_to_days
+
+    @property
+    def all_days(self):
+        return list(chain(*list(self.year_to_days.values())))
+
+    @property
+    def all_daily_series(self):
+        all_daily_series = np.concatenate(list(self.year_to_daily_time_serie_array.values()))
+        assert len(all_daily_series) == len(self.all_days)
+        return all_daily_series
 
     """ Annual maxima """
 
