@@ -20,6 +20,6 @@ class GevLocationAndScaleTrendTest(GevTrendTestTwoParameters):
     def _slope_strength(self):
         mu1 = self.get_non_stationary_linear_coef(gev_param_name=GevParams.LOC)
         sigma1 = self.get_non_stationary_linear_coef(gev_param_name=GevParams.SCALE)
-        return self.non_stationary_constant_gev_params.quantile_strength_evolution_ratio(p=self.quantile_for_strength,
-                                                                                         mu1=mu1,
-                                                                                         sigma1=sigma1)
+        return self.non_stationary_constant_gev_params.quantile_strength_evolution(p=self.quantile_for_strength,
+                                                                                   mu1=mu1,
+                                                                                   sigma1=sigma1)

@@ -166,7 +166,8 @@ class AbstractMarginFunction(object):
             ax = plt.gca()
 
         # Special display
-        imshow_shifted(ax, gev_param_name, self.grid_2D(temporal_step)[gev_param_name], self.visualization_extend, self.mask_2D)
+        imshow_shifted(ax, gev_param_name, self.grid_2D(temporal_step)[gev_param_name], self.visualization_extend,
+                       self.mask_2D)
 
         # X axis
         ax.set_xlabel('coordinate X')
@@ -215,7 +216,7 @@ class AbstractMarginFunction(object):
                 grid.append(self.get_gev_params(np.array(coordinate)).summary_dict)
         grid = {value_name: np.array([g[value_name] for g in grid]).reshape(
             [self.VISUALIZATION_RESOLUTION, self.VISUALIZATION_RESOLUTION])
-                for value_name in GevParams.SUMMARY_NAMES}
+            for value_name in GevParams.SUMMARY_NAMES}
         return grid
 
     # Visualization 3D

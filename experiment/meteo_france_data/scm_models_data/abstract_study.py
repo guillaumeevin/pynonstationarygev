@@ -267,6 +267,7 @@ class AbstractStudy(object):
                         show_label=True,
                         scaled=False,
                         fontsize=7,
+                        axis_off=False,
                         ):
         if ax is None:
             ax = plt.gca()
@@ -302,15 +303,6 @@ class AbstractStudy(object):
                 else:
                     ax.fill(*coords_list, **{'color': default_color_for_missing_massif})
 
-                # else:
-                #     fill_kwargs = {}
-
-                # x , y = list(self.massifs_coordinates.df_all_coordinates.loc[massif_name])
-                # x , y= coords_list[0][0], coords_list[0][1]
-                # print(x, y)
-                # print(massif_name)
-                # ax.scatter(x, y)
-                # ax.text(x, y, massif_name)
         # Display the center of the massif
         masssif_coordinate_for_display = cls.massifs_coordinates_for_display(massif_names)
 
@@ -338,6 +330,8 @@ class AbstractStudy(object):
 
         if scaled:
             plt.axis('scaled')
+        if axis_off:
+            plt.axis('off')
 
         if show:
             plt.show()

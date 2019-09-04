@@ -283,7 +283,9 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         return title
 
     def visualize_trend_test_repartition_poster(self, reduction_function, axes=None, subtitle='', isin_parameters=None,
-                                                plot_title=None):
+                                                plot_title=None,
+                                                poster_plot=False,
+                                                write_text_on_massif=True):
         trend_type_to_serie = {k: v[0].replace(0.0, np.nan) for k, v in
                                self.trend_type_to_series(reduction_function, isin_parameters).items()}
 
@@ -313,7 +315,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                         massif_to_strength.update(massif_to_value_for_trend_type[0])
                         massif_to_constant.update(massif_to_value_for_trend_type[1])
                     else:
-                        massif_to_value_for_trend_type = {k: int(v) for k, v in
+                        massif_to_value_for_trend_type = {k: "$t_0=$" + str(int(v)) for k, v in
                                                           self.trend_type_to_series(reduction_function,
                                                                                     isin_parameters)[
                                                               display_trend_type][1].items()
@@ -330,11 +332,12 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         else:
             massif_name_to_value = massif_to_year
         self.study.visualize_study(None, massif_name_to_color=massif_to_color, show=False,
-                                   show_label=False, scaled=True, add_text=add_text,
+                                   show_label=False, scaled=True, add_text=write_text_on_massif,
                                    massif_name_to_value=massif_name_to_value,
-                                   fontsize=4)
+                                   fontsize=4,
+                                   axis_off=True)
 
-        title = self.set_trend_test_reparition_title(subtitle, set=True)
+        title = self.set_trend_test_reparition_title(subtitle, set=not poster_plot)
 
 
         return title
@@ -459,15 +462,19 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
 
     def visualize_massif_trend_test_one_altitude(self, axes=None, add_detailed_plots=False, plot_title=None,
                                                  isin_parameters=None,
-                                                 show_or_save_to_file=True):
+                                                 show_or_save_to_file=True,
+                                                 poster_plot=False,
+                                                write_text_on_massif=True):
         last_title = ''
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.index_reduction,
                                                                                 level=self.massif_index_level,
                                                                                 add_detailed_plot=add_detailed_plots).items():
             last_title = self.visualize_trend_test_repartition_poster(reduction_function, axes, subtitle=subtitle,
                                                                       isin_parameters=isin_parameters,
-                                                                      plot_title=plot_title)
+                                                                      plot_title=plot_title,
+                                                                      poster_plot=poster_plot,
+                                                                      write_text_on_massif=write_text_on_massif)
         if show_or_save_to_file:
-            self.show_or_save_to_file(specific_title=last_title, dpi=1000)
+            self.show_or_save_to_file(specific_title=last_title, dpi=1000, tight=poster_plot)
 
         return last_title
