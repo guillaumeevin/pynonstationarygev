@@ -29,6 +29,16 @@ class GevLocationTrendTest(GevTrendTestOneParameter):
         return self.non_stationary_constant_gev_params.quantile_strength_evolution(p=self.quantile_for_strength,
                                                                                    mu1=self.non_stationary_linear_coef)
 
+    @property
+    def mean_difference_same_sign_as_slope_strenght(self) -> bool:
+        zeta0 = self.non_stationary_constant_gev_params.shape
+        mean_difference = self.mean_difference(zeta0=zeta0, mu1=self.non_stationary_linear_coef)
+        return self.same_sign(mean_difference, self._slope_strength())
+
+    @property
+    def variance_difference_same_sign_as_slope_strenght(self) -> bool:
+        return False
+
 
 class GevScaleTrendTest(GevTrendTestOneParameter):
 
@@ -40,6 +50,17 @@ class GevScaleTrendTest(GevTrendTestOneParameter):
         return self.non_stationary_constant_gev_params.quantile_strength_evolution(
             p=self.quantile_for_strength,
             sigma1=self.non_stationary_linear_coef)
+
+    @property
+    def mean_difference_same_sign_as_slope_strenght(self) -> bool:
+        zeta0 = self.non_stationary_constant_gev_params.shape
+        mean_difference = self.mean_difference(zeta0=zeta0, sigma1=self.non_stationary_linear_coef)
+        return self.same_sign(mean_difference, self._slope_strength())
+
+    @property
+    def variance_difference_same_sign_as_slope_strenght(self) -> bool:
+        sigma1 = self.non_stationary_linear_coef
+        return self.same_sign(sigma1, self._slope_strength())
 
 
 class GevShapeTrendTest(GevTrendTestOneParameter):

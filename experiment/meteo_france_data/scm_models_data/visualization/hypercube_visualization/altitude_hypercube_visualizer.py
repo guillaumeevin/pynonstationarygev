@@ -82,6 +82,10 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             df_constant = self.df_hypercube_trend_constant_quantile[df_bool]
             s_trend_constant = reduction_function(df_constant)
             series.extend([s_trend_strength, s_trend_constant])
+        # Add the mean and the variance anyway
+        s_trend_mean_sign = reduction_function(self.df_hypercube_trend_mean_same_sign[df_bool])
+        s_trend_variance_sign = reduction_function(self.df_hypercube_trend_variance_same_sign[df_bool])
+        series.extend([s_trend_mean_sign, s_trend_variance_sign])
         return series
 
     def subtitle_to_reduction_function(self, reduction_function, level=None, add_detailed_plot=False, subtitle=None):
@@ -294,6 +298,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         massif_to_year = {}
         massif_to_strength = {}
         massif_to_constant = {}
+        massif_to_mean_difference_same_sign = {}
+        massif_to_variance_difference_same_sign = {}
         poster_trend_types = [AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND,
                               AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND,
                               AbstractUnivariateTest.NEGATIVE_TREND,
@@ -314,31 +320,51 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                            if k in massif_to_color_for_trend_type} for i in [1, 2]]
                         massif_to_strength.update(massif_to_value_for_trend_type[0])
                         massif_to_constant.update(massif_to_value_for_trend_type[1])
+                        mean_idx, variance_idx = 2, 3
                     else:
+                        mean_idx, variance_idx = 1, 2
+
                         massif_to_value_for_trend_type = {k: "$t_0=$" + str(int(v)) for k, v in
                                                           self.trend_type_to_series(reduction_function,
                                                                                     isin_parameters)[
-                                                              display_trend_type][1].items()
+                                                              display_trend_type][3].items()
                                                           if k in massif_to_color_for_trend_type}
                         massif_to_year.update(massif_to_value_for_trend_type)
+
+                    # Add the mean and variance sign anyway
+                    massif_to_value_for_trend_type = [{k: v for k, v in
+                                                       self.trend_type_to_series(reduction_function,
+                                                                                 isin_parameters)[
+                                                           display_trend_type][i].items()
+                                                       if k in massif_to_color_for_trend_type} for i in
+                                                      [mean_idx, variance_idx]]
+                    massif_to_mean_difference_same_sign.update(massif_to_value_for_trend_type[0])
+                    massif_to_variance_difference_same_sign.update(massif_to_value_for_trend_type[1])
+        # Compute massif to hatch boolean
+        massif_name_to_hatch_boolean_list = {
+            massif: [massif_to_mean_difference_same_sign[massif] == 1.0,
+                     massif_to_variance_difference_same_sign[massif] == 1.0]
+            for massif in massif_to_color.keys()
+        }
+
         # Compute massif_to_value
         if self.reduce_strength_array:
             massif_name_to_value = {m: "{} {}{}".format(
-                                                                      int(massif_to_constant[m]),
-                                                                      "+" if massif_to_strength[m] > 0 else "",
-                                                                      round(massif_to_strength[m] * massif_to_constant[m], 1),
-                                                                      AbstractGevTrendTest.nb_years_for_quantile_evolution)
-                                    for m in massif_to_strength}
+                int(massif_to_constant[m]),
+                "+" if massif_to_strength[m] > 0 else "",
+                round(massif_to_strength[m] * massif_to_constant[m], 1),
+                AbstractGevTrendTest.nb_years_for_quantile_evolution)
+                for m in massif_to_strength}
         else:
             massif_name_to_value = massif_to_year
         self.study.visualize_study(None, massif_name_to_color=massif_to_color, show=False,
                                    show_label=False, scaled=True, add_text=write_text_on_massif,
                                    massif_name_to_value=massif_name_to_value,
                                    fontsize=4,
-                                   axis_off=True)
+                                   axis_off=True,
+                                   massif_name_to_hatch_boolean_list=massif_name_to_hatch_boolean_list)
 
         title = self.set_trend_test_reparition_title(subtitle, set=not poster_plot)
-
 
         return title
 
@@ -464,7 +490,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                  isin_parameters=None,
                                                  show_or_save_to_file=True,
                                                  poster_plot=False,
-                                                write_text_on_massif=True):
+                                                 write_text_on_massif=True):
         last_title = ''
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.index_reduction,
                                                                                 level=self.massif_index_level,

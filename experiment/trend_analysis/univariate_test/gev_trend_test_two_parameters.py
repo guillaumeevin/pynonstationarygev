@@ -17,9 +17,25 @@ class GevLocationAndScaleTrendTest(GevTrendTestTwoParameters):
         super().__init__(years, maxima, starting_year,
                          NonStationaryLocationAndScaleModel)
 
+    @property
+    def mu1(self):
+        return self.get_non_stationary_linear_coef(gev_param_name=GevParams.LOC)
+
+    @property
+    def sigma1(self):
+        return self.get_non_stationary_linear_coef(gev_param_name=GevParams.SCALE)
+
     def _slope_strength(self):
-        mu1 = self.get_non_stationary_linear_coef(gev_param_name=GevParams.LOC)
-        sigma1 = self.get_non_stationary_linear_coef(gev_param_name=GevParams.SCALE)
         return self.non_stationary_constant_gev_params.quantile_strength_evolution(p=self.quantile_for_strength,
-                                                                                   mu1=mu1,
-                                                                                   sigma1=sigma1)
+                                                                                   mu1=self.mu1,
+                                                                                   sigma1=self.sigma1)
+
+    @property
+    def mean_difference_same_sign_as_slope_strenght(self) -> bool:
+        zeta0 = self.non_stationary_constant_gev_params.shape
+        mean_difference = self.mean_difference(zeta0=zeta0, mu1=self.mu1, sigma1=self.sigma1)
+        return self.same_sign(mean_difference, self._slope_strength())
+
+    @property
+    def variance_difference_same_sign_as_slope_strenght(self) -> bool:
+        return self.same_sign(self.sigma1, self._slope_strength())

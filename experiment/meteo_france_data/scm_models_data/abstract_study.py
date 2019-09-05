@@ -1,4 +1,5 @@
 import datetime
+from matplotlib.patches import Polygon
 import io
 import os
 import os.path as op
@@ -268,6 +269,7 @@ class AbstractStudy(object):
                         scaled=False,
                         fontsize=7,
                         axis_off=False,
+                        massif_name_to_hatch_boolean_list=None
                         ):
         if ax is None:
             ax = plt.gca()
@@ -292,8 +294,10 @@ class AbstractStudy(object):
             # if j == 0:
             #     mask_outside_polygon(poly_verts=l, ax=ax)
             # Plot the contour of the massif
+
             coords_list = list(zip(*coords_list))
             ax.plot(*coords_list, color='black')
+
             # Potentially, fill the inside of the polygon with some color
             if fill and coordinate_id in cls.coordinate_id_to_massif_name:
                 massif_name = cls.coordinate_id_to_massif_name[coordinate_id]
@@ -302,6 +306,16 @@ class AbstractStudy(object):
                     ax.fill(*coords_list, **fill_kwargs)
                 else:
                     ax.fill(*coords_list, **{'color': default_color_for_missing_massif})
+
+                # Add a hatch to visualize the mean & variance variation sign
+                hatch_list = ['//', '\\\\']
+                if massif_name_to_hatch_boolean_list is not None:
+                    if massif_name in massif_name_to_hatch_boolean_list:
+                        a = np.array(coords_list).transpose()
+                        hatch_boolean_list = massif_name_to_hatch_boolean_list[massif_name]
+                        for hatch, is_hatch in zip(hatch_list, hatch_boolean_list):
+                            if is_hatch:
+                                ax.add_patch(Polygon(xy=a, fill=False, hatch=hatch))
 
         # Display the center of the massif
         masssif_coordinate_for_display = cls.massifs_coordinates_for_display(massif_names)

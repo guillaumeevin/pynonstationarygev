@@ -9,7 +9,7 @@ POSTER_ALTITUDES = [900, 1800, 2700]
 
 
 def main_poster_A_non_stationary_model_choice():
-    nb = 1
+    nb = 3
     for altitude in POSTER_ALTITUDES[:nb]:
         for trend_test_class in [GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest][-nb:]:
             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,

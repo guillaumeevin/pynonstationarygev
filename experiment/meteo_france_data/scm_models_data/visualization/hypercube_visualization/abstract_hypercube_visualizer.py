@@ -102,6 +102,14 @@ class AbstractHypercubeVisualizer(object):
     def df_hypercube_trend_constant_quantile(self) -> pd.DataFrame:
         return self._df_hypercube_trend_meta(idx=3)
 
+    @cached_property
+    def df_hypercube_trend_mean_same_sign(self) -> pd.DataFrame:
+        return self._df_hypercube_trend_meta(idx=4)
+
+    @cached_property
+    def df_hypercube_trend_variance_same_sign(self) -> pd.DataFrame:
+        return self._df_hypercube_trend_meta(idx=5)
+
     # Some properties
 
     @property
