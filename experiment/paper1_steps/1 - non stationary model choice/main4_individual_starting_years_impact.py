@@ -26,12 +26,12 @@ def main_fast_spatial_risk_evolution():
 
 def main_full_spatial_risk_evolution():
     # Compare the risk with and without taking into account the starting year
-    for altitude in FULL_ALTITUDES[-2:]:
+    for altitude in FULL_ALTITUDES[-2:-1]:
         for trend_test_class in [GevLocationAndScaleTrendTest]:
-            vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
-                                                      exact_starting_year=1958, reduce_strength_array=True,
-                                                      trend_test_class=trend_test_class)
-            vizualiser.visualize_massif_trend_test_one_altitude()
+            # vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
+            #                                           exact_starting_year=1958, reduce_strength_array=True,
+            #                                           trend_test_class=trend_test_class)
+            # vizualiser.visualize_massif_trend_test_one_altitude()
             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                       reduce_strength_array=True,
                                                       trend_test_class=trend_test_class,

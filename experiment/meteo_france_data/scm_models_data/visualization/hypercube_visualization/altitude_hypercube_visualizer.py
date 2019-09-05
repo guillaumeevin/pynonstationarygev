@@ -320,7 +320,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                            if k in massif_to_color_for_trend_type} for i in [1, 2]]
                         massif_to_strength.update(massif_to_value_for_trend_type[0])
                         massif_to_constant.update(massif_to_value_for_trend_type[1])
-                        mean_idx, variance_idx = 2, 3
+                        mean_idx, variance_idx = 3, 4
                     else:
                         mean_idx, variance_idx = 1, 2
 
@@ -352,7 +352,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             massif_name_to_value = {m: "{} {}{}".format(
                 int(massif_to_constant[m]),
                 "+" if massif_to_strength[m] > 0 else "",
-                round(massif_to_strength[m] * massif_to_constant[m], 1),
+                round(massif_to_strength[m], 1),
                 AbstractGevTrendTest.nb_years_for_quantile_evolution)
                 for m in massif_to_strength}
         else:
