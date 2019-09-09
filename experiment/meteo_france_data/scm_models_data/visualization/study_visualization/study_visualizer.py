@@ -618,12 +618,12 @@ class StudyVisualizer(VisualizationParameters):
         # Display the graph of the max on top
         ax = plt.gca()
         _, y = self.smooth_maxima_x_y(massif_names.index(massif_name))
-        d = IsmevGevFit(x_gev=y).gev_params
+        gev_param = IsmevGevFit(x_gev=y).gev_params
         # Round up
-        d = {k: self.round_sig(v, 2) for k, v in d.items()}
 
-        print(d)
-        gev_param = GevParams.from_dict(d)
+        # d = {k: self.round_sig(v, 2) for k, v in d.items()}
+        # print(d)
+        # gev_param = GevParams.from_dict(d)
         x_gev = np.linspace(0.0, 1.5 * max(y), num=1000)
         y_gev = [gev_param.density(x) for x in x_gev]
         ax.plot(x_gev, y_gev, color=color, linewidth=5)

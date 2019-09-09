@@ -34,13 +34,20 @@ altitude_massif_name_and_study_class_for_poster = [
     (2700, 'Parpaillon', SafranSnowfall),
 ]
 
+altitude_massif_name_and_study_class_for_poster_evan = [
+    (900, 'Chartreuse', CrocusSwe3Days),
+    (1800, 'Vanoise', CrocusSwe3Days),
+    (2700, 'Parpaillon', CrocusSwe3Days),
+]
+
+
 SCM_STUDY_NAME_TO_ABBREVIATION = {get_display_name_from_object_type(k): v for k, v in
                                   SCM_STUDY_CLASS_TO_ABBREVIATION.items()}
 SCM_COLORS = ['tab:orange', 'y', 'tab:purple', 'lightseagreen']
 SCM_STUDY_CLASS_TO_COLOR = dict(zip(SCM_STUDIES, SCM_COLORS))
 SCM_STUDY_NAME_TO_COLOR = {get_display_name_from_object_type(s): color
                            for s, color in zip(SCM_STUDIES, SCM_COLORS)}
-
+poster_altitude_to_color = dict(zip([900, 1800, 2700], ['y', 'tab:purple', 'tab:orange']))
 SCM_EXTENDED_STUDIES = [ExtendedSafranSnowfall, ExtendedCrocusSweTotal, ExtendedCrocusDepth]
 SCM_STUDY_TO_EXTENDED_STUDY = OrderedDict(zip(SCM_STUDIES, SCM_EXTENDED_STUDIES))
 
@@ -237,15 +244,20 @@ def maxima_analysis():
 
 def max_graph_annual_maxima_poster():
     save_to_file = True
-    for altitude, massif_name, study_class in altitude_massif_name_and_study_class_for_poster:
+    choice_tuple = [
+        altitude_massif_name_and_study_class_for_poster,
+        altitude_massif_name_and_study_class_for_poster_evan,
+    ][1]
+    for altitude, massif_name, study_class in choice_tuple:
         for study in study_iterator_global([study_class], altitudes=[altitude]):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                                verbose=True,
                                                multiprocessing=True)
             snow_abbreviation = SCM_STUDY_CLASS_TO_ABBREVIATION[study_class]
-            color = SCM_STUDY_CLASS_TO_COLOR[study_class]
-            # study_visualizer.visualize_max_graphs_poster(massif_name, altitude, snow_abbreviation, color)
-            study_visualizer.visualize_gev_graphs_poster(massif_name, altitude, snow_abbreviation, color)
+            # color = SCM_STUDY_CLASS_TO_COLOR[study_class]
+            color = poster_altitude_to_color[altitude]
+            study_visualizer.visualize_max_graphs_poster(massif_name, altitude, snow_abbreviation, color)
+            # study_visualizer.visualize_gev_graphs_poster(massif_name, altitude, snow_abbreviation, color)
 
 
 def altitude_analysis():
@@ -260,8 +272,8 @@ def main_run():
     # trend_analysis()
 
     # altitude_analysis()
-    # max_graph_annual_maxima_poster()
-    maxima_analysis()
+    max_graph_annual_maxima_poster()
+    # maxima_analysis()
     # case_study()
     # all_scores_vizu()
     # maxima_analysis()
