@@ -1,4 +1,4 @@
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, CrocusSwe3Days
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_year_hypercube_visualizer import \
     Altitude_Hypercube_Year_Visualizer, AltitudeHypercubeVisualizerWithoutTrendType
@@ -57,6 +57,22 @@ def main_poster_B_starting_years_analysis():
             vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=True)
 
 
+def main_poster_C_orientation_analysis():
+    """By default the slope is equal to 20"""
+    nb = 0
+    cardinal_orientations = [0.0, 90.0, 180.0, 270.0]
+    trend_test_class = GevLocationAndScaleTrendTest
+    for altitude in POSTER_ALTITUDES[nb:]:
+        study_class = CrocusSwe3Days
+        for orientation in cardinal_orientations[nb:]:
+            vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
+                                                      exact_starting_year=1958, reduce_strength_array=False,
+                                                      trend_test_class=trend_test_class,
+                                                      study_class=study_class,
+                                                      orientation=orientation)
+            vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False)
+
+
 def main_poster_D_other_quantities_analysis():
     nb = 3
     trend_test_class = GevLocationAndScaleTrendTest
@@ -72,4 +88,5 @@ def main_poster_D_other_quantities_analysis():
 if __name__ == '__main__':
     # main_poster_A_non_stationary_model_choice()
     # main_poster_B_starting_years_analysis()
-    main_poster_D_other_quantities_analysis()
+    main_poster_C_orientation_analysis()
+    # main_poster_D_other_quantities_analysis()

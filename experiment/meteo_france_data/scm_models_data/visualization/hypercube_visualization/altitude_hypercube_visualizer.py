@@ -371,6 +371,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
     def set_trend_test_reparition_title(self, subtitle, set=True):
         # Global information
         title = 'Repartition of {} trends'.format(subtitle)
+        if self.study.has_orientation:
+            title += ' orientation {} degrees'.format(int(self.study.orientation))
         title += ' at altitude={}m \nfor the starting_year={}'.format(self.altitudes[0], self.first_starting_year)
         if len(self.starting_years) > 1:
             title += ' until starting_year={}'.format(self.last_starting_year)

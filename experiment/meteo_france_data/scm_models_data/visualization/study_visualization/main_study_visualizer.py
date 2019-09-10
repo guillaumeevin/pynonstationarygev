@@ -62,36 +62,39 @@ ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST = ALL_ALTITUDES[3:-6][:]
 ALL_STUDIES = SCM_STUDIES + [SafranTemperature, SafranRainfall]
 
 
-def study_iterator_global(study_classes, only_first_one=False, verbose=True, altitudes=None, nb_days=None) -> \
+def study_iterator_global(study_classes, only_first_one=False, verbose=True, altitudes=None, nb_days=None, orientations=None) -> \
         List[AbstractStudy]:
     for study_class in study_classes:
-        for study in study_iterator(study_class, only_first_one, verbose, altitudes, nb_days):
+        for study in study_iterator(study_class, only_first_one, verbose, altitudes, nb_days, orientations=orientations):
             yield study
         if only_first_one:
             break
 
 
-def study_iterator(study_class, only_first_one=False, verbose=True, altitudes=None, nb_consecutive_days=3) -> List[
+def study_iterator(study_class, only_first_one=False, verbose=True, altitudes=None, nb_consecutive_days=3,
+                   orientations=None) -> List[
     AbstractStudy]:
     # Default argument
     altis = [1800] if altitudes is None else altitudes
+    orients = [None] if orientations is None else orientations
 
     if verbose:
         print('\n\n\n\n\nLoading studies....')
     for alti in altis:
-        if verbose:
-            print('alti: {}, nb_day: {}     '.format(alti, nb_consecutive_days), end='')
+        for orient in orients:
+            if verbose:
+                print('alti: {}, nb_day: {}  orient = {}   '.format(alti, nb_consecutive_days, orient), end='')
 
-        study = study_class(altitude=alti)
+            study = study_class(altitude=alti, orientation=orient)
 
-        if verbose:
-            massifs = study.altitude_to_massif_names[alti]
-            print('{} massifs: {} \n'.format(len(massifs), massifs))
-        yield study
+            if verbose:
+                massifs = study.altitude_to_massif_names[alti]
+                print('{} massifs: {} \n'.format(len(massifs), massifs))
+            yield study
 
-        # Stop iterations on purpose
-        if only_first_one:
-            break
+            # Stop iterations on purpose
+            if only_first_one:
+                break
 
 
 def extended_visualization():
