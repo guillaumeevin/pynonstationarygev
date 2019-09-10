@@ -1,5 +1,9 @@
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal
+from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_year_hypercube_visualizer import \
     Altitude_Hypercube_Year_Visualizer, AltitudeHypercubeVisualizerWithoutTrendType
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
+    SCM_STUDIES
 from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevScaleTrendTest, \
     GevLocationTrendTest
 from experiment.trend_analysis.univariate_test.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
@@ -53,6 +57,19 @@ def main_poster_B_starting_years_analysis():
             vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=True)
 
 
+def main_poster_D_other_quantities_analysis():
+    nb = 3
+    trend_test_class = GevLocationAndScaleTrendTest
+    for altitude in POSTER_ALTITUDES[:nb]:
+        for study_class in [SafranSnowfall, CrocusSweTotal, CrocusDepth][:nb]:
+            vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
+                                                      exact_starting_year=1958, reduce_strength_array=False,
+                                                      trend_test_class=trend_test_class,
+                                                      study_class=study_class)
+            vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False)
+
+
 if __name__ == '__main__':
     # main_poster_A_non_stationary_model_choice()
-    main_poster_B_starting_years_analysis()
+    # main_poster_B_starting_years_analysis()
+    main_poster_D_other_quantities_analysis()
