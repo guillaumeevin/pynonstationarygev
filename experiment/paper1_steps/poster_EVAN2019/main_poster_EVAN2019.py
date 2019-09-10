@@ -61,7 +61,7 @@ def main_poster_D_other_quantities_analysis():
     nb = 3
     trend_test_class = GevLocationAndScaleTrendTest
     for altitude in POSTER_ALTITUDES[:nb]:
-        for study_class in [SafranSnowfall, CrocusSweTotal, CrocusDepth][:nb]:
+        for study_class in SCM_STUDIES[:nb]:
             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                       exact_starting_year=1958, reduce_strength_array=False,
                                                       trend_test_class=trend_test_class,

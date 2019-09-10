@@ -20,7 +20,8 @@ from netCDF4 import Dataset
 
 from experiment.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
 from experiment.meteo_france_data.scm_models_data.scm_constants import ALTITUDES, ZS_INT_23, ZS_INT_MASK, LONGITUDES, \
-    LATITUDES
+    LATITUDES, ORIENTATIONS, SLOPES, ORDERED_ALLSLOPES_ALTITUDES, ORDERED_ALLSLOPES_ORIENTATIONS, \
+    ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM
 from experiment.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
@@ -47,12 +48,12 @@ class AbstractStudy(object):
 
     The year 2017 represents the nc file that correspond to the winter between the year 2017 and 2018.
     """
-    REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_flat/reanalysis'
-    # REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_allslopes/reanalysis'
+    REANALYSIS_FLAT_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_flat/reanalysis'
+    REANALYSIS_ALLSLOPES_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_allslopes/reanalysis'
     # REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/postes/reanalysis'
 
     def __init__(self, variable_class: type, altitude: int = 1800, year_min=1000, year_max=3000,
-                 multiprocessing=True):
+                 multiprocessing=True, orientation=None, slope=20.0):
         assert isinstance(altitude, int), type(altitude)
         assert altitude in ALTITUDES, altitude
         self.altitude = altitude
@@ -61,6 +62,13 @@ class AbstractStudy(object):
         self.year_min = year_min
         self.year_max = year_max
         self.multiprocessing = multiprocessing
+        # Add some attributes, for the "allslopes" reanalysis
+        assert orientation is None or orientation in ORIENTATIONS
+        assert slope in SLOPES
+        self.orientation = orientation
+        self.slope = slope
+
+
 
     """ Time """
 
@@ -141,9 +149,9 @@ class AbstractStudy(object):
             # Check daily data
             daily_time_serie = self.year_to_variable_object[year].daily_time_serie_array
             assert daily_time_serie.shape[0] in [365, 366]
-            assert daily_time_serie.shape[1] == len(ZS_INT_MASK)
+            assert daily_time_serie.shape[1] == len(self.column_mask)
             # Filter only the data corresponding to the altitude of interest
-            daily_time_serie = daily_time_serie[:, self.altitude_mask]
+            daily_time_serie = daily_time_serie[:, self.column_mask]
             year_to_daily_time_serie_array[year] = daily_time_serie
         return year_to_daily_time_serie_array
 
@@ -218,15 +226,29 @@ class AbstractStudy(object):
         longitude = np.array(LONGITUDES)
         latitude = np.array(LATITUDES)
         columns = [AbstractSpatialCoordinates.COORDINATE_X, AbstractSpatialCoordinates.COORDINATE_Y]
-        data = dict(zip(columns, [longitude[self.altitude_mask], latitude[self.altitude_mask]]))
+        data = dict(zip(columns, [longitude[self.flat_mask], latitude[self.flat_mask]]))
         return pd.DataFrame(data=data, index=self.study_massif_names, columns=columns)
 
     @property
     def missing_massif_name(self):
         return set(self.all_massif_names) - set(self.altitude_to_massif_names[self.altitude])
 
+    @property
+    def column_mask(self):
+        return self.allslopes_mask if self.has_orientation else self.flat_mask
+
+    @property
+    def allslopes_mask(self):
+        altitude_mask = np.array(ORDERED_ALLSLOPES_ALTITUDES) == self.altitude
+        orientation_mask = np.array(ORDERED_ALLSLOPES_ORIENTATIONS) == self.orientation
+        slope_mask = np.array(ORDERED_ALLSLOPES_SLOPES) == self.slope
+        allslopes_mask = altitude_mask & orientation_mask & slope_mask
+        # Exclude all the data corresponding to the 24th massif
+        massif_24_mask =np.array(ORDERED_ALLSLOPES_MASSIFNUM) == 30
+        return allslopes_mask & ~massif_24_mask
+
     @cached_property
-    def altitude_mask(self):
+    def flat_mask(self):
         altitude_mask = ZS_INT_MASK == self.altitude
         assert np.sum(altitude_mask) == len(self.altitude_to_massif_names[self.altitude])
         return altitude_mask
@@ -379,7 +401,16 @@ class AbstractStudy(object):
     def study_full_path(self) -> str:
         assert self.model_name in ['Safran', 'Crocus']
         study_folder = 'meteo' if self.model_name is 'Safran' else 'pro'
-        return op.join(self.full_path, self.REANALYSIS_FOLDER, study_folder)
+        return op.join(self.reanalysis_path, study_folder)
+
+    @property
+    def reanalysis_path(self):
+        reanalysis_folder = self.REANALYSIS_ALLSLOPES_FOLDER if self.has_orientation else self.REANALYSIS_FLAT_FOLDER
+        return op.join(self.full_path, reanalysis_folder)
+
+    @property
+    def has_orientation(self):
+        return self.orientation is not None
 
     """  Spatial properties """
 
@@ -392,7 +423,7 @@ class AbstractStudy(object):
         """
         Pour l'identification des massifs, le numéro de la variable massif_num correspond à celui de l'attribut num_opp
         """
-        metadata_path = op.join(cls.full_path, cls.REANALYSIS_FOLDER, 'metadata')
+        metadata_path = op.join(cls.full_path, cls.REANALYSIS_FLAT_FOLDER, 'metadata')
         dbf = Dbf5(op.join(metadata_path, 'massifs_alpes.dbf'))
         df = dbf.to_dataframe().copy()  # type: pd.DataFrame
         dbf.f.close()
