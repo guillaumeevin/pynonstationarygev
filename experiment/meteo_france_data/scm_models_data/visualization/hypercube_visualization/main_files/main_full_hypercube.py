@@ -22,7 +22,7 @@ def get_full_parameters(altitude=None, offset_starting_year=10):
         altitudes = [altitude]
     else:
         altitudes = ALL_ALTITUDES[3:-6]
-    first_starting_year = 1958 + offset_starting_year
+    first_starting_year = 1958
     last_starting_year = 2017 - offset_starting_year
     trend_test_class = GevLocationTrendTest
     return altitudes, first_starting_year, last_starting_year, nb_data_reduced_for_speed, only_first_one, save_to_file, trend_test_class

@@ -6,6 +6,7 @@ from collections import OrderedDict
 
 import numpy as np
 from cached_property import cached_property
+from matplotlib import colors
 
 from experiment.trend_analysis.mann_kendall_test import mann_kendall_test
 from experiment.trend_analysis.abstract_score import MannKendall
@@ -52,6 +53,11 @@ class AbstractUnivariateTest(object):
     @classmethod
     def three_main_trend_types(cls):
         return [cls.SIGNIFICATIVE_NEGATIVE_TREND, cls.NON_SIGNIFICATIVE_TREND, cls.SIGNIFICATIVE_POSITIVE_TREND]
+
+    @classmethod
+    def rgb_code_of_trend_colors(cls):
+        for name in ['lightgreen', 'lightcoral', 'darkgreen', 'darkred']:
+            print(name, colors.to_rgba(name)[:-1])
 
     @classmethod
     def display_trend_type_to_style(cls):
@@ -143,3 +149,7 @@ class ExampleRandomTrendTest(AbstractUnivariateTest):
 
 class WarningScoreValue(Warning):
     pass
+
+
+if __name__ == '__main__':
+    AbstractUnivariateTest.rgb_code_of_trend_colors()

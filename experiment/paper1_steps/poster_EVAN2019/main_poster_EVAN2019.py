@@ -29,14 +29,18 @@ def main_poster_A_non_stationary_model_choice():
 
 def main_poster_B_starting_years_analysis():
     nb = 3
-    for altitude in POSTER_ALTITUDES[2:]:
+    for altitude in POSTER_ALTITUDES[:nb]:
         for trend_test_class in [GevLocationAndScaleTrendTest]:
             # 1958 as starting year
             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                       exact_starting_year=1958, reduce_strength_array=False,
                                                       trend_test_class=trend_test_class,
                                                       )
+            for d in [True, False]:
+                vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False,
+                                                                    display_trend_color=d)
             # vizualiser.save_to_file = False
+
             vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False)
             # Optimal common starting year
             vizualiser = get_full_altitude_visualizer(AltitudeHypercubeVisualizerWithoutTrendType, altitude=altitude,
@@ -48,13 +52,56 @@ def main_poster_B_starting_years_analysis():
             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                       exact_starting_year=best_year, reduce_strength_array=False,
                                                       trend_test_class=trend_test_class)
-            vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False)
+            for d in [True, False]:
+                vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False,
+                                                                    display_trend_color=d)
             # Individual most likely starting year for each massif
             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                       reduce_strength_array=False,
                                                       trend_test_class=trend_test_class,
                                                       offset_starting_year=20)
-            vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=True)
+            for d in [True, False]:
+                vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False,
+                                                                    display_trend_color=d)
+
+# def main_poster_B_test():
+#     nb = 3
+#     for altitude in POSTER_ALTITUDES[:1]:
+#         for trend_test_class in [GevLocationAndScaleTrendTest]:
+#             # # 1958 as starting year
+#             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
+#                                                       exact_starting_year=1958, reduce_strength_array=False,
+#                                                       trend_test_class=trend_test_class,
+#                                                       )
+#             # vizualiser.save_to_file = False
+#             vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False,
+#                                                                 display_trend_color=False)
+#             vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False,
+#                                                                 display_trend_color=True)
+#             # # Optimal common starting year
+#             vizualiser = get_full_altitude_visualizer(AltitudeHypercubeVisualizerWithoutTrendType, altitude=altitude,
+#                                                       reduce_strength_array=True,
+#                                                       trend_test_class=trend_test_class,
+#                                                       offset_starting_year=20)
+#             res = vizualiser.visualize_year_trend_test(subtitle_specified='CrocusSwe3Days')
+#             best_year = res[0][1]
+#             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
+#                                                       exact_starting_year=best_year, reduce_strength_array=False,
+#                                                       trend_test_class=trend_test_class)
+#             vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False,
+#                                                                 display_trend_color=False)
+#             vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False,
+#                                                                 display_trend_color=True)
+#             # vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False)
+#             # Individual most likely starting year for each massif
+#             # vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
+#             #                                           reduce_strength_array=False,
+#             #                                           trend_test_class=trend_test_class,
+#             #                                           offset_starting_year=50)
+#             # # vizualiser.save_to_file = False
+#             # vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=True,
+#             #                                                     display_trend_color=False)
+
 
 
 def main_poster_C_orientation_analysis():
@@ -87,6 +134,6 @@ def main_poster_D_other_quantities_analysis():
 
 if __name__ == '__main__':
     # main_poster_A_non_stationary_model_choice()
-    # main_poster_B_starting_years_analysis()
-    main_poster_C_orientation_analysis()
+    main_poster_B_starting_years_analysis()
+    # main_poster_C_orientation_analysis()
     # main_poster_D_other_quantities_analysis()

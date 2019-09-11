@@ -9,9 +9,8 @@ from extreme_estimator.margin_fits.extreme_params import ExtremeParams
 from extreme_estimator.margin_fits.plot.shifted_color_map import shiftedColorMap
 
 
-def plot_extreme_param(ax, label: str, values: np.ndarray):
+def get_shifted_map(vmin, vmax):
     # Load the shifted cmap to center on a middle point
-    vmin, vmax = np.min(values), np.max(values)
     if vmin < 0 < vmax:
         midpoint = 1 - vmax / (vmax + abs(vmin))
     elif vmin < 0 and vmax < 0:
@@ -22,29 +21,26 @@ def plot_extreme_param(ax, label: str, values: np.ndarray):
         raise ValueError('Unexpected values: vmin={}, vmax={}'.format(vmin, vmax))
     cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
     shifted_cmap = shiftedColorMap(cmap, midpoint=midpoint, name='shifted')
-    norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
-    norm = create_colorbase_axis(ax, label, shifted_cmap, norm)
-    return norm, shifted_cmap
+    return shifted_cmap
 
 
 def create_colorbase_axis(ax, label, cmap, norm):
     divider = make_axes_locatable(ax)
-    cax = divider.append_axes('right', size='5%', pad=0.03)
+    cax = divider.append_axes('right', size='5%', pad=0.0)
     cb = cbar.ColorbarBase(cax, cmap=cmap, norm=norm)
     if isinstance(label, str):
         cb.set_label(label)
     return norm
 
 
-def get_color_rbga_shifted(ax, replace_blue_by_white: bool, values: np.ndarray, label=None):
-    """
-    For some display it was necessary to transform dark blue values into white values
-    """
-    norm, shifted_cmap = plot_extreme_param(ax, label, values)
-    m = cm.ScalarMappable(norm=norm, cmap=shifted_cmap)
+def get_norm(vmin, vmax):
+    return mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+
+
+def get_colors(values, cmap, vmin, vmax, replace_blue_by_white=False):
+    norm = get_norm(vmin, vmax)
+    m = cm.ScalarMappable(norm=norm, cmap=cmap)
     colors = [m.to_rgba(value) for value in values]
-    # We do not want any blue values for parameters other than the Shape
-    # So when the value corresponding to the blue color is 1, then we set the color to white, i.e. (1,1,1,1)
     if replace_blue_by_white:
         colors = [color if color[2] != 1 else (1, 1, 1, 1) for color in colors]
     return colors
@@ -55,7 +51,10 @@ def imshow_shifted(ax, gev_param_name, values, visualization_extend, mask_2D=Non
     if mask_2D is not None:
         condition |= mask_2D
     masked_array = np.ma.masked_where(condition, values)
-    norm, shifted_cmap = plot_extreme_param(ax, gev_param_name, masked_array)
+    vmin, vmax = np.min(masked_array), np.max(masked_array)
+    shifted_cmap = get_shifted_map(vmin, vmax)
+    norm = get_norm(vmin, vmax)
+    create_colorbase_axis(ax, gev_param_name, shifted_cmap, norm)
     shifted_cmap.set_bad(color='white')
     if gev_param_name != ExtremeParams.SHAPE:
         epsilon = 1e-2 * (np.max(values) - np.min(values))
@@ -64,4 +63,3 @@ def imshow_shifted(ax, gev_param_name, values, visualization_extend, mask_2D=Non
         masked_array[-1, -1] = value - epsilon
     # IMPORTANT: Origin for all the plots is at the bottom left corner
     ax.imshow(masked_array, extent=visualization_extend, cmap=shifted_cmap, origin='lower')
-

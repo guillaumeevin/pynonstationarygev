@@ -289,7 +289,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
     def visualize_trend_test_repartition_poster(self, reduction_function, axes=None, subtitle='', isin_parameters=None,
                                                 plot_title=None,
                                                 poster_plot=False,
-                                                write_text_on_massif=True):
+                                                write_text_on_massif=True,
+                                                display_trend_color=True):
         trend_type_to_serie = {k: v[0].replace(0.0, np.nan) for k, v in
                                self.trend_type_to_series(reduction_function, isin_parameters).items()}
 
@@ -324,7 +325,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                     else:
                         mean_idx, variance_idx = 1, 2
 
-                        massif_to_value_for_trend_type = {k: "$t_0=$" + str(int(v)) for k, v in
+                        massif_to_value_for_trend_type = {k: int(v) for k, v in
                                                           self.trend_type_to_series(reduction_function,
                                                                                     isin_parameters)[
                                                               display_trend_type][3].items()
@@ -356,19 +357,37 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                 AbstractGevTrendTest.nb_years_for_quantile_evolution)
                 for m in massif_to_strength}
         else:
-            massif_name_to_value = massif_to_year
-        self.study.visualize_study(None, massif_name_to_color=massif_to_color, show=False,
-                                   show_label=False, scaled=True, add_text=write_text_on_massif,
-                                   massif_name_to_value=massif_name_to_value,
-                                   fontsize=4,
-                                   axis_off=True,
-                                   massif_name_to_hatch_boolean_list=massif_name_to_hatch_boolean_list)
+            massif_name_to_value = {k: "$t_0=$" + str(int(v)) if display_trend_color else v for k, v in massif_to_year.items()}
 
-        title = self.set_trend_test_reparition_title(subtitle, set=not poster_plot)
+        title = self.set_trend_test_reparition_title(subtitle, set=not poster_plot, first_title=display_trend_color)
+
+        if display_trend_color:
+            self.study.visualize_study(None, massif_name_to_color=massif_to_color, show=False,
+                                       show_label=False, scaled=True, add_text=write_text_on_massif,
+                                       massif_name_to_value=massif_name_to_value,
+                                       fontsize=4,
+                                       axis_off=True,
+                                       massif_name_to_hatch_boolean_list=massif_name_to_hatch_boolean_list,
+                                       )
+        else:
+            VMIN = 1957
+            VMAX = 1998
+            assert VMIN < self.first_starting_year
+            assert VMAX > self.last_starting_year
+            self.study.visualize_study(None, show=False,
+                                       show_label=False, scaled=True, add_text=False,
+                                       massif_name_to_value=massif_name_to_value,
+                                       cmap=plt.cm.GnBu,
+                                       add_colorbar=True,
+                                       vmin=VMIN,
+                                       vmax=VMAX)
+
+
+
 
         return title
 
-    def set_trend_test_reparition_title(self, subtitle, set=True):
+    def set_trend_test_reparition_title(self, subtitle, set=True, first_title=True):
         # Global information
         title = 'Repartition of {} trends'.format(subtitle)
         if self.study.has_orientation:
@@ -377,7 +396,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
         if len(self.starting_years) > 1:
             title += ' until starting_year={}'.format(self.last_starting_year)
         title += ' with {} test'.format(get_display_name_from_object_type(self.trend_test_class))
-        if self.reduce_strength_array:
+        if first_title:
             title += '\nEvolution of the quantile {} every {} years'.format(AbstractGevTrendTest.quantile_for_strength,
                                                                             AbstractGevTrendTest.nb_years_for_quantile_evolution)
         else:
@@ -492,7 +511,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                  isin_parameters=None,
                                                  show_or_save_to_file=True,
                                                  poster_plot=False,
-                                                 write_text_on_massif=True):
+                                                 write_text_on_massif=True,
+                                                 display_trend_color=False):
         last_title = ''
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.index_reduction,
                                                                                 level=self.massif_index_level,
@@ -501,7 +521,8 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                                       isin_parameters=isin_parameters,
                                                                       plot_title=plot_title,
                                                                       poster_plot=poster_plot,
-                                                                      write_text_on_massif=write_text_on_massif)
+                                                                      write_text_on_massif=write_text_on_massif,
+                                                                      display_trend_color=display_trend_color)
         if show_or_save_to_file:
             self.show_or_save_to_file(specific_title=last_title, dpi=1000, tight=poster_plot)
 

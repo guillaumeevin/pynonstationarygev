@@ -25,7 +25,8 @@ from experiment.meteo_france_data.scm_models_data.scm_constants import ALTITUDES
 from experiment.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
-from extreme_estimator.margin_fits.plot.create_shifted_cmap import get_color_rbga_shifted, create_colorbase_axis
+from extreme_estimator.margin_fits.plot.create_shifted_cmap import create_colorbase_axis, \
+    get_shifted_map, get_colors
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -50,6 +51,7 @@ class AbstractStudy(object):
     """
     REANALYSIS_FLAT_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_flat/reanalysis'
     REANALYSIS_ALLSLOPES_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_allslopes/reanalysis'
+
     # REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/postes/reanalysis'
 
     def __init__(self, variable_class: type, altitude: int = 1800, year_min=1000, year_max=3000,
@@ -67,8 +69,6 @@ class AbstractStudy(object):
         assert slope in SLOPES
         self.orientation = orientation
         self.slope = slope
-
-
 
     """ Time """
 
@@ -244,7 +244,7 @@ class AbstractStudy(object):
         slope_mask = np.array(ORDERED_ALLSLOPES_SLOPES) == self.slope
         allslopes_mask = altitude_mask & orientation_mask & slope_mask
         # Exclude all the data corresponding to the 24th massif
-        massif_24_mask =np.array(ORDERED_ALLSLOPES_MASSIFNUM) == 30
+        massif_24_mask = np.array(ORDERED_ALLSLOPES_MASSIFNUM) == 30
         return allslopes_mask & ~massif_24_mask
 
     @cached_property
@@ -283,7 +283,7 @@ class AbstractStudy(object):
     @classmethod
     def visualize_study(cls, ax=None, massif_name_to_value: Union[None, Dict[str, float]] = None, show=True, fill=True,
                         replace_blue_by_white=True,
-                        label=None, add_text=False, cmap=None, vmax=100, vmin=0,
+                        label=None, add_text=False, cmap=None, add_colorbar=False, vmax=100, vmin=0,
                         default_color_for_missing_massif='gainsboro',
                         default_color_for_nan_values='w',
                         massif_name_to_color=None,
@@ -291,20 +291,23 @@ class AbstractStudy(object):
                         scaled=False,
                         fontsize=7,
                         axis_off=False,
-                        massif_name_to_hatch_boolean_list=None
+                        massif_name_to_hatch_boolean_list=None,
+                        norm=None,
                         ):
         if ax is None:
             ax = plt.gca()
 
-        if massif_name_to_color is None:
+        if massif_name_to_value is not None:
             massif_names, values = list(zip(*massif_name_to_value.items()))
+        else:
+            massif_names, values = None, None
+
+        if massif_name_to_color is None:
+            # Load the colors
             if cmap is None:
-                colors = get_color_rbga_shifted(ax, replace_blue_by_white, values, label=label)
-            else:
-                norm = Normalize(vmin, vmax)
-                create_colorbase_axis(ax, label, cmap, norm)
-                m = cm.ScalarMappable(norm=norm, cmap=cmap)
-                colors = [m.to_rgba(value) if not np.isnan(value) else default_color_for_nan_values for value in values]
+                cmap = get_shifted_map(vmin, vmax)
+            norm = Normalize(vmin, vmax)
+            colors = get_colors(values, cmap, vmin, vmax, replace_blue_by_white)
             massif_name_to_color = dict(zip(massif_names, colors))
         massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
                                       massif_name_to_color.items()}
@@ -366,6 +369,11 @@ class AbstractStudy(object):
 
         if scaled:
             plt.axis('scaled')
+
+        # create the colorbar only at the end
+        if add_colorbar:
+            if len(set(values)) > 1:
+                create_colorbase_axis(ax, label, cmap, norm)
         if axis_off:
             plt.axis('off')
 
