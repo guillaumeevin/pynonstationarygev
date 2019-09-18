@@ -25,7 +25,7 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     quantile_for_strength = 0.98
     nb_years_for_quantile_evolution = 10
 
-    def __init__(self, years, maxima, starting_year, non_stationary_model_class):
+    def __init__(self, years, maxima, starting_year, non_stationary_model_class, stationary_model_class=StationaryStationModel):
         super().__init__(years, maxima, starting_year)
         df = pd.DataFrame({AbstractCoordinates.COORDINATE_T: years})
         df_maxima_gev = pd.DataFrame(maxima, index=df.index)
@@ -35,8 +35,10 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
 
         try:
+            # todo: rename stationary -> standard, non-stationary -> more complex model
             # Fit stationary model
-            self.stationary_estimator = LinearMarginEstimator(self.dataset, StationaryStationModel(self.coordinates))
+            stationary_model = stationary_model_class(self.coordinates, starting_point=self.starting_year)
+            self.stationary_estimator = LinearMarginEstimator(self.dataset, stationary_model)
             self.stationary_estimator.fit()
             # Fit non stationary model
             non_stationary_model = non_stationary_model_class(self.coordinates, starting_point=self.starting_year)

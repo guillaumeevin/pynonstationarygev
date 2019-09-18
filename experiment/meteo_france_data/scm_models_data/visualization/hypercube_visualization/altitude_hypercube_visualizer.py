@@ -512,7 +512,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
                                                  show_or_save_to_file=True,
                                                  poster_plot=False,
                                                  write_text_on_massif=True,
-                                                 display_trend_color=False):
+                                                 display_trend_color=True):
         last_title = ''
         for subtitle, reduction_function in self.subtitle_to_reduction_function(self.index_reduction,
                                                                                 level=self.massif_index_level,
