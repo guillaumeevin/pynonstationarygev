@@ -39,7 +39,9 @@ class LinearMarginEstimator(AbstractMarginEstimator):
 
     @property
     def margin_function_fitted(self) -> LinearMarginFunction:
-        return super().margin_function_fitted
+        margin_function_fitted = super().margin_function_fitted
+        assert isinstance(margin_function_fitted, LinearMarginFunction)
+        return margin_function_fitted
 
     def extract_function_fitted(self) -> LinearMarginFunction:
         return self.extract_function_fitted_from_the_model_shape(self.margin_model)

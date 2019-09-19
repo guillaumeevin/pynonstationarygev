@@ -1,15 +1,9 @@
 import random
-import warnings
-
-import matplotlib.pyplot as plt
 from collections import OrderedDict
 
-import numpy as np
+import matplotlib.pyplot as plt
 from cached_property import cached_property
 from matplotlib import colors
-
-from experiment.trend_analysis.mann_kendall_test import mann_kendall_test
-from experiment.trend_analysis.abstract_score import MannKendall
 
 
 class AbstractUnivariateTest(object):

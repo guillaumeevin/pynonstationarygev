@@ -58,11 +58,6 @@ class AbstractEstimator(object):
                                                    coef_dict=self.result_from_fit.margin_coef_dict,
                                                    starting_point=margin_model.starting_point)
 
-    # @property
-    # def max_stable_fitted(self) -> AbstractMarginFunction:
-    #     assert self._margin_function_fitted is not None, 'Error: estimator has not been fitted'
-    #     return self._margin_function_fitted
-
     @property
     def train_split(self):
         return self.dataset.train_split
