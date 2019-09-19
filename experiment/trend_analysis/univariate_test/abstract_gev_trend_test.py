@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from cached_property import cached_property
 from scipy.stats import chi2
 
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
@@ -109,11 +110,11 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     def test_sign(self) -> int:
         return np.sign(self.test_trend_slope_strength)
 
-    def get_non_stationary_linear_coef(self, gev_param_name):
+    def get_non_stationary_linear_coef(self, gev_param_name: str):
         return self.non_stationary_estimator.margin_function_fitted.get_coef(gev_param_name,
                                                                              AbstractCoordinates.COORDINATE_T)
 
-    @property
+    @cached_property
     def non_stationary_constant_gev_params(self) -> GevParams:
         # Constant parameters correspond to the gev params in 1958
         return self.non_stationary_estimator.margin_function_fitted.get_gev_params(coordinate=np.array([1958]),
@@ -145,8 +146,8 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     def variance_difference_same_sign_as_slope_strenght(self) -> bool:
         return False
 
-    def mean_difference(self, zeta0, mu1=0.0, sigma1=0.0):
-        return GevParams(loc=mu1, scale=sigma1, shape=zeta0).mean
+    def mean_difference(self, zeta0: float, mu1: float = 0.0, sigma1: float = 0.0) -> float:
+        return GevParams(loc=mu1, scale=sigma1, shape=zeta0, accept_zero_scale_parameter=True).mean
 
     @property
     def test_trend_constant_quantile(self):

@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from typing import List
 
 from cached_property import cached_property
 
@@ -15,9 +16,11 @@ class GevParams(ExtremeParams):
     SUMMARY_NAMES = PARAM_NAMES + ExtremeParams.QUANTILE_NAMES
     NB_SUMMARY_NAMES = len(SUMMARY_NAMES)
 
-    def __init__(self, loc: float, scale: float, shape: float, block_size: int = None):
+    def __init__(self, loc: float, scale: float, shape: float, block_size: int = None, accept_zero_scale_parameter=False):
         super().__init__(loc, scale, shape)
         self.block_size = block_size
+        if accept_zero_scale_parameter and scale == 0.0:
+            self.has_undefined_parameters = False
 
     def quantile(self, p) -> float:
         if self.has_undefined_parameters:
@@ -46,6 +49,7 @@ class GevParams(ExtremeParams):
         return self.to_dict().__str__()
 
     def quantile_strength_evolution(self, p=0.99, mu1=0.0, sigma1=0.0):
+        # todo: chagne the name to time derivative
         """
         Compute the variation of some quantile with respect to time.
         (when mu1 and sigma1 can be modified with time)
@@ -63,13 +67,13 @@ class GevParams(ExtremeParams):
 
     # Compute some indicators (such as the mean and the variance)
 
-    def g(self, k):
+    def g(self, k) -> float:
         # Compute the g_k parameters as defined in wikipedia
         # https://fr.wikipedia.org/wiki/Loi_d%27extremum_g%C3%A9n%C3%A9ralis%C3%A9e
         return gamma(1 - k * self.shape)
 
     @property
-    def mean(self):
+    def mean(self) -> float:
         if self.has_undefined_parameters:
             return np.nan
         elif self.shape >= 1:
@@ -78,7 +82,7 @@ class GevParams(ExtremeParams):
             return self.location + self.scale * (self.g(k=1) - 1) / self.shape
 
     @property
-    def variance(self):
+    def variance(self) -> float:
         if self.has_undefined_parameters:
             return np.nan
         elif self.shape >= 0.5:
@@ -87,11 +91,11 @@ class GevParams(ExtremeParams):
             return ((self.scale / self.shape) ** 2) * (self.g(k=2) - self.g(k=1) ** 2)
 
     @property
-    def std(self):
+    def std(self) -> float:
         return np.sqrt(self.variance)
 
     @classmethod
-    def indicator_names(cls):
+    def indicator_names(cls) -> List[str]:
         return ['mean', 'std'] + cls.QUANTILE_NAMES[:2]
 
     @cached_property

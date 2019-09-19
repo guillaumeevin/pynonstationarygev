@@ -18,17 +18,19 @@ mpl.rcParams['hatch.linewidth'] = 0.3
 
 
 def main_non_stationary_model_comparison():
-    stop_loop = False
+    stop_loop = True
     for altitude in POSTER_ALTITUDES[:]:
-        for trend_test_class in [GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest, ComparisonAgainstMu, ComparisonAgainstSigma][::-1]:
+        for trend_test_class in [GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest,
+                                 ComparisonAgainstMu, ComparisonAgainstSigma][::-1][-1:]:
             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                       exact_starting_year=1958, reduce_strength_array=False,
                                                       trend_test_class=trend_test_class,
                                                       )
-            # vizualiser.save_to_file = False
+            vizualiser.save_to_file = False
             vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False)
             if stop_loop:
                 return
+
 
 if __name__ == '__main__':
     main_non_stationary_model_comparison()
