@@ -70,14 +70,18 @@ class GevParams(ExtremeParams):
 
     @property
     def mean(self):
-        if self.shape >= 1:
+        if self.has_undefined_parameters:
+            return np.nan
+        elif self.shape >= 1:
             return np.inf
         else:
             return self.location + self.scale * (self.g(k=1) - 1) / self.shape
 
     @property
     def variance(self):
-        if self.shape >= 0.5:
+        if self.has_undefined_parameters:
+            return np.nan
+        elif self.shape >= 0.5:
             return np.inf
         else:
             return ((self.scale / self.shape) ** 2) * (self.g(k=2) - self.g(k=1) ** 2)

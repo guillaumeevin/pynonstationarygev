@@ -20,6 +20,19 @@ class TestGevParams(unittest.TestCase):
             q = gev_params.quantile(p)
             self.assertTrue(np.isnan(q))
 
+    def test_has_undefined_parameter(self):
+        gev_params = GevParams(loc=1.0, shape=1.0, scale=-1.0)
+        self.assertTrue(gev_params.has_undefined_parameters)
+        for k, v in gev_params.indicator_name_to_value.items():
+            self.assertTrue(np.isnan(v), msg="{} is not equal to np.nan".format(k))
+
+    def test_limit_cases(self):
+        gev_params = GevParams(loc=1.0, shape=1.0, scale=1.0)
+        self.assertEqual(gev_params.mean, np.inf)
+        gev_params = GevParams(loc=1.0, shape=0.5, scale=1.0)
+        self.assertEqual(gev_params.variance, np.inf)
+        self.assertEqual(gev_params.std, np.inf)
+
 
 if __name__ == '__main__':
     unittest.main()
