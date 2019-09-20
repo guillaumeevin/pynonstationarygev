@@ -32,11 +32,13 @@ def load_quantity_visualizer(quantity_hypercube_class, altitudes, last_starting_
 def load_altitude_visualizer(altitude_hypercube_class, altitudes, last_starting_year, nb_data_reduced_for_speed,
                              only_first_one, save_to_file, study_classes, trend_test_class
                              , exact_starting_year=None, first_starting_year=1958,
-                             orientations=None):
+                             orientations=None,
+                             verbose=True):
     visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False, multiprocessing=True)
                    for study in study_iterator_global(study_classes=study_classes, only_first_one=only_first_one,
                                                       altitudes=altitudes,
-                                                      orientations=orientations)]
+                                                      orientations=orientations,
+                                                      verbose=verbose)]
     altitude_to_visualizer = OrderedDict(zip(altitudes, visualizers))
     visualizer = altitude_hypercube_class(altitude_to_visualizer,
                                           save_to_file=save_to_file,
@@ -45,6 +47,7 @@ def load_altitude_visualizer(altitude_hypercube_class, altitudes, last_starting_
                                           last_starting_year=last_starting_year,
                                           first_starting_year=first_starting_year,
                                           exact_starting_year=exact_starting_year,
+                                            verbose=verbose,
                                           )
     assert isinstance(visualizer, AltitudeHypercubeVisualizer)
     return visualizer

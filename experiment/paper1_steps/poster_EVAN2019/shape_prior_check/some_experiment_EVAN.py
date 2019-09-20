@@ -21,11 +21,11 @@ def main_non_stationary_model_comparison():
     stop_loop = False
     for altitude in POSTER_ALTITUDES[:]:
         for trend_test_class in [GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest,
-                                 ComparisonAgainstMu, ComparisonAgainstSigma][::-1][:]:
+                                 ComparisonAgainstMu, ComparisonAgainstSigma][:3]:
             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                       exact_starting_year=1958, reduce_strength_array=False,
                                                       trend_test_class=trend_test_class,
-                                                      )
+                                                      verbose=False)
             # vizualiser.save_to_file = False
             vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False)
             if stop_loop:

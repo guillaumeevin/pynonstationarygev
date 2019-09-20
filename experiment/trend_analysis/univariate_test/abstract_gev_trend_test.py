@@ -120,6 +120,13 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         return self.non_stationary_estimator.margin_function_fitted.get_gev_params(coordinate=np.array([1958]),
                                                                                    is_transformed=False)
 
+    @cached_property
+    def stationary_constant_gev_params(self) -> GevParams:
+        # Constant parameters correspond to any gev params
+        return self.stationary_estimator.margin_function_fitted.get_gev_params(coordinate=np.array([1958]),
+                                                                                   is_transformed=False)
+
+
     @property
     def test_trend_slope_strength(self):
         if self.crashed:
