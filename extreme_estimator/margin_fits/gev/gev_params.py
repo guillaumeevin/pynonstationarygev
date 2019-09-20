@@ -2,6 +2,7 @@ from collections import OrderedDict
 from typing import List
 
 from cached_property import cached_property
+from mpmath import euler, pi
 
 from extreme_estimator.extreme_models.utils import r
 from extreme_estimator.margin_fits.extreme_params import ExtremeParams
@@ -78,6 +79,8 @@ class GevParams(ExtremeParams):
             return np.nan
         elif self.shape >= 1:
             return np.inf
+        elif self.shape == 0:
+            return self.location + self.scale * euler
         else:
             return self.location + self.scale * (self.g(k=1) - 1) / self.shape
 
@@ -87,6 +90,8 @@ class GevParams(ExtremeParams):
             return np.nan
         elif self.shape >= 0.5:
             return np.inf
+        elif self.shape == 0.0:
+            return (self.scale * pi) ** 2 / 6
         else:
             return ((self.scale / self.shape) ** 2) * (self.g(k=2) - self.g(k=1) ** 2)
 

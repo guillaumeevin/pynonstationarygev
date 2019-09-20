@@ -1,6 +1,9 @@
 import unittest
 
+from mpmath import euler
+
 import numpy as np
+from scipy.special.cython_special import gamma
 
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 
@@ -32,6 +35,24 @@ class TestGevParams(unittest.TestCase):
         gev_params = GevParams(loc=1.0, shape=0.5, scale=1.0)
         self.assertEqual(gev_params.variance, np.inf)
         self.assertEqual(gev_params.std, np.inf)
+
+    def test_mean(self):
+        mu = 1.0
+        sigma = 1.0
+        gev_params = GevParams(loc=mu, shape=0.0, scale=sigma)
+        self.assertEqual(gev_params.mean, mu + sigma * euler)
+        chi = 0.5
+        gev_params = GevParams(loc=mu, shape=chi, scale=sigma)
+        self.assertEqual(gev_params.mean, mu + sigma * (gamma(1 - 0.5) - 1) / chi)
+
+    def test_variance(self):
+        mu = 1.0
+        sigma = 1.0
+        gev_params = GevParams(loc=mu, shape=0.0, scale=sigma)
+        self.assertEqual(gev_params.variance, ((sigma * np.math.pi) ** 2) / 6)
+        chi = 0.25
+        gev_params = GevParams(loc=mu, shape=chi, scale=sigma)
+        self.assertEqual(gev_params.variance, ((sigma / chi) ** 2) * (gamma(1 - 2 * chi) - (gamma(1 - chi) ** 2)))
 
 
 if __name__ == '__main__':
