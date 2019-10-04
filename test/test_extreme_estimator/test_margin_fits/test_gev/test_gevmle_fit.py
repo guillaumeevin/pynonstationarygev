@@ -29,6 +29,8 @@ class TestGevMleFit(unittest.TestCase):
         ismev_ref = {'loc': 0.0219, 'scale': 1.0347, 'shape': 0.8295}
         self.fit_estimator(estimator, ismev_ref)
 
+    # def test_s
+
     def fit_estimator(self, estimator, ref):
         # Compare the MLE estimated parameters to the reference
         mle_params_estimated = estimator.gev_params

@@ -34,9 +34,6 @@ def ismev_gev_fit(x_gev, y, mul):
     For non-stationary fitting it is recommended that the covariates within the generalized linear models are
     (at least approximately) centered and scaled (i.e.the columns of ydat should be approximately centered and scaled).
     """
-    # print('Mean x={}, variance x={}'.format(np.mean(x_gev), np.var(x_gev)))
-    # print('Mean y={}, variance y={}'.format(np.mean(y), np.var(y)))
-
     xdat = ro.FloatVector(x_gev)
     gev_fit = r('gev.fit')
     y = y if y is not None else get_null()
