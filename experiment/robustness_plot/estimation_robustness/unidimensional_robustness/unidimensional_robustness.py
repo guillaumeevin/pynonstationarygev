@@ -45,7 +45,7 @@ def multiple_unidimensional_robustness():
 
     # Put only the parameter that will vary
     spatial_robustness.robustness_grid_plot(**{
-        SinglePlot.OrdinateItem.name: [AbstractEstimator.MAE_ERROR, AbstractEstimator.DURATION],
+        # SinglePlot.OrdinateItem.name: [AbstractEstimator.MAE_ERROR, AbstractEstimator.DURATION],
         MaxStableProcessPlot.NbStationItem.name: nb_stations,
         MaxStableProcessPlot.NbObservationItem.name: nb_observation,
         MaxStableProcessPlot.MaxStableModelItem.name: msp_models,

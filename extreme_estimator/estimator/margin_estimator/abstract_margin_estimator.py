@@ -1,5 +1,7 @@
 from abc import ABC
 
+from cached_property import cached_property
+
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
@@ -11,8 +13,6 @@ class AbstractMarginEstimator(AbstractEstimator, ABC):
     def __init__(self, dataset: AbstractDataset):
         super().__init__(dataset)
         assert self.dataset.maxima_gev() is not None
-        self._margin_function_fitted = None
-
 
 class LinearMarginEstimator(AbstractMarginEstimator):
     """# with different type of marginals: cosntant, linear...."""
@@ -25,7 +25,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         assert isinstance(margin_model, LinearMarginModel)
         self.margin_model = margin_model
 
-    def _fit(self):
+    def fit(self):
         maxima_gev_specialized = self.dataset.maxima_gev_for_spatial_extremes_package(self.train_split)
         df_coordinates_spat = self.dataset.coordinates.df_spatial_coordinates(self.train_split)
         df_coordinates_temp = self.dataset.coordinates.df_temporal_coordinates_for_fit(split=self.train_split,
@@ -34,11 +34,9 @@ class LinearMarginEstimator(AbstractMarginEstimator):
                                                                             df_coordinates_spat=df_coordinates_spat,
                                                                             df_coordinates_temp=df_coordinates_temp)
 
-    @property
+    @cached_property
     def margin_function_fitted(self) -> LinearMarginFunction:
-        margin_function_fitted = super().margin_function_fitted
-        assert isinstance(margin_function_fitted, LinearMarginFunction)
-        return margin_function_fitted
+        return super().margin_function_fitted
 
     def extract_function_fitted(self) -> LinearMarginFunction:
         return self.extract_function_fitted_from_the_model_shape(self.margin_model)

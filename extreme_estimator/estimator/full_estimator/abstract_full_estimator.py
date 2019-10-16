@@ -1,3 +1,5 @@
+from cached_property import cached_property
+
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_estimator.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
@@ -23,7 +25,7 @@ class SmoothMarginalsThenUnitaryMsp(AbstractFullEstimator):
         self.margin_estimator = LinearMarginEstimator(dataset=dataset, margin_model=margin_model)
         self.max_stable_estimator = MaxStableEstimator(dataset=dataset, max_stable_model=max_stable_model)
 
-    def _fit(self):
+    def fit(self):
         # Estimate the margin parameters
         self.margin_estimator.fit()
         # Compute the maxima_frech
@@ -65,7 +67,7 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
         return self.dataset.coordinates.df_temporal_coordinates_for_fit(split=self.train_split,
                                                                         starting_point=self.linear_margin_model.starting_point)
 
-    def _fit(self):
+    def fit(self):
         # Estimate both the margin and the max-stable structure
         self._result_from_fit = self.max_stable_model.fitmaxstab(
             data_gev=self.dataset.maxima_gev_for_spatial_extremes_package(self.train_split),
@@ -79,7 +81,7 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
     def extract_function_fitted(self):
         return self.extract_function_fitted_from_the_model_shape(self.linear_margin_model)
 
-    @property
+    @cached_property
     def margin_function_fitted(self) -> LinearMarginFunction:
         return super().margin_function_fitted
 
