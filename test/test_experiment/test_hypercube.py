@@ -13,7 +13,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
 from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevLocationTrendTest
-from extreme_estimator.extreme_models.utils import set_seed_for_test
+from extreme_fit.model.utils import set_seed_for_test
 
 
 class TestHypercube(unittest.TestCase):

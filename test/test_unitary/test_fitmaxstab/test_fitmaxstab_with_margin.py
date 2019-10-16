@@ -1,12 +1,12 @@
 import unittest
 
-from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
+from extreme_fit.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import ConstantMarginModel, \
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import ConstantMarginModel, \
     LinearMarginModelExample
-from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
-from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Schlather
-from extreme_estimator.extreme_models.utils import r
+from extreme_fit.model.max_stable_model.abstract_max_stable_model import CovarianceFunction
+from extreme_fit.model.max_stable_model.max_stable_models import Schlather
+from extreme_fit.model.utils import r
 from test.test_unitary.test_rmaxstab.test_rmaxstab_with_margin import TestRMaxStabWithMarginConstant
 from test.test_unitary.test_unitary_abstract import TestUnitaryAbstract
 

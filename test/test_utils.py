@@ -3,16 +3,16 @@ from typing import List
 
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import Crocus, CrocusSweTotal, CrocusDepth
-from extreme_estimator.estimator.full_estimator.abstract_full_estimator import SmoothMarginalsThenUnitaryMsp, \
+from extreme_fit.estimator.full_estimator.abstract_full_estimator import SmoothMarginalsThenUnitaryMsp, \
     FullEstimatorInASingleStepWithSmoothMargin
-from extreme_estimator.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
+from extreme_fit.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
     ConstantMarginModel
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.temporal_linear_margin_models import \
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationStationModel, NonStationaryScaleStationModel, NonStationaryShapeStationModel
-from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import \
+from extreme_fit.model.max_stable_model.abstract_max_stable_model import \
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
-from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, \
+from extreme_fit.model.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, \
     Geometric, ExtremalT, ISchlather
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, Safran, SafranRainfall, \
     SafranTemperature, SafranTotalPrecip

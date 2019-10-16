@@ -1,7 +1,7 @@
 from experiment.simulation.abstract_simulation import AbstractSimulation
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import ConstantMarginModel
-from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith
-from extreme_estimator.margin_fits.gev.gev_params import GevParams
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import ConstantMarginModel
+from extreme_fit.model.max_stable_model.max_stable_models import Smith
+from extreme_fit.distribution.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import LinSpaceSpatialCoordinates
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
 

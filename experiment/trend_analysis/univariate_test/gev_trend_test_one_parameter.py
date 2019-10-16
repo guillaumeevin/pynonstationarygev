@@ -1,7 +1,7 @@
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.temporal_linear_margin_models import \
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationStationModel, NonStationaryScaleStationModel, NonStationaryShapeStationModel
-from extreme_estimator.margin_fits.gev.gev_params import GevParams
+from extreme_fit.distribution.gev.gev_params import GevParams
 
 
 class GevTrendTestOneParameter(AbstractGevTrendTest):

@@ -1,9 +1,9 @@
 import unittest
 
-from extreme_estimator.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
-from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
-from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Schlather
-from extreme_estimator.extreme_models.utils import r
+from extreme_fit.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
+from extreme_fit.model.max_stable_model.abstract_max_stable_model import CovarianceFunction
+from extreme_fit.model.max_stable_model.max_stable_models import Schlather
+from extreme_fit.model.utils import r
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
 from test.test_unitary.test_rmaxstab.test_rmaxstab_without_margin import TestRMaxStab
 from test.test_unitary.test_unitary_abstract import TestUnitaryAbstract

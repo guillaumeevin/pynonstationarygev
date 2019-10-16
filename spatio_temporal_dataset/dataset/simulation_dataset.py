@@ -1,5 +1,5 @@
-from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
-from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
+from extreme_fit.model.margin_model.abstract_margin_model import AbstractMarginModel
+from extreme_fit.model.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
     AbstractSpatioTemporalCoordinates

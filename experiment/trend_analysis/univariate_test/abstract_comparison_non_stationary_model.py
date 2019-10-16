@@ -1,6 +1,6 @@
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
 from experiment.trend_analysis.univariate_test.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.temporal_linear_margin_models import \
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationStationModel, NonStationaryScaleStationModel
 import numpy as np
 

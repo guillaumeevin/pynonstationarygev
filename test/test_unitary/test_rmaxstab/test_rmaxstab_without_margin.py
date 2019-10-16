@@ -3,9 +3,9 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
-from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Schlather
-from extreme_estimator.extreme_models.utils import r
+from extreme_fit.model.max_stable_model.abstract_max_stable_model import CovarianceFunction
+from extreme_fit.model.max_stable_model.max_stable_models import Schlather
+from extreme_fit.model.utils import r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates

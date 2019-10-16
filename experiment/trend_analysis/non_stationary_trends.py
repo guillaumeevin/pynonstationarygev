@@ -4,18 +4,18 @@ from typing import Union
 
 import pandas as pd
 
-from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
+from extreme_fit.estimator.abstract_estimator import AbstractEstimator
 from scipy.stats import chi2
-from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
+from extreme_fit.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin, AbstractFullEstimator
-from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator, \
+from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator, \
     AbstractMarginEstimator
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import \
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import \
     LinearStationaryMarginModel, LinearNonStationaryLocationMarginModel
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.temporal_linear_margin_models import \
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     StationaryStationModel, NonStationaryLocationStationModel
-from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
-from extreme_estimator.extreme_models.utils import OptimizationConstants
+from extreme_fit.model.margin_model.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_fit.model.utils import OptimizationConstants
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from utils import get_display_name_from_object_type
 

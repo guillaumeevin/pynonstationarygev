@@ -19,20 +19,20 @@ from experiment.trend_analysis.non_stationary_trends import \
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
 from experiment.trend_analysis.univariate_test.utils import compute_gev_change_point_test_results
 from experiment.utils import average_smoothing_with_sliding_window
-from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
+from extreme_fit.distribution.abstract_params import AbstractParams
+from extreme_fit.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
-from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel, \
+from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel, \
     LinearStationaryMarginModel
-from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
+from extreme_fit.model.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
-from extreme_estimator.extreme_models.margin_model.param_function.param_function import AbstractParamFunction
-from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
-from extreme_estimator.margin_fits.abstract_params import AbstractParams
-from extreme_estimator.margin_fits.gev.gev_params import GevParams
-from extreme_estimator.margin_fits.gev.ismev_gev_fit import IsmevGevFit
-from extreme_estimator.margin_fits.gpd.gpd_params import GpdParams
-from extreme_estimator.margin_fits.gpd.gpdmle_fit import GpdMleFit
+from extreme_fit.model.margin_model.param_function.param_function import AbstractParamFunction
+from extreme_fit.model.max_stable_model.abstract_max_stable_model import CovarianceFunction
+from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.distribution.gev.ismev_gev_fit import IsmevGevFit
+from extreme_fit.distribution.gpd.gpd_params import GpdParams
+from extreme_fit.distribution.gpd.gpdmle_fit import GpdMleFit
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \

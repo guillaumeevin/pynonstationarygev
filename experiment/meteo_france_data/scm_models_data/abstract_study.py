@@ -14,7 +14,6 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from PIL import ImageDraw
-from matplotlib import cm
 from matplotlib.colors import Normalize
 from netCDF4 import Dataset
 
@@ -23,9 +22,9 @@ from experiment.meteo_france_data.scm_models_data.scm_constants import ALTITUDES
     LATITUDES, ORIENTATIONS, SLOPES, ORDERED_ALLSLOPES_ALTITUDES, ORDERED_ALLSLOPES_ORIENTATIONS, \
     ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM
 from experiment.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
-from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
+from extreme_fit.model.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
-from extreme_estimator.margin_fits.plot.create_shifted_cmap import create_colorbase_axis, \
+from experiment.meteo_france_data.plot.create_shifted_cmap import create_colorbase_axis, \
     get_shifted_map, get_colors
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \

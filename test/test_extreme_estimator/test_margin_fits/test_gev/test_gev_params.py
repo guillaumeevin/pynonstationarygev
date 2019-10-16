@@ -5,7 +5,7 @@ from mpmath import euler
 import numpy as np
 from scipy.special.cython_special import gamma
 
-from extreme_estimator.margin_fits.gev.gev_params import GevParams
+from extreme_fit.distribution.gev.gev_params import GevParams
 
 
 class TestGevParams(unittest.TestCase):

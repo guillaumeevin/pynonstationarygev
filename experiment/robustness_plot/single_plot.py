@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from itertools import product
 
-from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
+from extreme_fit.estimator.abstract_estimator import AbstractEstimator
 from experiment.robustness_plot.display_item import DisplayItem
 from utils import get_full_path
 

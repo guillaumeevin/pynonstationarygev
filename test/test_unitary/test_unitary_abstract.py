@@ -1,6 +1,6 @@
 import unittest
 
-from extreme_estimator.extreme_models.utils import set_seed_r, r
+from extreme_fit.model.utils import set_seed_r, r
 
 
 class TestUnitaryAbstract(unittest.TestCase):

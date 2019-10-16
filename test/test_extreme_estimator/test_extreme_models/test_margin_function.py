@@ -2,10 +2,10 @@ import unittest
 
 import numpy as np
 
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel
-from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel
+from extreme_fit.model.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
-from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_fit.model.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_2D import LinSpaceSpatial2DCoordinates
 from test.test_utils import load_test_spatiotemporal_coordinates
 

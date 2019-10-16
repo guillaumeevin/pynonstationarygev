@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from collections import Counter, OrderedDict
 
-from extreme_estimator.extreme_models.utils import set_seed_for_test
+from extreme_fit.model.utils import set_seed_for_test
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
     AbstractSpatioTemporalCoordinates

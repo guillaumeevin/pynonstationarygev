@@ -2,8 +2,8 @@ from typing import List
 
 import unittest
 
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import ConstantMarginModel
-from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import ConstantMarginModel
+from extreme_fit.model.max_stable_model.max_stable_models import Smith
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
 from spatio_temporal_dataset.slicer.split import ALL_SPLITS_EXCEPT_ALL, Split

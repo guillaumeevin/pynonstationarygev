@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from extreme_estimator.extreme_models.utils import r, set_seed_r
+from extreme_fit.model.utils import r, set_seed_r
 
 
 def snowfall_plot(flip=False):

@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 
-from extreme_estimator.extreme_models.utils import safe_run_r_estimator, WarningMaximumAbsoluteValueTooHigh
+from extreme_fit.model.utils import safe_run_r_estimator, WarningMaximumAbsoluteValueTooHigh
 
 
 def function(data=None, control=None):

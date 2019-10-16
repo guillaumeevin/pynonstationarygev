@@ -1,6 +1,6 @@
 import unittest
 
-from extreme_estimator.extreme_models.utils import SafeRunException
+from extreme_fit.model.utils import SafeRunException
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset

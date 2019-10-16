@@ -1,11 +1,11 @@
 import numpy as np
 
-from extreme_estimator.estimator.full_estimator.abstract_full_estimator import FullEstimatorInASingleStepWithSmoothMargin
-from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
+from extreme_fit.estimator.full_estimator.abstract_full_estimator import FullEstimatorInASingleStepWithSmoothMargin
+from extreme_fit.model.margin_model.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
     ConstantMarginModel
-from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith
-from extreme_estimator.margin_fits.gev.gev_params import GevParams
+from extreme_fit.model.max_stable_model.max_stable_models import Smith
+from extreme_fit.distribution.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import LinSpaceSpatialCoordinates
 import matplotlib.pyplot as plt
 
@@ -44,7 +44,7 @@ for i in range(nb_estimator):
                                                         max_stable_model=max_stable_model)
 
     if show and i == 0:
-        # Plot a realization from the maxima margin_fits (i.e the maxima obtained just by simulating the marginal law)
+        # Plot a realization from the maxima distribution (i.e the maxima obtained just by simulating the marginal law)
         for maxima in np.transpose(dataset.maxima_frech()):
             plt.plot(coordinates.coordinates_values(), maxima, 'o')
         plt.show()

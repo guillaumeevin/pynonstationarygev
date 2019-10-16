@@ -7,10 +7,10 @@ from cached_property import cached_property
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     ALL_ALTITUDES
-from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
+from extreme_fit.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
-from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
-from extreme_estimator.extreme_models.max_stable_model.max_stable_models import ExtremalT, BrownResnick
+from extreme_fit.model.max_stable_model.abstract_max_stable_model import CovarianceFunction
+from extreme_fit.model.max_stable_model.max_stable_models import ExtremalT, BrownResnick
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates

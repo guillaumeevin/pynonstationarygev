@@ -3,8 +3,8 @@ from itertools import product
 
 import numpy as np
 
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel
-from extreme_estimator.extreme_models.utils import set_seed_for_test, SafeRunException
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel
+from extreme_fit.model.utils import set_seed_for_test, SafeRunException
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization

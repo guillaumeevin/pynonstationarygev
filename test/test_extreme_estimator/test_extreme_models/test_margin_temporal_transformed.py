@@ -2,10 +2,10 @@ import unittest
 
 import numpy as np
 
-from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel, \
+from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel, \
     LinearStationaryMarginModel
-from extreme_estimator.extreme_models.utils import set_seed_for_test
+from extreme_fit.model.utils import set_seed_for_test
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
     AbstractSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \

@@ -4,12 +4,12 @@ from cached_property import cached_property
 from scipy.stats import chi2
 
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
-from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import AbstractTemporalLinearMarginModel
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.temporal_linear_margin_models import \
+from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
+from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import AbstractTemporalLinearMarginModel
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     StationaryStationModel
-from extreme_estimator.extreme_models.utils import SafeRunException
-from extreme_estimator.margin_fits.gev.gev_params import GevParams
+from extreme_fit.model.utils import SafeRunException
+from extreme_fit.distribution.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
     AbstractTemporalCoordinates

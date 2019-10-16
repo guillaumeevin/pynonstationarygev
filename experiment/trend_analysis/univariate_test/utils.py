@@ -3,7 +3,7 @@ from multiprocessing.pool import Pool
 import numpy as np
 
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
-from extreme_estimator.extreme_models.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
+from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from utils import NB_CORES
 
