@@ -1,5 +1,5 @@
 from experiment.meteo_france_data.stations_data.comparison_analysis import ComparisonAnalysis
-from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel
+from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization
 from utils import get_display_name_from_object_type

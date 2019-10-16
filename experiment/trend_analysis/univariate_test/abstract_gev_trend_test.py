@@ -5,9 +5,9 @@ from scipy.stats import chi2
 
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_estimator.extreme_models.margin_model.param_function.linear_coef import LinearCoef
-from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import StationaryStationModel, \
-    NonStationaryLocationStationModel, NonStationaryScaleStationModel, NonStationaryShapeStationModel
+from extreme_estimator.extreme_models.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import AbstractTemporalLinearMarginModel
+from extreme_estimator.extreme_models.margin_model.linear_margin_model.temporal_linear_margin_models import \
+    StationaryStationModel
 from extreme_estimator.extreme_models.utils import SafeRunException
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -26,25 +26,26 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     quantile_for_strength = 0.98
     nb_years_for_quantile_evolution = 10
 
-    def __init__(self, years, maxima, starting_year, non_stationary_model_class, stationary_model_class=StationaryStationModel):
+    def __init__(self, years, maxima, starting_year, unconstrained_model_class, constrained_model_class=StationaryStationModel,
+                 fit_method=AbstractTemporalLinearMarginModel.ISMEV_GEV_FIT_METHOD_STR):
         super().__init__(years, maxima, starting_year)
+        self.fit_method = fit_method
+        # Load observations, coordinates and datasets
         df = pd.DataFrame({AbstractCoordinates.COORDINATE_T: years})
         df_maxima_gev = pd.DataFrame(maxima, index=df.index)
         observations = AbstractSpatioTemporalObservations(df_maxima_gev=df_maxima_gev)
-        self.coordinates = AbstractTemporalCoordinates.from_df(df,
-                                                               transformation_class=CenteredScaledNormalization)  # type: AbstractTemporalCoordinates
+        self.coordinates = AbstractTemporalCoordinates.from_df(df, transformation_class=CenteredScaledNormalization)
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
 
         try:
-            # todo: rename stationary -> standard, non-stationary -> more complex model
-            # Fit stationary model
-            stationary_model = stationary_model_class(self.coordinates, starting_point=self.starting_year)
-            self.stationary_estimator = LinearMarginEstimator(self.dataset, stationary_model)
-            self.stationary_estimator.fit()
-            # Fit non stationary model
-            non_stationary_model = non_stationary_model_class(self.coordinates, starting_point=self.starting_year)
-            self.non_stationary_estimator = LinearMarginEstimator(self.dataset, non_stationary_model)
-            self.non_stationary_estimator.fit()
+            # Fit constrained model
+            constrained_model = constrained_model_class(self.coordinates, starting_point=self.starting_year, fit_method=self.fit_method)
+            self.constrained_estimator = LinearMarginEstimator(self.dataset, constrained_model)
+            self.constrained_estimator.fit()
+            # Fit unconstrained model
+            unconstrained_model = unconstrained_model_class(self.coordinates, starting_point=self.starting_year, fit_method=self.fit_method)
+            self.unconstrained_estimator = LinearMarginEstimator(self.dataset, unconstrained_model)
+            self.unconstrained_estimator.fit()
             self.crashed = False
         except SafeRunException:
             self.crashed = True
@@ -81,28 +82,28 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
 
     @property
     def likelihood_ratio(self):
-        return self.non_stationary_deviance - self.stationary_deviance
+        return self.unconstrained_model_deviance - self.constrained_model_deviance
 
     @property
-    def stationary_deviance(self):
+    def constrained_model_deviance(self):
         if self.crashed:
             return np.nan
         else:
-            return self.stationary_estimator.result_from_fit.deviance
+            return self.constrained_estimator.result_from_fit.deviance
 
     @property
-    def non_stationary_deviance(self):
+    def unconstrained_model_deviance(self):
         if self.crashed:
             return np.nan
         else:
-            return self.non_stationary_estimator.result_from_fit.deviance
+            return self.unconstrained_estimator.result_from_fit.deviance
 
     @property
-    def non_stationary_nllh(self):
+    def unconstained_nllh(self):
         if self.crashed:
             return np.nan
         else:
-            return self.non_stationary_estimator.result_from_fit.nllh
+            return self.unconstrained_estimator.result_from_fit.nllh
 
     # Evolution of the GEV parameters and corresponding quantiles
 
@@ -111,20 +112,20 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         return np.sign(self.test_trend_slope_strength)
 
     def get_non_stationary_linear_coef(self, gev_param_name: str):
-        return self.non_stationary_estimator.margin_function_fitted.get_coef(gev_param_name,
-                                                                             AbstractCoordinates.COORDINATE_T)
+        return self.unconstrained_estimator.margin_function_fitted.get_coef(gev_param_name,
+                                                                            AbstractCoordinates.COORDINATE_T)
 
     @cached_property
     def non_stationary_constant_gev_params(self) -> GevParams:
         # Constant parameters correspond to the gev params in 1958
-        return self.non_stationary_estimator.margin_function_fitted.get_gev_params(coordinate=np.array([1958]),
-                                                                                   is_transformed=False)
+        return self.unconstrained_estimator.margin_function_fitted.get_gev_params(coordinate=np.array([1958]),
+                                                                                  is_transformed=False)
 
     @cached_property
     def stationary_constant_gev_params(self) -> GevParams:
         # Constant parameters correspond to any gev params
-        return self.stationary_estimator.margin_function_fitted.get_gev_params(coordinate=np.array([1958]),
-                                                                                   is_transformed=False)
+        return self.constrained_estimator.margin_function_fitted.get_gev_params(coordinate=np.array([1958]),
+                                                                                is_transformed=False)
 
 
     @property

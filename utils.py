@@ -9,6 +9,7 @@ for c in [' ', ':', '-']:
 
 NB_CORES = 7
 
+
 def get_root_path() -> str:
     return op.dirname(op.abspath(__file__))
 
@@ -70,11 +71,13 @@ class ClassPropertyDescriptor(object):
         self.fset = func
         return self
 
+
 def classproperty(func):
     if not isinstance(func, (classmethod, staticmethod)):
         func = classmethod(func)
 
     return ClassPropertyDescriptor(func)
+
 
 if __name__ == '__main__':
     e = Example()

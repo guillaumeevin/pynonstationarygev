@@ -12,7 +12,8 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from utils import get_display_name_from_object_type
 
 
-def load_quantity_visualizer(quantity_hypercube_class, altitudes, last_starting_year, nb_data_reduced_for_speed, only_first_one,
+def load_quantity_visualizer(quantity_hypercube_class, altitudes, last_starting_year, nb_data_reduced_for_speed,
+                             only_first_one,
                              save_to_file, study_classes, trend_test_class):
     visualizers = [StudyVisualizer(study, temporal_non_stationarity=True, verbose=False, multiprocessing=True)
                    for study in study_iterator_global(study_classes=study_classes, only_first_one=only_first_one,
@@ -47,7 +48,7 @@ def load_altitude_visualizer(altitude_hypercube_class, altitudes, last_starting_
                                           last_starting_year=last_starting_year,
                                           first_starting_year=first_starting_year,
                                           exact_starting_year=exact_starting_year,
-                                            verbose=verbose,
+                                          verbose=verbose,
                                           )
     assert isinstance(visualizer, AltitudeHypercubeVisualizer)
     return visualizer

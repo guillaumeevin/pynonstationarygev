@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import StationaryStationModel, \
+from extreme_estimator.extreme_models.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryStationModel, \
     NonStationaryLocationStationModel
 from extreme_estimator.extreme_models.utils import r, set_seed_r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates

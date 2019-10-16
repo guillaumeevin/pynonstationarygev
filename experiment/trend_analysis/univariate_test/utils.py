@@ -3,20 +3,22 @@ from multiprocessing.pool import Pool
 import numpy as np
 
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
+from extreme_estimator.extreme_models.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
+    AbstractTemporalLinearMarginModel
 from utils import NB_CORES
 
 
-def compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_test_class, years):
+def compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_test_class, years, fit_method=AbstractTemporalLinearMarginModel.ISMEV_GEV_FIT_METHOD_STR):
     trend_test = trend_test_class(years, smooth_maxima, starting_year)  # type: AbstractGevTrendTest
     assert isinstance(trend_test, AbstractGevTrendTest)
     return trend_test.test_trend_type, \
            trend_test.test_trend_slope_strength, \
-           trend_test.non_stationary_nllh, \
+           trend_test.unconstained_nllh, \
            trend_test.test_trend_constant_quantile, \
            trend_test.mean_difference_same_sign_as_slope_strenght, \
            trend_test.variance_difference_same_sign_as_slope_strenght, \
-           trend_test.non_stationary_deviance, \
-           trend_test.stationary_deviance
+           trend_test.unconstrained_model_deviance, \
+           trend_test.constrained_model_deviance
 
 
 def compute_gev_change_point_test_results(multiprocessing, maxima, starting_years, trend_test_class,

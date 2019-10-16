@@ -1,13 +1,10 @@
 import time
 
-from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearMarginModel
-from extreme_estimator.extreme_models.margin_model.margin_function.parametric_margin_function import \
-    ParametricMarginFunction
+from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
 from extreme_estimator.extreme_models.result_from_fit import ResultFromFit
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
-from extreme_estimator.extreme_models.margin_model.param_function.linear_coef import LinearCoef
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 

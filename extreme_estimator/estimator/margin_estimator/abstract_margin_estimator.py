@@ -1,10 +1,7 @@
 from abc import ABC
 
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
-from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function import \
-    AbstractMarginFunction
-from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearMarginModel, \
-    LinearAllParametersAllDimsMarginModel
+from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 

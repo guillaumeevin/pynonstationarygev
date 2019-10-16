@@ -1,13 +1,13 @@
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
-from extreme_estimator.extreme_models.margin_model.temporal_linear_margin_model import \
+from extreme_estimator.extreme_models.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationStationModel, NonStationaryScaleStationModel, NonStationaryShapeStationModel
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 
 
 class GevTrendTestOneParameter(AbstractGevTrendTest):
 
-    def __init__(self, years, maxima, starting_year, non_stationary_model_class, gev_param_name):
-        super().__init__(years, maxima, starting_year, non_stationary_model_class)
+    def __init__(self, years, maxima, starting_year, unconstrained_model_class, gev_param_name):
+        super().__init__(years, maxima, starting_year, unconstrained_model_class)
         self.gev_param_name = gev_param_name
 
     @property

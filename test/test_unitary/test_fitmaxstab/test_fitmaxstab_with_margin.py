@@ -2,7 +2,7 @@ import unittest
 
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
-from extreme_estimator.extreme_models.margin_model.linear_margin_model import ConstantMarginModel, \
+from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import ConstantMarginModel, \
     LinearMarginModelExample
 from extreme_estimator.extreme_models.max_stable_model.abstract_max_stable_model import CovarianceFunction
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Schlather

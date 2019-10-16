@@ -2,7 +2,7 @@ import numpy as np
 
 from extreme_estimator.estimator.full_estimator.abstract_full_estimator import FullEstimatorInASingleStepWithSmoothMargin
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
-from extreme_estimator.extreme_models.margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
+from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
     ConstantMarginModel
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
