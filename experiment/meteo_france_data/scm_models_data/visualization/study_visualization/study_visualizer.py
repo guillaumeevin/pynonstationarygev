@@ -722,7 +722,7 @@ class StudyVisualizer(VisualizationParameters):
         estimator.fit()
 
         # Set visualization attributes for margin_fct
-        margin_fct = estimator.margin_function_fitted
+        margin_fct = estimator.margin_function_from_fit
         margin_fct._visualization_x_limits = self.study.visualization_x_limits
         margin_fct._visualization_y_limits = self.study.visualization_y_limits
         margin_fct.mask_2D = self.study.mask_french_alps

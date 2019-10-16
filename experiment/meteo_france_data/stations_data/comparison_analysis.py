@@ -280,11 +280,11 @@ class ComparisonAnalysis(object):
                                                                        margin_model=margin_model,
                                                                        max_stable_model=max_stable_model)
                 estimator.fit()
-                print(estimator.result_from_fit.margin_coef_dict)
-                print(estimator.result_from_fit.other_coef_dict)
+                print(estimator.result_from_model_fit.margin_coef_dict)
+                print(estimator.result_from_model_fit.other_coef_dict)
                 estimators.append(estimator)
             # Compare the sign of them margin coefficient for the estimators
-            coefs = [{k: v for k, v in e.result_from_fit.margin_coef_dict.items() if 'Coeff1' not in k} for e in
+            coefs = [{k: v for k, v in e.result_from_model_fit.margin_coef_dict.items() if 'Coeff1' not in k} for e in
                      estimators]
             different_sign = [k for k, v in coefs[0].items() if np.sign(coefs[1][k]) != np.sign(v)]
             print('All linear coefficient have the same sign: {}, different_signs for: {}'.format(

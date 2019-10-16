@@ -40,7 +40,11 @@ class MaxStableProcessPlot(object):
                                                  coordinates=spatial_coordinates)
         estimator = MaxStableEstimator(dataset, max_stable_model)
         estimator.fit()
-        return estimator.scalars(max_stable_model.params_sample)
+        # Estimator was computing some error as follows:
+        # absolute_errors = {param_name: np.abs(param_true_value - self.max_stable_params_fitted[param_name])
+        #                    for param_name, param_true_value in true_max_stable_params.items()}
+        # mean_absolute_error = np.mean(np.array(list(absolute_errors.values())))
+        # return estimator.scalars(max_stable_model.params_sample)
 
 
 class SingleMaxStableProcessPlot(SinglePlot, MaxStableProcessPlot):

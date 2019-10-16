@@ -1,4 +1,3 @@
-from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from extreme_estimator.extreme_models.max_stable_model.max_stable_models import Smith, BrownResnick
 from experiment.robustness_plot.estimation_robustness.max_stable_process_plot import MultipleMaxStableProcessPlot, MaxStableProcessPlot
 from experiment.robustness_plot.single_plot import SinglePlot
@@ -45,7 +44,7 @@ def multiple_spatial_robustness_alps():
 
     # Put only the parameter that will vary
     spatial_robustness.robustness_grid_plot(**{
-        SinglePlot.OrdinateItem.name: [AbstractEstimator.MAE_ERROR, AbstractEstimator.DURATION],
+        # SinglePlot.OrdinateItem.name: [AbstractEstimator.MAE_ERROR, AbstractEstimator.DURATION],
         MaxStableProcessPlot.NbStationItem.name: nb_stations,
         MaxStableProcessPlot.NbObservationItem.name: nb_observation,
         MaxStableProcessPlot.MaxStableModelItem.name: msp_models,

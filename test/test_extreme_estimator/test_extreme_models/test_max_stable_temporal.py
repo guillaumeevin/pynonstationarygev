@@ -37,7 +37,7 @@ class TestMaxStableTemporal(unittest.TestCase):
         ref = {'loc': 1.2091156634312243, 'scale': 1.1210085591373455, 'shape': 0.9831957705294134}
         for year in range(1, 3):
             coordinate = np.array([0.0, 0.0, year])
-            mle_params_estimated = estimator.margin_function_fitted.get_gev_params(coordinate).to_dict()
+            mle_params_estimated = estimator.margin_function_from_fit.get_gev_params(coordinate).to_dict()
             for key in ref.keys():
                 self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
 
@@ -47,32 +47,32 @@ class TestMaxStableTemporal(unittest.TestCase):
         estimator = FullEstimatorInASingleStepWithSmoothMargin(self.dataset, margin_model,
                                                                self.max_stable_model)
         estimator.fit()
-        self.assertNotEqual(estimator.margin_function_fitted.mu1_temporal_trend, 0.0)
+        self.assertNotEqual(estimator.margin_function_from_fit.mu1_temporal_trend, 0.0)
         # Checks that parameters returned are indeed different
         coordinate1 = np.array([0.0, 0.0, 1])
-        mle_params_estimated_year1 = estimator.margin_function_fitted.get_gev_params(coordinate1).to_dict()
+        mle_params_estimated_year1 = estimator.margin_function_from_fit.get_gev_params(coordinate1).to_dict()
         coordinate3 = np.array([0.0, 0.0, 3])
-        mle_params_estimated_year3 = estimator.margin_function_fitted.get_gev_params(coordinate3).to_dict()
+        mle_params_estimated_year3 = estimator.margin_function_from_fit.get_gev_params(coordinate3).to_dict()
         self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
 
     def test_margin_fit_nonstationary_with_start_point(self):
         # Create estimator
         estimator = self.fit_non_stationary_estimator(starting_point=2)
         # By default, estimator find the good margin
-        self.assertNotEqual(estimator.margin_function_fitted.mu1_temporal_trend, 0.0)
-        self.assertAlmostEqual(estimator.margin_function_fitted.mu1_temporal_trend,
+        self.assertNotEqual(estimator.margin_function_from_fit.mu1_temporal_trend, 0.0)
+        self.assertAlmostEqual(estimator.margin_function_from_fit.mu1_temporal_trend,
                                self.smooth_margin_model.margin_function_sample.mu1_temporal_trend,
                                places=2)
         # Checks starting point parameter are well passed
-        self.assertEqual(2, estimator.margin_function_fitted.starting_point)
+        self.assertEqual(2, estimator.margin_function_from_fit.starting_point)
         # Checks that parameters returned are indeed different
         coordinate1 = np.array([0.0, 0.0, 1])
-        mle_params_estimated_year1 = estimator.margin_function_fitted.get_gev_params(coordinate1).to_dict()
+        mle_params_estimated_year1 = estimator.margin_function_from_fit.get_gev_params(coordinate1).to_dict()
         coordinate2 = np.array([0.0, 0.0, 2])
-        mle_params_estimated_year2 = estimator.margin_function_fitted.get_gev_params(coordinate2).to_dict()
+        mle_params_estimated_year2 = estimator.margin_function_from_fit.get_gev_params(coordinate2).to_dict()
         self.assertEqual(mle_params_estimated_year1, mle_params_estimated_year2)
         coordinate5 = np.array([0.0, 0.0, 5])
-        mle_params_estimated_year5 = estimator.margin_function_fitted.get_gev_params(coordinate5).to_dict()
+        mle_params_estimated_year5 = estimator.margin_function_from_fit.get_gev_params(coordinate5).to_dict()
         self.assertNotEqual(mle_params_estimated_year5, mle_params_estimated_year2)
 
     def fit_non_stationary_estimator(self, starting_point):
@@ -86,8 +86,8 @@ class TestMaxStableTemporal(unittest.TestCase):
         # Create two different estimators
         estimator1 = self.fit_non_stationary_estimator(starting_point=3)
         estimator2 = self.fit_non_stationary_estimator(starting_point=20)
-        mu1_estimator1 = estimator1.margin_function_fitted.mu1_temporal_trend
-        mu1_estimator2 = estimator2.margin_function_fitted.mu1_temporal_trend
+        mu1_estimator1 = estimator1.margin_function_from_fit.mu1_temporal_trend
+        mu1_estimator2 = estimator2.margin_function_from_fit.mu1_temporal_trend
         self.assertNotEqual(mu1_estimator1, mu1_estimator2)
 
 

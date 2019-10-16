@@ -5,15 +5,11 @@ import pandas as pd
 
 from extreme_estimator.extreme_models.margin_model.margin_function.parametric_margin_function import \
     ParametricMarginFunction
-from extreme_estimator.extreme_models.result_from_fit import ResultFromFit, ResultFromSpatialExtreme
+from extreme_estimator.extreme_models.result_from_model_fit.result_from_spatial_extreme import ResultFromSpatialExtreme
 from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.extreme_models.utils import safe_run_r_estimator, r, get_coord, \
     get_margin_formula
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
-    AbstractSpatioTemporalCoordinates
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
-    AbstractTemporalCoordinates
 
 
 class ParametricMarginModel(AbstractMarginModel, ABC):
@@ -29,7 +25,7 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         super().__init__(coordinates, use_start_value, params_start_fit, params_sample)
 
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
-                                  df_coordinates_temp: pd.DataFrame) -> ResultFromFit:
+                                  df_coordinates_temp: pd.DataFrame) -> ResultFromSpatialExtreme:
         assert data.shape[1] == len(df_coordinates_spat)
 
         # Margin formula for fitspatgev

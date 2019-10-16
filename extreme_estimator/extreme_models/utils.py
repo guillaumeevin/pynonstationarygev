@@ -18,13 +18,23 @@ from rpy2.rinterface._rinterface import RRuntimeError
 from rpy2.robjects import numpy2ri
 from rpy2.robjects import pandas2ri
 
+from utils import get_root_path
+
+# Load R variables
 r = ro.R()
 numpy2ri.activate()
 pandas2ri.activate()
 r.library('SpatialExtremes')
+# Desactivate temporarily warnings
 default_filters = warnings.filters.copy()
 warnings.filterwarnings("ignore")
+# Load ismev
 r.library('ismev')
+# Load fevd fixed
+fevd_fixed_filepath = op.join(get_root_path(), 'extreme_estimator', 'margin_fits', 'gev', 'fevd_fixed.R')
+assert op.exists(fevd_fixed_filepath)
+r.source(fevd_fixed_filepath)
+# Reactivate warning
 warnings.filters = default_filters
 
 

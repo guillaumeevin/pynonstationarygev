@@ -57,7 +57,7 @@ for i in range(nb_estimator):
     margin_model_for_estimator = margin_model_for_estimator_class(coordinates)
     full_estimator = FullEstimatorInASingleStepWithSmoothMargin(dataset, margin_model_for_estimator, max_stable_model)
     full_estimator.fit()
-    full_estimator.margin_function_fitted.visualize_function(axes=axes, show=False)
+    full_estimator.margin_function_from_fit.visualize_function(axes=axes, show=False)
 plt.show()
 
 # Display all the margin on the same graph for comparison

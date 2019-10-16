@@ -6,7 +6,7 @@ from rpy2.rinterface import RRuntimeWarning
 from rpy2.rinterface._rinterface import RRuntimeError
 
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
-from extreme_estimator.extreme_models.result_from_fit import ResultFromFit, ResultFromSpatialExtreme
+from extreme_estimator.extreme_models.result_from_model_fit.result_from_spatial_extreme import ResultFromSpatialExtreme
 from extreme_estimator.extreme_models.utils import r, safe_run_r_estimator, get_coord, \
     get_margin_formula, SafeRunException
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -24,7 +24,7 @@ class AbstractMaxStableModel(AbstractModel):
 
     def fitmaxstab(self, df_coordinates_spat: pd.DataFrame, df_coordinates_temp: pd.DataFrame = None,
                    data_frech: np.ndarray = None, data_gev: np.ndarray = None,
-                   fit_marge=False, fit_marge_form_dict=None, margin_start_dict=None) -> ResultFromFit:
+                   fit_marge=False, fit_marge_form_dict=None, margin_start_dict=None) -> ResultFromSpatialExtreme:
         assert isinstance(df_coordinates_spat, pd.DataFrame)
         if fit_marge:
             assert fit_marge_form_dict is not None

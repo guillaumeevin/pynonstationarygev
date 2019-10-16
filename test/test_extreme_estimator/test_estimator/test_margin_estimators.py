@@ -30,11 +30,11 @@ class TestSmoothMarginEstimator(unittest.TestCase):
                 # Fit estimator
                 estimator = LinearMarginEstimator(dataset=dataset, margin_model=margin_model)
                 estimator.fit()
-                print(estimator.result_from_fit.name_to_value.keys())
+                print(estimator.result_from_model_fit.name_to_value.keys())
                 # Plot
                 if self.DISPLAY:
                     margin_model.margin_function_sample.visualize_function(show=True)
-                    estimator.margin_function_fitted.visualize_function(show=True)
+                    estimator.margin_function_from_fit.visualize_function(show=True)
         self.assertTrue(True)
 
 

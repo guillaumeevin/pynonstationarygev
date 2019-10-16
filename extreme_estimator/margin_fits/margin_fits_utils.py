@@ -1,8 +1,6 @@
-import numpy as np
 import rpy2.robjects as ro
 
-from extreme_estimator.extreme_models.result_from_fit import ResultFromIsmev
-from extreme_estimator.extreme_models.utils import r, get_null, safe_run_r_estimator
+from extreme_estimator.extreme_models.utils import r, get_null
 
 """
 These two functions are “extremely light” functions to fit the GEV/GPD. These functions are mainlyuseful 

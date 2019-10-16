@@ -6,7 +6,7 @@ import pandas as pd
 from extreme_estimator.extreme_models.abstract_model import AbstractModel
 from extreme_estimator.extreme_models.margin_model.margin_function.abstract_margin_function \
     import AbstractMarginFunction
-from extreme_estimator.extreme_models.result_from_fit import ResultFromFit
+from extreme_estimator.extreme_models.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
 from extreme_estimator.extreme_models.utils import r
 from extreme_estimator.margin_fits.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -79,7 +79,7 @@ class AbstractMarginModel(AbstractModel, ABC):
     # Fitting methods needs to be defined in child classes
 
     def fitmargin_from_maxima_gev(self, maxima_gev: np.ndarray, df_coordinates_spatial: pd.DataFrame,
-                                  df_coordinates_temporal: pd.DataFrame) -> ResultFromFit:
+                                  df_coordinates_temporal: pd.DataFrame) -> AbstractResultFromModelFit:
         raise NotImplementedError
 
 

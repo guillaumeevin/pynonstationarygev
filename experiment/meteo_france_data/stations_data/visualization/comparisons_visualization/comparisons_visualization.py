@@ -16,13 +16,7 @@ from experiment.meteo_france_data.stations_data.comparison_analysis import Compa
     REANALYSE_STR, ALTITUDE_COLUMN_NAME, STATION_COLUMN_NAME
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.trend_analysis.univariate_test.utils import compute_gev_change_point_test_results
-from extreme_estimator.extreme_models.result_from_fit import ResultFromIsmev
-from extreme_estimator.extreme_models.utils import r, safe_run_r_estimator, ro
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from utils import classproperty
-
-
-
 
 path = r'/home/erwan/Documents/projects/spatiotemporalextremes/experiment/meteo_france_data/stations_data/csv'
 path_last_csv_file = op.join(path, 'example.csv')

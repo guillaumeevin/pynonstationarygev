@@ -3,6 +3,7 @@ from cached_property import cached_property
 from extreme_estimator.estimator.abstract_estimator import AbstractEstimator
 from extreme_estimator.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_estimator.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
+from extreme_estimator.estimator.utils import load_margin_function
 from extreme_estimator.extreme_models.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_estimator.extreme_models.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_estimator.extreme_models.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
@@ -33,11 +34,17 @@ class SmoothMarginalsThenUnitaryMsp(AbstractFullEstimator):
         maxima_frech = AbstractMarginModel.gev2frech(maxima_gev=maxima_gev_train,
                                                      coordinates_values=self.dataset.coordinates_values(
                                                          self.train_split),
-                                                     margin_function=self.margin_estimator.margin_function_fitted)
+                                                     margin_function=self.margin_estimator.margin_function_from_fit)
         # Update maxima frech field through the dataset object
         self.dataset.set_maxima_frech(maxima_frech, split=self.train_split)
         # Estimate the max stable parameters
         self.max_stable_estimator.fit()
+
+    """
+    To clean things, I could let an abstract Estimator whose only function is fit
+    then create a sub class abstract Estimator One Model, where the function _fit exists and always return something
+    then here full estimator class will be a sub class of abstract estimator, with two  abstract Estimator One Model as attributes
+    """
 
 
 class FullEstimatorInASingleStep(AbstractFullEstimator):
@@ -67,9 +74,9 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
         return self.dataset.coordinates.df_temporal_coordinates_for_fit(split=self.train_split,
                                                                         starting_point=self.linear_margin_model.starting_point)
 
-    def fit(self):
+    def _fit(self):
         # Estimate both the margin and the max-stable structure
-        self._result_from_fit = self.max_stable_model.fitmaxstab(
+        return self.max_stable_model.fitmaxstab(
             data_gev=self.dataset.maxima_gev_for_spatial_extremes_package(self.train_split),
             df_coordinates_spat=self.df_coordinates_spat,
             df_coordinates_temp=self.df_coordinates_temp,
@@ -78,12 +85,9 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
             margin_start_dict=self.linear_margin_model.margin_function_start_fit.coef_dict
         )
 
-    def extract_function_fitted(self):
-        return self.extract_function_fitted_from_the_model_shape(self.linear_margin_model)
-
     @cached_property
-    def margin_function_fitted(self) -> LinearMarginFunction:
-        return super().margin_function_fitted
+    def margin_function_from_fit(self) -> LinearMarginFunction:
+        return load_margin_function(self, self.linear_margin_model)
 
 
 class PointwiseAndThenUnitaryMsp(AbstractFullEstimator):

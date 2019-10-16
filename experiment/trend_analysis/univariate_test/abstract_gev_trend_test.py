@@ -89,21 +89,21 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         if self.crashed:
             return np.nan
         else:
-            return self.constrained_estimator.result_from_fit.deviance
+            return self.constrained_estimator.result_from_model_fit.deviance
 
     @property
     def unconstrained_model_deviance(self):
         if self.crashed:
             return np.nan
         else:
-            return self.unconstrained_estimator.result_from_fit.deviance
+            return self.unconstrained_estimator.result_from_model_fit.deviance
 
     @property
     def unconstained_nllh(self):
         if self.crashed:
             return np.nan
         else:
-            return self.unconstrained_estimator.result_from_fit.nllh
+            return self.unconstrained_estimator.result_from_model_fit.nllh
 
     # Evolution of the GEV parameters and corresponding quantiles
 
@@ -112,20 +112,20 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         return np.sign(self.test_trend_slope_strength)
 
     def get_non_stationary_linear_coef(self, gev_param_name: str):
-        return self.unconstrained_estimator.margin_function_fitted.get_coef(gev_param_name,
-                                                                            AbstractCoordinates.COORDINATE_T)
+        return self.unconstrained_estimator.margin_function_from_fit.get_coef(gev_param_name,
+                                                                              AbstractCoordinates.COORDINATE_T)
 
     @cached_property
     def non_stationary_constant_gev_params(self) -> GevParams:
         # Constant parameters correspond to the gev params in 1958
-        return self.unconstrained_estimator.margin_function_fitted.get_gev_params(coordinate=np.array([1958]),
-                                                                                  is_transformed=False)
+        return self.unconstrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([1958]),
+                                                                                    is_transformed=False)
 
     @cached_property
     def stationary_constant_gev_params(self) -> GevParams:
         # Constant parameters correspond to any gev params
-        return self.constrained_estimator.margin_function_fitted.get_gev_params(coordinate=np.array([1958]),
-                                                                                is_transformed=False)
+        return self.constrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([1958]),
+                                                                                  is_transformed=False)
 
 
     @property
