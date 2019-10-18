@@ -1,4 +1,4 @@
-class AbstractRegionType(object):
+class AbstractEurocodeRegion(object):
 
     def __init__(self, sk0, sad) -> None:
         # Valeurs caracteristique de la charge de neige sur le sol à une altitude inférieure à 200m
@@ -41,19 +41,19 @@ class AbstractRegionType(object):
         return 3.5, -2.45
 
 
-class C1(AbstractRegionType):
+class C1(AbstractEurocodeRegion):
 
     def __init__(self) -> None:
         super().__init__(0.65, None)
 
 
-class C2(AbstractRegionType):
+class C2(AbstractEurocodeRegion):
 
     def __init__(self) -> None:
         super().__init__(0.65, 1.35)
 
 
-class E(AbstractRegionType):
+class E(AbstractEurocodeRegion):
 
     def __init__(self) -> None:
         super().__init__(1.40, None)
