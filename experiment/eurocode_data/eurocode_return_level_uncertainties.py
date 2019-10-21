@@ -49,7 +49,8 @@ class ExtractEurocodeReturnLevelFromExtremes(object):
 
     @property
     def posterior_eurocode_return_level_uncertainty_interval_for_the_year_of_interest(self):
-        bottom_and_upper_quantile = (0.05, 0.95)
+        # Bottom and upper quantile correspond to the quantile
+        bottom_and_upper_quantile = (0.250, 0.975)
         return [np.quantile(self.posterior_eurocode_return_level_samples_for_year_of_interest, q=q)
                 for q in bottom_and_upper_quantile]
 

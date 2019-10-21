@@ -6,6 +6,7 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import \
     AbstractResultFromModelFit
 from extreme_fit.model.result_from_model_fit.utils import get_margin_coef_dict
+from extreme_fit.model.utils import r
 
 
 class ResultFromExtremes(AbstractResultFromModelFit):
@@ -16,20 +17,21 @@ class ResultFromExtremes(AbstractResultFromModelFit):
         self.burn_in_percentage = burn_in_percentage
         self.gev_param_name_to_dim = gev_param_name_to_dim
 
-    @property
-    def results(self):
-        return np.array(self.name_to_value['results'])
+    def load_dataframe_from_r_matrix(self, k):
+        r_matrix = self.name_to_value[k]
+        return pd.DataFrame(np.array(r_matrix), columns=r.colnames(r_matrix))
 
     @property
     def chain_info(self):
-        return np.array(self.name_to_value['chain.info'])
+        return self.load_dataframe_from_r_matrix('chain.info')
+
+    @property
+    def results(self):
+        return self.load_dataframe_from_r_matrix('results')
 
     @property
     def df_posterior_samples(self) -> pd.DataFrame:
-        d = dict(zip(GevParams.PARAM_NAMES, self.results.transpose()))
-        d['loglik'] = self.chain_info[:, -2]
-        d['prior'] = self.chain_info[:, -1]
-        df_all_samples = pd.DataFrame(d)
+        df_all_samples = pd.concat([self.results.iloc[:, :-1], self.chain_info.iloc[:, -2:]], axis=1)
         # Remove the burn in period
         burn_in_last_index = int(self.burn_in_percentage * len(df_all_samples))
         df_posterior_samples = df_all_samples.iloc[burn_in_last_index:, :]

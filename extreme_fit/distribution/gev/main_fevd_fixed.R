@@ -3,6 +3,7 @@
 # Created by: erwan
 # Created on: 04/10/2019
 library(extRemes)
+library(data.table)
 library(stats4)
 library(SpatialExtremes)
 source('fevd_fixed.R')
@@ -34,10 +35,18 @@ print(fevdPriorCustom(2.0, 0.0, 0.0))
 
 
 
-
 # res = fevd(x_gev, method='Bayesian', priorFun="fevdPriorMyMy", priorParams=list(q=c(6), p=c(9)), iter=5000, verbose=TRUE, use.phi=FALSE)
-res = fevd_fixed(x_gev, method='Bayesian', priorFun="fevdPriorCustom", priorParams=list(q=c(6), p=c(9)), iter=5000, verbose=TRUE, use.phi=FALSE)
 # res = fevd(x_gev, method='GMLE', iter=5000, verbose=TRUE, use.phi=FALSE)
+
+# Without covariate
+# res = fevd_fixed(x_gev, method='Bayesian', priorFun="fevdPriorCustom", priorParams=list(q=c(6), p=c(9)), iter=5000, verbose=TRUE, use.phi=FALSE)
+
+# Add covariate
+coord <- matrix(ncol=1, nrow = N)
+coord[,1]=seq(1,N,1)
+colnames(coord) = c("T")
+coord = data.frame(coord, stringsAsFactors = TRUE)
+res = fevd_fixed(x_gev, data=coord, location.fun= ~T, method='Bayesian', priorFun="fevdPriorCustom", priorParams=list(q=c(6), p=c(9)), iter=5000, verbose=TRUE, use.phi=FALSE)
 print(res)
 
 print('here')
@@ -47,31 +56,10 @@ print(res$method)
 print(res$priorFun)
 print(res$priorParams)
 m = res$results
+print(class(res$chain.info))
 print(dim(m))
 print(m[1,])
 print(m[1,1])
 print(res$chain.info[1,])
 
 
-
-
-# print(class(res$chain.info))
-# ch = res$chain.info
-# print(dim(ch))
-# print(ch)
-
-# # summary(res)
-print(attributes(res))
-# print('here')
-# print(attr(res, 'chain.info'))
-# print(attr(res, "method"))
-# print(attr(res, "x"))
-# print(attr(res, "priorParams"))
-
-# print(res.method)
-
-
-
-
-# Bayesian method is using a normal distribution functions for the shape parameter
-# GMLE distribution is using a Beta distribution for the shape parameter

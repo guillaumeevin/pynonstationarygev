@@ -1,4 +1,5 @@
 import io
+
 import os.path as op
 import random
 import warnings
@@ -14,7 +15,6 @@ from rpy2.rinterface._rinterface import RRuntimeError
 from rpy2.robjects import numpy2ri
 from rpy2.robjects import pandas2ri
 
-
 # Load R variables
 from root_utils import get_root_path
 
@@ -22,6 +22,7 @@ r = ro.R()
 numpy2ri.activate()
 pandas2ri.activate()
 r.library('SpatialExtremes')
+r.library('data.table')
 # Desactivate temporarily warnings
 default_filters = warnings.filters.copy()
 warnings.filterwarnings("ignore")
@@ -81,13 +82,13 @@ def safe_run_r_estimator(function, data=None, use_start=False, threshold_max_abs
     # Some checks for Spatial Extremes
     if data is not None:
         # Raise warning if the maximum absolute value is above a threshold
-        assert isinstance(data, np.ndarray)
-        maximum_absolute_value = np.max(np.abs(data))
-        if maximum_absolute_value > threshold_max_abs_value:
-            msg = "maxmimum absolute value in data {} is too high, i.e. above the defined threshold {}" \
-                .format(maximum_absolute_value, threshold_max_abs_value)
-            msg += '\nPotentially in that case, data should be re-normalized'
-            warnings.warn(msg, WarningMaximumAbsoluteValueTooHigh)
+        if isinstance(data, np.ndarray):
+            maximum_absolute_value = np.max(np.abs(data))
+            if maximum_absolute_value > threshold_max_abs_value:
+                msg = "maxmimum absolute value in data {} is too high, i.e. above the defined threshold {}" \
+                    .format(maximum_absolute_value, threshold_max_abs_value)
+                msg += '\nPotentially in that case, data should be re-normalized'
+                warnings.warn(msg, WarningMaximumAbsoluteValueTooHigh)
         parameters['data'] = data
     # First run without using start value
     # Then if it crashes, use start value
@@ -120,6 +121,15 @@ def get_coord(df_coordinates: pd.DataFrame):
     return coord
 
 
+def get_coord_df(df_coordinates: pd.DataFrame):
+    coord = pandas2ri.py2ri_pandasdataframe(df_coordinates)
+    # coord = r.transpose(coord)
+    colname = df_coordinates.columns[0]
+    coord.colnames = r.c(colname)
+    coord = r('data.frame')(coord, stringsAsFactors=True)
+    return coord
+
+
 def get_null():
     as_null = r['as.null']
     return as_null(1.0)
@@ -141,10 +151,8 @@ def old_coef_name_to_new_coef_name():
 
 def get_margin_formula_extremes(fit_marge_form_dict) -> Dict:
     d = old_coef_name_to_new_coef_name()
-    form_dict = {d[k]: v if v != 'NULL' else ' ~1' for k, v in fit_marge_form_dict.items()}
+    form_dict = {d[k]: ' '.join(v.split()[1:]) if v != 'NULL' else ' ~1' for k, v in fit_marge_form_dict.items()}
     return {k: robjects.Formula(v) for k, v in form_dict.items()}
-
-
 
 # def conversion_to_FloatVector(data):
 #     """Convert DataFrame or numpy array into FloatVector for r"""
