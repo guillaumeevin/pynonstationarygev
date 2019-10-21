@@ -9,7 +9,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
     load_altitude_visualizer
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     SCM_STUDIES, altitude_massif_name_and_study_class_for_poster, SCM_STUDIES_NAMES, SCM_STUDY_NAME_TO_SCM_STUDY
-from utils import get_display_name_from_object_type
+from root_utils import get_display_name_from_object_type
 
 POSTER_ALTITUDES = [900, 1800, 2700]
 

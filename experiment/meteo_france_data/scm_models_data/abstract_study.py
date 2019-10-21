@@ -30,7 +30,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
-from utils import get_full_path, cached_property, NB_CORES, classproperty
+from root_utils import get_full_path, cached_property, NB_CORES, classproperty
 
 f = io.StringIO()
 with redirect_stdout(f):

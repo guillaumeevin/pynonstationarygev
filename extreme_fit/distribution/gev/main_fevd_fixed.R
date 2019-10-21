@@ -50,6 +50,7 @@ m = res$results
 print(dim(m))
 print(m[1,])
 print(m[1,1])
+print(res$chain.info[1,])
 
 
 

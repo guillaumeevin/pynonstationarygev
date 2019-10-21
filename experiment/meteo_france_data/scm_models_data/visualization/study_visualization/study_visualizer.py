@@ -10,6 +10,9 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+from experiment.eurocode_data.eurocode_return_level_uncertainties import ExtractEurocodeReturnLevelFromExtremes, \
+    EurocodeLevelUncertaintyFromExtremes
+from experiment.eurocode_data.massif_name_to_departement import dep_class_to_massif_names
 from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.trend_analysis.abstract_score import MeanScore, AbstractTrendScore
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
@@ -17,13 +20,14 @@ from experiment.trend_analysis.univariate_test.abstract_univariate_test import A
 from experiment.trend_analysis.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
-from experiment.trend_analysis.univariate_test.utils import compute_gev_change_point_test_results
+from experiment.trend_analysis.univariate_test.univariate_test_results import compute_gev_change_point_test_results
 from experiment.utils import average_smoothing_with_sliding_window
 from extreme_fit.distribution.abstract_params import AbstractParams
 from extreme_fit.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel, \
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import \
+    LinearNonStationaryLocationMarginModel, \
     LinearStationaryMarginModel
 from extreme_fit.model.margin_model.margin_function.abstract_margin_function import \
     AbstractMarginFunction
@@ -42,7 +46,7 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 from test.test_utils import load_test_max_stable_models
-from utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits, \
+from root_utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits, \
     cached_property
 
 BLOCK_MAXIMA_DISPLAY_NAME = 'block maxima '
@@ -350,6 +354,36 @@ class StudyVisualizer(VisualizationParameters):
         start_year, stop_year = self.study.start_year_and_stop_year
         return list(range(start_year, stop_year))
 
+    def massif_name_to_eurocode_level_uncertainty(self, model_class) -> Dict[str, EurocodeLevelUncertaintyFromExtremes]:
+        # todo: add multiprocessing
+        massif_name_to_eurocode_return_level_uncertainty = {}
+        for massif_id, massif_name in enumerate(self.study.study_massif_names):
+            print(massif_name)
+            years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
+            res = EurocodeLevelUncertaintyFromExtremes.from_maxima_years_model_class(smooth_maxima, years, model_class)
+            massif_name_to_eurocode_return_level_uncertainty[massif_name] = res
+        return massif_name_to_eurocode_return_level_uncertainty
+
+    def dep_class_to_eurocode_level_uncertainty(self, model_class):
+        """ Take the max with respect to the posterior mean for each departement """
+        massif_name_to_eurocode_level_uncertainty = self.massif_name_to_eurocode_level_uncertainty(model_class)
+        print(massif_name_to_eurocode_level_uncertainty)
+        dep_class_to_eurocode_level_uncertainty = {}
+        for dep_class, massif_names in dep_class_to_massif_names.items():
+            # Filter the couple of interest
+            couples = [(k, v) for k, v in massif_name_to_eurocode_level_uncertainty.items() if k in massif_names]
+            assert len(couples) > 0
+            # Find the massif name with the maximum posterior mean
+            for c in couples:
+                print(c)
+                print(c[1].posterior_mean)
+            massif_name, eurocode_level_uncertainty = max(couples, key=lambda c: c[1].posterior_mean)
+            dep_class_to_eurocode_level_uncertainty[dep_class] = eurocode_level_uncertainty
+        return dep_class_to_eurocode_level_uncertainty
+
+
+
+
     @cached_property
     def massif_name_to_detailed_scores(self):
         """
@@ -430,7 +464,8 @@ class StudyVisualizer(VisualizationParameters):
                 massif_names = [AbstractExtendedStudy.region_name_to_massif_names[r][0]
                                 for r in AbstractExtendedStudy.real_region_names]
                 massif_names_for_sampling = list(set(self.study.study_massif_names) - set(massif_names))
-                nb_massif_for_sampling = self.nb_massif_for_change_point_test - len(AbstractExtendedStudy.real_region_names)
+                nb_massif_for_sampling = self.nb_massif_for_change_point_test - len(
+                    AbstractExtendedStudy.real_region_names)
                 massif_names += sample(massif_names_for_sampling, k=nb_massif_for_sampling)
             else:
                 massif_names = sample(self.study.study_massif_names, k=self.nb_massif_for_change_point_test)

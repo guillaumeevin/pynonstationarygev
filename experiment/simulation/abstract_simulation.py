@@ -23,7 +23,7 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from spatio_temporal_dataset.dataset.abstract_dataset import get_subset_dataset
 from spatio_temporal_dataset.dataset.simulation_dataset import SimulatedDataset
 from spatio_temporal_dataset.slicer.split import split_to_display_kwargs
-from utils import get_full_path, get_display_name_from_object_type
+from root_utils import get_full_path, get_display_name_from_object_type
 
 SIMULATION_RELATIVE_PATH = op.join('local', 'simulation')
 

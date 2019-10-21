@@ -1,14 +1,13 @@
-from typing import Dict
-
-import numpy as np
 from rpy2 import robjects
 
-from extreme_fit.model.margin_model.param_function.linear_coef import LinearCoef
+from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import \
+    AbstractResultFromModelFit
+from extreme_fit.model.result_from_model_fit.utils import convertFloatVector_to_float, get_margin_coef_dict
+from rpy2 import robjects
+
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import \
     AbstractResultFromModelFit
 from extreme_fit.model.result_from_model_fit.utils import convertFloatVector_to_float
-from extreme_fit.distribution.gev.gev_params import GevParams
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 class ResultFromIsmev(AbstractResultFromModelFit):
@@ -19,23 +18,7 @@ class ResultFromIsmev(AbstractResultFromModelFit):
 
     @property
     def margin_coef_dict(self):
-        assert self.gev_param_name_to_dim is not None
-        # Build the Coeff dict from gev_param_name_to_dim
-        coef_dict = {}
-        i = 0
-        mle_values = self.name_to_value['mle']
-        for gev_param_name in GevParams.PARAM_NAMES:
-            # Add intercept
-            intercept_coef_name = LinearCoef.coef_template_str(gev_param_name, LinearCoef.INTERCEPT_NAME).format(1)
-            coef_dict[intercept_coef_name] = mle_values[i]
-            i += 1
-            # Add a potential linear temporal trend
-            if gev_param_name in self.gev_param_name_to_dim:
-                temporal_coef_name = LinearCoef.coef_template_str(gev_param_name,
-                                                                  AbstractCoordinates.COORDINATE_T).format(1)
-                coef_dict[temporal_coef_name] = mle_values[i]
-                i += 1
-        return coef_dict
+        return get_margin_coef_dict(self.gev_param_name_to_dim, self.name_to_value['mle'])
 
     @property
     def all_parameters(self):

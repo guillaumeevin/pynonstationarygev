@@ -15,7 +15,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.meteo_france_data.scm_models_data.visualization.utils import plot_df
-from utils import cached_property, get_display_name_from_object_type, VERSION_TIME
+from root_utils import cached_property, get_display_name_from_object_type, VERSION_TIME
 
 
 class StudiesVisualizer(object):

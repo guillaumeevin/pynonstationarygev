@@ -2,7 +2,7 @@ from experiment.meteo_france_data.stations_data.comparison_analysis import Compa
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization
-from utils import get_display_name_from_object_type
+from root_utils import get_display_name_from_object_type
 
 
 def choice_of_altitude_and_nb_border_data_to_remove_to_get_data_without_nan():

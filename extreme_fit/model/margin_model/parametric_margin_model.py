@@ -8,7 +8,7 @@ from extreme_fit.model.margin_model.margin_function.parametric_margin_function i
 from extreme_fit.model.result_from_model_fit.result_from_spatial_extreme import ResultFromSpatialExtreme
 from extreme_fit.model.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_fit.model.utils import safe_run_r_estimator, r, get_coord, \
-    get_margin_formula
+    get_margin_formula_spatial_extreme
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
@@ -29,7 +29,7 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         assert data.shape[1] == len(df_coordinates_spat)
 
         # Margin formula for fitspatgev
-        fit_params = get_margin_formula(self.margin_function_start_fit.form_dict)
+        fit_params = get_margin_formula_spatial_extreme(self.margin_function_start_fit.form_dict)
 
         # Covariables
         covariables = get_coord(df_coordinates=df_coordinates_spat)

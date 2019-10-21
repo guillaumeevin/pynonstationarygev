@@ -5,7 +5,7 @@ import pandas as pd
 
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth
 from experiment.meteo_france_data.scm_models_data.scm_constants import ALTITUDES
-from utils import get_display_name_from_object_type
+from root_utils import get_display_name_from_object_type
 
 massif_name = 'Queyras'
 study_class = CrocusDepth

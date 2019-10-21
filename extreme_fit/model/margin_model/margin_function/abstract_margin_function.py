@@ -9,7 +9,7 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from experiment.meteo_france_data.plot.create_shifted_cmap import imshow_shifted
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.slicer.split import Split
-from utils import cached_property
+from root_utils import cached_property
 
 
 class AbstractMarginFunction(object):

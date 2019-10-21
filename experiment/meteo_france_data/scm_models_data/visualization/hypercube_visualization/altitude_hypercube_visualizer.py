@@ -12,7 +12,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
-from utils import get_display_name_from_object_type
+from root_utils import get_display_name_from_object_type
 
 ALTITUDES_XLABEL = 'altitudes'
 

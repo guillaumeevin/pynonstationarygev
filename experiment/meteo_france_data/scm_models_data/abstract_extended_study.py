@@ -4,7 +4,7 @@ from collections import OrderedDict
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
-from utils import classproperty
+from root_utils import classproperty
 
 
 class AbstractExtendedStudy(AbstractStudy):

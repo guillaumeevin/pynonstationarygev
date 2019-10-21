@@ -20,7 +20,7 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
 from test.test_utils import load_test_max_stable_models
-from utils import get_display_name_from_object_type
+from root_utils import get_display_name_from_object_type
 
 REANALYSE_STR = 'reanalyse'
 ALTITUDE_COLUMN_NAME = 'ALTITUDE'

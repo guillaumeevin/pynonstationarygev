@@ -1,31 +1,57 @@
-from collections import OrderedDict
+from typing import Dict, List
+
 import matplotlib.pyplot as plt
 
-from experiment.eurocode_data.massif_name_to_departement import massif_name_to_departement_objects
-from experiment.eurocode_data.eurocode_region import AbstractEurocodeRegion
-from utils import get_display_name_from_object_type
+from experiment.eurocode_data.eurocode_return_level_uncertainties import EurocodeLevelUncertaintyFromExtremes
+from experiment.eurocode_data.massif_name_to_departement import DEPARTEMENT_TYPES
+from experiment.eurocode_data.utils import EUROCODE_QUANTILE, EUROCODE_ALTITUDES
+from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
 
 
-def display_region_limit(region_type, altitudes, ordered_massif_name_to_quantiles,
-                         ordered_massif_name_to_significances=None,
-                         display=True):
-    assert isinstance(ordered_massif_name_to_quantiles, OrderedDict)
-    assert ordered_massif_name_to_significances is None or isinstance(ordered_massif_name_to_significances, OrderedDict)
-    # First, select massif name correspond to the region
-    massif_name_belong_to_the_region = []
-    for massif_name in ordered_massif_name_to_quantiles.keys():
-        if any([isinstance(dep.region, region_type) for dep in massif_name_to_departement_objects[massif_name]]):
-            massif_name_belong_to_the_region.append(massif_name)
-    region_object = region_type()  # type: AbstractEurocodeRegion
-    # Then, display the limit for the region
-    fig, ax = plt.subplots(1, 1)
-    ax.plot(altitudes, [region_object.eurocode_max_loading(altitude) for altitude in altitudes], label='Eurocode limit')
-    # Finally, display the massif curve
-    for massif_name in massif_name_belong_to_the_region:
-        ax.plot(altitudes, ordered_massif_name_to_quantiles[massif_name], label=massif_name)
-    ax.set_title('{} Eurocode region'.format(get_display_name_from_object_type(region_type)))
-    ax.set_xlabel('Altitude')
-    ax.set_ylabel('0.98 quantile (in N $m^-2$)')
-    ax.legend()
-    if display:
+def plot_model_name_to_dep_to_ordered_return_level_uncertainties(
+        dep_to_model_name_to_ordered_return_level_uncertainties, show=True):
+    # Create a 9 x 9 plot
+    axes = create_adjusted_axes(3, 3)
+    axes = list(axes.flatten())
+    ax6 = axes[5]
+    ax9 = axes[8]
+
+    axes.remove(ax6)
+    axes.remove(ax9)
+    ax_to_departement = dict(zip(axes, DEPARTEMENT_TYPES[::-1]))
+    for ax, departement in ax_to_departement.items():
+        plot_dep_to_model_name_dep_to_ordered_return_level_uncertainties(ax, departement,
+                                                                         dep_to_model_name_to_ordered_return_level_uncertainties[
+                                                                             departement]
+                                                                         )
+    ax6.remove()
+    ax9.remove()
+
+    plt.suptitle('50-year return levels for all French Alps departements. \n'
+                 'Comparison between the maximum EUROCODE in the departement\n'
+                 'and the maximum return level found for the massif belonging to the departement')
+    if show:
         plt.show()
+
+
+def plot_dep_to_model_name_dep_to_ordered_return_level_uncertainties(ax, dep_class,
+                                                                     model_name_to_ordered_return_level_uncertainties:
+                                                                     Dict[str, List[
+                                                                         EurocodeLevelUncertaintyFromExtremes]]):
+    colors = ['red', 'blue', 'green']
+    altitudes = EUROCODE_ALTITUDES
+    alpha = 0.2
+    # Display the EUROCODE return level
+    dep_object = dep_class()
+    dep_object.eurocode_region.plot_max_loading(ax, altitudes=altitudes)
+    # Display the return level from model class
+    for color, (model_name, ordered_return_level_uncertaines) in zip(colors,
+                                                                     model_name_to_ordered_return_level_uncertainties.items()):
+        mean = [r.posterior_mean for r in ordered_return_level_uncertaines]
+        ax.plot(altitudes, mean, '-', color=color)
+        lower_bound = [r.poster_uncertainty_interval[0] for r in ordered_return_level_uncertaines]
+        upper_bound = [r.poster_uncertainty_interval[1] for r in ordered_return_level_uncertaines]
+        ax.fill_between(altitudes, lower_bound, upper_bound, color=color, alpha=alpha)
+    ax.set_title(str(dep_object))
+    ax.set_ylabel('Maximum {} quantile (in N $m^-2$)'.format(EUROCODE_QUANTILE))
+    ax.set_xlabel('Altitude')

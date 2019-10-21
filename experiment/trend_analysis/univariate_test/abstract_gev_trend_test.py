@@ -3,49 +3,38 @@ import pandas as pd
 from cached_property import cached_property
 from scipy.stats import chi2
 
+from experiment.eurocode_data.utils import EUROCODE_QUANTILE
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
+from experiment.trend_analysis.univariate_test.utils import load_temporal_coordinates_and_dataset, \
+    fitted_linear_margin_estimator
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import AbstractTemporalLinearMarginModel
+from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
+    AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     StationaryStationModel
 from extreme_fit.model.utils import SafeRunException
 from extreme_fit.distribution.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
-    AbstractTemporalCoordinates
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
-    CenteredScaledNormalization
-from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
-from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
-    AbstractSpatioTemporalObservations
 
 
 class AbstractGevTrendTest(AbstractUnivariateTest):
     RRunTimeError_TREND = 'R RunTimeError trend'
     # I should use the quantile from the Eurocode for the buildings
-    quantile_for_strength = 0.98
+    quantile_for_strength = EUROCODE_QUANTILE
     nb_years_for_quantile_evolution = 10
 
-    def __init__(self, years, maxima, starting_year, unconstrained_model_class, constrained_model_class=StationaryStationModel,
+    def __init__(self, years, maxima, starting_year, unconstrained_model_class,
+                 constrained_model_class=StationaryStationModel,
                  fit_method=AbstractTemporalLinearMarginModel.ISMEV_GEV_FIT_METHOD_STR):
         super().__init__(years, maxima, starting_year)
         self.fit_method = fit_method
         # Load observations, coordinates and datasets
-        df = pd.DataFrame({AbstractCoordinates.COORDINATE_T: years})
-        df_maxima_gev = pd.DataFrame(maxima, index=df.index)
-        observations = AbstractSpatioTemporalObservations(df_maxima_gev=df_maxima_gev)
-        self.coordinates = AbstractTemporalCoordinates.from_df(df, transformation_class=CenteredScaledNormalization)
-        self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
-
+        self.coordinates, self.dataset = load_temporal_coordinates_and_dataset(maxima, years)
         try:
             # Fit constrained model
-            constrained_model = constrained_model_class(self.coordinates, starting_point=self.starting_year, fit_method=self.fit_method)
-            self.constrained_estimator = LinearMarginEstimator(self.dataset, constrained_model)
-            self.constrained_estimator.fit()
+            self.constrained_estimator = fitted_linear_margin_estimator(constrained_model_class, self.coordinates, self.dataset, self.starting_year, self.fit_method)
             # Fit unconstrained model
-            unconstrained_model = unconstrained_model_class(self.coordinates, starting_point=self.starting_year, fit_method=self.fit_method)
-            self.unconstrained_estimator = LinearMarginEstimator(self.dataset, unconstrained_model)
-            self.unconstrained_estimator.fit()
+            self.unconstrained_estimator = fitted_linear_margin_estimator(unconstrained_model_class, self.coordinates, self.dataset, self.starting_year, self.fit_method)
             self.crashed = False
         except SafeRunException:
             self.crashed = True
@@ -127,7 +116,6 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         return self.constrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([1958]),
                                                                                   is_transformed=False)
 
-
     @property
     def test_trend_slope_strength(self):
         if self.crashed:
@@ -136,7 +124,8 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
             # Compute the slope strength
             slope = self._slope_strength()
             # Delta T must in the same unit as were the parameter of slope mu1 and sigma1
-            slope *= self.nb_years_for_quantile_evolution * self.coordinates.transformed_distance_between_two_successive_years[0]
+            slope *= self.nb_years_for_quantile_evolution * \
+                     self.coordinates.transformed_distance_between_two_successive_years[0]
             return slope
 
     def _slope_strength(self):
@@ -163,6 +152,3 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
             return 0.0
         else:
             return self.non_stationary_constant_gev_params.quantile(p=self.quantile_for_strength)
-
-
-

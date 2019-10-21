@@ -8,7 +8,7 @@ from rpy2.rinterface._rinterface import RRuntimeError
 from extreme_fit.model.abstract_model import AbstractModel
 from extreme_fit.model.result_from_model_fit.result_from_spatial_extreme import ResultFromSpatialExtreme
 from extreme_fit.model.utils import r, safe_run_r_estimator, get_coord, \
-    get_margin_formula, SafeRunException
+    get_margin_formula_spatial_extreme, SafeRunException
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
@@ -54,7 +54,7 @@ class AbstractMaxStableModel(AbstractModel):
         start_dict = self.remove_unused_parameters(start_dict, fitmaxstab_with_one_dimensional_data)
         if fit_marge:
             start_dict.update(margin_start_dict)
-            margin_formulas = get_margin_formula(fit_marge_form_dict)
+            margin_formulas = get_margin_formula_spatial_extreme(fit_marge_form_dict)
             fit_params.update(margin_formulas)
         if fitmaxstab_with_one_dimensional_data:
             fit_params['iso'] = True

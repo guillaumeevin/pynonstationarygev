@@ -1,12 +1,20 @@
 from enum import Enum
 
 from experiment.eurocode_data.eurocode_region import AbstractEurocodeRegion, E, C2, C1
+from root_utils import get_display_name_from_object_type
 
 
 class AbstractDepartementAlpesFrancaises(object):
 
-    def __init__(self, region: type):
-        self.region = region()  # type: AbstractEurocodeRegion
+    def __init__(self, eurocode_region: type):
+        self.eurocode_region = eurocode_region()  # type: AbstractEurocodeRegion
+
+    def display_limit(self, ax):
+        pass
+
+    def __str__(self):
+        return get_display_name_from_object_type(type(self)) + '( {} Eurocode region)'.format(
+            get_display_name_from_object_type(type(self.eurocode_region)))
 
 
 class HauteSavoie(AbstractDepartementAlpesFrancaises):
@@ -32,6 +40,7 @@ class Drome(AbstractDepartementAlpesFrancaises):
     def __init__(self):
         super().__init__(C2)
 
+
 class HautesAlpes(AbstractDepartementAlpesFrancaises):
 
     def __init__(self):
@@ -48,6 +57,3 @@ class AlpesDeHauteProvence(AbstractDepartementAlpesFrancaises):
 
     def __init__(self):
         super().__init__(C1)
-
-
-

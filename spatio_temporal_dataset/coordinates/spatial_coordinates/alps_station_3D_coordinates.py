@@ -7,7 +7,7 @@ from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_co
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.tranformation_3D import \
     AnisotropyTransformation
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformed_coordinates import TransformedCoordinates
-from utils import get_full_path
+from root_utils import get_full_path
 
 
 class AlpsStation3DCoordinates(AbstractSpatialCoordinates):

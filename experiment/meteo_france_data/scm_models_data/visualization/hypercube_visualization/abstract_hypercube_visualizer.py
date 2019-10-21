@@ -7,7 +7,7 @@ import pandas as pd
 
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
-from utils import cached_property, VERSION_TIME, get_display_name_from_object_type
+from root_utils import cached_property, VERSION_TIME, get_display_name_from_object_type
 
 
 class AbstractHypercubeVisualizer(object):

@@ -7,7 +7,7 @@ from itertools import product
 
 from extreme_fit.estimator.abstract_estimator import AbstractEstimator
 from experiment.robustness_plot.display_item import DisplayItem
-from utils import get_full_path
+from root_utils import get_full_path
 
 plt.style.use('seaborn-white')
 

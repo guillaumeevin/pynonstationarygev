@@ -1,21 +1,24 @@
 import unittest
 from collections import OrderedDict
 
-from experiment.eurocode_data.eurocode_visualizer import display_region_limit
-from experiment.eurocode_data.eurocode_region import C1, E, C2
+from experiment.eurocode_data.eurocode_return_level_uncertainties import EurocodeLevelUncertaintyFromExtremes
+from experiment.eurocode_data.eurocode_visualizer import plot_model_name_to_dep_to_ordered_return_level_uncertainties
+from experiment.eurocode_data.massif_name_to_departement import DEPARTEMENT_TYPES
+from experiment.eurocode_data.utils import EUROCODE_ALTITUDES
 
 
 class TestCoordinateSensitivity(unittest.TestCase):
     DISPLAY = False
 
-    def test_region_eurocode(self):
-        altitudes = [900, 1200, 1500, 1800]
-        ordered_massif_name_to_quantiles = OrderedDict()
-        ordered_massif_name_to_quantiles['Vanoise'] = [1.2, 1.5, 1.7, 2.1]
-        ordered_massif_name_to_quantiles['Vercors'] = [0.7, 0.8, 1.1, 1.5]
-        display_region_limit(C1, altitudes, ordered_massif_name_to_quantiles, display=self.DISPLAY)
-        display_region_limit(C2, altitudes, ordered_massif_name_to_quantiles, display=self.DISPLAY)
-        display_region_limit(E, altitudes, ordered_massif_name_to_quantiles, display=self.DISPLAY)
+    def test_departement_eurocode_plot(self):
+        # Create an example
+        example = EurocodeLevelUncertaintyFromExtremes(posterior_mean=1.0,
+                                                       poster_uncertainty_interval=(0.5, 1.25))
+        dep_to_model_name_toreturn_level_uncertainty = {
+            dep: {"example": [example for _ in EUROCODE_ALTITUDES]} for dep in DEPARTEMENT_TYPES
+        }
+        plot_model_name_to_dep_to_ordered_return_level_uncertainties(dep_to_model_name_toreturn_level_uncertainty,
+                                                                     show=self.DISPLAY)
 
 
 if __name__ == '__main__':

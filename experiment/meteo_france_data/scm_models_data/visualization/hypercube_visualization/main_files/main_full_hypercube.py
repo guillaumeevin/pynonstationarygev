@@ -1,12 +1,7 @@
 import time
 
-from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
-    AltitudeHypercubeVisualizer
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_hypercube_visualizer_extended import \
-    AltitudeHypercubeVisualizerBisExtended, QuantityHypercubeWithoutTrendExtended, \
-    AltitudeHypercubeVisualizerWithoutTrendExtended, QuantityHypercubeWithoutTrend
-from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.quantity_altitude_visualizer import \
-    QuantityAltitudeHypercubeVisualizer
+    AltitudeHypercubeVisualizerBisExtended, QuantityHypercubeWithoutTrend
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.utils_hypercube import \
     load_altitude_visualizer, load_quantity_visualizer
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \

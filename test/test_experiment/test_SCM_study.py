@@ -13,7 +13,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
 from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevLocationTrendTest
-from utils import get_display_name_from_object_type
+from root_utils import get_display_name_from_object_type
 
 
 class TestSCMAllStudy(unittest.TestCase):

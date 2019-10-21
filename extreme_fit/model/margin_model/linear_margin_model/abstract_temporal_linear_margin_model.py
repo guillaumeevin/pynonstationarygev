@@ -5,7 +5,7 @@ from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model impo
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
 from extreme_fit.model.result_from_model_fit.result_from_extremes import ResultFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_ismev import ResultFromIsmev
-from extreme_fit.model.utils import r, ro, get_null
+from extreme_fit.model.utils import r, ro, get_null, get_margin_formula_extremes
 from extreme_fit.model.utils import safe_run_r_estimator
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
@@ -46,6 +46,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         #     9)), iter = 5000, verbose = TRUE, use.phi = FALSE)
 
         r_type_argument_kwargs = {'use.phi': False}
+        r_type_argument_kwargs.update(get_margin_formula_extremes(self.margin_function_start_fit.form_dict))
         # location.fun = ~1,
         # scale.fun = ~1, shape.fun = ~1
         # , priorParams = list(q=c(6), p=c(9))

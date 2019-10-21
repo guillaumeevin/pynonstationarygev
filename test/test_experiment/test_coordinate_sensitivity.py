@@ -9,7 +9,7 @@ from experiment.trend_analysis.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization, BetweenZeroAndOneNormalizationMinEpsilon, BetweenZeroAndOneNormalizationMaxEpsilon
-from utils import get_display_name_from_object_type
+from root_utils import get_display_name_from_object_type
 
 
 class TestCoordinateSensitivity(unittest.TestCase):

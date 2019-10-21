@@ -9,7 +9,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     study_iterator_global
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
-from utils import get_display_name_from_object_type
+from root_utils import get_display_name_from_object_type
 
 
 def load_quantity_visualizer(quantity_hypercube_class, altitudes, last_starting_year, nb_data_reduced_for_speed,

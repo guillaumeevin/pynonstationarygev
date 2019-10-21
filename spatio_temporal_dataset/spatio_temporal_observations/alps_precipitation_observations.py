@@ -2,7 +2,7 @@ import os.path as op
 
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
-from utils import get_full_path
+from root_utils import get_full_path
 
 
 class AlpsPrecipitationObservations(AbstractSpatioTemporalObservations):

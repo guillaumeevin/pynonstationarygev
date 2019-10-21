@@ -1,26 +1,23 @@
 import io
 import os.path as op
+import random
 import warnings
 from contextlib import redirect_stdout
+from typing import Dict
 
 import numpy as np
-import random
-import sys
-from types import TracebackType
-from typing import Dict, Optional
-
 import pandas as pd
 import rpy2.robjects as ro
 from rpy2 import robjects
 from rpy2.rinterface import RRuntimeWarning
 from rpy2.rinterface._rinterface import RRuntimeError
-
 from rpy2.robjects import numpy2ri
 from rpy2.robjects import pandas2ri
 
-from utils import get_root_path
 
 # Load R variables
+from root_utils import get_root_path
+
 r = ro.R()
 numpy2ri.activate()
 pandas2ri.activate()
@@ -128,9 +125,26 @@ def get_null():
     return as_null(1.0)
 
 
-def get_margin_formula(fit_marge_form_dict) -> Dict:
+# todo: move that to the result class maybe
+def get_margin_formula_spatial_extreme(fit_marge_form_dict) -> Dict:
     margin_formula = {k: robjects.Formula(v) if v != 'NULL' else get_null() for k, v in fit_marge_form_dict.items()}
     return margin_formula
+
+
+def old_coef_name_to_new_coef_name():
+    return {
+        'temp.form.loc': 'location.fun',
+        'temp.form.scale': 'scale.fun',
+        'temp.form.shape': 'shape.fun',
+    }
+
+
+def get_margin_formula_extremes(fit_marge_form_dict) -> Dict:
+    d = old_coef_name_to_new_coef_name()
+    form_dict = {d[k]: v if v != 'NULL' else ' ~1' for k, v in fit_marge_form_dict.items()}
+    return {k: robjects.Formula(v) for k, v in form_dict.items()}
+
+
 
 # def conversion_to_FloatVector(data):
 #     """Convert DataFrame or numpy array into FloatVector for r"""

@@ -16,7 +16,7 @@ from collections import OrderedDict
 from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevLocationTrendTest
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization, BetweenMinusOneAndOneNormalization
-from utils import get_display_name_from_object_type
+from root_utils import get_display_name_from_object_type
 
 SCM_STUDIES = [SafranSnowfall, CrocusSweTotal, CrocusDepth, CrocusSwe3Days]
 SCM_STUDIES_NAMES = [get_display_name_from_object_type(k) for k in SCM_STUDIES]
