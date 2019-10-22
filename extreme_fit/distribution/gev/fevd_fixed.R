@@ -5,8 +5,11 @@ library(SpatialExtremes)
 
 # Define a custom Prior function
 fevdPriorCustom <- function (theta, q, p, log = FALSE){
-    # Select the shape parameter (which is the last parameter)
-    shape = theta[length(theta)]
+    # Select the shape parameter (which is always the last parameter either for the stationary or the non-stationary case)
+    print(attributes(theta))
+    theta_names = attr(theta, 'names')
+    shape_idx = match('shape', theta_names)
+    shape = theta[shape_idx]
     # + 0.5 enables to shift the Beta law in the interval [-0.5, 0.5]
     res = dbeta(shape + 0.5, q, p, log = TRUE)
     return(res)

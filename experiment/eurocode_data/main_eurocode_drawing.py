@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from experiment.eurocode_data.eurocode_visualizer import plot_model_name_to_dep_to_ordered_return_level_uncertainties
 from experiment.eurocode_data.massif_name_to_departement import DEPARTEMENT_TYPES
-from experiment.eurocode_data.utils import EUROCODE_ALTITUDES
+from experiment.eurocode_data.utils import EUROCODE_ALTITUDES, LAST_YEAR_FOR_EUROCODE
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSwe3Days
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
     AltitudeHypercubeVisualizer
@@ -31,7 +31,7 @@ def dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_dat
     assert isinstance(altitude_visualizer.tuple_to_study_visualizer, OrderedDict)
     dep_to_ordered_return_level_uncertainty = {dep: [] for dep in DEPARTEMENT_TYPES}
     for visualizer in altitude_visualizer.tuple_to_study_visualizer.values():
-        dep_to_return_level_uncertainty = visualizer.dep_class_to_eurocode_level_uncertainty(model_class)
+        dep_to_return_level_uncertainty = visualizer.dep_class_to_eurocode_level_uncertainty(model_class, last_year_for_the_data)
         for dep, return_level_uncertainty in dep_to_return_level_uncertainty.items():
             dep_to_ordered_return_level_uncertainty[dep].append(return_level_uncertainty)
 
@@ -40,7 +40,7 @@ def dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_dat
 
 def main_drawing():
     model_class_and_last_year = [
-        (StationaryStationModel, 1991),
+        (StationaryStationModel, LAST_YEAR_FOR_EUROCODE),
         (StationaryStationModel, 2017),
         (NonStationaryLocationAndScaleModel, 2017),
     ][:1]

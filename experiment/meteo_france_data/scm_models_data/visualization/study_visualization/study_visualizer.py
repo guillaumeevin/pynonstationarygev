@@ -1,6 +1,7 @@
 import os
 import os.path as op
 from collections import OrderedDict
+from multiprocessing.pool import Pool
 from random import sample, seed
 from typing import Dict
 
@@ -11,7 +12,7 @@ import pandas as pd
 import seaborn as sns
 
 from experiment.eurocode_data.eurocode_return_level_uncertainties import ExtractEurocodeReturnLevelFromExtremes, \
-    EurocodeLevelUncertaintyFromExtremes
+    EurocodeLevelUncertaintyFromExtremes, compute_eurocode_level_uncertainty
 from experiment.eurocode_data.massif_name_to_departement import dep_class_to_massif_names
 from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.trend_analysis.abstract_score import MeanScore, AbstractTrendScore
@@ -47,7 +48,7 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 from test.test_utils import load_test_max_stable_models
 from root_utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits, \
-    cached_property
+    cached_property, NB_CORES
 
 BLOCK_MAXIMA_DISPLAY_NAME = 'block maxima '
 
@@ -354,35 +355,28 @@ class StudyVisualizer(VisualizationParameters):
         start_year, stop_year = self.study.start_year_and_stop_year
         return list(range(start_year, stop_year))
 
-    def massif_name_to_eurocode_level_uncertainty(self, model_class) -> Dict[str, EurocodeLevelUncertaintyFromExtremes]:
-        # todo: add multiprocessing
-        massif_name_to_eurocode_return_level_uncertainty = {}
-        for massif_id, massif_name in enumerate(self.study.study_massif_names):
-            print(massif_name)
-            years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
-            res = EurocodeLevelUncertaintyFromExtremes.from_maxima_years_model_class(smooth_maxima, years, model_class)
-            massif_name_to_eurocode_return_level_uncertainty[massif_name] = res
+    def massif_name_to_eurocode_level_uncertainty(self, model_class, last_year_for_the_data) -> Dict[str, EurocodeLevelUncertaintyFromExtremes]:
+        arguments = [[last_year_for_the_data, self.smooth_maxima_x_y(massif_id), model_class] for massif_id, _ in enumerate(self.study.study_massif_names)]
+        if self.multiprocessing:
+            with Pool(NB_CORES) as p:
+                res = p.starmap(compute_eurocode_level_uncertainty, arguments)
+        else:
+            res = [compute_eurocode_level_uncertainty(*argument) for argument in arguments]
+        massif_name_to_eurocode_return_level_uncertainty = OrderedDict(zip(self.study.study_massif_names, res))
         return massif_name_to_eurocode_return_level_uncertainty
 
-    def dep_class_to_eurocode_level_uncertainty(self, model_class):
+    def dep_class_to_eurocode_level_uncertainty(self, model_class, last_year_for_the_data):
         """ Take the max with respect to the posterior mean for each departement """
-        massif_name_to_eurocode_level_uncertainty = self.massif_name_to_eurocode_level_uncertainty(model_class)
-        print(massif_name_to_eurocode_level_uncertainty)
+        massif_name_to_eurocode_level_uncertainty = self.massif_name_to_eurocode_level_uncertainty(model_class,
+                                                                                                   last_year_for_the_data)
         dep_class_to_eurocode_level_uncertainty = {}
         for dep_class, massif_names in dep_class_to_massif_names.items():
             # Filter the couple of interest
             couples = [(k, v) for k, v in massif_name_to_eurocode_level_uncertainty.items() if k in massif_names]
             assert len(couples) > 0
-            # Find the massif name with the maximum posterior mean
-            for c in couples:
-                print(c)
-                print(c[1].posterior_mean)
             massif_name, eurocode_level_uncertainty = max(couples, key=lambda c: c[1].posterior_mean)
             dep_class_to_eurocode_level_uncertainty[dep_class] = eurocode_level_uncertainty
         return dep_class_to_eurocode_level_uncertainty
-
-
-
 
     @cached_property
     def massif_name_to_detailed_scores(self):
