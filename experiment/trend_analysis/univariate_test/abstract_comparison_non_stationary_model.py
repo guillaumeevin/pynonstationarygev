@@ -1,7 +1,7 @@
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
 from experiment.trend_analysis.univariate_test.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
-    NonStationaryLocationStationModel, NonStationaryScaleStationModel
+    NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel
 import numpy as np
 
 
@@ -28,10 +28,10 @@ class AbstractComparisonNonStationaryModelOneParameter(AbstractComparisonNonStat
 class ComparisonAgainstMu(AbstractComparisonNonStationaryModelOneParameter, GevLocationAndScaleTrendTest):
 
     def __init__(self, years, maxima, starting_year):
-        super().__init__(years, maxima, starting_year, constrained_model_class=NonStationaryLocationStationModel)
+        super().__init__(years, maxima, starting_year, constrained_model_class=NonStationaryLocationTemporalModel)
 
 
 class ComparisonAgainstSigma(AbstractComparisonNonStationaryModelOneParameter, GevLocationAndScaleTrendTest):
 
     def __init__(self, years, maxima, starting_year):
-        super().__init__(years, maxima, starting_year, constrained_model_class=NonStationaryScaleStationModel)
+        super().__init__(years, maxima, starting_year, constrained_model_class=NonStationaryScaleTemporalModel)

@@ -1,3 +1,4 @@
+import time
 from collections import OrderedDict
 
 from experiment.eurocode_data.eurocode_visualizer import plot_model_name_to_dep_to_ordered_return_level_uncertainties
@@ -8,19 +9,19 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
     AltitudeHypercubeVisualizer
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.utils_hypercube import \
     load_altitude_visualizer
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryStationModel, \
-    NonStationaryLocationAndScaleModel
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
+    NonStationaryLocationAndScaleTemporalModel
 from root_utils import get_display_name_from_object_type
 
 
 # Model class
 
 
-def dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_data):
-    model_name = get_display_name_from_object_type(type(model_class)) + ' ' + str(last_year_for_the_data)
+def dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_data, altitudes):
+    model_class_str = get_display_name_from_object_type(model_class).split('TemporalModel')[0]
+    model_name = model_class_str + ' 1958-' + str(last_year_for_the_data)
     # Load altitude visualizer
-    # todo: add last years attributes that enables to change the years
-    altitude_visualizer = load_altitude_visualizer(AltitudeHypercubeVisualizer, altitudes=EUROCODE_ALTITUDES,
+    altitude_visualizer = load_altitude_visualizer(AltitudeHypercubeVisualizer, altitudes=altitudes,
                                                    last_starting_year=None, nb_data_reduced_for_speed=False,
                                                    only_first_one=False, save_to_file=False,
                                                    exact_starting_year=1958,
@@ -30,7 +31,8 @@ def dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_dat
     # Loop on the data
     assert isinstance(altitude_visualizer.tuple_to_study_visualizer, OrderedDict)
     dep_to_ordered_return_level_uncertainty = {dep: [] for dep in DEPARTEMENT_TYPES}
-    for visualizer in altitude_visualizer.tuple_to_study_visualizer.values():
+    for altitude, visualizer in altitude_visualizer.tuple_to_study_visualizer.items():
+        print('{} processing altitude = {} '.format(model_name, altitude))
         dep_to_return_level_uncertainty = visualizer.dep_class_to_eurocode_level_uncertainty(model_class, last_year_for_the_data)
         for dep, return_level_uncertainty in dep_to_return_level_uncertainty.items():
             dep_to_ordered_return_level_uncertainty[dep].append(return_level_uncertainty)
@@ -39,15 +41,25 @@ def dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_dat
 
 
 def main_drawing():
+    # Select parameters
+    fast_plot = [True, False][1]
     model_class_and_last_year = [
-        (StationaryStationModel, LAST_YEAR_FOR_EUROCODE),
-        (StationaryStationModel, 2017),
-        (NonStationaryLocationAndScaleModel, 2017),
-    ][:1]
+                                    (StationaryTemporalModel, LAST_YEAR_FOR_EUROCODE),
+                                    (StationaryTemporalModel, 2017),
+                                    (NonStationaryLocationAndScaleTemporalModel, 2017),
+                                ][:]
+    altitudes = EUROCODE_ALTITUDES[:]
+    if fast_plot:
+        model_class_and_last_year = model_class_and_last_year[:1]
+        altitudes = altitudes[:2]
+
     model_name_to_dep_to_ordered_return_level = {}
     for model_class, last_year_for_the_data in model_class_and_last_year:
+        start = time.time()
         model_name_to_dep_to_ordered_return_level.update(
-            dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_data))
+            dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_data, altitudes))
+        duration = time.time() - start
+        print(model_class, duration)
     # Transform the dictionary into the desired format
     dep_to_model_name_to_ordered_return_level_uncertainties = {}
     for dep in DEPARTEMENT_TYPES:
@@ -56,7 +68,7 @@ def main_drawing():
         dep_to_model_name_to_ordered_return_level_uncertainties[dep] = d2
     # Plot graph
     plot_model_name_to_dep_to_ordered_return_level_uncertainties(
-        dep_to_model_name_to_ordered_return_level_uncertainties, show=True)
+        dep_to_model_name_to_ordered_return_level_uncertainties, altitudes, show=True)
 
 
 if __name__ == '__main__':

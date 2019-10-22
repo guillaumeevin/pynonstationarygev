@@ -8,8 +8,8 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryStationModel, \
-    NonStationaryLocationStationModel, NonStationaryLocationAndScaleModel
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
+    NonStationaryLocationTemporalModel, NonStationaryLocationAndScaleTemporalModel
 from extreme_fit.model.result_from_model_fit.result_from_extremes import ResultFromExtremes
 from extreme_fit.model.utils import r, set_seed_r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -42,7 +42,7 @@ class TestGevTemporalBayesian(unittest.TestCase):
 
     def test_gev_temporal_margin_fit_stationary(self):
         # Create estimator
-        estimator_fitted = fitted_linear_margin_estimator(StationaryStationModel, self.coordinates, self.dataset,
+        estimator_fitted = fitted_linear_margin_estimator(StationaryTemporalModel, self.coordinates, self.dataset,
                                                           starting_year=0,
                                                           fit_method=AbstractTemporalLinearMarginModel.EXTREMES_FEVD_BAYESIAN_FIT_METHOD_STR)
         ref = {'loc': 0.30440183718071845, 'scale': 1.301639258861012, 'shape': 0.303652401064773}
@@ -53,7 +53,7 @@ class TestGevTemporalBayesian(unittest.TestCase):
 
     def test_gev_temporal_margin_fit_non_stationary_location(self):
         # Create estimator
-        estimator = fitted_linear_margin_estimator(NonStationaryLocationStationModel, self.coordinates, self.dataset,
+        estimator = fitted_linear_margin_estimator(NonStationaryLocationTemporalModel, self.coordinates, self.dataset,
                                                    starting_year=0,
                                                    fit_method=AbstractTemporalLinearMarginModel.EXTREMES_FEVD_BAYESIAN_FIT_METHOD_STR)
         mu1_values = estimator.result_from_model_fit.df_posterior_samples.iloc[:, 1]
@@ -65,7 +65,7 @@ class TestGevTemporalBayesian(unittest.TestCase):
 
     def test_gev_temporal_margin_fit_non_stationary_location_and_scale(self):
         # Create estimator
-        estimator = fitted_linear_margin_estimator(NonStationaryLocationAndScaleModel, self.coordinates, self.dataset,
+        estimator = fitted_linear_margin_estimator(NonStationaryLocationAndScaleTemporalModel, self.coordinates, self.dataset,
                                                    starting_year=0,
                                                    fit_method=AbstractTemporalLinearMarginModel.EXTREMES_FEVD_BAYESIAN_FIT_METHOD_STR)
         mu1_values = estimator.result_from_model_fit.df_posterior_samples.iloc[:, 1]

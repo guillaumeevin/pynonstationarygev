@@ -4,13 +4,13 @@ from extreme_fit.model.utils import r
 from extreme_fit.distribution.gev.gev_params import GevParams
 
 
-class StationaryStationModel(AbstractTemporalLinearMarginModel):
+class StationaryTemporalModel(AbstractTemporalLinearMarginModel):
 
     def load_margin_functions(self, gev_param_name_to_dims=None):
         super().load_margin_functions({})
 
 
-class NonStationaryLocationStationModel(AbstractTemporalLinearMarginModel):
+class NonStationaryLocationTemporalModel(AbstractTemporalLinearMarginModel):
 
     def load_margin_functions(self, gev_param_name_to_dims=None):
         super().load_margin_functions({GevParams.LOC: [self.coordinates.idx_temporal_coordinates]})
@@ -20,7 +20,7 @@ class NonStationaryLocationStationModel(AbstractTemporalLinearMarginModel):
         return 1
 
 
-class NonStationaryScaleStationModel(AbstractTemporalLinearMarginModel):
+class NonStationaryScaleTemporalModel(AbstractTemporalLinearMarginModel):
 
     def load_margin_functions(self, gev_param_name_to_dims=None):
         super().load_margin_functions({GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
@@ -30,7 +30,7 @@ class NonStationaryScaleStationModel(AbstractTemporalLinearMarginModel):
         return 1
 
 
-class NonStationaryLogScaleStationModel(NonStationaryScaleStationModel):
+class NonStationaryLogScaleTemporalModel(NonStationaryScaleTemporalModel):
 
     def load_margin_functions(self, gev_param_name_to_dims=None):
         super().load_margin_functions({GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
@@ -40,7 +40,7 @@ class NonStationaryLogScaleStationModel(NonStationaryScaleStationModel):
         return r('exp')
 
 
-class NonStationaryShapeStationModel(AbstractTemporalLinearMarginModel):
+class NonStationaryShapeTemporalModel(AbstractTemporalLinearMarginModel):
 
     def load_margin_functions(self, gev_param_name_to_dims=None):
         super().load_margin_functions({GevParams.SHAPE: [self.coordinates.idx_temporal_coordinates]})
@@ -50,7 +50,7 @@ class NonStationaryShapeStationModel(AbstractTemporalLinearMarginModel):
         return 1
 
 
-class NonStationaryLocationAndScaleModel(AbstractTemporalLinearMarginModel):
+class NonStationaryLocationAndScaleTemporalModel(AbstractTemporalLinearMarginModel):
 
     def load_margin_functions(self, gev_param_name_to_dims=None):
         super().load_margin_functions({GevParams.LOC: [self.coordinates.idx_temporal_coordinates],

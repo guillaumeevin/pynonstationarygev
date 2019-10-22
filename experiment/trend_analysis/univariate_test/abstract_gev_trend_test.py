@@ -11,7 +11,7 @@ from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import Lin
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
-    StationaryStationModel
+    StationaryTemporalModel
 from extreme_fit.model.utils import SafeRunException
 from extreme_fit.distribution.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -24,7 +24,7 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     nb_years_for_quantile_evolution = 10
 
     def __init__(self, years, maxima, starting_year, unconstrained_model_class,
-                 constrained_model_class=StationaryStationModel,
+                 constrained_model_class=StationaryTemporalModel,
                  fit_method=AbstractTemporalLinearMarginModel.ISMEV_GEV_FIT_METHOD_STR):
         super().__init__(years, maxima, starting_year)
         self.fit_method = fit_method

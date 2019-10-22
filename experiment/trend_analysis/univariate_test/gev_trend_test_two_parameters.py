@@ -1,6 +1,6 @@
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
-    NonStationaryLocationAndScaleModel, StationaryStationModel
+    NonStationaryLocationAndScaleTemporalModel, StationaryTemporalModel
 from extreme_fit.distribution.gev.gev_params import GevParams
 
 
@@ -13,9 +13,9 @@ class GevTrendTestTwoParameters(AbstractGevTrendTest):
 
 class GevLocationAndScaleTrendTest(GevTrendTestTwoParameters):
 
-    def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryStationModel):
+    def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel):
         super().__init__(years, maxima, starting_year,
-                         NonStationaryLocationAndScaleModel, constrained_model_class=constrained_model_class)
+                         NonStationaryLocationAndScaleTemporalModel, constrained_model_class=constrained_model_class)
 
     @property
     def mu1(self):

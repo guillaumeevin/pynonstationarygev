@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryStationModel, \
-    NonStationaryLocationStationModel
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
+    NonStationaryLocationTemporalModel
 from extreme_fit.model.utils import r, set_seed_r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
@@ -36,7 +36,7 @@ class TestGevTemporal(unittest.TestCase):
 
     def test_gev_temporal_margin_fit_stationary(self):
         # Create estimator
-        margin_model = StationaryStationModel(self.coordinates)
+        margin_model = StationaryTemporalModel(self.coordinates)
         estimator = LinearMarginEstimator(self.dataset, margin_model)
         estimator.fit()
         ref = {'loc': 0.0219, 'scale': 1.0347, 'shape': 0.8295}
@@ -71,7 +71,7 @@ class TestGevTemporal(unittest.TestCase):
         self.assertNotEqual(mle_params_estimated_year5, mle_params_estimated_year3)
 
     def fit_non_stationary_estimator(self, starting_point):
-        margin_model = NonStationaryLocationStationModel(self.coordinates, starting_point=starting_point + self.start_year)
+        margin_model = NonStationaryLocationTemporalModel(self.coordinates, starting_point=starting_point + self.start_year)
         estimator = LinearMarginEstimator(self.dataset, margin_model)
         estimator.fit()
         return estimator

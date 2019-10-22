@@ -9,7 +9,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.utils import cre
 
 
 def plot_model_name_to_dep_to_ordered_return_level_uncertainties(
-        dep_to_model_name_to_ordered_return_level_uncertainties, show=True):
+        dep_to_model_name_to_ordered_return_level_uncertainties, altitudes, show=True):
     # Create a 9 x 9 plot
     axes = create_adjusted_axes(3, 3)
     axes = list(axes.flatten())
@@ -21,6 +21,7 @@ def plot_model_name_to_dep_to_ordered_return_level_uncertainties(
     ax_to_departement = dict(zip(axes, DEPARTEMENT_TYPES[::-1]))
     for ax, departement in ax_to_departement.items():
         plot_dep_to_model_name_dep_to_ordered_return_level_uncertainties(ax, departement,
+                                                                         altitudes,
                                                                          dep_to_model_name_to_ordered_return_level_uncertainties[
                                                                              departement]
                                                                          )
@@ -35,11 +36,11 @@ def plot_model_name_to_dep_to_ordered_return_level_uncertainties(
 
 
 def plot_dep_to_model_name_dep_to_ordered_return_level_uncertainties(ax, dep_class,
+                                                                     altitudes,
                                                                      model_name_to_ordered_return_level_uncertainties:
                                                                      Dict[str, List[
                                                                          EurocodeLevelUncertaintyFromExtremes]]):
     colors = ['red', 'blue', 'green']
-    altitudes = EUROCODE_ALTITUDES
     alpha = 0.2
     # Display the EUROCODE return level
     dep_object = dep_class()
@@ -48,10 +49,11 @@ def plot_dep_to_model_name_dep_to_ordered_return_level_uncertainties(ax, dep_cla
     for color, (model_name, ordered_return_level_uncertaines) in zip(colors,
                                                                      model_name_to_ordered_return_level_uncertainties.items()):
         mean = [r.posterior_mean for r in ordered_return_level_uncertaines]
-        ax.plot(altitudes, mean, '-', color=color)
+        ax.plot(altitudes, mean, '-', color=color, label=model_name)
         lower_bound = [r.poster_uncertainty_interval[0] for r in ordered_return_level_uncertaines]
         upper_bound = [r.poster_uncertainty_interval[1] for r in ordered_return_level_uncertaines]
         ax.fill_between(altitudes, lower_bound, upper_bound, color=color, alpha=alpha)
+    ax.legend()
     ax.set_title(str(dep_object))
-    ax.set_ylabel('Maximum {} quantile (in N $m^-2$)'.format(EUROCODE_QUANTILE))
+    ax.set_ylabel('Maximum {} quantile in 2017 (in N $m^-2$)'.format(EUROCODE_QUANTILE))
     ax.set_xlabel('Altitude')

@@ -42,7 +42,7 @@ class AbstractEurocodeRegion(object):
 
     def plot_max_loading(self, ax, altitudes):
         ax.plot(altitudes, [self.eurocode_max_loading(altitude) for altitude in altitudes],
-                label='Eurocode limit')
+                label='Eurocode limit', color='k')
 
 
 class C1(AbstractEurocodeRegion):

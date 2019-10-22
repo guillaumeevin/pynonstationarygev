@@ -9,7 +9,7 @@ from extreme_fit.estimator.max_stable_estimator.abstract_max_stable_estimator im
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
     ConstantMarginModel
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
-    NonStationaryLocationStationModel, NonStationaryScaleStationModel, NonStationaryShapeStationModel
+    NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel, NonStationaryShapeTemporalModel
 from extreme_fit.model.max_stable_model.abstract_max_stable_model import \
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
 from extreme_fit.model.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, \
@@ -40,7 +40,7 @@ TEST_3D_SPATIAL_COORDINATES = [AlpsStation3DCoordinatesWithAnisotropy]
 TEST_TEMPORAL_COORDINATES = [ConsecutiveTemporalCoordinates]
 TEST_SPATIO_TEMPORAL_COORDINATES = [UniformSpatioTemporalCoordinates, LinSpaceSpatial2DSpatioTemporalCoordinates]
 TEST_MARGIN_TYPES = [ConstantMarginModel, LinearAllParametersAllDimsMarginModel][:]
-TEST_NON_STATIONARY_TEMPORAL_MARGIN_TYPES = [NonStationaryLocationStationModel, NonStationaryScaleStationModel, NonStationaryShapeStationModel]
+TEST_NON_STATIONARY_TEMPORAL_MARGIN_TYPES = [NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel, NonStationaryShapeTemporalModel]
 TEST_MAX_STABLE_ESTIMATOR = [MaxStableEstimator]
 TEST_FULL_ESTIMATORS = [SmoothMarginalsThenUnitaryMsp, FullEstimatorInASingleStepWithSmoothMargin][:]
 
