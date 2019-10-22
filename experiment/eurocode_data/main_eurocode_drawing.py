@@ -18,7 +18,7 @@ from root_utils import get_display_name_from_object_type
 
 
 def dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_data, altitudes):
-    model_class_str = get_display_name_from_object_type(model_class).split('TemporalModel')[0]
+    model_class_str = get_display_name_from_object_type(model_class).split('Stationary')[0] + 'Stationary'
     model_name = model_class_str + ' 1958-' + str(last_year_for_the_data)
     # Load altitude visualizer
     altitude_visualizer = load_altitude_visualizer(AltitudeHypercubeVisualizer, altitudes=altitudes,
@@ -42,7 +42,7 @@ def dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_dat
 
 def main_drawing():
     # Select parameters
-    fast_plot = [True, False][1]
+    fast_plot = [True, False][0]
     model_class_and_last_year = [
                                     (StationaryTemporalModel, LAST_YEAR_FOR_EUROCODE),
                                     (StationaryTemporalModel, 2017),

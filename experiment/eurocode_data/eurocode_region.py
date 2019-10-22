@@ -1,3 +1,6 @@
+from experiment.eurocode_data.utils import LAST_YEAR_FOR_EUROCODE
+
+
 class AbstractEurocodeRegion(object):
 
     def __init__(self, sk0, sad) -> None:
@@ -42,7 +45,7 @@ class AbstractEurocodeRegion(object):
 
     def plot_max_loading(self, ax, altitudes):
         ax.plot(altitudes, [self.eurocode_max_loading(altitude) for altitude in altitudes],
-                label='Eurocode limit', color='k')
+                label='Eurocode computed in {}'.format(LAST_YEAR_FOR_EUROCODE), color='k')
 
 
 class C1(AbstractEurocodeRegion):

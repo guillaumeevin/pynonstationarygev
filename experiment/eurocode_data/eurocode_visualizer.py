@@ -28,9 +28,9 @@ def plot_model_name_to_dep_to_ordered_return_level_uncertainties(
     ax6.remove()
     ax9.remove()
 
-    plt.suptitle('50-year return levels for all French Alps departements. \n'
+    plt.suptitle('50-year return levels of snow load for all French Alps departements. \n'
                  'Comparison between the maximum EUROCODE in the departement\n'
-                 'and the maximum return level found for the massif belonging to the departement')
+                 'and the maximum return level found (in 2017 for the non-stationary model) for the massif in the departement')
     if show:
         plt.show()
 
@@ -53,7 +53,8 @@ def plot_dep_to_model_name_dep_to_ordered_return_level_uncertainties(ax, dep_cla
         lower_bound = [r.poster_uncertainty_interval[0] for r in ordered_return_level_uncertaines]
         upper_bound = [r.poster_uncertainty_interval[1] for r in ordered_return_level_uncertaines]
         ax.fill_between(altitudes, lower_bound, upper_bound, color=color, alpha=alpha)
-    ax.legend()
+    ax.legend(loc=2)
+    ax.set_ylim([0.0, 4.0])
     ax.set_title(str(dep_object))
-    ax.set_ylabel('Maximum {} quantile in 2017 (in N $m^-2$)'.format(EUROCODE_QUANTILE))
-    ax.set_xlabel('Altitude')
+    ax.set_ylabel('50-year return level (N $m^-2$)')
+    ax.set_xlabel('Altitude (m)')
