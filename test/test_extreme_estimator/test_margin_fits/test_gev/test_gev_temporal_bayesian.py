@@ -9,7 +9,7 @@ from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import Lin
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryStationModel, \
-    NonStationaryLocationStationModel
+    NonStationaryLocationStationModel, NonStationaryLocationAndScaleModel
 from extreme_fit.model.result_from_model_fit.result_from_extremes import ResultFromExtremes
 from extreme_fit.model.utils import r, set_seed_r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -51,9 +51,21 @@ class TestGevTemporalBayesian(unittest.TestCase):
             for key in ref.keys():
                 self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
 
-    def test_gev_temporal_margin_fit_non_stationary(self):
+    def test_gev_temporal_margin_fit_non_stationary_location(self):
         # Create estimator
         estimator = fitted_linear_margin_estimator(NonStationaryLocationStationModel, self.coordinates, self.dataset,
+                                                   starting_year=0,
+                                                   fit_method=AbstractTemporalLinearMarginModel.EXTREMES_FEVD_BAYESIAN_FIT_METHOD_STR)
+        mu1_values = estimator.result_from_model_fit.df_posterior_samples.iloc[:, 1]
+        self.assertTrue((mu1_values != 0).any())
+        # Checks that parameters returned are indeed different
+        mle_params_estimated_year1 = estimator.margin_function_from_fit.get_gev_params(np.array([1])).to_dict()
+        mle_params_estimated_year3 = estimator.margin_function_from_fit.get_gev_params(np.array([3])).to_dict()
+        self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
+
+    def test_gev_temporal_margin_fit_non_stationary_location_and_scale(self):
+        # Create estimator
+        estimator = fitted_linear_margin_estimator(NonStationaryLocationAndScaleModel, self.coordinates, self.dataset,
                                                    starting_year=0,
                                                    fit_method=AbstractTemporalLinearMarginModel.EXTREMES_FEVD_BAYESIAN_FIT_METHOD_STR)
         mu1_values = estimator.result_from_model_fit.df_posterior_samples.iloc[:, 1]
