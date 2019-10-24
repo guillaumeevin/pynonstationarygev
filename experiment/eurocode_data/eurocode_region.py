@@ -44,8 +44,10 @@ class AbstractEurocodeRegion(object):
         return 3.5, -2.45
 
     def plot_max_loading(self, ax, altitudes):
+        old_label = 'Eurocode computed in {}'.format(LAST_YEAR_FOR_EUROCODE)
+        new_label = 'Eurocode standards'
         ax.plot(altitudes, [self.eurocode_max_loading(altitude) for altitude in altitudes],
-                label='Eurocode computed in {}'.format(LAST_YEAR_FOR_EUROCODE), color='k')
+                label=new_label, color='k')
 
 
 class C1(AbstractEurocodeRegion):

@@ -13,13 +13,24 @@ from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_m
     NonStationaryLocationAndScaleTemporalModel
 from root_utils import get_display_name_from_object_type
 
-
 # Model class
+import matplotlib as mpl
+
+mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 
 def dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_data, altitudes):
-    model_class_str = get_display_name_from_object_type(model_class).split('Stationary')[0] + 'Stationary'
-    model_name = model_class_str + ' 1958-' + str(last_year_for_the_data)
+    model_type = get_display_name_from_object_type(model_class).split('Stationary')[0] + 'Stationary'
+    # model_name += ' 1958-' + str(last_year_for_the_data)
+    is_non_stationary = model_type == 'NonStationary'
+    model_symbol = '{\mu_1, \sigma_1}' if is_non_stationary else '0'
+    parameter = ', 2017' if is_non_stationary else ''
+    model_name = ' $ \widehat{q_{\\textrm{GEV}}(\\boldsymbol{\\theta_{\mathcal{M}_'
+    model_name += model_symbol
+    model_name += '}}'
+    model_name += parameter
+    model_name += ')}_{ \\textrm{MMSE}} $ ' + '({})'.format(model_type)
     # Load altitude visualizer
     altitude_visualizer = load_altitude_visualizer(AltitudeHypercubeVisualizer, altitudes=altitudes,
                                                    last_starting_year=None, nb_data_reduced_for_speed=False,
@@ -33,7 +44,8 @@ def dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_dat
     dep_to_ordered_return_level_uncertainty = {dep: [] for dep in DEPARTEMENT_TYPES}
     for altitude, visualizer in altitude_visualizer.tuple_to_study_visualizer.items():
         print('{} processing altitude = {} '.format(model_name, altitude))
-        dep_to_return_level_uncertainty = visualizer.dep_class_to_eurocode_level_uncertainty(model_class, last_year_for_the_data)
+        dep_to_return_level_uncertainty = visualizer.dep_class_to_eurocode_level_uncertainty(model_class,
+                                                                                             last_year_for_the_data)
         for dep, return_level_uncertainty in dep_to_return_level_uncertainty.items():
             dep_to_ordered_return_level_uncertainty[dep].append(return_level_uncertainty)
 
@@ -42,15 +54,15 @@ def dep_to_ordered_return_level_uncertainties(model_class, last_year_for_the_dat
 
 def main_drawing():
     # Select parameters
-    fast_plot = [True, False][0]
+    fast_plot = [True, False][1]
     model_class_and_last_year = [
                                     (StationaryTemporalModel, LAST_YEAR_FOR_EUROCODE),
                                     (StationaryTemporalModel, 2017),
                                     (NonStationaryLocationAndScaleTemporalModel, 2017),
-                                ][:]
+                                ][1:]
     altitudes = EUROCODE_ALTITUDES[:]
     if fast_plot:
-        model_class_and_last_year = model_class_and_last_year[:1]
+        model_class_and_last_year = model_class_and_last_year[:2]
         altitudes = altitudes[:2]
 
     model_name_to_dep_to_ordered_return_level = {}
