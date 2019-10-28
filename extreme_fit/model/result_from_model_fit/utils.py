@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import numpy as np
 
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -9,10 +11,10 @@ def convertFloatVector_to_float(f):
     return np.array(f)[0]
 
 
-def get_margin_coef_dict(gev_param_name_to_dim, mle_values):
+def get_margin_coef_ordered_dict(gev_param_name_to_dim, mle_values):
     assert gev_param_name_to_dim is not None
     # Build the Coeff dict from gev_param_name_to_dim
-    coef_dict = {}
+    coef_dict = OrderedDict()
     i = 0
     for gev_param_name in GevParams.PARAM_NAMES:
         # Add intercept

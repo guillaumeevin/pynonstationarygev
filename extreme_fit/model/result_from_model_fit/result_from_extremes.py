@@ -5,7 +5,7 @@ from rpy2 import robjects
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import \
     AbstractResultFromModelFit
-from extreme_fit.model.result_from_model_fit.utils import get_margin_coef_dict
+from extreme_fit.model.result_from_model_fit.utils import get_margin_coef_ordered_dict
 from extreme_fit.model.utils import r
 
 
@@ -40,10 +40,10 @@ class ResultFromExtremes(AbstractResultFromModelFit):
     def get_coef_dict_from_posterior_sample(self, s: pd.Series):
         assert len(s) >= 3
         values = {i: v for i, v in enumerate(s)}
-        return get_margin_coef_dict(self.gev_param_name_to_dim, values)
+        return get_margin_coef_ordered_dict(self.gev_param_name_to_dim, values)
 
     @property
-    def margin_coef_dict(self):
+    def margin_coef_ordered_dict(self):
         """ It is the coef for the margin function corresponding to the mean posterior parameters """
         mean_posterior_parameters = self.df_posterior_samples.iloc[:, :-2].mean(axis=0)
         return self.get_coef_dict_from_posterior_sample(mean_posterior_parameters)

@@ -22,7 +22,7 @@ class TestGevTemporal(unittest.TestCase):
         set_seed_r()
         r("""
         N <- 50
-        loc = 0; scale = 1; shape <- 1
+        loc = 0; scale = 2; shape <- 1
         x_gev <- rgev(N, loc = loc, scale = scale, shape = shape)
         start_loc = 0; start_scale = 1; start_shape = 1
         """)
@@ -39,7 +39,7 @@ class TestGevTemporal(unittest.TestCase):
         margin_model = StationaryTemporalModel(self.coordinates)
         estimator = LinearMarginEstimator(self.dataset, margin_model)
         estimator.fit()
-        ref = {'loc': 0.0219, 'scale': 1.0347, 'shape': 0.8295}
+        ref = {'loc': 0.04309190816463247, 'scale': 2.0688696961628437, 'shape': 0.8291528207825063}
         for year in range(1, 3):
             mle_params_estimated = estimator.margin_function_from_fit.get_gev_params(np.array([year])).to_dict()
             for key in ref.keys():

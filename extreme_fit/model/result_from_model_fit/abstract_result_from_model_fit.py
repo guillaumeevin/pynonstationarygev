@@ -20,8 +20,12 @@ class AbstractResultFromModelFit(object):
         raise NotImplementedError
 
     @property
-    def margin_coef_dict(self):
+    def margin_coef_ordered_dict(self):
         raise NotImplementedError
+
+    @property
+    def margin_coef_ordered_names(self):
+        return list(self.margin_coef_ordered_dict.keys())
 
     @property
     def other_coef_dict(self):
@@ -37,6 +41,10 @@ class AbstractResultFromModelFit(object):
 
     @property
     def convergence(self) -> str:
+        raise NotImplementedError
+
+    @property
+    def covariance(self):
         raise NotImplementedError
 
 

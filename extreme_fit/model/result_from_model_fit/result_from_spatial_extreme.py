@@ -33,7 +33,7 @@ class ResultFromSpatialExtreme(AbstractResultFromModelFit):
         return {key: fitted_values.rx2(key)[0] for key in fitted_values.names}
 
     @property
-    def margin_coef_dict(self):
+    def margin_coef_ordered_dict(self):
         return {k: v for k, v in self.all_parameters.items() if LinearCoef.COEFF_STR in k}
 
     @property
