@@ -64,7 +64,8 @@ def main_drawing():
     if fast_plot:
         model_class_and_last_year = model_class_and_last_year[:1]
         altitudes = altitudes[2:4]
-        massif_names = massif_names[:1]
+        # altitudes = altitudes[:]
+        massif_names = massif_names[:2]
         uncertainty_methods = uncertainty_methods[:1]
 
     model_name_to_massif_name_to_ordered_return_level = {}
