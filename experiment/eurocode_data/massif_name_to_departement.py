@@ -61,6 +61,8 @@ massif_name_to_departement_objects = {m: [d() for d in deps] for m, deps in
 
 DEPARTEMENT_TYPES = [HauteSavoie, Savoie, Isere, Drome, HautesAlpes, AlpesMaritimes, AlpesDeHauteProvence]
 
+MASSIF_NAMES_ALPS = list(massif_name_to_eurocode_region.keys())
+
 dep_class_to_massif_names = {dep: [k for k, v in massif_name_to_departement_types.items() if dep in v]
                              for dep in DEPARTEMENT_TYPES
                              }

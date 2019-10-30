@@ -3,7 +3,7 @@ import os.path as op
 from collections import OrderedDict
 from multiprocessing.pool import Pool
 from random import sample, seed
-from typing import Dict
+from typing import Dict, Tuple
 
 import math
 import matplotlib.pyplot as plt
@@ -355,28 +355,30 @@ class StudyVisualizer(VisualizationParameters):
         start_year, stop_year = self.study.start_year_and_stop_year
         return list(range(start_year, stop_year))
 
-    def massif_name_to_eurocode_level_uncertainty(self, model_class, last_year_for_the_data) -> Dict[str, EurocodeLevelUncertaintyFromExtremes]:
-        arguments = [[last_year_for_the_data, self.smooth_maxima_x_y(massif_id), model_class] for massif_id, _ in enumerate(self.study.study_massif_names)]
+    def massif_name_to_altitude_and_eurocode_level_uncertainty(self, model_class, last_year_for_the_data, massif_names, ci_method) -> Dict[str, Tuple[int, EurocodeLevelUncertaintyFromExtremes]]:
+        arguments = [[last_year_for_the_data, self.smooth_maxima_x_y(massif_id), model_class, ci_method] for massif_id, _ in enumerate(massif_names)]
+        self.multiprocessing = False
         if self.multiprocessing:
             with Pool(NB_CORES) as p:
                 res = p.starmap(compute_eurocode_level_uncertainty, arguments)
         else:
             res = [compute_eurocode_level_uncertainty(*argument) for argument in arguments]
-        massif_name_to_eurocode_return_level_uncertainty = OrderedDict(zip(self.study.study_massif_names, res))
+        res_and_altitude = [(self.study.altitude, r) for r in res]
+        massif_name_to_eurocode_return_level_uncertainty = OrderedDict(zip(self.study.study_massif_names, res_and_altitude))
         return massif_name_to_eurocode_return_level_uncertainty
 
-    def dep_class_to_eurocode_level_uncertainty(self, model_class, last_year_for_the_data):
-        """ Take the max with respect to the posterior mean for each departement """
-        massif_name_to_eurocode_level_uncertainty = self.massif_name_to_eurocode_level_uncertainty(model_class,
-                                                                                                   last_year_for_the_data)
-        dep_class_to_eurocode_level_uncertainty = {}
-        for dep_class, massif_names in dep_class_to_massif_names.items():
-            # Filter the couple of interest
-            couples = [(k, v) for k, v in massif_name_to_eurocode_level_uncertainty.items() if k in massif_names]
-            assert len(couples) > 0
-            massif_name, eurocode_level_uncertainty = max(couples, key=lambda c: c[1].posterior_mean)
-            dep_class_to_eurocode_level_uncertainty[dep_class] = eurocode_level_uncertainty
-        return dep_class_to_eurocode_level_uncertainty
+    # def dep_class_to_eurocode_level_uncertainty(self, model_class, last_year_for_the_data):
+    #     """ Take the max with respect to the posterior mean for each departement """
+    #     massif_name_to_eurocode_level_uncertainty = self.massif_name_to_eurocode_level_uncertainty(model_class,
+    #                                                                                                last_year_for_the_data)
+    #     dep_class_to_eurocode_level_uncertainty = {}
+    #     for dep_class, massif_names in dep_class_to_massif_names.items():
+    #         # Filter the couple of interest
+    #         couples = [(k, v) for k, v in massif_name_to_eurocode_level_uncertainty.items() if k in massif_names]
+    #         assert len(couples) > 0
+    #         massif_name, eurocode_level_uncertainty = max(couples, key=lambda c: c[1].posterior_mean)
+    #         dep_class_to_eurocode_level_uncertainty[dep_class] = eurocode_level_uncertainty
+    #     return dep_class_to_eurocode_level_uncertainty
 
     @cached_property
     def massif_name_to_detailed_scores(self):

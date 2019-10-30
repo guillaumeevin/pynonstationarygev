@@ -9,7 +9,7 @@ from experiment.trend_analysis.univariate_test.utils import load_temporal_coordi
     fitted_linear_margin_estimator
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    AbstractTemporalLinearMarginModel
+    AbstractTemporalLinearMarginModel, TemporalMarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     StationaryTemporalModel
 from extreme_fit.model.utils import SafeRunException
@@ -25,9 +25,9 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
 
     def __init__(self, years, maxima, starting_year, unconstrained_model_class,
                  constrained_model_class=StationaryTemporalModel,
-                 fit_method=AbstractTemporalLinearMarginModel.ISMEV_GEV_FIT_METHOD_STR):
+                 ):
         super().__init__(years, maxima, starting_year)
-        self.fit_method = fit_method
+        self.fit_method = TemporalMarginFitMethod.is_mev_gev_fit
         # Load observations, coordinates and datasets
         self.coordinates, self.dataset = load_temporal_coordinates_and_dataset(maxima, years)
         try:

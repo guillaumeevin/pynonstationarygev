@@ -4,11 +4,11 @@ import numpy as np
 
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    AbstractTemporalLinearMarginModel
+    AbstractTemporalLinearMarginModel, TemporalMarginFitMethod
 from root_utils import NB_CORES
 
 
-def compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_test_class, years, fit_method=AbstractTemporalLinearMarginModel.ISMEV_GEV_FIT_METHOD_STR):
+def compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_test_class, years, fit_method=TemporalMarginFitMethod.is_mev_gev_fit):
     trend_test = trend_test_class(years, smooth_maxima, starting_year)  # type: AbstractGevTrendTest
     assert isinstance(trend_test, AbstractGevTrendTest)
     return trend_test.test_trend_type, \
