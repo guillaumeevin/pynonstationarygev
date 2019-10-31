@@ -60,7 +60,7 @@ def main_drawing():
                                     (NonStationaryLocationAndScaleTemporalModel, 2017),
                                 ][1:]
     altitudes = EUROCODE_ALTITUDES[:]
-    uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes, ConfidenceIntervalMethodFromExtremes.bayes]
+    uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes, ConfidenceIntervalMethodFromExtremes.ci_bayes]
     show = True
 
     if fast_plot:

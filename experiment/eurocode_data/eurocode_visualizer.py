@@ -1,8 +1,9 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 
-from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import EurocodeConfidenceIntervalFromExtremes
+from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
+    EurocodeConfidenceIntervalFromExtremes
 from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
 from root_utils import get_display_name_from_object_type
@@ -22,6 +23,7 @@ def get_label_name(model_name, ci_method_name: str):
 
 def get_model_name(model_class):
     return get_display_name_from_object_type(model_class).split('Stationary')[0] + 'Stationary'
+
 
 def plot_massif_name_to_model_name_to_uncertainty_method_to_ordered_dict(d, nb_massif_names, nb_model_names, show=True):
     """
@@ -62,17 +64,19 @@ def plot_label_to_ordered_return_level_uncertainties(ax, massif_name, model_name
     eurocode_region = massif_name_to_eurocode_region[massif_name]()
 
     # Display the return level from model class
-    for j, (color, (label, l)) in enumerate(zip(colors,label_to_ordered_return_level_uncertainties.items())):
-        altitudes, ordered_return_level_uncertaines = zip(*l)
+    for j, (color, (label, l)) in enumerate(zip(colors, label_to_ordered_return_level_uncertainties.items())):
+        l = list(zip(*l))
+        altitudes = l[0]
+        ordered_return_level_uncertaines = l[1]  # type: List[EurocodeConfidenceIntervalFromExtremes]
         # Plot eurocode standards only for the first loop
         if j == 0:
             eurocode_region.plot_max_loading(ax, altitudes=altitudes)
-        mean = [r.posterior_mean for r in ordered_return_level_uncertaines]
-
+        conversion_factor = 100  # We divide by 100 to transform the snow water equivalent into snow load
+        mean = [r.mean_estimate / conversion_factor for r in ordered_return_level_uncertaines]
         ci_method_name = str(label).split('.')[1].replace('_', ' ')
         ax.plot(altitudes, mean, '-', color=color, label=get_label_name(model_name, ci_method_name))
-        lower_bound = [r.poster_uncertainty_interval[0] for r in ordered_return_level_uncertaines]
-        upper_bound = [r.poster_uncertainty_interval[1] for r in ordered_return_level_uncertaines]
+        lower_bound = [r.confidence_interval[0] / conversion_factor for r in ordered_return_level_uncertaines]
+        upper_bound = [r.confidence_interval[1] / conversion_factor for r in ordered_return_level_uncertaines]
         ax.fill_between(altitudes, lower_bound, upper_bound, color=color, alpha=alpha)
     ax.legend(loc=2)
     ax.set_ylim([0.0, 4.0])

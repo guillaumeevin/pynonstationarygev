@@ -112,3 +112,12 @@ class GevParams(AbstractParams):
             indicator_name_to_value[quantile_name] = self.quantile(quantile_value)
         assert all([a == b for a, b in zip(self.indicator_names(), indicator_name_to_value.keys())])
         return indicator_name_to_value
+
+    @classmethod
+    def greek_letter_from_gev_param_name(cls, gev_param_name):
+        assert gev_param_name in cls.PARAM_NAMES
+        return {
+            cls.LOC: 'mu',
+            cls.SCALE: 'sigma',
+            cls.SHAPE: 'zeta',
+        }[gev_param_name]

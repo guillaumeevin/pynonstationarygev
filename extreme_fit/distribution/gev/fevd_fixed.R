@@ -6,7 +6,6 @@ library(SpatialExtremes)
 # Define a custom Prior function
 fevdPriorCustom <- function (theta, q, p, log = FALSE){
     # Select the shape parameter (which is always the last parameter either for the stationary or the non-stationary case)
-    print(attributes(theta))
     theta_names = attr(theta, 'names')
     shape_idx = match('shape', theta_names)
     shape = theta[shape_idx]

@@ -21,9 +21,13 @@ def compute_eurocode_confidence_interval(last_year_for_the_data, smooth_maxima_x
 class EurocodeConfidenceIntervalFromExtremes(object):
     YEAR_OF_INTEREST = 2017
 
-    def __init__(self, posterior_mean, poster_uncertainty_interval):
-        self.posterior_mean = posterior_mean
-        self.poster_uncertainty_interval = poster_uncertainty_interval
+    def __init__(self, mean_estimate, confidence_interval):
+        self.mean_estimate = mean_estimate
+        self.confidence_interval = confidence_interval
+
+    @property
+    def triplet(self):
+        return self.confidence_interval[0], self.mean_estimate, self.confidence_interval[1]
 
     @classmethod
     def from_estimator_extremes(cls, estimator_extremes: LinearMarginEstimator,
@@ -32,16 +36,15 @@ class EurocodeConfidenceIntervalFromExtremes(object):
             extractor = ExtractEurocodeReturnLevelFromMyBayesianExtremes(estimator_extremes, ci_method, cls.YEAR_OF_INTEREST)
         else:
             extractor = ExtractEurocodeReturnLevelFromCiMethod(estimator_extremes, ci_method, cls.YEAR_OF_INTEREST)
-        return cls(extractor.posterior_mean_eurocode_return_level_for_the_year_of_interest,
-                   extractor.posterior_eurocode_return_level_uncertainty_interval_for_the_year_of_interest)
+        return cls(extractor.mean_estimate,  extractor.confidence_interval)
 
     @classmethod
     def from_maxima_years_model_class(cls, maxima, years, model_class,
-                                      ci_method=ConfidenceIntervalMethodFromExtremes.bayes):
+                                      ci_method=ConfidenceIntervalMethodFromExtremes.ci_bayes):
         # Load coordinates and dataset
         coordinates, dataset = load_temporal_coordinates_and_dataset(maxima, years)
         # Select fit method depending on the ci_method
-        if ci_method in [ConfidenceIntervalMethodFromExtremes.bayes,
+        if ci_method in [ConfidenceIntervalMethodFromExtremes.ci_bayes,
                          ConfidenceIntervalMethodFromExtremes.my_bayes]:
             fit_method = TemporalMarginFitMethod.extremes_fevd_bayesian
         else:

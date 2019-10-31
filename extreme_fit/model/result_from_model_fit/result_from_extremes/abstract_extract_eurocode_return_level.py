@@ -10,6 +10,7 @@ from extreme_fit.estimator.utils import load_margin_function
 from extreme_fit.model.margin_model.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_bayesian_extremes import \
     ResultFromBayesianExtremes
+from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_mle_extremes import ResultFromMleExtremes
 
 
 class AbstractExtractEurocodeReturnLevel(object):
@@ -28,9 +29,35 @@ class AbstractExtractEurocodeReturnLevel(object):
         self.eurocode_quantile = EUROCODE_QUANTILE
         self.alpha_for_confidence_interval = self.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY
 
+    @property
+    def mean_estimate(self) -> np.ndarray:
+        raise NotImplementedError
+
+    @property
+    def confidence_interval(self):
+        raise NotImplementedError
+
 
 class ExtractEurocodeReturnLevelFromCiMethod(AbstractExtractEurocodeReturnLevel):
-    pass
+    result_from_fit: ResultFromMleExtremes
+
+    def __init__(self, estimator: LinearMarginEstimator, ci_method,
+                 year_of_interest: int = YEAR_OF_INTEREST_FOR_RETURN_LEVEL):
+        super().__init__(estimator, ci_method, year_of_interest)
+
+    @cached_property
+    def confidence_interval_method(self):
+        return self.result_from_fit.confidence_interval_method(self.eurocode_quantile,
+                                                               self.alpha_for_confidence_interval,
+                                                               self.year_of_interest)
+
+    @property
+    def mean_estimate(self) -> np.ndarray:
+        return self.confidence_interval_method[0]
+
+    @property
+    def confidence_interval(self):
+        return self.confidence_interval_method[1]
 
 
 class ExtractEurocodeReturnLevelFromMyBayesianExtremes(AbstractExtractEurocodeReturnLevel):
@@ -57,16 +84,16 @@ class ExtractEurocodeReturnLevelFromMyBayesianExtremes(AbstractExtractEurocodeRe
 
     @cached_property
     def posterior_eurocode_return_level_samples_for_year_of_interest(self) -> np.ndarray:
-        """We divide by 100 to transform the snow water equivalent into snow load"""
         return np.array(
-            [p.quantile(self.eurocode_quantile) for p in self.gev_params_from_fit_for_year_of_interest]) / 100
+            [p.quantile(self.eurocode_quantile) for p in self.gev_params_from_fit_for_year_of_interest])
 
     @property
-    def posterior_mean_eurocode_return_level_for_the_year_of_interest(self) -> np.ndarray:
+    def mean_estimate(self) -> np.ndarray:
+        # Mean posterior value here
         return np.mean(self.posterior_eurocode_return_level_samples_for_year_of_interest)
 
     @property
-    def posterior_eurocode_return_level_uncertainty_interval_for_the_year_of_interest(self):
+    def confidence_interval(self):
         # Bottom and upper quantile correspond to the quantile
         bottom_quantile = self.alpha_for_confidence_interval / 2
         bottom_and_upper_quantile = (bottom_quantile, 1 - bottom_quantile)

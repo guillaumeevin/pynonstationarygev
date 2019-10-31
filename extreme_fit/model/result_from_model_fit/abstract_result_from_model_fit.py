@@ -6,6 +6,7 @@ from rpy2 import robjects
 class AbstractResultFromModelFit(object):
 
     def __init__(self, result_from_fit: robjects.ListVector) -> None:
+        self.result_from_fit = result_from_fit
         if hasattr(result_from_fit, 'names'):
             self.name_to_value = self.get_python_dictionary(result_from_fit)
         else:
