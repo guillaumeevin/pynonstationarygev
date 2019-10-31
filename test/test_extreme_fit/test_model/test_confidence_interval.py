@@ -81,6 +81,25 @@ class TestConfidenceInterval(unittest.TestCase):
             NonStationaryLocationAndScaleTemporalModel: (-15.17041284612494, 43.69511224410276, 102.56063733433047),
         }
 
+    def test_ci_boot(self):
+        self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
+        self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_boot
+        self.model_class_to_triplet= {
+            # I think the boostrapping works only in the stationary context
+            # In the arg of the function for the non stationary return level there is only the method "normal" available
+            StationaryTemporalModel: (10.260501562662334, 39.91206869180525, 120.3789497755127),
+        }
+
+    # Proflik seems to crash with the error
+    # def test_ci_proflik(self):
+    #     self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
+    #     self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_proflik
+    #     self.model_class_to_triplet= {
+    #         # I think the profil likelihood works only in the stationary context
+    #         # In the arg of the function for the non stationary return level there is only the method "normal" available
+    #         StationaryTemporalModel: (-4.703945484843988, 30.482318639674023, 65.66858276419204),
+    #     }
+
     def tearDown(self) -> None:
         for model_class, expected_triplet in self.model_class_to_triplet.items():
             eurocode_ci = self.compute_eurocode_ci(model_class)
@@ -112,6 +131,14 @@ class TestConfidenceIntervalModifiedCoordinates(TestConfidenceInterval):
     def test_ci_normal(self):
         self.model_class_to_triplet = {}
         self.assertTrue(True)
+
+    def test_ci_boot(self):
+        self.model_class_to_triplet = {}
+        self.assertTrue(True)
+
+    # def test_ci_proflik(self):
+    #     self.model_class_to_triplet = {}
+    #     self.assertTrue(True)
 
 
 if __name__ == '__main__':

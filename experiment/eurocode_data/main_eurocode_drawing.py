@@ -62,16 +62,17 @@ def main_drawing():
                                     (NonStationaryLocationAndScaleTemporalModel, 2017),
                                 ][1:]
     altitudes = EUROCODE_ALTITUDES[:]
-    uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes, ConfidenceIntervalMethodFromExtremes.ci_bayes]
+    uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
+                           ConfidenceIntervalMethodFromExtremes.ci_normal]
     show = True
 
     if fast_plot:
         show = True
-        model_class_and_last_year = model_class_and_last_year[:1]
-        altitudes = altitudes[2:4]
+        model_class_and_last_year = model_class_and_last_year[:2]
+        altitudes = altitudes[2:]
         # altitudes = altitudes[:]
-        massif_names = massif_names[:2]
-        uncertainty_methods = uncertainty_methods[:1]
+        massif_names = massif_names[:3]
+        uncertainty_methods = uncertainty_methods[:2]
 
     model_name_to_massif_name_to_ordered_return_level = {}
     for model_class, last_year_for_the_data in model_class_and_last_year:
