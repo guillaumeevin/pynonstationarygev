@@ -354,9 +354,9 @@ class StudyVisualizer(VisualizationParameters):
         start_year, stop_year = self.study.start_year_and_stop_year
         return list(range(start_year, stop_year))
 
-    def massif_name_to_altitude_and_eurocode_level_uncertainty(self, model_class, last_year_for_the_data, massif_names, ci_method) -> Dict[str, Tuple[int, EurocodeConfidenceIntervalFromExtremes]]:
+    def massif_name_to_altitude_and_eurocode_level_uncertainty(self, model_class, last_year_for_the_data, massif_names, ci_method, temporal_covariate) -> Dict[str, Tuple[int, EurocodeConfidenceIntervalFromExtremes]]:
         massif_ids_and_names = [(massif_id, massif_name) for massif_id, massif_name in enumerate(self.study.study_massif_names) if massif_name in  massif_names]
-        arguments = [[last_year_for_the_data, self.smooth_maxima_x_y(massif_id), model_class, ci_method] for massif_id, _ in massif_ids_and_names]
+        arguments = [[last_year_for_the_data, self.smooth_maxima_x_y(massif_id), model_class, ci_method, temporal_covariate] for massif_id, _ in massif_ids_and_names]
         if self.multiprocessing:
             with Pool(NB_CORES) as p:
                 res = p.starmap(compute_eurocode_confidence_interval, arguments)

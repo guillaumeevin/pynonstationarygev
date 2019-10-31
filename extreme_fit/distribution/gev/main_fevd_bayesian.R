@@ -9,9 +9,10 @@ library(SpatialExtremes)
 source('fevd_fixed.R')
 # Sample from a GEV
 set.seed(42)
-N <- 100
-loc = 0; scale = 1; shape <- 0.1
+N <- 50
+loc = 0; scale = 1; shape <- 1
 x_gev <- rgev(N, loc = loc, scale = scale, shape = shape)
+start_loc = 0; start_scale = 1; start_shape = 1
 
 # fevdPriorMy <- function (theta, q, p, log = FALSE){
 #     x = theta["shape"] + 0.5
@@ -43,11 +44,25 @@ x_gev <- rgev(N, loc = loc, scale = scale, shape = shape)
 
 # Add covariate
 coord <- matrix(ncol=1, nrow = N)
-coord[,1]=seq(1,N,1)
+coord[,1]=seq(0,N-1,1)
+print(coord)
 colnames(coord) = c("T")
 coord = data.frame(coord, stringsAsFactors = TRUE)
-# res = fevd_fixed(x_gev, data=coord, location.fun= ~T, scale.fun= ~T, method='Bayesian', priorFun="fevdPriorCustom", priorParams=list(q=c(6), p=c(9)), iter=5000, verbose=TRUE, use.phi=FALSE)
-res = fevd_fixed(x_gev, data=coord, method='Bayesian', priorFun="fevdPriorCustom", priorParams=list(q=c(6), p=c(9)), iter=5000, verbose=TRUE, use.phi=FALSE)
+res = fevd_fixed(x_gev, data=coord, location.fun= ~T, method='Bayesian', priorFun="fevdPriorCustom", priorParams=list(q=c(6), p=c(9)), iter=5000, verbose=TRUE, use.phi=FALSE)
+# res = fevd_fixed(x_gev, data=coord, method='Bayesian', priorFun="fevdPriorCustom", priorParams=list(q=c(6), p=c(9)), iter=5000, verbose=TRUE, use.phi=FALSE)
+print(res)
+
+v = make.qcov(res, vals = list(mu1 = c(0.0)))
+# # res_find = findpars(res, FUN = "mean" , tscale = FALSE, qcov = v,
+# #     burn.in=4998)
+# # print(res_find)
+# #
+res_ci = ci(res, alpha = 0.05, type = c("return.level"),
+    burn.in=499,
+    return.period = 50, FUN = "mean", tscale = FALSE,  qcov=v)
+print(res_ci)
+print(res_ci[1, ])
+
 
 # Some display for the results
 # print(res)
@@ -67,9 +82,9 @@ res = fevd_fixed(x_gev, data=coord, method='Bayesian', priorFun="fevdPriorCustom
 
 
 # Confidence interval
-res_ci = ci(res, alpha = 0.05, type = c("return.level"),
-    return.period = 50, FUN = "mean", tscale = FALSE)
-print(res_ci)
+# res_ci = ci(res, alpha = 0.05, type = c("return.level"),
+#     return.period = 50, FUN = "mean", tscale = FALSE)
+# print(res_ci)
 # print(attributes(res_ci))
 # print(dimnames(res_ci))
 # print(res_ci[1])
@@ -77,15 +92,16 @@ print(res_ci)
 
 # covariates = c(1.0, 100.0, 1000.0)
 # v = make.qcov(res, vals = list(mu1 = covariates, sigma1 = covariates))
-# v = make.qcov(res, vals = list(mu1 = c(0.0), sigma1 = c(0.0)))
-# res_find = findpars(res, FUN = "mean" , tscale = FALSE, qcov = v,
-#     burn.in=4998)
-# print(res_find)
-#
+# v = make.qcov(res, vals = list(mu1 = c(0.0)))
+# # res_find = findpars(res, FUN = "mean" , tscale = FALSE, qcov = v,
+# #     burn.in=4998)
+# # print(res_find)
+# #
 # res_ci = ci(res, alpha = 0.05, type = c("return.level"),
 #     burn.in=4998,
 #     return.period = 50, FUN = "mean", tscale = FALSE,  qcov=v)
 # print(res_ci)
+# print(res_ci[1, ])
 #
 # r = qgev(0.98, 0.1427229 , 1.120554, -0.1008511)
 # print(r)

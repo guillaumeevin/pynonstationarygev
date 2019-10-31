@@ -53,9 +53,13 @@ class ResultFromBayesianExtremes(AbstractResultFromExtremes):
                 'FUN': "mean",
         }
         res = r.ci(self.result_from_fit, **bayesian_ci_parameters, **common_kwargs)
-        d = self.get_python_dictionary(res)
-        keys = ['Posterior Mean 50-year level', '95% lower CI', '95% upper CI']
-        mean_estimate, lower, upper = [np.array(d[k])[0] for k in keys]
+        if self.gev_param_name_to_dim:
+            a = np.array(res)[0]
+            lower, mean_estimate, upper = a
+        else:
+            d = self.get_python_dictionary(res)
+            keys = ['Posterior Mean 50-year level', '95% lower CI', '95% upper CI']
+            mean_estimate, lower, upper = [np.array(d[k])[0] for k in keys]
         return mean_estimate, (lower, upper)
 
 

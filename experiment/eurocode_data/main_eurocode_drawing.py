@@ -23,7 +23,7 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 
 def massif_name_to_ordered_return_level_uncertainties(model_class, last_year_for_the_data, altitudes, massif_names,
-                                                      uncertainty_methods):
+                                                      uncertainty_methods, temporal_covariate):
     # Load model name
     model_name = get_model_name(model_class)
     # Load altitude visualizer
@@ -42,7 +42,8 @@ def massif_name_to_ordered_return_level_uncertainties(model_class, last_year_for
         print('{} processing altitude = {} '.format(model_name, altitude))
         for ci_method in uncertainty_methods:
             d = visualizer.massif_name_to_altitude_and_eurocode_level_uncertainty(model_class, last_year_for_the_data,
-                                                                                  massif_names, ci_method)
+                                                                                  massif_names, ci_method,
+                                                                                  temporal_covariate)
             # Append the altitude one by one
             for massif_name, return_level_uncertainty in d.items():
                 massif_name_to_ordered_eurocode_level_uncertainty[massif_name][ci_method].append(
@@ -52,6 +53,7 @@ def massif_name_to_ordered_return_level_uncertainties(model_class, last_year_for
 
 def main_drawing():
     fast_plot = [True, False][0]
+    temporal_covariate = 2017
     # Select parameters
     massif_names = MASSIF_NAMES_ALPS[:]
     model_class_and_last_year = [
@@ -76,9 +78,9 @@ def main_drawing():
         start = time.time()
         model_name_to_massif_name_to_ordered_return_level.update(
             massif_name_to_ordered_return_level_uncertainties(model_class, last_year_for_the_data, altitudes,
-                                                              massif_names, uncertainty_methods))
+                                                              massif_names, uncertainty_methods, temporal_covariate))
         duration = time.time() - start
-        print(model_class, duration)
+        print('Duration:', model_class, duration)
     # Transform the dictionary into the desired format
     massif_name_to_model_name_to_ordered_return_level_uncertainties = {}
     for massif_name in massif_names:

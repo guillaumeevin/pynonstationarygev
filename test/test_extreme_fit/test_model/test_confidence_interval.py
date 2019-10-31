@@ -16,6 +16,8 @@ from extreme_fit.model.utils import r, set_seed_r, set_seed_for_test
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
     AbstractTemporalCoordinates
+from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
+    CenteredScaledNormalization
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
@@ -23,7 +25,7 @@ from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_tempor
 
 class TestConfidenceInterval(unittest.TestCase):
 
-    def setUp(self) -> None:
+    def load_data(self) -> None:
         set_seed_for_test()
         r("""
         N <- 50
@@ -34,42 +36,69 @@ class TestConfidenceInterval(unittest.TestCase):
         # Compute the stationary temporal margin with isMev
         self.start_year = 0
         df = pd.DataFrame({AbstractCoordinates.COORDINATE_T: range(self.start_year, self.start_year + 50)})
-        self.coordinates = AbstractTemporalCoordinates.from_df(df)
+        self.coordinates = self.load_coordinates(df)
         df2 = pd.DataFrame(data=np.array(r['x_gev']), index=df.index)
         observations = AbstractSpatioTemporalObservations(df_maxima_gev=df2)
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
         self.model_classes = [StationaryTemporalModel]
 
+    @staticmethod
+    def load_coordinates(df):
+        return AbstractTemporalCoordinates.from_df(df)
+
     def compute_eurocode_ci(self, model_class):
+        self.load_data()
         estimator = fitted_linear_margin_estimator(model_class, self.coordinates, self.dataset,
                                                    starting_year=0,
                                                    fit_method=self.fit_method)
-        return EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(estimator, self.ci_method)
+        return EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(estimator, self.ci_method,
+                                                                              self.start_year)
+
+    @property
+    def bayesian_ci(self):
+        return {
+            StationaryTemporalModel: (6.756903450587758, 10.316338515219085, 15.77861914935531),
+            NonStationaryLocationTemporalModel: (6.588570126641043, 10.055847177064836, 14.332882862817332),
+            NonStationaryLocationAndScaleTemporalModel: (7.836837972383451, 11.162663922795906, 16.171701445841183),
+        }
 
     def test_my_bayes(self):
         self.fit_method = TemporalMarginFitMethod.extremes_fevd_bayesian
         self.ci_method = ConfidenceIntervalMethodFromExtremes.my_bayes
-        self.model_class_to_triplet = {
-            StationaryTemporalModel: (6.756903450587758, 10.316338515219085, 15.77861914935531),
-            NonStationaryLocationTemporalModel: (6.047033481540427, 9.708540966532225, 14.74058551926604),
-            NonStationaryLocationAndScaleTemporalModel: (6.383536224810785, 9.69120774797993, 13.917914357321615),
-        }
+        self.model_class_to_triplet = self.bayesian_ci
 
     def test_ci_bayes(self):
         self.fit_method = TemporalMarginFitMethod.extremes_fevd_bayesian
         self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_bayes
-        self.model_class_to_triplet = {
-            StationaryTemporalModel: (6.756903450587758, 10.316338515219085, 15.77861914935531),
-            # NonStationaryLocationTemporalModel: (6.047033481540427, 9.708540966532225, 14.74058551926604),
-            # NonStationaryLocationAndScaleTemporalModel: (6.383536224810785, 9.69120774797993, 13.917914357321615),
-        }
+        self.model_class_to_triplet = self.bayesian_ci
 
     def tearDown(self) -> None:
         for model_class, expected_triplet in self.model_class_to_triplet.items():
-            eurocode_ci = self.compute_eurocode_ci(StationaryTemporalModel)
+            eurocode_ci = self.compute_eurocode_ci(model_class)
             found_triplet = eurocode_ci.triplet
             for a, b in zip(expected_triplet, found_triplet):
-                self.assertAlmostEqual(a, b, msg="{} {}".format(model_class, found_triplet))
+                self.assertAlmostEqual(a, b, msg="{} \n{}".format(model_class, found_triplet))
+
+
+class TestConfidenceIntervalModifiedCoordinates(TestConfidenceInterval):
+
+    @staticmethod
+    def load_coordinates(df):
+        return AbstractTemporalCoordinates.from_df(df, transformation_class=CenteredScaledNormalization)
+
+    @property
+    def bayesian_ci(self):
+        return {
+            StationaryTemporalModel: (6.756903450587758, 10.316338515219085, 15.77861914935531),
+            NonStationaryLocationTemporalModel: (6.266027110993808, 10.063368195790687, 14.894103640762097),
+            NonStationaryLocationAndScaleTemporalModel: (5.554116722722492, 13.714431163455535, 26.929963957448642),
+        }
+
+    def test_my_bayes(self):
+        super().test_my_bayes()
+
+    def test_ci_bayes(self):
+        super().test_ci_bayes()
 
 
 if __name__ == '__main__':

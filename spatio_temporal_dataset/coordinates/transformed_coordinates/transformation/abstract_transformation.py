@@ -13,6 +13,9 @@ class AbstractTransformation(object):
     def nb_dimensions(self):
         return self.df_coordinates.shape[1]
 
+    def transform_float(self, coordinate: float):
+        return self.transform_array(np.array([coordinate]))[0]
+
     def transform_array(self, coordinate: np.ndarray):
         assert len(coordinate) == self.nb_dimensions, "coordinate={}, nb_dimensions={}".format(coordinate,
                                                                                                self.nb_dimensions)

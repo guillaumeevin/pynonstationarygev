@@ -11,15 +11,14 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_int
     ConfidenceIntervalMethodFromExtremes
 
 
-def compute_eurocode_confidence_interval(last_year_for_the_data, smooth_maxima_x_y, model_class, ci_method):
+def compute_eurocode_confidence_interval(last_year_for_the_data, smooth_maxima_x_y, model_class, ci_method, temporal_covariate):
     years, smooth_maxima = smooth_maxima_x_y
     idx = years.index(last_year_for_the_data) + 1
     years, smooth_maxima = years[:idx], smooth_maxima[:idx]
-    return EurocodeConfidenceIntervalFromExtremes.from_maxima_years_model_class(smooth_maxima, years, model_class, ci_method)
+    return EurocodeConfidenceIntervalFromExtremes.from_maxima_years_model_class(smooth_maxima, years, model_class, temporal_covariate, ci_method)
 
 
 class EurocodeConfidenceIntervalFromExtremes(object):
-    YEAR_OF_INTEREST = 2017
 
     def __init__(self, mean_estimate, confidence_interval):
         self.mean_estimate = mean_estimate
@@ -31,15 +30,17 @@ class EurocodeConfidenceIntervalFromExtremes(object):
 
     @classmethod
     def from_estimator_extremes(cls, estimator_extremes: LinearMarginEstimator,
-                                ci_method: ConfidenceIntervalMethodFromExtremes):
+                                ci_method: ConfidenceIntervalMethodFromExtremes,
+                                temporal_covariate: int):
         if ci_method == ConfidenceIntervalMethodFromExtremes.my_bayes:
-            extractor = ExtractEurocodeReturnLevelFromMyBayesianExtremes(estimator_extremes, ci_method, cls.YEAR_OF_INTEREST)
+            extractor = ExtractEurocodeReturnLevelFromMyBayesianExtremes(estimator_extremes, ci_method, temporal_covariate)
         else:
-            extractor = ExtractEurocodeReturnLevelFromCiMethod(estimator_extremes, ci_method, cls.YEAR_OF_INTEREST)
+            extractor = ExtractEurocodeReturnLevelFromCiMethod(estimator_extremes, ci_method, temporal_covariate)
         return cls(extractor.mean_estimate,  extractor.confidence_interval)
 
     @classmethod
     def from_maxima_years_model_class(cls, maxima, years, model_class,
+                                      temporal_covariate,
                                       ci_method=ConfidenceIntervalMethodFromExtremes.ci_bayes):
         # Load coordinates and dataset
         coordinates, dataset = load_temporal_coordinates_and_dataset(maxima, years)
@@ -53,7 +54,7 @@ class EurocodeConfidenceIntervalFromExtremes(object):
         fitted_estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year=1958,
                                                           fit_method=fit_method)
         # Load object from result from extremes
-        return cls.from_estimator_extremes(fitted_estimator, ci_method)
+        return cls.from_estimator_extremes(fitted_estimator, ci_method, temporal_covariate)
 
 
 
