@@ -4,13 +4,10 @@ import numpy as np
 import pandas as pd
 
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import fitted_linear_margin_estimator
-from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    AbstractTemporalLinearMarginModel, TemporalMarginFitMethod
+    TemporalMarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
     NonStationaryLocationTemporalModel, NonStationaryLocationAndScaleTemporalModel
-from extreme_fit.model.result_from_model_fit.result_from_extremes import ResultFromExtremes
 from extreme_fit.model.utils import r, set_seed_r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
@@ -18,10 +15,9 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
-from test.test_utils import load_non_stationary_temporal_margin_models
 
 
-class TestGevTemporalBayesian(unittest.TestCase):
+class TestGevTemporalExtremesMle(unittest.TestCase):
 
     def setUp(self) -> None:
         set_seed_r()
@@ -38,16 +34,16 @@ class TestGevTemporalBayesian(unittest.TestCase):
         df2 = pd.DataFrame(data=np.array(r['x_gev']), index=df.index)
         observations = AbstractSpatioTemporalObservations(df_maxima_gev=df2)
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
-        self.fit_method = TemporalMarginFitMethod.extremes_fevd_bayesian
+        self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
 
     def test_gev_temporal_margin_fit_stationary(self):
         # Create estimator
-        estimator_fitted = fitted_linear_margin_estimator(StationaryTemporalModel, self.coordinates, self.dataset,
-                                                          starting_year=0,
-                                                          fit_method=self.fit_method)
-        ref = {'loc': 0.34272436381693616, 'scale': 1.3222588712831973, 'shape': 0.30491484962825105}
+        estimator = fitted_linear_margin_estimator(StationaryTemporalModel, self.coordinates, self.dataset,
+                                                   starting_year=0,
+                                                   fit_method=self.fit_method)
+        ref = {'loc': 0.02191974259369493, 'scale': 1.0347946062900268, 'shape': 0.829052520147379}
         for year in range(1, 3):
-            mle_params_estimated = estimator_fitted.margin_function_from_fit.get_gev_params(np.array([year])).to_dict()
+            mle_params_estimated = estimator.margin_function_from_fit.get_gev_params(np.array([year])).to_dict()
             for key in ref.keys():
                 self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
 
@@ -56,8 +52,6 @@ class TestGevTemporalBayesian(unittest.TestCase):
         estimator = fitted_linear_margin_estimator(NonStationaryLocationTemporalModel, self.coordinates, self.dataset,
                                                    starting_year=0,
                                                    fit_method=self.fit_method)
-        mu1_values = estimator.result_from_model_fit.df_posterior_samples.iloc[:, 1]
-        self.assertTrue((mu1_values != 0).any())
         # Checks that parameters returned are indeed different
         mle_params_estimated_year1 = estimator.margin_function_from_fit.get_gev_params(np.array([1])).to_dict()
         mle_params_estimated_year3 = estimator.margin_function_from_fit.get_gev_params(np.array([3])).to_dict()
@@ -65,11 +59,10 @@ class TestGevTemporalBayesian(unittest.TestCase):
 
     def test_gev_temporal_margin_fit_non_stationary_location_and_scale(self):
         # Create estimator
-        estimator = fitted_linear_margin_estimator(NonStationaryLocationAndScaleTemporalModel, self.coordinates, self.dataset,
+        estimator = fitted_linear_margin_estimator(NonStationaryLocationAndScaleTemporalModel, self.coordinates,
+                                                   self.dataset,
                                                    starting_year=0,
                                                    fit_method=self.fit_method)
-        mu1_values = estimator.result_from_model_fit.df_posterior_samples.iloc[:, 1]
-        self.assertTrue((mu1_values != 0).any())
         # Checks that parameters returned are indeed different
         mle_params_estimated_year1 = estimator.margin_function_from_fit.get_gev_params(np.array([1])).to_dict()
         mle_params_estimated_year3 = estimator.margin_function_from_fit.get_gev_params(np.array([3])).to_dict()

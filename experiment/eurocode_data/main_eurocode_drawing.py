@@ -1,10 +1,11 @@
 import time
 from collections import OrderedDict
 
-from experiment.eurocode_data.eurocode_return_level_uncertainties import ConfidenceIntervalMethodFromExtremes
+from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
+    ConfidenceIntervalMethodFromExtremes
 from experiment.eurocode_data.eurocode_visualizer import \
     plot_massif_name_to_model_name_to_uncertainty_method_to_ordered_dict, get_model_name
-from experiment.eurocode_data.massif_name_to_departement import DEPARTEMENT_TYPES, MASSIF_NAMES_ALPS
+from experiment.eurocode_data.massif_name_to_departement import MASSIF_NAMES_ALPS
 from experiment.eurocode_data.utils import EUROCODE_ALTITUDES, LAST_YEAR_FOR_EUROCODE
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSwe3Days
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
@@ -13,7 +14,6 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
     load_altitude_visualizer
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
     NonStationaryLocationAndScaleTemporalModel
-from root_utils import get_display_name_from_object_type
 
 # Model class
 import matplotlib as mpl
@@ -22,7 +22,8 @@ mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 
-def massif_name_to_ordered_return_level_uncertainties(model_class, last_year_for_the_data, altitudes, massif_names, uncertainty_methods):
+def massif_name_to_ordered_return_level_uncertainties(model_class, last_year_for_the_data, altitudes, massif_names,
+                                                      uncertainty_methods):
     # Load model name
     model_name = get_model_name(model_class)
     # Load altitude visualizer
@@ -35,18 +36,18 @@ def massif_name_to_ordered_return_level_uncertainties(model_class, last_year_for
                                                    trend_test_class=None)  # type: AltitudeHypercubeVisualizer
     # Loop on the data
     assert isinstance(altitude_visualizer.tuple_to_study_visualizer, OrderedDict)
-    massif_name_to_ordered_eurocode_level_uncertainty = {massif_name: {ci_method: [] for ci_method in uncertainty_methods} for massif_name in massif_names}
+    massif_name_to_ordered_eurocode_level_uncertainty = {
+        massif_name: {ci_method: [] for ci_method in uncertainty_methods} for massif_name in massif_names}
     for altitude, visualizer in altitude_visualizer.tuple_to_study_visualizer.items():
         print('{} processing altitude = {} '.format(model_name, altitude))
         for ci_method in uncertainty_methods:
-            d = visualizer.massif_name_to_altitude_and_eurocode_level_uncertainty(model_class, last_year_for_the_data, massif_names, ci_method)
+            d = visualizer.massif_name_to_altitude_and_eurocode_level_uncertainty(model_class, last_year_for_the_data,
+                                                                                  massif_names, ci_method)
             # Append the altitude one by one
             for massif_name, return_level_uncertainty in d.items():
-                massif_name_to_ordered_eurocode_level_uncertainty[massif_name][ci_method].append(return_level_uncertainty)
+                massif_name_to_ordered_eurocode_level_uncertainty[massif_name][ci_method].append(
+                    return_level_uncertainty)
     return {model_name: massif_name_to_ordered_eurocode_level_uncertainty}
-
-
-
 
 
 def main_drawing():
@@ -60,8 +61,10 @@ def main_drawing():
                                 ][1:]
     altitudes = EUROCODE_ALTITUDES[:]
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes, ConfidenceIntervalMethodFromExtremes.bayes]
+    show = True
 
     if fast_plot:
+        show = True
         model_class_and_last_year = model_class_and_last_year[:1]
         altitudes = altitudes[2:4]
         # altitudes = altitudes[:]
@@ -72,7 +75,8 @@ def main_drawing():
     for model_class, last_year_for_the_data in model_class_and_last_year:
         start = time.time()
         model_name_to_massif_name_to_ordered_return_level.update(
-            massif_name_to_ordered_return_level_uncertainties(model_class, last_year_for_the_data, altitudes, massif_names, uncertainty_methods))
+            massif_name_to_ordered_return_level_uncertainties(model_class, last_year_for_the_data, altitudes,
+                                                              massif_names, uncertainty_methods))
         duration = time.time() - start
         print(model_class, duration)
     # Transform the dictionary into the desired format
@@ -84,7 +88,7 @@ def main_drawing():
     # Plot graph
     plot_massif_name_to_model_name_to_uncertainty_method_to_ordered_dict(
         massif_name_to_model_name_to_ordered_return_level_uncertainties, nb_massif_names=len(massif_names),
-        nb_model_names=len(model_class_and_last_year), show=True)
+        nb_model_names=len(model_class_and_last_year), show=show)
 
 
 if __name__ == '__main__':

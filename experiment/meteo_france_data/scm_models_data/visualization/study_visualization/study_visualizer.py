@@ -11,9 +11,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from experiment.eurocode_data.eurocode_return_level_uncertainties import ExtractEurocodeReturnLevelFromExtremes, \
-    EurocodeLevelUncertaintyFromExtremes, compute_eurocode_level_uncertainty
-from experiment.eurocode_data.massif_name_to_departement import dep_class_to_massif_names
+from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
+    EurocodeConfidenceIntervalFromExtremes, compute_eurocode_confidence_interval
 from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.trend_analysis.abstract_score import MeanScore, AbstractTrendScore
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
@@ -355,14 +354,14 @@ class StudyVisualizer(VisualizationParameters):
         start_year, stop_year = self.study.start_year_and_stop_year
         return list(range(start_year, stop_year))
 
-    def massif_name_to_altitude_and_eurocode_level_uncertainty(self, model_class, last_year_for_the_data, massif_names, ci_method) -> Dict[str, Tuple[int, EurocodeLevelUncertaintyFromExtremes]]:
+    def massif_name_to_altitude_and_eurocode_level_uncertainty(self, model_class, last_year_for_the_data, massif_names, ci_method) -> Dict[str, Tuple[int, EurocodeConfidenceIntervalFromExtremes]]:
         massif_ids_and_names = [(massif_id, massif_name) for massif_id, massif_name in enumerate(self.study.study_massif_names) if massif_name in  massif_names]
         arguments = [[last_year_for_the_data, self.smooth_maxima_x_y(massif_id), model_class, ci_method] for massif_id, _ in massif_ids_and_names]
         if self.multiprocessing:
             with Pool(NB_CORES) as p:
-                res = p.starmap(compute_eurocode_level_uncertainty, arguments)
+                res = p.starmap(compute_eurocode_confidence_interval, arguments)
         else:
-            res = [compute_eurocode_level_uncertainty(*argument) for argument in arguments]
+            res = [compute_eurocode_confidence_interval(*argument) for argument in arguments]
         res_and_altitude = [(self.study.altitude, r) for r in res]
         massif_name_to_eurocode_return_level_uncertainty = OrderedDict(zip([massif_name for _, massif_name in massif_ids_and_names], res_and_altitude))
         return massif_name_to_eurocode_return_level_uncertainty

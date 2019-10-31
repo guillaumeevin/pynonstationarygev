@@ -6,9 +6,10 @@ import pandas as pd
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
-from extreme_fit.model.result_from_model_fit.result_from_extremes import ResultFromExtremes, ResultFromBayesianExtremes
+from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_bayesian_extremes import AbstractResultFromExtremes, ResultFromBayesianExtremes
+from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_mle_extremes import ResultFromMleExtremes
 from extreme_fit.model.result_from_model_fit.result_from_ismev import ResultFromIsmev
-from extreme_fit.model.utils import r, ro, get_null, get_margin_formula_extremes, get_coord, get_coord_df
+from extreme_fit.model.utils import r, ro, get_null, get_margin_formula_extremes, get_coord_df
 from extreme_fit.model.utils import safe_run_r_estimator
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
@@ -21,8 +22,6 @@ class TemporalMarginFitMethod(Enum):
 
 class AbstractTemporalLinearMarginModel(LinearMarginModel):
     """Linearity only with respect to the temporal coordinates"""
-    ISMEV_GEV_FIT_METHOD_STR = 'isMev.gev.fit'
-    EXTREMES_FEVD_BAYESIAN_FIT_METHOD_STR = 'extRemes.fevd.Bayesian'
 
     def __init__(self, coordinates: AbstractCoordinates, use_start_value=False, params_start_fit=None,
                  params_sample=None, starting_point=None, fit_method=TemporalMarginFitMethod.is_mev_gev_fit):
@@ -52,7 +51,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
 
     # Gev fit with extRemes package
 
-    def extremes_fevd_mle_fit(self, x, df_coordinates_temp) -> ResultFromExtremes:
+    def extremes_fevd_mle_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:
         r_type_argument_kwargs, y = self.extreme_arguments(df_coordinates_temp)
         res = safe_run_r_estimator(function=r('fevd_fixed'),
                                    x=x,
@@ -60,9 +59,9 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                    method='MLE',
                                    **r_type_argument_kwargs
                                    )
-        return ResultFromExtremes(res, self.margin_function_start_fit.gev_param_name_to_dims)
+        return ResultFromMleExtremes(res, self.margin_function_start_fit.gev_param_name_to_dims)
 
-    def extremes_fevd_bayesian_fit(self, x, df_coordinates_temp) -> ResultFromExtremes:
+    def extremes_fevd_bayesian_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:
         r_type_argument_kwargs, y = self.extreme_arguments(df_coordinates_temp)
         # Assert for any non-stationary model that the shape parameter is constant
         # (because the prior function considers that the last parameter should be the shape)

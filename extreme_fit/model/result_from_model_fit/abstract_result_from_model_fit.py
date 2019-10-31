@@ -7,9 +7,13 @@ class AbstractResultFromModelFit(object):
 
     def __init__(self, result_from_fit: robjects.ListVector) -> None:
         if hasattr(result_from_fit, 'names'):
-            self.name_to_value = {name: result_from_fit.rx2(name) for name in result_from_fit.names}
+            self.name_to_value = self.get_python_dictionary(result_from_fit)
         else:
             self.name_to_value = {}
+
+    @staticmethod
+    def get_python_dictionary(r_dictionary):
+        return {name: r_dictionary.rx2(name) for name in r_dictionary.names}
 
     @property
     def names(self):

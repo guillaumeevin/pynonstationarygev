@@ -2,9 +2,8 @@ from typing import Dict, List
 
 import matplotlib.pyplot as plt
 
-from experiment.eurocode_data.eurocode_return_level_uncertainties import EurocodeLevelUncertaintyFromExtremes
-from experiment.eurocode_data.massif_name_to_departement import DEPARTEMENT_TYPES, massif_name_to_eurocode_region
-from experiment.eurocode_data.utils import EUROCODE_QUANTILE, EUROCODE_ALTITUDES
+from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import EurocodeConfidenceIntervalFromExtremes
+from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
 from root_utils import get_display_name_from_object_type
 
@@ -55,7 +54,7 @@ def plot_model_name_to_uncertainty_method_to_ordered_dict(d, massif_name, axes):
 def plot_label_to_ordered_return_level_uncertainties(ax, massif_name, model_name,
                                                      label_to_ordered_return_level_uncertainties:
                                                      Dict[str, List[
-                                                         EurocodeLevelUncertaintyFromExtremes]]):
+                                                         EurocodeConfidenceIntervalFromExtremes]]):
     """ Generic function that might be used by many other more global functions"""
     colors = ['tab:blue', 'tab:orange', 'tab:purple', 'tab:olive']
     alpha = 0.2
