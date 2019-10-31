@@ -72,6 +72,15 @@ class TestConfidenceInterval(unittest.TestCase):
         self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_bayes
         self.model_class_to_triplet = self.bayesian_ci
 
+    def test_ci_normal(self):
+        self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
+        self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_normal
+        self.model_class_to_triplet= {
+            StationaryTemporalModel: (-4.703945484843988, 30.482318639674023, 65.66858276419204),
+            NonStationaryLocationTemporalModel: (-4.223086740397132, 30.29842988666537, 64.81994651372787),
+            NonStationaryLocationAndScaleTemporalModel: (-15.17041284612494, 43.69511224410276, 102.56063733433047),
+        }
+
     def tearDown(self) -> None:
         for model_class, expected_triplet in self.model_class_to_triplet.items():
             eurocode_ci = self.compute_eurocode_ci(model_class)
@@ -99,6 +108,10 @@ class TestConfidenceIntervalModifiedCoordinates(TestConfidenceInterval):
 
     def test_ci_bayes(self):
         super().test_ci_bayes()
+
+    def test_ci_normal(self):
+        self.model_class_to_triplet = {}
+        self.assertTrue(True)
 
 
 if __name__ == '__main__':

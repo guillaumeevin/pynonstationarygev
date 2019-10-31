@@ -9,18 +9,15 @@ library(SpatialExtremes)
 source('fevd_fixed.R')
 # Sample from a GEV
 set.seed(42)
-N <- 100
-loc = 0; scale = 1; shape <- 0.1
+N <- 50
+loc = 0; scale = 1; shape <- 1
 x_gev <- rgev(N, loc = loc, scale = scale, shape = shape)
-
-
-# Add covariate
 coord <- matrix(ncol=1, nrow = N)
-coord[,1]=seq(1,N,1)
+coord[,1]=seq(0,N-1,1)
 colnames(coord) = c("T")
 coord = data.frame(coord, stringsAsFactors = TRUE)
-# res = fevd_fixed(x_gev, data=coord, method='MLE', verbose=TRUE, use.phi=FALSE)
-res = fevd_fixed(x_gev, data=coord, location.fun= ~T, method='MLE', verbose=TRUE, use.phi=FALSE, time.units = "years", units = "years")
+res = fevd_fixed(x_gev, data=coord, method='MLE', verbose=TRUE, use.phi=FALSE)
+# res = fevd_fixed(x_gev, data=coord, location.fun= ~T, method='MLE', verbose=TRUE, use.phi=FALSE, time.units = "years", units = "years")
 # print(res)
 
 # Some display for the results
@@ -34,10 +31,10 @@ print(res$results$par)
 
 
 # Confidence interval staionary
-# method = "proflik"
+method = "normal"
 res_ci = ci(res, alpha = 0.05, type = c("return.level", "parameter"),
     return.period = 50, method = method, xrange = NULL, nint = 20, verbose = FALSE,
-    tscale = FALSE, return.samples = FALSE)
+    tscale = FALSE)
 print(res_ci)
 
 # Bug to solve for the non stationary - the returned parameter do not match with the return level

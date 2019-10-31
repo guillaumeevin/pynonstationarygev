@@ -45,7 +45,8 @@ class ExtractEurocodeReturnLevelFromCiMethod(AbstractExtractEurocodeReturnLevel)
     def confidence_interval_method(self):
         return self.result_from_fit.confidence_interval_method(self.eurocode_quantile,
                                                                self.alpha_for_confidence_interval,
-                                                               self.transformed_temporal_covariate)
+                                                               self.transformed_temporal_covariate,
+                                                               self.ci_method)
 
     @property
     def mean_estimate(self) -> np.ndarray:

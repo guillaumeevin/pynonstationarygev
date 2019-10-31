@@ -16,13 +16,13 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
 
     @property
     def is_non_stationary(self):
-        return len(self.gev_param_name_to_dim) == 0
+        return len(self.gev_param_name_to_dim) > 0
 
     def load_dataframe_from_r_matrix(self, name):
         r_matrix = self.name_to_value[name]
         return pd.DataFrame(np.array(r_matrix), columns=r.colnames(r_matrix))
 
-    def confidence_interval_method(self, quantile_level, alpha_interval, transformed_temporal_covariate):
+    def confidence_interval_method(self, quantile_level, alpha_interval, transformed_temporal_covariate, ci_method):
         return_period = round(1 / (1 - quantile_level))
         common_kwargs = {
             'return.period': return_period,
@@ -40,8 +40,8 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
             qcov = r("make.qcov")(self.result_from_fit,
                                   **kwargs)
             common_kwargs['qcov'] = qcov
-        mean_estimate, confidence_interval = self._confidence_interval_method(common_kwargs)
+        mean_estimate, confidence_interval = self._confidence_interval_method(common_kwargs, ci_method)
         return mean_estimate, confidence_interval
 
-    def _confidence_interval_method(self, common_kwargs):
+    def _confidence_interval_method(self, common_kwargs, ci_method):
         raise NotImplementedError

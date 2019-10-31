@@ -9,3 +9,10 @@ class ConfidenceIntervalMethodFromExtremes(Enum):
     ci_proflik = 3
     # Confidence interval from my functions
     my_bayes = 4
+
+
+ci_method_to_method_name = {
+    ConfidenceIntervalMethodFromExtremes.ci_normal: 'normal',
+    ConfidenceIntervalMethodFromExtremes.ci_boot: 'boot',
+    ConfidenceIntervalMethodFromExtremes.ci_proflik: 'proflik',
+}
