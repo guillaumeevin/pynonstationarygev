@@ -83,3 +83,5 @@ def plot_label_to_ordered_return_level_uncertainties(ax, massif_name, model_name
     ax.set_title(massif_name + ' ' + model_name)
     ax.set_ylabel('50-year return level (N $m^-2$)')
     ax.set_xlabel('Altitude (m)')
+    ax.grid()
+

@@ -57,9 +57,9 @@ def main_drawing():
     # Select parameters
     massif_names = MASSIF_NAMES_ALPS[:]
     model_class_and_last_year = [
-                                    (StationaryTemporalModel, LAST_YEAR_FOR_EUROCODE),
                                     (StationaryTemporalModel, 2017),
                                     (NonStationaryLocationAndScaleTemporalModel, 2017),
+                                    # Add the temperature here
                                 ][1:]
     altitudes = EUROCODE_ALTITUDES[:]
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
@@ -68,11 +68,11 @@ def main_drawing():
 
     if fast_plot:
         show = True
-        model_class_and_last_year = model_class_and_last_year[:2]
+        model_class_and_last_year = model_class_and_last_year[:1]
         altitudes = altitudes[2:]
         # altitudes = altitudes[:]
-        massif_names = massif_names[:3]
-        uncertainty_methods = uncertainty_methods[:2]
+        massif_names = massif_names[:1]
+        uncertainty_methods = uncertainty_methods[1:]
 
     model_name_to_massif_name_to_ordered_return_level = {}
     for model_class, last_year_for_the_data in model_class_and_last_year:
