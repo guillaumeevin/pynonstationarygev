@@ -102,6 +102,10 @@ class AbstractStudy(object):
     def observations_annual_maxima(self) -> AnnualMaxima:
         return AnnualMaxima(df_maxima_gev=pd.DataFrame(self.year_to_annual_maxima, index=self.study_massif_names))
 
+    def annual_maxima_and_years(self, massif_name) -> Tuple[np.ndarray, np.ndarray]:
+        df = self.observations_annual_maxima.df_maxima_gev
+        return df.loc[massif_name].values, np.array(df.columns)
+
     @cached_property
     def year_to_annual_maxima(self) -> OrderedDict:
         # Map each year to an array of size nb_massif
