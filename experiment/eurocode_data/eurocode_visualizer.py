@@ -1,6 +1,7 @@
 from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     EurocodeConfidenceIntervalFromExtremes
@@ -17,7 +18,7 @@ def get_label_name(model_name, ci_method_name: str):
     model_name += model_symbol
     model_name += '}}'
     model_name += parameter
-    model_name += ')_{ \\textrm{' + ci_method_name.upper() + '}} $ '
+    model_name += ')_{ \\textrm{' + ci_method_name.upper().split(' ')[1] + '}} $ '
     return model_name
 
 
@@ -25,7 +26,7 @@ def get_model_name(model_class):
     return get_display_name_from_object_type(model_class).split('Stationary')[0] + 'Stationary'
 
 
-def plot_massif_name_to_model_name_to_uncertainty_method_to_ordered_dict(d, nb_massif_names, nb_model_names, show=True):
+def plot_massif_name_to_model_name_to_uncertainty_method_to_ordered_dict(d, nb_massif_names, nb_model_names):
     """
     Rows correspond to massif names
     Columns correspond to stationary/non stationary model name for a given date
@@ -39,11 +40,7 @@ def plot_massif_name_to_model_name_to_uncertainty_method_to_ordered_dict(d, nb_m
         plot_model_name_to_uncertainty_method_to_ordered_dict(model_name_to_uncertainty_level,
                                                               massif_name, ax)
 
-    plt.suptitle('50-year return levels of extreme snow loads in France for several confiance interval methods.')
-
-    if show:
-        plt.show()
-
+    # plt.suptitle('50-year return levels of extreme snow loads in France for several confiance interval methods.')
 
 def plot_model_name_to_uncertainty_method_to_ordered_dict(d, massif_name, axes):
     if len(d) == 1:
@@ -71,17 +68,30 @@ def plot_label_to_ordered_return_level_uncertainties(ax, massif_name, model_name
         # Plot eurocode standards only for the first loop
         if j == 0:
             eurocode_region.plot_max_loading(ax, altitudes=altitudes)
-        conversion_factor = 100  # We divide by 100 to transform the snow water equivalent into snow load
-        mean = [r.mean_estimate / conversion_factor for r in ordered_return_level_uncertaines]
+        conversion_factor = 9.8 / 1000
+        mean = [r.mean_estimate * conversion_factor for r in ordered_return_level_uncertaines]
+        # Filter and keep only non nan values
+        not_nan_index = [not np.isnan(m) for m in mean]
+        mean = list(np.array(mean)[not_nan_index])
+        altitudes = list(np.array(altitudes)[not_nan_index])
+        ordered_return_level_uncertaines = list(np.array(ordered_return_level_uncertaines)[not_nan_index])
+
         ci_method_name = str(label).split('.')[1].replace('_', ' ')
-        ax.plot(altitudes, mean, '-', color=color, label=get_label_name(model_name, ci_method_name))
-        lower_bound = [r.confidence_interval[0] / conversion_factor for r in ordered_return_level_uncertaines]
-        upper_bound = [r.confidence_interval[1] / conversion_factor for r in ordered_return_level_uncertaines]
+        ax.plot(altitudes, mean, linestyle='--', marker='o', color=color, label=get_label_name(model_name, ci_method_name))
+        lower_bound = [r.confidence_interval[0] * conversion_factor for r in ordered_return_level_uncertaines]
+        upper_bound = [r.confidence_interval[1] * conversion_factor for r in ordered_return_level_uncertaines]
         ax.fill_between(altitudes, lower_bound, upper_bound, color=color, alpha=alpha)
     ax.legend(loc=2)
-    ax.set_ylim([0.0, 4.0])
-    ax.set_title(massif_name + ' ' + model_name)
-    ax.set_ylabel('50-year return level (N $m^-2$)')
+    ax.set_ylim([0.0, 16])
+    massif_name_str = massif_name.replace('_', ' ')
+    eurocode_region_str = get_display_name_from_object_type(type(eurocode_region))
+    if 'Non' in model_name:
+        model_name = 'non-stationary'
+    else:
+        model_name = 'stationary'
+    title = '{} ({} Eurocodes area) with a {} model'.format(massif_name_str, eurocode_region_str, model_name)
+    ax.set_title(title)
+    ax.set_ylabel('50-year return level (kN $m^-2$)')
     ax.set_xlabel('Altitude (m)')
     ax.grid()
 

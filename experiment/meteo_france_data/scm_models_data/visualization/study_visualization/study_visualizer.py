@@ -625,7 +625,10 @@ class StudyVisualizer(VisualizationParameters):
         ax = plt.gca()
         x, y = self.smooth_maxima_x_y(massif_names.index(massif_name))
         ax.plot(x, y, color=color, linewidth=5)
-        ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color, fontsize=15)
+        # ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color, fontsize=15)
+        ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), fontsize=15)
+        ax.set_xlabel('years', fontsize=15)
+        ax.set_title('{} at {} m'.format(massif_name, altitude))
         ax.xaxis.set_ticks(x[2::10])
         ax.tick_params(axis='both', which='major', labelsize=13)
 
@@ -824,11 +827,15 @@ class StudyVisualizer(VisualizationParameters):
             if not self.only_one_graph:
                 filename += "{}".format('_'.join(self.plot_name.split())) + '_'
             filename += specific_title
-            filepath = op.join(self.study.result_full_path, filename + '.png')
-            dirname = op.dirname(filepath)
-            if not op.exists(dirname):
-                os.makedirs(dirname, exist_ok=True)
-            plt.savefig(filepath)
+            self.savefig_in_results(filename)
+
+    @classmethod
+    def savefig_in_results(cls, filename):
+        filepath = op.join(AbstractStudy.result_full_path, filename + '.png')
+        dirname = op.dirname(filepath)
+        if not op.exists(dirname):
+            os.makedirs(dirname, exist_ok=True)
+        plt.savefig(filepath)
 
     def visualize_independent_margin_fits(self, threshold=None, axes=None, show=True):
         # Fit either a GEV or a GPD

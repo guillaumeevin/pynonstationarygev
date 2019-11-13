@@ -6,7 +6,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.trend_analysis.abstract_score import MannKendall
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, ExtendedCrocusDepth, \
-    ExtendedCrocusSweTotal, CrocusDaysWithSnowOnGround, CrocusSwe3Days
+    ExtendedCrocusSweTotal, CrocusDaysWithSnowOnGround, CrocusSwe3Days, CrocusSnowLoad3Days, CrocusSnowLoadTotal
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranRainfall, \
     SafranTemperature, SafranTotalPrecip
@@ -23,9 +23,11 @@ SCM_STUDIES_NAMES = [get_display_name_from_object_type(k) for k in SCM_STUDIES]
 SCM_STUDY_NAME_TO_SCM_STUDY = dict(zip(SCM_STUDIES_NAMES, SCM_STUDIES))
 SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
-    CrocusSweTotal: 'SWET',
+    CrocusSweTotal: 'SWE',
     CrocusSwe3Days: 'SWE3',
     CrocusDepth: 'SD',
+    CrocusSnowLoadTotal: 'SL',
+    CrocusSnowLoad3Days: 'SL3',
 }
 
 altitude_massif_name_and_study_class_for_poster = [
@@ -38,6 +40,12 @@ altitude_massif_name_and_study_class_for_poster_evan = [
     (900, 'Chartreuse', CrocusSwe3Days),
     (1800, 'Vanoise', CrocusSwe3Days),
     (2700, 'Parpaillon', CrocusSwe3Days),
+]
+
+altitude_massif_name_and_study_class_for_committee= [
+    (900, 'Chartreuse', CrocusSnowLoad3Days),
+    (1800, 'Vanoise', CrocusSnowLoad3Days),
+    (2700, 'Parpaillon', CrocusSnowLoad3Days),
 ]
 
 
@@ -250,7 +258,8 @@ def max_graph_annual_maxima_poster():
     choice_tuple = [
         altitude_massif_name_and_study_class_for_poster,
         altitude_massif_name_and_study_class_for_poster_evan,
-    ][1]
+        altitude_massif_name_and_study_class_for_committee,
+    ][2]
     for altitude, massif_name, study_class in choice_tuple:
         for study in study_iterator_global([study_class], altitudes=[altitude]):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,

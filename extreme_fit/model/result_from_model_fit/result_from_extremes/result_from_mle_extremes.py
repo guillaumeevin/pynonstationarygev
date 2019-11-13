@@ -1,4 +1,5 @@
 import numpy as np
+import rpy2
 
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_result_from_extremes import \
     AbstractResultFromExtremes
@@ -23,7 +24,10 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
                 'method': method_name,
             # xrange = NULL, nint = 20
         }
-        res = r.ci(self.result_from_fit, **mle_ci_parameters, **common_kwargs)
+        try:
+            res = r.ci(self.result_from_fit, **mle_ci_parameters, **common_kwargs)
+        except rpy2.rinterface.RRuntimeError:
+            return np.nan, (np.nan, np.nan)
         if self.is_non_stationary:
             a = np.array(res)[0]
             lower, mean_estimate, upper, _ = a

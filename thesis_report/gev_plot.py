@@ -38,14 +38,23 @@ def gev_plot_big():
 def gev_plot_big_non_stationary_location():
     lim = 5
     x = np.linspace(-lim, lim, 100)
-    scale, shape = 1, 1
-    locs = [-1, 1]
-    colors = ['red', 'green']
-    y = r.dgev(x, 0.0, scale, shape)
-    plt.plot(x, y, label='distribution of $Y(1968)$', linewidth=5)
+    scale, shape = 1, 0.0
+    locs = [1, 2, 3]
+    inverse_loc_with_scale = True
+    colors = ['red','k', 'green']
+    greek_leeter = ' $\{}_1'.format('mu' if not inverse_loc_with_scale else 'sigma')
+    plt.title('Density for the distribution of Y(t) with different{}$'.format(greek_leeter))
+    template = greek_leeter + '{} 0$'
     for loc, color in zip(locs, colors):
-        sign_str = '>' if loc > 0 else '<'
-        label = 'distribution of $Y(1969)$ with $\mu_1 {} 0$'.format(sign_str)
+        if loc == locs[1]:
+            sign_str = '='
+        elif loc == locs[2]:
+            sign_str = '>'
+        else:
+            sign_str = '<'
+        label = template.format(sign_str)
+        if inverse_loc_with_scale:
+            loc, scale = scale, loc
         y = r.dgev(x, loc, scale, shape)
         plt.plot(x, y, label=label, linewidth=5, color=color)
     plt.legend(prop={'size': 20})

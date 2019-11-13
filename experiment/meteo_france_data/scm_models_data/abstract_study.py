@@ -335,15 +335,16 @@ class AbstractStudy(object):
                 else:
                     ax.fill(*coords_list, **{'color': default_color_for_missing_massif})
 
-                # Add a hatch to visualize the mean & variance variation sign
-                hatch_list = ['//', '\\\\']
-                if massif_name_to_hatch_boolean_list is not None:
-                    if massif_name in massif_name_to_hatch_boolean_list:
-                        a = np.array(coords_list).transpose()
-                        hatch_boolean_list = massif_name_to_hatch_boolean_list[massif_name]
-                        for hatch, is_hatch in zip(hatch_list, hatch_boolean_list):
-                            if is_hatch:
-                                ax.add_patch(Polygon(xy=a, fill=False, hatch=hatch))
+                # For the moment we comment all the part of this code
+                # # Add a hatch to visualize the mean & variance variation sign
+                # hatch_list = ['//', '\\\\']
+                # if massif_name_to_hatch_boolean_list is not None:
+                #     if massif_name in massif_name_to_hatch_boolean_list:
+                #         a = np.array(coords_list).transpose()
+                #         hatch_boolean_list = massif_name_to_hatch_boolean_list[massif_name]
+                #         for hatch, is_hatch in zip(hatch_list, hatch_boolean_list):
+                #             if is_hatch:
+                #                 ax.add_patch(Polygon(xy=a, fill=False, hatch=hatch))
 
         # Display the center of the massif
         masssif_coordinate_for_display = cls.massifs_coordinates_for_display(massif_names)
@@ -404,9 +405,9 @@ class AbstractStudy(object):
     def map_full_path(self) -> str:
         return op.join(self.full_path, 'map')
 
-    @property
-    def result_full_path(self) -> str:
-        return op.join(self.full_path, 'results')
+    @classproperty
+    def result_full_path(cls) -> str:
+        return op.join(cls.full_path, 'results')
 
     @property
     def study_full_path(self) -> str:

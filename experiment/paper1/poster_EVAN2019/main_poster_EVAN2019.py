@@ -17,7 +17,7 @@ mpl.rcParams['hatch.linewidth'] = 0.3
 
 def main_poster_A_non_stationary_model_choice():
     nb = 1
-    for altitude in POSTER_ALTITUDES[:nb]:
+    for altitude in POSTER_ALTITUDES[:]:
         for trend_test_class in [GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest][-nb:]:
             vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
                                                       exact_starting_year=1958, reduce_strength_array=False,
@@ -133,7 +133,7 @@ def main_poster_D_other_quantities_analysis():
 
 
 if __name__ == '__main__':
-    # main_poster_A_non_stationary_model_choice()
-    main_poster_B_starting_years_analysis()
+    main_poster_A_non_stationary_model_choice()
+    # main_poster_B_starting_years_analysis()
     # main_poster_C_orientation_analysis()
     # main_poster_D_other_quantities_analysis()
