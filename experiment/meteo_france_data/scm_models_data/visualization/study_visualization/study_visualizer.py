@@ -354,16 +354,22 @@ class StudyVisualizer(VisualizationParameters):
         start_year, stop_year = self.study.start_year_and_stop_year
         return list(range(start_year, stop_year))
 
-    def massif_name_to_altitude_and_eurocode_level_uncertainty(self, model_class, last_year_for_the_data, massif_names, ci_method, temporal_covariate) -> Dict[str, Tuple[int, EurocodeConfidenceIntervalFromExtremes]]:
-        massif_ids_and_names = [(massif_id, massif_name) for massif_id, massif_name in enumerate(self.study.study_massif_names) if massif_name in  massif_names]
-        arguments = [[last_year_for_the_data, self.smooth_maxima_x_y(massif_id), model_class, ci_method, temporal_covariate] for massif_id, _ in massif_ids_and_names]
+    def massif_name_to_altitude_and_eurocode_level_uncertainty(self, model_class, last_year_for_the_data, massif_names,
+                                                               ci_method, temporal_covariate) -> Dict[
+        str, Tuple[int, EurocodeConfidenceIntervalFromExtremes]]:
+        massif_ids_and_names = [(massif_id, massif_name) for massif_id, massif_name in
+                                enumerate(self.study.study_massif_names) if massif_name in massif_names]
+        arguments = [
+            [last_year_for_the_data, self.smooth_maxima_x_y(massif_id), model_class, ci_method, temporal_covariate] for
+            massif_id, _ in massif_ids_and_names]
         if self.multiprocessing:
             with Pool(NB_CORES) as p:
                 res = p.starmap(compute_eurocode_confidence_interval, arguments)
         else:
             res = [compute_eurocode_confidence_interval(*argument) for argument in arguments]
         res_and_altitude = [(self.study.altitude, r) for r in res]
-        massif_name_to_eurocode_return_level_uncertainty = OrderedDict(zip([massif_name for _, massif_name in massif_ids_and_names], res_and_altitude))
+        massif_name_to_eurocode_return_level_uncertainty = OrderedDict(
+            zip([massif_name for _, massif_name in massif_ids_and_names], res_and_altitude))
         return massif_name_to_eurocode_return_level_uncertainty
 
     # def dep_class_to_eurocode_level_uncertainty(self, model_class, last_year_for_the_data):
@@ -619,25 +625,28 @@ class StudyVisualizer(VisualizationParameters):
         self.plot_name = plot_name
         self.show_or_save_to_file()
 
-    def visualize_max_graphs_poster(self, massif_name, altitude, snow_abbreviation, color):
+    def visualize_max_graphs_poster(self, massif_name, altitude, snow_abbreviation, color, label=None, last_plot=True, ax=None):
         massif_names = self.study.study_massif_names
         # Display the graph of the max on top
-        ax = plt.gca()
+        if ax is None:
+            ax = plt.gca()
         x, y = self.smooth_maxima_x_y(massif_names.index(massif_name))
-        ax.plot(x, y, color=color, linewidth=5)
+        ax.plot(x, y, color=color, linewidth=5, label=label)
         # ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color, fontsize=15)
-        ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), fontsize=15)
-        ax.set_xlabel('years', fontsize=15)
-        ax.set_title('{} at {} m'.format(massif_name, altitude))
-        ax.xaxis.set_ticks(x[2::10])
-        ax.tick_params(axis='both', which='major', labelsize=13)
 
-        # self.visualize_massif_graphs(self.visualize_mean_and_max_graph,
-        #                              specified_massif_ids=specified_massif_ids)
-        plot_name = 'Annual maxima of {} in {} at {}m'.format(snow_abbreviation, massif_name, altitude)
-        self.plot_name = plot_name
-        self.show_or_save_to_file(add_classic_title=False, no_title=True)
-        ax.clear()
+        if last_plot:
+            ax.xaxis.set_ticks(x[2::10])
+            ax.tick_params(axis='both', which='major', labelsize=13)
+            plot_name = 'Annual maxima of {} in {} at {}m'.format(snow_abbreviation, massif_name, altitude)
+            self.plot_name = plot_name
+            ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), fontsize=15)
+            ax.set_xlabel('years', fontsize=15)
+            if label is not None:
+                ax.legend()
+            else:
+                ax.set_title('{} at {} m'.format(massif_name, altitude))
+            self.show_or_save_to_file(add_classic_title=False, no_title=True)
+            ax.clear()
 
     @staticmethod
     def round_sig(x, sig=2):

@@ -70,8 +70,8 @@ def main_drawing_bayesian():
     ax_return_level_posterior = axes[2]
     sns.kdeplot(return_level_bayesian.posterior_eurocode_return_level_samples_for_temporal_covariate,
                 ax=ax_return_level_posterior, color=colors[-1])
-    ax_return_level_posterior.set_xlabel("$z_p(\\theta)")
-    ax_return_level_posterior.set_ylabel("$p(z_p(\\theta)|y)")
+    ax_return_level_posterior.set_xlabel("$z_p(\\theta)$")
+    ax_return_level_posterior.set_ylabel("$p(z_p(\\theta)|y)$")
 
     plt.show()
 

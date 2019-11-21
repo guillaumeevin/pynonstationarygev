@@ -2,7 +2,7 @@ import time
 
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_year_hypercube_visualizer import \
     Altitude_Hypercube_Year_Visualizer
-from experiment.paper1.utils import get_full_altitude_visualizer, FULL_ALTITUDES
+from experiment.paper1_old.utils import get_full_altitude_visualizer, FULL_ALTITUDES
 
 
 def main_fast_spatial_repartition():

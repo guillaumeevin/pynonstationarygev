@@ -24,10 +24,11 @@ def gev_plot_big():
     x = np.linspace(-lim, lim, 100)
     loc, scale = 1, 1
     shapes = [-1, 0, 1]
-    for shape in shapes:
+    colors = ['tab:blue', 'k', 'tab:orange']
+    for shape, color in zip(shapes, colors):
         label = '$\zeta= {} $'.format(shape)
         y = r.dgev(x, loc, scale, shape)
-        plt.plot(x, y, label=label, linewidth=10)
+        plt.plot(x, y, label=label, linewidth=10, color=color)
     plt.legend(prop={'size': 20})
     plt.xlabel('$y$', fontsize=15)
     plt.ylabel('$f_{GEV}(y|1,1,\zeta)$', fontsize=15)
@@ -38,8 +39,8 @@ def gev_plot_big():
 def gev_plot_big_non_stationary_location():
     lim = 5
     x = np.linspace(-lim, lim, 100)
-    scale, shape = 1, 0.0
-    locs = [1, 2, 3]
+    scale, shape = 1, 0
+    locs = [0.5, 1, 2]
     inverse_loc_with_scale = True
     colors = ['red','k', 'green']
     greek_leeter = ' $\{}_1'.format('mu' if not inverse_loc_with_scale else 'sigma')
@@ -55,6 +56,7 @@ def gev_plot_big_non_stationary_location():
         label = template.format(sign_str)
         if inverse_loc_with_scale:
             loc, scale = scale, loc
+        print(loc, scale, shape)
         y = r.dgev(x, loc, scale, shape)
         plt.plot(x, y, label=label, linewidth=5, color=color)
     plt.legend(prop={'size': 20})
@@ -117,8 +119,8 @@ def quantile_function_plot():
 
 
 if __name__ == '__main__':
-    # gev_plot_big()
-    gev_plot_big_non_stationary_location()
+    gev_plot_big()
+    # gev_plot_big_non_stationary_location()
     # max_stable_plot()
     # quantile_function_plot()
     # max_stable_plot_v2()

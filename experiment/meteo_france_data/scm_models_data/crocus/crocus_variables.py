@@ -39,6 +39,7 @@ class AbstractSnowLoadVariable(CrocusVariable):
 class RecentSnowLoadVariable(AbstractSnowLoadVariable, CrocusRecentSweVariable):
     NAME = 'Snow load last 3 days'
 
+
 class TotalSnowLoadVariable(AbstractSnowLoadVariable, CrocusTotalSweVariable):
     NAME = 'Snow load total'
 

@@ -9,7 +9,7 @@ from experiment.trend_analysis.univariate_test.gev_trend_test_two_parameters imp
 """
 Visualize the 0.99 quantile initial value and its evolution
 """
-from experiment.paper1.utils import get_full_altitude_visualizer, FULL_ALTITUDES
+from experiment.paper1_old.utils import get_full_altitude_visualizer, FULL_ALTITUDES
 
 
 def main_fast_spatial_risk_evolution():

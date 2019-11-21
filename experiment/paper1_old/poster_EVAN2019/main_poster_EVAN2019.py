@@ -7,7 +7,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevScaleTrendTest, \
     GevLocationTrendTest
 from experiment.trend_analysis.univariate_test.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
-from experiment.paper1.utils import get_full_altitude_visualizer
+from experiment.paper1_old.utils import get_full_altitude_visualizer
 
 POSTER_ALTITUDES = [900, 1800, 2700]
 import matplotlib as mpl
