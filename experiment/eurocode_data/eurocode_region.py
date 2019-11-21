@@ -1,4 +1,5 @@
 from experiment.eurocode_data.utils import LAST_YEAR_FOR_EUROCODE
+from root_utils import classproperty
 
 
 class AbstractEurocodeRegion(object):
@@ -43,11 +44,13 @@ class AbstractEurocodeRegion(object):
     def lois_de_variation_1000_and_2000(self):
         return 3.5, -2.45
 
-    def plot_max_loading(self, ax, altitudes):
-        # old_label = 'Eurocode computed in {}'.format(LAST_YEAR_FOR_EUROCODE)
-        new_label = 'Eurocode standards'
+    def plot_max_loading(self, ax, altitudes, label='Eurocode standards'):
         ax.plot(altitudes, [self.eurocode_max_loading(altitude) for altitude in altitudes],
-                label=new_label, color='k')
+                label=label, color=self.eurocode_color, linewidth=5)
+
+    @classproperty
+    def eurocode_color(self):
+        raise NotImplementedError
 
 
 class C1(AbstractEurocodeRegion):
@@ -55,11 +58,19 @@ class C1(AbstractEurocodeRegion):
     def __init__(self) -> None:
         super().__init__(0.65, None)
 
+    @classproperty
+    def eurocode_color(self):
+        return 'gold'
+
 
 class C2(AbstractEurocodeRegion):
 
     def __init__(self) -> None:
         super().__init__(0.65, 1.35)
+
+    @classproperty
+    def eurocode_color(self):
+        return 'orange'
 
 
 class E(AbstractEurocodeRegion):
@@ -78,3 +89,9 @@ class E(AbstractEurocodeRegion):
     @property
     def lois_de_variation_1000_and_2000(self):
         return 7, -4.80
+
+    @classproperty
+    def eurocode_color(self):
+        return 'mediumvioletred'
+
+
