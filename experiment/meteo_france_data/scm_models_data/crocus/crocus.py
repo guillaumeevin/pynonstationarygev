@@ -1,10 +1,12 @@
+from collections import OrderedDict
+
 import numpy as np
 
 from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusTotalSweVariable, \
     CrocusDepthVariable, CrocusRecentSweVariable, TotalSnowLoadVariable, RecentSnowLoadVariable, \
-    CrocusSnowLoadEurocodeVariable
+    CrocusSnowLoadEurocodeVariable, CrocusDensityVariable
 
 
 class Crocus(AbstractStudy):
@@ -14,7 +16,8 @@ class Crocus(AbstractStudy):
 
     def __init__(self, variable_class, *args, **kwargs):
         assert variable_class in [CrocusTotalSweVariable, CrocusDepthVariable, CrocusRecentSweVariable,
-                                  RecentSnowLoadVariable, TotalSnowLoadVariable, CrocusSnowLoadEurocodeVariable]
+                                  RecentSnowLoadVariable, TotalSnowLoadVariable, CrocusSnowLoadEurocodeVariable,
+                                  CrocusDensityVariable]
         super().__init__(variable_class, *args, **kwargs)
         self.model_name = 'Crocus'
 
@@ -78,7 +81,6 @@ class CrocusSnowLoadEurocode(Crocus):
         Crocus.__init__(self, CrocusSnowLoadEurocodeVariable, *args, **kwargs)
 
 
-
 class ExtendedCrocusDepth(AbstractExtendedStudy, CrocusDepth):
     pass
 
@@ -102,8 +104,10 @@ if __name__ == '__main__':
             a = np.array(d[v])
             print(list(a))
             print(sorted(list(set(a))))
-
         print(study.year_to_daily_time_serie_array[1958])
+    study = CrocusSnowLoadTotal(altitude=900)
+    print(study.year_to_annual_maxima_index)
+    print(study.year_to_daily_time_serie_array)
 
-        # a = study.year_to_daily_time_serie_array[1960]
-        # print(a)
+    # a = study.year_to_daily_time_serie_array[1960]
+    # print(a)

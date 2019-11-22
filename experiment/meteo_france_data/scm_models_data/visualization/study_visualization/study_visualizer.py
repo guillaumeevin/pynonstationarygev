@@ -625,7 +625,7 @@ class StudyVisualizer(VisualizationParameters):
         self.plot_name = plot_name
         self.show_or_save_to_file()
 
-    def visualize_max_graphs_poster(self, massif_name, altitude, snow_abbreviation, color, label=None, last_plot=True, ax=None, linestyle=None):
+    def visualize_max_graphs_poster(self, massif_name, altitude, snow_abbreviation, color, label=None, last_plot=True, ax=None, linestyle=None, tight_pad=None):
         massif_names = self.study.study_massif_names
         # Display the graph of the max on top
         if ax is None:
@@ -634,18 +634,19 @@ class StudyVisualizer(VisualizationParameters):
         ax.plot(x, y, color=color, linewidth=5, label=label, linestyle=linestyle)
         # ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color, fontsize=15)
 
+
+        ax.xaxis.set_ticks(x[2::10])
+        ax.tick_params(axis='both', which='major', labelsize=13)
+        plot_name = 'Annual maxima of {} in {} at {}m'.format(snow_abbreviation, massif_name, altitude)
+        self.plot_name = plot_name
+        ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), fontsize=15)
+        ax.set_xlabel('years', fontsize=15)
+        if label is None:
+            ax.set_title('{} at {} m'.format(massif_name, altitude))
         if last_plot:
-            ax.xaxis.set_ticks(x[2::10])
-            ax.tick_params(axis='both', which='major', labelsize=13)
-            plot_name = 'Annual maxima of {} in {} at {}m'.format(snow_abbreviation, massif_name, altitude)
-            self.plot_name = plot_name
-            ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), fontsize=15)
-            ax.set_xlabel('years', fontsize=15)
-            if label is not None:
-                ax.legend()
-            else:
-                ax.set_title('{} at {} m'.format(massif_name, altitude))
-            self.show_or_save_to_file(add_classic_title=False, no_title=True)
+            ax.legend()
+
+            self.show_or_save_to_file(add_classic_title=False, no_title=True, tight_layout=True, tight_pad=tight_pad)
             ax.clear()
 
     @staticmethod
@@ -815,9 +816,12 @@ class StudyVisualizer(VisualizationParameters):
         ax.get_yaxis().set_visible(False)
         ax.set_aspect('equal')
 
-    def show_or_save_to_file(self, add_classic_title=True, no_title=False, tight_layout=False):
+    def show_or_save_to_file(self, add_classic_title=True, no_title=False, tight_layout=False, tight_pad=None):
         if tight_layout:
-            plt.tight_layout()
+            if tight_pad is not None:
+                plt.tight_layout(**tight_pad)
+            else:
+                plt.tight_layout()
         assert self.plot_name is not None
         if add_classic_title:
             title = self.study.title

@@ -114,6 +114,14 @@ class AbstractStudy(object):
             year_to_annual_maxima[year] = time_serie.max(axis=0)
         return year_to_annual_maxima
 
+    @cached_property
+    def year_to_annual_maxima_index(self) -> OrderedDict:
+        # Map each year to an array of size nb_massif
+        year_to_annual_maxima = OrderedDict()
+        for year, time_serie in self._year_to_max_daily_time_serie.items():
+            year_to_annual_maxima[year] = time_serie.argmax(axis=0)
+        return year_to_annual_maxima
+
     """ Annual total """
 
     @property
@@ -265,7 +273,7 @@ class AbstractStudy(object):
 
     @property
     def variable_name(self):
-        return self.variable_class.NAME + ' (in {})'.format(self.variable_unit)
+        return self.variable_class.NAME + ' ({})'.format(self.variable_unit)
 
     @property
     def variable_unit(self):

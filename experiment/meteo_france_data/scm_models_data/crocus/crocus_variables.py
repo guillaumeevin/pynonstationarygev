@@ -54,11 +54,21 @@ class CrocusDepthVariable(CrocusVariable):
         return "DSN_T_ISBA"
 
 
-class CrocusSnowLoadEurocodeVariable(CrocusDepthVariable):
+class CrocusDensityVariable(CrocusVariable):
+    NAME = 'Snow Density'
+    UNIT = 'kg $m^-3$'
+
+    @classmethod
+    def keyword(cls):
+        # Load the snow depth by default
+        return "DSN_T_ISBA"
+
+
+class CrocusSnowLoadEurocodeVariable(AbstractSnowLoadVariable, CrocusDepthVariable):
     eurocode_snow_density = 150
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:
-        snow_weight = super().daily_time_serie_array * self.eurocode_snow_density
+        snow_weight = super(CrocusDepthVariable, self).daily_time_serie_array * self.eurocode_snow_density
         snow_pressure = self.snow_load_multiplication_factor * snow_weight
         return snow_pressure

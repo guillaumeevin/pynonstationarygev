@@ -14,12 +14,13 @@ def main_eurocode_norms(ax=None):
         for region_class in [C1, C2, E][:]:
             region_object = region_class()
             label = get_display_name_from_object_type(region_class) + ' Eurocode region'
-            region_object.plot_max_loading(ax, altitudes, label=label)
+            linestyle = '--' if region_class == C2 else '-'
+            region_object.plot_eurocode_snow_load_on_ground_characteristic_value_variable_action(ax, altitudes, label=label, linestyle=linestyle)
             if region_class == E:
                 ax.legend()
                 ax.xaxis.set_ticks([250 * i for i in range(1, 9)])
                 ax.tick_params(axis='both', which='major', labelsize=13)
-                ax.set_ylabel('50-year return level (kN $m^-2$)')
+                ax.set_ylabel('50-year return level of SL (kN $m^-2$)')
                 ax.set_xlabel('Altitude (m)')
                 ax.set_ylim([0.0, 11.0])
                 ax.grid()
@@ -34,5 +35,5 @@ def main_eurocode_map(ax=None):
 
 
 if __name__ == '__main__':
-    # main_eurocode_norms()
-    main_eurocode_map()
+    main_eurocode_norms()
+    # main_eurocode_map()

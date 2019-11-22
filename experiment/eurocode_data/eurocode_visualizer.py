@@ -67,7 +67,7 @@ def plot_label_to_ordered_return_level_uncertainties(ax, massif_name, model_name
         ordered_return_level_uncertaines = l[1]  # type: List[EurocodeConfidenceIntervalFromExtremes]
         # Plot eurocode standards only for the first loop
         if j == 0:
-            eurocode_region.plot_max_loading(ax, altitudes=altitudes)
+            eurocode_region.plot_eurocode_snow_load_on_ground_characteristic_value_variable_action(ax, altitudes=altitudes)
         conversion_factor = 9.8 / 1000
         mean = [r.mean_estimate * conversion_factor for r in ordered_return_level_uncertaines]
         # Filter and keep only non nan values

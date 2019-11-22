@@ -3,6 +3,8 @@ from typing import List
 
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
+from experiment.paper_past_snow_loads.data.crocus_study_comparison_with_eurocode import CrocusDifferenceSnowLoad, \
+    CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization
 from experiment.trend_analysis.abstract_score import MannKendall
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, ExtendedCrocusDepth, \
@@ -19,6 +21,10 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
     BetweenZeroAndOneNormalization, BetweenMinusOneAndOneNormalization
 from root_utils import get_display_name_from_object_type
 
+snow_density_str = '$\\rho_{SNOW}$'
+eurocode_snow_density = '{}=150 kg $m^-3$'.format(snow_density_str)
+SLEurocode = 'SL from max HS with ' + eurocode_snow_density
+
 SCM_STUDIES = [SafranSnowfall, CrocusSweTotal, CrocusDepth, CrocusSwe3Days]
 SCM_STUDIES_NAMES = [get_display_name_from_object_type(k) for k in SCM_STUDIES]
 SCM_STUDY_NAME_TO_SCM_STUDY = dict(zip(SCM_STUDIES_NAMES, SCM_STUDIES))
@@ -28,8 +34,11 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusSwe3Days: 'SWE3',
     CrocusSnowLoadEurocode: 'SL_Eurocode',
     CrocusDepth: 'SD',
-    CrocusSnowLoadTotal: 'SL',
+    CrocusSnowLoadTotal: 'max SL',
     CrocusSnowLoad3Days: 'SL3',
+    CrocusSnowDensityAtMaxofSwe: '{} when the max of SL \nis reached'.format(snow_density_str),
+    CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization: 'max SL rescaled - SL from max HS \nboth with {}'.format(eurocode_snow_density),
+    CrocusDifferenceSnowLoad: ('max SL - SL from max HS \n with {}'.format(eurocode_snow_density))
 }
 
 altitude_massif_name_and_study_class_for_poster = [
@@ -44,12 +53,11 @@ altitude_massif_name_and_study_class_for_poster_evan = [
     (2700, 'Parpaillon', CrocusSwe3Days),
 ]
 
-altitude_massif_name_and_study_class_for_committee= [
+altitude_massif_name_and_study_class_for_committee = [
     (900, 'Chartreuse', CrocusSnowLoad3Days),
     (1800, 'Vanoise', CrocusSnowLoad3Days),
     (2700, 'Parpaillon', CrocusSnowLoad3Days),
 ]
-
 
 SCM_STUDY_NAME_TO_ABBREVIATION = {get_display_name_from_object_type(k): v for k, v in
                                   SCM_STUDY_CLASS_TO_ABBREVIATION.items()}
@@ -72,10 +80,12 @@ ALL_ALTITUDES_WITH_20_STATIONS_AT_LEAST = ALL_ALTITUDES[3:-6][:]
 ALL_STUDIES = SCM_STUDIES + [SafranTemperature, SafranRainfall]
 
 
-def study_iterator_global(study_classes, only_first_one=False, verbose=True, altitudes=None, nb_days=None, orientations=None) -> \
+def study_iterator_global(study_classes, only_first_one=False, verbose=True, altitudes=None, nb_days=None,
+                          orientations=None) -> \
         List[AbstractStudy]:
     for study_class in study_classes:
-        for study in study_iterator(study_class, only_first_one, verbose, altitudes, nb_days, orientations=orientations):
+        for study in study_iterator(study_class, only_first_one, verbose, altitudes, nb_days,
+                                    orientations=orientations):
             yield study
         if only_first_one:
             break
