@@ -6,7 +6,8 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.trend_analysis.abstract_score import MannKendall
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, ExtendedCrocusDepth, \
-    ExtendedCrocusSweTotal, CrocusDaysWithSnowOnGround, CrocusSwe3Days, CrocusSnowLoad3Days, CrocusSnowLoadTotal
+    ExtendedCrocusSweTotal, CrocusDaysWithSnowOnGround, CrocusSwe3Days, CrocusSnowLoad3Days, CrocusSnowLoadTotal, \
+    CrocusSnowLoadEurocode
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranRainfall, \
     SafranTemperature, SafranTotalPrecip
@@ -25,6 +26,7 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
     CrocusSweTotal: 'SWE',
     CrocusSwe3Days: 'SWE3',
+    CrocusSnowLoadEurocode: 'SL_Eurocode',
     CrocusDepth: 'SD',
     CrocusSnowLoadTotal: 'SL',
     CrocusSnowLoad3Days: 'SL3',

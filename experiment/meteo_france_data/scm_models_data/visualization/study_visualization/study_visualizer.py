@@ -625,13 +625,13 @@ class StudyVisualizer(VisualizationParameters):
         self.plot_name = plot_name
         self.show_or_save_to_file()
 
-    def visualize_max_graphs_poster(self, massif_name, altitude, snow_abbreviation, color, label=None, last_plot=True, ax=None):
+    def visualize_max_graphs_poster(self, massif_name, altitude, snow_abbreviation, color, label=None, last_plot=True, ax=None, linestyle=None):
         massif_names = self.study.study_massif_names
         # Display the graph of the max on top
         if ax is None:
             ax = plt.gca()
         x, y = self.smooth_maxima_x_y(massif_names.index(massif_name))
-        ax.plot(x, y, color=color, linewidth=5, label=label)
+        ax.plot(x, y, color=color, linewidth=5, label=label, linestyle=linestyle)
         # ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color, fontsize=15)
 
         if last_plot:

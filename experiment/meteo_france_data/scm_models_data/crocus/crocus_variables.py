@@ -4,6 +4,7 @@ from experiment.meteo_france_data.scm_models_data.abstract_variable import Abstr
 
 
 class CrocusVariable(AbstractVariable):
+    snow_load_multiplication_factor = 9.81 / 1000
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:
@@ -29,11 +30,11 @@ class CrocusRecentSweVariable(CrocusTotalSweVariable):
 
 class AbstractSnowLoadVariable(CrocusVariable):
     UNIT = 'kN $m^{-2}$'
-    snow_load_multiplication_factor = 9.81 / 1000
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:
-        return self.snow_load_multiplication_factor * super().daily_time_serie_array
+        snow_pressure = self.snow_load_multiplication_factor * super().daily_time_serie_array
+        return snow_pressure
 
 
 class RecentSnowLoadVariable(AbstractSnowLoadVariable, CrocusRecentSweVariable):
@@ -51,3 +52,13 @@ class CrocusDepthVariable(CrocusVariable):
     @classmethod
     def keyword(cls):
         return "DSN_T_ISBA"
+
+
+class CrocusSnowLoadEurocodeVariable(CrocusDepthVariable):
+    eurocode_snow_density = 150
+
+    @property
+    def daily_time_serie_array(self) -> np.ndarray:
+        snow_weight = super().daily_time_serie_array * self.eurocode_snow_density
+        snow_pressure = self.snow_load_multiplication_factor * snow_weight
+        return snow_pressure
