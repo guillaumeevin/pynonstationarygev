@@ -304,6 +304,7 @@ class AbstractStudy(object):
                         axis_off=False,
                         massif_name_to_hatch_boolean_list=None,
                         norm=None,
+                        massif_name_to_marker_style=None,
                         ):
         if ax is None:
             ax = plt.gca()
@@ -323,6 +324,7 @@ class AbstractStudy(object):
         massif_name_to_fill_kwargs = {massif_name: {'color': color} for massif_name, color in
                                       massif_name_to_color.items()}
         massif_names = list(massif_name_to_fill_kwargs.keys())
+        masssif_coordinate_for_display = cls.massifs_coordinates_for_display(massif_names)
 
         for coordinate_id, coords_list in cls.idx_to_coords_list.items():
             # Retrieve the list of coords (x,y) that define the contour of the massif of id coordinate_id
@@ -337,6 +339,13 @@ class AbstractStudy(object):
             # Potentially, fill the inside of the polygon with some color
             if fill and coordinate_id in cls.coordinate_id_to_massif_name:
                 massif_name = cls.coordinate_id_to_massif_name[coordinate_id]
+                if massif_name in massif_name_to_marker_style:
+                    massif_coordinate = masssif_coordinate_for_display.df_all_coordinates.loc[massif_name, :].values
+                    if massif_name in ['Maurienne', 'Mercantour']:
+                        massif_coordinate[1] -= 5000
+                    ax.plot(massif_coordinate[0],
+                            massif_coordinate[1], **massif_name_to_marker_style[massif_name])
+
                 if massif_name_to_fill_kwargs is not None and massif_name in massif_name_to_fill_kwargs:
                     fill_kwargs = massif_name_to_fill_kwargs[massif_name]
                     ax.fill(*coords_list, **fill_kwargs)
@@ -354,11 +363,7 @@ class AbstractStudy(object):
                 #             if is_hatch:
                 #                 ax.add_patch(Polygon(xy=a, fill=False, hatch=hatch))
 
-        # Display the center of the massif
-        masssif_coordinate_for_display = cls.massifs_coordinates_for_display(massif_names)
 
-        ax.scatter(masssif_coordinate_for_display.x_coordinates,
-                   masssif_coordinate_for_display.y_coordinates, s=1)
         if show_label:
             # Improve some explanation on the X axis and on the Y axis
             ax.set_xlabel('Longitude (km)')

@@ -25,6 +25,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                          transformation_class, verbose, multiprocessing, complete_non_stationary_trend_analysis,
                          normalization_under_one_observations, score_class)
         self.non_stationary_trend_test = [GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest]
+        self.non_stationary_trend_test_to_marker = dict(zip(self.non_stationary_trend_test, ["s", "^", "D"]))
 
     # Utils
 
@@ -64,27 +65,33 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     def plot_trends(self):
         v = max(abs(min(self.massif_name_to_tdrl_value.values())), max(self.massif_name_to_tdrl_value.values()))
-        vmin, vmax = -v,  v
+        vmin, vmax = -v, v
         self.study.visualize_study(massif_name_to_value=self.massif_name_to_tdrl_value, vmin=vmin, vmax=vmax,
                                    replace_blue_by_white=False, axis_off=True, show_label=False,
-                                   add_colorbar=True)
+                                   add_colorbar=True,
+                                   massif_name_to_marker_style=self.massif_name_to_marker_style)
 
     @cached_property
     def massif_name_to_tdrl_value(self):
-        return {m: t.time_derivative_of_return_level for m, t in self.massif_name_to_minimized_aic_non_stationary_trend_test.items()}
+        return {m: t.time_derivative_of_return_level for m, t in
+                self.massif_name_to_minimized_aic_non_stationary_trend_test.items()}
 
     @property
-    def massif_name_to_minimized_aic_model_class(self):
-        return {m: t.unconstrained_model_class for m, t in self.massif_name_to_minimized_aic_non_stationary_trend_test.items()}
-
-    @property
-    def massif_name_to_model_significance_symbol(self):
-        return {}
-
+    def massif_name_to_marker_style(self):
+        d = {}
+        for m, t in self.massif_name_to_minimized_aic_non_stationary_trend_test.items():
+            d[m] = {'marker': self.non_stationary_trend_test_to_marker[type(t)],
+                    'color': 'k',
+                    'markersize': 5,
+                    'fillstyle': 'full' if t.is_significant else 'none'}
+        return d
 
     # Part 1 - Uncertainty return level plot
 
-
+    @property
+    def massif_name_to_minimized_aic_model_class(self):
+        return {m: t.unconstrained_model_class for m, t in
+                self.massif_name_to_minimized_aic_non_stationary_trend_test.items()}
 
     def massif_name_to_uncertainty(self):
         pass
