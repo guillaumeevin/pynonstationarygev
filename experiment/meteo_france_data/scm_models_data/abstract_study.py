@@ -225,6 +225,7 @@ class AbstractStudy(object):
 
     @property
     def study_massif_names(self) -> List[str]:
+        # Massif names that are present in the current study (i.e. for the current altitude)
         return self.altitude_to_massif_names[self.altitude]
 
     @property
@@ -490,6 +491,7 @@ class AbstractStudy(object):
         for massif_name in self.massif_name_to_altitudes.keys():
             for altitude in self.massif_name_to_altitudes[massif_name]:
                 altitude_to_massif_names[altitude].append(massif_name)
+        # massif_names are ordered in the same way as all_massif_names
         return altitude_to_massif_names
 
     """ Visualization methods """

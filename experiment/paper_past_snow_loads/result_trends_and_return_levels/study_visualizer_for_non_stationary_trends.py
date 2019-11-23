@@ -15,6 +15,8 @@ from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter impo
     GevLocationTrendTest
 from experiment.trend_analysis.univariate_test.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
+from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
+    ConfidenceIntervalMethodFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     compute_eurocode_confidence_interval, EurocodeConfidenceIntervalFromExtremes
 from root_utils import NB_CORES
@@ -26,11 +28,29 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False,
                  temporal_non_stationarity=False, transformation_class=None, verbose=False, multiprocessing=False,
                  complete_non_stationary_trend_analysis=False, normalization_under_one_observations=True,
-                 score_class=MeanScore):
+                 score_class=MeanScore,
+                 uncertainty_methods=None,
+                 non_stationary_contexts=None,
+                 uncertainty_massif_names=None,
+                 effective_temporal_covariate=2017):
         super().__init__(study, show, save_to_file, only_one_graph, only_first_row, vertical_kde_plot,
                          year_for_kde_plot, plot_block_maxima_quantiles, temporal_non_stationarity,
                          transformation_class, verbose, multiprocessing, complete_non_stationary_trend_analysis,
                          normalization_under_one_observations, score_class)
+        # Add some attributes
+        self.effective_temporal_covariate = effective_temporal_covariate
+        self.non_stationary_contexts = non_stationary_contexts
+        self.uncertainty_methods = uncertainty_methods
+        self.uncertainty_massif_names = uncertainty_massif_names
+        # Assign some default arguments
+        if self.non_stationary_contexts is None:
+            self.non_stationary_contexts = [False, True][:1]
+        if self.uncertainty_methods is None:
+            self.uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
+                                        ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
+        if self.uncertainty_massif_names is None:
+            self.uncertainty_massif_names = self.study.study_massif_names
+        # Assign default argument for the non stationary trends
         self.non_stationary_trend_test = [GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest]
         self.non_stationary_trend_test_to_marker = dict(zip(self.non_stationary_trend_test, ["s", "^", "D"]))
 
@@ -103,7 +123,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                     'fillstyle': 'full' if t.is_significant else 'none'}
         return d
 
-    # Part 1 - Uncertainty return level plot
+    # Part 2 - Uncertainty return level plot
 
     def massif_name_to_model_class(self, massif_name, non_stationary_model):
         if not non_stationary_model:
@@ -111,23 +131,37 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         else:
             return self.massif_name_to_minimized_aic_non_stationary_trend_test[massif_name].unconstrained_model_class
 
-    def massif_name_to_uncertainty(self):
-        pass
+    @property
+    def nb_contexts(self):
+        return len(self.non_stationary_contexts)
 
-    def massif_name_to_altitude_and_eurocode_level_uncertainty_for_minimized_aic_model_class(self, massif_names,
-                                                                                             ci_method,
-                                                                                             effective_temporal_covariate,
-                                                                                             non_stationary_model) \
+    @property
+    def nb_uncertainty_method(self):
+        return len(self.uncertainty_methods)
+
+    def massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method, non_stationary_model) \
             -> Dict[str, Tuple[int, EurocodeConfidenceIntervalFromExtremes]]:
         arguments = [
             [self.massif_name_to_non_null_years_and_maxima[m],
              self.massif_name_to_model_class(m, non_stationary_model),
-             ci_method, effective_temporal_covariate] for m in massif_names]
+             ci_method, self.effective_temporal_covariate] for m in self.uncertainty_massif_names]
         if self.multiprocessing:
             with Pool(NB_CORES) as p:
                 res = p.starmap(compute_eurocode_confidence_interval, arguments)
         else:
             res = [compute_eurocode_confidence_interval(*argument) for argument in arguments]
-        altitudes_and_res = [(self.study.altitude, r) for r in res]
-        massif_name_to_eurocode_return_level_uncertainty = OrderedDict(zip(massif_names, altitudes_and_res))
+        massif_name_to_eurocode_return_level_uncertainty = OrderedDict(zip(self.uncertainty_massif_names, res))
         return massif_name_to_eurocode_return_level_uncertainty
+
+    @cached_property
+    def triplet_to_eurocode_uncertainty(self):
+        d = {}
+        for ci_method in self.uncertainty_methods:
+            for non_stationary_uncertainty in self.non_stationary_contexts:
+                for uncertainty_massif_name, eurocode_uncertainty in self.massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(
+                        ci_method, non_stationary_uncertainty).items():
+                    d[(ci_method, non_stationary_uncertainty, uncertainty_massif_name)] = eurocode_uncertainty
+        return d
+
+    def model_name_to_uncertainty_method_to_ratio_above_eurocode(self):
+        assert self.uncertainty_massif_names == self.study.study_massif_names

@@ -8,7 +8,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     ConfidenceIntervalMethodFromExtremes
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.eurocode_visualizer import \
-    plot_massif_name_to_model_name_to_uncertainty_method_to_ordered_dict, get_model_name
+    plot_uncertainty_massifs, get_model_name
 from experiment.eurocode_data.massif_name_to_departement import MASSIF_NAMES_ALPS
 from experiment.eurocode_data.utils import EUROCODE_ALTITUDES
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSwe3Days, CrocusSweTotal
@@ -73,7 +73,7 @@ def plot_ci_graphs(altitudes, massif_names, model_class_and_last_year, show, tem
               model_name_to_massif_name_to_ordered_return_level.keys()}
         massif_name_to_model_name_to_ordered_return_level_uncertainties[massif_name] = d2
     # Plot graph
-    plot_massif_name_to_model_name_to_uncertainty_method_to_ordered_dict(
+    plot_uncertainty_massifs(
         massif_name_to_model_name_to_ordered_return_level_uncertainties, nb_massif_names=len(massif_names),
         nb_model_names=len(model_class_and_last_year))
     if show:
