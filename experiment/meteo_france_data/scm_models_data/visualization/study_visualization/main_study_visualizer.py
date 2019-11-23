@@ -3,7 +3,7 @@ from typing import List
 
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
-from experiment.paper_past_snow_loads.data.crocus_study_comparison_with_eurocode import CrocusDifferenceSnowLoad, \
+from experiment.paper_past_snow_loads.result_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import CrocusDifferenceSnowLoad, \
     CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization
 from experiment.trend_analysis.abstract_score import MannKendall
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy

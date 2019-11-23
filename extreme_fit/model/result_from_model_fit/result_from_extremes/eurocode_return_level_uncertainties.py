@@ -11,10 +11,8 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_int
     ConfidenceIntervalMethodFromExtremes
 
 
-def compute_eurocode_confidence_interval(last_year_for_the_data, smooth_maxima_x_y, model_class, ci_method, temporal_covariate):
+def compute_eurocode_confidence_interval(smooth_maxima_x_y, model_class, ci_method, temporal_covariate):
     years, smooth_maxima = smooth_maxima_x_y
-    idx = years.index(last_year_for_the_data) + 1
-    years, smooth_maxima = years[:idx], smooth_maxima[:idx]
     return EurocodeConfidenceIntervalFromExtremes.from_maxima_years_model_class(smooth_maxima, years, model_class, temporal_covariate, ci_method)
 
 

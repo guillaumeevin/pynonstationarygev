@@ -3,15 +3,14 @@ import os.path as op
 import matplotlib.pyplot as plt
 from collections import OrderedDict
 
-from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     ConfidenceIntervalMethodFromExtremes
-from experiment.eurocode_data.eurocode_visualizer import \
+from experiment.paper_past_snow_loads.result_trends_and_return_levels.eurocode_visualizer import \
     plot_massif_name_to_model_name_to_uncertainty_method_to_ordered_dict, get_model_name
 from experiment.eurocode_data.massif_name_to_departement import MASSIF_NAMES_ALPS
-from experiment.eurocode_data.utils import EUROCODE_ALTITUDES, LAST_YEAR_FOR_EUROCODE
+from experiment.eurocode_data.utils import EUROCODE_ALTITUDES
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSwe3Days, CrocusSweTotal
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_hypercube_visualizer import \
     AltitudeHypercubeVisualizer

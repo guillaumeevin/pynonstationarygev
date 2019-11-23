@@ -1,4 +1,7 @@
-from typing import Dict
+from collections import OrderedDict
+import matplotlib.pyplot as plt
+from multiprocessing.pool import Pool
+from typing import Dict, Tuple
 
 import numpy as np
 from cached_property import cached_property
@@ -11,6 +14,10 @@ from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import Ab
 from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevScaleTrendTest, \
     GevLocationTrendTest
 from experiment.trend_analysis.univariate_test.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
+from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
+    compute_eurocode_confidence_interval, EurocodeConfidenceIntervalFromExtremes
+from root_utils import NB_CORES
 
 
 class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
@@ -63,13 +70,23 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     # Part 1 - Trends
 
-    def plot_trends(self):
-        v = max(abs(min(self.massif_name_to_tdrl_value.values())), max(self.massif_name_to_tdrl_value.values()))
-        vmin, vmax = -v, v
-        self.study.visualize_study(massif_name_to_value=self.massif_name_to_tdrl_value, vmin=vmin, vmax=vmax,
+    @property
+    def max_abs_tdrl(self):
+        return max(abs(min(self.massif_name_to_tdrl_value.values())), max(self.massif_name_to_tdrl_value.values()))
+
+    def plot_trends(self, max_abs_tdrl=None):
+        if max_abs_tdrl is None:
+            max_abs_tdrl = self.max_abs_tdrl
+        assert max_abs_tdrl > 0
+        self.study.visualize_study(massif_name_to_value=self.massif_name_to_tdrl_value,
+                                   vmin=-max_abs_tdrl, vmax=max_abs_tdrl,
                                    replace_blue_by_white=False, axis_off=True, show_label=False,
                                    add_colorbar=True,
-                                   massif_name_to_marker_style=self.massif_name_to_marker_style)
+                                   massif_name_to_marker_style=self.massif_name_to_marker_style,
+                                   show=self.show)
+        self.plot_name = 'tdlr_trends'
+        self.show_or_save_to_file(add_classic_title=False, tight_layout=False, no_title=True)
+        plt.close()
 
     @cached_property
     def massif_name_to_tdrl_value(self):
@@ -88,10 +105,29 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     # Part 1 - Uncertainty return level plot
 
-    @property
-    def massif_name_to_minimized_aic_model_class(self):
-        return {m: t.unconstrained_model_class for m, t in
-                self.massif_name_to_minimized_aic_non_stationary_trend_test.items()}
+    def massif_name_to_model_class(self, massif_name, non_stationary_model):
+        if not non_stationary_model:
+            return StationaryTemporalModel
+        else:
+            return self.massif_name_to_minimized_aic_non_stationary_trend_test[massif_name].unconstrained_model_class
 
     def massif_name_to_uncertainty(self):
         pass
+
+    def massif_name_to_altitude_and_eurocode_level_uncertainty_for_minimized_aic_model_class(self, massif_names,
+                                                                                             ci_method,
+                                                                                             effective_temporal_covariate,
+                                                                                             non_stationary_model) \
+            -> Dict[str, Tuple[int, EurocodeConfidenceIntervalFromExtremes]]:
+        arguments = [
+            [self.massif_name_to_non_null_years_and_maxima[m],
+             self.massif_name_to_model_class(m, non_stationary_model),
+             ci_method, effective_temporal_covariate] for m in massif_names]
+        if self.multiprocessing:
+            with Pool(NB_CORES) as p:
+                res = p.starmap(compute_eurocode_confidence_interval, arguments)
+        else:
+            res = [compute_eurocode_confidence_interval(*argument) for argument in arguments]
+        altitudes_and_res = [(self.study.altitude, r) for r in res]
+        massif_name_to_eurocode_return_level_uncertainty = OrderedDict(zip(massif_names, altitudes_and_res))
+        return massif_name_to_eurocode_return_level_uncertainty

@@ -4,7 +4,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 import matplotlib.pyplot as plt
 
-from experiment.paper_past_snow_loads.data.crocus_study_comparison_with_eurocode import CrocusDifferenceSnowLoad, \
+from experiment.paper_past_snow_loads.result_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import CrocusDifferenceSnowLoad, \
     CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization
 
 

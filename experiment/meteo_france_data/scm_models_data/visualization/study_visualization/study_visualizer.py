@@ -354,22 +354,22 @@ class StudyVisualizer(VisualizationParameters):
         start_year, stop_year = self.study.start_year_and_stop_year
         return list(range(start_year, stop_year))
 
-    def massif_name_to_altitude_and_eurocode_level_uncertainty(self, model_class, last_year_for_the_data, massif_names,
-                                                               ci_method, temporal_covariate) -> Dict[
+    def massif_name_to_altitude_and_eurocode_level_uncertainty(self, model_class, massif_names,
+                                                               ci_method, effective_temporal_covariate) -> Dict[
         str, Tuple[int, EurocodeConfidenceIntervalFromExtremes]]:
         massif_ids_and_names = [(massif_id, massif_name) for massif_id, massif_name in
                                 enumerate(self.study.study_massif_names) if massif_name in massif_names]
         arguments = [
-            [last_year_for_the_data, self.smooth_maxima_x_y(massif_id), model_class, ci_method, temporal_covariate] for
+            [self.smooth_maxima_x_y(massif_id), model_class, ci_method, effective_temporal_covariate] for
             massif_id, _ in massif_ids_and_names]
         if self.multiprocessing:
             with Pool(NB_CORES) as p:
                 res = p.starmap(compute_eurocode_confidence_interval, arguments)
         else:
             res = [compute_eurocode_confidence_interval(*argument) for argument in arguments]
-        res_and_altitude = [(self.study.altitude, r) for r in res]
+        altitudes_and_res = [(self.study.altitude, r) for r in res]
         massif_name_to_eurocode_return_level_uncertainty = OrderedDict(
-            zip([massif_name for _, massif_name in massif_ids_and_names], res_and_altitude))
+            zip([massif_name for _, massif_name in massif_ids_and_names], altitudes_and_res))
         return massif_name_to_eurocode_return_level_uncertainty
 
     # def dep_class_to_eurocode_level_uncertainty(self, model_class, last_year_for_the_data):
