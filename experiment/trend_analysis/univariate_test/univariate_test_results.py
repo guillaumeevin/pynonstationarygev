@@ -12,7 +12,7 @@ def compute_gev_change_point_test_result(smooth_maxima, starting_year, trend_tes
     trend_test = trend_test_class(years, smooth_maxima, starting_year)  # type: AbstractGevTrendTest
     assert isinstance(trend_test, AbstractGevTrendTest)
     return trend_test.test_trend_type, \
-           trend_test.test_trend_slope_strength, \
+           trend_test.time_derivative_of_return_level, \
            trend_test.unconstained_nllh, \
            trend_test.test_trend_constant_quantile, \
            trend_test.mean_difference_same_sign_as_slope_strenght, \

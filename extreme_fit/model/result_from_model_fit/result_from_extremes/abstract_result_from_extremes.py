@@ -15,6 +15,14 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
         self.gev_param_name_to_dim = gev_param_name_to_dim
 
     @property
+    def results(self):
+        return self.get_python_dictionary(self.name_to_value['results'])
+
+    @property
+    def nllh(self):
+        return np.array(self.results['value'])[0]
+
+    @property
     def is_non_stationary(self):
         return len(self.gev_param_name_to_dim) > 0
 

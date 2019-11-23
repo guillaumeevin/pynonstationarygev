@@ -299,7 +299,7 @@ class AbstractStudy(object):
                         default_color_for_nan_values='w',
                         massif_name_to_color=None,
                         show_label=True,
-                        scaled=False,
+                        scaled=True,
                         fontsize=7,
                         axis_off=False,
                         massif_name_to_hatch_boolean_list=None,

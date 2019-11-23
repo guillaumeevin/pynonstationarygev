@@ -27,10 +27,6 @@ class ResultFromIsmev(AbstractResultFromModelFit):
         return convertFloatVector_to_float(self.name_to_value['nllh'])
 
     @property
-    def deviance(self):
-        return - 2 * self.nllh
-
-    @property
     def convergence(self) -> str:
         return convertFloatVector_to_float(self.name_to_value['conv']) == 0
 

@@ -42,7 +42,7 @@ class AbstractResultFromModelFit(object):
 
     @property
     def deviance(self):
-        raise NotImplementedError
+        return - 2 * self.nllh
 
     @property
     def convergence(self) -> str:

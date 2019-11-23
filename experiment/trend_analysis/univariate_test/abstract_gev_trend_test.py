@@ -27,15 +27,29 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
                  constrained_model_class=StationaryTemporalModel,
                  ):
         super().__init__(years, maxima, starting_year)
-        self.fit_method = TemporalMarginFitMethod.is_mev_gev_fit
+        self.unconstrained_model_class = unconstrained_model_class
+        self.constrained_model_class = constrained_model_class
+        self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
         # Load observations, coordinates and datasets
         self.coordinates, self.dataset = load_temporal_coordinates_and_dataset(maxima, years)
+        # By default crashed boolean is False
+        self.crashed = False
         try:
-            # Fit constrained model
-            self.constrained_estimator = fitted_linear_margin_estimator(constrained_model_class, self.coordinates, self.dataset, self.starting_year, self.fit_method)
-            # Fit unconstrained model
-            self.unconstrained_estimator = fitted_linear_margin_estimator(unconstrained_model_class, self.coordinates, self.dataset, self.starting_year, self.fit_method)
-            self.crashed = False
+            pass
+        except SafeRunException:
+            self.crashed = True
+
+    @cached_property
+    def constrained_estimator(self):
+        try:
+            return fitted_linear_margin_estimator(self.constrained_model_class, self.coordinates, self.dataset, self.starting_year, self.fit_method)
+        except SafeRunException:
+            self.crashed = True
+
+    @cached_property
+    def unconstrained_estimator(self):
+        try:
+            return fitted_linear_margin_estimator(self.unconstrained_model_class, self.coordinates, self.dataset, self.starting_year, self.fit_method)
         except SafeRunException:
             self.crashed = True
 
@@ -70,6 +84,15 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         raise NotImplementedError
 
     @property
+    def total_number_of_parameters_for_unconstrained_model(self) -> int:
+        return self.degree_freedom_chi2 + 3
+
+    @property
+    def aic(self):
+        # deviance = - 2 * nllh
+        return 2 * self.total_number_of_parameters_for_unconstrained_model - self.unconstrained_model_deviance
+
+    @property
     def likelihood_ratio(self):
         return self.unconstrained_model_deviance - self.constrained_model_deviance
 
@@ -82,23 +105,25 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
 
     @property
     def unconstrained_model_deviance(self):
+        unconstrained_estimator = self.unconstrained_estimator
         if self.crashed:
             return np.nan
         else:
-            return self.unconstrained_estimator.result_from_model_fit.deviance
+            return unconstrained_estimator.result_from_model_fit.deviance
 
     @property
     def unconstained_nllh(self):
+        unconstrained_estimator = self.unconstrained_estimator
         if self.crashed:
             return np.nan
         else:
-            return self.unconstrained_estimator.result_from_model_fit.nllh
+            return unconstrained_estimator.result_from_model_fit.nllh
 
     # Evolution of the GEV parameters and corresponding quantiles
 
     @property
     def test_sign(self) -> int:
-        return np.sign(self.test_trend_slope_strength)
+        return np.sign(self.time_derivative_of_return_level)
 
     def get_non_stationary_linear_coef(self, gev_param_name: str):
         return self.unconstrained_estimator.margin_function_from_fit.get_coef(gev_param_name,
@@ -117,7 +142,7 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
                                                                                   is_transformed=False)
 
     @property
-    def test_trend_slope_strength(self):
+    def time_derivative_of_return_level(self):
         if self.crashed:
             return 0.0
         else:

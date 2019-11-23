@@ -711,9 +711,6 @@ class StudyVisualizer(VisualizationParameters):
             self.massif_id_to_smooth_maxima[massif_id] = (x, y)
         return self.massif_id_to_smooth_maxima[massif_id]
 
-    def visualize_brown_resnick_fit(self):
-        pass
-
     def visualize_linear_margin_fit(self, only_first_max_stable=False):
         margin_class = LinearNonStationaryLocationMarginModel if self.temporal_non_stationarity else LinearStationaryMarginModel
         plot_name = 'Full Likelihood with Linear marginals and max stable dependency structure'
