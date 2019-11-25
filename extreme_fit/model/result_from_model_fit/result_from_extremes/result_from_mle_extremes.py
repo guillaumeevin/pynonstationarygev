@@ -18,7 +18,7 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
         values = {i: param for i, param in enumerate(np.array(d['par']))}
         return get_margin_coef_ordered_dict(self.gev_param_name_to_dim, values)
 
-    def _confidence_interval_method(self, common_kwargs, ci_method):
+    def _confidence_interval_method(self, common_kwargs, ci_method, return_period):
         method_name = ci_method_to_method_name[ci_method]
         mle_ci_parameters = {
                 'method': method_name,
@@ -33,7 +33,7 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
             lower, mean_estimate, upper, _ = a
         else:
             d = self.get_python_dictionary(res)
-            keys = ['50-year return level', '95% lower CI', '95% upper CI']
+            keys = ['{}-year return level'.format(return_period), '95% lower CI', '95% upper CI']
             mean_estimate, lower, upper = [np.array(d[k])[0] for k in keys]
         return mean_estimate, (lower, upper)
 

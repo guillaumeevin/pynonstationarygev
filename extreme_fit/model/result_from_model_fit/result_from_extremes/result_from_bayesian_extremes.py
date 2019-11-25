@@ -47,7 +47,7 @@ class ResultFromBayesianExtremes(AbstractResultFromExtremes):
         mean_posterior_parameters = self.df_posterior_samples.iloc[:, :-2].mean(axis=0)
         return self.get_coef_dict_from_posterior_sample(mean_posterior_parameters)
 
-    def _confidence_interval_method(self, common_kwargs, ci_method):
+    def _confidence_interval_method(self, common_kwargs, ci_method, return_period):
         bayesian_ci_parameters = {
                 'burn.in': self.burn_in_nb,
                 'FUN': "mean",
@@ -58,7 +58,7 @@ class ResultFromBayesianExtremes(AbstractResultFromExtremes):
             lower, mean_estimate, upper = a
         else:
             d = self.get_python_dictionary(res)
-            keys = ['Posterior Mean 50-year level', '95% lower CI', '95% upper CI']
+            keys = ['Posterior Mean {}-year level'.format(return_period), '95% lower CI', '95% upper CI']
             mean_estimate, lower, upper = [np.array(d[k])[0] for k in keys]
         return mean_estimate, (lower, upper)
 

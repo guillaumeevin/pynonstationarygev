@@ -49,8 +49,7 @@ class GevParams(AbstractParams):
     def __str__(self):
         return self.to_dict().__str__()
 
-    def quantile_strength_evolution(self, p=0.99, mu1=0.0, sigma1=0.0):
-        # todo: chagne the name to time derivative
+    def time_derivative_of_return_level(self, p=0.99, mu1=0.0, sigma1=0.0):
         """
         Compute the variation of some quantile with respect to time.
         (when mu1 and sigma1 can be modified with time)

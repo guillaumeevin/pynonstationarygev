@@ -16,13 +16,13 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_ml
 class AbstractExtractEurocodeReturnLevel(object):
     ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.05
 
-    def __init__(self, estimator: LinearMarginEstimator, ci_method, temporal_covariate):
+    def __init__(self, estimator: LinearMarginEstimator, ci_method, temporal_covariate, quantile_level=EUROCODE_QUANTILE):
         self.ci_method = ci_method
         self.estimator = estimator
         self.result_from_fit = self.estimator.result_from_model_fit
         self.temporal_covariate = temporal_covariate
         # Fixed Parameters
-        self.eurocode_quantile = EUROCODE_QUANTILE
+        self.eurocode_quantile_level = quantile_level
         self.alpha_for_confidence_interval = self.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY
 
     @property
@@ -43,7 +43,7 @@ class ExtractEurocodeReturnLevelFromCiMethod(AbstractExtractEurocodeReturnLevel)
 
     @cached_property
     def confidence_interval_method(self):
-        return self.result_from_fit.confidence_interval_method(self.eurocode_quantile,
+        return self.result_from_fit.confidence_interval_method(self.eurocode_quantile_level,
                                                                self.alpha_for_confidence_interval,
                                                                self.transformed_temporal_covariate,
                                                                self.ci_method)
@@ -60,8 +60,8 @@ class ExtractEurocodeReturnLevelFromCiMethod(AbstractExtractEurocodeReturnLevel)
 class ExtractEurocodeReturnLevelFromMyBayesianExtremes(AbstractExtractEurocodeReturnLevel):
     result_from_fit: ResultFromBayesianExtremes
 
-    def __init__(self, estimator: LinearMarginEstimator, ci_method, temporal_covariate):
-        super().__init__(estimator, ci_method, temporal_covariate)
+    def __init__(self, estimator: LinearMarginEstimator, ci_method, temporal_covariate, quantile_level=EUROCODE_QUANTILE):
+        super().__init__(estimator, ci_method, temporal_covariate, quantile_level)
         assert isinstance(self.result_from_fit, ResultFromBayesianExtremes)
 
     @property
@@ -81,7 +81,7 @@ class ExtractEurocodeReturnLevelFromMyBayesianExtremes(AbstractExtractEurocodeRe
     @cached_property
     def posterior_eurocode_return_level_samples_for_temporal_covariate(self) -> np.ndarray:
         return np.array(
-            [p.quantile(self.eurocode_quantile) for p in self.gev_params_from_fit_for_temporal_covariate])
+            [p.quantile(self.eurocode_quantile_level) for p in self.gev_params_from_fit_for_temporal_covariate])
 
     @property
     def mean_estimate(self) -> np.ndarray:

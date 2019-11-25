@@ -396,7 +396,7 @@ class AltitudeHypercubeVisualizer(AbstractHypercubeVisualizer):
             title += ' until starting_year={}'.format(self.last_starting_year)
         title += ' with {} test'.format(get_display_name_from_object_type(self.trend_test_class))
         if first_title:
-            title += '\nEvolution of the quantile {} every {} years'.format(AbstractGevTrendTest.quantile_for_strength,
+            title += '\nEvolution of the Eurocode quantile every {} years'.format(
                                                                             AbstractGevTrendTest.nb_years_for_quantile_evolution)
         else:
             title += '\nStarting years'

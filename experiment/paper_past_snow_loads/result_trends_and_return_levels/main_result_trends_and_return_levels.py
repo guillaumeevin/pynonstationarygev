@@ -67,16 +67,16 @@ def major_result():
 
 if __name__ == '__main__':
     # minor_result(altitude=1800)
-    # intermediate_result(altitudes=[1500, 1800], massif_names=['Chartreuse'],
-    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle],
-    #                     non_stationary_uncertainty=[False])
+    intermediate_result(altitudes=[1500, 1800], massif_names=['Chartreuse'],
+                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle],
+                        non_stationary_uncertainty=[False])
     # intermediate_result(altitudes=[1500, 1800], massif_names=None,
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle],
     #                     non_stationary_uncertainty=[False])
     # intermediate_result(altitudes=[300, 600, 900, 1200, 1500, 1800], massif_names=None,
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle],
     #                     non_stationary_uncertainty=[False])
-    intermediate_result(altitudes=[300, 600, 900, 1200, 1500, 1800], massif_names=None,
-                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,
-                                             ConfidenceIntervalMethodFromExtremes.ci_bayes],
-                        non_stationary_uncertainty=[False, True])
+    # intermediate_result(altitudes=[300, 600, 900, 1200, 1500, 1800], massif_names=['Vercors', 'Oisans', 'Devoluy'],
+    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,
+    #                                          ConfidenceIntervalMethodFromExtremes.ci_bayes],
+    #                     non_stationary_uncertainty=[False, True])

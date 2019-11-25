@@ -108,25 +108,10 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
         if j == 0:
             eurocode_region.plot_eurocode_snow_load_on_ground_characteristic_value_variable_action(ax,
                                                                                                    altitudes=altitudes)
-        # Compute ordered_return_level_uncertaines for a given massif_name, uncertainty methods, and non stationary context
-        ordered_return_level_uncertaines = []
-        for visualizer in altitude_to_visualizer.values():
-            u = visualizer.triplet_to_eurocode_uncertainty[(uncertainty_method, non_stationary_context, massif_name)]
-            ordered_return_level_uncertaines.append(u)
-        # Display
-        mean = [r.mean_estimate for r in ordered_return_level_uncertaines]
-        # Filter and keep only non nan values
-        not_nan_index = [not np.isnan(m) for m in mean]
-        mean = list(np.array(mean)[not_nan_index])
-        altitudes = list(np.array(altitudes)[not_nan_index])
-        ordered_return_level_uncertaines = list(np.array(ordered_return_level_uncertaines)[not_nan_index])
+        # Plot uncertainties
+        plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitudes, ax, color, massif_name,
+                                              non_stationary_context, uncertainty_method)
 
-        ci_method_name = str(uncertainty_method).split('.')[1].replace('_', ' ')
-        ax.plot(altitudes, mean, linestyle='--', marker='o', color=color,
-                label=get_label_name(non_stationary_context, ci_method_name))
-        lower_bound = [r.confidence_interval[0] for r in ordered_return_level_uncertaines]
-        upper_bound = [r.confidence_interval[1] for r in ordered_return_level_uncertaines]
-        ax.fill_between(altitudes, lower_bound, upper_bound, color=color, alpha=alpha)
     ax.legend(loc=2)
     ax.set_ylim([0.0, 16])
     massif_name_str = massif_name.replace('_', ' ')
@@ -144,3 +129,25 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
     ax.set_ylabel('50-year return level of SL (kN $m^-2$)')
     ax.set_xlabel('Altitude (m)')
     ax.grid()
+
+
+def plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitudes, ax, color, massif_name,
+                                          non_stationary_context, uncertainty_method):
+    # Compute ordered_return_level_uncertaines for a given massif_name, uncertainty methods, and non stationary context
+    ordered_return_level_uncertainties = []
+    for visualizer in altitude_to_visualizer.values():
+        u = visualizer.triplet_to_eurocode_uncertainty[(uncertainty_method, non_stationary_context, massif_name)]
+        ordered_return_level_uncertainties.append(u)
+    # Display
+    mean = [r.mean_estimate for r in ordered_return_level_uncertainties]
+    # Filter and keep only non nan values
+    not_nan_index = [not np.isnan(m) for m in mean]
+    mean = list(np.array(mean)[not_nan_index])
+    valid_altitudes = list(np.array(altitudes)[not_nan_index])
+    ordered_return_level_uncertainties = list(np.array(ordered_return_level_uncertainties)[not_nan_index])
+    ci_method_name = str(uncertainty_method).split('.')[1].replace('_', ' ')
+    ax.plot(valid_altitudes, mean, linestyle='--', marker='o', color=color,
+            label=get_label_name(non_stationary_context, ci_method_name))
+    lower_bound = [r.confidence_interval[0] for r in ordered_return_level_uncertainties]
+    upper_bound = [r.confidence_interval[1] for r in ordered_return_level_uncertainties]
+    ax.fill_between(valid_altitudes, lower_bound, upper_bound, color=color, alpha=alpha)

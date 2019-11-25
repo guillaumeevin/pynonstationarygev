@@ -19,14 +19,14 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 class AbstractGevTrendTest(AbstractUnivariateTest):
     RRunTimeError_TREND = 'R RunTimeError trend'
-    # I should use the quantile from the Eurocode for the buildings
-    quantile_for_strength = EUROCODE_QUANTILE
     nb_years_for_quantile_evolution = 10
 
     def __init__(self, years, maxima, starting_year, unconstrained_model_class,
                  constrained_model_class=StationaryTemporalModel,
+                 quantile_level=EUROCODE_QUANTILE,
                  ):
         super().__init__(years, maxima, starting_year)
+        self.quantile_level = quantile_level
         self.unconstrained_model_class = unconstrained_model_class
         self.constrained_model_class = constrained_model_class
         self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
@@ -42,14 +42,16 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     @cached_property
     def constrained_estimator(self):
         try:
-            return fitted_linear_margin_estimator(self.constrained_model_class, self.coordinates, self.dataset, self.starting_year, self.fit_method)
+            return fitted_linear_margin_estimator(self.constrained_model_class, self.coordinates, self.dataset,
+                                                  self.starting_year, self.fit_method)
         except SafeRunException:
             self.crashed = True
 
     @cached_property
     def unconstrained_estimator(self):
         try:
-            return fitted_linear_margin_estimator(self.unconstrained_model_class, self.coordinates, self.dataset, self.starting_year, self.fit_method)
+            return fitted_linear_margin_estimator(self.unconstrained_model_class, self.coordinates, self.dataset,
+                                                  self.starting_year, self.fit_method)
         except SafeRunException:
             self.crashed = True
 
@@ -176,4 +178,4 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         if self.crashed:
             return 0.0
         else:
-            return self.non_stationary_constant_gev_params.quantile(p=self.quantile_for_strength)
+            return self.non_stationary_constant_gev_params.quantile(p=self.quantile_level)

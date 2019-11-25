@@ -1,3 +1,4 @@
+from experiment.eurocode_data.utils import EUROCODE_QUANTILE
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationAndScaleTemporalModel, StationaryTemporalModel
@@ -13,9 +14,11 @@ class GevTrendTestTwoParameters(AbstractGevTrendTest):
 
 class GevLocationAndScaleTrendTest(GevTrendTestTwoParameters):
 
-    def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel):
+    def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel, quantile_level=EUROCODE_QUANTILE):
         super().__init__(years, maxima, starting_year,
-                         NonStationaryLocationAndScaleTemporalModel, constrained_model_class=constrained_model_class)
+                         unconstrained_model_class=NonStationaryLocationAndScaleTemporalModel,
+                         constrained_model_class=constrained_model_class,
+                         quantile_level=quantile_level)
 
     @property
     def mu1(self):
@@ -26,9 +29,9 @@ class GevLocationAndScaleTrendTest(GevTrendTestTwoParameters):
         return self.get_non_stationary_linear_coef(gev_param_name=GevParams.SCALE)
 
     def _slope_strength(self):
-        return self.non_stationary_constant_gev_params.quantile_strength_evolution(p=self.quantile_for_strength,
-                                                                                   mu1=self.mu1,
-                                                                                   sigma1=self.sigma1)
+        return self.non_stationary_constant_gev_params.time_derivative_of_return_level(p=self.quantile_level,
+                                                                                       mu1=self.mu1,
+                                                                                       sigma1=self.sigma1)
 
     @property
     def mean_difference_same_sign_as_slope_strenght(self) -> bool:

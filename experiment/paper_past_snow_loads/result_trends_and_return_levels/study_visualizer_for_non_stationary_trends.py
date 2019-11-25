@@ -72,7 +72,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                 self.massif_name_to_years_and_maxima.items()}
 
     @cached_property
-    def massif_name_to_eurocode_quantile_in_practice(self):
+    def massif_name_to_eurocode_quantile_level_in_practice(self):
         """Due to missing data, the the eurocode quantile which 0.98 if we have all the data
         correspond in practice to the quantile psnow x 0.98 of the data where there is snow"""
         return {m: p * EUROCODE_QUANTILE for m, p in self.massif_name_to_psnow.items()}
@@ -90,7 +90,9 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         starting_year = None
         massif_name_to_trend_test_that_minimized_aic = {}
         for massif_name, (x, y) in self.massif_name_to_non_null_years_and_maxima.items():
-            non_stationary_trend_test = [t(x, y, starting_year) for t in self.non_stationary_trend_test]
+            quantile_level = self.massif_name_to_eurocode_quantile_level_in_practice[massif_name]
+            non_stationary_trend_test = [t(years=x, maxima=y, starting_year=starting_year, quantile_level=quantile_level)
+                                         for t in self.non_stationary_trend_test]
             trend_test_that_minimized_aic = sorted(non_stationary_trend_test, key=lambda t: t.aic)[0]
             massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
         return massif_name_to_trend_test_that_minimized_aic
@@ -151,7 +153,9 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         arguments = [
             [self.massif_name_to_non_null_years_and_maxima[m],
              self.massif_name_to_model_class(m, non_stationary_model),
-             ci_method, self.effective_temporal_covariate] for m in self.uncertainty_massif_names]
+             ci_method, self.effective_temporal_covariate,
+             self.massif_name_to_eurocode_quantile_level_in_practice[m]
+             ] for m in self.uncertainty_massif_names]
         if self.multiprocessing:
             with Pool(NB_CORES) as p:
                 res = p.starmap(compute_eurocode_confidence_interval, arguments)

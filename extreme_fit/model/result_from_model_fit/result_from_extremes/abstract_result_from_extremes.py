@@ -48,8 +48,8 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
             qcov = r("make.qcov")(self.result_from_fit,
                                   **kwargs)
             common_kwargs['qcov'] = qcov
-        mean_estimate, confidence_interval = self._confidence_interval_method(common_kwargs, ci_method)
+        mean_estimate, confidence_interval = self._confidence_interval_method(common_kwargs, ci_method, return_period)
         return mean_estimate, confidence_interval
 
-    def _confidence_interval_method(self, common_kwargs, ci_method):
+    def _confidence_interval_method(self, common_kwargs, ci_method, return_period):
         raise NotImplementedError
