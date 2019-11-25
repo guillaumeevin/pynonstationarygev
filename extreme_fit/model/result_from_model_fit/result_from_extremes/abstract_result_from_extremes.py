@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import rpy2
 from rpy2 import robjects
 
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -48,7 +49,10 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
             qcov = r("make.qcov")(self.result_from_fit,
                                   **kwargs)
             common_kwargs['qcov'] = qcov
-        mean_estimate, confidence_interval = self._confidence_interval_method(common_kwargs, ci_method, return_period)
+        try:
+            mean_estimate, confidence_interval = self._confidence_interval_method(common_kwargs, ci_method, return_period)
+        except rpy2.rinterface.RRuntimeError:
+            mean_estimate, confidence_interval = np.nan, (np.nan, np.nan)
         return mean_estimate, confidence_interval
 
     def _confidence_interval_method(self, common_kwargs, ci_method, return_period):

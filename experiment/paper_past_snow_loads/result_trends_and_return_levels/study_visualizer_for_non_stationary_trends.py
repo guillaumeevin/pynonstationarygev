@@ -7,6 +7,7 @@ import numpy as np
 from cached_property import cached_property
 
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE
+from experiment.meteo_france_data.plot.create_shifted_cmap import get_shifted_map, get_colors
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
@@ -55,6 +56,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         self.non_stationary_trend_test = [GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest]
         self.non_stationary_trend_test_to_marker = dict(zip(self.non_stationary_trend_test, ["s", "^", "D"]))
 
+        self.global_max_abs_tdrl = None
+
     # Utils
 
     @cached_property
@@ -91,8 +94,9 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         massif_name_to_trend_test_that_minimized_aic = {}
         for massif_name, (x, y) in self.massif_name_to_non_null_years_and_maxima.items():
             quantile_level = self.massif_name_to_eurocode_quantile_level_in_practice[massif_name]
-            non_stationary_trend_test = [t(years=x, maxima=y, starting_year=starting_year, quantile_level=quantile_level)
-                                         for t in self.non_stationary_trend_test]
+            non_stationary_trend_test = [
+                t(years=x, maxima=y, starting_year=starting_year, quantile_level=quantile_level)
+                for t in self.non_stationary_trend_test]
             trend_test_that_minimized_aic = sorted(non_stationary_trend_test, key=lambda t: t.aic)[0]
             massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
         return massif_name_to_trend_test_that_minimized_aic
@@ -103,32 +107,62 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def max_abs_tdrl(self):
         return max(abs(min(self.massif_name_to_tdrl_value.values())), max(self.massif_name_to_tdrl_value.values()))
 
+    @cached_property
+    def _max_abs_tdrl(self):
+        return self.global_max_abs_tdrl if self.global_max_abs_tdrl is not None else self.max_abs_tdrl
+
     def plot_trends(self, max_abs_tdrl=None):
-        if max_abs_tdrl is None:
-            max_abs_tdrl = self.max_abs_tdrl
-        assert max_abs_tdrl > 0
+        if max_abs_tdrl is not None:
+            self.global_max_abs_tdrl = max_abs_tdrl
         self.study.visualize_study(massif_name_to_value=self.massif_name_to_tdrl_value,
-                                   vmin=-max_abs_tdrl, vmax=max_abs_tdrl,
-                                   replace_blue_by_white=False, axis_off=True, show_label=False,
+                                   replace_blue_by_white=False, axis_off=False, show_label=False,
                                    add_colorbar=True,
-                                   massif_name_to_marker_style=self.massif_name_to_marker_style,
-                                   show=self.show)
+                                   massif_name_to_marker_style=self.massif_name_to_marker_style(),
+                                   massif_name_to_color=self.massif_name_to_tdrl_color,
+                                   cmap=self.cmap,
+                                   show=self.show,
+                                   ticks_values_and_labels=self.ticks_values_and_labels,
+                                   label=self.label_trend_bar)
         self.plot_name = 'tdlr_trends'
         self.show_or_save_to_file(add_classic_title=False, tight_layout=False, no_title=True)
         plt.close()
+
+    @property
+    def label_trend_bar(self):
+        return 'Change in {} years for Eurocode quantile of SL (kN $m^-2$)'.format(AbstractGevTrendTest.nb_years_for_quantile_evolution)
+
+    @property
+    def ticks_values_and_labels(self):
+        graduation = 0.2
+        positive_ticks = []
+        tick = graduation
+        while tick < self._max_abs_tdrl:
+            positive_ticks.append(round(tick, 1))
+            tick += graduation
+        all_ticks_labels = [-t for t in positive_ticks] + [0] + positive_ticks
+        ticks_values = [(t / 2 * self._max_abs_tdrl) + 0.5 for t in all_ticks_labels]
+        return ticks_values, all_ticks_labels
 
     @cached_property
     def massif_name_to_tdrl_value(self):
         return {m: t.time_derivative_of_return_level for m, t in
                 self.massif_name_to_minimized_aic_non_stationary_trend_test.items()}
+    
+    @cached_property
+    def cmap(self):
+        return get_shifted_map(-self._max_abs_tdrl, self._max_abs_tdrl)
 
-    @property
-    def massif_name_to_marker_style(self):
+    @cached_property
+    def massif_name_to_tdrl_color(self):
+        return {m: get_colors([v], self.cmap, -self._max_abs_tdrl, self._max_abs_tdrl)[0]
+                for m, v in self.massif_name_to_tdrl_value.items()}
+
+    def massif_name_to_marker_style(self, markersize=5):
         d = {}
         for m, t in self.massif_name_to_minimized_aic_non_stationary_trend_test.items():
             d[m] = {'marker': self.non_stationary_trend_test_to_marker[type(t)],
                     'color': 'k',
-                    'markersize': 5,
+                    'markersize': markersize,
                     'fillstyle': 'full' if t.is_significant else 'none'}
         return d
 

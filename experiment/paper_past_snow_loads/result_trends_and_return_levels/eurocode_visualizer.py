@@ -38,9 +38,10 @@ def plot_uncertainty_massifs(altitude_to_visualizer: Dict[int, StudyVisualizerFo
     """
     visualizer = list(altitude_to_visualizer.values())[0]
     # Subdivide massif names in group of 3
-    m = 3
+    m = 1
     uncertainty_massif_names = visualizer.uncertainty_massif_names
     n = (len(uncertainty_massif_names) // m) + 1
+    print('total nb of massif', n)
     for i in list(range(n))[:]:
         massif_names = uncertainty_massif_names[m * i: m * (i + 1)]
         print(massif_names)
@@ -97,7 +98,7 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
     """ Generic function that might be used by many other more global functions"""
     altitudes = list(altitude_to_visualizer.keys())
     visualizer = list(altitude_to_visualizer.values())[0]
-    colors = ['tab:green', 'tab:olive']
+    colors = ['tab:green', 'tab:brown'][::-1]
     alpha = 0.2
     # Display the EUROCODE return level
     eurocode_region = massif_name_to_eurocode_region[massif_name]()
@@ -106,14 +107,27 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
     for j, (color, uncertainty_method) in enumerate(zip(colors, visualizer.uncertainty_methods)):
         # Plot eurocode standards only for the first loop
         if j == 0:
+            # Plot eurocode norm
             eurocode_region.plot_eurocode_snow_load_on_ground_characteristic_value_variable_action(ax,
                                                                                                    altitudes=altitudes)
+            # Plot bars of TDRL only in the non stationary case
+            if non_stationary_context:
+                tdrl_values = [v.massif_name_to_tdrl_value[massif_name] for v in altitude_to_visualizer.values()]
+                # Plot bars
+                colors = [v.massif_name_to_tdrl_color[massif_name] for v in altitude_to_visualizer.values()]
+                ax.bar(altitudes, tdrl_values, width=150, color=colors)
+                # Plot markers
+                markers_kwargs = [v.massif_name_to_marker_style(markersize=4)[massif_name]
+                                  for v, tdrl_value in zip(altitude_to_visualizer.values(), tdrl_values)]
+                for altitude, marker_kwargs, value in zip(altitudes, markers_kwargs, tdrl_values):
+                    ax.plot([altitude], [value / 2], **marker_kwargs)
+
         # Plot uncertainties
         plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitudes, ax, color, massif_name,
                                               non_stationary_context, uncertainty_method)
 
     ax.legend(loc=2)
-    ax.set_ylim([0.0, 16])
+    ax.set_ylim([-1, 16])
     massif_name_str = massif_name.replace('_', ' ')
     eurocode_region_str = get_display_name_from_object_type(type(eurocode_region))
     is_non_stationary_model = non_stationary_context if isinstance(non_stationary_context,

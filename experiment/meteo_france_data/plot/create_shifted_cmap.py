@@ -24,10 +24,13 @@ def get_shifted_map(vmin, vmax):
     return shifted_cmap
 
 
-def create_colorbase_axis(ax, label, cmap, norm):
+def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes('right', size='5%', pad=0.0)
-    cb = cbar.ColorbarBase(cax, cmap=cmap, norm=norm)
+    ticks = ticks_values_and_labels[0] if ticks_values_and_labels is not None else None
+    cb = cbar.ColorbarBase(cax, cmap=cmap, norm=norm, ticks=ticks)
+    if ticks_values_and_labels is not None:
+        cb.ax.set_yticklabels([str(t) for t in ticks_values_and_labels[1]])
     if isinstance(label, str):
         cb.set_label(label)
     return norm

@@ -306,6 +306,7 @@ class AbstractStudy(object):
                         massif_name_to_hatch_boolean_list=None,
                         norm=None,
                         massif_name_to_marker_style=None,
+                        ticks_values_and_labels=None,
                         ):
         if ax is None:
             ax = plt.gca()
@@ -391,7 +392,7 @@ class AbstractStudy(object):
         # create the colorbar only at the end
         if add_colorbar:
             if len(set(values)) > 1:
-                create_colorbase_axis(ax, label, cmap, norm)
+                create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=ticks_values_and_labels)
         if axis_off:
             plt.axis('off')
 
