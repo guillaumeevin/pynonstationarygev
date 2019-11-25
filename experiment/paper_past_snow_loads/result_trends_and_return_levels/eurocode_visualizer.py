@@ -3,8 +3,11 @@ from typing import Dict, List, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 
+from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
+from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
+    AbstractExtractEurocodeReturnLevel
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     EurocodeConfidenceIntervalFromExtremes
 from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
@@ -12,31 +15,11 @@ from experiment.meteo_france_data.scm_models_data.visualization.utils import cre
 from root_utils import get_display_name_from_object_type
 
 
-def massif_name_to_ordered_return_level_uncertainties(altitude_to_visualizer, massif_names,
-                                                      uncertainty_methods, temporal_covariate,
-                                                      non_stationary_model):
-    massif_name_to_ordered_eurocode_level_uncertainty = {
-        massif_name: {ci_method: [] for ci_method in uncertainty_methods} for massif_name in massif_names}
-    for altitude, visualizer in altitude_to_visualizer.items():
-        print('Processing altitude = {} '.format(altitude))
-        for ci_method in uncertainty_methods:
-            d = visualizer.massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(
-                massif_names, ci_method,
-                temporal_covariate, non_stationary_model)
-            # Append the altitude one by one
-            for massif_name, return_level_uncertainty in d.items():
-                print(massif_name, return_level_uncertainty[0], return_level_uncertainty[1].confidence_interval,
-                      return_level_uncertainty[1].mean_estimate)
-                massif_name_to_ordered_eurocode_level_uncertainty[massif_name][ci_method].append(
-                    return_level_uncertainty)
-    return massif_name_to_ordered_eurocode_level_uncertainty
-
-
 def plot_uncertainty_massifs(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
     """ Plot several uncertainty plots
     :return:
     """
-    visualizer = list(altitude_to_visualizer.values())[0]
+    visualizer = list(altitude_to_visualizer.values())[-1]
     # Subdivide massif names in group of 3
     m = 1
     uncertainty_massif_names = visualizer.uncertainty_massif_names
@@ -80,10 +63,9 @@ def plot_single_uncertainty_massif(altitude_to_visualizer: Dict[int, StudyVisual
                                                                   altitude_to_visualizer)
 
 
-def get_label_name(model_name, ci_method_name: str):
-    is_non_stationary = model_name == 'NonStationary'
-    model_symbol = 'N' if is_non_stationary else '0'
-    parameter = ', 2017' if is_non_stationary else ''
+def get_label_name(non_stationary_context, ci_method_name):
+    model_symbol = 'N' if non_stationary_context else '0'
+    parameter = ', 2017' if non_stationary_context else ''
     model_name = ' $ \widehat{z_p}(\\boldsymbol{\\theta_{\mathcal{M}_'
     model_name += model_symbol
     model_name += '}}'
@@ -105,26 +87,18 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
 
     # Display the return level from model class
     for j, (color, uncertainty_method) in enumerate(zip(colors, visualizer.uncertainty_methods)):
-        # Plot eurocode standards only for the first loop
         if j == 0:
             # Plot eurocode norm
             eurocode_region.plot_eurocode_snow_load_on_ground_characteristic_value_variable_action(ax,
                                                                                                    altitudes=altitudes)
-            # Plot bars of TDRL only in the non stationary case
-            if non_stationary_context:
-                tdrl_values = [v.massif_name_to_tdrl_value[massif_name] for v in altitude_to_visualizer.values()]
-                # Plot bars
-                colors = [v.massif_name_to_tdrl_color[massif_name] for v in altitude_to_visualizer.values()]
-                ax.bar(altitudes, tdrl_values, width=150, color=colors)
-                # Plot markers
-                markers_kwargs = [v.massif_name_to_marker_style(markersize=4)[massif_name]
-                                  for v, tdrl_value in zip(altitude_to_visualizer.values(), tdrl_values)]
-                for altitude, marker_kwargs, value in zip(altitudes, markers_kwargs, tdrl_values):
-                    ax.plot([altitude], [value / 2], **marker_kwargs)
 
         # Plot uncertainties
-        plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitudes, ax, color, massif_name,
-                                              non_stationary_context, uncertainty_method)
+        valid_altitudes = plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitudes, ax, color,
+                                                                massif_name, non_stationary_context, uncertainty_method)
+
+        # Plot bars of TDRL only in the non stationary case
+        if j == 0 and non_stationary_context:
+            plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes)
 
     ax.legend(loc=2)
     ax.set_ylim([-1, 16])
@@ -140,9 +114,25 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
                                                             non_stationary_context)
     ax.set_title(title)
     ax.set_xticks(altitudes)
-    ax.set_ylabel('50-year return level of SL (kN $m^-2$)')
+    ax.set_ylabel(EUROCODE_RETURN_LEVEL_STR)
     ax.set_xlabel('Altitude (m)')
     ax.grid()
+
+
+def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes):
+    visualizers = [v for a, v in altitude_to_visualizer.items() if a in valid_altitudes and massif_name in v.uncertainty_massif_names]
+    if len(visualizers) > 0:
+        tdrl_values = [v.massif_name_to_tdrl_value[massif_name] for v in visualizers]
+        # Plot bars
+        colors = [v.massif_name_to_tdrl_color[massif_name] for v in visualizers]
+        ax.bar(valid_altitudes, tdrl_values, width=150, color=colors, label=visualizers[0].label_tdrl_bar,
+               edgecolor='black', hatch='//')
+        # Plot markers
+        markers_kwargs = [v.massif_name_to_marker_style[massif_name] for v in visualizers]
+        for altitude, marker_kwargs, value in zip(valid_altitudes, markers_kwargs, tdrl_values):
+            # ax.plot([altitude], [value / 2], **marker_kwargs)
+            # Better to plot all the markers on the same line
+            ax.plot([altitude], 0, **marker_kwargs)
 
 
 def plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitudes, ax, color, massif_name,
@@ -160,8 +150,12 @@ def plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitud
     valid_altitudes = list(np.array(altitudes)[not_nan_index])
     ordered_return_level_uncertainties = list(np.array(ordered_return_level_uncertainties)[not_nan_index])
     ci_method_name = str(uncertainty_method).split('.')[1].replace('_', ' ')
+    label_name = get_label_name(non_stationary_context, ci_method_name)
     ax.plot(valid_altitudes, mean, linestyle='--', marker='o', color=color,
-            label=get_label_name(non_stationary_context, ci_method_name))
+            label=label_name)
     lower_bound = [r.confidence_interval[0] for r in ordered_return_level_uncertainties]
     upper_bound = [r.confidence_interval[1] for r in ordered_return_level_uncertainties]
-    ax.fill_between(valid_altitudes, lower_bound, upper_bound, color=color, alpha=alpha)
+    confidence_interval_str = ' {}'.format(AbstractExtractEurocodeReturnLevel.percentage_confidence_interval)
+    confidence_interval_str += '\% confidence interval'
+    ax.fill_between(valid_altitudes, lower_bound, upper_bound, color=color, alpha=alpha, label=label_name + confidence_interval_str)
+    return valid_altitudes

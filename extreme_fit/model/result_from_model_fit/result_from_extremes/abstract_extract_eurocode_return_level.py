@@ -11,6 +11,7 @@ from extreme_fit.model.margin_model.margin_function.linear_margin_function impor
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_bayesian_extremes import \
     ResultFromBayesianExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_mle_extremes import ResultFromMleExtremes
+from root_utils import classproperty
 
 
 class AbstractExtractEurocodeReturnLevel(object):
@@ -22,8 +23,11 @@ class AbstractExtractEurocodeReturnLevel(object):
         self.result_from_fit = self.estimator.result_from_model_fit
         self.temporal_covariate = temporal_covariate
         # Fixed Parameters
-        self.eurocode_quantile_level = quantile_level
-        self.alpha_for_confidence_interval = self.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY
+        self.quantile_level = quantile_level
+
+    @classproperty
+    def percentage_confidence_interval(cls) -> int:
+        return int(100 * (1 - cls.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY))
 
     @property
     def mean_estimate(self) -> np.ndarray:
@@ -43,8 +47,8 @@ class ExtractEurocodeReturnLevelFromCiMethod(AbstractExtractEurocodeReturnLevel)
 
     @cached_property
     def confidence_interval_method(self):
-        return self.result_from_fit.confidence_interval_method(self.eurocode_quantile_level,
-                                                               self.alpha_for_confidence_interval,
+        return self.result_from_fit.confidence_interval_method(self.quantile_level,
+                                                               self.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY,
                                                                self.transformed_temporal_covariate,
                                                                self.ci_method)
 
@@ -81,7 +85,7 @@ class ExtractEurocodeReturnLevelFromMyBayesianExtremes(AbstractExtractEurocodeRe
     @cached_property
     def posterior_eurocode_return_level_samples_for_temporal_covariate(self) -> np.ndarray:
         return np.array(
-            [p.quantile(self.eurocode_quantile_level) for p in self.gev_params_from_fit_for_temporal_covariate])
+            [p.quantile(self.quantile_level) for p in self.gev_params_from_fit_for_temporal_covariate])
 
     @property
     def mean_estimate(self) -> np.ndarray:
@@ -91,7 +95,7 @@ class ExtractEurocodeReturnLevelFromMyBayesianExtremes(AbstractExtractEurocodeRe
     @property
     def confidence_interval(self):
         # Bottom and upper quantile correspond to the quantile
-        bottom_quantile = self.alpha_for_confidence_interval / 2
+        bottom_quantile = self.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY / 2
         bottom_and_upper_quantile = (bottom_quantile, 1 - bottom_quantile)
         return [np.quantile(self.posterior_eurocode_return_level_samples_for_temporal_covariate, q=q)
                 for q in bottom_and_upper_quantile]

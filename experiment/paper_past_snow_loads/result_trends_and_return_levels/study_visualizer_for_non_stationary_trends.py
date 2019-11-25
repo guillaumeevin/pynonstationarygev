@@ -6,7 +6,7 @@ from typing import Dict, Tuple
 import numpy as np
 from cached_property import cached_property
 
-from experiment.eurocode_data.utils import EUROCODE_QUANTILE
+from experiment.eurocode_data.utils import EUROCODE_QUANTILE, EUROCODE_RETURN_LEVEL_STR
 from experiment.meteo_france_data.plot.create_shifted_cmap import get_shifted_map, get_colors
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
@@ -117,19 +117,19 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         self.study.visualize_study(massif_name_to_value=self.massif_name_to_tdrl_value,
                                    replace_blue_by_white=False, axis_off=False, show_label=False,
                                    add_colorbar=True,
-                                   massif_name_to_marker_style=self.massif_name_to_marker_style(),
+                                   massif_name_to_marker_style=self.massif_name_to_marker_style,
                                    massif_name_to_color=self.massif_name_to_tdrl_color,
                                    cmap=self.cmap,
                                    show=self.show,
                                    ticks_values_and_labels=self.ticks_values_and_labels,
-                                   label=self.label_trend_bar)
+                                   label=self.label_tdrl_bar + ' for {}'.format(EUROCODE_RETURN_LEVEL_STR))
         self.plot_name = 'tdlr_trends'
         self.show_or_save_to_file(add_classic_title=False, tight_layout=False, no_title=True)
         plt.close()
 
     @property
-    def label_trend_bar(self):
-        return 'Change in {} years for Eurocode quantile of SL (kN $m^-2$)'.format(AbstractGevTrendTest.nb_years_for_quantile_evolution)
+    def label_tdrl_bar(self):
+        return 'Change in {} years'.format(AbstractGevTrendTest.nb_years_for_quantile_evolution)
 
     @property
     def ticks_values_and_labels(self):
@@ -140,7 +140,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             positive_ticks.append(round(tick, 1))
             tick += graduation
         all_ticks_labels = [-t for t in positive_ticks] + [0] + positive_ticks
-        ticks_values = [(t / 2 * self._max_abs_tdrl) + 0.5 for t in all_ticks_labels]
+        ticks_values = [((t / self._max_abs_tdrl) + 1) / 2 for t in all_ticks_labels]
         return ticks_values, all_ticks_labels
 
     @cached_property
@@ -157,12 +157,13 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         return {m: get_colors([v], self.cmap, -self._max_abs_tdrl, self._max_abs_tdrl)[0]
                 for m, v in self.massif_name_to_tdrl_value.items()}
 
-    def massif_name_to_marker_style(self, markersize=5):
+    @cached_property
+    def massif_name_to_marker_style(self):
         d = {}
         for m, t in self.massif_name_to_minimized_aic_non_stationary_trend_test.items():
             d[m] = {'marker': self.non_stationary_trend_test_to_marker[type(t)],
                     'color': 'k',
-                    'markersize': markersize,
+                    'markersize': 5,
                     'fillstyle': 'full' if t.is_significant else 'none'}
         return d
 
@@ -182,8 +183,9 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def nb_uncertainty_method(self):
         return len(self.uncertainty_methods)
 
-    def massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method, non_stationary_model) \
+    def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method, non_stationary_model) \
             -> Dict[str, Tuple[int, EurocodeConfidenceIntervalFromExtremes]]:
+        # Compute for the uncertainty massif names
         arguments = [
             [self.massif_name_to_non_null_years_and_maxima[m],
              self.massif_name_to_model_class(m, non_stationary_model),
@@ -195,17 +197,24 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                 res = p.starmap(compute_eurocode_confidence_interval, arguments)
         else:
             res = [compute_eurocode_confidence_interval(*argument) for argument in arguments]
-        massif_name_to_eurocode_return_level_uncertainty = OrderedDict(zip(self.uncertainty_massif_names, res))
+        massif_name_to_eurocode_return_level_uncertainty = dict(zip(self.uncertainty_massif_names, res))
+        # For the rest of the massif names. Create a Eurocode Return Level Uncertainty as nan
+        for massif_name in set(self.study.all_massif_names) - set(self.uncertainty_massif_names):
+            massif_name_to_eurocode_return_level_uncertainty[massif_name] = self.default_eurocode_uncertainty
         return massif_name_to_eurocode_return_level_uncertainty
+
+    @cached_property
+    def default_eurocode_uncertainty(self):
+        return EurocodeConfidenceIntervalFromExtremes(mean_estimate=np.nan, confidence_interval=(np.nan, np.nan))
 
     @cached_property
     def triplet_to_eurocode_uncertainty(self):
         d = {}
         for ci_method in self.uncertainty_methods:
             for non_stationary_uncertainty in self.non_stationary_contexts:
-                for uncertainty_massif_name, eurocode_uncertainty in self.massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(
+                for massif_name, eurocode_uncertainty in self.all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(
                         ci_method, non_stationary_uncertainty).items():
-                    d[(ci_method, non_stationary_uncertainty, uncertainty_massif_name)] = eurocode_uncertainty
+                    d[(ci_method, non_stationary_uncertainty, massif_name)] = eurocode_uncertainty
         return d
 
     def model_name_to_uncertainty_method_to_ratio_above_eurocode(self):

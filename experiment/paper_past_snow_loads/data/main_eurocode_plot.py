@@ -3,8 +3,11 @@ import numpy as np
 
 from experiment.eurocode_data.eurocode_region import C2, E, C1
 from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
+from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from root_utils import get_display_name_from_object_type
+
+
 
 
 def main_eurocode_norms(ax=None):
@@ -20,7 +23,7 @@ def main_eurocode_norms(ax=None):
                 ax.legend()
                 ax.xaxis.set_ticks([250 * i for i in range(1, 9)])
                 ax.tick_params(axis='both', which='major', labelsize=13)
-                ax.set_ylabel('50-year return level of SL (kN $m^-2$)')
+                ax.set_ylabel(EUROCODE_RETURN_LEVEL_STR)
                 ax.set_xlabel('Altitude (m)')
                 ax.set_ylim([0.0, 11.0])
                 ax.grid()
