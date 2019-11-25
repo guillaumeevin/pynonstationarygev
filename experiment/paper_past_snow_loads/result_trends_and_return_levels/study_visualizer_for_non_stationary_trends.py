@@ -6,6 +6,7 @@ from typing import Dict, Tuple
 import numpy as np
 from cached_property import cached_property
 
+from experiment.eurocode_data.utils import EUROCODE_QUANTILE
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
@@ -71,6 +72,12 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                 self.massif_name_to_years_and_maxima.items()}
 
     @cached_property
+    def massif_name_to_eurocode_quantile_in_practice(self):
+        """Due to missing data, the the eurocode quantile which 0.98 if we have all the data
+        correspond in practice to the quantile psnow x 0.98 of the data where there is snow"""
+        return {m: p * EUROCODE_QUANTILE for m, p in self.massif_name_to_psnow.items()}
+
+    @cached_property
     def massif_name_to_non_null_years_and_maxima(self):
         d = {}
         for m, (years, maxima) in self.massif_name_to_years_and_maxima.items():
@@ -80,7 +87,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     @cached_property
     def massif_name_to_minimized_aic_non_stationary_trend_test(self) -> Dict[str, AbstractGevTrendTest]:
-        starting_year = 1958
+        starting_year = None
         massif_name_to_trend_test_that_minimized_aic = {}
         for massif_name, (x, y) in self.massif_name_to_non_null_years_and_maxima.items():
             non_stationary_trend_test = [t(x, y, starting_year) for t in self.non_stationary_trend_test]

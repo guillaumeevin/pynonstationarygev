@@ -49,7 +49,7 @@ class EurocodeConfidenceIntervalFromExtremes(object):
         else:
             fit_method = TemporalMarginFitMethod.extremes_fevd_mle
         # Fitted estimator
-        fitted_estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year=1958,
+        fitted_estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year=None,
                                                           fit_method=fit_method)
         # Load object from result from extremes
         return cls.from_estimator_extremes(fitted_estimator, ci_method, temporal_covariate)

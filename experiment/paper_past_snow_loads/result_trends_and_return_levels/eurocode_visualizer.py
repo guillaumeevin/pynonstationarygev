@@ -37,8 +37,8 @@ def plot_uncertainty_massifs(altitude_to_visualizer: Dict[int, StudyVisualizerFo
     :return:
     """
     visualizer = list(altitude_to_visualizer.values())[0]
-    # Subdivide massif names in group of 5
-    m = 4
+    # Subdivide massif names in group of 3
+    m = 3
     uncertainty_massif_names = visualizer.uncertainty_massif_names
     n = (len(uncertainty_massif_names) // m) + 1
     for i in list(range(n))[:]:
@@ -140,6 +140,7 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
     title = '{} ({} Eurocodes area) with a {} model'.format(massif_name_str, eurocode_region_str,
                                                             non_stationary_context)
     ax.set_title(title)
+    ax.set_xticks(altitudes)
     ax.set_ylabel('50-year return level of SL (kN $m^-2$)')
     ax.set_xlabel('Altitude (m)')
     ax.grid()
