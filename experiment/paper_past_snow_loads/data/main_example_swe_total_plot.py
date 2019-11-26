@@ -21,6 +21,8 @@ def max_graph_annual_maxima_poster():
         ('mediumpurple', 2700, 'Beaufortain'),
     ]
     ax = plt.gca()
+    ax.set_ylim([0, 20])
+    ax.set_yticks(list(range(0, 21, 2)))
     for color, altitude, massif_name in marker_altitude_massif_name:
         for study in study_iterator_global([study_class], altitudes=[altitude]):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,

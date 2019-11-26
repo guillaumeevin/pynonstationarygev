@@ -639,7 +639,7 @@ class StudyVisualizer(VisualizationParameters):
         ax.tick_params(axis='both', which='major', labelsize=13)
         plot_name = 'Annual maxima of {} in {} at {}m'.format(snow_abbreviation, massif_name, altitude)
         self.plot_name = plot_name
-        ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), fontsize=15)
+        ax.set_ylabel('{} ({})'.format(snow_abbreviation, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('years', fontsize=15)
         if label is None:
             ax.set_title('{} at {} m'.format(massif_name, altitude))
