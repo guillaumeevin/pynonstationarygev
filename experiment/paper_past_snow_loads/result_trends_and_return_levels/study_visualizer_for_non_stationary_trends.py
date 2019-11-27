@@ -78,7 +78,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def massif_name_to_eurocode_quantile_level_in_practice(self):
         """Due to missing data, the the eurocode quantile which 0.98 if we have all the data
         correspond in practice to the quantile psnow x 0.98 of the data where there is snow"""
-        return {m: p * EUROCODE_QUANTILE for m, p in self.massif_name_to_psnow.items()}
+        return {m: 1 - ((1 - EUROCODE_QUANTILE) / p_snow) for m, p_snow in self.massif_name_to_psnow.items()}
 
     @cached_property
     def massif_name_to_non_null_years_and_maxima(self):
