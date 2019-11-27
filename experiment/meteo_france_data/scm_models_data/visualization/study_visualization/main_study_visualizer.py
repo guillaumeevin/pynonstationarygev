@@ -3,8 +3,10 @@ from typing import List
 
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
-from experiment.paper_past_snow_loads.result_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import CrocusDifferenceSnowLoad, \
-    CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization
+from experiment.paper_past_snow_loads.result_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import \
+    CrocusDifferenceSnowLoad, \
+    CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization, \
+    CrocusSnowDepthDifference, CrocusSnowDepthAtMaxofSwe
 from experiment.trend_analysis.abstract_score import MannKendall
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, ExtendedCrocusDepth, \
@@ -32,13 +34,15 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
     CrocusSweTotal: 'SWE',
     CrocusSwe3Days: 'SWE3',
-    CrocusSnowLoadEurocode: 'SL_Eurocode',
+    CrocusSnowLoadEurocode: 'GSL_Eurocode',
     CrocusDepth: 'SD',
-    CrocusSnowLoadTotal: 'max SL',
-    CrocusSnowLoad3Days: 'SL3',
-    CrocusSnowDensityAtMaxofSwe: '{} when the max of SL \nis reached'.format(snow_density_str),
-    CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization: 'max SL rescaled - SL from max HS \nboth with {}'.format(eurocode_snow_density),
-    CrocusDifferenceSnowLoad: ('max SL - SL from max HS \n with {}'.format(eurocode_snow_density))
+    CrocusSnowLoadTotal: 'max GSL',
+    CrocusSnowLoad3Days: 'GSL3',
+    CrocusSnowDensityAtMaxofSwe: '{} when the max of GSL \nis reached'.format(snow_density_str),
+    CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization: 'max GSL rescaled - GSL from max HS \nboth with {}'.format(eurocode_snow_density),
+    CrocusDifferenceSnowLoad: ('max GSL - GSL from max HS \n with {}'.format(eurocode_snow_density)),
+    CrocusSnowDepthDifference: 'max HS - HS at max of GSL',
+    CrocusSnowDepthAtMaxofSwe: 'HS at max of GSL',
 }
 
 altitude_massif_name_and_study_class_for_poster = [

@@ -9,7 +9,8 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.eurocode_visualizer import \
     plot_uncertainty_massifs
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoadEurocode, \
+    CrocusSnowLoad3Days
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
@@ -57,17 +58,18 @@ def intermediate_result(altitudes, massif_names=None,
 
 
 def major_result():
-    altitudes = [[1500, 1800]][0]
+    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700]
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
-                           ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
-    massif_names = ['Chartreuse']
-    non_stationary_models_for_uncertainty = [False, True][:1]
-    #
-    # altitudes
-    # study_class
+                           ConfidenceIntervalMethodFromExtremes.ci_mle][:]
+    massif_names = None
+    non_stationary_uncertainty = [False, True][:]
+    study_classes = [CrocusSnowLoadTotal, CrocusSnowLoadEurocode, CrocusSnowLoad3Days]
+    for study_class in study_classes[2:]:
+        intermediate_result(altitudes, massif_names, non_stationary_uncertainty, uncertainty_methods, study_class)
 
 
 if __name__ == '__main__':
+    major_result()
     # minor_result(altitude=1800)
     # intermediate_result(altitudes=[1500, 1800], massif_names=['Chartreuse'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,
@@ -79,10 +81,10 @@ if __name__ == '__main__':
     # intermediate_result(altitudes=[300, 600, 900, 1200, 1500, 1800], massif_names=None,
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle],
     #                     non_stationary_uncertainty=[False])
-    # intermediate_result(altitudes=[300, 600, 900, 1200, 1500, 1800], massif_names=None,
+    # intermediate_result(altitudes=[300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700], massif_names=None,
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_bayes],
     #                     non_stationary_uncertainty=[False, True])
-    intermediate_result(altitudes=[300, 600, 900], massif_names=None,
-                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle],
-                        non_stationary_uncertainty=[False, True])
+    # intermediate_result(altitudes=[300, 600, 900], massif_names=None,
+    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle],
+    #                     non_stationary_uncertainty=[False, True])

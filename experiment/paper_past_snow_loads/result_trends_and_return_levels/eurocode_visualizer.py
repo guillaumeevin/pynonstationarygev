@@ -3,7 +3,7 @@ from typing import Dict, List, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 
-from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR
+from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
@@ -19,11 +19,12 @@ def plot_uncertainty_massifs(altitude_to_visualizer: Dict[int, StudyVisualizerFo
     """ Plot several uncertainty plots
     :return:
     """
+    altitude_to_visualizer = {a:v for a,v in altitude_to_visualizer.items() if a in EUROCODE_ALTITUDES}
     visualizer = list(altitude_to_visualizer.values())[-1]
     # Subdivide massif names in group of 3
     m = 1
     uncertainty_massif_names = visualizer.uncertainty_massif_names
-    n = (len(uncertainty_massif_names) // m) + 1
+    n = (len(uncertainty_massif_names) // m)
     print('total nb of massif', n)
     for i in list(range(n))[:]:
         massif_names = uncertainty_massif_names[m * i: m * (i + 1)]
