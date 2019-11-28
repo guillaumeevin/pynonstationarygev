@@ -1,21 +1,14 @@
-from collections import OrderedDict
-import os.path as op
-
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-from experiment.meteo_france_data.plot.create_shifted_cmap import get_shifted_map
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
-    StudyVisualizer
+from experiment.paper_past_snow_loads.paper_utils import paper_study_classes, paper_altitudes
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.eurocode_visualizer import \
     plot_uncertainty_massifs
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoadEurocode, \
-    CrocusSnowLoad3Days
-from experiment.paper_past_snow_loads.result_trends_and_return_levels.study_visualizer_for_non_stationary_trends import \
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
-from root_utils import VERSION_TIME
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
@@ -42,12 +35,8 @@ def intermediate_result(altitudes, massif_names=None,
     :return:
     """
     # Load altitude to visualizer
-    altitude_to_visualizer = OrderedDict()
-    for altitude in altitudes:
-        altitude_to_visualizer[altitude] = StudyVisualizerForNonStationaryTrends(
-            study=study_class(altitude=altitude), multiprocessing=True, save_to_file=True,
-            uncertainty_massif_names=massif_names, uncertainty_methods=uncertainty_methods,
-            non_stationary_contexts=non_stationary_uncertainty)
+    altitude_to_visualizer = load_altitude_to_visualizer(altitudes, massif_names, non_stationary_uncertainty,
+                                                         study_class, uncertainty_methods)
     # Plot trends
     max_abs_tdrl = max([visualizer.max_abs_tdrl for visualizer in altitude_to_visualizer.values()])
     for visualizer in altitude_to_visualizer.values():
@@ -57,15 +46,14 @@ def intermediate_result(altitudes, massif_names=None,
     return altitude_to_visualizer
 
 
+
 def major_result():
-    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700]
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
                            ConfidenceIntervalMethodFromExtremes.ci_mle][:]
     massif_names = None
     non_stationary_uncertainty = [False, True][:]
-    study_classes = [CrocusSnowLoadTotal, CrocusSnowLoadEurocode, CrocusSnowLoad3Days]
-    for study_class in study_classes[2:]:
-        intermediate_result(altitudes, massif_names, non_stationary_uncertainty, uncertainty_methods, study_class)
+    for study_class in paper_study_classes[2:]:
+        intermediate_result(paper_altitudes, massif_names, non_stationary_uncertainty, uncertainty_methods, study_class)
 
 
 if __name__ == '__main__':

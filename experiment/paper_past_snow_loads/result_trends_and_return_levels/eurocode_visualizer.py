@@ -1,15 +1,12 @@
-from typing import Dict, List, Tuple
+from typing import Dict
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES
-from experiment.paper_past_snow_loads.result_trends_and_return_levels.study_visualizer_for_non_stationary_trends import \
+from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
-from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
-    EurocodeConfidenceIntervalFromExtremes
 from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
 from root_utils import get_display_name_from_object_type

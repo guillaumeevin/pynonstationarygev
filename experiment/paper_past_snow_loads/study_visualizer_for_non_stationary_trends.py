@@ -11,6 +11,8 @@ from experiment.meteo_france_data.plot.create_shifted_cmap import get_shifted_ma
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
+from experiment.paper_past_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
+    compute_gelman_convergence_value
 from experiment.trend_analysis.abstract_score import MeanScore
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
 from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevScaleTrendTest, \
@@ -147,7 +149,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def massif_name_to_tdrl_value(self):
         return {m: t.time_derivative_of_return_level for m, t in
                 self.massif_name_to_minimized_aic_non_stationary_trend_test.items()}
-    
+
     @cached_property
     def cmap(self):
         return get_shifted_map(-self._max_abs_tdrl, self._max_abs_tdrl)
@@ -169,8 +171,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     # Part 2 - Uncertainty return level plot
 
-    def massif_name_to_model_class(self, massif_name, non_stationary_model):
-        if not non_stationary_model:
+    def massif_name_and_non_stationary_context_to_model_class(self, massif_name, non_stationary_context):
+        if not non_stationary_context:
             return StationaryTemporalModel
         else:
             return self.massif_name_to_minimized_aic_non_stationary_trend_test[massif_name].unconstrained_model_class
@@ -179,16 +181,12 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def nb_contexts(self):
         return len(self.non_stationary_contexts)
 
-    @property
-    def nb_uncertainty_method(self):
-        return len(self.uncertainty_methods)
-
-    def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method, non_stationary_model) \
+    def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method, non_stationary_context) \
             -> Dict[str, Tuple[int, EurocodeConfidenceIntervalFromExtremes]]:
         # Compute for the uncertainty massif names
         arguments = [
             [self.massif_name_to_non_null_years_and_maxima[m],
-             self.massif_name_to_model_class(m, non_stationary_model),
+             self.massif_name_and_non_stationary_context_to_model_class(m, non_stationary_context),
              ci_method, self.effective_temporal_covariate,
              self.massif_name_to_eurocode_quantile_level_in_practice[m]
              ] for m in self.uncertainty_massif_names]
@@ -219,3 +217,15 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     def model_name_to_uncertainty_method_to_ratio_above_eurocode(self):
         assert self.uncertainty_massif_names == self.study.study_massif_names
+
+    # Some checks with Gelman convergence diagnosis
+
+    def massif_name_to_gelman_convergence_value(self, mcmc_iterations, model_class, nb_chains):
+        arguments = [(self.massif_name_to_non_null_years_and_maxima[m], mcmc_iterations, model_class, nb_chains)
+                     for m in self.uncertainty_massif_names]
+        if self.multiprocessing:
+            with Pool(NB_CORES) as p:
+                res = p.starmap(compute_gelman_convergence_value, arguments)
+        else:
+            res = [compute_gelman_convergence_value(*argument) for argument in arguments]
+        return dict(zip(self.uncertainty_massif_names, res))

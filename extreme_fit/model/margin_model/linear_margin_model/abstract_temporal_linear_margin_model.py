@@ -24,8 +24,10 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
     """Linearity only with respect to the temporal coordinates"""
 
     def __init__(self, coordinates: AbstractCoordinates, use_start_value=False, params_start_fit=None,
-                 params_sample=None, starting_point=None, fit_method=TemporalMarginFitMethod.is_mev_gev_fit):
+                 params_sample=None, starting_point=None, fit_method=TemporalMarginFitMethod.is_mev_gev_fit,
+                 nb_iterations_for_bayesian_fit=5000):
         super().__init__(coordinates, use_start_value, params_start_fit, params_sample, starting_point)
+        self.nb_iterations_for_bayesian_fit = nb_iterations_for_bayesian_fit
         assert isinstance(fit_method, TemporalMarginFitMethod)
         self.fit_method = fit_method
 
@@ -73,7 +75,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                    method='Bayesian',
                                    priorFun="fevdPriorCustom",
                                    priorParams=r.list(q=r.c(6), p=r.c(9)),
-                                   iter=5000,
+                                   iter=self.nb_iterations_for_bayesian_fit,
                                    **r_type_argument_kwargs
                                    )
         return ResultFromBayesianExtremes(res, self.margin_function_start_fit.gev_param_name_to_dims)

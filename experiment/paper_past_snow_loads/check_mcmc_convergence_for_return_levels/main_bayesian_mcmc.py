@@ -1,7 +1,7 @@
 import seaborn as sns
 
 import matplotlib.pyplot as plt
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSwe3Days
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSwe3Days, CrocusSnowLoadTotal
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
 from experiment.trend_analysis.univariate_test.utils import load_temporal_coordinates_and_dataset, \
     fitted_linear_margin_estimator
@@ -31,7 +31,8 @@ def main_drawing_bayesian():
     colors = ['r', 'g', 'b', 'tab:orange']
     gev_param_name_to_color = dict(zip(GevParams.PARAM_NAMES, colors))
     gev_param_name_to_ax = dict(
-        zip(GevParams.PARAM_NAMES, [ax_trajectories, ax_trajectories, ax_trajectories_inverted]))
+        zip(GevParams.PARAM_NAMES, [ax_trajectories, ax_trajectories, ax_trajectories]))
+        # zip(GevParams.PARAM_NAMES, [ax_trajectories, ax_trajectories, ax_trajectories_inverted]))
     gev_param_name_to_label = {n: GevParams.greek_letter_from_gev_param_name(n) for n in GevParams.PARAM_NAMES}
     for j, gev_param_name in enumerate(GevParams.PARAM_NAMES[:]):
         label = gev_param_name_to_label[gev_param_name]
@@ -77,13 +78,14 @@ def main_drawing_bayesian():
 
 
 def get_return_level_bayesian_example():
-    maxima, years = CrocusSwe3Days(altitude=1800).annual_maxima_and_years('Vercors')
+    maxima, years = CrocusSnowLoadTotal(altitude=1800).annual_maxima_and_years('Vercors')
     # plt.plot(years, maxima)
     # plt.show()
     model_class = StationaryTemporalModel
     coordinates, dataset = load_temporal_coordinates_and_dataset(maxima, years)
     fitted_estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year=1958,
-                                                      fit_method=TemporalMarginFitMethod.extremes_fevd_bayesian)
+                                                      fit_method=TemporalMarginFitMethod.extremes_fevd_bayesian,
+                                                      nb_iterations_for_bayesian_fit=100000)
     return_level_bayesian = ExtractEurocodeReturnLevelFromMyBayesianExtremes(estimator=fitted_estimator,
                                                                              ci_method=ConfidenceIntervalMethodFromExtremes.my_bayes,
                                                                              temporal_covariate=2017)

@@ -20,8 +20,8 @@ def load_temporal_coordinates_and_dataset(maxima, years):
     return coordinates, dataset
 
 
-def fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year, fit_method):
-    model = model_class(coordinates, starting_point=starting_year, fit_method=fit_method)
+def fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year, fit_method, **model_kwargs):
+    model = model_class(coordinates, starting_point=starting_year, fit_method=fit_method, **model_kwargs)
     estimator = LinearMarginEstimator(dataset, model)
     estimator.fit()
     return estimator
