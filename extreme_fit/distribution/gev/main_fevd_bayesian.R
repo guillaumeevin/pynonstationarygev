@@ -48,7 +48,9 @@ coord[,1]=seq(0,N-1,1)
 print(coord)
 colnames(coord) = c("T")
 coord = data.frame(coord, stringsAsFactors = TRUE)
-res = fevd_fixed(x_gev, data=coord, location.fun= ~T, method='Bayesian', priorFun="fevdPriorCustom", priorParams=list(q=c(6), p=c(9)), iter=5000, verbose=TRUE, use.phi=FALSE)
+res = fevd_fixed(x_gev, data=coord, location.fun= ~T, method='Bayesian', priorFun="fevdPriorCustom",
+priorParams=list(q=c(6), p=c(9)), iter=5000, verbose=TRUE, use.phi=FALSE,
+initial=list())
 # res = fevd_fixed(x_gev, data=coord, method='Bayesian', priorFun="fevdPriorCustom", priorParams=list(q=c(6), p=c(9)), iter=5000, verbose=TRUE, use.phi=FALSE)
 print(res)
 
