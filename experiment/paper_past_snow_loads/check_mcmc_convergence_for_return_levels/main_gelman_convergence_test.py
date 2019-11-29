@@ -2,6 +2,7 @@ import pandas as pd
 from experiment.paper_past_snow_loads.paper_utils import paper_altitudes, paper_study_classes, \
     load_altitude_to_visualizer
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
+from root_utils import get_display_name_from_object_type
 
 
 def gelman_convergence_test(mcmc_iterations, model_class, altitudes, study_class, nb_chains=3, massif_names=None):
@@ -30,10 +31,24 @@ and the for the 3 variables considered: GSL, GSL from eurocode, GLS in 3 days
 """
 
 if __name__ == '__main__':
-    mcmc_iterations = 1000
-    df = gelman_convergence_test(mcmc_iterations=mcmc_iterations, altitudes=paper_altitudes[:1],
-                                 study_class=paper_study_classes[0], model_class=StationaryTemporalModel,
-                                 massif_names=['Chartreuse'])
-    print(mcmc_iterations)
-    print(df.head())
-    print('Overall maxima:', df.max().max())
+    for half_mcmc_iterations in [10000, 50000, 100000, 1000000][-1:]:
+        for study_class in paper_study_classes[:1]:
+            study_name = get_display_name_from_object_type(study_class)
+            print(study_name, half_mcmc_iterations)
+            # df = gelman_convergence_test(mcmc_iterations=mcmc_iterations, altitudes=paper_altitudes[:],
+            #                              study_class=study_class, model_class=StationaryTemporalModel,
+            #                              massif_names=None,
+            #                              nb_chains=3)
+            mcmc_iterations = 2 * half_mcmc_iterations
+            df = gelman_convergence_test(mcmc_iterations=mcmc_iterations, altitudes=paper_altitudes[:1],
+                                         study_class=study_class, model_class=StationaryTemporalModel,
+                                         massif_names=['Vercors'],
+                                         nb_chains=3)
+            csv_filename = '{}_{}_{}_{}.csv'.format(study_name, mcmc_iterations, df.max().max(), df.mean().mean())
+            df.to_csv(csv_filename)
+
+
+            #
+            # print(df.head())
+            # df.to_csv(csv_filename)
+            # print('Overall maxima for {} iterations:'.format(mcmc_iterations), df.max().max())

@@ -10,12 +10,15 @@ from extreme_fit.model.utils import r
 
 
 def compute_gelman_score(means, variances, N, M):
+    assert isinstance(means, pd.Series)
+    assert isinstance(variances, pd.Series)
     mean = means.mean()
-    B = N * (means - mean).sum() / (M - 1)
+    B = N * (means - mean).pow(2).sum() / (M - 1)
     W = variances.mean()
-    V_hat = (N -1) * W / N
+    V_hat = (N - 1) * W / N
     V_hat += (M + 1) * B / (M * N)
     return V_hat / W
+
 
 def compute_refined_gelman_score(means, variances, N, M):
     R = compute_gelman_score(means, variances, N, M)
@@ -31,16 +34,15 @@ def compute_gelman_convergence_value(non_null_years_and_maxima, mcmc_iterations,
     df_params_start_fit = sample_starting_value(nb_chains)
     for i, row in df_params_start_fit.iterrows():
         s_mean, s_variance = compute_mean_and_variance(mcmc_iterations, model_class, non_null_years_and_maxima,
-                                                  params_start_fit=row.to_dict())
+                                                       params_start_fit=row.to_dict())
         s_means.append(s_mean)
         s_variances.append(s_variance)
     df_mean = pd.concat(s_means, axis=1).transpose()
     df_variance = pd.concat(s_variances, axis=1).transpose()
-    Rs = []
-    for param_name in df_params_start_fit.columns:
-        R = compute_gelman_score(df_mean[param_name], df_variance[param_name], N=mcmc_iterations//2, M=nb_chains)
-        Rs.append(R)
-    return max(Rs)
+    param_name_to_R = {param_name: compute_gelman_score(df_mean[param_name], df_variance[param_name], N=mcmc_iterations // 2, M=nb_chains)
+                       for param_name in df_params_start_fit.columns}
+    print(param_name_to_R)
+    return max(param_name_to_R.values())
 
 
 def sample_starting_value(nb_chains):
@@ -59,7 +61,19 @@ def compute_mean_and_variance(mcmc_iterations, model_class, non_null_years_and_m
                                                       nb_iterations_for_bayesian_fit=mcmc_iterations,
                                                       params_start_fit_bayesian=params_start_fit)
     res = fitted_estimator.result_from_model_fit  # type: ResultFromBayesianExtremes
-    df = res.df_posterior_samples.iloc[:, :-2]
-    return df.mean(axis=0), df.std(axis=0)
+    return res.mean_posterior_parameters, res.variance_posterior_parameters
+
 
 #
+def test_gelman():
+    M = 3
+    epsi = 1e-2
+    means = pd.Series([1 + i *epsi for i in range(M)])
+    variances = pd.Series([1 for _ in range(M)])
+    N = 5000
+    res = compute_gelman_score(means, variances, M, N)
+    print(res)
+
+
+if __name__ == '__main__':
+    test_gelman()

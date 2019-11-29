@@ -36,6 +36,18 @@ class ResultFromBayesianExtremes(AbstractResultFromExtremes):
     def df_posterior_samples(self) -> pd.DataFrame:
         return self.df_all_samples.iloc[self.burn_in_nb:, :]
 
+    @property
+    def df_posterior_parameters(self) -> pd.DataFrame:
+        return self.df_posterior_samples.iloc[:, :-2]
+
+    @property
+    def mean_posterior_parameters(self):
+        return self.df_posterior_parameters.mean(axis=0)
+
+    @property
+    def variance_posterior_parameters(self):
+        return self.df_posterior_parameters.mean(axis=0)
+
     def get_coef_dict_from_posterior_sample(self, s: pd.Series):
         assert len(s) >= 3
         values = {i: v for i, v in enumerate(s)}
