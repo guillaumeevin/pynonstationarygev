@@ -341,7 +341,7 @@ class AbstractStudy(object):
             # Potentially, fill the inside of the polygon with some color
             if fill and coordinate_id in cls.coordinate_id_to_massif_name:
                 massif_name = cls.coordinate_id_to_massif_name[coordinate_id]
-                if massif_name in massif_name_to_marker_style:
+                if massif_name_to_marker_style is not None and massif_name in massif_name_to_marker_style:
                     massif_coordinate = masssif_coordinate_for_display.df_all_coordinates.loc[massif_name, :].values
                     if massif_name in ['Maurienne', 'Mercantour']:
                         massif_coordinate[1] -= 5000

@@ -31,7 +31,7 @@ and the for the 3 variables considered: GSL, GSL from eurocode, GLS in 3 days
 """
 
 if __name__ == '__main__':
-    for half_mcmc_iterations in [10000, 50000, 100000, 1000000][-1:]:
+    for half_mcmc_iterations in [500000][:]:
         for study_class in paper_study_classes[:1]:
             study_name = get_display_name_from_object_type(study_class)
             print(study_name, half_mcmc_iterations)

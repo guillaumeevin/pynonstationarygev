@@ -1,7 +1,8 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-from experiment.paper_past_snow_loads.paper_utils import paper_study_classes, paper_altitudes
+from experiment.paper_past_snow_loads.paper_utils import paper_study_classes, paper_altitudes, \
+    load_altitude_to_visualizer
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.eurocode_visualizer import \
     plot_uncertainty_massifs
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
@@ -58,7 +59,8 @@ def major_result():
 
 if __name__ == '__main__':
     major_result()
-    # minor_result(altitude=1800)
+    # intermediate_result(paper_altitudes)
+    # minor_result(altitude=600)
     # intermediate_result(altitudes=[1500, 1800], massif_names=['Chartreuse'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_bayes],
