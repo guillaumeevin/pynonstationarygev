@@ -58,9 +58,9 @@ def major_result():
 
 
 if __name__ == '__main__':
-    major_result()
+    # major_result()
     # intermediate_result(paper_altitudes)
-    # minor_result(altitude=600)
+    minor_result(altitude=600)
     # intermediate_result(altitudes=[1500, 1800], massif_names=['Chartreuse'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_bayes],

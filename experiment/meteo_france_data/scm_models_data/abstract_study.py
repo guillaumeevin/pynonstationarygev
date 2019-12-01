@@ -1,5 +1,8 @@
 import datetime
-from matplotlib.patches import Polygon
+
+from matplotlib.lines import Line2D
+from matplotlib.markers import MarkerStyle
+from matplotlib.patches import Polygon, Patch
 import io
 import os
 import os.path as op
@@ -395,6 +398,19 @@ class AbstractStudy(object):
                 create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=ticks_values_and_labels)
         if axis_off:
             plt.axis('off')
+
+        # Add legend for the marker
+        if massif_name_to_marker_style is not None:
+            labels = ['\mathcal{M}_{\mu_1}', '\mathcal{M}_{\sigma_1}', '\mathcal{M}_{\mu_1, \sigma_1}']
+            markers = ["s", "^", "D"]
+            legend_elements = [
+                Line2D([0], [0], marker=marker, color='w', label='${}$'.format(label),
+                           markerfacecolor='w', markeredgecolor='k', markersize=8)
+                for label, marker in zip(labels, markers)
+            ]
+            ax.legend(handles=legend_elements, bbox_to_anchor=(0.01, 0.03), loc='lower left')
+            ax.annotate("Filled symbol = significant trend ", xy=(0.05, 0.015), xycoords='axes fraction',
+                         fontsize=7)
 
         if show:
             plt.show()
