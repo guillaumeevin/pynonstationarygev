@@ -116,17 +116,22 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def plot_trends(self, max_abs_tdrl=None):
         if max_abs_tdrl is not None:
             self.global_max_abs_tdrl = max_abs_tdrl
-        self.study.visualize_study(massif_name_to_value=self.massif_name_to_tdrl_value,
-                                   replace_blue_by_white=False, axis_off=False, show_label=False,
+        ax = self.study.visualize_study(massif_name_to_value=self.massif_name_to_tdrl_value,
+                                   replace_blue_by_white=False,
+                                    axis_off=False, show_label=False,
                                    add_colorbar=True,
                                    massif_name_to_marker_style=self.massif_name_to_marker_style,
                                    massif_name_to_color=self.massif_name_to_tdrl_color,
                                    cmap=self.cmap,
-                                   show=self.show,
+                                   show=False,
                                    ticks_values_and_labels=self.ticks_values_and_labels,
                                    label=self.label_tdrl_bar + ' for {}'.format(EUROCODE_RETURN_LEVEL_STR))
+        ax.get_xaxis().set_visible(True)
+        ax.set_xticks([])
+        ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=12)
+
         self.plot_name = 'tdlr_trends'
-        self.show_or_save_to_file(add_classic_title=False, tight_layout=False, no_title=True)
+        self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True)
         plt.close()
 
     @property

@@ -1,6 +1,8 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
+    ALL_ALTITUDES_WITHOUT_NAN
 from experiment.paper_past_snow_loads.paper_utils import paper_study_classes, paper_altitudes, \
     load_altitude_to_visualizer
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.eurocode_visualizer import \
@@ -17,9 +19,10 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 def minor_result(altitude):
     """Plot trends for a single altitude to be fast"""
-    visualizer = StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude), multiprocessing=True)
+    visualizer = StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude), multiprocessing=True,
+                                                       )
     visualizer.plot_trends()
-    plt.show()
+    # plt.show()
 
 
 def intermediate_result(altitudes, massif_names=None,
@@ -59,8 +62,9 @@ def major_result():
 
 if __name__ == '__main__':
     # major_result()
-    # intermediate_result(paper_altitudes)
-    minor_result(altitude=600)
+    # intermediate_result(ALL_ALTITUDES_WITHOUT_NAN)
+    intermediate_result(paper_altitudes)
+    # minor_result(altitude=600)
     # intermediate_result(altitudes=[1500, 1800], massif_names=['Chartreuse'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_bayes],
