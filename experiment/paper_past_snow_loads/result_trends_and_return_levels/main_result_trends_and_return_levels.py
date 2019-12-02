@@ -7,7 +7,7 @@ from experiment.paper_past_snow_loads.paper_utils import paper_study_classes, pa
     load_altitude_to_visualizer
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.plot_uncertainty_curves import \
     plot_uncertainty_massifs
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoadEurocode
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.plot_uncertainty_histogram import \
     plot_uncertainty_histogram
 from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends import \
@@ -58,15 +58,17 @@ def major_result():
                            ConfidenceIntervalMethodFromExtremes.ci_mle][:]
     massif_names = None
     non_stationary_uncertainty = [False, True][:]
-    for study_class in paper_study_classes[2:]:
+    for study_class in paper_study_classes[:2]:
         intermediate_result(paper_altitudes, massif_names, non_stationary_uncertainty, uncertainty_methods, study_class)
 
 
 if __name__ == '__main__':
-    # major_result()
-    intermediate_result(altitudes=[900, 1200], massif_names=['Chartreuse', 'Vanoise', 'Mercantour'],
-                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
-                           ConfidenceIntervalMethodFromExtremes.ci_mle])
+    major_result()
+    # intermediate_result(altitudes=paper_altitudes, massif_names=['Chartreuse', 'Vanoise', 'Mercantour'],
+    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
+    #                        ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
+    #                     non_stationary_uncertainty=[False, True][1:],
+    #                     study_class=CrocusSnowLoadEurocode)
     # intermediate_result(altitudes=[900, 1200], massif_names=None)
     # intermediate_result(ALL_ALTITUDES_WITHOUT_NAN)
     # intermediate_result(paper_altitudes)

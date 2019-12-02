@@ -34,7 +34,7 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
     CrocusSweTotal: 'SWE',
     CrocusSwe3Days: 'SWE3',
-    CrocusSnowLoadEurocode: 'GSL_Eurocode',
+    CrocusSnowLoadEurocode: 'GSL from annual maximum of HS and {}'.format(eurocode_snow_density),
     CrocusDepth: 'SD',
     CrocusSnowLoadTotal: 'max GSL',
     CrocusSnowLoad3Days: 'GSL3',

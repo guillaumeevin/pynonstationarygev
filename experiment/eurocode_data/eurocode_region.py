@@ -44,7 +44,9 @@ class AbstractEurocodeRegion(object):
     def lois_de_variation_1000_and_2000(self):
         return 3.5, -2.45
 
-    def plot_eurocode_snow_load_on_ground_characteristic_value_variable_action(self, ax, altitudes, label='Eurocode standards', linestyle=None):
+    def plot_eurocode_snow_load_on_ground_characteristic_value_variable_action(self, ax, altitudes,
+                                                                               label='French standards',
+                                                                               linestyle=None):
         ax.plot(altitudes, [self.valeur_caracteristique(altitude) for altitude in altitudes],
                 label=label, color=self.eurocode_color, linewidth=5, linestyle=linestyle)
 

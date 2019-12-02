@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES
+from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
+    SCM_STUDY_CLASS_TO_ABBREVIATION
 from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
@@ -102,20 +105,20 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
             plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes)
 
     ax.legend(loc=2)
-    ax.set_ylim([-1, 16])
+    # ax.set_ylim([-1, 16])
     massif_name_str = massif_name.replace('_', ' ')
     eurocode_region_str = get_display_name_from_object_type(type(eurocode_region))
     is_non_stationary_model = non_stationary_context if isinstance(non_stationary_context,
                                                                    bool) else 'Non' in non_stationary_context
     if is_non_stationary_model:
-        non_stationary_context = 'non-stationary'
+        non_stationary_context = 'selected non-stationary models'
     else:
-        non_stationary_context = 'stationary'
-    title = '{} ({} Eurocodes area) with a {} model'.format(massif_name_str, eurocode_region_str,
-                                                            non_stationary_context)
+        non_stationary_context = 'the stationary model'
+    title = '{} massif with {}'.format(massif_name_str,  non_stationary_context)
     ax.set_title(title)
     ax.set_xticks(altitudes)
-    ax.set_ylabel(EUROCODE_RETURN_LEVEL_STR)
+    ylabel = EUROCODE_RETURN_LEVEL_STR.replace('GSL', SCM_STUDY_CLASS_TO_ABBREVIATION[type(visualizer.study)])
+    ax.set_ylabel(ylabel)
     ax.set_xlabel('Altitude (m)')
     ax.grid()
 
@@ -131,10 +134,20 @@ def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes):
                edgecolor='black', hatch='//')
         # Plot markers
         markers_kwargs = [v.massif_name_to_marker_style[massif_name] for v in visualizers]
+        for k in markers_kwargs:
+            k['markersize'] = 7
         for altitude, marker_kwargs, value in zip(valid_altitudes, markers_kwargs, tdrl_values):
             # ax.plot([altitude], [value / 2], **marker_kwargs)
             # Better to plot all the markers on the same line
             ax.plot([altitude], 0, **marker_kwargs)
+    # Add a legend plot
+    legend_elements = AbstractStudy.get_legend_for_model_symbol(markersize=9)
+    ax2 = ax.twinx()
+    # ax2.legend(handles=legend_elements, bbox_to_anchor=(0.93, 0.7), loc='upper right')
+    # ax2.annotate("Filled symbol = significant trend ", xy=(0.85, 0.5), xycoords='axes fraction', fontsize=7)
+    ax2.legend(handles=legend_elements, loc='upper right')
+    ax2.annotate("Filled symbol = significant trend ", xy=(0.75, 0.97), xycoords='axes fraction', fontsize=10)
+    ax2.set_yticks([])
 
 
 def plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitudes, ax, color, massif_name,
