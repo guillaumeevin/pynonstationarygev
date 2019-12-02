@@ -6,6 +6,7 @@ from typing import Dict, Tuple
 import numpy as np
 from cached_property import cached_property
 
+from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE, EUROCODE_RETURN_LEVEL_STR
 from experiment.meteo_france_data.plot.create_shifted_cmap import get_shifted_map, get_colors
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
@@ -117,15 +118,15 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         if max_abs_tdrl is not None:
             self.global_max_abs_tdrl = max_abs_tdrl
         ax = self.study.visualize_study(massif_name_to_value=self.massif_name_to_tdrl_value,
-                                   replace_blue_by_white=False,
-                                    axis_off=False, show_label=False,
-                                   add_colorbar=True,
-                                   massif_name_to_marker_style=self.massif_name_to_marker_style,
-                                   massif_name_to_color=self.massif_name_to_tdrl_color,
-                                   cmap=self.cmap,
-                                   show=False,
-                                   ticks_values_and_labels=self.ticks_values_and_labels,
-                                   label=self.label_tdrl_bar + ' for {}'.format(EUROCODE_RETURN_LEVEL_STR))
+                                        replace_blue_by_white=False,
+                                        axis_off=False, show_label=False,
+                                        add_colorbar=True,
+                                        massif_name_to_marker_style=self.massif_name_to_marker_style,
+                                        massif_name_to_color=self.massif_name_to_tdrl_color,
+                                        cmap=self.cmap,
+                                        show=False,
+                                        ticks_values_and_labels=self.ticks_values_and_labels,
+                                        label=self.label_tdrl_bar + ' for {}'.format(EUROCODE_RETURN_LEVEL_STR))
         ax.get_xaxis().set_visible(True)
         ax.set_xticks([])
         ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=12)
@@ -187,7 +188,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         return len(self.non_stationary_contexts)
 
     def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method, non_stationary_context) \
-            -> Dict[str, Tuple[int, EurocodeConfidenceIntervalFromExtremes]]:
+            -> Dict[str, EurocodeConfidenceIntervalFromExtremes]:
         # Compute for the uncertainty massif names
         arguments = [
             [self.massif_name_to_non_null_years_and_maxima[m],
@@ -212,6 +213,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     @cached_property
     def triplet_to_eurocode_uncertainty(self):
+        # -> Dict[(str, bool, str), EurocodeConfidenceIntervalFromExtremes]
         d = {}
         for ci_method in self.uncertainty_methods:
             for non_stationary_uncertainty in self.non_stationary_contexts:
@@ -234,3 +236,22 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         else:
             res = [compute_gelman_convergence_value(*argument) for argument in arguments]
         return dict(zip(self.uncertainty_massif_names, res))
+
+    # Some values for the histogram
+
+    @cached_property
+    def massif_name_to_eurocode_values(self):
+        """Eurocode values for the altitude"""
+        return {m: r().lois_de_variation_de_la_valeur_caracteristique(altitude=self.study.altitude)
+                for m, r in massif_name_to_eurocode_region.items() if m in self.uncertainty_massif_names}
+
+    def three_percentages_of_excess(self, ci_method, non_stationary_context):
+        eurocode_and_uncertainties = [(self.massif_name_to_eurocode_values[massif_name],
+                                       self.triplet_to_eurocode_uncertainty[
+                                           (ci_method, non_stationary_context, massif_name)])
+                                      for massif_name in self.uncertainty_massif_names]
+        a = np.array([(uncertainty.confidence_interval[0] > eurocode,
+                       uncertainty.mean_estimate > eurocode,
+                       uncertainty.confidence_interval[1] > eurocode)
+                      for eurocode, uncertainty in eurocode_and_uncertainties])
+        return 100 * np.mean(a, axis=0)

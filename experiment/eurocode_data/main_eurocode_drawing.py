@@ -7,7 +7,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     ConfidenceIntervalMethodFromExtremes
-from experiment.paper_past_snow_loads.result_trends_and_return_levels.eurocode_visualizer import \
+from experiment.paper_past_snow_loads.result_trends_and_return_levels.plot_uncertainty_curves import \
     plot_uncertainty_massifs, get_model_name
 from experiment.eurocode_data.massif_name_to_departement import MASSIF_NAMES_ALPS
 from experiment.eurocode_data.utils import EUROCODE_ALTITUDES

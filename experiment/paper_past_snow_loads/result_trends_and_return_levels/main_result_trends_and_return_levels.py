@@ -5,9 +5,11 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     ALL_ALTITUDES_WITHOUT_NAN
 from experiment.paper_past_snow_loads.paper_utils import paper_study_classes, paper_altitudes, \
     load_altitude_to_visualizer
-from experiment.paper_past_snow_loads.result_trends_and_return_levels.eurocode_visualizer import \
+from experiment.paper_past_snow_loads.result_trends_and_return_levels.plot_uncertainty_curves import \
     plot_uncertainty_massifs
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from experiment.paper_past_snow_loads.result_trends_and_return_levels.plot_uncertainty_histogram import \
+    plot_uncertainty_histogram
 from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
@@ -47,8 +49,8 @@ def intermediate_result(altitudes, massif_names=None,
         visualizer.plot_trends(max_abs_tdrl)
     # Plot graph
     plot_uncertainty_massifs(altitude_to_visualizer)
-    return altitude_to_visualizer
-
+    # Plot histogram
+    plot_uncertainty_histogram(altitude_to_visualizer)
 
 
 def major_result():
@@ -62,8 +64,12 @@ def major_result():
 
 if __name__ == '__main__':
     # major_result()
+    intermediate_result(altitudes=[900, 1200], massif_names=['Chartreuse', 'Vanoise', 'Mercantour'],
+                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
+                           ConfidenceIntervalMethodFromExtremes.ci_mle])
+    # intermediate_result(altitudes=[900, 1200], massif_names=None)
     # intermediate_result(ALL_ALTITUDES_WITHOUT_NAN)
-    intermediate_result(paper_altitudes)
+    # intermediate_result(paper_altitudes)
     # minor_result(altitude=600)
     # intermediate_result(altitudes=[1500, 1800], massif_names=['Chartreuse'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,

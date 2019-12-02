@@ -16,3 +16,8 @@ ci_method_to_method_name = {
     ConfidenceIntervalMethodFromExtremes.ci_boot: 'boot',
     ConfidenceIntervalMethodFromExtremes.ci_proflik: 'proflik',
 }
+
+ci_method_to_color = {
+    ConfidenceIntervalMethodFromExtremes.ci_mle: 'tab:brown',
+    ConfidenceIntervalMethodFromExtremes.my_bayes: 'tab:green'
+}

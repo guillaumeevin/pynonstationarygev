@@ -1,4 +1,5 @@
 from typing import Dict
+import matplotlib.pyplot as plt
 
 import numpy as np
 
@@ -9,6 +10,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
     AbstractExtractEurocodeReturnLevel
 from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
+from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import ci_method_to_color
 from root_utils import get_display_name_from_object_type
 
 
@@ -16,7 +18,7 @@ def plot_uncertainty_massifs(altitude_to_visualizer: Dict[int, StudyVisualizerFo
     """ Plot several uncertainty plots
     :return:
     """
-    altitude_to_visualizer = {a:v for a,v in altitude_to_visualizer.items() if a in EUROCODE_ALTITUDES}
+    altitude_to_visualizer = {a: v for a, v in altitude_to_visualizer.items() if a in EUROCODE_ALTITUDES}
     visualizer = list(altitude_to_visualizer.values())[-1]
     # Subdivide massif names in group of 3
     m = 1
@@ -49,6 +51,7 @@ def plot_subgroup_uncertainty_massifs(altitude_to_visualizer: Dict[int, StudyVis
     model_names_str = 'NonStationarity=' + '_'.join([str(e) for e in visualizer.non_stationary_contexts])
     visualizer.plot_name = model_names_str + '_' + massif_names_str
     visualizer.show_or_save_to_file(no_title=True)
+    plt.close()
 
 
 def plot_single_uncertainty_massif(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends],
@@ -78,19 +81,19 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
     """ Generic function that might be used by many other more global functions"""
     altitudes = list(altitude_to_visualizer.keys())
     visualizer = list(altitude_to_visualizer.values())[0]
-    colors = ['tab:green', 'tab:brown'][::-1]
     alpha = 0.2
     # Display the EUROCODE return level
     eurocode_region = massif_name_to_eurocode_region[massif_name]()
 
     # Display the return level from model class
-    for j, (color, uncertainty_method) in enumerate(zip(colors, visualizer.uncertainty_methods)):
+    for j, uncertainty_method in enumerate(visualizer.uncertainty_methods):
         if j == 0:
             # Plot eurocode norm
             eurocode_region.plot_eurocode_snow_load_on_ground_characteristic_value_variable_action(ax,
                                                                                                    altitudes=altitudes)
 
         # Plot uncertainties
+        color = ci_method_to_color[uncertainty_method]
         valid_altitudes = plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitudes, ax, color,
                                                                 massif_name, non_stationary_context, uncertainty_method)
 
@@ -118,7 +121,8 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
 
 
 def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes):
-    visualizers = [v for a, v in altitude_to_visualizer.items() if a in valid_altitudes and massif_name in v.uncertainty_massif_names]
+    visualizers = [v for a, v in altitude_to_visualizer.items() if
+                   a in valid_altitudes and massif_name in v.uncertainty_massif_names]
     if len(visualizers) > 0:
         tdrl_values = [v.massif_name_to_tdrl_value[massif_name] for v in visualizers]
         # Plot bars
@@ -155,5 +159,6 @@ def plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitud
     upper_bound = [r.confidence_interval[1] for r in ordered_return_level_uncertainties]
     confidence_interval_str = ' {}'.format(AbstractExtractEurocodeReturnLevel.percentage_confidence_interval)
     confidence_interval_str += '\% confidence interval'
-    ax.fill_between(valid_altitudes, lower_bound, upper_bound, color=color, alpha=alpha, label=label_name + confidence_interval_str)
+    ax.fill_between(valid_altitudes, lower_bound, upper_bound, color=color, alpha=alpha,
+                    label=label_name + confidence_interval_str)
     return valid_altitudes
