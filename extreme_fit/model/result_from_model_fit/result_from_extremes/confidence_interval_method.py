@@ -17,18 +17,13 @@ ci_method_to_method_name = {
     ConfidenceIntervalMethodFromExtremes.ci_proflik: 'proflik',
 }
 
-# ci_method_to_color = {
-#     ConfidenceIntervalMethodFromExtremes.ci_mle: 'tab:brown',
-#     ConfidenceIntervalMethodFromExtremes.my_bayes: 'tab:green'
-# }
-
 ci_method_to_color = {
-    ConfidenceIntervalMethodFromExtremes.ci_mle: 'yellowgreen',
+    ConfidenceIntervalMethodFromExtremes.ci_mle: 'mediumseagreen',
     ConfidenceIntervalMethodFromExtremes.my_bayes: 'darkgreen'
 }
 
-common_part_and_uncertainty = 'Return level and its uncertainty with the'
+# common_part_and_uncertainty = 'Return level and its uncertainty with the'
 ci_method_to_label = {
-    ConfidenceIntervalMethodFromExtremes.ci_mle: 'Bayesian procedure',
-    ConfidenceIntervalMethodFromExtremes.my_bayes: 'Delta method '
+    ConfidenceIntervalMethodFromExtremes.ci_mle: 'Delta method',
+    ConfidenceIntervalMethodFromExtremes.my_bayes: 'Bayesian procedure'
 }

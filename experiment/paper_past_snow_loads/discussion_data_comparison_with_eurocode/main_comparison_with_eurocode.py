@@ -26,7 +26,13 @@ def max_graph_annual_maxima_comparison():
                      # CrocusSnowDepthAtMaxofSwe,
                      CrocusSnowDepthDifference,
                      ][:]
+    study_class_to_ylim_and_yticks = {
+        CrocusSnowDensityAtMaxofSwe: ([100, 500], [50*i for i in range(2, 11)]),
+        CrocusDifferenceSnowLoad: ([0, 12], [2*i for i in range(0, 7)]),
+        CrocusSnowDepthDifference: ([0, 1], [0.2*i for i in range(0, 6)]),
+    }
     for study_class in study_classes:
+        ylim, yticks = study_class_to_ylim_and_yticks[study_class]
 
         marker_altitude_massif_name = [
             ('magenta', 900, 'Ubaye'),
@@ -45,13 +51,15 @@ def max_graph_annual_maxima_comparison():
                                                              False, ax)
                 last_plot = altitude == 2700
                 if last_plot:
-                    constant = 150 if study_class == CrocusSnowDensityAtMaxofSwe else 0
-                    label = '{} Eurocode'.format(
-                        snow_density_str) if study_class == CrocusSnowDensityAtMaxofSwe else None
-                    snow_density_eurocode = [constant for _ in study.ordered_years]
-                    ax.plot(study.ordered_years, snow_density_eurocode, color='k', label=label)
+                    if study_class == CrocusSnowDensityAtMaxofSwe:
+                        label = '{} Eurocode'.format(snow_density_str)
+                        snow_density_eurocode = [150 for _ in study.ordered_years]
+                        ax.plot(study.ordered_years, snow_density_eurocode, color='k', label=label)
                     ax.legend()
                     tight_pad = {'h_pad': 0.2}
+                    ax.set_ylim(ylim)
+                    ax.set_xlim([1957, 2018])
+                    ax.yaxis.set_ticks(yticks)
                     study_visualizer.show_or_save_to_file(no_title=True, tight_layout=True, tight_pad=tight_pad)
                     ax.clear()
 

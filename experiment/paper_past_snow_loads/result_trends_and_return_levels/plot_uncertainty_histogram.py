@@ -46,6 +46,7 @@ def plot_histogram(altitude_to_visualizer, non_stationary_context):
     visualizer.plot_name = 'Percentages of exceedance with non_stationary={}'.format(non_stationary_context)
     # visualizer.show = True
     visualizer.show_or_save_to_file(no_title=True)
+    ax.clear()
 
 
 def plot_histogram_ci_method(visualizers, non_stationary_context, ci_method, ax, bincenters, width):

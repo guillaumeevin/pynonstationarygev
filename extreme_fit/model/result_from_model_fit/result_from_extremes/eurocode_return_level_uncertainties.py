@@ -53,7 +53,7 @@ class EurocodeConfidenceIntervalFromExtremes(object):
             fit_method = TemporalMarginFitMethod.extremes_fevd_mle
         # Fitted estimator
         fitted_estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year=None,
-                                                          fit_method=fit_method)
+                                                          fit_method=fit_method, nb_iterations_for_bayesian_fit=20000)
         # Load object from result from extremes
         return cls.from_estimator_extremes(fitted_estimator, ci_method, temporal_covariate, quantile_level)
 

@@ -63,12 +63,11 @@ def major_result():
 
 
 if __name__ == '__main__':
-    major_result()
-    # intermediate_result(altitudes=paper_altitudes, massif_names=['Chartreuse', 'Vanoise', 'Mercantour'],
-    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
-    #                        ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
-    #                     non_stationary_uncertainty=[False, True][1:],
-    #                     study_class=CrocusSnowLoadEurocode)
+    # major_result()
+    intermediate_result(altitudes=[600, 900], massif_names=['Maurienne', 'Oisans'],
+                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
+                           ConfidenceIntervalMethodFromExtremes.ci_mle][:],
+                        non_stationary_uncertainty=[False, True][:])
     # intermediate_result(altitudes=[900, 1200], massif_names=None)
     # intermediate_result(ALL_ALTITUDES_WITHOUT_NAN)
     # intermediate_result(paper_altitudes)

@@ -42,29 +42,27 @@ def plot_subgroup_uncertainty_massifs(altitude_to_visualizer: Dict[int, StudyVis
     visualizer = list(altitude_to_visualizer.values())[0]
     nb_massif_names = len(massif_names)
     assert nb_massif_names <= 5
-    axes = create_adjusted_axes(nb_massif_names, visualizer.nb_contexts)
-    if nb_massif_names == 1:
-        axes = [axes]
-    for ax, massif_name in zip(axes, massif_names):
-        plot_single_uncertainty_massif(altitude_to_visualizer,
-                                       massif_name, ax)
-
-    # Save plot
-    massif_names_str = '_'.join(massif_names)
-    model_names_str = 'NonStationarity=' + '_'.join([str(e) for e in visualizer.non_stationary_contexts])
-    visualizer.plot_name = model_names_str + '_' + massif_names_str
-    visualizer.show_or_save_to_file(no_title=True)
-    plt.close()
+    # axes = create_adjusted_axes(nb_massif_names, visualizer.nb_contexts)
+    # if nb_massif_names == 1:
+    #     axes = [axes]
+    for massif_name in massif_names:
+        plot_single_uncertainty_massif(altitude_to_visualizer, massif_name)
 
 
 def plot_single_uncertainty_massif(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends],
-                                   massif_name, axes):
+                                   massif_name):
     visualizer = list(altitude_to_visualizer.values())[0]
-    if visualizer.nb_contexts == 1:
-        axes = [axes]
-    for ax, non_stationary_context in zip(axes, visualizer.non_stationary_contexts):
+
+    for non_stationary_context in visualizer.non_stationary_contexts:
+        ax = create_adjusted_axes(1, 1)
         plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, non_stationary_context,
                                                                   altitude_to_visualizer)
+        # Save plot
+        massif_names_str = massif_name
+        model_names_str = 'NonStationarity={}'.format(non_stationary_context)
+        visualizer.plot_name = model_names_str + '_' + massif_names_str
+        visualizer.show_or_save_to_file(no_title=True)
+        plt.close()
 
 
 def get_label_name(non_stationary_context, ci_method_name):
@@ -114,7 +112,7 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
         non_stationary_context = 'selected non-stationary models'
     else:
         non_stationary_context = 'the stationary model'
-    title = '{} massif with {}'.format(massif_name_str,  non_stationary_context)
+    title = '{} massif with {}'.format(massif_name_str, non_stationary_context)
     ax.set_title(title)
     ax.set_xticks(altitudes)
     ylabel = EUROCODE_RETURN_LEVEL_STR.replace('GSL', SCM_STUDY_CLASS_TO_ABBREVIATION[type(visualizer.study)])

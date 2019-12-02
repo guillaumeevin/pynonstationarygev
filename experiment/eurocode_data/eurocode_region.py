@@ -18,9 +18,9 @@ class AbstractEurocodeRegion(object):
             return max(self.sad, valeur_caracteritique)
 
     def valeur_caracteristique(self, altitude):
-        return self.sk0 + self.lois_de_variation_de_la_valeur_caracteristique(altitude)
+        return self.sk0 + self._lois_de_variation_de_la_valeur_caracteristique(altitude)
 
-    def lois_de_variation_de_la_valeur_caracteristique(self, altitude):
+    def _lois_de_variation_de_la_valeur_caracteristique(self, altitude):
         if 200 <= altitude <= 2000:
             if 200 <= altitude <= 500:
                 a, b = self.lois_de_variation_200_and_500

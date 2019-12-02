@@ -242,7 +242,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     @cached_property
     def massif_name_to_eurocode_values(self):
         """Eurocode values for the altitude"""
-        return {m: r().lois_de_variation_de_la_valeur_caracteristique(altitude=self.study.altitude)
+        return {m: r().valeur_caracteristique(altitude=self.study.altitude)
                 for m, r in massif_name_to_eurocode_region.items() if m in self.uncertainty_massif_names}
 
     def three_percentages_of_excess(self, ci_method, non_stationary_context):
