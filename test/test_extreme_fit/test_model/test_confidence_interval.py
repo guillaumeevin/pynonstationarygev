@@ -50,16 +50,17 @@ class TestConfidenceInterval(unittest.TestCase):
         self.load_data()
         estimator = fitted_linear_margin_estimator(model_class, self.coordinates, self.dataset,
                                                    starting_year=0,
-                                                   fit_method=self.fit_method)
+                                                   fit_method=self.fit_method,
+                                                   nb_iterations_for_bayesian_fit=100)
         return EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(estimator, self.ci_method,
                                                                               self.start_year)
 
     @property
     def bayesian_ci(self):
         return {
-            StationaryTemporalModel: (6.756903450587758, 10.316338515219085, 15.77861914935531),
-            NonStationaryLocationTemporalModel: (6.588570126641043, 10.055847177064836, 14.332882862817332),
-            NonStationaryLocationAndScaleTemporalModel: (7.836837972383451, 11.162663922795906, 16.171701445841183),
+            StationaryTemporalModel: (5.322109348451903, 7.0799164594485005, 9.204148461413848),
+            NonStationaryLocationTemporalModel: (5.841829981629489, 8.698075782143512, 11.714171407134813),
+            NonStationaryLocationAndScaleTemporalModel:(7.461627064650193, 9.0830495118253, 10.111709666579216),
         }
 
     def test_my_bayes(self):
@@ -117,9 +118,9 @@ class TestConfidenceIntervalModifiedCoordinates(TestConfidenceInterval):
     @property
     def bayesian_ci(self):
         return {
-            StationaryTemporalModel: (6.756903450587758, 10.316338515219085, 15.77861914935531),
-            NonStationaryLocationTemporalModel: (6.266027110993808, 10.063368195790687, 14.894103640762097),
-            NonStationaryLocationAndScaleTemporalModel: (5.554116722722492, 13.714431163455535, 26.929963957448642),
+            StationaryTemporalModel: (5.322109348451903, 7.079916459448501, 9.204148461413848),
+            NonStationaryLocationTemporalModel: (7.285138442751067, 9.965330929203255, 13.313068256451233),
+            NonStationaryLocationAndScaleTemporalModel: (11.744572233784234, 15.89417144494369, 23.522431032480416),
         }
 
     def test_my_bayes(self):
