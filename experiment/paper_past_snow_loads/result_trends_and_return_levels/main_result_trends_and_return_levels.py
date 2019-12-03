@@ -1,3 +1,5 @@
+from time import sleep
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
@@ -57,14 +59,17 @@ def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
                            ConfidenceIntervalMethodFromExtremes.ci_mle][:]
     massif_names = None
-    non_stationary_uncertainty = [False, True][:]
     for study_class in paper_study_classes[:2]:
+        if study_class == CrocusSnowLoadEurocode:
+            non_stationary_uncertainty = [False]
+        else:
+            non_stationary_uncertainty = [False, True][:]
         intermediate_result(paper_altitudes, massif_names, non_stationary_uncertainty, uncertainty_methods, study_class)
 
 
 if __name__ == '__main__':
     # major_result()
-    intermediate_result(altitudes=[600, 900], massif_names=['Maurienne', 'Oisans'],
+    intermediate_result(altitudes=paper_altitudes, massif_names=['Maurienne'],
                         uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
                            ConfidenceIntervalMethodFromExtremes.ci_mle][:],
                         non_stationary_uncertainty=[False, True][:])

@@ -38,14 +38,14 @@ def plot_histogram(altitude_to_visualizer, non_stationary_context):
         width = 100
         plot_histogram_ci_method(visualizers, non_stationary_context, ci_method, ax, bincenters, width=width)
     ax.set_xticks(altitudes)
-    ax.legend()
+    ax.legend(loc='upper left')
     ax.set_ylabel('Massifs exceeding French standards (\%)')
     ax.set_xlabel('Altitude (m)')
     ax.set_ylim([0, 100])
     ax.set_yticks([10 * i for i in range(11)])
     visualizer.plot_name = 'Percentages of exceedance with non_stationary={}'.format(non_stationary_context)
     # visualizer.show = True
-    visualizer.show_or_save_to_file(no_title=True)
+    visualizer.show_or_save_to_file(no_title=True, dpi=1000)
     ax.clear()
 
 

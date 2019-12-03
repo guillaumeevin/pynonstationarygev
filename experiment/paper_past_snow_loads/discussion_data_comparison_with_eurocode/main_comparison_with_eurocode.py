@@ -60,7 +60,8 @@ def max_graph_annual_maxima_comparison():
                     ax.set_ylim(ylim)
                     ax.set_xlim([1957, 2018])
                     ax.yaxis.set_ticks(yticks)
-                    study_visualizer.show_or_save_to_file(no_title=True, tight_layout=True, tight_pad=tight_pad)
+                    study_visualizer.show_or_save_to_file(no_title=True, tight_layout=True,
+                                                          tight_pad=tight_pad, dpi=1000)
                     ax.clear()
 
 

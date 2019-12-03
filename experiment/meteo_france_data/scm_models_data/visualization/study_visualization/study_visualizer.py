@@ -625,7 +625,9 @@ class StudyVisualizer(VisualizationParameters):
         self.plot_name = plot_name
         self.show_or_save_to_file()
 
-    def visualize_max_graphs_poster(self, massif_name, altitude, snow_abbreviation, color, label=None, last_plot=True, ax=None, linestyle=None, tight_pad=None):
+    def visualize_max_graphs_poster(self, massif_name, altitude, snow_abbreviation, color,
+                                    label=None, last_plot=True, ax=None, linestyle=None,
+                                    tight_pad=None, dpi=None):
         massif_names = self.study.study_massif_names
         # Display the graph of the max on top
         if ax is None:
@@ -645,7 +647,9 @@ class StudyVisualizer(VisualizationParameters):
         if last_plot:
             ax.legend()
 
-            self.show_or_save_to_file(add_classic_title=False, no_title=True, tight_layout=True, tight_pad=tight_pad)
+            self.show_or_save_to_file(add_classic_title=False, no_title=True,
+                                      tight_layout=True, tight_pad=tight_pad,
+                                      dpi=dpi)
             ax.clear()
 
     @staticmethod
@@ -812,7 +816,8 @@ class StudyVisualizer(VisualizationParameters):
         ax.get_yaxis().set_visible(False)
         ax.set_aspect('equal')
 
-    def show_or_save_to_file(self, add_classic_title=True, no_title=False, tight_layout=False, tight_pad=None):
+    def show_or_save_to_file(self, add_classic_title=True, no_title=False, tight_layout=False, tight_pad=None,
+                             dpi=None):
         if tight_layout:
             if tight_pad is not None:
                 plt.tight_layout(**tight_pad)
@@ -836,15 +841,18 @@ class StudyVisualizer(VisualizationParameters):
             if not self.only_one_graph:
                 filename += "{}".format('_'.join(self.plot_name.split())) + '_'
             filename += specific_title
-            self.savefig_in_results(filename)
+            self.savefig_in_results(filename, dpi=dpi)
 
     @classmethod
-    def savefig_in_results(cls, filename):
+    def savefig_in_results(cls, filename, dpi=None):
         filepath = op.join(AbstractStudy.result_full_path, filename + '.png')
         dirname = op.dirname(filepath)
         if not op.exists(dirname):
             os.makedirs(dirname, exist_ok=True)
-        plt.savefig(filepath)
+        if dpi is not None:
+            plt.savefig(filepath, dpi=dpi)
+        else:
+            plt.savefig(filepath)
 
     def visualize_independent_margin_fits(self, threshold=None, axes=None, show=True):
         # Fit either a GEV or a GPD

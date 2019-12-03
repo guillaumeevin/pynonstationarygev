@@ -33,7 +33,8 @@ def max_graph_annual_maxima_poster():
             label = '{} massif at {}m'.format(massif_name, altitude)
             tight_pad = {'h_pad': 0.2}
             study_visualizer.visualize_max_graphs_poster(massif_name, altitude, snow_abbreviation, color, label,
-                                                         last_plot, ax, tight_pad=tight_pad)
+                                                         last_plot, ax, tight_pad=tight_pad,
+                                                         dpi=1000)
 
 
 if __name__ == '__main__':

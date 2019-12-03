@@ -61,7 +61,7 @@ def plot_single_uncertainty_massif(altitude_to_visualizer: Dict[int, StudyVisual
         massif_names_str = massif_name
         model_names_str = 'NonStationarity={}'.format(non_stationary_context)
         visualizer.plot_name = model_names_str + '_' + massif_names_str
-        visualizer.show_or_save_to_file(no_title=True)
+        visualizer.show_or_save_to_file(no_title=True, dpi=1000)
         plt.close()
 
 
@@ -104,6 +104,8 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
 
     ax.legend(loc=2)
     # ax.set_ylim([-1, 16])
+    if massif_name == 'Maurienne':
+        ax.set_ylim([-1, 13])
     massif_name_str = massif_name.replace('_', ' ')
     eurocode_region_str = get_display_name_from_object_type(type(eurocode_region))
     is_non_stationary_model = non_stationary_context if isinstance(non_stationary_context,

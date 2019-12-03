@@ -132,7 +132,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=12)
 
         self.plot_name = 'tdlr_trends'
-        self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True)
+        self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True,
+                                  dpi=1000)
         plt.close()
 
     @property

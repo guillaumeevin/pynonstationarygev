@@ -36,7 +36,7 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusSwe3Days: 'SWE3',
     CrocusSnowLoadEurocode: 'GSL from annual maximum of HS and {}'.format(eurocode_snow_density),
     CrocusDepth: 'SD',
-    CrocusSnowLoadTotal: 'max GSL',
+    CrocusSnowLoadTotal: 'GSL',
     CrocusSnowLoad3Days: 'GSL3',
     CrocusSnowDensityAtMaxofSwe: '{} when the max of GSL \nis reached'.format(snow_density_str),
     CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization: 'max GSL rescaled - GSL from max HS \nboth with {}'.format(eurocode_snow_density),
