@@ -14,6 +14,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 from experiment.paper_past_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
     compute_gelman_convergence_value
+from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure
 from experiment.trend_analysis.abstract_score import MeanScore
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
 from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevScaleTrendTest, \
@@ -104,6 +105,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
         return massif_name_to_trend_test_that_minimized_aic
 
+
     # Part 1 - Trends
 
     @property
@@ -133,7 +135,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
         self.plot_name = 'tdlr_trends'
         self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True,
-                                  dpi=1000)
+                                  dpi=dpi_paper1_figure)
         plt.close()
 
     @property

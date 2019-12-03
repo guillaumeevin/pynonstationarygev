@@ -7,6 +7,7 @@ from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_A
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION
+from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure
 from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
@@ -61,7 +62,7 @@ def plot_single_uncertainty_massif(altitude_to_visualizer: Dict[int, StudyVisual
         massif_names_str = massif_name
         model_names_str = 'NonStationarity={}'.format(non_stationary_context)
         visualizer.plot_name = model_names_str + '_' + massif_names_str
-        visualizer.show_or_save_to_file(no_title=True, dpi=1000)
+        visualizer.show_or_save_to_file(no_title=True, dpi=dpi_paper1_figure)
         plt.close()
 
 
@@ -83,6 +84,8 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
     altitudes = list(altitude_to_visualizer.keys())
     visualizer = list(altitude_to_visualizer.values())[0]
     alpha = 0.2
+    legend_size = 20
+    fontsize_label = 20
     # Display the EUROCODE return level
     eurocode_region = massif_name_to_eurocode_region[massif_name]()
 
@@ -100,12 +103,23 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
 
         # Plot bars of TDRL only in the non stationary case
         if j == 0 and non_stationary_context:
-            plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes)
+            plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, legend_size, fontsize_label)
 
-    ax.legend(loc=2)
+    ax.legend(loc=2, prop={'size': legend_size})
     # ax.set_ylim([-1, 16])
+    ax.set_xlim([200, 1900])
     if massif_name == 'Maurienne':
         ax.set_ylim([-1, 13])
+    # add_title(ax, eurocode_region, massif_name, non_stationary_context)
+    ax.set_xticks(altitudes)
+    ax.tick_params(labelsize=fontsize_label)
+    ylabel = EUROCODE_RETURN_LEVEL_STR.replace('GSL', SCM_STUDY_CLASS_TO_ABBREVIATION[type(visualizer.study)])
+    ax.set_ylabel(ylabel, fontsize=fontsize_label)
+    ax.set_xlabel('Altitude (m)', fontsize=fontsize_label)
+    ax.grid()
+
+
+def add_title(ax, eurocode_region, massif_name, non_stationary_context):
     massif_name_str = massif_name.replace('_', ' ')
     eurocode_region_str = get_display_name_from_object_type(type(eurocode_region))
     is_non_stationary_model = non_stationary_context if isinstance(non_stationary_context,
@@ -116,14 +130,9 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
         non_stationary_context = 'the stationary model'
     title = '{} massif with {}'.format(massif_name_str, non_stationary_context)
     ax.set_title(title)
-    ax.set_xticks(altitudes)
-    ylabel = EUROCODE_RETURN_LEVEL_STR.replace('GSL', SCM_STUDY_CLASS_TO_ABBREVIATION[type(visualizer.study)])
-    ax.set_ylabel(ylabel)
-    ax.set_xlabel('Altitude (m)')
-    ax.grid()
 
 
-def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes):
+def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, legend_size, fontsize):
     visualizers = [v for a, v in altitude_to_visualizer.items() if
                    a in valid_altitudes and massif_name in v.uncertainty_massif_names]
     if len(visualizers) > 0:
@@ -145,8 +154,8 @@ def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes):
     ax2 = ax.twinx()
     # ax2.legend(handles=legend_elements, bbox_to_anchor=(0.93, 0.7), loc='upper right')
     # ax2.annotate("Filled symbol = significant trend ", xy=(0.85, 0.5), xycoords='axes fraction', fontsize=7)
-    ax2.legend(handles=legend_elements, loc='upper right')
-    ax2.annotate("Filled symbol = significant trend ", xy=(0.75, 0.97), xycoords='axes fraction', fontsize=10)
+    ax2.legend(handles=legend_elements, loc='upper right', prop={'size': legend_size})
+    ax2.annotate("Filled symbol = significant trend ", xy=(0.5, 0.93), xycoords='axes fraction', fontsize=fontsize)
     ax2.set_yticks([])
 
 

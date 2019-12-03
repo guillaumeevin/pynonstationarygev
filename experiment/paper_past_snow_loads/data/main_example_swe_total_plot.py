@@ -5,6 +5,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     study_iterator_global, SCM_STUDY_CLASS_TO_ABBREVIATION
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
+from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure
 
 
 def max_graph_annual_maxima_poster():
@@ -34,7 +35,7 @@ def max_graph_annual_maxima_poster():
             tight_pad = {'h_pad': 0.2}
             study_visualizer.visualize_max_graphs_poster(massif_name, altitude, snow_abbreviation, color, label,
                                                          last_plot, ax, tight_pad=tight_pad,
-                                                         dpi=1000)
+                                                         dpi=dpi_paper1_figure)
 
 
 if __name__ == '__main__':

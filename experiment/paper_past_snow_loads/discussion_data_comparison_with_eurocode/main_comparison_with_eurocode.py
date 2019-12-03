@@ -10,6 +10,7 @@ from experiment.paper_past_snow_loads.discussion_data_comparison_with_eurocode.c
     CrocusDifferenceSnowLoad, \
     CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization, \
     CrocusSnowDepthAtMaxofSwe, CrocusSnowDepthDifference
+from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure
 
 
 def max_graph_annual_maxima_comparison():
@@ -52,7 +53,7 @@ def max_graph_annual_maxima_comparison():
                 last_plot = altitude == 2700
                 if last_plot:
                     if study_class == CrocusSnowDensityAtMaxofSwe:
-                        label = '{} Eurocode'.format(snow_density_str)
+                        label = '{} for French standards'.format(snow_density_str)
                         snow_density_eurocode = [150 for _ in study.ordered_years]
                         ax.plot(study.ordered_years, snow_density_eurocode, color='k', label=label)
                     ax.legend()
@@ -61,7 +62,7 @@ def max_graph_annual_maxima_comparison():
                     ax.set_xlim([1957, 2018])
                     ax.yaxis.set_ticks(yticks)
                     study_visualizer.show_or_save_to_file(no_title=True, tight_layout=True,
-                                                          tight_pad=tight_pad, dpi=1000)
+                                                          tight_pad=tight_pad, dpi=dpi_paper1_figure)
                     ax.clear()
 
 

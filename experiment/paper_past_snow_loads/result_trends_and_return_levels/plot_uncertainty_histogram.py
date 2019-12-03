@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES
+from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure
 from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import ci_method_to_color, \
@@ -45,7 +46,7 @@ def plot_histogram(altitude_to_visualizer, non_stationary_context):
     ax.set_yticks([10 * i for i in range(11)])
     visualizer.plot_name = 'Percentages of exceedance with non_stationary={}'.format(non_stationary_context)
     # visualizer.show = True
-    visualizer.show_or_save_to_file(no_title=True, dpi=1000)
+    visualizer.show_or_save_to_file(no_title=True, dpi=dpi_paper1_figure)
     ax.clear()
 
 
