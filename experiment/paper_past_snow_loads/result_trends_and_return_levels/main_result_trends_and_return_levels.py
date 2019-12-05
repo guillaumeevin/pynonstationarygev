@@ -47,6 +47,9 @@ def intermediate_result(altitudes, massif_names=None,
     # Load altitude to visualizer
     altitude_to_visualizer = load_altitude_to_visualizer(altitudes, massif_names, non_stationary_uncertainty,
                                                          study_class, uncertainty_methods)
+    # Load variable object efficiently
+    for v in altitude_to_visualizer.values():
+        _ = v.study.year_to_variable_object
     # Plot trends
     visualizers = list(altitude_to_visualizer.values())
     if multiprocessing:
@@ -70,7 +73,7 @@ def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
                            ConfidenceIntervalMethodFromExtremes.ci_mle][:]
     massif_names = None
-    for study_class in paper_study_classes[:2]:
+    for study_class in paper_study_classes[1:2]:
         if study_class == CrocusSnowLoadEurocode:
             non_stationary_uncertainty = [False]
         else:
@@ -79,12 +82,12 @@ def major_result():
 
 
 if __name__ == '__main__':
-    # major_result()
-    intermediate_result(altitudes=paper_altitudes, massif_names=['Maurienne'],
-                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
-                           ConfidenceIntervalMethodFromExtremes.ci_mle][:],
-                        non_stationary_uncertainty=[False, True][:],
-                        multiprocessing=False)
+    major_result()
+    # intermediate_result(altitudes=paper_altitudes, massif_names=['Maurienne'],
+    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
+    #                        ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
+    #                     non_stationary_uncertainty=[False, True][1:],
+    #                     multiprocessing=True)
     # intermediate_result(altitudes=[900, 1200], massif_names=None)
     # intermediate_result(ALL_ALTITUDES_WITHOUT_NAN)
     # intermediate_result(paper_altitudes)

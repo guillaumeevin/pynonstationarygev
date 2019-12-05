@@ -84,8 +84,8 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
     altitudes = list(altitude_to_visualizer.keys())
     visualizer = list(altitude_to_visualizer.values())[0]
     alpha = 0.2
-    legend_size = 20
-    fontsize_label = 20
+    legend_size = 25
+    fontsize_label = 35
     # Display the EUROCODE return level
     eurocode_region = massif_name_to_eurocode_region[massif_name]()
 
@@ -103,13 +103,13 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
 
         # Plot bars of TDRL only in the non stationary case
         if j == 0 and non_stationary_context:
-            plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, legend_size, fontsize_label)
+            plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, legend_size, legend_size)
 
     ax.legend(loc=2, prop={'size': legend_size})
     # ax.set_ylim([-1, 16])
     ax.set_xlim([200, 1900])
     if massif_name == 'Maurienne':
-        ax.set_ylim([-1, 13])
+        ax.set_ylim([-1.5, 13])
     # add_title(ax, eurocode_region, massif_name, non_stationary_context)
     ax.set_xticks(altitudes)
     ax.tick_params(labelsize=fontsize_label)
@@ -155,7 +155,7 @@ def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, leg
     # ax2.legend(handles=legend_elements, bbox_to_anchor=(0.93, 0.7), loc='upper right')
     # ax2.annotate("Filled symbol = significant trend ", xy=(0.85, 0.5), xycoords='axes fraction', fontsize=7)
     ax2.legend(handles=legend_elements, loc='upper right', prop={'size': legend_size})
-    ax2.annotate("Filled symbol = significant trend ", xy=(0.5, 0.93), xycoords='axes fraction', fontsize=fontsize)
+    ax2.annotate("Filled symbol =\n significant trend ", xy=(0.6, 0.85), xycoords='axes fraction', fontsize=fontsize)
     ax2.set_yticks([])
 
 
