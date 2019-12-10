@@ -17,14 +17,14 @@ from root_utils import NB_CORES
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
-
+import matplotlib.pyplot as plt
 
 def minor_result(altitude):
     """Plot trends for a single altitude to be fast"""
     visualizer = StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude), multiprocessing=True,
                                                        )
     visualizer.plot_trends()
-    # plt.show()
+    plt.show()
 
 def compute_minimized_aic(visualizer):
     _ = visualizer.massif_name_to_minimized_aic_non_stationary_trend_test
@@ -50,7 +50,7 @@ def intermediate_result(altitudes, massif_names=None,
     # Load variable object efficiently
     for v in altitude_to_visualizer.values():
         _ = v.study.year_to_variable_object
-    # Plot trends
+    # Compute minimized value efficiently
     visualizers = list(altitude_to_visualizer.values())
     if multiprocessing:
         with Pool(NB_CORES) as p:
@@ -59,9 +59,13 @@ def intermediate_result(altitudes, massif_names=None,
         for visualizer in visualizers:
             _ = compute_minimized_aic(visualizer)
     # Compute common max value for the colorbar
-    max_abs_tdrl = max([visualizer.max_abs_tdrl for visualizer in visualizers])
-    for visualizer in altitude_to_visualizer.values():
-        visualizer.plot_trends(max_abs_tdrl)
+    altitudes_for_plot_trend = [900, 1800, 2700]
+    visualizers_for_altitudes = [visualizer
+                                 for altitude, visualizer in altitude_to_visualizer.items()
+                                 if altitude in altitudes_for_plot_trend]
+    max_abs_tdrl = max([visualizer.max_abs_change for visualizer in visualizers_for_altitudes])
+    for visualizer in visualizers_for_altitudes:
+        visualizer.plot_trends(max_abs_tdrl, add_colorbar=visualizer.study.altitude==2700)
 
     # Plot graph
     plot_uncertainty_massifs(altitude_to_visualizer)
@@ -73,7 +77,7 @@ def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
                            ConfidenceIntervalMethodFromExtremes.ci_mle][:]
     massif_names = None
-    for study_class in paper_study_classes[1:2]:
+    for study_class in paper_study_classes[:1]:
         if study_class == CrocusSnowLoadEurocode:
             non_stationary_uncertainty = [False]
         else:
@@ -82,16 +86,21 @@ def major_result():
 
 
 if __name__ == '__main__':
-    major_result()
+    # major_result()
     # intermediate_result(altitudes=paper_altitudes, massif_names=['Maurienne'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
     #                        ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
     #                     non_stationary_uncertainty=[False, True][1:],
     #                     multiprocessing=True)
+    intermediate_result(altitudes=paper_altitudes, massif_names=['Maurienne'],
+                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
+                           ConfidenceIntervalMethodFromExtremes.ci_mle][:],
+                        non_stationary_uncertainty=[False, True][:],
+                        multiprocessing=True)
     # intermediate_result(altitudes=[900, 1200], massif_names=None)
     # intermediate_result(ALL_ALTITUDES_WITHOUT_NAN)
     # intermediate_result(paper_altitudes)
-    # minor_result(altitude=600)
+    # minor_result(altitude=900)
     # intermediate_result(altitudes=[1500, 1800], massif_names=['Chartreuse'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_bayes],

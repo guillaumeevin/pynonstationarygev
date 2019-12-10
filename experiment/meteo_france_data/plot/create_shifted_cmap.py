@@ -32,7 +32,7 @@ def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None):
     if ticks_values_and_labels is not None:
         cb.ax.set_yticklabels([str(t) for t in ticks_values_and_labels[1]])
     if isinstance(label, str):
-        cb.set_label(label)
+        cb.set_label(label, fontsize=15)
     return norm
 
 

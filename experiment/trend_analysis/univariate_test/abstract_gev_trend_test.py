@@ -143,17 +143,31 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         return self.constrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([1958]),
                                                                                   is_transformed=False)
 
+    def time_derivative_times_years(self, nb_years):
+        # Compute the slope strength
+        slope = self._slope_strength()
+        # Delta T must in the same unit as were the parameter of slope mu1 and sigma1
+        slope *= nb_years * self.coordinates.transformed_distance_between_two_successive_years[0]
+        return slope
+
     @property
     def time_derivative_of_return_level(self):
         if self.crashed:
             return 0.0
         else:
-            # Compute the slope strength
-            slope = self._slope_strength()
-            # Delta T must in the same unit as were the parameter of slope mu1 and sigma1
-            slope *= self.nb_years_for_quantile_evolution * \
-                     self.coordinates.transformed_distance_between_two_successive_years[0]
-            return slope
+            return self.time_derivative_times_years(self.nb_years_for_quantile_evolution)
+
+    def relative_change_in_return_level(self, initial_year, final_year):
+        return_level_values = []
+        for year in [initial_year, final_year]:
+            gev_params = self.unconstrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([year]),
+                                                                                            is_transformed=False)
+            return_level_values.append(gev_params.quantile(self.quantile_level))
+        change_until_final_year = self.time_derivative_times_years(nb_years=final_year - initial_year)
+        change_in_between = (return_level_values[1] - return_level_values[0])
+        np.testing.assert_almost_equal(change_until_final_year, change_in_between, decimal=5)
+        initial_return_level = return_level_values[0]
+        return 100 * change_until_final_year / initial_return_level
 
     def _slope_strength(self):
         raise NotImplementedError

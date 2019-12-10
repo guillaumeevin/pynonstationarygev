@@ -38,12 +38,14 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  uncertainty_methods=None,
                  non_stationary_contexts=None,
                  uncertainty_massif_names=None,
-                 effective_temporal_covariate=2017):
+                 effective_temporal_covariate=2017,
+                 relative_change_trend_plot=True):
         super().__init__(study, show, save_to_file, only_one_graph, only_first_row, vertical_kde_plot,
                          year_for_kde_plot, plot_block_maxima_quantiles, temporal_non_stationarity,
                          transformation_class, verbose, multiprocessing, complete_non_stationary_trend_analysis,
                          normalization_under_one_observations, score_class)
         # Add some attributes
+        self.relative_change_trend_plot = relative_change_trend_plot
         self.effective_temporal_covariate = effective_temporal_covariate
         self.non_stationary_contexts = non_stationary_contexts
         self.uncertainty_methods = uncertainty_methods
@@ -60,7 +62,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         self.non_stationary_trend_test = [GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest]
         self.non_stationary_trend_test_to_marker = dict(zip(self.non_stationary_trend_test, ["s", "^", "D"]))
 
-        self.global_max_abs_tdrl = None
+        self.global_max_abs_change = None
 
     # Utils
 
@@ -105,38 +107,49 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
         return massif_name_to_trend_test_that_minimized_aic
 
-
     # Part 1 - Trends
 
     @property
-    def max_abs_tdrl(self):
-        return max(abs(min(self.massif_name_to_tdrl_value.values())), max(self.massif_name_to_tdrl_value.values()))
+    def max_abs_change(self):
+        return max(abs(min(self.massif_name_to_change_value.values())), max(self.massif_name_to_change_value.values()))
 
     @cached_property
-    def _max_abs_tdrl(self):
-        return self.global_max_abs_tdrl if self.global_max_abs_tdrl is not None else self.max_abs_tdrl
+    def _max_abs_change(self):
+        return self.global_max_abs_change if self.global_max_abs_change is not None else self.max_abs_change
 
-    def plot_trends(self, max_abs_tdrl=None):
+    def plot_trends(self, max_abs_tdrl=None,  add_colorbar=True):
         if max_abs_tdrl is not None:
-            self.global_max_abs_tdrl = max_abs_tdrl
-        ax = self.study.visualize_study(massif_name_to_value=self.massif_name_to_tdrl_value,
+            self.global_max_abs_change = max_abs_tdrl
+        ax = self.study.visualize_study(massif_name_to_value=self.massif_name_to_change_value,
                                         replace_blue_by_white=False,
                                         axis_off=False, show_label=False,
-                                        add_colorbar=True,
+                                        add_colorbar=add_colorbar,
                                         massif_name_to_marker_style=self.massif_name_to_marker_style,
-                                        massif_name_to_color=self.massif_name_to_tdrl_color,
+                                        massif_name_to_color=self.massif_name_to_color,
                                         cmap=self.cmap,
                                         show=False,
                                         ticks_values_and_labels=self.ticks_values_and_labels,
-                                        label=self.label_tdrl_bar + ' for {}'.format(EUROCODE_RETURN_LEVEL_STR))
+                                        label=self.label)
         ax.get_xaxis().set_visible(True)
         ax.set_xticks([])
-        ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=12)
+        ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=15)
 
         self.plot_name = 'tdlr_trends'
         self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True,
-                                  dpi=dpi_paper1_figure)
+                                  dpi=500)
         plt.close()
+
+    @property
+    def label(self):
+        if self.relative_change_trend_plot:
+            label_tdlr_bar = 'Relative change between {} and {}'.format(self.initial_year, self.final_year)
+        else:
+            label_tdlr_bar = self.label_tdrl_bar
+        label = label_tdlr_bar + '\nfor {}'.format(EUROCODE_RETURN_LEVEL_STR)
+        if self.relative_change_trend_plot:
+            # change units
+            label = label.split('(')[0] + '(\%)'
+        return label
 
     @property
     def label_tdrl_bar(self):
@@ -144,14 +157,14 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     @property
     def ticks_values_and_labels(self):
-        graduation = 0.2
+        graduation = 10 if self.relative_change_trend_plot else 0.2
         positive_ticks = []
         tick = graduation
-        while tick < self._max_abs_tdrl:
+        while tick < self._max_abs_change:
             positive_ticks.append(round(tick, 1))
             tick += graduation
         all_ticks_labels = [-t for t in positive_ticks] + [0] + positive_ticks
-        ticks_values = [((t / self._max_abs_tdrl) + 1) / 2 for t in all_ticks_labels]
+        ticks_values = [((t / self._max_abs_change) + 1) / 2 for t in all_ticks_labels]
         return ticks_values, all_ticks_labels
 
     @cached_property
@@ -160,13 +173,33 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                 self.massif_name_to_minimized_aic_non_stationary_trend_test.items()}
 
     @cached_property
-    def cmap(self):
-        return get_shifted_map(-self._max_abs_tdrl, self._max_abs_tdrl)
+    def massif_name_to_relative_change_value(self):
+        return {m: t.relative_change_in_return_level(initial_year=self.initial_year, final_year=self.final_year)
+                for m, t in self.massif_name_to_minimized_aic_non_stationary_trend_test.items()}
+
+    @property
+    def initial_year(self):
+        return self.final_year - 50
+
+    @property
+    def final_year(self):
+        return 2010
 
     @cached_property
-    def massif_name_to_tdrl_color(self):
-        return {m: get_colors([v], self.cmap, -self._max_abs_tdrl, self._max_abs_tdrl)[0]
-                for m, v in self.massif_name_to_tdrl_value.items()}
+    def massif_name_to_change_value(self):
+        if self.relative_change_trend_plot:
+            return self.massif_name_to_relative_change_value
+        else:
+            return self.massif_name_to_tdrl_value
+
+    @cached_property
+    def cmap(self):
+        return get_shifted_map(-self._max_abs_change, self._max_abs_change)
+
+    @cached_property
+    def massif_name_to_color(self):
+        return {m: get_colors([v], self.cmap, -self._max_abs_change, self._max_abs_change)[0]
+                for m, v in self.massif_name_to_change_value.items()}
 
     @cached_property
     def massif_name_to_marker_style(self):

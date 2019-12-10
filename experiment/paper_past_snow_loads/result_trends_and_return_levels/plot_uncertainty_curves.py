@@ -138,7 +138,9 @@ def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, leg
     if len(visualizers) > 0:
         tdrl_values = [v.massif_name_to_tdrl_value[massif_name] for v in visualizers]
         # Plot bars
-        colors = [v.massif_name_to_tdrl_color[massif_name] for v in visualizers]
+        # colors = [v.massif_name_to_color[massif_name] for v in visualizers]
+        # From snow on, we set a black color for the bars
+        colors = ['white' for v in visualizers]
         ax.bar(valid_altitudes, tdrl_values, width=150, color=colors, label=visualizers[0].label_tdrl_bar,
                edgecolor='black', hatch='//')
         # Plot markers
