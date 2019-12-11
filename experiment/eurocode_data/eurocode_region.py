@@ -55,24 +55,24 @@ class AbstractEurocodeRegion(object):
         raise NotImplementedError
 
 
-class C1(AbstractEurocodeRegion):
+class C(AbstractEurocodeRegion):
 
-    def __init__(self) -> None:
-        super().__init__(0.65, None)
+    def __init__(self, sad=None) -> None:
+        super().__init__(0.65, sad)
 
     @classproperty
     def eurocode_color(self):
         return 'gold'
 
 
-class C2(AbstractEurocodeRegion):
+class C1(C):
+    pass
+
+
+class C2(C):
 
     def __init__(self) -> None:
-        super().__init__(0.65, 1.35)
-
-    @classproperty
-    def eurocode_color(self):
-        return 'orange'
+        super().__init__(sad=1.35)
 
 
 class E(AbstractEurocodeRegion):
@@ -94,6 +94,4 @@ class E(AbstractEurocodeRegion):
 
     @classproperty
     def eurocode_color(self):
-        return 'mediumvioletred'
-
-
+        return 'orange'
