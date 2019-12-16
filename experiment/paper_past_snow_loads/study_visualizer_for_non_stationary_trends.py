@@ -133,7 +133,6 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         ax.get_xaxis().set_visible(True)
         ax.set_xticks([])
         ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=15)
-
         self.plot_name = 'tdlr_trends'
         self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True,
                                   dpi=500)
@@ -157,15 +156,19 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     @property
     def ticks_values_and_labels(self):
-        graduation = 10 if self.relative_change_trend_plot else 0.2
         positive_ticks = []
-        tick = graduation
+        tick = self.graduation
         while tick < self._max_abs_change:
             positive_ticks.append(round(tick, 1))
-            tick += graduation
+            tick += self.graduation
         all_ticks_labels = [-t for t in positive_ticks] + [0] + positive_ticks
         ticks_values = [((t / self._max_abs_change) + 1) / 2 for t in all_ticks_labels]
         return ticks_values, all_ticks_labels
+
+    @property
+    def graduation(self):
+        graduation = 10 if self.relative_change_trend_plot else 0.2
+        return graduation
 
     @cached_property
     def massif_name_to_tdrl_value(self):
@@ -291,3 +294,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                        uncertainty.confidence_interval[1] > eurocode)
                       for eurocode, uncertainty in eurocode_and_uncertainties])
         return 100 * np.mean(a, axis=0)
+
+
+
+
+

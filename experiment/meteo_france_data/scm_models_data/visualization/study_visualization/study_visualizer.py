@@ -632,7 +632,10 @@ class StudyVisualizer(VisualizationParameters):
         # Display the graph of the max on top
         if ax is None:
             ax = plt.gca()
-        x, y = self.smooth_maxima_x_y(massif_names.index(massif_name))
+        if massif_name is None:
+            x, y = self.study.ordered_years, self.study.observations_annual_maxima.df_maxima_gev.mean(axis=0)
+        else:
+            x, y = self.smooth_maxima_x_y(massif_names.index(massif_name))
         ax.plot(x, y, color=color, linewidth=5, label=label, linestyle=linestyle)
         # ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color, fontsize=15)
 
@@ -642,7 +645,7 @@ class StudyVisualizer(VisualizationParameters):
         self.plot_name = plot_name
         ax.set_ylabel('{} ({})'.format(snow_abbreviation, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('years', fontsize=15)
-        if label is None:
+        if label is None and massif_name is not None:
             ax.set_title('{} at {} m'.format(massif_name, altitude))
         if last_plot:
             ax.legend()

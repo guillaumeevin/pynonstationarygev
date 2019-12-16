@@ -1,28 +1,35 @@
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE
 from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
-    NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel, NonStationaryShapeTemporalModel
+    NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel, NonStationaryShapeTemporalModel, \
+    StationaryTemporalModel, GumbelTemporalModel
 from extreme_fit.distribution.gev.gev_params import GevParams
 
 
 class GevTrendTestOneParameter(AbstractGevTrendTest):
 
-    def __init__(self, years, maxima, starting_year, unconstrained_model_class, gev_param_name, quantile_level=EUROCODE_QUANTILE):
-        super().__init__(years, maxima, starting_year,
-                         unconstrained_model_class=unconstrained_model_class,
-                         quantile_level=quantile_level)
-        self.gev_param_name = gev_param_name
-
     @property
     def degree_freedom_chi2(self) -> int:
         return 1
+
+
+class GevTrendTestOneParameterAgainstStationary(GevTrendTestOneParameter):
+
+    def __init__(self, years, maxima, starting_year, unconstrained_model_class, gev_param_name,
+                 quantile_level=EUROCODE_QUANTILE,
+                 constrained_model_class=StationaryTemporalModel):
+        super().__init__(years, maxima, starting_year,
+                         unconstrained_model_class=unconstrained_model_class,
+                         quantile_level=quantile_level,
+                         constrained_model_class=constrained_model_class)
+        self.gev_param_name = gev_param_name
 
     @property
     def non_stationary_linear_coef(self):
         return self.get_non_stationary_linear_coef(gev_param_name=self.gev_param_name)
 
 
-class GevLocationTrendTest(GevTrendTestOneParameter):
+class GevLocationTrendTest(GevTrendTestOneParameterAgainstStationary):
 
     def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE):
         super().__init__(years, maxima, starting_year,
@@ -31,12 +38,12 @@ class GevLocationTrendTest(GevTrendTestOneParameter):
                          quantile_level=quantile_level)
 
     def _slope_strength(self):
-        return self.non_stationary_constant_gev_params.time_derivative_of_return_level(p=self.quantile_level,
+        return self.unconstrained_estimator_gev_params.time_derivative_of_return_level(p=self.quantile_level,
                                                                                        mu1=self.non_stationary_linear_coef)
 
     @property
     def mean_difference_same_sign_as_slope_strenght(self) -> bool:
-        zeta0 = self.non_stationary_constant_gev_params.shape
+        zeta0 = self.unconstrained_estimator_gev_params.shape
         mean_difference = self.mean_difference(zeta0=zeta0, mu1=self.non_stationary_linear_coef)
         return self.same_sign(mean_difference, self._slope_strength())
 
@@ -45,7 +52,7 @@ class GevLocationTrendTest(GevTrendTestOneParameter):
         return False
 
 
-class GevScaleTrendTest(GevTrendTestOneParameter):
+class GevScaleTrendTest(GevTrendTestOneParameterAgainstStationary):
 
     def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE):
         super().__init__(years, maxima, starting_year,
@@ -54,13 +61,13 @@ class GevScaleTrendTest(GevTrendTestOneParameter):
                          quantile_level=quantile_level)
 
     def _slope_strength(self):
-        return self.non_stationary_constant_gev_params.time_derivative_of_return_level(
+        return self.unconstrained_estimator_gev_params.time_derivative_of_return_level(
             p=self.quantile_level,
             sigma1=self.non_stationary_linear_coef)
 
     @property
     def mean_difference_same_sign_as_slope_strenght(self) -> bool:
-        zeta0 = self.non_stationary_constant_gev_params.shape
+        zeta0 = self.unconstrained_estimator_gev_params.shape
         mean_difference = self.mean_difference(zeta0=zeta0, sigma1=self.non_stationary_linear_coef)
         return self.same_sign(mean_difference, self._slope_strength())
 
@@ -70,10 +77,19 @@ class GevScaleTrendTest(GevTrendTestOneParameter):
         return self.same_sign(sigma1, self._slope_strength())
 
 
-class GevShapeTrendTest(GevTrendTestOneParameter):
+class GevShapeTrendTest(GevTrendTestOneParameterAgainstStationary):
 
     def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE):
         super().__init__(years, maxima, starting_year,
                          unconstrained_model_class=NonStationaryShapeTemporalModel,
                          gev_param_name=GevParams.SHAPE,
+                         quantile_level=quantile_level)
+
+
+class GevStationaryVersusGumbel(GevTrendTestOneParameter):
+
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE):
+        super().__init__(years, maxima, starting_year,
+                         unconstrained_model_class=StationaryTemporalModel,
+                         constrained_model_class=GumbelTemporalModel,
                          quantile_level=quantile_level)

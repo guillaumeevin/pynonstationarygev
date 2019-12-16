@@ -25,8 +25,10 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
 
     def __init__(self, coordinates: AbstractCoordinates, use_start_value=False, params_start_fit=None,
                  params_sample=None, starting_point=None, fit_method=TemporalMarginFitMethod.is_mev_gev_fit,
-                 nb_iterations_for_bayesian_fit=5000, params_start_fit_bayesian=None):
+                 nb_iterations_for_bayesian_fit=5000, params_start_fit_bayesian=None,
+                 type_for_MLE="GEV"):
         super().__init__(coordinates, use_start_value, params_start_fit, params_sample, starting_point)
+        self.type_for_mle = type_for_MLE
         self.params_start_fit_bayesian = params_start_fit_bayesian
         self.nb_iterations_for_bayesian_fit = nb_iterations_for_bayesian_fit
         assert isinstance(fit_method, TemporalMarginFitMethod)
@@ -59,10 +61,12 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         res = safe_run_r_estimator(function=r('fevd_fixed'),
                                    x=x,
                                    data=y,
-                                   method='MLE',
+                                   type=self.type_for_mle,
+                                   method="MLE",
                                    **r_type_argument_kwargs
                                    )
-        return ResultFromMleExtremes(res, self.margin_function_start_fit.gev_param_name_to_dims)
+        return ResultFromMleExtremes(res, self.margin_function_start_fit.gev_param_name_to_dims,
+                                     type_for_mle=self.type_for_mle)
 
     def extremes_fevd_bayesian_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:
         r_type_argument_kwargs, y = self.extreme_arguments(df_coordinates_temp)

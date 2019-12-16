@@ -11,15 +11,19 @@ def convertFloatVector_to_float(f):
     return np.array(f)[0]
 
 
-def get_margin_coef_ordered_dict(gev_param_name_to_dim, mle_values):
+def get_margin_coef_ordered_dict(gev_param_name_to_dim, mle_values, type_for_mle="GEV"):
     assert gev_param_name_to_dim is not None
     # Build the Coeff dict from gev_param_name_to_dim
     coef_dict = OrderedDict()
     i = 0
     for gev_param_name in GevParams.PARAM_NAMES:
-        # Add intercept
+        # Add intercept (i.e. stationary parameter)
         intercept_coef_name = LinearCoef.coef_template_str(gev_param_name, LinearCoef.INTERCEPT_NAME).format(1)
-        coef_dict[intercept_coef_name] = mle_values[i]
+        if type_for_mle == "Gumbel" and i == 2:
+            coef_value = 0
+        else:
+            coef_value = mle_values[i]
+        coef_dict[intercept_coef_name] = coef_value
         i += 1
         # Add a potential linear temporal trend
         if gev_param_name in gev_param_name_to_dim:

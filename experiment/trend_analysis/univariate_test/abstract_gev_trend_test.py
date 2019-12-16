@@ -132,13 +132,13 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
                                                                               AbstractCoordinates.COORDINATE_T)
 
     @cached_property
-    def non_stationary_constant_gev_params(self) -> GevParams:
+    def unconstrained_estimator_gev_params(self) -> GevParams:
         # Constant parameters correspond to the gev params in 1958
         return self.unconstrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([1958]),
                                                                                     is_transformed=False)
 
     @cached_property
-    def stationary_constant_gev_params(self) -> GevParams:
+    def constrained_estimator_gev_params(self) -> GevParams:
         # Constant parameters correspond to any gev params
         return self.constrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([1958]),
                                                                                   is_transformed=False)
@@ -192,4 +192,4 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         if self.crashed:
             return 0.0
         else:
-            return self.non_stationary_constant_gev_params.quantile(p=self.quantile_level)
+            return self.unconstrained_estimator_gev_params.quantile(p=self.quantile_level)
