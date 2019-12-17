@@ -4,6 +4,7 @@ from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_m
     NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel, NonStationaryShapeTemporalModel, \
     StationaryTemporalModel
 from extreme_fit.distribution.gev.gev_params import GevParams
+from root_utils import classproperty
 
 
 class GevTrendTestOneParameter(AbstractGevTrendTest):
@@ -31,9 +32,10 @@ class GevTrendTestOneParameterAgainstStationary(GevTrendTestOneParameter):
 
 class GevLocationTrendTest(GevTrendTestOneParameterAgainstStationary):
 
-    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE):
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, constrained_model_class=StationaryTemporalModel):
         super().__init__(years, maxima, starting_year,
                          unconstrained_model_class=NonStationaryLocationTemporalModel,
+                         constrained_model_class=constrained_model_class,
                          gev_param_name=GevParams.LOC,
                          quantile_level=quantile_level)
 
@@ -51,12 +53,12 @@ class GevLocationTrendTest(GevTrendTestOneParameterAgainstStationary):
     def variance_difference_same_sign_as_slope_strenght(self) -> bool:
         return False
 
-
 class GevScaleTrendTest(GevTrendTestOneParameterAgainstStationary):
 
-    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE):
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, constrained_model_class=StationaryTemporalModel):
         super().__init__(years, maxima, starting_year,
                          unconstrained_model_class=NonStationaryScaleTemporalModel,
+                         constrained_model_class=constrained_model_class,
                          gev_param_name=GevParams.SCALE,
                          quantile_level=quantile_level)
 

@@ -61,8 +61,11 @@ class GevParams(AbstractParams):
         """
         quantile_annual_variation = mu1
         if sigma1 != 0:
-            power = np.float_power(- np.log(p), -self.shape)
-            quantile_annual_variation -= (sigma1 / self.shape) * (1 - power)
+            if self.shape == 0:
+                quantile_annual_variation -= sigma1 * np.log(- np.log(p))
+            else:
+                power = np.float_power(- np.log(p), -self.shape)
+                quantile_annual_variation -= (sigma1 / self.shape) * (1 - power)
         return quantile_annual_variation
 
     # Compute some indicators (such as the mean and the variance)

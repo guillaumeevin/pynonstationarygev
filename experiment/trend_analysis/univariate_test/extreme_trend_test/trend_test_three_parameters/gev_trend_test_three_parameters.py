@@ -45,4 +45,8 @@ class GevLocationAndScaleTrendTestAgainstGumbel(GevTrendTestThreeParameters):
 
     @classproperty
     def marker(self):
-        return 'd'
+        return 'D'
+
+    @property
+    def total_number_of_parameters_for_unconstrained_model(self) -> int:
+        return 5

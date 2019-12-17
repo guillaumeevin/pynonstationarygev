@@ -1,9 +1,12 @@
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE
 from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gev_trend_test_one_parameter import \
+    GevLocationTrendTest, GevScaleTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationAndScaleTemporalModel, StationaryTemporalModel, NonStationaryLocationAndScaleGumbelModel, \
     GumbelTemporalModel
 from extreme_fit.distribution.gev.gev_params import GevParams
+from root_utils import classproperty
 
 
 class GevTrendTestTwoParameters(AbstractGevTrendTest):
@@ -15,7 +18,8 @@ class GevTrendTestTwoParameters(AbstractGevTrendTest):
 
 class GevLocationAndScaleTrendTest(GevTrendTestTwoParameters):
 
-    def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel, quantile_level=EUROCODE_QUANTILE):
+    def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel,
+                 quantile_level=EUROCODE_QUANTILE):
         super().__init__(years, maxima, starting_year,
                          unconstrained_model_class=NonStationaryLocationAndScaleTemporalModel,
                          constrained_model_class=constrained_model_class,
@@ -45,3 +49,37 @@ class GevLocationAndScaleTrendTest(GevTrendTestTwoParameters):
         return self.same_sign(self.sigma1, self._slope_strength())
 
 
+class GevLocationAgainstGumbel(GevTrendTestTwoParameters, GevLocationTrendTest):
+
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE):
+        super().__init__(years, maxima, starting_year, quantile_level, GumbelTemporalModel)
+
+    @classproperty
+    def label(self):
+        return super().label % '\\zeta_0, \\mu_1'
+
+    @classproperty
+    def marker(self):
+        return 'o'
+
+    @property
+    def total_number_of_parameters_for_unconstrained_model(self) -> int:
+        return 4
+
+
+class GevScaleAgainstGumbel(GevTrendTestTwoParameters, GevScaleTrendTest):
+
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE):
+        super().__init__(years, maxima, starting_year, quantile_level, GumbelTemporalModel)
+
+    @classproperty
+    def label(self):
+        return super().label % '\\zeta_0, \\sigma_1'
+
+    @classproperty
+    def marker(self):
+        return '^'
+
+    @property
+    def total_number_of_parameters_for_unconstrained_model(self) -> int:
+        return 4

@@ -88,7 +88,7 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
 
     @property
     def total_number_of_parameters_for_unconstrained_model(self) -> int:
-        return self.degree_freedom_chi2 + 3
+        raise NotImplementedError
 
     @property
     def aic(self):

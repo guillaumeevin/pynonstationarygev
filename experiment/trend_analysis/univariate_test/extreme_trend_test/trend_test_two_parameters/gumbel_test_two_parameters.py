@@ -4,6 +4,7 @@ from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationAndScaleGumbelModel, GumbelTemporalModel
+from root_utils import classproperty
 
 
 class GumbelLocationAndScaleTrendTest(GevTrendTestTwoParameters):
@@ -30,3 +31,10 @@ class GumbelLocationAndScaleTrendTest(GevTrendTestTwoParameters):
         return self.unconstrained_estimator_gev_params.time_derivative_of_return_level(p=self.quantile_level,
                                                                                        mu1=self.mu1,
                                                                                        sigma1=self.sigma1)
+    @classproperty
+    def label(self):
+        return super().label % '\\mu_1, \\sigma_1'
+
+    @classproperty
+    def marker(self):
+        return 'd'

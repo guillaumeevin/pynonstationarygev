@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import matplotlib.pyplot as plt
 from multiprocessing.pool import Pool
 from typing import Dict
@@ -19,10 +21,10 @@ from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one
     GevLocationTrendTest, GevScaleTrendTest
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
     GumbelLocationTrendTest, GevStationaryVersusGumbel, GumbelScaleTrendTest, GumbelVersusGumbel
-from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_three_parameters.gumbel_trend_test_three_parameters import \
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_three_parameters.gev_trend_test_three_parameters import \
     GevLocationAndScaleTrendTestAgainstGumbel
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters import \
-    GevLocationAndScaleTrendTest
+    GevLocationAndScaleTrendTest, GevLocationAgainstGumbel, GevScaleAgainstGumbel
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gumbel_test_two_parameters import \
     GumbelLocationAndScaleTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
@@ -67,17 +69,16 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             self.uncertainty_massif_names = self.study.study_massif_names
         if self.non_stationary_trend_test_to_marker is None:
             # Assign default argument for the non stationary trends
-            # self.non_stationary_trend_test = [GumbelVersusGumbel,
-            #                                   GumbelLocationTrendTest, GumbelScaleTrendTest, GumbelLocationAndScaleTrendTest,
-            #                                   GevStationaryVersusGumbel,
-            #                                   GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest,
-            #                                   ]
-            self.non_stationary_trend_test = [GumbelVersusGumbel, GevLocationAndScaleTrendTestAgainstGumbel]
+            self.non_stationary_trend_test = [GumbelVersusGumbel,
+                                              GumbelLocationTrendTest, GumbelScaleTrendTest, GumbelLocationAndScaleTrendTest,
+                                              GevStationaryVersusGumbel,
+                                              GevLocationAgainstGumbel, GevScaleAgainstGumbel, GevLocationAndScaleTrendTestAgainstGumbel
+                                              ]
             self.non_stationary_trend_test_to_marker = {t: t.marker for t in self.non_stationary_trend_test}
                                                                 # ["v", "^", "D", "X", "x", 7, 6, "d"]))
         else:
             self.non_stationary_trend_test = list(self.non_stationary_trend_test_to_marker.keys())
-        self.marker_to_label = {t.marker: t.label for t in self.non_stationary_trend_test}
+        self.marker_to_label = OrderedDict([(t.marker, t.label) for t in self.non_stationary_trend_test])
         self.global_max_abs_change = None
 
     # Utils
@@ -136,12 +137,14 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def plot_trends(self, max_abs_tdrl=None,  add_colorbar=True):
         if max_abs_tdrl is not None:
             self.global_max_abs_change = max_abs_tdrl
+        marker_style_selected = set([d['marker'] for d in self.massif_name_to_marker_style.values()])
+        marker_style_to_label_name = {m: l for m, l in self.marker_to_label.items() if m in marker_style_selected}
         ax = self.study.visualize_study(massif_name_to_value=self.massif_name_to_change_value,
                                         replace_blue_by_white=False,
                                         axis_off=False, show_label=False,
                                         add_colorbar=add_colorbar,
                                         massif_name_to_marker_style=self.massif_name_to_marker_style,
-                                        marker_style_to_label_name=self.marker_to_label,
+                                        marker_style_to_label_name=marker_style_to_label_name,
                                         massif_name_to_color=self.massif_name_to_color,
                                         cmap=self.cmap,
                                         show=False,
@@ -227,7 +230,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         for m, t in self.massif_name_to_minimized_aic_non_stationary_trend_test.items():
             d[m] = {'marker': self.non_stationary_trend_test_to_marker[type(t)],
                     'color': 'k',
-                    'markersize': 5,
+                    'markersize': 7,
                     'fillstyle': 'full' if t.is_significant else 'none'}
         return d
 
