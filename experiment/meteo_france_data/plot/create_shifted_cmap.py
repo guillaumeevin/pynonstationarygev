@@ -9,7 +9,7 @@ from experiment.meteo_france_data.plot.shifted_color_map import shiftedColorMap
 from extreme_fit.distribution.abstract_params import AbstractParams
 
 
-def get_shifted_map(vmin, vmax):
+def get_shifted_map(vmin, vmax, cmap=plt.cm.bwr):
     # Load the shifted cmap to center on a middle point
     if vmin < 0 < vmax:
         midpoint = 1 - vmax / (vmax + abs(vmin))
@@ -19,7 +19,7 @@ def get_shifted_map(vmin, vmax):
         midpoint = 0.0
     else:
         raise ValueError('Unexpected values: vmin={}, vmax={}'.format(vmin, vmax))
-    cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
+    # cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
     shifted_cmap = shiftedColorMap(cmap, midpoint=midpoint, name='shifted')
     return shifted_cmap
 

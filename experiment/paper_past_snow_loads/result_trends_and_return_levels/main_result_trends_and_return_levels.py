@@ -19,6 +19,7 @@ mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 import matplotlib.pyplot as plt
 
+
 def minor_result(altitude):
     """Plot trends for a single altitude to be fast"""
     visualizer = StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude), multiprocessing=True,
@@ -26,9 +27,11 @@ def minor_result(altitude):
     visualizer.plot_trends()
     plt.show()
 
+
 def compute_minimized_aic(visualizer):
     _ = visualizer.massif_name_to_minimized_aic_non_stationary_trend_test
     return True
+
 
 def intermediate_result(altitudes, massif_names=None,
                         non_stationary_uncertainty=None, uncertainty_methods=None,
@@ -65,7 +68,7 @@ def intermediate_result(altitudes, massif_names=None,
                                  if altitude in altitudes_for_plot_trend]
     max_abs_tdrl = max([visualizer.max_abs_change for visualizer in visualizers_for_altitudes])
     for visualizer in visualizers_for_altitudes:
-        visualizer.plot_trends(max_abs_tdrl, add_colorbar=visualizer.study.altitude==2700)
+        visualizer.plot_trends(max_abs_tdrl, add_colorbar=visualizer.study.altitude == 2700)
 
     # Plot graph
     plot_uncertainty_massifs(altitude_to_visualizer)
@@ -92,15 +95,15 @@ if __name__ == '__main__':
     #                        ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
     #                     non_stationary_uncertainty=[False, True][1:],
     #                     multiprocessing=True)
-    intermediate_result(altitudes=paper_altitudes, massif_names=['Maurienne'],
-                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
-                           ConfidenceIntervalMethodFromExtremes.ci_mle][:],
-                        non_stationary_uncertainty=[False, True][:],
-                        multiprocessing=True)
+    # intermediate_result(altitudes=paper_altitudes, massif_names=['Maurienne'],
+    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
+    #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][:],
+    #                     non_stationary_uncertainty=[False, True][:],
+    #                     multiprocessing=True)
     # intermediate_result(altitudes=[900, 1200], massif_names=None)
     # intermediate_result(ALL_ALTITUDES_WITHOUT_NAN)
     # intermediate_result(paper_altitudes)
-    # minor_result(altitude=900)
+    minor_result(altitude=900)
     # intermediate_result(altitudes=[1500, 1800], massif_names=['Chartreuse'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_bayes],

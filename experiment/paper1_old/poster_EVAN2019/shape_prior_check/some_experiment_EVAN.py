@@ -1,14 +1,10 @@
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, CrocusSwe3Days
-from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_year_hypercube_visualizer import \
-    Altitude_Hypercube_Year_Visualizer, AltitudeHypercubeVisualizerWithoutTrendType
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
-    SCM_STUDIES
-from experiment.trend_analysis.univariate_test.abstract_comparison_non_stationary_model import ComparisonAgainstMu, \
+    Altitude_Hypercube_Year_Visualizer
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.abstract_comparison_non_stationary_model import ComparisonAgainstMu, \
     ComparisonAgainstSigma
-from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevScaleTrendTest, \
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter import GevScaleTrendTest, \
     GevLocationTrendTest
-from experiment.trend_analysis.univariate_test.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
 from experiment.paper1_old.utils import get_full_altitude_visualizer
 
 POSTER_ALTITUDES = [900, 1800, 2700]

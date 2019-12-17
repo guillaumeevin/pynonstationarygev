@@ -3,11 +3,10 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import fitted_linear_margin_estimator
+from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import fitted_linear_margin_estimator
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
-    NonStationaryLocationTemporalModel, NonStationaryLocationAndScaleTemporalModel, GumbelTemporalModel
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import GumbelTemporalModel
 from extreme_fit.model.utils import r, set_seed_r
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \

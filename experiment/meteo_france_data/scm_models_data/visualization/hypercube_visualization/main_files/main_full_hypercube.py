@@ -6,7 +6,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
     load_altitude_visualizer, load_quantity_visualizer
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     ALL_ALTITUDES, SCM_STUDIES
-from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevLocationTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter import GevLocationTrendTest
 
 
 def get_full_parameters(altitude=None, offset_starting_year=10):

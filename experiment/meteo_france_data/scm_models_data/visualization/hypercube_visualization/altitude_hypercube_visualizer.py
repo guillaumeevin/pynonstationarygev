@@ -1,16 +1,16 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FormatStrFormatter, ScalarFormatter
+from matplotlib.ticker import ScalarFormatter
 from scipy.ndimage import gaussian_filter
 
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.abstract_hypercube_visualizer import \
     AbstractHypercubeVisualizer
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
-    SCM_STUDY_NAME_TO_COLOR, SCM_STUDY_NAME_TO_ABBREVIATION, SCM_STUDY_CLASS_TO_ABBREVIATION, SCM_STUDIES_NAMES
+    SCM_STUDY_NAME_TO_COLOR, SCM_STUDY_NAME_TO_ABBREVIATION, SCM_STUDY_CLASS_TO_ABBREVIATION
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
-from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from root_utils import get_display_name_from_object_type
 

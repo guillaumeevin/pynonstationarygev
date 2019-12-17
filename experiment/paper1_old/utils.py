@@ -3,7 +3,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visual
     get_full_parameters
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.utils_hypercube import \
     load_altitude_visualizer
-from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevLocationTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter import GevLocationTrendTest
 
 FULL_ALTITUDES = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
 

@@ -152,7 +152,8 @@ def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, leg
             # Better to plot all the markers on the same line
             ax.plot([altitude], 0, **marker_kwargs)
     # Add a legend plot
-    legend_elements = AbstractStudy.get_legend_for_model_symbol(markersize=9)
+    visualizer = visualizers[0]
+    legend_elements = AbstractStudy.get_legend_for_model_symbol(visualizer.marker_to_label, markersize=9)
     ax2 = ax.twinx()
     # ax2.legend(handles=legend_elements, bbox_to_anchor=(0.93, 0.7), loc='upper right')
     # ax2.annotate("Filled symbol = significant trend ", xy=(0.85, 0.5), xycoords='axes fraction', fontsize=7)

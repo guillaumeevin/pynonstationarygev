@@ -310,6 +310,7 @@ class AbstractStudy(object):
                         massif_name_to_hatch_boolean_list=None,
                         norm=None,
                         massif_name_to_marker_style=None,
+                        marker_style_to_label_name=None,
                         ticks_values_and_labels=None,
                         ):
         if ax is None:
@@ -402,7 +403,7 @@ class AbstractStudy(object):
 
         # Add legend for the marker
         if massif_name_to_marker_style is not None:
-            legend_elements = cls.get_legend_for_model_symbol(markersize=8)
+            legend_elements = cls.get_legend_for_model_symbol(marker_style_to_label_name, markersize=8)
             ax.legend(handles=legend_elements, bbox_to_anchor=(0.01, 0.03), loc='lower left')
             ax.annotate("Filled symbol = significant trend ", xy=(0.05, 0.015), xycoords='axes fraction', fontsize=7)
 
@@ -412,13 +413,11 @@ class AbstractStudy(object):
         return ax
 
     @classmethod
-    def get_legend_for_model_symbol(cls, markersize):
-        labels = ['\mathcal{M}_{\mu_1}', '\mathcal{M}_{\sigma_1}', '\mathcal{M}_{\mu_1, \sigma_1}']
-        markers = ["s", "^", "D"]
+    def get_legend_for_model_symbol(cls, marker_style_to_label_name, markersize):
         legend_elements = [
             Line2D([0], [0], marker=marker, color='w', label='${}$'.format(label),
                    markerfacecolor='w', markeredgecolor='k', markersize=markersize)
-            for label, marker in zip(labels, markers)
+            for marker, label in marker_style_to_label_name.items()
         ]
         return legend_elements
 

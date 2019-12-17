@@ -18,7 +18,8 @@ from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSno
 
 from collections import OrderedDict
 
-from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevLocationTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gev_trend_test_one_parameter import \
+    GevLocationTrendTest
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization, BetweenMinusOneAndOneNormalization
 from root_utils import get_display_name_from_object_type

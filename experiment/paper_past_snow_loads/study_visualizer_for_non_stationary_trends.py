@@ -1,7 +1,6 @@
-from collections import OrderedDict
 import matplotlib.pyplot as plt
 from multiprocessing.pool import Pool
-from typing import Dict, Tuple
+from typing import Dict
 
 import numpy as np
 from cached_property import cached_property
@@ -14,12 +13,18 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 from experiment.paper_past_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
     compute_gelman_convergence_value
-from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure
 from experiment.trend_analysis.abstract_score import MeanScore
-from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
-from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevScaleTrendTest, \
-    GevLocationTrendTest
-from experiment.trend_analysis.univariate_test.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gev_trend_test_one_parameter import \
+    GevLocationTrendTest, GevScaleTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
+    GumbelLocationTrendTest, GevStationaryVersusGumbel, GumbelScaleTrendTest, GumbelVersusGumbel
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_three_parameters.gumbel_trend_test_three_parameters import \
+    GevLocationAndScaleTrendTestAgainstGumbel
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters import \
+    GevLocationAndScaleTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gumbel_test_two_parameters import \
+    GumbelLocationAndScaleTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
@@ -39,12 +44,14 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  non_stationary_contexts=None,
                  uncertainty_massif_names=None,
                  effective_temporal_covariate=2017,
-                 relative_change_trend_plot=True):
+                 relative_change_trend_plot=True,
+                 non_stationary_trend_test_to_marker=None):
         super().__init__(study, show, save_to_file, only_one_graph, only_first_row, vertical_kde_plot,
                          year_for_kde_plot, plot_block_maxima_quantiles, temporal_non_stationarity,
                          transformation_class, verbose, multiprocessing, complete_non_stationary_trend_analysis,
                          normalization_under_one_observations, score_class)
         # Add some attributes
+        self.non_stationary_trend_test_to_marker = non_stationary_trend_test_to_marker
         self.relative_change_trend_plot = relative_change_trend_plot
         self.effective_temporal_covariate = effective_temporal_covariate
         self.non_stationary_contexts = non_stationary_contexts
@@ -58,10 +65,19 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                                         ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
         if self.uncertainty_massif_names is None:
             self.uncertainty_massif_names = self.study.study_massif_names
-        # Assign default argument for the non stationary trends
-        self.non_stationary_trend_test = [GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest]
-        self.non_stationary_trend_test_to_marker = dict(zip(self.non_stationary_trend_test, ["s", "^", "D"]))
-
+        if self.non_stationary_trend_test_to_marker is None:
+            # Assign default argument for the non stationary trends
+            # self.non_stationary_trend_test = [GumbelVersusGumbel,
+            #                                   GumbelLocationTrendTest, GumbelScaleTrendTest, GumbelLocationAndScaleTrendTest,
+            #                                   GevStationaryVersusGumbel,
+            #                                   GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest,
+            #                                   ]
+            self.non_stationary_trend_test = [GumbelVersusGumbel, GevLocationAndScaleTrendTestAgainstGumbel]
+            self.non_stationary_trend_test_to_marker = {t: t.marker for t in self.non_stationary_trend_test}
+                                                                # ["v", "^", "D", "X", "x", 7, 6, "d"]))
+        else:
+            self.non_stationary_trend_test = list(self.non_stationary_trend_test_to_marker.keys())
+        self.marker_to_label = {t.marker: t.label for t in self.non_stationary_trend_test}
         self.global_max_abs_change = None
 
     # Utils
@@ -125,6 +141,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                                         axis_off=False, show_label=False,
                                         add_colorbar=add_colorbar,
                                         massif_name_to_marker_style=self.massif_name_to_marker_style,
+                                        marker_style_to_label_name=self.marker_to_label,
                                         massif_name_to_color=self.massif_name_to_color,
                                         cmap=self.cmap,
                                         show=False,

@@ -14,6 +14,7 @@ from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_m
     StationaryTemporalModel
 from extreme_fit.model.utils import SafeRunException
 from extreme_fit.distribution.gev.gev_params import GevParams
+from root_utils import classproperty
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
@@ -193,3 +194,13 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
             return 0.0
         else:
             return self.unconstrained_estimator_gev_params.quantile(p=self.quantile_level)
+
+    # Some class properties for display purpose
+
+    @classproperty
+    def marker(self):
+        raise NotImplementedError
+
+    @classproperty
+    def label(self):
+        return '\\mathcal{M}_{%s}'

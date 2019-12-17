@@ -1,6 +1,6 @@
 import time
 from experiment.trend_analysis.abstract_score import MannKendall, WeigthedScore, MeanScore, MedianScore
-from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import GevLocationChangePointTest, \
+from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import GevLocationChangePointTest, \
     GevScaleChangePointTest, GevShapeChangePointTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import MannKendallTrendTest
 from experiment.meteo_france_data.scm_models_data.safran.safran import ExtendedSafranTotalPrecip

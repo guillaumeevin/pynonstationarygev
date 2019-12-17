@@ -12,7 +12,8 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     study_iterator, study_iterator_global, SCM_STUDIES, ALL_ALTITUDES
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
-from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevLocationTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gev_trend_test_one_parameter import \
+    GevLocationTrendTest
 from root_utils import get_display_name_from_object_type
 
 

@@ -2,9 +2,9 @@ import time
 
 from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_year_hypercube_visualizer import \
     Altitude_Hypercube_Year_Visualizer
-from experiment.trend_analysis.univariate_test.gev_trend_test_one_parameter import GevScaleTrendTest, \
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter import GevScaleTrendTest, \
     GevLocationTrendTest
-from experiment.trend_analysis.univariate_test.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
 
 """
 Visualize the 0.99 quantile initial value and its evolution

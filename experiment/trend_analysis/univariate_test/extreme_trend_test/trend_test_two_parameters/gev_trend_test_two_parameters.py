@@ -1,7 +1,8 @@
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE
-from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
-    NonStationaryLocationAndScaleTemporalModel, StationaryTemporalModel
+    NonStationaryLocationAndScaleTemporalModel, StationaryTemporalModel, NonStationaryLocationAndScaleGumbelModel, \
+    GumbelTemporalModel
 from extreme_fit.distribution.gev.gev_params import GevParams
 
 
@@ -42,3 +43,5 @@ class GevLocationAndScaleTrendTest(GevTrendTestTwoParameters):
     @property
     def variance_difference_same_sign_as_slope_strenght(self) -> bool:
         return self.same_sign(self.sigma1, self._slope_strength())
+
+

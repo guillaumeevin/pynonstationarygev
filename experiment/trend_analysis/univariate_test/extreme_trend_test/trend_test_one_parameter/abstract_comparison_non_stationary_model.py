@@ -1,23 +1,14 @@
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE
-from experiment.trend_analysis.univariate_test.abstract_gev_trend_test import AbstractGevTrendTest
-from experiment.trend_analysis.univariate_test.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gev_trend_test_one_parameter import \
+    GevTrendTestOneParameter
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel
 import numpy as np
 
 
-class AbstractComparisonNonStationaryModel(AbstractGevTrendTest):
-
-    @property
-    def degree_freedom_chi2(self) -> int:
-        raise NotImplementedError
-
-
-class AbstractComparisonNonStationaryModelOneParameter(AbstractComparisonNonStationaryModel):
-
-    @property
-    def degree_freedom_chi2(self) -> int:
-        return 1
+class AbstractComparisonNonStationaryModelOneParameter(GevTrendTestOneParameter):
 
     @property
     def test_sign(self) -> int:

@@ -19,7 +19,7 @@ def get_margin_coef_ordered_dict(gev_param_name_to_dim, mle_values, type_for_mle
     for gev_param_name in GevParams.PARAM_NAMES:
         # Add intercept (i.e. stationary parameter)
         intercept_coef_name = LinearCoef.coef_template_str(gev_param_name, LinearCoef.INTERCEPT_NAME).format(1)
-        if type_for_mle == "Gumbel" and i == 2:
+        if type_for_mle == "Gumbel" and gev_param_name == GevParams.SHAPE:
             coef_value = 0
         else:
             coef_value = mle_values[i]

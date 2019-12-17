@@ -1,6 +1,6 @@
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
 from experiment.paper_past_snow_loads.check_mle_convergence_for_trends.study_visualizer_for_shape_repartition import \
-    StudyVisualizerForShape, StudyVisualizerGumbel
+    StudyVisualizerForShape, StudyVisualizerGumbel, StudyVisualizerAll
 from experiment.paper_past_snow_loads.paper_main_utils import load_altitude_to_visualizer
 
 
@@ -20,11 +20,14 @@ def main_shape_repartition(altitudes, massif_names=None,
     max_abs_tdrl = max([visualizer.max_abs_change for visualizer in visualizers_for_altitudes])
     for visualizer in visualizers_for_altitudes:
         # visualizer.plot_trends(max_abs_tdrl, add_colorbar=visualizer.study.altitude == 2700)
-        visualizer.plot_trends(max_abs_tdrl, add_colorbar=True)
+        # visualizer.plot_trends(max_abs_tdrl, add_colorbar=True)
+        visualizer.plot_trends()
 
 
 if __name__ == '__main__':
     # main_shape_repartition([900], save_to_file=False)
     # main_shape_repartition([900, 1800, 2700])
     # main_shape_repartition([300, 600, 900, 1200, 1500, 1800, 2700])
-    main_shape_repartition([900], study_visualizer_class=StudyVisualizerGumbel)
+    main_shape_repartition([900], study_visualizer_class=StudyVisualizerAll, save_to_file=False)
+    # main_shape_repartition([300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200],
+    #                        study_visualizer_class=StudyVisualizerAll, save_to_file=True)
