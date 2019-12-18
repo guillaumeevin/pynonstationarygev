@@ -78,8 +78,10 @@ class GumbelTemporalModel(StationaryTemporalModel):
 class NonStationaryLocationGumbelModel(GumbelTemporalModel, NonStationaryLocationTemporalModel):
     pass
 
+
 class NonStationaryScaleGumbelModel(GumbelTemporalModel, NonStationaryScaleTemporalModel):
     pass
+
 
 class NonStationaryLocationAndScaleGumbelModel(GumbelTemporalModel, NonStationaryLocationAndScaleTemporalModel):
     pass

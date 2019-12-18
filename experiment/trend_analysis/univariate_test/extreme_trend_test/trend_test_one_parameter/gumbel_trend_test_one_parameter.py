@@ -59,6 +59,7 @@ class GevStationaryVersusGumbel(GevTrendTestOneParameter):
     def marker(self):
         return 'X'
 
+
 class GumbelLocationTrendTest(GevTrendTestOneParameterAgainstStationary):
 
     def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE):

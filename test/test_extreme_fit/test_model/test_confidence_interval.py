@@ -3,11 +3,16 @@ import unittest
 import numpy as np
 import pandas as pd
 
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
+    GumbelLocationTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gumbel_test_two_parameters import \
+    GumbelLocationAndScaleTrendTest
 from experiment.trend_analysis.univariate_test.utils import fitted_linear_margin_estimator
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
-    NonStationaryLocationTemporalModel, NonStationaryLocationAndScaleTemporalModel
+    NonStationaryLocationTemporalModel, NonStationaryLocationAndScaleTemporalModel, \
+    NonStationaryLocationAndScaleGumbelModel, NonStationaryLocationGumbelModel
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
@@ -80,6 +85,8 @@ class TestConfidenceInterval(unittest.TestCase):
             StationaryTemporalModel: (-4.703945484843988, 30.482318639674023, 65.66858276419204),
             NonStationaryLocationTemporalModel: (-30.361576509947707, 4.159940117114796, 38.6814567441773),
             NonStationaryLocationAndScaleTemporalModel: (-52.797816369170455, 6.0677087210572465, 64.93323381128495),
+            NonStationaryLocationGumbelModel: (8.61171183466113, 11.903294433157592, 15.194877031654055),
+            NonStationaryLocationAndScaleGumbelModel: (6.0605675256893, 10.512751341145462, 14.964935156601623),
         }
 
     def test_ci_boot(self):
