@@ -76,7 +76,6 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                                               GevLocationAgainstGumbel, GevScaleAgainstGumbel, GevLocationAndScaleTrendTestAgainstGumbel
                                               ]
             self.non_stationary_trend_test_to_marker = {t: t.marker for t in self.non_stationary_trend_test}
-                                                                # ["v", "^", "D", "X", "x", 7, 6, "d"]))
         else:
             self.non_stationary_trend_test = list(self.non_stationary_trend_test_to_marker.keys())
         self.global_max_abs_change = None
