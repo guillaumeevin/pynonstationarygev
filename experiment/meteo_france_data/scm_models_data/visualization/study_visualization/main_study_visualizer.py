@@ -11,7 +11,7 @@ from experiment.trend_analysis.abstract_score import MannKendall
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, ExtendedCrocusDepth, \
     ExtendedCrocusSweTotal, CrocusDaysWithSnowOnGround, CrocusSwe3Days, CrocusSnowLoad3Days, CrocusSnowLoadTotal, \
-    CrocusSnowLoadEurocode
+    CrocusSnowLoadEurocode, CrocusSnowLoad5Days, CrocusSnowLoad7Days
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranRainfall, \
     SafranTemperature, SafranTotalPrecip
@@ -39,6 +39,8 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusDepth: 'SD',
     CrocusSnowLoadTotal: 'GSL',
     CrocusSnowLoad3Days: 'GSL3',
+    CrocusSnowLoad5Days: 'GSL5',
+    CrocusSnowLoad7Days: 'GSL7',
     CrocusSnowDensityAtMaxofSwe: '{} when the max of GSL \nis reached'.format(snow_density_str),
     CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization: 'max GSL rescaled - GSL from max HS \nboth with {}'.format(eurocode_snow_density),
     CrocusDifferenceSnowLoad: ('max GSL - GSL from max HS \n with {}'.format(eurocode_snow_density)),

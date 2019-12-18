@@ -20,12 +20,28 @@ class CrocusTotalSweVariable(CrocusVariable):
         return 'WSN_T_ISBA'
 
 
-class CrocusRecentSweVariable(CrocusTotalSweVariable):
+class CrocusRecentSweVariableThreeDays(CrocusTotalSweVariable):
     NAME = 'Snow Water Equivalent last 3 days'
 
     @classmethod
     def keyword(cls):
         return 'SWE_3DY_ISBA'
+
+
+class CrocusRecentSweVariableFiveDays(CrocusTotalSweVariable):
+    NAME = 'Snow Water Equivalent last 5 days'
+
+    @classmethod
+    def keyword(cls):
+        return 'SWE_5DY_ISBA'
+
+
+class CrocusRecentSweVariableSevenDays(CrocusTotalSweVariable):
+    NAME = 'Snow Water Equivalent last 7 days'
+
+    @classmethod
+    def keyword(cls):
+        return 'SWE_7DY_ISBA'
 
 
 class AbstractSnowLoadVariable(CrocusVariable):
@@ -37,8 +53,16 @@ class AbstractSnowLoadVariable(CrocusVariable):
         return snow_pressure
 
 
-class RecentSnowLoadVariable(AbstractSnowLoadVariable, CrocusRecentSweVariable):
+class RecentSnowLoadVariableThreeDays(AbstractSnowLoadVariable, CrocusRecentSweVariableThreeDays):
     NAME = 'Snow load last 3 days'
+
+
+class RecentSnowLoadVariableFiveDays(AbstractSnowLoadVariable, CrocusRecentSweVariableFiveDays):
+    NAME = 'Snow load last 5 days'
+
+
+class RecentSnowLoadVariableSevenDays(AbstractSnowLoadVariable, CrocusRecentSweVariableSevenDays):
+    NAME = 'Snow load last 7 days'
 
 
 class TotalSnowLoadVariable(AbstractSnowLoadVariable, CrocusTotalSweVariable):

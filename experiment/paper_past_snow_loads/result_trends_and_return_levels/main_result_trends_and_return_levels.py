@@ -2,7 +2,8 @@ from multiprocessing.pool import Pool
 
 import matplotlib as mpl
 
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoadEurocode
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoadEurocode, \
+    CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days
 from experiment.paper_past_snow_loads.paper_main_utils import load_altitude_to_visualizer
 from experiment.paper_past_snow_loads.paper_utils import paper_study_classes, paper_altitudes
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.plot_uncertainty_curves import \
@@ -82,7 +83,9 @@ def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
                            ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
     massif_names = None
-    for study_class in paper_study_classes[:2]:
+    study_classes = paper_study_classes[:2]
+    study_classes = [CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][::-1]
+    for study_class in study_classes:
         if study_class == CrocusSnowLoadEurocode:
             non_stationary_uncertainty = [False]
         else:
@@ -91,12 +94,12 @@ def major_result():
 
 
 if __name__ == '__main__':
-    # major_result()
-    intermediate_result(altitudes=[900, 1200], massif_names=['Vercors'],
-                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
-                                             ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
-                        non_stationary_uncertainty=[False, True][1:],
-                        multiprocessing=True)
+    major_result()
+    # intermediate_result(altitudes=[900, 1200], massif_names=['Vercors'],
+    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
+    #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
+    #                     non_stationary_uncertainty=[False, True][1:],
+    #                     multiprocessing=True)
     # intermediate_result(altitudes=[900, 1200], massif_names=['Maurienne'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],

@@ -5,8 +5,9 @@ import numpy as np
 from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusTotalSweVariable, \
-    CrocusDepthVariable, CrocusRecentSweVariable, TotalSnowLoadVariable, RecentSnowLoadVariable, \
-    CrocusSnowLoadEurocodeVariable, CrocusDensityVariable
+    CrocusDepthVariable, CrocusRecentSweVariableThreeDays, TotalSnowLoadVariable, RecentSnowLoadVariableThreeDays, \
+    CrocusSnowLoadEurocodeVariable, CrocusDensityVariable, RecentSnowLoadVariableFiveDays, \
+    RecentSnowLoadVariableSevenDays
 
 
 class Crocus(AbstractStudy):
@@ -15,9 +16,12 @@ class Crocus(AbstractStudy):
     """
 
     def __init__(self, variable_class, *args, **kwargs):
-        assert variable_class in [CrocusTotalSweVariable, CrocusDepthVariable, CrocusRecentSweVariable,
-                                  RecentSnowLoadVariable, TotalSnowLoadVariable, CrocusSnowLoadEurocodeVariable,
-                                  CrocusDensityVariable]
+        assert variable_class in [CrocusTotalSweVariable, CrocusDepthVariable, CrocusRecentSweVariableThreeDays,
+                                  RecentSnowLoadVariableThreeDays, TotalSnowLoadVariable,
+                                  CrocusSnowLoadEurocodeVariable,
+                                  CrocusDensityVariable,
+                                  RecentSnowLoadVariableFiveDays,
+                                  RecentSnowLoadVariableSevenDays]
         super().__init__(variable_class, *args, **kwargs)
         self.model_name = 'Crocus'
 
@@ -34,7 +38,7 @@ class Crocus(AbstractStudy):
 class CrocusSwe3Days(Crocus):
 
     def __init__(self, *args, **kwargs):
-        Crocus.__init__(self, CrocusRecentSweVariable, *args, **kwargs)
+        Crocus.__init__(self, CrocusRecentSweVariableThreeDays, *args, **kwargs)
 
     def apply_annual_aggregation(self, time_serie):
         return self.winter_annual_aggregation(time_serie)
@@ -59,7 +63,17 @@ class CrocusSnowLoadTotal(Crocus):
 
 class CrocusSnowLoad3Days(CrocusSweTotal):
     def __init__(self, *args, **kwargs):
-        Crocus.__init__(self, RecentSnowLoadVariable, *args, **kwargs)
+        Crocus.__init__(self, RecentSnowLoadVariableThreeDays, *args, **kwargs)
+
+
+class CrocusSnowLoad5Days(CrocusSweTotal):
+    def __init__(self, *args, **kwargs):
+        Crocus.__init__(self, RecentSnowLoadVariableFiveDays, *args, **kwargs)
+
+
+class CrocusSnowLoad7Days(CrocusSweTotal):
+    def __init__(self, *args, **kwargs):
+        Crocus.__init__(self, RecentSnowLoadVariableSevenDays, *args, **kwargs)
 
 
 class ExtendedCrocusSweTotal(AbstractExtendedStudy, CrocusSweTotal):
