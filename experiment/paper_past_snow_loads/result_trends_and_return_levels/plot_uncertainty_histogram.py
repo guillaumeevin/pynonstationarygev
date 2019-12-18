@@ -7,7 +7,7 @@ from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure
 from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import ci_method_to_color, \
-    ci_method_to_label
+    ci_method_to_label, ConfidenceIntervalMethodFromExtremes
 
 
 def plot_uncertainty_histogram(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
@@ -36,13 +36,17 @@ def plot_histogram(altitude_to_visualizer, non_stationary_context):
         if len(visualizer.uncertainty_methods) == 2:
             offset = -50 if j == 0 else 50
             bincenters = altitudes + offset
-        width = 100
+            width = 100
+        else:
+            width = 200
         plot_histogram_ci_method(visualizers, non_stationary_context, ci_method, ax, bincenters, width=width)
     fontsize_label = 15
     legend_size = 15
     ax.set_xticks(altitudes)
     ax.tick_params(labelsize=fontsize_label)
-    ax.legend(loc='upper left', prop={'size': legend_size})
+    if not (len(visualizer.uncertainty_methods) == 1
+            and visualizer.uncertainty_methods[0] == ConfidenceIntervalMethodFromExtremes.ci_mle):
+        ax.legend(loc='upper left', prop={'size': legend_size})
     ax.set_ylabel('Massifs exceeding French standards (\%)', fontsize=fontsize_label)
     ax.set_xlabel('Altitude (m)', fontsize=fontsize_label)
     ax.set_ylim([0, 100])

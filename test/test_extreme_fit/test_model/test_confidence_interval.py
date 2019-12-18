@@ -76,10 +76,10 @@ class TestConfidenceInterval(unittest.TestCase):
     def test_ci_normal(self):
         self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
         self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_mle
-        self.model_class_to_triplet= {
+        self.model_class_to_triplet = {
             StationaryTemporalModel: (-4.703945484843988, 30.482318639674023, 65.66858276419204),
-            NonStationaryLocationTemporalModel: (-4.223086740397132, 30.29842988666537, 64.81994651372787),
-            NonStationaryLocationAndScaleTemporalModel: (-15.17041284612494, 43.69511224410276, 102.56063733433047),
+            NonStationaryLocationTemporalModel: (-30.361576509947707, 4.159940117114796, 38.6814567441773),
+            NonStationaryLocationAndScaleTemporalModel: (-52.797816369170455, 6.0677087210572465, 64.93323381128495),
         }
 
     def test_ci_boot(self):

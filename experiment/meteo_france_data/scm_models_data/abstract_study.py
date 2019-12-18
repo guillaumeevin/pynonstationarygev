@@ -406,7 +406,8 @@ class AbstractStudy(object):
             legend_elements = cls.get_legend_for_model_symbol(marker_style_to_label_name, markersize=8)
             ax.legend(handles=legend_elements[:], loc='upper right')
             # ax.legend(handles=legend_elements[4:], bbox_to_anchor=(0.01, 0.03), loc='lower left')
-            ax.annotate("Filled symbol = significant trend ", xy=(0.05, 0.015), xycoords='axes fraction', fontsize=7)
+            ax.annotate("Filled symbol = significant trend w.r.t $\mathcal{M}_0$",
+                        xy=(0.05, 0.015), xycoords='axes fraction', fontsize=7)
 
         if show:
             plt.show()

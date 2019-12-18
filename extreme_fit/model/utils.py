@@ -29,9 +29,10 @@ warnings.filterwarnings("ignore")
 # Load ismev
 r.library('ismev')
 # Load fevd fixed
-fevd_fixed_filepath = op.join(get_root_path(), 'extreme_fit', 'distribution', 'gev', 'fevd_fixed.R')
-assert op.exists(fevd_fixed_filepath)
-r.source(fevd_fixed_filepath)
+for filename in ['ci_fevd_fixed.R', 'fevd_fixed.R']:
+    fevd_fixed_filepath = op.join(get_root_path(), 'extreme_fit', 'distribution', 'gev', filename)
+    assert op.exists(fevd_fixed_filepath)
+    r.source(fevd_fixed_filepath)
 # Reactivate warning
 warnings.filters = default_filters
 

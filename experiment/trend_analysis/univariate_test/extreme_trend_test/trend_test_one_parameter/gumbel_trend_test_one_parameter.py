@@ -24,10 +24,6 @@ class GumbelVersusGumbel(GevTrendTestOneParameter):
     def total_number_of_parameters_for_unconstrained_model(self) -> int:
         return 2
 
-    @property
-    def time_derivative_of_return_level(self):
-        return super().time_derivative_of_return_level()
-
     @classproperty
     def label(self):
         return super().label % '0'

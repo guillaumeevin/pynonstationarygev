@@ -69,8 +69,8 @@ def plot_single_uncertainty_massif(altitude_to_visualizer: Dict[int, StudyVisual
 def get_label_name(non_stationary_context, ci_method_name):
     model_symbol = 'N' if non_stationary_context else '0'
     parameter = ', 2017' if non_stationary_context else ''
-    model_name = ' $ \widehat{z_p}(\\boldsymbol{\\theta_{\mathcal{M}_'
-    model_name += model_symbol
+    model_name = ' $ \widehat{z_p}(\\boldsymbol{\\theta_{\mathcal{M}'
+    # model_name += '_' + model_symbol
     model_name += '}}'
     model_name += parameter
     model_name += ')_{ \\textrm{' + ci_method_name.upper().split(' ')[1] + '}} $ '
@@ -100,6 +100,7 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, n
         color = ci_method_to_color[uncertainty_method]
         valid_altitudes = plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitudes, ax, color,
                                                                 massif_name, non_stationary_context, uncertainty_method)
+        # Plot some data for the non valid altitudes
 
         # Plot bars of TDRL only in the non stationary case
         if j == 0 and non_stationary_context:
@@ -133,8 +134,8 @@ def add_title(ax, eurocode_region, massif_name, non_stationary_context):
 
 
 def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, legend_size, fontsize):
-    visualizers = [v for a, v in altitude_to_visualizer.items() if
-                   a in valid_altitudes and massif_name in v.uncertainty_massif_names]
+    visualizers = [v for a, v in altitude_to_visualizer.items()
+                   if a in valid_altitudes and massif_name in v.uncertainty_massif_names]
     if len(visualizers) > 0:
         tdrl_values = [v.massif_name_to_tdrl_value[massif_name] for v in visualizers]
         # Plot bars
@@ -151,15 +152,17 @@ def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, leg
             # ax.plot([altitude], [value / 2], **marker_kwargs)
             # Better to plot all the markers on the same line
             ax.plot([altitude], 0, **marker_kwargs)
-    # Add a legend plot
-    visualizer = visualizers[0]
-    legend_elements = AbstractStudy.get_legend_for_model_symbol(visualizer.marker_to_label, markersize=9)
-    ax2 = ax.twinx()
-    # ax2.legend(handles=legend_elements, bbox_to_anchor=(0.93, 0.7), loc='upper right')
-    # ax2.annotate("Filled symbol = significant trend ", xy=(0.85, 0.5), xycoords='axes fraction', fontsize=7)
-    ax2.legend(handles=legend_elements, loc='upper right', prop={'size': legend_size})
-    ax2.annotate("Filled symbol =\n significant trend ", xy=(0.6, 0.85), xycoords='axes fraction', fontsize=fontsize)
-    ax2.set_yticks([])
+        # Add a legend plot
+        visualizer = visualizers[0]
+        markers = [v.massif_name_to_marker_style[massif_name]['marker'] for v in visualizers]
+        marker_to_label = {m: visualizer.all_marker_style_to_label_name[m] for m in markers}
+        legend_elements = AbstractStudy.get_legend_for_model_symbol(marker_to_label, markersize=9)
+        ax2 = ax.twinx()
+        # ax2.legend(handles=legend_elements, bbox_to_anchor=(0.93, 0.7), loc='upper right')
+        # ax2.annotate("Filled symbol = significant trend ", xy=(0.85, 0.5), xycoords='axes fraction', fontsize=7)
+        ax2.legend(handles=legend_elements, loc='upper right', prop={'size': legend_size})
+        ax2.annotate("Filled symbol =\nsignificant trend  \nw.r.t $\mathcal{M}_0$", xy=(0.6, 0.85), xycoords='axes fraction', fontsize=fontsize)
+        ax2.set_yticks([])
 
 
 def plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitudes, ax, color, massif_name,

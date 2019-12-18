@@ -30,7 +30,7 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
                 'method': method_name,
             # xrange = NULL, nint = 20
         }
-        res = r.ci(self.result_from_fit, **mle_ci_parameters, **common_kwargs)
+        res = r('ci.fevd.mle_fixed')(self.result_from_fit, **mle_ci_parameters, **common_kwargs)
         if self.is_non_stationary:
             a = np.array(res)[0]
             lower, mean_estimate, upper, _ = a

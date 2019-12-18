@@ -63,12 +63,14 @@ def intermediate_result(altitudes, massif_names=None,
             _ = compute_minimized_aic(visualizer)
     # Compute common max value for the colorbar
     altitudes_for_plot_trend = [900, 1800, 2700]
+    altitudes_for_plot_trend = altitudes
     visualizers_for_altitudes = [visualizer
                                  for altitude, visualizer in altitude_to_visualizer.items()
                                  if altitude in altitudes_for_plot_trend]
     max_abs_tdrl = max([visualizer.max_abs_change for visualizer in visualizers_for_altitudes])
     for visualizer in visualizers_for_altitudes:
-        visualizer.plot_trends(max_abs_tdrl, add_colorbar=visualizer.study.altitude == 2700)
+        # visualizer.plot_trends(max_abs_tdrl, add_colorbar=visualizer.study.altitude == 2700)
+        visualizer.plot_trends(None, add_colorbar=True)
 
     # Plot graph
     plot_uncertainty_massifs(altitude_to_visualizer)
@@ -78,9 +80,9 @@ def intermediate_result(altitudes, massif_names=None,
 
 def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
-                           ConfidenceIntervalMethodFromExtremes.ci_mle][:]
+                           ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
     massif_names = None
-    for study_class in paper_study_classes[:1]:
+    for study_class in paper_study_classes[:2]:
         if study_class == CrocusSnowLoadEurocode:
             non_stationary_uncertainty = [False]
         else:
@@ -89,21 +91,21 @@ def major_result():
 
 
 if __name__ == '__main__':
-    # major_result()
-    # intermediate_result(altitudes=paper_altitudes, massif_names=['Maurienne'],
+    major_result()
+    # intermediate_result(altitudes=[900, 1200], massif_names=['Belledonne'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
-    #                        ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
+    #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
     #                     non_stationary_uncertainty=[False, True][1:],
     #                     multiprocessing=True)
-    # intermediate_result(altitudes=paper_altitudes, massif_names=['Maurienne'],
+    # intermediate_result(altitudes=[900, 1200], massif_names=['Maurienne'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
-    #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][:],
+    #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
     #                     non_stationary_uncertainty=[False, True][:],
     #                     multiprocessing=True)
     # intermediate_result(altitudes=[900, 1200], massif_names=None)
     # intermediate_result(ALL_ALTITUDES_WITHOUT_NAN)
     # intermediate_result(paper_altitudes)
-    minor_result(altitude=900)
+    # minor_result(altitude=900)
     # intermediate_result(altitudes=[1500, 1800], massif_names=['Chartreuse'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_bayes],

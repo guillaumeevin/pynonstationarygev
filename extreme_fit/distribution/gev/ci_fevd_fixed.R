@@ -1,11 +1,15 @@
 
 # todo: report bug on exTremes, fix is around line 510 where I set theta[4] = 0 (and it was Nan before)
 # it was important to do that to make the code work in the Gumbel case
+# todo: also luine 11  x$results$num.pars$shape = 0
+# Also aroudn line 433,  grads = grads[1:dim(cov.theta)[1]]
 ci.fevd.mle_fixed <- function (x, alpha = 0.05, type = c("return.level", "parameter"),
     return.period = 100, which.par = 1, R = 502, method = c("normal",
         "boot", "proflik"), xrange = NULL, nint = 20, verbose = FALSE,
     tscale = FALSE, return.samples = FALSE, ...)
 {
+    if (x$type == "Gumbel")
+        x$results$num.pars$shape = 0
     if (missing(method))
         miss.meth <- TRUE
     else miss.meth <- FALSE
@@ -13,6 +17,7 @@ ci.fevd.mle_fixed <- function (x, alpha = 0.05, type = c("return.level", "parame
     method <- match.arg(method)
     type <- tolower(type)
     type <- match.arg(type)
+
     theta.hat <- x$results$par
     theta.names <- names(theta.hat)
     np <- length(theta.hat)
@@ -426,6 +431,7 @@ ci.rl.ns.fevd.mle_fixed <- function (x, alpha = 0.05, return.period = 100, metho
             stop("ci: negative Std. Err. estimates obtained.  Not trusting any of them.")
         grads <- t(rlgrad.fevd(x, period = return.period, qcov = qcov,
             qcov.base = qcov.base))
+        grads = grads[1:dim(cov.theta)[1]]
         se.theta <- sqrt(diag(t(grads) %*% cov.theta %*% grads))
         out <- cbind(c(res) - z.alpha * se.theta, c(res), c(res) +
             z.alpha * se.theta, se.theta)
