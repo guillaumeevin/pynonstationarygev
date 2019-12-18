@@ -18,6 +18,7 @@ class TemporalMarginFitMethod(Enum):
     is_mev_gev_fit = 0
     extremes_fevd_bayesian = 1
     extremes_fevd_mle = 2
+    extremes_fevd_gmle = 3
 
 
 class AbstractTemporalLinearMarginModel(LinearMarginModel):
@@ -42,8 +43,8 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
             return self.ismev_gev_fit(x, df_coordinates_temp)
         if self.fit_method == TemporalMarginFitMethod.extremes_fevd_bayesian:
             return self.extremes_fevd_bayesian_fit(x, df_coordinates_temp)
-        if self.fit_method == TemporalMarginFitMethod.extremes_fevd_mle:
-            return self.extremes_fevd_mle_fit(x, df_coordinates_temp)
+        if self.fit_method in [TemporalMarginFitMethod.extremes_fevd_mle, TemporalMarginFitMethod.extremes_fevd_gmle]:
+            return self.extremes_fevd_mle_related_fit(x, df_coordinates_temp)
 
     # Gev Fit with isMev package
 
@@ -56,13 +57,19 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
 
     # Gev fit with extRemes package
 
-    def extremes_fevd_mle_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:
+    def extremes_fevd_mle_related_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:
         r_type_argument_kwargs, y = self.extreme_arguments(df_coordinates_temp)
+        if self.fit_method == TemporalMarginFitMethod.extremes_fevd_mle:
+            method = "MLE"
+        elif self.fit_method == TemporalMarginFitMethod.extremes_fevd_gmle:
+            method = "GMLE"
+        else:
+            raise ValueError('wrong method')
         res = safe_run_r_estimator(function=r('fevd_fixed'),
                                    x=x,
                                    data=y,
                                    type=self.type_for_mle,
-                                   method="MLE",
+                                   method=method,
                                    **r_type_argument_kwargs
                                    )
         return ResultFromMleExtremes(res, self.margin_function_start_fit.gev_param_name_to_dims,

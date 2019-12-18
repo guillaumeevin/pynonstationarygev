@@ -78,7 +78,7 @@ class TestConfidenceInterval(unittest.TestCase):
         self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_bayes
         self.model_class_to_triplet = self.bayesian_ci
 
-    def test_ci_normal(self):
+    def test_ci_normal_mle(self):
         self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
         self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_mle
         self.model_class_to_triplet = {
@@ -88,6 +88,17 @@ class TestConfidenceInterval(unittest.TestCase):
             NonStationaryLocationGumbelModel: (8.61171183466113, 11.903294433157592, 15.194877031654055),
             NonStationaryLocationAndScaleGumbelModel: (6.0605675256893, 10.512751341145462, 14.964935156601623),
         }
+
+    def test_ci_normal_gmle(self):
+        self.fit_method = TemporalMarginFitMethod.extremes_fevd_gmle
+        self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_mle
+        self.model_class_to_triplet = {
+            # Test only for the GEV cases (for the Gumbel cases results are just the same, since there is no shape parameter)
+            StationaryTemporalModel: (4.178088363735904, 15.27540259902303, 26.372716834310154),
+            NonStationaryLocationTemporalModel: (-6.716723409668982, 4.168288167650933, 15.053299744970847),
+            NonStationaryLocationAndScaleTemporalModel: (-12.226312466874123, 5.680769391219823, 23.58785124931377),
+        }
+
 
     def test_ci_boot(self):
         self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
@@ -113,7 +124,7 @@ class TestConfidenceInterval(unittest.TestCase):
             eurocode_ci = self.compute_eurocode_ci(model_class)
             found_triplet = eurocode_ci.triplet
             for a, b in zip(expected_triplet, found_triplet):
-                self.assertAlmostEqual(a, b, msg="{} \n{}".format(model_class, found_triplet))
+                self.assertAlmostEqual(a, b, msg="\n{} \nfound_triplet: {}".format(model_class, found_triplet))
 
 
 class TestConfidenceIntervalModifiedCoordinates(TestConfidenceInterval):
@@ -136,7 +147,11 @@ class TestConfidenceIntervalModifiedCoordinates(TestConfidenceInterval):
     def test_ci_bayes(self):
         super().test_ci_bayes()
 
-    def test_ci_normal(self):
+    def test_ci_normal_mle(self):
+        self.model_class_to_triplet = {}
+        self.assertTrue(True)
+
+    def test_ci_normal_gmle(self):
         self.model_class_to_triplet = {}
         self.assertTrue(True)
 
