@@ -83,8 +83,8 @@ def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
                            ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
     massif_names = None
-    study_classes = paper_study_classes[:2]
-    study_classes = [CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][::-1]
+    study_classes = paper_study_classes[:1]
+    # study_classes = [CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][::-1]
     for study_class in study_classes:
         if study_class == CrocusSnowLoadEurocode:
             non_stationary_uncertainty = [False]

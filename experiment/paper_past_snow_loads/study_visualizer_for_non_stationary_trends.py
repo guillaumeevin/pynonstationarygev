@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 import matplotlib.pyplot as plt
 from multiprocessing.pool import Pool
-from typing import Dict
+from typing import Dict, List
 
 import numpy as np
 from cached_property import cached_property
@@ -48,12 +48,14 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  uncertainty_massif_names=None,
                  effective_temporal_covariate=2017,
                  relative_change_trend_plot=True,
-                 non_stationary_trend_test_to_marker=None):
+                 non_stationary_trend_test_to_marker=None,
+                 fit_method=None):
         super().__init__(study, show, save_to_file, only_one_graph, only_first_row, vertical_kde_plot,
                          year_for_kde_plot, plot_block_maxima_quantiles, temporal_non_stationarity,
                          transformation_class, verbose, multiprocessing, complete_non_stationary_trend_analysis,
                          normalization_under_one_observations, score_class)
         # Add some attributes
+        self.fit_method = fit_method
         self.non_stationary_trend_test_to_marker = non_stationary_trend_test_to_marker
         self.relative_change_trend_plot = relative_change_trend_plot
         self.effective_temporal_covariate = effective_temporal_covariate
@@ -118,7 +120,12 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             quantile_level = self.massif_name_to_eurocode_quantile_level_in_practice[massif_name]
             non_stationary_trend_test = [
                 t(years=x, maxima=y, starting_year=starting_year, quantile_level=quantile_level)
-                for t in self.non_stationary_trend_test]
+                for t in self.non_stationary_trend_test]  # type: List[AbstractGevTrendTest]
+            # Set appropriate fit method for all objects (#todo: set this parameter directly in the init function)
+            if self.fit_method is not None:
+                for t in non_stationary_trend_test:
+                    t.fit_method = self.fit_method
+            # Extract
             trend_test_that_minimized_aic = sorted(non_stationary_trend_test, key=lambda t: t.aic)[0]
             massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
         return massif_name_to_trend_test_that_minimized_aic
@@ -131,7 +138,10 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     @cached_property
     def _max_abs_change(self):
-        return self.global_max_abs_change if self.global_max_abs_change is not None else self.max_abs_change
+        max_abs_change = self.global_max_abs_change if self.global_max_abs_change is not None else self.max_abs_change
+        if max_abs_change == 0:
+            max_abs_change = 1e-10
+        return max_abs_change
 
     def plot_trends(self, max_abs_tdrl=None,  add_colorbar=True):
         if max_abs_tdrl is not None:

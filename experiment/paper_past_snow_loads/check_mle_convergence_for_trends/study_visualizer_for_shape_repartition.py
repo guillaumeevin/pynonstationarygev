@@ -10,18 +10,8 @@ from experiment.trend_analysis.abstract_score import MeanScore
 
 class StudyVisualizerForShape(StudyVisualizerForNonStationaryTrends):
 
-    def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False,
-                 vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False,
-                 temporal_non_stationarity=False, transformation_class=None, verbose=False, multiprocessing=False,
-                 complete_non_stationary_trend_analysis=False, normalization_under_one_observations=True,
-                 score_class=MeanScore, uncertainty_methods=None, non_stationary_contexts=None,
-                 uncertainty_massif_names=None, effective_temporal_covariate=2017, relative_change_trend_plot=True):
-        super().__init__(study, show, save_to_file, only_one_graph, only_first_row, vertical_kde_plot,
-                         year_for_kde_plot, plot_block_maxima_quantiles, temporal_non_stationarity,
-                         transformation_class, verbose, multiprocessing, complete_non_stationary_trend_analysis,
-                         normalization_under_one_observations, score_class, uncertainty_methods,
-                         non_stationary_contexts, uncertainty_massif_names, effective_temporal_covariate,
-                         relative_change_trend_plot)
+    def __init__(self, study: AbstractStudy, **kwargs):
+        super().__init__(study, **kwargs)
 
     @cached_property
     def massif_name_to_unconstrained_shape_parameter(self):
