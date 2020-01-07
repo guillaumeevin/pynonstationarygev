@@ -8,6 +8,7 @@ from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import ci_method_to_color, \
     ci_method_to_label, ConfidenceIntervalMethodFromExtremes
+from root_utils import get_display_name_from_object_type
 
 
 def plot_uncertainty_histogram(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
@@ -16,15 +17,15 @@ def plot_uncertainty_histogram(altitude_to_visualizer: Dict[int, StudyVisualizer
     """
     altitude_to_visualizer = {a: v for a, v in altitude_to_visualizer.items() if a in EUROCODE_ALTITUDES}
     visualizer = list(altitude_to_visualizer.values())[0]
-    for non_stationary_context in visualizer.non_stationary_contexts:
-        plot_histogram(altitude_to_visualizer, non_stationary_context)
+    for model_subset_for_uncertainty in visualizer.model_subsets_for_uncertainty:
+        plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty)
 
 
-def plot_histogram(altitude_to_visualizer, non_stationary_context):
+def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
     """
     Plot a single graph for potentially several confidence interval method
     :param altitude_to_visualizer:
-    :param non_stationary_context:
+    :param model_subset_for_uncertainty:
     :return:
     """
     visualizers = list(altitude_to_visualizer.values())
@@ -39,7 +40,7 @@ def plot_histogram(altitude_to_visualizer, non_stationary_context):
             width = 100
         else:
             width = 200
-        plot_histogram_ci_method(visualizers, non_stationary_context, ci_method, ax, bincenters, width=width)
+        plot_histogram_ci_method(visualizers, model_subset_for_uncertainty, ci_method, ax, bincenters, width=width)
     fontsize_label = 15
     legend_size = 15
     ax.set_xticks(altitudes)
@@ -51,14 +52,14 @@ def plot_histogram(altitude_to_visualizer, non_stationary_context):
     ax.set_xlabel('Altitude (m)', fontsize=fontsize_label)
     ax.set_ylim([0, 100])
     ax.set_yticks([10 * i for i in range(11)])
-    visualizer.plot_name = 'Percentages of exceedance with non_stationary={}'.format(non_stationary_context)
+    visualizer.plot_name = 'Percentages of exceedance with {}'.format(get_display_name_from_object_type(model_subset_for_uncertainty))
     # visualizer.show = True
     visualizer.show_or_save_to_file(no_title=True, dpi=dpi_paper1_figure)
     ax.clear()
 
 
-def plot_histogram_ci_method(visualizers, non_stationary_context, ci_method, ax, bincenters, width):
-    three_percentages_of_excess = [v.three_percentages_of_excess(ci_method, non_stationary_context) for v in
+def plot_histogram_ci_method(visualizers, model_subset_for_uncertainty, ci_method, ax, bincenters, width):
+    three_percentages_of_excess = [v.three_percentages_of_excess(ci_method, model_subset_for_uncertainty) for v in
                                    visualizers]
     epsilon = 0.5
     three_percentages_of_excess = [(a, b, c) if a == b else (max(epsilon, a), b, c) for (a, b, c) in three_percentages_of_excess]

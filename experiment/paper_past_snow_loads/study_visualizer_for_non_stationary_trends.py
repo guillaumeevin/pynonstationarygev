@@ -1,9 +1,8 @@
 from collections import OrderedDict
+from multiprocessing.pool import Pool
+from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
-from multiprocessing.pool import Pool
-from typing import Dict, List
-
 import numpy as np
 from cached_property import cached_property
 
@@ -15,20 +14,18 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 from experiment.paper_past_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
     compute_gelman_convergence_value
+from experiment.paper_past_snow_loads.paper_utils import ModelSubsetForUncertainty
 from experiment.trend_analysis.abstract_score import MeanScore
 from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
-from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gev_trend_test_one_parameter import \
-    GevLocationTrendTest, GevScaleTrendTest
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
     GumbelLocationTrendTest, GevStationaryVersusGumbel, GumbelScaleTrendTest, GumbelVersusGumbel
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_three_parameters.gev_trend_test_three_parameters import \
     GevLocationAndScaleTrendTestAgainstGumbel
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters import \
-    GevLocationAndScaleTrendTest, GevLocationAgainstGumbel, GevScaleAgainstGumbel
+    GevLocationAgainstGumbel, GevScaleAgainstGumbel
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gumbel_test_two_parameters import \
     GumbelLocationAndScaleTrendTest
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
-    GumbelTemporalModel
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import GumbelTemporalModel
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
@@ -44,27 +41,30 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  complete_non_stationary_trend_analysis=False, normalization_under_one_observations=True,
                  score_class=MeanScore,
                  uncertainty_methods=None,
-                 non_stationary_contexts=None,
+                 model_subsets_for_uncertainty=None,
                  uncertainty_massif_names=None,
                  effective_temporal_covariate=2017,
                  relative_change_trend_plot=True,
                  non_stationary_trend_test_to_marker=None,
-                 fit_method=None):
+                 fit_method=None,
+                 select_only_acceptable_shape_parameter=False):
         super().__init__(study, show, save_to_file, only_one_graph, only_first_row, vertical_kde_plot,
                          year_for_kde_plot, plot_block_maxima_quantiles, temporal_non_stationarity,
                          transformation_class, verbose, multiprocessing, complete_non_stationary_trend_analysis,
                          normalization_under_one_observations, score_class)
         # Add some attributes
+        self.select_only_acceptable_shape_parameter = select_only_acceptable_shape_parameter
         self.fit_method = fit_method
         self.non_stationary_trend_test_to_marker = non_stationary_trend_test_to_marker
         self.relative_change_trend_plot = relative_change_trend_plot
         self.effective_temporal_covariate = effective_temporal_covariate
-        self.non_stationary_contexts = non_stationary_contexts
+        self.model_subsets_for_uncertainty = model_subsets_for_uncertainty
         self.uncertainty_methods = uncertainty_methods
         self.uncertainty_massif_names = uncertainty_massif_names
         # Assign some default arguments
-        if self.non_stationary_contexts is None:
-            self.non_stationary_contexts = [False, True][:1]
+        if self.model_subsets_for_uncertainty is None:
+            self.model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel, 
+                                                  ModelSubsetForUncertainty.non_stationary_gumbel_and_gev][:]
         if self.uncertainty_methods is None:
             self.uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
                                         ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
@@ -73,10 +73,11 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         if self.non_stationary_trend_test_to_marker is None:
             # Assign default argument for the non stationary trends
             self.non_stationary_trend_test = [GumbelVersusGumbel,
-                                              GumbelLocationTrendTest, GumbelScaleTrendTest, GumbelLocationAndScaleTrendTest,
+                                              GumbelLocationTrendTest, GumbelScaleTrendTest,
+                                              GumbelLocationAndScaleTrendTest,
                                               GevStationaryVersusGumbel,
-                                              GevLocationAgainstGumbel, GevScaleAgainstGumbel, GevLocationAndScaleTrendTestAgainstGumbel
-                                              ]
+                                              GevLocationAgainstGumbel, GevScaleAgainstGumbel,
+                                              GevLocationAndScaleTrendTestAgainstGumbel]
             self.non_stationary_trend_test_to_marker = {t: t.marker for t in self.non_stationary_trend_test}
         else:
             self.non_stationary_trend_test = list(self.non_stationary_trend_test_to_marker.keys())
@@ -112,20 +113,50 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             d[m] = (years[mask], maxima[mask])
         return d
 
+    @property
+    def massif_name_to_trend_test_that_minimized_aic(self) -> Dict[str, AbstractGevTrendTest]:
+        return self.massif_name_to_trend_test_tuple[0]
+
+    @property
+    def massif_name_to_stationary_trend_test_that_minimized_aic(self) -> Dict[str, AbstractGevTrendTest]:
+        return self.massif_name_to_trend_test_tuple[1]
+
+    @property
+    def massif_name_to_gumbel_trend_test_that_minimized_aic(self) -> Dict[str, AbstractGevTrendTest]:
+        return self.massif_name_to_trend_test_tuple[2]
+
     @cached_property
-    def massif_name_to_minimized_aic_non_stationary_trend_test(self) -> Dict[str, AbstractGevTrendTest]:
+    def massif_name_to_trend_test_tuple(self) -> Tuple[
+        Dict[str, AbstractGevTrendTest], Dict[str, AbstractGevTrendTest], Dict[str, AbstractGevTrendTest]]:
         starting_year = None
         massif_name_to_trend_test_that_minimized_aic = {}
+        massif_name_to_stationary_trend_test_that_minimized_aic = {}
+        massif_name_to_gumbel_trend_test_that_minimized_aic = {}
         for massif_name, (x, y) in self.massif_name_to_non_null_years_and_maxima.items():
             quantile_level = self.massif_name_to_eurocode_quantile_level_in_practice[massif_name]
-            non_stationary_trend_test = [
+            all_trend_test = [
                 t(years=x, maxima=y, starting_year=starting_year, quantile_level=quantile_level,
                   fit_method=self.fit_method)
                 for t in self.non_stationary_trend_test]  # type: List[AbstractGevTrendTest]
-            # Extract the model with minimized AIC
-            trend_test_that_minimized_aic = sorted(non_stationary_trend_test, key=lambda t: t.aic)[0]
+            # Exclude GEV models whose shape parameter is not in the support of the prior distribution for GMLE
+            if self.select_only_acceptable_shape_parameter:
+                acceptable_shape_parameter = lambda s: -0.5 <= s <= 0.5  # physically acceptable prior
+                all_trend_test = [t for t in all_trend_test
+                                  if acceptable_shape_parameter(t.unconstrained_estimator_gev_params.shape)]
+            sorted_trend_test = sorted(all_trend_test, key=lambda t: t.aic)
+            # Extract the stationary or non-stationary model that minimized AIC
+            trend_test_that_minimized_aic = sorted_trend_test[0]
             massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
-        return massif_name_to_trend_test_that_minimized_aic
+            # Extract the stationary model that minimized AIC
+            stationary_trend_test_that_minimized_aic = [t for t in sorted_trend_test if type(t) in
+                                                        [GumbelVersusGumbel, GevStationaryVersusGumbel]][0]
+            massif_name_to_stationary_trend_test_that_minimized_aic[massif_name] = stationary_trend_test_that_minimized_aic
+            # Extract the Gumbel model that minimized AIC
+            gumbel_trend_test_that_minimized_aic = [t for t in sorted_trend_test if type(t) in
+                                                    [GumbelVersusGumbel, GumbelLocationTrendTest, GumbelScaleTrendTest,
+                                                     GumbelLocationAndScaleTrendTest]][0]
+            massif_name_to_gumbel_trend_test_that_minimized_aic[massif_name] = gumbel_trend_test_that_minimized_aic
+        return massif_name_to_trend_test_that_minimized_aic, massif_name_to_stationary_trend_test_that_minimized_aic, massif_name_to_gumbel_trend_test_that_minimized_aic
 
     # Part 1 - Trends
 
@@ -140,7 +171,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             max_abs_change = 1e-10
         return max_abs_change
 
-    def plot_trends(self, max_abs_tdrl=None,  add_colorbar=True):
+    def plot_trends(self, max_abs_tdrl=None, add_colorbar=True):
         if max_abs_tdrl is not None:
             self.global_max_abs_change = max_abs_tdrl
         ax = self.study.visualize_study(massif_name_to_value=self.massif_name_to_change_value,
@@ -208,12 +239,12 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     @cached_property
     def massif_name_to_tdrl_value(self):
         return {m: t.time_derivative_of_return_level for m, t in
-                self.massif_name_to_minimized_aic_non_stationary_trend_test.items()}
+                self.massif_name_to_trend_test_that_minimized_aic.items()}
 
     @cached_property
     def massif_name_to_relative_change_value(self):
         return {m: t.relative_change_in_return_level(initial_year=self.initial_year, final_year=self.final_year)
-                for m, t in self.massif_name_to_minimized_aic_non_stationary_trend_test.items()}
+                for m, t in self.massif_name_to_trend_test_that_minimized_aic.items()}
 
     @property
     def initial_year(self):
@@ -242,7 +273,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     @cached_property
     def massif_name_to_marker_style(self):
         d = {}
-        for m, t in self.massif_name_to_minimized_aic_non_stationary_trend_test.items():
+        for m, t in self.massif_name_to_trend_test_that_minimized_aic.items():
             d[m] = {'marker': self.non_stationary_trend_test_to_marker[type(t)],
                     'color': 'k',
                     'markersize': 7,
@@ -251,22 +282,24 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     # Part 2 - Uncertainty return level plot
 
-    def massif_name_and_non_stationary_context_to_model_class(self, massif_name, non_stationary_context):
-        if not non_stationary_context:
+    def massif_name_and_model_subset_to_model_class(self, massif_name, model_subset_for_uncertainty):
+        if model_subset_for_uncertainty is ModelSubsetForUncertainty.stationary_gumbel:
             return GumbelTemporalModel
+        elif model_subset_for_uncertainty is ModelSubsetForUncertainty.stationary_gumbel_and_gev:
+            return self.massif_name_to_stationary_trend_test_that_minimized_aic[massif_name].unconstrained_model_class
+        elif model_subset_for_uncertainty is ModelSubsetForUncertainty.non_stationary_gumbel:
+            return self.massif_name_to_gumbel_trend_test_that_minimized_aic[massif_name].unconstrained_model_class
+        elif model_subset_for_uncertainty is ModelSubsetForUncertainty.non_stationary_gumbel_and_gev:
+            return self.massif_name_to_trend_test_that_minimized_aic[massif_name].unconstrained_model_class
         else:
-            return self.massif_name_to_minimized_aic_non_stationary_trend_test[massif_name].unconstrained_model_class
+            raise ValueError(model_subset_for_uncertainty)
 
-    @property
-    def nb_contexts(self):
-        return len(self.non_stationary_contexts)
-
-    def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method, non_stationary_context) \
+    def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method, model_subset_for_uncertainty) \
             -> Dict[str, EurocodeConfidenceIntervalFromExtremes]:
         # Compute for the uncertainty massif names
         arguments = [
             [self.massif_name_to_non_null_years_and_maxima[m],
-             self.massif_name_and_non_stationary_context_to_model_class(m, non_stationary_context),
+             self.massif_name_and_model_subset_to_model_class(m, model_subset_for_uncertainty),
              ci_method, self.effective_temporal_covariate,
              self.massif_name_to_eurocode_quantile_level_in_practice[m]
              ] for m in self.uncertainty_massif_names]
@@ -287,13 +320,12 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     @cached_property
     def triplet_to_eurocode_uncertainty(self):
-        # -> Dict[(str, bool, str), EurocodeConfidenceIntervalFromExtremes]
         d = {}
         for ci_method in self.uncertainty_methods:
-            for non_stationary_uncertainty in self.non_stationary_contexts:
+            for model_subset_for_uncertainty in self.model_subsets_for_uncertainty:
                 for massif_name, eurocode_uncertainty in self.all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(
-                        ci_method, non_stationary_uncertainty).items():
-                    d[(ci_method, non_stationary_uncertainty, massif_name)] = eurocode_uncertainty
+                        ci_method, model_subset_for_uncertainty).items():
+                    d[(ci_method, model_subset_for_uncertainty, massif_name)] = eurocode_uncertainty
         return d
 
     def model_name_to_uncertainty_method_to_ratio_above_eurocode(self):
@@ -319,18 +351,13 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         return {m: r().valeur_caracteristique(altitude=self.study.altitude)
                 for m, r in massif_name_to_eurocode_region.items() if m in self.uncertainty_massif_names}
 
-    def three_percentages_of_excess(self, ci_method, non_stationary_context):
+    def three_percentages_of_excess(self, ci_method, model_subset_for_uncertainty):
         eurocode_and_uncertainties = [(self.massif_name_to_eurocode_values[massif_name],
                                        self.triplet_to_eurocode_uncertainty[
-                                           (ci_method, non_stationary_context, massif_name)])
+                                           (ci_method, model_subset_for_uncertainty, massif_name)])
                                       for massif_name in self.uncertainty_massif_names]
         a = np.array([(uncertainty.confidence_interval[0] > eurocode,
                        uncertainty.mean_estimate > eurocode,
                        uncertainty.confidence_interval[1] > eurocode)
                       for eurocode, uncertainty in eurocode_and_uncertainties])
         return 100 * np.mean(a, axis=0)
-
-
-
-
-

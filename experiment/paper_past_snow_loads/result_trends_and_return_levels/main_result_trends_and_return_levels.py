@@ -5,7 +5,7 @@ import matplotlib as mpl
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoadEurocode, \
     CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days
 from experiment.paper_past_snow_loads.paper_main_utils import load_altitude_to_visualizer
-from experiment.paper_past_snow_loads.paper_utils import paper_study_classes, paper_altitudes
+from experiment.paper_past_snow_loads.paper_utils import paper_study_classes, paper_altitudes, ModelSubsetForUncertainty
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.plot_uncertainty_curves import \
     plot_uncertainty_massifs
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.plot_uncertainty_histogram import \
@@ -30,12 +30,12 @@ def minor_result(altitude):
 
 
 def compute_minimized_aic(visualizer):
-    _ = visualizer.massif_name_to_minimized_aic_non_stationary_trend_test
+    _ = visualizer.massif_name_to_trend_test_that_minimized_aic
     return True
 
 
 def intermediate_result(altitudes, massif_names=None,
-                        non_stationary_uncertainty=None, uncertainty_methods=None,
+                        model_subsets_for_uncertainty=None, uncertainty_methods=None,
                         study_class=CrocusSnowLoadTotal,
                         multiprocessing=False):
     """
@@ -49,7 +49,7 @@ def intermediate_result(altitudes, massif_names=None,
     :return:
     """
     # Load altitude to visualizer
-    altitude_to_visualizer = load_altitude_to_visualizer(altitudes, massif_names, non_stationary_uncertainty,
+    altitude_to_visualizer = load_altitude_to_visualizer(altitudes, massif_names, model_subsets_for_uncertainty,
                                                          study_class, uncertainty_methods)
     # Load variable object efficiently
     for v in altitude_to_visualizer.values():
@@ -83,23 +83,25 @@ def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
                            ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
     massif_names = None
-    study_classes = paper_study_classes[:1]
+    study_classes = paper_study_classes[:2]
+    model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel,
+                                     ModelSubsetForUncertainty.stationary_gumbel_and_gev,
+                                     ModelSubsetForUncertainty.non_stationary_gumbel,
+                                     ModelSubsetForUncertainty.non_stationary_gumbel_and_gev]
+    # model_subsets_for_uncertainty = None
     # study_classes = [CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][::-1]
     for study_class in study_classes:
-        if study_class == CrocusSnowLoadEurocode:
-            non_stationary_uncertainty = [False]
-        else:
-            non_stationary_uncertainty = [False, True][:]
-        intermediate_result(paper_altitudes, massif_names, non_stationary_uncertainty, uncertainty_methods, study_class)
+        intermediate_result(paper_altitudes, massif_names, model_subsets_for_uncertainty,
+                            uncertainty_methods, study_class)
 
 
 if __name__ == '__main__':
-    # major_result()
-    intermediate_result(altitudes=[900, 1200], massif_names=['Vercors'],
-                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
-                                             ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
-                        non_stationary_uncertainty=[False, True][1:],
-                        multiprocessing=True)
+    major_result()
+    # intermediate_result(altitudes=[900, 1200], massif_names=['Vercors'],
+    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
+    #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
+    #                     non_stationary_uncertainty=[False, True][1:],
+    #                     multiprocessing=True)
     # intermediate_result(altitudes=[900, 1200], massif_names=['Maurienne'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
