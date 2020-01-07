@@ -9,7 +9,7 @@ from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear
 def load_altitude_to_visualizer(altitudes, massif_names, non_stationary_uncertainty, study_class, uncertainty_methods,
                                 study_visualizer_class=StudyVisualizerForNonStationaryTrends,
                                 save_to_file=True):
-    fit_method = TemporalMarginFitMethod.extremes_fevd_gmle
+    fit_method = TemporalMarginFitMethod.extremes_fevd_mle
     altitude_to_visualizer = OrderedDict()
     for altitude in altitudes:
         altitude_to_visualizer[altitude] = study_visualizer_class(

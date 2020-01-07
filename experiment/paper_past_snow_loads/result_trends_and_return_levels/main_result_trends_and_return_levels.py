@@ -94,12 +94,12 @@ def major_result():
 
 
 if __name__ == '__main__':
-    major_result()
-    # intermediate_result(altitudes=[900, 1200], massif_names=['Vercors'],
-    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
-    #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
-    #                     non_stationary_uncertainty=[False, True][1:],
-    #                     multiprocessing=True)
+    # major_result()
+    intermediate_result(altitudes=[900, 1200], massif_names=['Vercors'],
+                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
+                                             ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
+                        non_stationary_uncertainty=[False, True][1:],
+                        multiprocessing=True)
     # intermediate_result(altitudes=[900, 1200], massif_names=['Maurienne'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],

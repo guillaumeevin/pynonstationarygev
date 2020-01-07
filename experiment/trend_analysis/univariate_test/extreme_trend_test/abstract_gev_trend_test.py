@@ -25,12 +25,12 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     def __init__(self, years, maxima, starting_year, unconstrained_model_class,
                  constrained_model_class=StationaryTemporalModel,
                  quantile_level=EUROCODE_QUANTILE,
-                 ):
+                 fit_method=TemporalMarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year)
-        self.quantile_level = quantile_level
         self.unconstrained_model_class = unconstrained_model_class
         self.constrained_model_class = constrained_model_class
-        self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
+        self.quantile_level = quantile_level
+        self.fit_method = fit_method
         # Load observations, coordinates and datasets
         self.coordinates, self.dataset = load_temporal_coordinates_and_dataset(maxima, years)
         # By default crashed boolean is False

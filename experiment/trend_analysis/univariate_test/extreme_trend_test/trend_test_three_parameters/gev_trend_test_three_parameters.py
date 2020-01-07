@@ -1,6 +1,8 @@
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters import \
     GevLocationAndScaleTrendTest
+from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
+    TemporalMarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE
 from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
@@ -20,11 +22,12 @@ class GevTrendTestThreeParameters(AbstractGevTrendTest):
 
 class GevLocationAndScaleTrendTestAgainstGumbel(GevTrendTestThreeParameters):
 
-    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE):
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, fit_method=TemporalMarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year,
                          unconstrained_model_class=NonStationaryLocationAndScaleTemporalModel,
                          constrained_model_class=GumbelTemporalModel,
-                         quantile_level=quantile_level)
+                         quantile_level=quantile_level,
+                         fit_method=fit_method)
 
     @property
     def mu1(self):

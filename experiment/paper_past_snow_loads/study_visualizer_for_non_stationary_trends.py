@@ -119,13 +119,10 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         for massif_name, (x, y) in self.massif_name_to_non_null_years_and_maxima.items():
             quantile_level = self.massif_name_to_eurocode_quantile_level_in_practice[massif_name]
             non_stationary_trend_test = [
-                t(years=x, maxima=y, starting_year=starting_year, quantile_level=quantile_level)
+                t(years=x, maxima=y, starting_year=starting_year, quantile_level=quantile_level,
+                  fit_method=self.fit_method)
                 for t in self.non_stationary_trend_test]  # type: List[AbstractGevTrendTest]
-            # Set appropriate fit method for all objects (#todo: set this parameter directly in the init function)
-            if self.fit_method is not None:
-                for t in non_stationary_trend_test:
-                    t.fit_method = self.fit_method
-            # Extract
+            # Extract the model with minimized AIC
             trend_test_that_minimized_aic = sorted(non_stationary_trend_test, key=lambda t: t.aic)[0]
             massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
         return massif_name_to_trend_test_that_minimized_aic
