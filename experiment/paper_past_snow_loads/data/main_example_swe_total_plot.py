@@ -7,6 +7,12 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure
 
+marker_altitude_massif_name_for_paper1 = [
+    ('magenta', 900, 'Ubaye'),
+    ('darkmagenta', 1800, 'Vercors'),
+    ('mediumpurple', 2700, 'Beaufortain'),
+]
+
 
 def max_graph_annual_maxima_poster():
     """
@@ -16,15 +22,11 @@ def max_graph_annual_maxima_poster():
     """
     save_to_file = True
     study_class = CrocusSnowLoadTotal
-    marker_altitude_massif_name = [
-        ('magenta', 900, 'Ubaye'),
-        ('darkmagenta', 1800, 'Vercors'),
-        ('mediumpurple', 2700, 'Beaufortain'),
-    ]
+
     ax = plt.gca()
     ax.set_ylim([0, 20])
     ax.set_yticks(list(range(0, 21, 2)))
-    for color, altitude, massif_name in marker_altitude_massif_name:
+    for color, altitude, massif_name in marker_altitude_massif_name_for_paper1:
         for study in study_iterator_global([study_class], altitudes=[altitude]):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                                verbose=True,

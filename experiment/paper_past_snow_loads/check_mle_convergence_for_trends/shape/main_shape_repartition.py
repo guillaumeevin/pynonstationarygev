@@ -1,5 +1,5 @@
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
-from experiment.paper_past_snow_loads.check_mle_convergence_for_trends.study_visualizer_for_shape_repartition import \
+from experiment.paper_past_snow_loads.check_mle_convergence_for_trends.shape.study_visualizer_for_shape_repartition import \
     StudyVisualizerForShape
 from experiment.paper_past_snow_loads.paper_main_utils import load_altitude_to_visualizer
 

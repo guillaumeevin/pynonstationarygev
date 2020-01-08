@@ -123,3 +123,11 @@ class GevParams(AbstractParams):
             cls.SCALE: 'sigma',
             cls.SHAPE: 'zeta',
         }[gev_param_name]
+
+    def gumbel_standardization(self, x):
+        x -= self.location
+        x /= self.scale
+        if self.shape == 0:
+            return x
+        else:
+            return np.log(1 + self.shape * x) / self.shape

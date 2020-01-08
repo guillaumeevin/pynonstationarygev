@@ -25,14 +25,16 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
     """Linearity only with respect to the temporal coordinates"""
 
     def __init__(self, coordinates: AbstractCoordinates, use_start_value=False, params_start_fit=None,
-                 params_sample=None, starting_point=None, fit_method=TemporalMarginFitMethod.is_mev_gev_fit,
-                 nb_iterations_for_bayesian_fit=5000, params_start_fit_bayesian=None,
+                 params_sample=None, starting_point=None,
+                 fit_method=TemporalMarginFitMethod.is_mev_gev_fit,
+                 nb_iterations_for_bayesian_fit=5000,
+                 params_start_fit_bayesian=None,
                  type_for_MLE="GEV"):
         super().__init__(coordinates, use_start_value, params_start_fit, params_sample, starting_point)
         self.type_for_mle = type_for_MLE
         self.params_start_fit_bayesian = params_start_fit_bayesian
         self.nb_iterations_for_bayesian_fit = nb_iterations_for_bayesian_fit
-        assert isinstance(fit_method, TemporalMarginFitMethod)
+        assert isinstance(fit_method, TemporalMarginFitMethod), fit_method
         self.fit_method = fit_method
 
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,

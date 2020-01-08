@@ -25,6 +25,8 @@ from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two
     GevLocationAgainstGumbel, GevScaleAgainstGumbel
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gumbel_test_two_parameters import \
     GumbelLocationAndScaleTrendTest
+from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
+    TemporalMarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import GumbelTemporalModel
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
@@ -46,7 +48,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  effective_temporal_covariate=2017,
                  relative_change_trend_plot=True,
                  non_stationary_trend_test_to_marker=None,
-                 fit_method=None,
+                 fit_method=TemporalMarginFitMethod.extremes_fevd_mle,
                  select_only_acceptable_shape_parameter=False):
         super().__init__(study, show, save_to_file, only_one_graph, only_first_row, vertical_kde_plot,
                          year_for_kde_plot, plot_block_maxima_quantiles, temporal_non_stationarity,
@@ -218,7 +220,9 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     @property
     def label_tdrl_bar(self):
-        return 'Change in {} years'.format(AbstractGevTrendTest.nb_years_for_quantile_evolution)
+        nb_years = AbstractGevTrendTest.nb_years_for_quantile_evolution
+        suffix = 'per decade' if nb_years == 10 else 'in {} years'.format(nb_years)
+        return 'Change {}'.format(suffix)
 
     @property
     def ticks_values_and_labels(self):
@@ -361,3 +365,12 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                        uncertainty.confidence_interval[1] > eurocode)
                       for eurocode, uncertainty in eurocode_and_uncertainties])
         return 100 * np.mean(a, axis=0)
+
+    # Part 3 - Zeros
+
+    # Part 4 - QQPLOT
+
+    def qqplot(self, massif_name, color=None):
+        trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]
+        marker = self.massif_name_to_marker_style[massif_name]
+        trend_test.qqplot_wrt_standard_gumbel(marker, color)

@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
 from cached_property import cached_property
 from scipy.stats import chi2
@@ -161,8 +162,9 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     def relative_change_in_return_level(self, initial_year, final_year):
         return_level_values = []
         for year in [initial_year, final_year]:
-            gev_params = self.unconstrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([year]),
-                                                                                            is_transformed=False)
+            gev_params = self.unconstrained_estimator.margin_function_from_fit.get_gev_params(
+                coordinate=np.array([year]),
+                is_transformed=False)
             return_level_values.append(gev_params.quantile(self.quantile_level))
         change_until_final_year = self.time_derivative_times_years(nb_years=final_year - initial_year)
         change_in_between = (return_level_values[1] - return_level_values[0])
@@ -204,3 +206,27 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     @classproperty
     def label(self):
         return '\\mathcal{M}_{%s}'
+
+    # Some display function
+
+    def qqplot_wrt_standard_gumbel(self, marker, color=None):
+        # Standard Gumbel quantiles
+        standard_gumbel_distribution = GevParams(loc=0, scale=1, shape=0)
+        n = len(self.years)
+        standard_gumbel_quantiles = [standard_gumbel_distribution.quantile(i / (n + 1)) for i in range(1, n + 1)]
+        unconstrained_empirical_quantiles = self.compute_empirical_quantiles(self.unconstrained_estimator)
+        constrained_empirical_quantiles = self.compute_empirical_quantiles(self.constrained_estimator)
+        plt.plot(standard_gumbel_quantiles, standard_gumbel_quantiles, color=color)
+        plt.plot(standard_gumbel_quantiles, constrained_empirical_quantiles, 'x')
+        plt.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None', **marker)
+        plt.show()
+
+    def compute_empirical_quantiles(self, estimator):
+        empirical_quantiles = []
+        for year, maximum in sorted(zip(self.years, self.maxima), key=lambda t: t[1]):
+            gev_param = estimator.margin_function_from_fit.get_gev_params(
+                coordinate=np.array([year]),
+                is_transformed=False)
+            maximum_standardized = gev_param.gumbel_standardization(maximum)
+            empirical_quantiles.append(maximum_standardized)
+        return empirical_quantiles
