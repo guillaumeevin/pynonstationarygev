@@ -7,12 +7,6 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure
 
-marker_altitude_massif_name_for_paper1 = [
-    ('magenta', 900, 'Ubaye'),
-    ('darkmagenta', 1800, 'Vercors'),
-    ('mediumpurple', 2700, 'Beaufortain'),
-]
-
 
 def max_graph_annual_maxima_poster():
     """
@@ -22,17 +16,31 @@ def max_graph_annual_maxima_poster():
     """
     save_to_file = True
     study_class = CrocusSnowLoadTotal
+    examples_for_the_paper = True
 
     ax = plt.gca()
-    ax.set_ylim([0, 20])
-    ax.set_yticks(list(range(0, 21, 2)))
-    for color, altitude, massif_name in marker_altitude_massif_name_for_paper1:
+
+    if examples_for_the_paper:
+        ax.set_ylim([0, 20])
+        ax.set_yticks(list(range(0, 21, 2)))
+        marker_altitude_massif_name_for_paper1 = [
+            ('magenta', 900, 'Ubaye'),
+            ('darkmagenta', 1800, 'Vercors'),
+            ('mediumpurple', 2700, 'Beaufortain'),
+        ]
+    else:
+        marker_altitude_massif_name_for_paper1 = [
+            ('yellow', 600, 'Ubaye'),
+            ('purple', 600, 'Parpaillon'),
+        ]
+
+    for color, altitude, massif_name in marker_altitude_massif_name_for_paper1[::-1]:
         for study in study_iterator_global([study_class], altitudes=[altitude]):
             study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
                                                verbose=True,
                                                multiprocessing=True)
             snow_abbreviation = SCM_STUDY_CLASS_TO_ABBREVIATION[study_class]
-            last_plot = altitude == 2700
+            last_plot = massif_name == "Ubaye"
             label = '{} massif at {}m'.format(massif_name, altitude)
             tight_pad = {'h_pad': 0.2}
             study_visualizer.visualize_max_graphs_poster(massif_name, altitude, snow_abbreviation, color, label,

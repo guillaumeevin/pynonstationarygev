@@ -203,4 +203,7 @@ def plot_valid_return_level_uncertainties(alpha, altitude_to_visualizer, altitud
     confidence_interval_str += '\% confidence interval'
     ax.fill_between(valid_altitudes, lower_bound, upper_bound, color=color, alpha=alpha,
                     label=label_name + confidence_interval_str)
+    # Plot error bars
+    yerr = np.array([[d[1] - d[0], d[2] - d[1]] for d in zip(lower_bound, mean, upper_bound)]).transpose()
+    ax.bar(valid_altitudes, mean,  ecolor='black', capsize=5, yerr=yerr)
     return valid_altitudes

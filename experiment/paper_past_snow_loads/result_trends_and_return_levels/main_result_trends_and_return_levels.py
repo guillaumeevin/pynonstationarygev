@@ -63,15 +63,17 @@ def intermediate_result(altitudes, massif_names=None,
         for visualizer in visualizers:
             _ = compute_minimized_aic(visualizer)
     # Compute common max value for the colorbar
-    altitudes_for_plot_trend = [900, 1800, 2700]
-    altitudes_for_plot_trend = altitudes
-    visualizers_for_altitudes = [visualizer
-                                 for altitude, visualizer in altitude_to_visualizer.items()
-                                 if altitude in altitudes_for_plot_trend]
-    max_abs_tdrl = max([visualizer.max_abs_change for visualizer in visualizers_for_altitudes])
-    for visualizer in visualizers_for_altitudes:
-        # visualizer.plot_trends(max_abs_tdrl, add_colorbar=visualizer.study.altitude == 2700)
-        visualizer.plot_trends(None, add_colorbar=True)
+    max_abs_tdrl = max([visualizer.max_abs_change for altitude, visualizer in altitude_to_visualizer.items()
+                        if altitude >= 900])
+    for altitude, visualizer in altitude_to_visualizer.items():
+        if 900 <= altitude <= 4200:
+            add_color = (visualizer.study.altitude - 1500) % 900 == 0
+            visualizer.plot_trends(max_abs_tdrl, add_colorbar=add_color)
+            # Plot 2700 also with a colorbar
+            if altitude == 2700:
+                visualizer.plot_trends(max_abs_tdrl, add_colorbar=True)
+        else:
+            visualizer.plot_trends(None, add_colorbar=True)
 
     # Plot graph
     plot_uncertainty_massifs(altitude_to_visualizer)
@@ -84,11 +86,11 @@ def major_result():
                            ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
     massif_names = None
     study_classes = paper_study_classes[:2]
-    model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel,
-                                     ModelSubsetForUncertainty.stationary_gumbel_and_gev,
-                                     ModelSubsetForUncertainty.non_stationary_gumbel,
-                                     ModelSubsetForUncertainty.non_stationary_gumbel_and_gev]
-    # model_subsets_for_uncertainty = None
+    # model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel,
+    #                                  ModelSubsetForUncertainty.stationary_gumbel_and_gev,
+    #                                  ModelSubsetForUncertainty.non_stationary_gumbel,
+    #                                  ModelSubsetForUncertainty.non_stationary_gumbel_and_gev]
+    model_subsets_for_uncertainty = None
     # study_classes = [CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][::-1]
     for study_class in study_classes:
         intermediate_result(paper_altitudes, massif_names, model_subsets_for_uncertainty,
@@ -100,7 +102,6 @@ if __name__ == '__main__':
     # intermediate_result(altitudes=[900, 1200], massif_names=['Vercors'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
-    #                     non_stationary_uncertainty=[False, True][1:],
     #                     multiprocessing=True)
     # intermediate_result(altitudes=[900, 1200], massif_names=['Maurienne'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,

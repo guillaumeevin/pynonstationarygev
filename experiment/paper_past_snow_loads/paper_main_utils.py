@@ -13,7 +13,8 @@ def load_altitude_to_visualizer(altitudes, massif_names, model_subsets_for_uncer
                                 save_to_file=True):
     fit_method = TemporalMarginFitMethod.extremes_fevd_mle
     select_only_acceptable_shape_parameter = True
-    print('Fit method: {}, Select shape parameter: {}'.format(fit_method, select_only_acceptable_shape_parameter))
+    print('Fit method: {}, Select only acceptable shape parameter: {}'
+          .format(fit_method, select_only_acceptable_shape_parameter))
     altitude_to_visualizer = OrderedDict()
     for altitude in altitudes:
         altitude_to_visualizer[altitude] = study_visualizer_class(

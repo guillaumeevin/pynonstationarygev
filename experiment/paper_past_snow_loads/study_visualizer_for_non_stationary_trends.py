@@ -190,7 +190,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         ax.get_xaxis().set_visible(True)
         ax.set_xticks([])
         ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=15)
-        self.plot_name = 'tdlr_trends'
+        self.plot_name = 'tdlr_trends_w' + 'o' if not add_colorbar else '' + '_colorbar'
         self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True,
                                   dpi=500)
         plt.close()
