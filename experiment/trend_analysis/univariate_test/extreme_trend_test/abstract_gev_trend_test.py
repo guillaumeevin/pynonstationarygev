@@ -217,8 +217,12 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         unconstrained_empirical_quantiles = self.compute_empirical_quantiles(self.unconstrained_estimator)
         constrained_empirical_quantiles = self.compute_empirical_quantiles(self.constrained_estimator)
         plt.plot(standard_gumbel_quantiles, standard_gumbel_quantiles, color=color)
-        plt.plot(standard_gumbel_quantiles, constrained_empirical_quantiles, 'x')
-        plt.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None', **marker)
+        plt.plot(standard_gumbel_quantiles, constrained_empirical_quantiles, 'x', label='Gumbel model')
+        plt.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
+                 label='Selected model', **marker)
+        plt.xlabel("Standard Gumbel quantiles")
+        plt.ylabel("Empirical quantiles")
+        plt.legend()
         plt.show()
 
     def compute_empirical_quantiles(self, estimator):
