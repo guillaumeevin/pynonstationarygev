@@ -131,3 +131,21 @@ class GevParams(AbstractParams):
             return x
         else:
             return np.log(1 + self.shape * x) / self.shape
+
+    @property
+    def bound(self):
+        return self.location - (self.scale / self.shape)
+
+    @property
+    def density_upper_bound(self):
+        if self.shape >= 0:
+            return np.inf
+        else:
+            return self.bound
+
+    @property
+    def density_lower_bound(self):
+        if self.shape <= 0:
+            return np.inf
+        else:
+            return self.bound
