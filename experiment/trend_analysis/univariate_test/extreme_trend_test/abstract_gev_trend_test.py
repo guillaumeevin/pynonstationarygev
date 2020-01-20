@@ -210,6 +210,7 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     # Some display function
 
     def qqplot_wrt_standard_gumbel(self, marker, color=None):
+        size = 20
         # Standard Gumbel quantiles
         standard_gumbel_distribution = GevParams(loc=0, scale=1, shape=0)
         n = len(self.years)
@@ -220,9 +221,9 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         plt.plot(standard_gumbel_quantiles, constrained_empirical_quantiles, 'x', label='Gumbel model')
         plt.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
                  label='Selected model', **marker)
-        plt.xlabel("Standard Gumbel quantiles")
-        plt.ylabel("Empirical quantiles")
-        plt.legend()
+        plt.xlabel("Standard Gumbel quantiles", fontsize=15)
+        plt.ylabel("Empirical quantiles", fontsize=15)
+        plt.legend(loc='upper left', prop={'size': size})
         plt.show()
 
     def compute_empirical_quantiles(self, estimator):

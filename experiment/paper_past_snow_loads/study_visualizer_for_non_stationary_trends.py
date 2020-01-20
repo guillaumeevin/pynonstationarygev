@@ -9,6 +9,7 @@ from cached_property import cached_property
 from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE, EUROCODE_RETURN_LEVEL_STR
 from experiment.meteo_france_data.plot.create_shifted_cmap import get_shifted_map, get_colors
+from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
@@ -190,7 +191,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         ax.get_xaxis().set_visible(True)
         ax.set_xticks([])
         ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=15)
-        self.plot_name = 'tdlr_trends_w' + 'o' if not add_colorbar else '' + '_colorbar'
+        middle_word = 'o' if (not add_colorbar and self.study.altitude == 2700) else ''
+        self.plot_name = 'tdlr_trends_w' + middle_word + '_colorbar'
         self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True,
                                   dpi=500)
         plt.close()
@@ -366,11 +368,29 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                       for eurocode, uncertainty in eurocode_and_uncertainties])
         return 100 * np.mean(a, axis=0)
 
-    # Part 3 - Zeros
-
-    # Part 4 - QQPLOT
+    # Part 3 - QQPLOT
 
     def qqplot(self, massif_name, color=None):
         trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]
         marker = self.massif_name_to_marker_style[massif_name]
         trend_test.qqplot_wrt_standard_gumbel(marker, color)
+
+    # Part 4 - Trend plot
+
+    @property
+    def altitude(self):
+        return self.study.altitude
+
+    def trend_summary_labels(self):
+        return 'altitude', ''
+
+    def trend_summary_values(self):
+        trend_tests = list(self.massif_name_to_trend_test_that_minimized_aic.values())
+        decreasing_trend_tests = [t for t in trend_tests if t.time_derivative_of_return_level < 0]
+        percentage_decrease = 100 * len(decreasing_trend_tests) / len(trend_tests)
+        significative_decrease_trend_tests = [t for t in decreasing_trend_tests if t.is_significant]
+        percentage_decrease_significative = 100 * len(significative_decrease_trend_tests) / len(trend_tests)
+        massif_name_to_region_name =  AbstractExtendedStudy.massif_name_to_region_name
+        mean_relative = np.mean(np.array(list(self.massif_name_to_relative_change_value.values())))
+
+        return self.altitude, percentage_decrease, percentage_decrease_significative

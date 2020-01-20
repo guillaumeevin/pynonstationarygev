@@ -8,21 +8,11 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure
 
 
-def max_graph_annual_maxima_poster():
-    """
-    We choose these massif because each represents a different eurocode region
-    we also choose them because they belong to a different climatic area
-    :return:
-    """
-    save_to_file = True
-    study_class = CrocusSnowLoadTotal
-    examples_for_the_paper = True
 
-    ax = plt.gca()
 
+def tuples_for_examples_paper1(examples_for_the_paper=True):
     if examples_for_the_paper:
-        ax.set_ylim([0, 20])
-        ax.set_yticks(list(range(0, 21, 2)))
+
         marker_altitude_massif_name_for_paper1 = [
             ('magenta', 900, 'Ubaye'),
             ('darkmagenta', 1800, 'Vercors'),
@@ -33,6 +23,26 @@ def max_graph_annual_maxima_poster():
             ('yellow', 600, 'Ubaye'),
             ('purple', 600, 'Parpaillon'),
         ]
+    return marker_altitude_massif_name_for_paper1
+
+tuples_for_examples_paper1()
+
+def max_graph_annual_maxima_poster():
+    """
+    We choose these massif because each represents a different eurocode region
+    we also choose them because they belong to a different climatic area
+    :return:
+    """
+    save_to_file = True
+    study_class = CrocusSnowLoadTotal
+
+    examples_for_the_paper = True
+
+    ax = plt.gca()
+    ax.set_ylim([0, 20])
+    ax.set_yticks(list(range(0, 21, 2)))
+
+    marker_altitude_massif_name_for_paper1 = tuples_for_examples_paper1(examples_for_the_paper)
 
     for color, altitude, massif_name in marker_altitude_massif_name_for_paper1[::-1]:
         for study in study_iterator_global([study_class], altitudes=[altitude]):

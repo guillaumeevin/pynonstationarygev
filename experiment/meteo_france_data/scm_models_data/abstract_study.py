@@ -39,6 +39,7 @@ f = io.StringIO()
 with redirect_stdout(f):
     from simpledbf import Dbf5
 
+filled_marker_legend_list = ['Filled marker =', 'Selected model is significant', 'w.r.t $\mathcal{M}_0$']
 
 class AbstractStudy(object):
     """
@@ -116,6 +117,33 @@ class AbstractStudy(object):
         for year, time_serie in self._year_to_max_daily_time_serie.items():
             year_to_annual_maxima[year] = time_serie.max(axis=0)
         return year_to_annual_maxima
+
+    @cached_property
+    def year_to_winter_annual_maxima(self) -> OrderedDict:
+        # Map each year to an array of size nb_massif
+        year_to_annual_maxima = OrderedDict()
+        for year, time_serie in self._year_to_max_daily_time_serie.items():
+            year_to_annual_maxima[year] = time_serie[91:-61].max(axis=0)
+        return year_to_annual_maxima
+
+    @property
+    def observations_winter_annual_maxima(self) -> AnnualMaxima:
+        return AnnualMaxima(df_maxima_gev=pd.DataFrame(self.year_to_winter_annual_maxima, index=self.study_massif_names))
+
+    @cached_property
+    def year_to_summer_annual_maxima(self) -> OrderedDict:
+        # Map each year to an array of size nb_massif
+        year_to_annual_maxima = OrderedDict()
+        for year, time_serie in self._year_to_max_daily_time_serie.items():
+            annual_maxima = np.concatenate((time_serie[:91], time_serie[-61:]), axis=0).max(axis=0)
+            print(annual_maxima)
+            year_to_annual_maxima[year] = annual_maxima
+        return year_to_annual_maxima
+
+
+    @property
+    def observations_summer_annual_maxima(self) -> AnnualMaxima:
+        return AnnualMaxima(df_maxima_gev=pd.DataFrame(self.year_to_summer_annual_maxima, index=self.study_massif_names))
 
     @cached_property
     def year_to_annual_maxima_index(self) -> OrderedDict:
@@ -298,7 +326,7 @@ class AbstractStudy(object):
     @classmethod
     def visualize_study(cls, ax=None, massif_name_to_value: Union[None, Dict[str, float]] = None,
                         show=True, fill=True,
-                        replace_blue_by_white=True,
+                        replace_blue_by_white=False,
                         label=None, add_text=False, cmap=None, add_colorbar=False, vmax=100, vmin=0,
                         default_color_for_missing_massif='gainsboro',
                         default_color_for_nan_values='w',
@@ -406,7 +434,7 @@ class AbstractStudy(object):
             legend_elements = cls.get_legend_for_model_symbol(marker_style_to_label_name, markersize=8)
             ax.legend(handles=legend_elements[:], loc='upper right')
             # ax.legend(handles=legend_elements[4:], bbox_to_anchor=(0.01, 0.03), loc='lower left')
-            ax.annotate("Filled symbol = significant trend w.r.t $\mathcal{M}_0$",
+            ax.annotate(' '.join(filled_marker_legend_list),
                         xy=(0.05, 0.015), xycoords='axes fraction', fontsize=7)
 
         if show:

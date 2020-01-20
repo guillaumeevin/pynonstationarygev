@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES
-from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy, filled_marker_legend_list
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION
 from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure, ModelSubsetForUncertainty
@@ -41,12 +41,8 @@ def plot_subgroup_uncertainty_massifs(altitude_to_visualizer: Dict[int, StudyVis
     """Create a plot with a maximum of 4 massif names
     We will save the plot at this level
     """
-    visualizer = list(altitude_to_visualizer.values())[0]
     nb_massif_names = len(massif_names)
     assert nb_massif_names <= 5
-    # axes = create_adjusted_axes(nb_massif_names, visualizer.nb_contexts)
-    # if nb_massif_names == 1:
-    #     axes = [axes]
     for massif_name in massif_names:
         plot_single_uncertainty_massif(altitude_to_visualizer, massif_name)
 
@@ -120,8 +116,15 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, m
     ax.legend(loc=2, prop={'size': legend_size})
     # ax.set_ylim([-1, 16])
     ax.set_xlim([200, 1900])
-    if massif_name == 'Maurienne':
-        ax.set_ylim([-1.5, 13])
+    if massif_name in ['Maurienne', 'Chartreuse', 'Beaufortain']:
+        ax.set_ylim([-1.5, 13.5])
+        ax.set_yticks([2 * i for i in range(7)])
+    if massif_name in ['Vercors']:
+        ax.set_ylim([-1, 10])
+        ax.set_yticks([2 * i for i in range(6)])
+
+
+
     # add_title(ax, eurocode_region, massif_name, non_stationary_context)
     ax.set_xticks(altitudes)
     ax.tick_params(labelsize=fontsize_label)
@@ -173,8 +176,9 @@ def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, leg
         ax2 = ax.twinx()
         # ax2.legend(handles=legend_elements, bbox_to_anchor=(0.93, 0.7), loc='upper right')
         # ax2.annotate("Filled symbol = significant trend ", xy=(0.85, 0.5), xycoords='axes fraction', fontsize=7)
-        ax2.legend(handles=legend_elements, loc='upper right', prop={'size': legend_size})
-        ax2.annotate("Filled symbol =\nsignificant trend  \nw.r.t $\mathcal{M}_0$", xy=(0.6, 0.85), xycoords='axes fraction', fontsize=fontsize)
+        ax2.legend(handles=legend_elements, loc='center left', prop={'size': legend_size})
+        # ax2.annotate("Filled symbol =\nsignificant trend  \nw.r.t $\mathcal{M}_0$", xy=(0.6, 0.85), xycoords='axes fraction', fontsize=fontsize)
+        ax2.annotate('\n'.join(filled_marker_legend_list), xy=(0.23, 0.43), xycoords='axes fraction', fontsize=fontsize)
         ax2.set_yticks([])
 
 
