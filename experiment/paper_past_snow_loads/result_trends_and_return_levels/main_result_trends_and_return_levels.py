@@ -99,7 +99,7 @@ def major_result():
 
 if __name__ == '__main__':
     major_result()
-    # intermediate_result(altitudes=[900, 1200], massif_names=['Vercors'],
+    # intermediate_result(altitudes=[900, 1200], massif_names=['Chartreuse'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
     #                     multiprocessing=True)

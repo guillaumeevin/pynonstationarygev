@@ -68,6 +68,7 @@ class SafranSnowfallVariable(AbstractVariable):
 
 
 class SafranRainfallVariable(SafranSnowfallVariable):
+    """Warning: this corresponds to water falling. Total precipitaiton equals Rainfall + Snowfall"""
     NAME = 'Rainfall'
 
     @classmethod

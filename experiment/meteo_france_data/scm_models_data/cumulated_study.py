@@ -6,7 +6,7 @@ NB_DAYS = [1, 3, 5, 7]
 
 class CumulatedStudy(AbstractStudy):
     def __init__(self, variable_class: type, nb_consecutive_days: int = 3, *args, **kwargs):
-        assert nb_consecutive_days in NB_DAYS
+        assert nb_consecutive_days in NB_DAYS, nb_consecutive_days
         super().__init__(variable_class, *args, **kwargs)
         self.nb_consecutive_days = nb_consecutive_days
 

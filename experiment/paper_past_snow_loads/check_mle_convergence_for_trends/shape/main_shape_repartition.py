@@ -19,9 +19,9 @@ def main_shape_repartition(altitudes, massif_names=None,
                                  if altitude in altitudes_for_plot_trend]
     max_abs_tdrl = max([visualizer.max_abs_change for visualizer in visualizers_for_altitudes])
     for visualizer in visualizers_for_altitudes:
-        # visualizer.plot_trends(max_abs_tdrl, add_colorbar=visualizer.study.altitude == 2700)
+        visualizer.plot_trends(max_abs_tdrl, add_colorbar=visualizer.study.altitude == 2700)
         # visualizer.plot_trends(max_abs_tdrl, add_colorbar=True)
-        visualizer.plot_trends()
+        # visualizer.plot_trends()
 
 
 if __name__ == '__main__':

@@ -8,7 +8,7 @@ from matplotlib.ticker import PercentFormatter
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     ALL_ALTITUDES_WITHOUT_NAN
-from experiment.paper_past_snow_loads.data.main_example_swe_total_plot import marker_altitude_massif_name_for_paper1
+from experiment.paper_past_snow_loads.data.main_example_swe_total_plot import tuples_for_examples_paper1
 from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 
@@ -29,6 +29,7 @@ def plot_qqplot_for_time_series_with_missing_zeros(
 
 
 def plot_qqplot_for_time_series_examples(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
+    marker_altitude_massif_name_for_paper1 = tuples_for_examples_paper1()
     for color, a, m in marker_altitude_massif_name_for_paper1:
         v = altitude_to_visualizer[a]
         v.qqplot(m, color)
@@ -60,7 +61,8 @@ def plot_hist_psnow(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStati
 
 if __name__ == '__main__':
     # altitudes = [300, 600, 900, 1200, 1500, 1800][:2]
-    altitudes = ALL_ALTITUDES_WITHOUT_NAN
+    # altitudes = ALL_ALTITUDES_WITHOUT_NAN
+    altitudes = [900, 1800, 2700]
     altitude_to_visualizer = {altitude: StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude),
                                                                               multiprocessing=True)
                               for altitude in altitudes}
