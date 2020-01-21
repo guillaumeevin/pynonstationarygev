@@ -66,7 +66,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         self.uncertainty_massif_names = uncertainty_massif_names
         # Assign some default arguments
         if self.model_subsets_for_uncertainty is None:
-            self.model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel, 
+            self.model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel,
                                                   ModelSubsetForUncertainty.non_stationary_gumbel_and_gev][:]
         if self.uncertainty_methods is None:
             self.uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
@@ -153,7 +153,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             # Extract the stationary model that minimized AIC
             stationary_trend_test_that_minimized_aic = [t for t in sorted_trend_test if type(t) in
                                                         [GumbelVersusGumbel, GevStationaryVersusGumbel]][0]
-            massif_name_to_stationary_trend_test_that_minimized_aic[massif_name] = stationary_trend_test_that_minimized_aic
+            massif_name_to_stationary_trend_test_that_minimized_aic[
+                massif_name] = stationary_trend_test_that_minimized_aic
             # Extract the Gumbel model that minimized AIC
             gumbel_trend_test_that_minimized_aic = [t for t in sorted_trend_test if type(t) in
                                                     [GumbelVersusGumbel, GumbelLocationTrendTest, GumbelScaleTrendTest,
@@ -300,7 +301,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         else:
             raise ValueError(model_subset_for_uncertainty)
 
-    def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method, model_subset_for_uncertainty) \
+    def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method,
+                                                                              model_subset_for_uncertainty) \
             -> Dict[str, EurocodeConfidenceIntervalFromExtremes]:
         # Compute for the uncertainty massif names
         arguments = [
@@ -390,7 +392,15 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         percentage_decrease = 100 * len(decreasing_trend_tests) / len(trend_tests)
         significative_decrease_trend_tests = [t for t in decreasing_trend_tests if t.is_significant]
         percentage_decrease_significative = 100 * len(significative_decrease_trend_tests) / len(trend_tests)
-        massif_name_to_region_name =  AbstractExtendedStudy.massif_name_to_region_name
-        mean_relative = np.mean(np.array(list(self.massif_name_to_relative_change_value.values())))
-
-        return self.altitude, percentage_decrease, percentage_decrease_significative
+        # For visualization at 2700m
+        if percentage_decrease_significative == percentage_decrease:
+            percentage_decrease += 0.4
+        compute_mean_decrease = lambda l: -np.mean(np.array(list(l)))
+        mean_decreases = [compute_mean_decrease(self.massif_name_to_relative_change_value.values())]
+        # Compute mean relatives per regions (for the moment i don't add the region means)
+        # massif_name_to_region_name = AbstractExtendedStudy.massif_name_to_region_name
+        # for region_name in AbstractExtendedStudy.real_region_names:
+        #     change_values = [v for m, v in self.massif_name_to_relative_change_value.items()
+        #                      if massif_name_to_region_name[m] == region_name]
+        #     mean_decreases.append(compute_mean_decrease(change_values))
+        return (self.altitude, percentage_decrease, percentage_decrease_significative, *mean_decreases)

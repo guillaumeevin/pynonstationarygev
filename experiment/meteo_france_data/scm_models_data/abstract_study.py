@@ -260,6 +260,10 @@ class AbstractStudy(object):
         return self.altitude_to_massif_names[self.altitude]
 
     @property
+    def nb_study_massif_names(self) -> int:
+        return len(self.study_massif_names)
+
+    @property
     def df_massifs_longitude_and_latitude(self) -> pd.DataFrame:
         # DataFrame object that represents the massif coordinates in degrees extracted from the SCM data
         # Another way of getting the latitudes and longitudes could have been the following:
