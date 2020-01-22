@@ -8,6 +8,25 @@ from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends
     StudyVisualizerForNonStationaryTrends
 
 
+def plot_trend_map(altitude_to_visualizer):
+    # Compute common max value for the colorbar
+    max_abs_changes_above_900 = [visualizer.max_abs_change
+                       for altitude, visualizer in altitude_to_visualizer.items()
+                       if altitude >= 900]
+    max_abs_tdrl_above_900 = max(max_abs_changes_above_900) if len(max_abs_changes_above_900) > 0 else None
+
+    max_abs_tdrl_below_900 = max(altitude_to_visualizer[300].max_abs_change, altitude_to_visualizer[600].max_abs_change)
+    for altitude, visualizer in altitude_to_visualizer.items():
+        if 900 <= altitude <= 4200:
+            add_color = (visualizer.study.altitude - 1500) % 900 == 0
+            visualizer.plot_trends(max_abs_tdrl_above_900, add_colorbar=add_color)
+            # Plot 2700 also with a colorbar
+            if altitude == 2700:
+                visualizer.plot_trends(max_abs_tdrl_above_900, add_colorbar=True)
+        else:
+            visualizer.plot_trends(max_abs_tdrl_below_900, add_colorbar=altitude==600)
+
+
 def plot_trend_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
     """
     Plot a single trend curves
@@ -47,9 +66,9 @@ def plot_trend_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNonSta
 
     # Set the number of massifs on the upper axis
     ax_twiny.set_xticklabels([v.study.nb_study_massif_names for v in altitude_to_visualizer.values()])
-    ax_twiny.set_xlabel('Total number of massif at each altitude (for the percentage)', fontsize=legend_fontsize)
+    ax_twiny.set_xlabel('Total number of massifs at each altitude (for the percentage)', fontsize=legend_fontsize)
 
-    ax.set_ylabel('Percentage of massifs with decreasing trend (\%)', fontsize=legend_fontsize)
+    ax.set_ylabel('Massifs with decreasing trend (\%)', fontsize=legend_fontsize)
     max_percent = int(max(percent_decrease))
     n = 2 + (max_percent // 10)
     ax_ticks = [10 * i for i in range(n)]
@@ -68,7 +87,7 @@ def plot_trend_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNonSta
         if len(mean_decreases) > 1:
             label = region_name
         else:
-            label = 'Mean decrease'
+            label = 'Mean relative decrease'
         ax_twinx.plot(altitudes, mean_decrease, label=label, linewidth=linewidth, marker='o')
         ax_twinx.legend(loc='upper right', prop={'size': size})
 

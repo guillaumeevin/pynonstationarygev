@@ -8,7 +8,8 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     ALL_ALTITUDES_WITHOUT_NAN
 from experiment.paper_past_snow_loads.paper_main_utils import load_altitude_to_visualizer
 from experiment.paper_past_snow_loads.paper_utils import paper_study_classes, paper_altitudes, ModelSubsetForUncertainty
-from experiment.paper_past_snow_loads.result_trends_and_return_levels.plot_trend_curves import plot_trend_curves
+from experiment.paper_past_snow_loads.result_trends_and_return_levels.plot_trend_curves import plot_trend_curves, \
+    plot_trend_map
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.plot_uncertainty_curves import \
     plot_uncertainty_massifs
 from experiment.paper_past_snow_loads.result_trends_and_return_levels.plot_uncertainty_histogram import \
@@ -65,25 +66,11 @@ def intermediate_result(altitudes, massif_names=None,
     else:
         for visualizer in visualizers:
             _ = compute_minimized_aic(visualizer)
-    # Compute common max value for the colorbar
-    max_abs_tdrl = max([visualizer.max_abs_change for altitude, visualizer in altitude_to_visualizer.items()
-                        if altitude >= 900])
-    for altitude, visualizer in altitude_to_visualizer.items():
-        if 900 <= altitude <= 4200:
-            add_color = (visualizer.study.altitude - 1500) % 900 == 0
-            visualizer.plot_trends(max_abs_tdrl, add_colorbar=add_color)
-            # Plot 2700 also with a colorbar
-            if altitude == 2700:
-                visualizer.plot_trends(max_abs_tdrl, add_colorbar=True)
-        else:
-            visualizer.plot_trends(None, add_colorbar=True)
 
-    # Plot trends
-    altitude_to_visualizer_for_plot_trend = {a: v for a, v in altitude_to_visualizer.items() if a >= 900}
-    plot_trend_curves(altitude_to_visualizer_for_plot_trend)
-    # Plot graph
+    # Plots
+    plot_trend_map(altitude_to_visualizer)
+    # plot_trend_curves(altitude_to_visualizer={a: v for a, v in altitude_to_visualizer.items() if a >= 900})
     # plot_uncertainty_massifs(altitude_to_visualizer)
-    # # Plot histogram
     # plot_uncertainty_histogram(altitude_to_visualizer)
 
 
@@ -91,7 +78,7 @@ def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
                            ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
     massif_names = None
-    study_classes = paper_study_classes[:2]
+    study_classes = paper_study_classes[:1]
     # model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel,
     #                                  ModelSubsetForUncertainty.stationary_gumbel_and_gev,
     #                                  ModelSubsetForUncertainty.non_stationary_gumbel,
@@ -105,7 +92,7 @@ def major_result():
 
 if __name__ == '__main__':
     # major_result()
-    intermediate_result(altitudes=ALL_ALTITUDES_WITHOUT_NAN[2:], massif_names=None,
+    intermediate_result(altitudes=ALL_ALTITUDES_WITHOUT_NAN[:2], massif_names=None,
                         uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
                                              ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
                         multiprocessing=True)

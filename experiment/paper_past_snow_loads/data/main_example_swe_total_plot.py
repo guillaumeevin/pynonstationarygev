@@ -8,8 +8,6 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure
 
 
-
-
 def tuples_for_examples_paper1(examples_for_the_paper=True):
     if examples_for_the_paper:
 
@@ -20,12 +18,13 @@ def tuples_for_examples_paper1(examples_for_the_paper=True):
         ]
     else:
         marker_altitude_massif_name_for_paper1 = [
-            ('yellow', 600, 'Ubaye'),
-            ('purple', 600, 'Parpaillon'),
+            ('magenta', 600, 'Ubaye'),
+            ('darkmagenta', 600, 'Parpaillon'),
+            ('mediumpurple', 300, 'Aravis'),
         ]
     return marker_altitude_massif_name_for_paper1
 
-tuples_for_examples_paper1()
+
 
 def max_graph_annual_maxima_poster():
     """
@@ -36,11 +35,15 @@ def max_graph_annual_maxima_poster():
     save_to_file = True
     study_class = CrocusSnowLoadTotal
 
-    examples_for_the_paper = True
+    examples_for_the_paper = False
 
     ax = plt.gca()
-    ax.set_ylim([0, 20])
-    ax.set_yticks(list(range(0, 21, 2)))
+    if examples_for_the_paper:
+        ax.set_ylim([0, 20])
+        ax.set_yticks(list(range(0, 21, 2)))
+        linewidth = 5
+    else:
+        linewidth = 3
 
     marker_altitude_massif_name_for_paper1 = tuples_for_examples_paper1(examples_for_the_paper)
 
@@ -55,7 +58,8 @@ def max_graph_annual_maxima_poster():
             tight_pad = {'h_pad': 0.2}
             study_visualizer.visualize_max_graphs_poster(massif_name, altitude, snow_abbreviation, color, label,
                                                          last_plot, ax, tight_pad=tight_pad,
-                                                         dpi=dpi_paper1_figure)
+                                                         dpi=dpi_paper1_figure,
+                                                         linewidth=linewidth)
 
 
 if __name__ == '__main__':

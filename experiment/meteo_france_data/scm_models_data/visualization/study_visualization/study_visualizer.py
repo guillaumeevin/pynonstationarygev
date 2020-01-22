@@ -627,7 +627,7 @@ class StudyVisualizer(VisualizationParameters):
 
     def visualize_max_graphs_poster(self, massif_name, altitude, snow_abbreviation, color,
                                     label=None, last_plot=True, ax=None, linestyle=None,
-                                    tight_pad=None, dpi=None):
+                                    tight_pad=None, dpi=None, linewidth=5):
         massif_names = self.study.study_massif_names
         # Display the graph of the max on top
         if ax is None:
@@ -636,7 +636,7 @@ class StudyVisualizer(VisualizationParameters):
             x, y = self.study.ordered_years, self.study.observations_annual_maxima.df_maxima_gev.mean(axis=0)
         else:
             x, y = self.smooth_maxima_x_y(massif_names.index(massif_name))
-        ax.plot(x, y, color=color, linewidth=5, label=label, linestyle=linestyle)
+        ax.plot(x, y, color=color, linewidth=linewidth, label=label, linestyle=linestyle)
         # ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color, fontsize=15)
 
         ax.xaxis.set_ticks(x[2::10])
