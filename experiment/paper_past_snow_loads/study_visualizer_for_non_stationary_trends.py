@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from cached_property import cached_property
 
+from experiment.eurocode_data.eurocode_region import C2, C1, E
 from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE, EUROCODE_RETURN_LEVEL_STR
 from experiment.meteo_france_data.plot.create_shifted_cmap import get_shifted_map, get_colors
@@ -359,16 +360,31 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         return {m: r().valeur_caracteristique(altitude=self.study.altitude)
                 for m, r in massif_name_to_eurocode_region.items() if m in self.uncertainty_massif_names}
 
-    def three_percentages_of_excess(self, ci_method, model_subset_for_uncertainty):
-        eurocode_and_uncertainties = [(self.massif_name_to_eurocode_values[massif_name],
-                                       self.triplet_to_eurocode_uncertainty[
-                                           (ci_method, model_subset_for_uncertainty, massif_name)])
-                                      for massif_name in self.uncertainty_massif_names]
-        a = np.array([(uncertainty.confidence_interval[0] > eurocode,
-                       uncertainty.mean_estimate > eurocode,
-                       uncertainty.confidence_interval[1] > eurocode)
-                      for eurocode, uncertainty in eurocode_and_uncertainties])
-        return 100 * np.mean(a, axis=0)
+    def excess_metrics(self, ci_method, model_subset_for_uncertainty):
+        triplet = [(massif_name_to_eurocode_region[massif_name],
+                    self.massif_name_to_eurocode_values[massif_name],
+                    self.triplet_to_eurocode_uncertainty[(ci_method, model_subset_for_uncertainty, massif_name)])
+                   for massif_name in self.uncertainty_massif_names]
+        # First array for histogram
+        a = 100 * np.array([(uncertainty.confidence_interval[0] > eurocode,
+                             uncertainty.mean_estimate > eurocode,
+                             uncertainty.confidence_interval[1] > eurocode)
+                            for _, eurocode, uncertainty in triplet])
+        a = np.mean(a, axis=0)
+        # Second array for curve
+        b = [[] for _ in range(3)]
+        for eurocode_region, eurocode, uncertainty in triplet:
+            diff = uncertainty.mean_estimate - eurocode
+            b[0].append(diff)
+            if eurocode_region in [C1, C2]:
+                b[1].append(diff)
+            if eurocode_region in [E]:
+                b[2].append(diff)
+
+        b = [np.mean(np.array(e)) for e in b]
+        # Return the concatenated results
+        concatenated_result = list(a) + list(b)
+        return concatenated_result
 
     # Part 3 - QQPLOT
 

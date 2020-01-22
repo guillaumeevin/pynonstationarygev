@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES
-from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure
+from experiment.paper_past_snow_loads.paper_utils import dpi_paper1_figure, ModelSubsetForUncertainty
 from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import ci_method_to_color, \
@@ -33,6 +33,10 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
     ax = plt.gca()
     altitudes = np.array(list(altitude_to_visualizer.keys()))
     bincenters = altitudes
+
+    fontsize_label = 15
+    legend_size = 15
+    # Plot histogram
     for j, ci_method in enumerate(visualizer.uncertainty_methods):
         if len(visualizer.uncertainty_methods) == 2:
             offset = -50 if j == 0 else 50
@@ -41,13 +45,15 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
         else:
             width = 200
         plot_histogram_ci_method(visualizers, model_subset_for_uncertainty, ci_method, ax, bincenters, width=width)
-    fontsize_label = 15
-    legend_size = 15
+
+
     ax.set_xticks(altitudes)
     ax.tick_params(labelsize=fontsize_label)
     if not (len(visualizer.uncertainty_methods) == 1
             and visualizer.uncertainty_methods[0] == ConfidenceIntervalMethodFromExtremes.ci_mle):
         ax.legend(loc='upper left', prop={'size': legend_size})
+    # ax.set_ylabel('Massifs whose 50-year return level\n'
+    #               'exceeds French standards (\%)', fontsize=fontsize_label)
     ax.set_ylabel('Massifs exceeding French standards (\%)', fontsize=fontsize_label)
     ax.set_xlabel('Altitude (m)', fontsize=fontsize_label)
     ax.set_ylim([0, 100])
@@ -59,7 +65,7 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
 
 
 def plot_histogram_ci_method(visualizers, model_subset_for_uncertainty, ci_method, ax, bincenters, width):
-    three_percentages_of_excess = [v.three_percentages_of_excess(ci_method, model_subset_for_uncertainty) for v in
+    three_percentages_of_excess = [v.excess_metrics(ci_method, model_subset_for_uncertainty)[:3] for v in
                                    visualizers]
     epsilon = 0.5
     three_percentages_of_excess = [(a, b, c) if a == b else (max(epsilon, a), b, c) for (a, b, c) in three_percentages_of_excess]
