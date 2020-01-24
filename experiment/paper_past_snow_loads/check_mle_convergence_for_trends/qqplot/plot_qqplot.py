@@ -11,6 +11,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
 from experiment.paper_past_snow_loads.data.main_example_swe_total_plot import tuples_for_examples_paper1
 from experiment.paper_past_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
+from extreme_fit.distribution.gev.gev_params import GevParams
 
 
 def plot_qqplot_for_time_series_with_missing_zeros(
@@ -25,6 +26,7 @@ def plot_qqplot_for_time_series_with_missing_zeros(
     print('Worst examples:')
     for a, v, m, p in l:
         print(a, m, p)
+        print(last_quantile(p))
         v.qqplot(m)
 
 
@@ -37,6 +39,7 @@ def plot_qqplot_for_time_series_examples(altitude_to_visualizer: Dict[int, Study
 
 def plot_hist_psnow(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
     """Plot an histogram of psnow containing data from all the visualizers given as argument"""
+    ax = plt.gca()
     # Gather the data
     data = [list(v.massif_name_to_psnow.values()) for v in altitude_to_visualizer.values()]
     data = list(chain.from_iterable(data))
@@ -46,27 +49,45 @@ def plot_hist_psnow(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStati
     print(percentage_of_one)
     data = [d for d in data if d < 1]
     # Plot histogram
-    nb_bins = 13
+    nb_bins = 7
     percentage = False
     weights = [1 / len(data) for _ in data] if percentage else None
-    plt.hist(data, bins=nb_bins, range=(0.35, 1), weights=weights)
-    plt.xticks([0.05 * i + 0.35 for i in range(nb_bins + 1)])
+    count, *_ = ax.hist(data, bins=nb_bins, range=(0.3, 1), weights=weights, rwidth=0.8)
+    # Set x ticks for the histogram
+    ax.set_xticks([0.1 * i + 0.3 for i in range(nb_bins + 1)])
+    ax.set_xlim([0.3, 1])
+    size = 10
     if weights:
         plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
-    plt.xlabel('Distribution of P(Y > 0) when $\\neq 1$')
+    ax.set_xlabel('Probability to have an annual maxima equal to zero, i.e. P(Y > 0)', fontsize=size)
     s = '%' if percentage else 'Number'
-    plt.ylabel('{} of time series'.format(s))
+    ylabel = '{} of time series with some\nannual maxima equal to zero, i.e. with $P(Y > 0) < 1$'
+    ax.set_ylabel(ylabel.format(s), fontsize=size)
+    if not percentage:
+        # Set y ticks for the histogram
+        max_data = int(max(count))
+        ticks = [i for i in range(max_data + 2)]
+        ax.set_yticks(ticks)
+        ax.set_ylim([min(ticks), max(ticks)])
+    ax.tick_params(labelsize=size)
     plt.show()
+
+
+def last_quantile(psnow):
+    n = int(60 * psnow)
+    last_proba = n / (n + 1)
+    standard_gumbel = GevParams(0.0, 1.0, 0.0)
+    return standard_gumbel.quantile(last_proba)
 
 
 if __name__ == '__main__':
     # altitudes = [300, 600, 900, 1200, 1500, 1800][:2]
-    # altitudes = ALL_ALTITUDES_WITHOUT_NAN
-    altitudes = [900, 1800, 2700]
+    altitudes = ALL_ALTITUDES_WITHOUT_NAN
+    # altitudes = [900, 1800, 2700]
     altitude_to_visualizer = {altitude: StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude),
                                                                               multiprocessing=True)
                               for altitude in altitudes}
     # plot_qqplot_wrt_standard_gumbel(altitude_to_visualizer)
-    # plot_hist_psnow(altitude_to_visualizer)
-    plot_qqplot_for_time_series_examples(altitude_to_visualizer)
+    plot_hist_psnow(altitude_to_visualizer)
+    # plot_qqplot_for_time_series_examples(altitude_to_visualizer)
     # plot_qqplot_for_time_series_with_missing_zeros(altitude_to_visualizer, nb_worst_examples=3)

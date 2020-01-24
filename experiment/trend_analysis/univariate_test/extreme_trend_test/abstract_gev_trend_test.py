@@ -1,4 +1,5 @@
 import numpy as np
+from math import ceil, floor
 import matplotlib.pyplot as plt
 import pandas as pd
 from cached_property import cached_property
@@ -210,20 +211,32 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     # Some display function
 
     def qqplot_wrt_standard_gumbel(self, marker, color=None):
-        size = 20
+        ax = plt.gca()
+        size = 15
         # Standard Gumbel quantiles
         standard_gumbel_distribution = GevParams(loc=0, scale=1, shape=0)
         n = len(self.years)
         standard_gumbel_quantiles = [standard_gumbel_distribution.quantile(i / (n + 1)) for i in range(1, n + 1)]
         unconstrained_empirical_quantiles = self.compute_empirical_quantiles(self.unconstrained_estimator)
         constrained_empirical_quantiles = self.compute_empirical_quantiles(self.constrained_estimator)
-        plt.plot(standard_gumbel_quantiles, standard_gumbel_quantiles, color=color)
-        plt.plot(standard_gumbel_quantiles, constrained_empirical_quantiles, 'x', label='Gumbel model')
-        plt.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
-                 label='Selected model', **marker)
-        plt.xlabel("Standard Gumbel quantiles", fontsize=15)
-        plt.ylabel("Empirical quantiles", fontsize=15)
-        plt.legend(loc='upper left', prop={'size': size})
+        all_quantiles = standard_gumbel_quantiles + unconstrained_empirical_quantiles + constrained_empirical_quantiles
+        epsilon = 0.5
+        ax_lim = [min(all_quantiles) - epsilon, max(all_quantiles) + epsilon]
+        ax.plot(standard_gumbel_quantiles, standard_gumbel_quantiles, color='k')
+        ax.plot(standard_gumbel_quantiles, constrained_empirical_quantiles, 'x', label='Stationary Gumbel model $\mathcal{M}_0$')
+        ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
+                 label='Selected model $\mathcal{M}_N$', **marker)
+        ax.set_xlabel("Standard Gumbel quantiles", fontsize=size)
+        ax.set_ylabel("Empirical quantiles", fontsize=size)
+        ax.legend(loc='upper left', prop={'size': 10})
+        ax.set_xlim(ax_lim)
+        ax.set_ylim(ax_lim)
+        ticks = [i for i in range(ceil(ax_lim[0]), floor(ax_lim[1]) + 1)]
+        ax.set_xticks(ticks)
+        ax.set_yticks(ticks)
+        ax.grid()
+        ax.tick_params(labelsize=size)
+
         plt.show()
 
     def compute_empirical_quantiles(self, estimator):
