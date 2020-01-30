@@ -38,8 +38,8 @@ def density_wrt_altitude():
             s = study.observations_annual_maxima.df_maxima_gev.loc[massif_name]
             year_limit = 1987
             df_before, df_after = s.loc[:year_limit], s.loc[year_limit + 1:]
-            # df_before, df_after = df_before.mean(), df_after.mean()
-            df_before, df_after = df_before.median(), df_after.median()
+            df_before, df_after = df_before.mean(), df_after.mean()
+            # df_before, df_after = df_before.median(), df_after.median()
             relative_change_value = 100 * (df_after - df_before) / df_before
             massif_name_to_value[massif_name] = relative_change_value
         print(massif_name_to_value)

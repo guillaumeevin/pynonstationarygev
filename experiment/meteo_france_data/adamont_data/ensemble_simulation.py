@@ -2,9 +2,10 @@ import os
 from typing import List
 import os.path as op
 
+import numpy as np
 from cached_property import cached_property
 
-from adamont.single_simulation import SingleSimulation
+from experiment.meteo_france_data.adamont_data.single_simulation import SingleSimulation
 
 ADAMONT_PATH = r"/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/ADAMONT"
 
@@ -25,13 +26,18 @@ class EnsembleSimulation(object):
         assert first_winter_required_for_histo <= 2004
 
         # Load simulations
-        self.simulations = [SingleSimulation(op.join(ADAMONT_PATH, nc_file)) for nc_file in self.nc_files]
-
-    """Ce problème affecte toutes lessimulations HISTORIQUE CORDEX réalisées en utilisant le forçage CNRM-CM5: CCLM4-8-17: ALADIN53 et RCA4"""
+        # todo: so far i am using one ensemble member
+        self.simulations = [SingleSimulation(nc_path, self.parameter,
+                                             self.first_winter_required_for_histo,
+                                             self.last_year_for_histo) for nc_path in self.nc_paths][:1]
 
     @cached_property
     def simulations_path(self):
         return op.join(ADAMONT_PATH, self.parameter, self.scenario)
+
+    @cached_property
+    def nc_paths(self):
+        return [op.join(ADAMONT_PATH, self.parameter, self.scenario, nc_file) for nc_file in self.nc_files]
 
     @cached_property
     def nc_files(self) -> List[str]:
@@ -57,9 +63,31 @@ class EnsembleSimulation(object):
     def massif_name_and_altitude_to_mean_return_level(self):
         return {}
 
+    @property
+    def first_simulation(self):
+        return self.simulations[0]
+
+    @property
+    def massif_name_and_altitude(self):
+        pass
+
+    @cached_property
+    def massif_name_and_altitude_to_mean_average_annual_maxima(self):
+        d = {}
+        for m, a in self.first_simulation.massif_name_and_altitude_to_average_maxima.keys():
+            d[(m, a)] = np.mean([s.massif_name_and_altitude_to_average_maxima[(m, a)] for s in self.simulations])
+        return d
 
 
 if __name__ == '__main__':
-    ensemble = EnsembleSimulation(first_winter_required_for_histo=1985)
+    # np.array(d.variables['SNOWSWE'])
+    ensemble = EnsembleSimulation(first_winter_required_for_histo=1958)
     print(len(ensemble.simulations))
     print(ensemble.simulations_names)
+    s = ensemble.first_simulation
+    d = s.dataset
+    # print(s.massif_name_and_altitude_to_annual_maxima_time_series)
+    # print(s.massif_name_and_altitude_to_average_maxima)
+    print(ensemble.massif_name_and_altitude_to_mean_average_annual_maxima)
+    print(s.years)
+    # print(d)
