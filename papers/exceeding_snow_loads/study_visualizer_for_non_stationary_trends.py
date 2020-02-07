@@ -1,4 +1,4 @@
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from multiprocessing.pool import Pool
 from typing import Dict, List, Tuple
 
@@ -14,9 +14,9 @@ from experiment.meteo_france_data.scm_models_data.abstract_extended_study import
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
-from experiment.exceeding_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
+from papers.exceeding_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
     compute_gelman_convergence_value
-from experiment.exceeding_snow_loads.paper_utils import ModelSubsetForUncertainty
+from papers.exceeding_snow_loads.paper_utils import ModelSubsetForUncertainty
 from experiment.trend_analysis.abstract_score import MeanScore
 from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
@@ -277,6 +277,14 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def massif_name_to_color(self):
         return {m: get_colors([v], self.cmap, -self._max_abs_change, self._max_abs_change)[0]
                 for m, v in self.massif_name_to_change_value.items()}
+
+    @cached_property
+    def selected_trend_test_class_counter(self):
+        return Counter([type(t) for t in self.massif_name_to_trend_test_that_minimized_aic.values()])
+
+    @cached_property
+    def selected_and_significative_trend_test_class_counter(self):
+        return Counter([type(t) for t in self.massif_name_to_trend_test_that_minimized_aic.values() if t.is_significant])
 
     @cached_property
     def massif_name_to_marker_style(self):

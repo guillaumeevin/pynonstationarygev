@@ -6,6 +6,9 @@ from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSno
 from papers.exceeding_snow_loads.paper_main_utils import load_altitude_to_visualizer
 from papers.exceeding_snow_loads.paper_utils import paper_study_classes, paper_altitudes
 from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_diagnosis_risk import plot_diagnosis_risk
+from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_selection_curves import plot_selection_curves
+from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_trend_curves import plot_trend_curves
+from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_uncertainty_curves import plot_uncertainty_massifs
 from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_uncertainty_histogram import \
     plot_uncertainty_histogram
 from papers.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
@@ -63,10 +66,11 @@ def intermediate_result(altitudes, massif_names=None,
 
     # Plots
     # plot_trend_map(altitude_to_visualizer)
-    plot_diagnosis_risk(altitude_to_visualizer)
+    # plot_diagnosis_risk(altitude_to_visualizer)
     # plot_trend_curves(altitude_to_visualizer={a: v for a, v in altitude_to_visualizer.items() if a >= 900})
     # plot_uncertainty_massifs(altitude_to_visualizer)
-    plot_uncertainty_histogram(altitude_to_visualizer)
+    # plot_uncertainty_histogram(altitude_to_visualizer)
+    plot_selection_curves(altitude_to_visualizer)
 
 
 def major_result():
@@ -86,11 +90,11 @@ def major_result():
 
 
 if __name__ == '__main__':
-    # major_result()
-    intermediate_result(altitudes=[1500, 1800], massif_names=None,
-                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
-                                             ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
-                        multiprocessing=True)
+    major_result()
+    # intermediate_result(altitudes=[1500, 1800][:1], massif_names=None,
+    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
+    #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
+    #                     multiprocessing=True)
     # intermediate_result(altitudes=[900, 1200], massif_names=['Maurienne'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],

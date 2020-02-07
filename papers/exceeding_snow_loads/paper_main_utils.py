@@ -1,10 +1,9 @@
 from collections import OrderedDict
-from enum import Enum
 
-from experiment.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
-    StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod
+from papers.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
+    StudyVisualizerForNonStationaryTrends
 
 
 def load_altitude_to_visualizer(altitudes, massif_names, model_subsets_for_uncertainty, study_class,
