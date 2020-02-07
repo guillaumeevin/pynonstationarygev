@@ -1,0 +1,32 @@
+from experiment.meteo_france_data.scm_models_data.visualization.hypercube_visualization.altitude_year_hypercube_visualizer import \
+    Altitude_Hypercube_Year_Visualizer
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.abstract_comparison_non_stationary_model import ComparisonAgainstMu, \
+    ComparisonAgainstSigma
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter import GevScaleTrendTest, \
+    GevLocationTrendTest
+from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters import GevLocationAndScaleTrendTest
+from experiment.exceeding_snow_loads.paper1_old import get_full_altitude_visualizer
+
+POSTER_ALTITUDES = [900, 1800, 2700]
+import matplotlib as mpl
+
+mpl.rcParams['hatch.linewidth'] = 0.3
+
+
+def main_non_stationary_model_comparison():
+    stop_loop = False
+    for altitude in POSTER_ALTITUDES[:]:
+        for trend_test_class in [GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest,
+                                 ComparisonAgainstMu, ComparisonAgainstSigma][:]:
+            vizualiser = get_full_altitude_visualizer(Altitude_Hypercube_Year_Visualizer, altitude=altitude,
+                                                      exact_starting_year=1958, reduce_strength_array=False,
+                                                      trend_test_class=trend_test_class,
+                                                      verbose=False)
+            # vizualiser.save_to_file = False
+            vizualiser.visualize_massif_trend_test_one_altitude(poster_plot=True, write_text_on_massif=False)
+            if stop_loop:
+                return
+
+
+if __name__ == '__main__':
+    main_non_stationary_model_comparison()

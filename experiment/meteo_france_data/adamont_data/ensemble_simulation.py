@@ -27,6 +27,7 @@ class EnsembleSimulation(object):
 
         # Load simulations
         # todo: so far i am using one ensemble member
+        print('single ensemble member', self.nc_files[0])
         self.simulations = [SingleSimulation(nc_path, self.parameter,
                                              self.first_winter_required_for_histo,
                                              self.last_year_for_histo) for nc_path in self.nc_paths][:1]

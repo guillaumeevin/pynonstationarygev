@@ -226,8 +226,8 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         ax.plot(standard_gumbel_quantiles, constrained_empirical_quantiles, 'x', label='Stationary Gumbel model $\mathcal{M}_0$')
         ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
                  label='Selected model $\mathcal{M}_N$', **marker)
-        ax.set_xlabel("Standard Gumbel quantiles", fontsize=size)
-        ax.set_ylabel("Empirical quantiles", fontsize=size)
+        ax.set_xlabel("Standard Gumbel quantile", fontsize=size)
+        ax.set_ylabel("Standard Empirical quantile", fontsize=size)
         ax.legend(loc='upper left', prop={'size': 10})
         ax.set_xlim(ax_lim)
         ax.set_ylim(ax_lim)

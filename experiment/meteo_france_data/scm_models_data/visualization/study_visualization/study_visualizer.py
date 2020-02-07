@@ -21,7 +21,6 @@ from experiment.trend_analysis.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
 from experiment.trend_analysis.univariate_test.univariate_test_results import compute_gev_change_point_test_results
-from experiment.utils import average_smoothing_with_sliding_window
 from extreme_fit.distribution.abstract_params import AbstractParams
 from extreme_fit.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
@@ -699,7 +698,7 @@ class StudyVisualizer(VisualizationParameters):
         tuples_x_y = [(year, np.mean(data[:, massif_id])) for year, data in
                       self.study.year_to_daily_time_serie_array.items()]
         x, y = list(zip(*tuples_x_y))
-        x, y = average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
+        x, y = self.average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
         ax.plot(x, y, color=color_mean)
         ax.set_ylabel('mean'.format(self.window_size_for_smoothing), color=color_mean)
         massif_name = self.study.study_massif_names[massif_id]
@@ -713,7 +712,7 @@ class StudyVisualizer(VisualizationParameters):
             tuples_x_y = [(year, annual_maxima[massif_id]) for year, annual_maxima in
                           self.study.year_to_annual_maxima.items()]
             x, y = list(zip(*tuples_x_y))
-            x, y = average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
+            x, y = self.average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
             self.massif_id_to_smooth_maxima[massif_id] = (x, y)
         return self.massif_id_to_smooth_maxima[massif_id]
 
@@ -976,3 +975,15 @@ class StudyVisualizer(VisualizationParameters):
                                                     threshold=threshold).gpd_params.summary_serie
                              for massif_name in self.study.study_massif_names}
         return pd.DataFrame(massif_to_gev_mle, columns=self.study.study_massif_names)
+
+    @staticmethod
+    def average_smoothing_with_sliding_window(x, y, window_size_for_smoothing):
+        # Average on windows of size 2*M+1 (M elements on each side)
+        kernel = np.ones(window_size_for_smoothing) / window_size_for_smoothing
+        y = np.convolve(y, kernel, mode='valid')
+        assert window_size_for_smoothing % 2 == 1
+        if window_size_for_smoothing > 1:
+            nb_to_delete = int(window_size_for_smoothing // 2)
+            x = np.array(x)[nb_to_delete:-nb_to_delete]
+        assert len(x) == len(y), "{} vs {}".format(len(x), len(y))
+        return x, y
