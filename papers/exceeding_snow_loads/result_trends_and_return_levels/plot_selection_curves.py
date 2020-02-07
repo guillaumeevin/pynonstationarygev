@@ -8,6 +8,10 @@ from papers.exceeding_snow_loads.paper_utils import dpi_paper1_figure
 from papers.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import StudyVisualizerForNonStationaryTrends
 from itertools import chain
 
+def permute(l, permutation):
+    # permutation = [i//2  if i % 2 == 0 else 4 + i //2 for i in range(8)]
+    return [l[i] for i in permutation]
+
 def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
     """
     Plot a single trend curves
@@ -20,10 +24,11 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
     selected_counter = merge_counter([v.selected_trend_test_class_counter for v in altitude_to_visualizer.values()])
     selected_and_significative_counter = merge_counter([v.selected_and_significative_trend_test_class_counter for v in altitude_to_visualizer.values()])
     total_of_selected_models = sum(selected_counter.values())
-    select_list = get_ordered_list_from_counter(selected_counter, total_of_selected_models, visualizer)
-    selected_and_signifcative_list = get_ordered_list_from_counter(selected_and_significative_counter, total_of_selected_models, visualizer)
-    print(select_list)
-    print(selected_and_signifcative_list)
+    l = sorted(enumerate(visualizer.non_stationary_trend_test), key=lambda e:selected_counter[e[1]])
+    permutation = [i for i, v in l][::-1]
+    select_list = get_ordered_list_from_counter(selected_counter, total_of_selected_models, visualizer, permutation)
+    selected_and_signifcative_list = get_ordered_list_from_counter(selected_and_significative_counter, total_of_selected_models, visualizer, permutation)
+    labels = permute(['${}$'.format(t.label) for t in visualizer.non_stationary_trend_test], permutation)
 
     # parameters
     width = 5
@@ -43,7 +48,6 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
     ax.set_xlabel('Models', fontsize=legend_fontsize)
 
     ax.set_xticks(x)
-    labels = ['${}$'.format(t.label) for t in visualizer.non_stationary_trend_test]
     ax.set_xticklabels(labels)
 
     # for ax_horizontal in [ax, ax_twiny]:
@@ -83,15 +87,14 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
     #     ax_twinx.legend(loc='upper right', prop={'size': size})
 
     # Save plot
-    plt.show()
     visualizer.plot_name = 'Selection curves'
     visualizer.show_or_save_to_file(no_title=True, dpi=dpi_paper1_figure)
     plt.close()
 
 
-def get_ordered_list_from_counter(selected_counter, total_of_selected_models, visualizer):
-    return [100 * float(selected_counter[t]) / total_of_selected_models if t in selected_counter else 0
-                for t in visualizer.non_stationary_trend_test]
+def get_ordered_list_from_counter(selected_counter, total_of_selected_models, visualizer, permutation):
+    return permute([100 * float(selected_counter[t]) / total_of_selected_models if t in selected_counter else 0
+                for t in visualizer.non_stationary_trend_test], permutation)
 
 def merge_counter(counters_list):
     global_counter = counters_list[0]
