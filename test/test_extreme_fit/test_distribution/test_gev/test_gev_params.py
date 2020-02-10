@@ -54,6 +54,10 @@ class TestGevParams(unittest.TestCase):
         gev_params = GevParams(loc=mu, shape=chi, scale=sigma)
         self.assertEqual(gev_params.variance, ((sigma / chi) ** 2) * (gamma(1 - 2 * chi) - (gamma(1 - chi) ** 2)))
 
+    def test_return_level_plot(self):
+        gev_params = GevParams(loc=0.0, shape=0.0, scale=1.0)
+        gev_params.return_level_plot_against_return_period(show=False)
+
 
 if __name__ == '__main__':
     unittest.main()

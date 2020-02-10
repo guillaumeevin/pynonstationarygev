@@ -223,9 +223,10 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         epsilon = 0.5
         ax_lim = [min(all_quantiles) - epsilon, max(all_quantiles) + epsilon]
         ax.plot(standard_gumbel_quantiles, standard_gumbel_quantiles, color='k')
-        ax.plot(standard_gumbel_quantiles, constrained_empirical_quantiles, 'x', label='Stationary Gumbel model $\mathcal{M}_0$')
+        ax.plot(standard_gumbel_quantiles, constrained_empirical_quantiles, 'x',
+                label='Stationary Gumbel model $\mathcal{M}_0$')
         ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
-                 label='Selected model $\mathcal{M}_N$', **marker)
+                label='Selected model $\mathcal{M}_N$', **marker)
         ax.set_xlabel("Standard Gumbel quantile", fontsize=size)
         ax.set_ylabel("Standard Empirical quantile", fontsize=size)
         ax.legend(loc='upper left', prop={'size': 10})
@@ -238,6 +239,19 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         ax.tick_params(labelsize=size)
 
         plt.show()
+
+    def return_level_plot_comparison(self, ax, label, color=None):
+        # ax = plt.gca()
+        size = 15
+        # Load Gev parameter in 2017 for the unconstrained estimator
+        gev_params = self.unconstrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([2017]),
+                                                                                          is_transformed=False)  # type: GevParams
+        gev_params_with_corrected_shape = GevParams(loc=gev_params.location,
+                                                    scale=gev_params.scale,
+                                                    shape=0.5)
+        suffix = 'in 2017'
+        gev_params.return_level_plot_against_return_period(ax, color, linestyle='-', label=label, suffix_return_level_label=suffix)
+        gev_params_with_corrected_shape.return_level_plot_against_return_period(ax, color=color, linestyle='--', suffix_return_level_label=suffix)
 
     def compute_empirical_quantiles(self, estimator):
         empirical_quantiles = []

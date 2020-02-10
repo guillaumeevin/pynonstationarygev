@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import matplotlib.pyplot as plt
 from typing import List
 
 from cached_property import cached_property
@@ -149,3 +150,22 @@ class GevParams(AbstractParams):
             return np.inf
         else:
             return self.bound
+
+    def return_level_plot_against_return_period(self, ax=None, color=None, linestyle=None, label=None, show=False,
+                                                suffix_return_level_label=''):
+        if ax is None:
+            ax = plt.gca()
+        # Plot return level against return period
+        return_periods = list(range(2, 61))
+        quantiles = [self.quantile(1 - 1 / return_period) for return_period in return_periods]
+        return_period_to_quantile = dict(zip(return_periods, quantiles))
+        ax.vlines(50, 0, return_period_to_quantile[50])
+        ax.plot(return_periods, quantiles, color=color, linestyle=linestyle, label=label)
+        ax.set_xlabel('Return period')
+        ax.legend()
+
+        ax.set_xticks([10 * i for i in range(1, 7)])
+        ax.set_ylabel('Return level {}'.format(suffix_return_level_label))
+        plt.gca().set_ylim(bottom=0)
+        if show:
+            plt.show()

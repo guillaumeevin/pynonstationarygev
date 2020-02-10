@@ -1,30 +1,35 @@
 from typing import Dict
+import matplotlib.pyplot as plt
 
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     ALL_ALTITUDES_WITHOUT_NAN
-from experiment.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
+from papers.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 
 
-def qqplots_for_biggest_shape_parameters_before_selection():
-    altitudes = ALL_ALTITUDES_WITHOUT_NAN
+
+def get_tuple_ordered_by_shape(fast=False):
+    if fast:
+        altitudes = [300]
+    else:
+        altitudes = ALL_ALTITUDES_WITHOUT_NAN
     altitude_to_visualizer = {altitude: StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude),
                                                                               select_only_acceptable_shape_parameter=False,
                                                                               multiprocessing=True)
                               for altitude in altitudes}
-    plot_qqplot_for_time_series_with_worst_shape_parameters(altitude_to_visualizer, nb_worst_examples=5)
-
-
-def plot_qqplot_for_time_series_with_worst_shape_parameters(
-        altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends],
-        nb_worst_examples=3):
     # Extract all the values
     l = []
     for a, v in altitude_to_visualizer.items():
-        l.extend([(a, v, m, t.unconstrained_estimator_gev_params.shape) for m, t in v.massif_name_to_trend_test_that_minimized_aic.items()])
+        l.extend([(a, v, m, t.unconstrained_estimator_gev_params.shape) for m, t in
+                  v.massif_name_to_trend_test_that_minimized_aic.items()])
     # Sort them and keep the highest examples
     l = sorted(l, key=lambda t: t[-1])
+    return l
+
+
+def plot_qqplot_for_time_series_with_worst_shape_parameters(tuple_ordered_by_shape, nb_worst_examples=5):
+    l = tuple_ordered_by_shape
     print('Highest examples:')
     for a, v, m, shape in l[-nb_worst_examples:][::-1]:
         print(a, m, shape)
@@ -33,6 +38,19 @@ def plot_qqplot_for_time_series_with_worst_shape_parameters(
     for a, v, m, shape in l[:1]:
         print(a, m, shape)
         v.qqplot(m)
+
+
+def plot_return_level_for_time_series_with_big_shape_parameters(tuple_ordered_by_shape, nb_worst_examples=5):
+    # Extract all the values
+    l = tuple_ordered_by_shape
+    print('Highest examples:')
+    ax = plt.gca()
+    colors = ['orange', 'red', 'blue', 'green', 'yellow']
+    for (a, v, m, shape), color in zip(l[-nb_worst_examples:][::-1], colors):
+        print(a, m, shape, color)
+        v.return_level_plot(ax, m, color)
+    plt.show()
+
 
 """
 10 Worst examples:
@@ -50,7 +68,6 @@ def plot_qqplot_for_time_series_with_worst_shape_parameters(
 300 Bauges 0.39291367817905504
 """
 
-
 """
 for the worst example for -shape
 
@@ -66,6 +83,8 @@ for the worst example for -shape
 2700 Mont-Blanc 0.2712596135797868
 """
 
-
 if __name__ == '__main__':
-    qqplots_for_biggest_shape_parameters_before_selection()
+    fast = False
+    nb = 1 if fast else 5
+    tuple_ordered_by_shape = get_tuple_ordered_by_shape(fast=fast)
+    plot_return_level_for_time_series_with_big_shape_parameters(tuple_ordered_by_shape, nb_worst_examples=nb)
