@@ -24,30 +24,39 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
     selected_counter = merge_counter([v.selected_trend_test_class_counter for v in altitude_to_visualizer.values()])
     selected_and_significative_counter = merge_counter([v.selected_and_significative_trend_test_class_counter for v in altitude_to_visualizer.values()])
     total_of_selected_models = sum(selected_counter.values())
-    l = sorted(enumerate(visualizer.non_stationary_trend_test), key=lambda e:selected_counter[e[1]])
+    l = sorted(enumerate(visualizer.non_stationary_trend_test), key=lambda e: selected_counter[e[1]])
     permutation = [i for i, v in l][::-1]
+
     select_list = get_ordered_list_from_counter(selected_counter, total_of_selected_models, visualizer, permutation)
     selected_and_signifcative_list = get_ordered_list_from_counter(selected_and_significative_counter, total_of_selected_models, visualizer, permutation)
     labels = permute(['${}$'.format(t.label) for t in visualizer.non_stationary_trend_test], permutation)
 
+    # print(l)
+    # print(select_list)
+    # print(selected_and_signifcative_list)
+    # [(5, <class 'experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters.GevLocationAgainstGumbel'> ), (6, < class 'experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters.GevScaleAgainstGumbel' > ), (2, < class 'experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter.GumbelScaleTrendTest' > ), (1, < class 'experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter.GumbelLocationTrendTest' > ), (7, < class 'experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_three_parameters.gev_trend_test_three_parameters.GevLocationAndScaleTrendTestAgainstGumbel' > ), (3, < class 'experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gumbel_test_two_parameters.GumbelLocationAndScaleTrendTest' > ), (4, < class 'experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter.GevStationaryVersusGumbel' > ), (0, < class 'experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter.GumbelVersusGumbel' > )]
+    # [32.520325203252035, 25.609756097560975, 12.195121951219512, 9.34959349593496, 9.34959349593496, 4.471544715447155, 3.252032520325203, 3.252032520325203]
+    # [0, 13.821138211382113, 7.317073170731708, 8.536585365853659, 5.691056910569106, 1.6260162601626016, 1.2195121951219512, 2.4390243902439024]
+
     # parameters
     width = 5
-    size = 20
-    legend_fontsize = 20
-    color = 'white'
-    labelsize = 15
+    size = 30
+    legend_fontsize = 30
+    labelsize = 25
     linewidth = 3
     x = [10 * (i+1) for i in range(len(select_list))]
-    ax.bar(x, select_list, width=width, color=color, edgecolor='blue', label='selected model',
+    ax.bar(x, select_list, width=width, color='grey', edgecolor='grey', label='Non significative model',
            linewidth=linewidth)
-    ax.bar(x, selected_and_signifcative_list, width=width, color=color, edgecolor='black',
-           label='significative selected model',
+    ax.bar(x, selected_and_signifcative_list, width=width, color='black', edgecolor='black',
+           label='Significative model',
            linewidth=linewidth)
-    ax.legend(loc='upper left', prop={'size': size})
-    ax.set_ylabel('Selected model (\%)', fontsize=legend_fontsize)
+    ax.legend(loc='upper right', prop={'size': size})
+    ax.set_ylabel('Time series where the model is selected\n'
+                  'i.e. where it minimizes the AIC (\%)', fontsize=legend_fontsize)
     ax.set_xlabel('Models', fontsize=legend_fontsize)
-
+    ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(x)
+    ax.yaxis.grid()
     ax.set_xticklabels(labels)
 
     # for ax_horizontal in [ax, ax_twiny]:

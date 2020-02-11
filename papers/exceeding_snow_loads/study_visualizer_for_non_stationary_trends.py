@@ -51,7 +51,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  relative_change_trend_plot=True,
                  non_stationary_trend_test_to_marker=None,
                  fit_method=TemporalMarginFitMethod.extremes_fevd_mle,
-                 select_only_acceptable_shape_parameter=False):
+                 select_only_acceptable_shape_parameter=True):
         super().__init__(study, show, save_to_file, only_one_graph, only_first_row, vertical_kde_plot,
                          year_for_kde_plot, plot_block_maxima_quantiles, temporal_non_stationarity,
                          transformation_class, verbose, multiprocessing, complete_non_stationary_trend_analysis,
