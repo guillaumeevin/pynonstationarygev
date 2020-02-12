@@ -18,8 +18,8 @@ class GumbelLocationAndScaleTrendTest(GevTrendTestTwoParameters):
                          quantile_level=quantile_level,
                          fit_method=fit_method)
 
-    @property
-    def total_number_of_parameters_for_unconstrained_model(self) -> int:
+    @classproperty
+    def total_number_of_parameters_for_unconstrained_model(cls) -> int:
         return 4
 
     @property

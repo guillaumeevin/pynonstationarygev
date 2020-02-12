@@ -23,8 +23,8 @@ class GumbelVersusGumbel(GevTrendTestOneParameter):
     def is_significant(self) -> bool:
         return False
 
-    @property
-    def total_number_of_parameters_for_unconstrained_model(self) -> int:
+    @classproperty
+    def total_number_of_parameters_for_unconstrained_model(cls) -> int:
         return 2
 
     @classproperty
@@ -49,8 +49,8 @@ class GevStationaryVersusGumbel(GevTrendTestOneParameter):
                          quantile_level=quantile_level,
                          fit_method=fit_method)
 
-    @property
-    def total_number_of_parameters_for_unconstrained_model(self) -> int:
+    @classproperty
+    def total_number_of_parameters_for_unconstrained_model(cls) -> int:
         return 3
 
     def _slope_strength(self):
@@ -74,8 +74,8 @@ class GumbelLocationTrendTest(GevTrendTestOneParameterAgainstStationary):
                          quantile_level=quantile_level,
                          constrained_model_class=GumbelTemporalModel, fit_method=fit_method)
 
-    @property
-    def total_number_of_parameters_for_unconstrained_model(self) -> int:
+    @classproperty
+    def total_number_of_parameters_for_unconstrained_model(cls) -> int:
         return 3
 
     def _slope_strength(self):
@@ -107,8 +107,8 @@ class GumbelScaleTrendTest(GevTrendTestOneParameterAgainstStationary):
             p=self.quantile_level,
             sigma1=self.non_stationary_linear_coef)
 
-    @property
-    def total_number_of_parameters_for_unconstrained_model(self) -> int:
+    @classproperty
+    def total_number_of_parameters_for_unconstrained_model(cls) -> int:
         return 3
 
     @classproperty

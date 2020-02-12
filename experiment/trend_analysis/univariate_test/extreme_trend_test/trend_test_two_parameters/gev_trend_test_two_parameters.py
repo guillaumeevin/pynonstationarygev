@@ -65,8 +65,8 @@ class GevLocationAgainstGumbel(GevTrendTestTwoParameters, GevLocationTrendTest):
     def marker(self):
         return 'o'
 
-    @property
-    def total_number_of_parameters_for_unconstrained_model(self) -> int:
+    @classproperty
+    def total_number_of_parameters_for_unconstrained_model(cls) -> int:
         return 4
 
 
@@ -83,6 +83,6 @@ class GevScaleAgainstGumbel(GevTrendTestTwoParameters, GevScaleTrendTest):
     def marker(self):
         return '^'
 
-    @property
-    def total_number_of_parameters_for_unconstrained_model(self) -> int:
+    @classproperty
+    def total_number_of_parameters_for_unconstrained_model(cls) -> int:
         return 4

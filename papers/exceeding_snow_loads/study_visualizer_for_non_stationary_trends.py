@@ -16,7 +16,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 from papers.exceeding_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
     compute_gelman_convergence_value
-from papers.exceeding_snow_loads.paper_utils import ModelSubsetForUncertainty
+from papers.exceeding_snow_loads.paper_utils import ModelSubsetForUncertainty, NON_STATIONARY_TREND_TEST_PAPER
 from experiment.trend_analysis.abstract_score import MeanScore
 from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
@@ -76,12 +76,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             self.uncertainty_massif_names = self.study.study_massif_names
         if self.non_stationary_trend_test_to_marker is None:
             # Assign default argument for the non stationary trends
-            self.non_stationary_trend_test = [GumbelVersusGumbel,
-                                              GumbelLocationTrendTest, GumbelScaleTrendTest,
-                                              GumbelLocationAndScaleTrendTest,
-                                              GevStationaryVersusGumbel,
-                                              GevLocationAgainstGumbel, GevScaleAgainstGumbel,
-                                              GevLocationAndScaleTrendTestAgainstGumbel]
+            self.non_stationary_trend_test = NON_STATIONARY_TREND_TEST_PAPER
             self.non_stationary_trend_test_to_marker = {t: t.marker for t in self.non_stationary_trend_test}
         else:
             self.non_stationary_trend_test = list(self.non_stationary_trend_test_to_marker.keys())
@@ -284,7 +279,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     @cached_property
     def selected_and_significative_trend_test_class_counter(self):
-        return Counter([type(t) for t in self.massif_name_to_trend_test_that_minimized_aic.values() if t.is_significant])
+        return Counter(
+            [type(t) for t in self.massif_name_to_trend_test_that_minimized_aic.values() if t.is_significant])
 
     @cached_property
     def massif_name_to_marker_style(self):
