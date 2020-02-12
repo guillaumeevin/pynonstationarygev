@@ -157,7 +157,7 @@ class GevParams(AbstractParams):
             ax = plt.gca()
         # Plot return level against return period
         return_periods = list(range(2, 61))
-        quantiles = [self.quantile(1 - 1 / return_period) for return_period in return_periods]
+        quantiles = self.get_return_level(return_periods)
         return_period_to_quantile = dict(zip(return_periods, quantiles))
         ax.vlines(50, 0, return_period_to_quantile[50])
         ax.plot(return_periods, quantiles, color=color, linestyle=linestyle, label=label)
@@ -169,3 +169,6 @@ class GevParams(AbstractParams):
         plt.gca().set_ylim(bottom=0)
         if show:
             plt.show()
+
+    def get_return_level(self, return_periods):
+        return np.array([self.quantile(1 - 1 / return_period) for return_period in return_periods])

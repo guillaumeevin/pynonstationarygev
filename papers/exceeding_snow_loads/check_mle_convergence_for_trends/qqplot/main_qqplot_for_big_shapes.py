@@ -45,10 +45,11 @@ def plot_return_level_for_time_series_with_big_shape_parameters(tuple_ordered_by
     l = tuple_ordered_by_shape
     print('Highest examples:')
     ax = plt.gca()
+    ax2 = ax.twinx()
     colors = ['orange', 'red', 'blue', 'green', 'yellow']
     for (a, v, m, shape), color in zip(l[-nb_worst_examples:][::-1], colors):
         print(a, m, shape, color)
-        v.return_level_plot(ax, m, color)
+        v.return_level_plot(ax, ax2, m, color)
     plt.show()
 
 

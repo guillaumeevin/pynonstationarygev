@@ -1,7 +1,7 @@
-import numpy as np
 from math import ceil, floor
+
 import matplotlib.pyplot as plt
-import pandas as pd
+import numpy as np
 from cached_property import cached_property
 from scipy.stats import chi2
 
@@ -9,13 +9,12 @@ from experiment.eurocode_data.utils import EUROCODE_QUANTILE
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.trend_analysis.univariate_test.utils import load_temporal_coordinates_and_dataset, \
     fitted_linear_margin_estimator
-from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
+from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    AbstractTemporalLinearMarginModel, TemporalMarginFitMethod
+    TemporalMarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     StationaryTemporalModel
 from extreme_fit.model.utils import SafeRunException
-from extreme_fit.distribution.gev.gev_params import GevParams
 from root_utils import classproperty
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
@@ -240,25 +239,58 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
 
         plt.show()
 
-    def return_level_plot_comparison(self, ax, label, color=None):
-        # ax = plt.gca()
-        size = 15
-        # Load Gev parameter in 2017 for the unconstrained estimator
-        gev_params = self.unconstrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([2017]),
-                                                                                          is_transformed=False)  # type: GevParams
-        gev_params_with_corrected_shape = GevParams(loc=gev_params.location,
-                                                    scale=gev_params.scale,
-                                                    shape=0.5)
-        suffix = 'in 2017'
-        gev_params.return_level_plot_against_return_period(ax, color, linestyle='-', label=label, suffix_return_level_label=suffix)
-        gev_params_with_corrected_shape.return_level_plot_against_return_period(ax, color=color, linestyle='--', suffix_return_level_label=suffix)
-
     def compute_empirical_quantiles(self, estimator):
         empirical_quantiles = []
         for year, maximum in sorted(zip(self.years, self.maxima), key=lambda t: t[1]):
-            gev_param = estimator.margin_function_from_fit.get_gev_params(
+            gev_param = estimator.margin_function_from_fit.get_gev_params_with_big_shape_and_correct_shape(
                 coordinate=np.array([year]),
                 is_transformed=False)
             maximum_standardized = gev_param.gumbel_standardization(maximum)
             empirical_quantiles.append(maximum_standardized)
         return empirical_quantiles
+
+    # For some visualizations
+
+    def return_level_plot_comparison(self, ax, label, color=None):
+        # ax = plt.gca()
+        size = 15
+        # Load Gev parameter in 2017 for the unconstrained estimator
+        gev_params, gev_params_with_corrected_shape = self.get_gev_params_with_big_shape_and_correct_shape()
+        suffix = 'in 2017'
+        gev_params.return_level_plot_against_return_period(ax, color, linestyle='-', label=label,
+                                                           suffix_return_level_label=suffix)
+        gev_params_with_corrected_shape.return_level_plot_against_return_period(ax, color=color, linestyle='--',
+                                                                                suffix_return_level_label=suffix)
+
+    def return_level_plot_difference(self, ax, ax2, label, color=None):
+        gev_params, gev_params_with_corrected_shape = self.get_gev_params_with_big_shape_and_correct_shape()
+        return_periods = list(range(2, 61))
+        quantile_with_big_shape = gev_params.get_return_level(return_periods)
+        quantile_with_small_shape = gev_params_with_corrected_shape.get_return_level(return_periods)
+        difference_quantile = quantile_with_big_shape - quantile_with_small_shape
+        relative_difference = 100 * difference_quantile / quantile_with_small_shape
+        # Plot the difference on the two axis
+
+        ax.vlines(50, 0, np.max(difference_quantile))
+        ax.plot(return_periods, difference_quantile, color=color, linestyle='-', label=label)
+        ax.legend(loc='upper left')
+        difference_ylabel = 'difference return level in 2017'
+        ax.set_ylabel(difference_ylabel + ' (kPa)')
+
+        ax2.vlines(50, 0, np.max(relative_difference))
+        ax2.plot(return_periods, relative_difference, color=color, linestyle='--', label=label)
+        ax2.legend(loc='upper right')
+        ax2.yaxis.grid()
+        ax2.set_ylabel('relative ' + difference_ylabel + ' (%)')
+
+        ax.set_xlabel('Return period')
+        ax.set_xticks([10 * i for i in range(1, 7)])
+        plt.gca().set_ylim(bottom=0)
+
+    def get_gev_params_with_big_shape_and_correct_shape(self):
+        gev_params = self.unconstrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([2017]),
+                                                                                          is_transformed=False)  # type: GevParams
+        gev_params_with_corrected_shape = GevParams(loc=gev_params.location,
+                                                    scale=gev_params.scale,
+                                                    shape=0.5)
+        return gev_params, gev_params_with_corrected_shape
