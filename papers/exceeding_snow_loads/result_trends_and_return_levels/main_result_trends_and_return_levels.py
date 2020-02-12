@@ -7,7 +7,8 @@ from papers.exceeding_snow_loads.paper_main_utils import load_altitude_to_visual
 from papers.exceeding_snow_loads.paper_utils import paper_study_classes, paper_altitudes
 from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_diagnosis_risk import plot_diagnosis_risk
 from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_selection_curves import plot_selection_curves
-from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_trend_curves import plot_trend_curves
+from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_trend_curves import plot_trend_curves, \
+    plot_trend_map
 from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_uncertainty_curves import plot_uncertainty_massifs
 from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_uncertainty_histogram import \
     plot_uncertainty_histogram
@@ -65,11 +66,11 @@ def intermediate_result(altitudes, massif_names=None,
             _ = compute_minimized_aic(visualizer)
 
     # Plots
-    # plot_trend_map(altitude_to_visualizer)
+    plot_trend_map(altitude_to_visualizer)
     # plot_diagnosis_risk(altitude_to_visualizer)
-    # plot_trend_curves(altitude_to_visualizer={a: v for a, v in altitude_to_visualizer.items() if a >= 900})
-    # plot_uncertainty_massifs(altitude_to_visualizer)
-    # plot_uncertainty_histogram(altitude_to_visualizer)
+    plot_trend_curves(altitude_to_visualizer={a: v for a, v in altitude_to_visualizer.items() if a >= 900})
+    plot_uncertainty_massifs(altitude_to_visualizer)
+    plot_uncertainty_histogram(altitude_to_visualizer)
     plot_selection_curves(altitude_to_visualizer)
 
 

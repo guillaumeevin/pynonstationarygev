@@ -1,7 +1,7 @@
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
-from experiment.exceeding_snow_loads.check_mle_convergence_for_trends.shape.study_visualizer_for_shape_repartition import \
+from papers.exceeding_snow_loads.check_mle_convergence_for_trends.shape.study_visualizer_for_shape_repartition import \
     StudyVisualizerForShape
-from experiment.exceeding_snow_loads.paper_main_utils import load_altitude_to_visualizer
+from papers.exceeding_snow_loads.paper_main_utils import load_altitude_to_visualizer
 
 
 def main_shape_repartition(altitudes, massif_names=None,

@@ -8,8 +8,10 @@ from matplotlib.ticker import PercentFormatter
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     ALL_ALTITUDES_WITHOUT_NAN
-from experiment.exceeding_snow_loads.data.main_example_swe_total_plot import tuples_for_examples_paper1
-from experiment.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
+from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
+    TemporalMarginFitMethod
+from papers.exceeding_snow_loads.data.main_example_swe_total_plot import tuples_for_examples_paper1
+from papers.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.distribution.gev.gev_params import GevParams
 
@@ -26,7 +28,7 @@ def plot_qqplot_for_time_series_with_missing_zeros(
     print('Worst examples:')
     for a, v, m, p in l:
         print(a, m, p)
-        print(last_quantile(p))
+        print('Last standard quantile (depends on the number of data):', last_quantile(p))
         v.qqplot(m)
 
 
@@ -81,13 +83,29 @@ def last_quantile(psnow):
 
 
 if __name__ == '__main__':
-    # altitudes = [300, 600, 900, 1200, 1500, 1800][:2]
-    altitudes = ALL_ALTITUDES_WITHOUT_NAN
+    """
+    Worst examples:
+    300 Mercantour 0.38333333333333336
+    3.1568494936985307
+    300 Haut_Var-Haut_Verdon 0.6
+    3.5972497046789322
+    600 Mercantour 0.75
+    3.817672071062871
+    
+    For the two time series with less values:
+    300 Mercantour 1.0857026816954518
+    300 Haut_Var-Haut_Verdon 0.8446498197950775
+
+    """
+    altitudes = [300, 600, 900, 1200, 1500, 1800][:2]
+    # altitudes = ALL_ALTITUDES_WITHOUT_NAN
     # altitudes = [900, 1800, 2700]
     altitude_to_visualizer = {altitude: StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude),
+                                                                              select_only_acceptable_shape_parameter=True,
+                                                                              fit_method=TemporalMarginFitMethod.extremes_fevd_bayesian,
                                                                               multiprocessing=True)
                               for altitude in altitudes}
     # plot_qqplot_wrt_standard_gumbel(altitude_to_visualizer)
-    plot_hist_psnow(altitude_to_visualizer)
+    # plot_hist_psnow(altitude_to_visualizer)
     # plot_qqplot_for_time_series_examples(altitude_to_visualizer)
-    # plot_qqplot_for_time_series_with_missing_zeros(altitude_to_visualizer, nb_worst_examples=3)
+    plot_qqplot_for_time_series_with_missing_zeros(altitude_to_visualizer, nb_worst_examples=3)
