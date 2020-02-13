@@ -102,9 +102,10 @@ if __name__ == '__main__':
     # altitudes = [900, 1800, 2700]
     altitude_to_visualizer = {altitude: StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude),
                                                                               select_only_acceptable_shape_parameter=True,
-                                                                              fit_method=TemporalMarginFitMethod.extremes_fevd_bayesian,
+                                                                              fit_method=TemporalMarginFitMethod.extremes_fevd_mle,
                                                                               multiprocessing=True)
                               for altitude in altitudes}
+
     # plot_qqplot_wrt_standard_gumbel(altitude_to_visualizer)
     # plot_hist_psnow(altitude_to_visualizer)
     # plot_qqplot_for_time_series_examples(altitude_to_visualizer)

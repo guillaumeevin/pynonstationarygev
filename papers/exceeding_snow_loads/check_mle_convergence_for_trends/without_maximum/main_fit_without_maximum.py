@@ -3,7 +3,7 @@ from typing import Dict
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     ALL_ALTITUDES_WITHOUT_NAN
-from experiment.exceeding_snow_loads.check_mle_convergence_for_trends.without_maximum.study_visualizer_for_fit_witout_maximum import \
+from papers.exceeding_snow_loads.check_mle_convergence_for_trends.without_maximum.study_visualizer_for_fit_witout_maximum import \
     StudyVisualizerForFitWithoutMaximum
 
 

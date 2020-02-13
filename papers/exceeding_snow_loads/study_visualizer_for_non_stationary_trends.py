@@ -394,8 +394,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     def qqplot(self, massif_name, color=None):
         trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]
-        marker = self.massif_name_to_marker_style[massif_name]
-        trend_test.qqplot_wrt_standard_gumbel(marker, color)
+        trend_test.qqplot_wrt_standard_gumbel(massif_name, self.altitude)
 
     def return_level_plot(self, ax, ax2, massif_name, color=None):
         trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]

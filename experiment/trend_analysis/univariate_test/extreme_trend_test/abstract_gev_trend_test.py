@@ -209,7 +209,7 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
 
     # Some display function
 
-    def qqplot_wrt_standard_gumbel(self, marker, color=None):
+    def qqplot_wrt_standard_gumbel(self, massif_name, altitude):
         ax = plt.gca()
         size = 15
         # Standard Gumbel quantiles
@@ -222,13 +222,25 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         epsilon = 0.5
         ax_lim = [min(all_quantiles) - epsilon, max(all_quantiles) + epsilon]
         ax.plot(standard_gumbel_quantiles, standard_gumbel_quantiles, color='k')
-        ax.plot(standard_gumbel_quantiles, constrained_empirical_quantiles, 'x',
-                label='Stationary Gumbel model $\mathcal{M}_0$')
+        # ax.plot(standard_gumbel_quantiles, constrained_empirical_quantiles, 'x',
+        #         label='Stationary Gumbel model $\mathcal{M}_0$')
+
+        massif_name = massif_name.replace('_', ' ')
+        label_generic = '{} massif \nat {} m '.format(massif_name, altitude)
         ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
-                label='Selected model $\mathcal{M}_N$', **marker)
+                label=label_generic + '(selected model is ${}$)'.format(self.label), marker='o')
+        if 'Verdon' in massif_name and altitude == 300:
+            q = [-1.4541688117485054, -1.2811308174310914, -1.216589300814509, -0.7635793791201918, -0.6298883422064275, -0.5275954855697504, -0.4577268043676126, -0.4497570331795861, -0.1647955002136654, -0.14492222503785876, -0.139173823298689, -0.11945617994263039, -0.07303100174657867, -5.497308509286266e-05, 0.13906416388625908, 0.15274793441408543, 0.1717763342727519, 0.17712605315013535, 0.17900143646245203, 0.371986176207554, 0.51640780422156, 0.7380550963951035, 0.7783015252180445, 0.887836077295502, 0.917853338231094, 0.9832396811506262, 1.0359396416309927, 1.1892663813729711, 1.2053261113817888, 1.5695111391491652, 2.3223652143938476, 2.674882764437432, 2.6955728524900406, 2.8155882785356896, 3.282838470153471, 3.2885313947906765]
+            print(len(q), len(standard_gumbel_quantiles))
+            ax.plot(standard_gumbel_quantiles, q, linestyle='None',
+                    label=label_generic
+                          + '(discarded model is ${}$\n'.format('\mathcal{M}_{\zeta_0, \sigma_1}')
+                          + 'with $\zeta_0=0.84$)',
+                    marker='o')
+
         ax.set_xlabel("Standard Gumbel quantile", fontsize=size)
         ax.set_ylabel("Standard Empirical quantile", fontsize=size)
-        ax.legend(loc='upper left', prop={'size': 10})
+        ax.legend(loc='lower right', prop={'size': 10})
         ax.set_xlim(ax_lim)
         ax.set_ylim(ax_lim)
         ticks = [i for i in range(ceil(ax_lim[0]), floor(ax_lim[1]) + 1)]
@@ -242,7 +254,7 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     def compute_empirical_quantiles(self, estimator):
         empirical_quantiles = []
         for year, maximum in sorted(zip(self.years, self.maxima), key=lambda t: t[1]):
-            gev_param = estimator.margin_function_from_fit.get_gev_params_with_big_shape_and_correct_shape(
+            gev_param = estimator.margin_function_from_fit.get_gev_params(
                 coordinate=np.array([year]),
                 is_transformed=False)
             maximum_standardized = gev_param.gumbel_standardization(maximum)
