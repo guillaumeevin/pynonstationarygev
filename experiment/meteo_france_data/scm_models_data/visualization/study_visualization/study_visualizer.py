@@ -6,6 +6,7 @@ from random import sample, seed
 from typing import Dict, Tuple
 
 import math
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -819,7 +820,7 @@ class StudyVisualizer(VisualizationParameters):
         ax.set_aspect('equal')
 
     def show_or_save_to_file(self, add_classic_title=True, no_title=False, tight_layout=False, tight_pad=None,
-                             dpi=None):
+                             dpi=None, folder_for_variable=True):
         if tight_layout:
             if tight_pad is not None:
                 plt.tight_layout(**tight_pad)
@@ -839,7 +840,10 @@ class StudyVisualizer(VisualizationParameters):
             plt.show()
         if self.save_to_file:
             main_title, specific_title = '_'.join(self.study.title.split()).split('/')
-            filename = "{}/{}/".format(VERSION_TIME, main_title)
+            if folder_for_variable:
+                filename = "{}/{}/".format(VERSION_TIME, main_title)
+            else:
+                filename = "{}/".format(VERSION_TIME)
             if not self.only_one_graph:
                 filename += "{}".format('_'.join(self.plot_name.split())) + '_'
             filename += specific_title

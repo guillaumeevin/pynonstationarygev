@@ -1,6 +1,9 @@
 from multiprocessing.pool import Pool
 
 import matplotlib as mpl
+mpl.use('Agg')
+mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoad3Days, \
     CrocusSnowLoad5Days, CrocusSnowLoad7Days, CrocusSnowLoad1Day
@@ -19,14 +22,14 @@ from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_uncertaint
     plot_uncertainty_histogram
 from root_utils import NB_CORES
 
-mpl.rcParams['text.usetex'] = True
-mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+
 
 
 def intermediate_result(altitudes, massif_names=None,
                         model_subsets_for_uncertainty=None, uncertainty_methods=None,
                         study_class=CrocusSnowLoad3Days,
-                        multiprocessing=False):
+                        multiprocessing=False,
+                        save_to_file=True):
     """
     Plot all the trends for all altitudes
     And enable to plot uncertainty plot for some specific massif_names, uncertainty methods to be fast
@@ -39,7 +42,7 @@ def intermediate_result(altitudes, massif_names=None,
     """
     # Load altitude to visualizer
     altitude_to_visualizer = load_altitude_to_visualizer(altitudes, massif_names, model_subsets_for_uncertainty,
-                                                         study_class, uncertainty_methods)
+                                                         study_class, uncertainty_methods, save_to_file=save_to_file)
     # Load variable object efficiently
     for v in altitude_to_visualizer.values():
         _ = v.study.year_to_variable_object
@@ -62,7 +65,7 @@ def major_result():
     massif_names = None
     model_subsets_for_uncertainty = None
     altitudes = paper_altitudes
-    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700]
+    # altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300]
     study_classes = [CrocusSnowLoad1Day, CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][:]
     for study_class in study_classes:
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,
@@ -74,4 +77,5 @@ if __name__ == '__main__':
     # intermediate_result(altitudes=[1500, 1800][:], massif_names=None,
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
-    #                     multiprocessing=True)
+    #                     multiprocessing=True,
+    #                     save_to_file=False)

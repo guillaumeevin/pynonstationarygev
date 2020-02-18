@@ -436,12 +436,21 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         # percentage_decrease = 100 * len(decreasing_trend_tests) / len(trend_tests)
         # significative_decrease_trend_tests = [t for t in decreasing_trend_tests if t.is_significant]
         # percentage_decrease_significative = 100 * len(significative_decrease_trend_tests) / len(trend_tests)
-        compute_mean_change = lambda l: np.mean(np.array(list(l)))
-        mean_changes = [compute_mean_change(self.massif_name_to_relative_change_value.values())]
-        # Compute mean relatives per regions (for the moment i don't add the region means)
+        compute_mean_change = lambda l: np.mean(np.array(list(l))) if len(l) > 0 else 0
+        all_regions = False
         massif_name_to_region_name = AbstractExtendedStudy.massif_name_to_region_name
-        for region_name in AbstractExtendedStudy.real_region_names:
-            change_values = [v for m, v in self.massif_name_to_relative_change_value.items()
-                             if massif_name_to_region_name[m] == region_name]
-            mean_changes.append(compute_mean_change(change_values))
+        if all_regions:
+            mean_changes = [compute_mean_change(self.massif_name_to_relative_change_value.values())]
+            # Compute mean relatives per regions (for the moment i don't add the region means)
+            for region_name in AbstractExtendedStudy.real_region_names:
+                change_values = [v for m, v in self.massif_name_to_relative_change_value.items()
+                                 if massif_name_to_region_name[m] == region_name]
+                mean_changes.append(compute_mean_change(change_values))
+        else:
+            mean_changes = [
+                compute_mean_change([v for m, v in self.massif_name_to_relative_change_value.items()
+                                    if massif_name_to_region_name[m] in regions])
+                for regions in [AbstractExtendedStudy.real_region_names[:2], AbstractExtendedStudy.real_region_names[2:]]
+            ]
+
         return (self.altitude, *mean_changes)

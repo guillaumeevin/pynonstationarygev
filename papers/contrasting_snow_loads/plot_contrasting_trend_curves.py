@@ -16,7 +16,8 @@ def plot_contrasting_trend_curves(altitude_to_visualizer: Dict[int, StudyVisuali
     visualizer = list(altitude_to_visualizer.values())[0]
 
     ax = create_adjusted_axes(1, 1)
-    ax_twinx = ax.twinx()
+    # ax_twinx = ax.twinx()
+    ax_twinx = ax
     ax_twiny = ax.twiny()
 
     trend_summary_values = list(zip(*[v.trend_summary_contrasting_values() for v in altitude_to_visualizer.values()]))
@@ -60,19 +61,20 @@ def plot_contrasting_trend_curves(altitude_to_visualizer: Dict[int, StudyVisuali
     #     axis.set_ylim(ax_lim)
     #     axis.set_yticks(ax_ticks)
     #     axis.tick_params(labelsize=labelsize)
-    ax.yaxis.grid()
+    ax_twinx.yaxis.grid()
 
-    label_curve = (visualizer.label).replace('change', 'decrease')
-    ax_twinx.set_ylabel(label_curve.replace('', ''), fontsize=legend_fontsize)
-    for region_name, mean_change in zip(AbstractExtendedStudy.region_names, mean_changes):
-        if len(mean_changes) > 1:
+    ax_twinx.set_ylabel(visualizer.label, fontsize=legend_fontsize)
+    for j, (region_name, mean_change) in enumerate(zip(AbstractExtendedStudy.region_names, mean_changes)):
+        if len(mean_changes) > 2:
             label = region_name
+        elif len(mean_changes) == 2:
+            label = 'North' if j == 0 else 'South'
         else:
             label = 'Mean relative change'
         ax_twinx.plot(altitudes, mean_change, label=label, linewidth=linewidth, marker='o')
         ax_twinx.legend(loc='upper right', prop={'size': size})
 
     # Save plot
-    visualizer.plot_name = 'Trend curves'
-    visualizer.show_or_save_to_file(no_title=True, dpi=dpi_paper1_figure)
+    visualizer.plot_name = 'Trend curves for' + visualizer.study.variable_name.split('(')[0]
+    visualizer.show_or_save_to_file(no_title=True, dpi=dpi_paper1_figure, folder_for_variable=False)
     plt.close()
