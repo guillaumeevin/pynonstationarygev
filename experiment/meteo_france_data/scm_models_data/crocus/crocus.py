@@ -7,7 +7,7 @@ from experiment.meteo_france_data.scm_models_data.abstract_study import Abstract
 from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusTotalSweVariable, \
     CrocusDepthVariable, CrocusRecentSweVariableThreeDays, TotalSnowLoadVariable, RecentSnowLoadVariableThreeDays, \
     CrocusSnowLoadEurocodeVariable, CrocusDensityVariable, RecentSnowLoadVariableFiveDays, \
-    RecentSnowLoadVariableSevenDays
+    RecentSnowLoadVariableSevenDays, RecentSnowLoadVariableOneDay
 
 
 class Crocus(AbstractStudy):
@@ -20,6 +20,7 @@ class Crocus(AbstractStudy):
                                   RecentSnowLoadVariableThreeDays, TotalSnowLoadVariable,
                                   CrocusSnowLoadEurocodeVariable,
                                   CrocusDensityVariable,
+                                  RecentSnowLoadVariableOneDay,
                                   RecentSnowLoadVariableFiveDays,
                                   RecentSnowLoadVariableSevenDays]
         super().__init__(variable_class, *args, **kwargs)
@@ -60,6 +61,9 @@ class CrocusSnowLoadTotal(Crocus):
     def __init__(self, *args, **kwargs):
         Crocus.__init__(self, TotalSnowLoadVariable, *args, **kwargs)
 
+class CrocusSnowLoad1Day(CrocusSweTotal):
+    def __init__(self, *args, **kwargs):
+        Crocus.__init__(self, RecentSnowLoadVariableOneDay, *args, **kwargs)
 
 class CrocusSnowLoad3Days(CrocusSweTotal):
     def __init__(self, *args, **kwargs):

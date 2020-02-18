@@ -20,6 +20,14 @@ class CrocusTotalSweVariable(CrocusVariable):
         return 'WSN_T_ISBA'
 
 
+class CrocusRecentSweVariableOneDay(CrocusTotalSweVariable):
+    NAME = 'Snow Water Equivalent last 1 day'
+
+    @classmethod
+    def keyword(cls):
+        return 'SWE_1DY_ISBA'
+
+
 class CrocusRecentSweVariableThreeDays(CrocusTotalSweVariable):
     NAME = 'Snow Water Equivalent last 3 days'
 
@@ -52,6 +60,8 @@ class AbstractSnowLoadVariable(CrocusVariable):
         snow_pressure = self.snow_load_multiplication_factor * super().daily_time_serie_array
         return snow_pressure
 
+class RecentSnowLoadVariableOneDay(AbstractSnowLoadVariable, CrocusRecentSweVariableOneDay):
+    NAME = 'Snow load last 1 day'
 
 class RecentSnowLoadVariableThreeDays(AbstractSnowLoadVariable, CrocusRecentSweVariableThreeDays):
     NAME = 'Snow load last 3 days'

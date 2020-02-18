@@ -9,11 +9,11 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizat
     StudyVisualizer
 import matplotlib.pyplot as plt
 
-from experiment.exceeding_snow_loads.discussion_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import \
+from papers.exceeding_snow_loads.discussion_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import \
     CrocusDifferenceSnowLoad, \
     CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization, \
     CrocusSnowDepthAtMaxofSwe, CrocusSnowDepthDifference
-from experiment.exceeding_snow_loads.paper_utils import dpi_paper1_figure
+from papers.exceeding_snow_loads.paper_utils import dpi_paper1_figure
 
 
 def test():
