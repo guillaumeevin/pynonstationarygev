@@ -99,8 +99,9 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, m
     for j, uncertainty_method in enumerate(visualizer.uncertainty_methods):
         if j == 0:
             # Plot eurocode norm
+            altitudes_for_plot = list(range(min(altitudes), max(altitudes)+1, 100))
             eurocode_region.plot_eurocode_snow_load_on_ground_characteristic_value_variable_action(ax,
-                                                                                                   altitudes=altitudes)
+                                                                                                   altitudes=altitudes_for_plot)
 
         # Plot uncertainties
         color = ci_method_to_color[uncertainty_method]
@@ -162,8 +163,9 @@ def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, leg
                    width=150, color=colors, label=visualizers[0].label_tdrl_bar, edgecolor='black', hatch='//')
         # Plot markers
         markers_kwargs = [v.massif_name_to_marker_style[massif_name] for v in visualizers]
+        markersize = 20
         for k in markers_kwargs:
-            k['markersize'] = 10
+            k['markersize'] = markersize
         for altitude, marker_kwargs, value in zip(valid_altitudes, markers_kwargs, tdrl_values):
             # ax.plot([altitude], [value / 2], **marker_kwargs)
             # Better to plot all the markers on the same line
@@ -172,13 +174,16 @@ def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, leg
         visualizer = visualizers[0]
         markers = [v.massif_name_to_marker_style[massif_name]['marker'] for v in visualizers]
         marker_to_label = {m: visualizer.all_marker_style_to_label_name[m] for m in markers}
-        legend_elements = AbstractStudy.get_legend_for_model_symbol(marker_to_label, markersize=9)
+        legend_elements = AbstractStudy.get_legend_for_model_symbol(marker_to_label, markersize=markersize)
         ax2 = ax.twinx()
         # ax2.legend(handles=legend_elements, bbox_to_anchor=(0.93, 0.7), loc='upper right')
         # ax2.annotate("Filled symbol = significant trend ", xy=(0.85, 0.5), xycoords='axes fraction', fontsize=7)
         ax2.legend(handles=legend_elements, loc='center left', prop={'size': legend_size})
+        # for handle in lgnd.legendHandles:
+        #     handle.set_sizes([6.0])
         # ax2.annotate("Filled symbol =\nsignificant trend  \nw.r.t $\mathcal{M}_0$", xy=(0.6, 0.85), xycoords='axes fraction', fontsize=fontsize)
         ax2.annotate('\n'.join(filled_marker_legend_list), xy=(0.23, 0.43), xycoords='axes fraction', fontsize=fontsize)
+        ax2.annotate('Markers show selected model $\mathcal{M}_N$', xy=(0.02, 0.605), xycoords='axes fraction', fontsize=fontsize)
         ax2.set_yticks([])
 
 

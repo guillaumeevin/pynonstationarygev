@@ -47,6 +47,11 @@ class AbstractEurocodeRegion(object):
     def plot_eurocode_snow_load_on_ground_characteristic_value_variable_action(self, ax, altitudes,
                                                                                label='French standards',
                                                                                linestyle=None):
+        # The breaking point must be exactly at 500 and 1000
+        for threshold in [500, 1000]:
+            if min(altitudes) < threshold < max(altitudes):
+                assert threshold in altitudes
+        # Plot the curve
         ax.plot(altitudes, [self.valeur_caracteristique(altitude) for altitude in altitudes],
                 label=label, color=self.eurocode_color, linewidth=5, linestyle=linestyle)
 
