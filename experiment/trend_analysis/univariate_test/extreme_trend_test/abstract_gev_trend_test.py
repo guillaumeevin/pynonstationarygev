@@ -6,6 +6,7 @@ from cached_property import cached_property
 from scipy.stats import chi2
 
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE
+from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.trend_analysis.univariate_test.utils import load_temporal_coordinates_and_dataset, \
     fitted_linear_margin_estimator
@@ -209,13 +210,87 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
 
     # Some display function
 
+    def intensity_plot_wrt_standard_gumbel(self, massif_name, altitude, psnow):
+        ax = plt.gca()
+        sorted_maxima = sorted(self.maxima)
+        label_generic = '{} massif \nat {} m '.format(massif_name, altitude)
+        size = 15
+
+        # Plot for the empirical
+        standard_gumbel_quantiles = self.get_standard_gumbel_quantiles()
+        ax.plot(standard_gumbel_quantiles, sorted_maxima, linestyle='None',
+                label='Empirical model', marker='o')
+
+        # Plot for the selected model
+        unconstrained_empirical_quantiles = self.compute_empirical_quantiles(self.unconstrained_estimator)
+        ax.plot(unconstrained_empirical_quantiles, sorted_maxima,
+                label='Selected model, which is ${}$'.format(self.label))
+        print(unconstrained_empirical_quantiles)
+
+        ax_twiny = ax.twiny()
+        return_periods = [10, 25, 50, 100]
+        quantiles = self.get_standard_quantiles_for_return_periods(return_periods, psnow)
+        print(quantiles)
+        ax_twiny.plot(quantiles, [0 for _ in quantiles], linewidth=0)
+        ax_twiny.set_xticks(quantiles)
+        ax_twiny.set_xticklabels([return_period for return_period in return_periods])
+        ax_twiny.set_xlabel('Return period w.r.t all annual maxima of GSL (years)', fontsize=size)
+
+        # Plot for the discarded model
+        if 'Verdon' in massif_name and altitude == 300:
+            q = [-1.4541688117485054, -1.2811308174310914, -1.216589300814509, -0.7635793791201918, -0.6298883422064275,
+                 -0.5275954855697504, -0.4577268043676126, -0.4497570331795861, -0.1647955002136654,
+                 -0.14492222503785876, -0.139173823298689, -0.11945617994263039, -0.07303100174657867,
+                 -5.497308509286266e-05, 0.13906416388625908, 0.15274793441408543, 0.1717763342727519,
+                 0.17712605315013535, 0.17900143646245203, 0.371986176207554, 0.51640780422156, 0.7380550963951035,
+                 0.7783015252180445, 0.887836077295502, 0.917853338231094, 0.9832396811506262, 1.0359396416309927,
+                 1.1892663813729711, 1.2053261113817888, 1.5695111391491652, 2.3223652143938476, 2.674882764437432,
+                 2.6955728524900406, 2.8155882785356896, 3.282838470153471, 3.2885313947906765]
+            color = 'red'
+            ax.plot(q, sorted_maxima,
+                    label='Discarded model, which is ${}$\n'.format('\mathcal{M}_{\zeta_0, \sigma_1}')
+                          + 'with $\zeta_0=0.84$',
+                    color=color)
+
+            # Extend the curve linear a bit if the return period 50 is not in the quantiles
+
+            def compute_slope_intercept(x, y):
+                x1, x2 = x[-2:]
+                y1, y2 = y[-2:]
+                a = (y2 - y1) / (x2 - x1)
+                b = y1 - a * x1
+                return a, b
+
+            def compute_maxima_corresponding_to_return_period(return_period_quantiles, quantiles, model_maxima):
+                a, b = compute_slope_intercept(quantiles, model_maxima)
+                return a * return_period_quantiles + b
+
+            quantile_return_period_50 = quantiles[-1]
+            if max(q) < quantile_return_period_50:
+                maxima_extended = compute_maxima_corresponding_to_return_period(quantile_return_period_50,
+                                                                                q,
+                                                                                sorted_maxima)
+                ax.plot([q[-1], quantile_return_period_50],
+                        [sorted_maxima[-1], maxima_extended], linestyle='--',
+                        color=color)
+
+        all_quantiles = standard_gumbel_quantiles + unconstrained_empirical_quantiles + quantiles
+        epsilon = 0.5
+        ax_lim = [min(all_quantiles) - epsilon, max(all_quantiles) + epsilon]
+        ax.set_xlim(ax_lim)
+        ax_twiny.set_xlim(ax_lim)
+
+        ax.legend()
+
+        ax.set_xlabel("Standard Gumbel quantile", fontsize=size)
+        ax.set_ylabel("Non-zero annual maxima of GSL ({})".format(AbstractSnowLoadVariable.UNIT), fontsize=size)
+        ax.legend(loc='lower right', prop={'size': 10})
+        plt.show()
+
     def qqplot_wrt_standard_gumbel(self, massif_name, altitude):
         ax = plt.gca()
         size = 15
-        # Standard Gumbel quantiles
-        standard_gumbel_distribution = GevParams(loc=0, scale=1, shape=0)
-        n = len(self.years)
-        standard_gumbel_quantiles = [standard_gumbel_distribution.quantile(i / (n + 1)) for i in range(1, n + 1)]
+        standard_gumbel_quantiles = self.get_standard_gumbel_quantiles()
         unconstrained_empirical_quantiles = self.compute_empirical_quantiles(self.unconstrained_estimator)
         constrained_empirical_quantiles = self.compute_empirical_quantiles(self.constrained_estimator)
         all_quantiles = standard_gumbel_quantiles + unconstrained_empirical_quantiles + constrained_empirical_quantiles
@@ -230,7 +305,14 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
                 label=label_generic + '(selected model is ${}$)'.format(self.label), marker='o')
         if 'Verdon' in massif_name and altitude == 300:
-            q = [-1.4541688117485054, -1.2811308174310914, -1.216589300814509, -0.7635793791201918, -0.6298883422064275, -0.5275954855697504, -0.4577268043676126, -0.4497570331795861, -0.1647955002136654, -0.14492222503785876, -0.139173823298689, -0.11945617994263039, -0.07303100174657867, -5.497308509286266e-05, 0.13906416388625908, 0.15274793441408543, 0.1717763342727519, 0.17712605315013535, 0.17900143646245203, 0.371986176207554, 0.51640780422156, 0.7380550963951035, 0.7783015252180445, 0.887836077295502, 0.917853338231094, 0.9832396811506262, 1.0359396416309927, 1.1892663813729711, 1.2053261113817888, 1.5695111391491652, 2.3223652143938476, 2.674882764437432, 2.6955728524900406, 2.8155882785356896, 3.282838470153471, 3.2885313947906765]
+            q = [-1.4541688117485054, -1.2811308174310914, -1.216589300814509, -0.7635793791201918, -0.6298883422064275,
+                 -0.5275954855697504, -0.4577268043676126, -0.4497570331795861, -0.1647955002136654,
+                 -0.14492222503785876, -0.139173823298689, -0.11945617994263039, -0.07303100174657867,
+                 -5.497308509286266e-05, 0.13906416388625908, 0.15274793441408543, 0.1717763342727519,
+                 0.17712605315013535, 0.17900143646245203, 0.371986176207554, 0.51640780422156, 0.7380550963951035,
+                 0.7783015252180445, 0.887836077295502, 0.917853338231094, 0.9832396811506262, 1.0359396416309927,
+                 1.1892663813729711, 1.2053261113817888, 1.5695111391491652, 2.3223652143938476, 2.674882764437432,
+                 2.6955728524900406, 2.8155882785356896, 3.282838470153471, 3.2885313947906765]
             print(len(q), len(standard_gumbel_quantiles))
             ax.plot(standard_gumbel_quantiles, q, linestyle='None',
                     label=label_generic
@@ -250,6 +332,20 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         ax.tick_params(labelsize=size)
 
         plt.show()
+
+    def get_standard_gumbel_quantiles(self):
+        # Standard Gumbel quantiles
+        standard_gumbel_distribution = GevParams(loc=0, scale=1, shape=0)
+        n = len(self.years)
+        standard_gumbel_quantiles = [standard_gumbel_distribution.quantile(i / (n + 1)) for i in range(1, n + 1)]
+        return standard_gumbel_quantiles
+
+    def get_standard_quantiles_for_return_periods(self, return_periods, psnow):
+        n = len(self.years)
+        p_list = [1 - ((1 / return_period) / psnow) for return_period in return_periods]
+        standard_gumbel_distribution = GevParams(loc=0, scale=1, shape=0)
+        corresponding_quantiles = [standard_gumbel_distribution.quantile(p) for p in p_list]
+        return corresponding_quantiles
 
     def compute_empirical_quantiles(self, estimator):
         empirical_quantiles = []

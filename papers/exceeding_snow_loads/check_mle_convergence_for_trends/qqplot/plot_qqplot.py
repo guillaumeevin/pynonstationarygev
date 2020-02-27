@@ -16,9 +16,7 @@ from papers.exceeding_snow_loads.study_visualizer_for_non_stationary_trends impo
 from extreme_fit.distribution.gev.gev_params import GevParams
 
 
-def plot_qqplot_for_time_series_with_missing_zeros(
-        altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends],
-        nb_worst_examples=3):
+def extract_time_serimes_with_worst_number_of_zeros(altitude_to_visualizer, nb_worst_examples):
     # Extract all the values
     l = []
     for a, v in altitude_to_visualizer.items():
@@ -29,7 +27,23 @@ def plot_qqplot_for_time_series_with_missing_zeros(
     for a, v, m, p in l:
         print(a, m, p)
         print('Last standard quantile (depends on the number of data):', last_quantile(p))
+    return l
+
+
+def plot_qqplot_for_time_series_with_missing_zeros(
+        altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends],
+        nb_worst_examples=3):
+    l = extract_time_serimes_with_worst_number_of_zeros(altitude_to_visualizer, nb_worst_examples)
+    for a, v, m, p in l:
         v.qqplot(m)
+
+
+def plot_intensity_against_gumbel_quantile_for_time_series_with_missing_zeros(
+        altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends],
+        nb_worst_examples=3):
+    l = extract_time_serimes_with_worst_number_of_zeros(altitude_to_visualizer, nb_worst_examples)
+    for a, v, m, p in l:
+        v.intensity_plot(m, p)
 
 
 def plot_qqplot_for_time_series_examples(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
@@ -109,4 +123,4 @@ if __name__ == '__main__':
     # plot_qqplot_wrt_standard_gumbel(altitude_to_visualizer)
     # plot_hist_psnow(altitude_to_visualizer)
     # plot_qqplot_for_time_series_examples(altitude_to_visualizer)
-    plot_qqplot_for_time_series_with_missing_zeros(altitude_to_visualizer, nb_worst_examples=3)
+    plot_intensity_against_gumbel_quantile_for_time_series_with_missing_zeros(altitude_to_visualizer, nb_worst_examples=3)

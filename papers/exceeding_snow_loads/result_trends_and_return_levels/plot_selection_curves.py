@@ -51,8 +51,8 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
            label='Significative model',
            linewidth=linewidth)
     ax.legend(loc='upper right', prop={'size': size})
-    ax.set_ylabel('Time series where the model is selected\n'
-                  'i.e. where it minimizes the AIC (\%)', fontsize=legend_fontsize)
+    ax.set_ylabel(' Frequency of selected model w.r.t all time series \n '
+                  'i.e. for all massifs and altitudes (\%)', fontsize=legend_fontsize)
     ax.set_xlabel('Models', fontsize=legend_fontsize)
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(x)
