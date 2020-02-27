@@ -6,10 +6,10 @@ import numpy as np
 from matplotlib.ticker import PercentFormatter
 
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
-    ALL_ALTITUDES_WITHOUT_NAN
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod
+from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
+    AbstractExtractEurocodeReturnLevel
 from papers.exceeding_snow_loads.data.main_example_swe_total_plot import tuples_for_examples_paper1
 from papers.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
@@ -53,10 +53,71 @@ def plot_qqplot_for_time_series_examples(altitude_to_visualizer: Dict[int, Study
         v.qqplot(m, color)
 
 
+def plot_exceedance_psnow(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
+    altitudes = list(altitude_to_visualizer.keys())
+    percentages_list = []
+    for a, v in altitude_to_visualizer.items():
+        percentages = v.mean_percentage_of_standards_for_massif_names_with_years_without_snow()
+        percentages_list.append(percentages)
+
+    ax2 = plt.gca()
+    ax = ax2.twinx()
+    ax2.bar(altitudes, [len(v.massifs_names_with_year_without_snow) for v in altitude_to_visualizer.values()],
+            width=150, label='Number of time series', edgecolor='black', hatch='x', fill=False)
+    ax2.set_ylabel('Number of time series with some\nannual maxima equal to zero, i.e. with $P(Y > 0) < 1$')
+
+    mean = [p[1] for p in percentages_list]
+    alpha = 0.2
+    color = 'blue'
+    label_name = 'ratio'
+
+    confidence_interval_str = ' {}'.format(AbstractExtractEurocodeReturnLevel.percentage_confidence_interval)
+    confidence_interval_str += '% confidence interval'
+    ax.plot(altitudes, mean, linestyle='--', marker='o', color=color,
+            label=label_name)
+    lower_bound = [p[0] for p in percentages_list]
+    upper_bound = [p[2] for p in percentages_list]
+
+    ax.fill_between(altitudes, lower_bound, upper_bound, color=color, alpha=alpha,
+                    label=label_name + confidence_interval_str)
+    # Plot error bars
+    yerr = np.array([[d[1] - d[0], d[2] - d[1]] for d in zip(lower_bound, mean, upper_bound)]).transpose()
+    ax.bar(altitudes, mean, ecolor='black', capsize=5, yerr=yerr)
+
+    ax.set_xticks(altitudes)
+    ax.set_yticks([j * 20 for j in range(6)])
+    ax2.set_yticks([j * 4 for j in range(6)])
+
+    ax.set_xlabel('Altitude (m)')
+    ax.set_ylabel('Mean ratio, i.e. French standards divided by return levels (%)')
+    size = 10
+    ax.legend(loc='upper left', prop={'size': size})
+    ax.grid()
+    ax2.legend(loc='upper right', prop={'size': size})
+
+    plt.show()
+
+
 def plot_hist_psnow(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
     """Plot an histogram of psnow containing data from all the visualizers given as argument"""
+    """
+    Altitude with psnow < 1
+    300 13 ['Chablais', 'Aravis', 'Mont-Blanc', 'Bauges', 'Beaufortain', 'Chartreuse', 'Belledonne', 'Maurienne', 'Vanoise', 'Oisans', 'Devoluy', 'Haut_Var-Haut_Verdon', 'Mercantour']
+    600 4 ['Parpaillon', 'Ubaye', 'Haut_Var-Haut_Verdon', 'Mercantour']
+    900 1 ['Mercantour']
+    1200 1 ['Mercantour']
+
+    300m all massifs with data except Vercors (for 9 we don't have data)
+    600m the 4 most southern massif
+    900 and 1200 for the most southern of all massif
+
+    """
     ax = plt.gca()
     # Gather the data
+    for a, v in altitude_to_visualizer.items():
+        m = v.massifs_names_with_year_without_snow
+        if len(m) > 0:
+            print(a, len(m), m)
     data = [list(v.massif_name_to_psnow.values()) for v in altitude_to_visualizer.values()]
     data = list(chain.from_iterable(data))
     print(sorted(data))
@@ -111,7 +172,7 @@ if __name__ == '__main__':
     300 Haut_Var-Haut_Verdon 0.8446498197950775
 
     """
-    altitudes = [300, 600, 900, 1200, 1500, 1800][:2]
+    altitudes = [300, 600, 900, 1200, 1500, 1800][:-2]
     # altitudes = ALL_ALTITUDES_WITHOUT_NAN
     # altitudes = [900, 1800, 2700]
     altitude_to_visualizer = {altitude: StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude),
@@ -122,5 +183,7 @@ if __name__ == '__main__':
 
     # plot_qqplot_wrt_standard_gumbel(altitude_to_visualizer)
     # plot_hist_psnow(altitude_to_visualizer)
+    plot_exceedance_psnow(altitude_to_visualizer)
+
     # plot_qqplot_for_time_series_examples(altitude_to_visualizer)
-    plot_intensity_against_gumbel_quantile_for_time_series_with_missing_zeros(altitude_to_visualizer, nb_worst_examples=3)
+    # plot_intensity_against_gumbel_quantile_for_time_series_with_missing_zeros(altitude_to_visualizer, nb_worst_examples=3)

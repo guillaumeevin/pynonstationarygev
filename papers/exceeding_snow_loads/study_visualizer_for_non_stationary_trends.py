@@ -98,6 +98,10 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         return {m: np.count_nonzero(maxima) / len(maxima) for m, (_, maxima) in
                 self.massif_name_to_years_and_maxima.items()}
 
+    @property
+    def massifs_names_with_year_without_snow(self):
+        return [m for m, psnow in self.massif_name_to_psnow.items() if psnow < 1]
+
     @cached_property
     def massif_name_to_eurocode_quantile_level_in_practice(self):
         """Due to missing data, the the eurocode quantile which 0.98 if we have all the data
@@ -453,8 +457,20 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         else:
             mean_changes = [
                 compute_mean_change([v for m, v in self.massif_name_to_relative_change_value.items()
-                                    if massif_name_to_region_name[m] in regions])
-                for regions in [AbstractExtendedStudy.real_region_names[:2], AbstractExtendedStudy.real_region_names[2:]]
+                                     if massif_name_to_region_name[m] in regions])
+                for regions in
+                [AbstractExtendedStudy.real_region_names[:2], AbstractExtendedStudy.real_region_names[2:]]
             ]
 
         return (self.altitude, *mean_changes)
+
+    def mean_percentage_of_standards_for_massif_names_with_years_without_snow(self):
+        model_subset_for_uncertainty = ModelSubsetForUncertainty.non_stationary_gumbel_and_gev
+        ci_method = ConfidenceIntervalMethodFromExtremes.ci_mle
+        percentages = []
+        for massif_name in self.massifs_names_with_year_without_snow:
+            eurocode_value = self.massif_name_to_eurocode_values[massif_name]
+            eurocode_uncertainty = self.triplet_to_eurocode_uncertainty[(ci_method, model_subset_for_uncertainty, massif_name)]
+            percentage = 100 * np.array(eurocode_uncertainty.triplet) / eurocode_value
+            percentages.append(percentage)
+        return np.round(np.mean(percentages, axis=0))
