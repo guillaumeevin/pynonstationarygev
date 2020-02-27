@@ -474,3 +474,11 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             percentage = 100 * np.array(eurocode_uncertainty.triplet) / eurocode_value
             percentages.append(percentage)
         return np.round(np.mean(percentages, axis=0))
+
+    @property
+    def massif_name_to_relative_change_in_psnow(self):
+        def compute_relative_change_in_psnow(maxima):
+            maxima_before, maxima_after = maxima[:30], maxima[30:]
+            psnow_before, psnow_after = [np.count_nonzero(s) / len(s) for s in [maxima_before, maxima_after]]
+            return 100 * (psnow_after - psnow_before) / psnow_before
+        return {m: compute_relative_change_in_psnow(self.massif_name_to_years_and_maxima[m][1]) for m in self.massifs_names_with_year_without_snow}

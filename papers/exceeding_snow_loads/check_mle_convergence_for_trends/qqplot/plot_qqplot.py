@@ -3,6 +3,7 @@ from typing import Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from matplotlib.ticker import PercentFormatter
 
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
@@ -157,6 +158,14 @@ def last_quantile(psnow):
     return standard_gumbel.quantile(last_proba)
 
 
+def non_stationarity_psnow(altitude_to_visualizer):
+    all_relative_change_in_psnow = []
+    for a, v in altitude_to_visualizer.items():
+        all_relative_change_in_psnow.extend(list(v.massif_name_to_relative_change_in_psnow.values()))
+    s = pd.Series(all_relative_change_in_psnow)
+    print(s.describe())
+
+
 if __name__ == '__main__':
     """
     Worst examples:
@@ -172,7 +181,7 @@ if __name__ == '__main__':
     300 Haut_Var-Haut_Verdon 0.8446498197950775
 
     """
-    altitudes = [300, 600, 900, 1200, 1500, 1800][:-2]
+    altitudes = [300, 600, 900, 1200, 1500, 1800][:]
     # altitudes = ALL_ALTITUDES_WITHOUT_NAN
     # altitudes = [900, 1800, 2700]
     altitude_to_visualizer = {altitude: StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude),
@@ -183,7 +192,8 @@ if __name__ == '__main__':
 
     # plot_qqplot_wrt_standard_gumbel(altitude_to_visualizer)
     # plot_hist_psnow(altitude_to_visualizer)
-    plot_exceedance_psnow(altitude_to_visualizer)
+    # plot_exceedance_psnow(altitude_to_visualizer)
+    non_stationarity_psnow(altitude_to_visualizer)
 
     # plot_qqplot_for_time_series_examples(altitude_to_visualizer)
     # plot_intensity_against_gumbel_quantile_for_time_series_with_missing_zeros(altitude_to_visualizer, nb_worst_examples=3)
