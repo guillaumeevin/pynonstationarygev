@@ -5,6 +5,12 @@ mpl.use('Agg')
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
+from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from experiment.meteo_france_data.scm_models_data.safran.safran import SafranPrecipitation3Days, \
+    SafranPrecipitation1Day, SafranPrecipitation5Days, SafranPrecipitation7Days, SafranSnowfall1Day, \
+    SafranSnowfall5Days, SafranSnowfall3Days, SafranSnowfall7Days, SafranRainfall1Day, SafranRainfall3Days, \
+    SafranRainfall5Days, SafranRainfall7Days
+
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoad3Days, \
     CrocusSnowLoad5Days, CrocusSnowLoad7Days, CrocusSnowLoad1Day
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
@@ -23,11 +29,9 @@ from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_uncertaint
 from root_utils import NB_CORES
 
 
-
-
 def intermediate_result(altitudes, massif_names=None,
                         model_subsets_for_uncertainty=None, uncertainty_methods=None,
-                        study_class=CrocusSnowLoad3Days,
+                        study_class=AbstractStudy,
                         multiprocessing=False,
                         save_to_file=True):
     """
@@ -64,9 +68,16 @@ def major_result():
                            ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
     massif_names = None
     model_subsets_for_uncertainty = None
-    altitudes = paper_altitudes
-    # altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300]
-    study_classes = [CrocusSnowLoad1Day, CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][:]
+    # altitudes = paper_altitudes
+    # altitudes = paper_altitudes
+    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:4]
+    snow_load_classes = [CrocusSnowLoad1Day, CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][:]
+    precipitation_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days,
+                             SafranPrecipitation7Days][:]
+    snowfall_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days]
+    rainfall_classes = [SafranRainfall1Day, SafranRainfall3Days, SafranRainfall5Days, SafranRainfall7Days]
+    study_classes = precipitation_classes + snow_load_classes
+    study_classes = snowfall_classes + rainfall_classes
     for study_class in study_classes:
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,
                             uncertainty_methods, study_class)

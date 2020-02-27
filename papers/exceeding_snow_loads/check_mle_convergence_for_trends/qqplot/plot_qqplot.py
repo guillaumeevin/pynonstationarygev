@@ -92,9 +92,9 @@ def plot_exceedance_psnow(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
     ax.set_xlabel('Altitude (m)')
     ax.set_ylabel('Mean ratio, i.e. French standards divided by return levels (%)')
     size = 10
-    ax.legend(loc='upper left', prop={'size': size})
+    ax.legend(loc='upper right', prop={'size': size})
     ax.grid()
-    ax2.legend(loc='upper right', prop={'size': size})
+    ax2.legend(loc='upper left', prop={'size': size})
 
     plt.show()
 

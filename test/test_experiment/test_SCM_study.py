@@ -7,7 +7,7 @@ import pandas as pd
 from experiment.meteo_france_data.scm_models_data.cumulated_study import NB_DAYS
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranTemperature, \
-    SafranTotalPrecip
+    SafranPrecipitation
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     study_iterator, study_iterator_global, SCM_STUDIES, ALL_ALTITUDES
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
@@ -72,7 +72,7 @@ class TestSCMPrecipitation(TestSCMStudy):
 
     def setUp(self) -> None:
         super().setUp()
-        self.study = SafranTotalPrecip(altitude=1800, year_min=1958, year_max=2002, nb_consecutive_days=1)
+        self.study = SafranPrecipitation(altitude=1800, year_min=1958, year_max=2002, nb_consecutive_days=1)
 
     def test_durand(self):
         # Test based on Durand paper

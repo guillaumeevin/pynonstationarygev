@@ -3,7 +3,7 @@ from experiment.trend_analysis.abstract_score import MannKendall, WeigthedScore,
 from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import GevLocationChangePointTest, \
     GevScaleChangePointTest, GevShapeChangePointTest
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import MannKendallTrendTest
-from experiment.meteo_france_data.scm_models_data.safran.safran import ExtendedSafranTotalPrecip
+from experiment.meteo_france_data.scm_models_data.safran.safran import ExtendedSafranPrecipitation
 from experiment.meteo_france_data.scm_models_data.visualization import Studies
 from experiment.meteo_france_data.scm_models_data.visualization import StudiesVisualizer, \
     AltitudeVisualizer
@@ -15,7 +15,7 @@ from collections import OrderedDict
 
 
 def normal_visualization():
-    for study_type in [ExtendedSafranTotalPrecip]:
+    for study_type in [ExtendedSafranPrecipitation]:
         extended_studies = Studies(study_type)
         studies_visualizer = StudiesVisualizer(extended_studies)
         studies_visualizer.mean_as_a_function_of_altitude(region_only=True)

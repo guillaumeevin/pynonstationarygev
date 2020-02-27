@@ -1,7 +1,7 @@
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSnowLoad3Days, \
     CrocusSnowLoadTotal
 from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusDepthVariable
-from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, SafranRainfall, SafranTotalPrecip
+from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, SafranRainfall, SafranPrecipitation
 from experiment.meteo_france_data.scm_models_data.safran.safran_variable import SafranTotalPrecipVariable
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     study_iterator_global, SCM_STUDY_CLASS_TO_ABBREVIATION, snow_density_str, ALL_ALTITUDES_WITHOUT_NAN
@@ -25,7 +25,7 @@ def test():
 
 def density_wrt_altitude():
     save_to_file = True
-    study_class = [SafranTotalPrecip, SafranRainfall, SafranSnowfall, CrocusSnowLoad3Days, CrocusSnowLoadTotal][-2]
+    study_class = [SafranPrecipitation, SafranRainfall, SafranSnowfall, CrocusSnowLoad3Days, CrocusSnowLoadTotal][-2]
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][::-1]
 
     for altitude in altitudes:

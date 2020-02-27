@@ -27,6 +27,30 @@ class SafranSnowfall(Safran, CumulatedStudy):
         Safran.__init__(self, SafranSnowfallVariable, *args, **kwargs)
 
 
+class SafranSnowfall1Day(SafranSnowfall):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(nb_consecutive_days=1, *args, **kwargs)
+
+
+class SafranSnowfall3Days(SafranSnowfall):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(nb_consecutive_days=3, *args, **kwargs)
+
+
+class SafranSnowfall5Days(SafranSnowfall):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(nb_consecutive_days=5, *args, **kwargs)
+
+
+class SafranSnowfall7Days(SafranSnowfall):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(nb_consecutive_days=7, *args, **kwargs)
+
+
 class ExtendedSafranSnowfall(AbstractExtendedStudy, SafranSnowfall):
     pass
 
@@ -37,7 +61,31 @@ class SafranRainfall(CumulatedStudy, Safran):
         super().__init__(SafranRainfallVariable, *args, **kwargs)
 
 
-class SafranTotalPrecip(CumulatedStudy, Safran):
+class SafranRainfall1Day(SafranRainfall):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(nb_consecutive_days=1, *args, **kwargs)
+
+
+class SafranRainfall3Days(SafranRainfall):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(nb_consecutive_days=3, *args, **kwargs)
+
+
+class SafranRainfall5Days(SafranRainfall):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(nb_consecutive_days=5, *args, **kwargs)
+
+
+class SafranRainfall7Days(SafranRainfall):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(nb_consecutive_days=7, *args, **kwargs)
+
+
+class SafranPrecipitation(CumulatedStudy, Safran):
 
     def __init__(self, *args, **kwargs):
         super().__init__(SafranTotalPrecipVariable, *args, **kwargs)
@@ -50,7 +98,31 @@ class SafranTotalPrecip(CumulatedStudy, Safran):
         return self.variable_class(variable_array_snowfall, variable_array_rainfall, self.nb_consecutive_days)
 
 
-class ExtendedSafranTotalPrecip(AbstractExtendedStudy, SafranTotalPrecip):
+class SafranPrecipitation1Day(SafranPrecipitation):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(nb_consecutive_days=1, *args, **kwargs)
+
+
+class SafranPrecipitation3Days(SafranPrecipitation):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(nb_consecutive_days=3, *args, **kwargs)
+
+
+class SafranPrecipitation5Days(SafranPrecipitation):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(nb_consecutive_days=5, *args, **kwargs)
+
+
+class SafranPrecipitation7Days(SafranPrecipitation):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(nb_consecutive_days=7, *args, **kwargs)
+
+
+class ExtendedSafranPrecipitation(AbstractExtendedStudy, SafranPrecipitation):
     pass
 
 
@@ -64,23 +136,24 @@ class SafranTemperature(Safran):
 
 
 if __name__ == '__main__':
-    study = SafranSnowfall()
+    study = SafranRainfall1Day()
+    print(study.year_to_annual_maxima[1958])
     # d = study.year_to_dataset_ordered_dict[1958]
     # print(d.variables)
-    print(study.study_massif_names)
-    d = {
-        name: '' for name in study.study_massif_names
-    }
-    print(d)
-    for i in range(1958, 1959):
-        d = study.year_to_dataset_ordered_dict[i]
-        # variable = 'station'
-        # print(np.array(d.variables[variable]))
-        variable = 'Tair'
-        a = np.mean(np.array(d.variables[variable]), axis=1)
-        d = study.year_to_dataset_ordered_dict[i + 1]
-        b = np.mean(np.array(d.variables[variable]), axis=1)
-        # print(a[-1] - b[0])
+    # print(study.study_massif_names)
+    # d = {
+    #     name: '' for name in study.study_massif_names
+    # }
+    # print(d)
+    # for i in range(1958, 1959):
+    #     d = study.year_to_dataset_ordered_dict[i]
+    #     # variable = 'station'
+    #     # print(np.array(d.variables[variable]))
+    #     variable = 'Tair'
+    #     a = np.mean(np.array(d.variables[variable]), axis=1)
+    #     d = study.year_to_dataset_ordered_dict[i + 1]
+    #     b = np.mean(np.array(d.variables[variable]), axis=1)
+    # print(a[-1] - b[0])
     # print(d.variables['time'])
     # print(study.all_massif_names)
     # print(study.massif_name_to_altitudes)

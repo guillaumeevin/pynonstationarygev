@@ -74,7 +74,9 @@ def plot_contrasting_trend_curves(altitude_to_visualizer: Dict[int, StudyVisuali
         ax_twinx.plot(altitudes, mean_change, label=label, linewidth=linewidth, marker='o')
         ax_twinx.legend(loc='upper right', prop={'size': size})
 
+    ax.axhline(y=0, color='k')
+
     # Save plot
-    visualizer.plot_name = 'Trend curves for' + visualizer.study.variable_name.split('(')[0]
+    visualizer.plot_name = 'Trend curves for' + visualizer.study.variable_name
     visualizer.show_or_save_to_file(no_title=True, dpi=dpi_paper1_figure, folder_for_variable=False)
     plt.close()

@@ -14,7 +14,7 @@ from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDep
     CrocusSnowLoadEurocode, CrocusSnowLoad5Days, CrocusSnowLoad7Days
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranRainfall, \
-    SafranTemperature, SafranTotalPrecip
+    SafranTemperature, SafranPrecipitation
 
 from collections import OrderedDict
 
@@ -142,7 +142,7 @@ def extended_visualization():
 
 def annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=1800):
     if safran:
-        for study_class in [SafranTotalPrecip, SafranRainfall, SafranSnowfall, SafranTemperature][-1:]:
+        for study_class in [SafranPrecipitation, SafranRainfall, SafranSnowfall, SafranTemperature][-1:]:
             study = study_class(altitude=altitude, year_min=1958, year_max=2002)
             study_visualizer = StudyVisualizer(study)
             study_visualizer.visualize_annual_mean_values(take_mean_value=True)
