@@ -23,7 +23,9 @@ def extract_time_serimes_with_worst_number_of_zeros(altitude_to_visualizer, nb_w
     for a, v in altitude_to_visualizer.items():
         l.extend([(a, v, m, p) for m, p in v.massif_name_to_psnow.items()])
     # Sort them and keep the worst examples
-    l = sorted(l, key=lambda t: t[-1])[:nb_worst_examples]
+    l = sorted(l, key=lambda t: t[-1])
+    if nb_worst_examples is not None:
+        l = l[:nb_worst_examples]
     print('Worst examples:')
     for a, v, m, p in l:
         print(a, m, p)
@@ -187,13 +189,16 @@ if __name__ == '__main__':
     altitude_to_visualizer = {altitude: StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude),
                                                                               select_only_acceptable_shape_parameter=True,
                                                                               fit_method=TemporalMarginFitMethod.extremes_fevd_mle,
-                                                                              multiprocessing=True)
+                                                                              multiprocessing=True,
+                                                                              save_to_file=True,
+                                                                              show=False)
                               for altitude in altitudes}
 
     # plot_qqplot_wrt_standard_gumbel(altitude_to_visualizer)
     # plot_hist_psnow(altitude_to_visualizer)
+    plot_intensity_against_gumbel_quantile_for_time_series_with_missing_zeros(altitude_to_visualizer, nb_worst_examples=None)
     # plot_exceedance_psnow(altitude_to_visualizer)
-    non_stationarity_psnow(altitude_to_visualizer)
+    # non_stationarity_psnow(altitude_to_visualizer)
 
     # plot_qqplot_for_time_series_examples(altitude_to_visualizer)
     # plot_intensity_against_gumbel_quantile_for_time_series_with_missing_zeros(altitude_to_visualizer, nb_worst_examples=3)

@@ -285,7 +285,7 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         ax.set_xlabel("Standard Gumbel quantile", fontsize=size)
         ax.set_ylabel("Non-zero annual maxima of GSL ({})".format(AbstractSnowLoadVariable.UNIT), fontsize=size)
         ax.legend(loc='lower right', prop={'size': 10})
-        plt.show()
+
 
     def qqplot_wrt_standard_gumbel(self, massif_name, altitude):
         ax = plt.gca()

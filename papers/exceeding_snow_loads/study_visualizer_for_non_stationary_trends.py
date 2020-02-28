@@ -399,6 +399,9 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def intensity_plot(self, massif_name, psnow, color=None):
         trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]
         trend_test.intensity_plot_wrt_standard_gumbel(massif_name, self.altitude, psnow)
+        self.plot_name = 'intensity_plot_{}_{}'.format(self.altitude, psnow)
+        self.show_or_save_to_file(add_classic_title=False, no_title=True)
+        plt.close()
 
     def qqplot(self, massif_name, color=None):
         trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]
