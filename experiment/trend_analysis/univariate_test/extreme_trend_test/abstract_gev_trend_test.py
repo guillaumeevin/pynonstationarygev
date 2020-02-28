@@ -221,20 +221,25 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         ax.plot(standard_gumbel_quantiles, sorted_maxima, linestyle='None',
                 label='Empirical model', marker='o')
 
-        # Plot for the selected model
-        unconstrained_empirical_quantiles = self.compute_empirical_quantiles(self.unconstrained_estimator)
-        ax.plot(unconstrained_empirical_quantiles, sorted_maxima,
-                label='Selected model, which is ${}$'.format(self.label))
-        print(unconstrained_empirical_quantiles)
+
 
         ax_twiny = ax.twiny()
         return_periods = [10, 25, 50]
         quantiles = self.get_standard_quantiles_for_return_periods(return_periods, psnow)
-        print(quantiles)
         ax_twiny.plot(quantiles, [0 for _ in quantiles], linewidth=0)
         ax_twiny.set_xticks(quantiles)
         ax_twiny.set_xticklabels([return_period for return_period in return_periods])
         ax_twiny.set_xlabel('Return period w.r.t all annual maxima of GSL (years)', fontsize=size)
+
+        # Plot for the selected model with line break
+        unconstrained_empirical_quantiles = self.compute_empirical_quantiles(self.unconstrained_estimator)
+        # ax.plot(unconstrained_empirical_quantiles, sorted_maxima,
+        #         label='Selected model, which is ${}$'.format(self.label))
+        # Plot tor the selected model for different year
+
+        end_real_proba = 1 - (0.02 / psnow)
+        self.plot_model(ax, 1958, end_proba=end_real_proba, label='Selected model, which is ${}$'.format(self.label))
+        self.plot_model(ax, 2017, end_proba=end_real_proba, label='Selected model, which is ${}$'.format(self.label))
 
         # Plot for the discarded model
         # if 'Verdon' in massif_name and altitude == 300:
@@ -252,12 +257,7 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         #                   + 'with $\zeta_0=0.84$',
         #             color=color)
 
-        if self.unconstrained_estimator_gev_params.shape > 0.5:
-            # self.linear_extension(ax, unconstrained_empirical_quantiles, quantiles, sorted_maxima)
-            max_model_quantile = max(unconstrained_empirical_quantiles)
-            # print(sorted(unconstrained_empirical_quantiles))
-            # self.gev_param_extension(ax, 1958, max_model_quantile)
-            self.gev_param_extension(ax, 2017, max_model_quantile)
+
 
 
         all_quantiles = standard_gumbel_quantiles + unconstrained_empirical_quantiles + quantiles
@@ -273,14 +273,19 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         ax.set_ylabel("Non-zero annual maxima of GSL ({})".format(AbstractSnowLoadVariable.UNIT), fontsize=size)
         ax.legend(loc='upper left', prop={'size': 10})
 
-    def gev_param_extension(self, ax, year, max_model_quantile):
-        quantile_standard_gumbel = GevParams(0, 1, 0).quantile(0.98)
-        extended_quantiles = np.linspace(max_model_quantile, quantile_standard_gumbel, 50)
+    def plot_model(self, ax, year, start_proba=0.02, end_proba=0.98, label=''):
+        standard_gumbel = GevParams(0, 1, 0)
+        start_quantile = standard_gumbel.quantile(start_proba)
+        end_quantile = standard_gumbel.quantile(end_proba)
+        extended_quantiles = np.linspace(start_quantile, end_quantile, 500)
+        if year is None:
+            year = 2017
         gev_params_year = self.unconstrained_estimator.margin_function_from_fit.get_gev_params(
                 coordinate=np.array([year]),
                 is_transformed=False)
         extended_maxima = [gev_params_year.gumbel_inverse_standardization(q) for q in extended_quantiles]
-        ax.plot(extended_quantiles, extended_maxima, linestyle='--', label='{} extension'.format(year))
+        label = 'Y({})'.format(year) if year is not None else label
+        ax.plot(extended_quantiles, extended_maxima, linestyle='-', label=label)
 
     def linear_extension(self, ax, q, quantiles, sorted_maxima):
         # Extend the curve linear a bit if the return period 50 is not in the quantiles

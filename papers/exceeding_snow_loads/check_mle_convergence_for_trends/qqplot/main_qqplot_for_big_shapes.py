@@ -99,7 +99,7 @@ for the worst example for -shape
 """
 
 if __name__ == '__main__':
-    fast = True
+    fast = False
     nb = 1 if fast else 5
     tuple_ordered_by_shape = get_tuple_ordered_by_shape(fast=fast)
     # plot_return_level_for_time_series_with_big_shape_parameters(tuple_ordered_by_shape, nb_worst_examples=nb)
