@@ -133,6 +133,17 @@ class GevParams(AbstractParams):
         else:
             return np.log(1 + self.shape * x) / self.shape
 
+    def gumbel_inverse_standardization(self, x):
+        if self.shape == 0:
+            x = x
+        else:
+            x = (np.exp(self.shape * x) - 1) / self.shape
+        x *= self.scale
+        x += self.location
+        return x
+
+
+
     @property
     def bound(self):
         return self.location - (self.scale / self.shape)

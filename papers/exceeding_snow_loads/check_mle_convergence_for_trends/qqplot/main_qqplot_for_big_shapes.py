@@ -8,7 +8,6 @@ from papers.exceeding_snow_loads.study_visualizer_for_non_stationary_trends impo
     StudyVisualizerForNonStationaryTrends
 
 
-
 def get_tuple_ordered_by_shape(fast=False):
     if fast:
         altitudes = [300]
@@ -16,7 +15,9 @@ def get_tuple_ordered_by_shape(fast=False):
         altitudes = ALL_ALTITUDES_WITHOUT_NAN
     altitude_to_visualizer = {altitude: StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude),
                                                                               select_only_acceptable_shape_parameter=False,
-                                                                              multiprocessing=True)
+                                                                              multiprocessing=True,
+                                                                              save_to_file=True,
+                                                                              show=False)
                               for altitude in altitudes}
     # Extract all the values
     l = []
@@ -35,9 +36,22 @@ def plot_qqplot_for_time_series_with_worst_shape_parameters(tuple_ordered_by_sha
         print(a, m, shape)
         v.qqplot(m)
     print('Lowest examples:')
-    for a, v, m, shape in l[:1]:
+    for a, v, m, shape in l[:5]:
         print(a, m, shape)
-        v.qqplot(m)
+        # v.qqplot(m)
+
+
+def plot_intensity_for_time_series_with_worst_shape_parameters(tuple_ordered_by_shape, nb_worst_examples=5):
+    l = tuple_ordered_by_shape
+    print('Highest examples:')
+    for a, v, m, shape in l[-nb_worst_examples:][::-1]:
+        print(a, m, shape)
+        v.intensity_plot(m, v.massif_name_to_psnow[m])
+    print('Lowest examples:')
+    for a, v, m, shape in l[:5]:
+        print(a, m, shape)
+        # v.qqplot(m)
+    #     v.intensity_plot(m, v.massif_name_to_psnow[m])
 
 
 def plot_return_level_for_time_series_with_big_shape_parameters(tuple_ordered_by_shape, nb_worst_examples=5):
@@ -85,7 +99,8 @@ for the worst example for -shape
 """
 
 if __name__ == '__main__':
-    fast = False
+    fast = True
     nb = 1 if fast else 5
     tuple_ordered_by_shape = get_tuple_ordered_by_shape(fast=fast)
-    plot_return_level_for_time_series_with_big_shape_parameters(tuple_ordered_by_shape, nb_worst_examples=nb)
+    # plot_return_level_for_time_series_with_big_shape_parameters(tuple_ordered_by_shape, nb_worst_examples=nb)
+    plot_intensity_for_time_series_with_worst_shape_parameters(tuple_ordered_by_shape, nb_worst_examples=nb)
