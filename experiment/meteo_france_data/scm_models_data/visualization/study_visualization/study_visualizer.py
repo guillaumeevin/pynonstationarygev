@@ -639,7 +639,7 @@ class StudyVisualizer(VisualizationParameters):
         ax.plot(x, y, color=color, linewidth=linewidth, label=label, linestyle=linestyle)
         # ax.set_ylabel('{} (in {})'.format(snow_abbreviation, self.study.variable_unit), color=color, fontsize=15)
 
-        ax.xaxis.set_ticks(x[2::10])
+        ax.xaxis.set_ticks(x[1::10])
         ax.tick_params(axis='both', which='major', labelsize=13)
         plot_name = 'Annual maxima of {} in {} at {}m'.format(snow_abbreviation, massif_name, altitude)
         self.plot_name = plot_name

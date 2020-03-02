@@ -111,6 +111,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     @cached_property
     def massif_name_to_non_null_years_and_maxima(self):
+        # return self.massif_name_to_years_and_maxima
         d = {}
         for m, (years, maxima) in self.massif_name_to_years_and_maxima.items():
             mask = np.nonzero(maxima)

@@ -45,10 +45,10 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
     labelsize = 25
     linewidth = 3
     x = [10 * (i+1) for i in range(len(select_list))]
-    ax.bar(x, select_list, width=width, color='grey', edgecolor='grey', label='Non significative model',
+    ax.bar(x, select_list, width=width, color='grey', edgecolor='grey', label='Non significant model',
            linewidth=linewidth)
     ax.bar(x, selected_and_signifcative_list, width=width, color='black', edgecolor='black',
-           label='Significative model',
+           label='Significant model',
            linewidth=linewidth)
     ax.legend(loc='upper right', prop={'size': size})
     ax.set_ylabel(' Frequency of selected model w.r.t all time series \n '

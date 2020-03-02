@@ -11,11 +11,10 @@ from papers.exceeding_snow_loads.study_visualizer_for_non_stationary_trends impo
 def plot_trend_map(altitude_to_visualizer):
     # Compute common max value for the colorbar
     max_abs_changes_above_900 = [visualizer.max_abs_change
-                       for altitude, visualizer in altitude_to_visualizer.items()
-                       if altitude >= 900]
+                                 for altitude, visualizer in altitude_to_visualizer.items()
+                                 if altitude >= 900]
     max_abs_tdrl_above_900 = max(max_abs_changes_above_900) if len(max_abs_changes_above_900) > 0 else None
 
-    max_abs_tdrl_below_900 = max(altitude_to_visualizer[300].max_abs_change, altitude_to_visualizer[600].max_abs_change)
     for altitude, visualizer in altitude_to_visualizer.items():
         if 900 <= altitude <= 4200:
             add_color = (visualizer.study.altitude - 1500) % 900 == 0
@@ -24,7 +23,9 @@ def plot_trend_map(altitude_to_visualizer):
             if altitude == 2700:
                 visualizer.plot_trends(max_abs_tdrl_above_900, add_colorbar=True)
         else:
-            visualizer.plot_trends(max_abs_tdrl_below_900, add_colorbar=altitude==600)
+            max_abs_tdrl_below_900 = max(altitude_to_visualizer[300].max_abs_change,
+                                         altitude_to_visualizer[600].max_abs_change)
+            visualizer.plot_trends(max_abs_tdrl_below_900, add_colorbar=altitude == 600)
 
 
 def plot_trend_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):

@@ -35,7 +35,7 @@ def max_graph_annual_maxima_poster():
     save_to_file = True
     study_class = CrocusSnowLoadTotal
 
-    examples_for_the_paper = False
+    examples_for_the_paper = True
 
     ax = plt.gca()
     if examples_for_the_paper:
