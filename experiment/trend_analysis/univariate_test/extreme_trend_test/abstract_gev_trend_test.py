@@ -5,7 +5,7 @@ import numpy as np
 from cached_property import cached_property
 from scipy.stats import chi2
 
-from experiment.eurocode_data.utils import EUROCODE_QUANTILE
+from experiment.eurocode_data.utils import EUROCODE_QUANTILE, YEAR_OF_INTEREST_FOR_RETURN_LEVEL
 from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable
 from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.trend_analysis.univariate_test.utils import load_temporal_coordinates_and_dataset, \
@@ -219,7 +219,7 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         # Plot for the empirical
         standard_gumbel_quantiles = self.get_standard_gumbel_quantiles()
         ax.plot(standard_gumbel_quantiles, sorted_maxima, linestyle='None',
-                label='Empirical model', marker='o')
+                label='Empirical model', marker='o', color='black')
 
 
 
@@ -238,8 +238,13 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         # Plot tor the selected model for different year
 
         end_real_proba = 1 - (0.02 / psnow)
-        self.plot_model(ax, 1958, end_proba=end_real_proba, label='Selected model, which is ${}$'.format(self.label))
-        self.plot_model(ax, 2017, end_proba=end_real_proba, label='Selected model, which is ${}$'.format(self.label))
+        stationary = True
+        if stationary:
+            self.plot_model(ax, None, end_proba=end_real_proba, label='Selected model\nwhich is ${}$'.format(self.label),
+                            color='grey')
+        else:
+            self.plot_model(ax, 1959, end_proba=end_real_proba, label='Selected model, which is ${}$'.format(self.label))
+            self.plot_model(ax, 2019, end_proba=end_real_proba, label='Selected model, which is ${}$'.format(self.label))
 
         # Plot for the discarded model
         # if 'Verdon' in massif_name and altitude == 300:
@@ -260,32 +265,36 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
 
 
 
-        all_quantiles = standard_gumbel_quantiles + unconstrained_empirical_quantiles + quantiles
-        epsilon = 0.5
-        ax_lim = [min(all_quantiles) - epsilon, max(all_quantiles) + epsilon]
+        ax_lim = [-1.5, 4]
         ax.set_xlim(ax_lim)
         ax_twiny.set_xlim(ax_lim)
+        ax.set_xticks([-1 + i for i in range(6)])
+        epsilon = 0.005
+        ax.set_ylim(bottom=-epsilon)
+        lalsize = 13
+        ax.tick_params(axis='both', which='major', labelsize=lalsize)
+        ax_twiny.tick_params(axis='both', which='major', labelsize=lalsize)
 
-        ax.legend()
         ax.yaxis.grid()
 
         ax.set_xlabel("Standard Gumbel quantile", fontsize=size)
         ax.set_ylabel("Non-zero annual maxima of GSL ({})".format(AbstractSnowLoadVariable.UNIT), fontsize=size)
-        ax.legend(loc='upper left', prop={'size': 10})
+        ax.legend(prop={'size': 17})
 
-    def plot_model(self, ax, year, start_proba=0.02, end_proba=0.98, label=''):
+    def plot_model(self, ax, year, start_proba=0.02, end_proba=0.98, label='', color=None):
         standard_gumbel = GevParams(0, 1, 0)
         start_quantile = standard_gumbel.quantile(start_proba)
         end_quantile = standard_gumbel.quantile(end_proba)
         extended_quantiles = np.linspace(start_quantile, end_quantile, 500)
+        label = 'Y({})'.format(year) if year is not None else label
         if year is None:
-            year = 2017
+            year = 2019
         gev_params_year = self.unconstrained_estimator.margin_function_from_fit.get_gev_params(
                 coordinate=np.array([year]),
                 is_transformed=False)
         extended_maxima = [gev_params_year.gumbel_inverse_standardization(q) for q in extended_quantiles]
-        label = 'Y({})'.format(year) if year is not None else label
-        ax.plot(extended_quantiles, extended_maxima, linestyle='-', label=label)
+
+        ax.plot(extended_quantiles, extended_maxima, linestyle='-', label=label, color=color, linewidth=5)
 
     def linear_extension(self, ax, q, quantiles, sorted_maxima):
         # Extend the curve linear a bit if the return period 50 is not in the quantiles
@@ -383,9 +392,9 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     def return_level_plot_comparison(self, ax, label, color=None):
         # ax = plt.gca()
         size = 15
-        # Load Gev parameter in 2017 for the unconstrained estimator
+        # Load Gev parameter for the year of interest for the unconstrained estimator
         gev_params, gev_params_with_corrected_shape = self.get_gev_params_with_big_shape_and_correct_shape()
-        suffix = 'in 2017'
+        suffix = 'in {}'.format(YEAR_OF_INTEREST_FOR_RETURN_LEVEL)
         gev_params.return_level_plot_against_return_period(ax, color, linestyle='-', label=label,
                                                            suffix_return_level_label=suffix)
         gev_params_with_corrected_shape.return_level_plot_against_return_period(ax, color=color, linestyle='--',
@@ -403,7 +412,7 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         ax.vlines(50, 0, np.max(difference_quantile))
         ax.plot(return_periods, difference_quantile, color=color, linestyle='-', label=label)
         ax.legend(loc='upper left')
-        difference_ylabel = 'difference return level in 2017'
+        difference_ylabel = 'difference return level in 2019'
         ax.set_ylabel(difference_ylabel + ' (kPa)')
 
         ax2.vlines(50, 0, np.max(relative_difference))
@@ -417,7 +426,7 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
         plt.gca().set_ylim(bottom=0)
 
     def get_gev_params_with_big_shape_and_correct_shape(self):
-        gev_params = self.unconstrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([2017]),
+        gev_params = self.unconstrained_estimator.margin_function_from_fit.get_gev_params(coordinate=np.array([YEAR_OF_INTEREST_FOR_RETURN_LEVEL]),
                                                                                           is_transformed=False)  # type: GevParams
         gev_params_with_corrected_shape = GevParams(loc=gev_params.location,
                                                     scale=gev_params.scale,

@@ -115,14 +115,14 @@ class CrocusDaysWithSnowOnGround(Crocus):
 
 if __name__ == '__main__':
     for study in [CrocusSwe3Days(altitude=900, orientation=90.0)]:
-        d = study.year_to_dataset_ordered_dict[1958]
+        d = study.year_to_dataset_ordered_dict[1959]
         print(d)
         print(study.reanalysis_path)
         for v in ['aspect', 'slope', 'ZS', 'massif_num']:
             a = np.array(d[v])
             print(list(a))
             print(sorted(list(set(a))))
-        print(study.year_to_daily_time_serie_array[1958])
+        print(study.year_to_daily_time_serie_array[1959])
     study = CrocusSnowLoadTotal(altitude=900)
     print(study.year_to_annual_maxima_index)
     print(study.year_to_daily_time_serie_array)

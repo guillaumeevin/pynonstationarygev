@@ -137,37 +137,5 @@ class SafranTemperature(Safran):
 
 if __name__ == '__main__':
     study = SafranRainfall1Day()
-    print(study.year_to_annual_maxima[1958])
-    # d = study.year_to_dataset_ordered_dict[1958]
-    # print(d.variables)
-    # print(study.study_massif_names)
-    # d = {
-    #     name: '' for name in study.study_massif_names
-    # }
-    # print(d)
-    # for i in range(1958, 1959):
-    #     d = study.year_to_dataset_ordered_dict[i]
-    #     # variable = 'station'
-    #     # print(np.array(d.variables[variable]))
-    #     variable = 'Tair'
-    #     a = np.mean(np.array(d.variables[variable]), axis=1)
-    #     d = study.year_to_dataset_ordered_dict[i + 1]
-    #     b = np.mean(np.array(d.variables[variable]), axis=1)
-    # print(a[-1] - b[0])
-    # print(d.variables['time'])
-    # print(study.all_massif_names)
-    # print(study.massif_name_to_altitudes)
-    # print(study.year_to_daily_time_serie_array[1958].shape)
-    # print(study.missing_massif_name)
-
-    # print(len(d.variables['time']))
-    # print(study.year_to_annual_total)
-    # print(study.df_annual_total.columns)
-
-    # for i in range(1958, 2016):
-    #     d = study.year_to_dataset_ordered_dict[i]
-    #     variable = 'Tair'
-    #     a = np.mean(np.array(d.variables[variable]), axis=1)
-    #     d = study.year_to_dataset_ordered_dict[i+1]
-    #     b = np.mean(np.array(d.variables[variable]), axis=1)
-    #     print(a[-1] - b[0])
+    print(study.year_to_annual_maxima[1959])
+    print(study.ordered_years)

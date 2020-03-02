@@ -102,12 +102,12 @@ def get_return_level_bayesian_example(nb_iterations_for_bayesian_fit):
     # plt.show()
     model_class = StationaryTemporalModel
     coordinates, dataset = load_temporal_coordinates_and_dataset(maxima, years)
-    fitted_estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year=1958,
+    fitted_estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year=1959,
                                                       fit_method=TemporalMarginFitMethod.extremes_fevd_bayesian,
                                                       nb_iterations_for_bayesian_fit=nb_iterations_for_bayesian_fit)
     return_level_bayesian = ExtractEurocodeReturnLevelFromMyBayesianExtremes(estimator=fitted_estimator,
                                                                              ci_method=ConfidenceIntervalMethodFromExtremes.my_bayes,
-                                                                             temporal_covariate=2017)
+                                                                             temporal_covariate=2019)
     return return_level_bayesian
 
 

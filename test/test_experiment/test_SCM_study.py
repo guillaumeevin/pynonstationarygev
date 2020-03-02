@@ -23,7 +23,7 @@ class TestSCMAllStudy(unittest.TestCase):
         for study_class in [ExtendedSafranSnowfall]:
             for study in study_iterator(study_class, only_first_one=True, verbose=False):
                 study_visualizer = StudyVisualizer(study, show=False, save_to_file=False, multiprocessing=True)
-                study_visualizer.df_trend_spatio_temporal(GevLocationTrendTest, [1958, 1959, 1960],
+                study_visualizer.df_trend_spatio_temporal(GevLocationTrendTest, [1959, 1960, 1961],
                                                           nb_massif_for_change_point_test=3,
                                                           sample_one_massif_from_each_region=False)
         self.assertTrue(True)
@@ -72,15 +72,15 @@ class TestSCMPrecipitation(TestSCMStudy):
 
     def setUp(self) -> None:
         super().setUp()
-        self.study = SafranPrecipitation(altitude=1800, year_min=1958, year_max=2002, nb_consecutive_days=1)
+        self.study = SafranPrecipitation(altitude=1800, year_min=1959, year_max=2003, nb_consecutive_days=1)
 
     def test_durand(self):
         # Test based on Durand paper
         # (some small differences probably due to the fact that SAFRAN model has evolved since then)
         # Test for the mean total precipitation (rainfall + snowfall) between 1958 and 2002
         self.check({
-            "Mercantour": 1281,
-            'Chablais': 1922,
+            "Mercantour": 1300,
+            'Chablais': 1947,
         })
 
     def round(self, f):
@@ -91,7 +91,7 @@ class TestSafranTemperature(TestSCMStudy):
 
     def setUp(self):
         super().setUp()
-        self.study = SafranTemperature(altitude=1800, year_min=1958, year_max=2002)
+        self.study = SafranTemperature(altitude=1800, year_min=1959, year_max=2003)
 
     def test_durand(self):
         # Test based on Durand paper

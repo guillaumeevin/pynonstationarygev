@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES
+from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES, \
+    YEAR_OF_INTEREST_FOR_RETURN_LEVEL
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy, filled_marker_legend_list
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION
@@ -68,7 +69,7 @@ def plot_single_uncertainty_massif(altitude_to_visualizer: Dict[int, StudyVisual
 
 def get_label_name(model_subset_for_uncertainty, ci_method_name, add_method_suffix):
     model_symbol = 'N' if model_subset_for_uncertainty is not ModelSubsetForUncertainty.stationary_gumbel else '0'
-    parameter = ', 2017' if model_subset_for_uncertainty not in [ModelSubsetForUncertainty.stationary_gumbel,
+    parameter = ', {}'.format(YEAR_OF_INTEREST_FOR_RETURN_LEVEL) if model_subset_for_uncertainty not in [ModelSubsetForUncertainty.stationary_gumbel,
                                                                  ModelSubsetForUncertainty.stationary_gumbel_and_gev] \
         else ''
     model_name = ' $ z_p(\\boldsymbol{\\widehat{\\theta}_{\\mathcal{M}'

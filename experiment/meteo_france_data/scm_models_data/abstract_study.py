@@ -41,6 +41,7 @@ with redirect_stdout(f):
 
 filled_marker_legend_list = ['Filled marker =', 'Selected model is significant', 'w.r.t $\mathcal{M}_0$']
 
+
 class AbstractStudy(object):
     """
     A Study is defined by:
@@ -52,12 +53,13 @@ class AbstractStudy(object):
 
     The year 2017 represents the nc file that correspond to the winter between the year 2017 and 2018.
     """
-    REANALYSIS_FLAT_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_flat/reanalysis'
+    # REANALYSIS_FLAT_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_flat/reanalysis'
+    REANALYSIS_FLAT_FOLDER = 'S2M_AERIS_MARS_2020/'
     REANALYSIS_ALLSLOPES_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_allslopes/reanalysis'
 
     # REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/postes/reanalysis'
 
-    def __init__(self, variable_class: type, altitude: int = 1800, year_min=1000, year_max=3000,
+    def __init__(self, variable_class: type, altitude: int = 1800, year_min=1959, year_max=2020,
                  multiprocessing=True, orientation=None, slope=20.0):
         assert isinstance(altitude, int), type(altitude)
         assert altitude in ALTITUDES, altitude
@@ -128,7 +130,8 @@ class AbstractStudy(object):
 
     @property
     def observations_winter_annual_maxima(self) -> AnnualMaxima:
-        return AnnualMaxima(df_maxima_gev=pd.DataFrame(self.year_to_winter_annual_maxima, index=self.study_massif_names))
+        return AnnualMaxima(
+            df_maxima_gev=pd.DataFrame(self.year_to_winter_annual_maxima, index=self.study_massif_names))
 
     @cached_property
     def year_to_summer_annual_maxima(self) -> OrderedDict:
@@ -140,10 +143,10 @@ class AbstractStudy(object):
             year_to_annual_maxima[year] = annual_maxima
         return year_to_annual_maxima
 
-
     @property
     def observations_summer_annual_maxima(self) -> AnnualMaxima:
-        return AnnualMaxima(df_maxima_gev=pd.DataFrame(self.year_to_summer_annual_maxima, index=self.study_massif_names))
+        return AnnualMaxima(
+            df_maxima_gev=pd.DataFrame(self.year_to_summer_annual_maxima, index=self.study_massif_names))
 
     @cached_property
     def year_to_annual_maxima_index(self) -> OrderedDict:
@@ -235,7 +238,7 @@ class AbstractStudy(object):
 
     @cached_property
     def ordered_years_and_path_files(self):
-        nc_files = [(int(f.split('_')[-2][:4]), f) for f in os.listdir(self.study_full_path) if f.endswith('.nc')]
+        nc_files = [(int(f.split('_')[-2][:4])+1, f) for f in os.listdir(self.study_full_path) if f.endswith('.nc')]
         ordered_years, path_files = zip(*[(year, op.join(self.study_full_path, nc_file))
                                           for year, nc_file in sorted(nc_files, key=lambda t: t[0])
                                           if self.year_min <= year < self.year_max])
@@ -401,7 +404,6 @@ class AbstractStudy(object):
                 #         for hatch, is_hatch in zip(hatch_list, hatch_boolean_list):
                 #             if is_hatch:
                 #                 ax.add_patch(Polygon(xy=a, fill=False, hatch=hatch))
-
 
         if show_label:
             # Improve some explanation on the X axis and on the Y axis

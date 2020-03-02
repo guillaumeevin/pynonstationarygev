@@ -14,6 +14,7 @@ class EnsembleSimulation(object):
 
     def __init__(self, scenario='HISTO', parameter='SNOWSWE',
                  first_winter_required_for_histo=1958, last_winter_for_histo=2004):
+        assert False, 'RE-read the code to take into the new dates'
         self.scenario = scenario
         self.parameter = parameter
         self.first_winter_required_for_histo = first_winter_required_for_histo

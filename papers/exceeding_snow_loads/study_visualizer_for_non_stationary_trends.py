@@ -8,7 +8,8 @@ from cached_property import cached_property
 
 from experiment.eurocode_data.eurocode_region import C2, C1, E
 from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
-from experiment.eurocode_data.utils import EUROCODE_QUANTILE, EUROCODE_RETURN_LEVEL_STR
+from experiment.eurocode_data.utils import EUROCODE_QUANTILE, EUROCODE_RETURN_LEVEL_STR, \
+    YEAR_OF_INTEREST_FOR_RETURN_LEVEL
 from experiment.meteo_france_data.plot.create_shifted_cmap import get_shifted_map, get_colors
 from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
@@ -47,7 +48,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  uncertainty_methods=None,
                  model_subsets_for_uncertainty=None,
                  uncertainty_massif_names=None,
-                 effective_temporal_covariate=2017,
+                 effective_temporal_covariate=YEAR_OF_INTEREST_FOR_RETURN_LEVEL,
                  relative_change_trend_plot=True,
                  non_stationary_trend_test_to_marker=None,
                  fit_method=TemporalMarginFitMethod.extremes_fevd_mle,

@@ -10,4 +10,4 @@ EUROCODE_ALTITUDES = [300, 600, 900, 1200, 1500, 1800]
 # Therefore, the winter 2012/2013 was the last one. Thus, 2012 is the last year for the Eurocode
 LAST_YEAR_FOR_EUROCODE = 2012
 # Year of interest for the EUROCODE
-YEAR_OF_INTEREST_FOR_RETURN_LEVEL = 2017
+YEAR_OF_INTEREST_FOR_RETURN_LEVEL = 2019
