@@ -193,6 +193,7 @@ if __name__ == '__main__':
                                                                               fit_method=TemporalMarginFitMethod.extremes_fevd_mle,
                                                                               multiprocessing=True,
                                                                               fit_gev_only_on_non_null_maxima=True,
+                                                                              fit_only_time_series_with_ninety_percent_of_non_null_values=True,
                                                                               save_to_file=True,
                                                                               show=False)
                               for altitude in altitudes}

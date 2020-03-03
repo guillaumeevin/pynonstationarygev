@@ -53,7 +53,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  non_stationary_trend_test_to_marker=None,
                  fit_method=TemporalMarginFitMethod.extremes_fevd_mle,
                  select_only_acceptable_shape_parameter=True,
-                 fit_gev_only_on_non_null_maxima=True,
+                 fit_gev_only_on_non_null_maxima=False,
                  fit_only_time_series_with_ninety_percent_of_non_null_values=True,
                  ):
         super().__init__(study, show, save_to_file, only_one_graph, only_first_row, vertical_kde_plot,
@@ -126,8 +126,9 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                 d[m] = (years[mask], maxima[mask])
         else:
             d = self.massif_name_to_years_and_maxima
-            if self.fit_only_time_series_with_ninety_percent_of_non_null_values:
-                d = {m: v for m, v in d.items() if self.massif_name_to_psnow[m] >= 0.90}
+        # In both cases, we remove any massif with psnow < 0.9
+        if self.fit_only_time_series_with_ninety_percent_of_non_null_values:
+            d = {m: v for m, v in d.items() if self.massif_name_to_psnow[m] >= 0.9}
         return d
 
     @property
@@ -324,16 +325,18 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         else:
             raise ValueError(model_subset_for_uncertainty)
 
-    def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method,
-                                                                              model_subset_for_uncertainty) \
+    def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
+                                                                              model_subset_for_uncertainty=ModelSubsetForUncertainty.non_stationary_gumbel_and_gev) \
             -> Dict[str, EurocodeConfidenceIntervalFromExtremes]:
         # Compute for the uncertainty massif names
+        massifs_names = set(self.massif_name_to_years_and_maxima_for_model_fitting.keys()).\
+            intersection(self.uncertainty_massif_names)
         arguments = [
             [self.massif_name_to_years_and_maxima_for_model_fitting[m],
              self.massif_name_and_model_subset_to_model_class(m, model_subset_for_uncertainty),
              ci_method, self.effective_temporal_covariate,
              self.massif_name_to_eurocode_quantile_level_in_practice[m]
-             ] for m in self.uncertainty_massif_names]
+             ] for m in massifs_names]
         if self.multiprocessing:
             with Pool(NB_CORES) as p:
                 res = p.starmap(compute_eurocode_confidence_interval, arguments)
