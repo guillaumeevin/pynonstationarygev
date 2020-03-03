@@ -52,12 +52,17 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  relative_change_trend_plot=True,
                  non_stationary_trend_test_to_marker=None,
                  fit_method=TemporalMarginFitMethod.extremes_fevd_mle,
-                 select_only_acceptable_shape_parameter=True):
+                 select_only_acceptable_shape_parameter=True,
+                 fit_gev_only_on_non_null_maxima=True,
+                 fit_only_time_series_with_ninety_percent_of_non_null_values=True,
+                 ):
         super().__init__(study, show, save_to_file, only_one_graph, only_first_row, vertical_kde_plot,
                          year_for_kde_plot, plot_block_maxima_quantiles, temporal_non_stationarity,
                          transformation_class, verbose, multiprocessing, complete_non_stationary_trend_analysis,
                          normalization_under_one_observations, score_class)
         # Add some attributes
+        self.fit_only_time_series_with_ninety_percent_of_non_null_values = fit_only_time_series_with_ninety_percent_of_non_null_values
+        self.fit_gev_only_on_non_null_maxima = fit_gev_only_on_non_null_maxima
         self.select_only_acceptable_shape_parameter = select_only_acceptable_shape_parameter
         self.fit_method = fit_method
         self.non_stationary_trend_test_to_marker = non_stationary_trend_test_to_marker
@@ -107,15 +112,22 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def massif_name_to_eurocode_quantile_level_in_practice(self):
         """Due to missing data, the the eurocode quantile which 0.98 if we have all the data
         correspond in practice to the quantile psnow x 0.98 of the data where there is snow"""
-        return {m: 1 - ((1 - EUROCODE_QUANTILE) / p_snow) for m, p_snow in self.massif_name_to_psnow.items()}
+        if self.fit_gev_only_on_non_null_maxima:
+            return {m: 1 - ((1 - EUROCODE_QUANTILE) / p_snow) for m, p_snow in self.massif_name_to_psnow.items()}
+        else:
+            return {m: EUROCODE_QUANTILE for m in self.massif_name_to_psnow.keys()}
 
     @cached_property
-    def massif_name_to_non_null_years_and_maxima(self):
-        # return self.massif_name_to_years_and_maxima
-        d = {}
-        for m, (years, maxima) in self.massif_name_to_years_and_maxima.items():
-            mask = np.nonzero(maxima)
-            d[m] = (years[mask], maxima[mask])
+    def massif_name_to_years_and_maxima_for_model_fitting(self):
+        if self.fit_gev_only_on_non_null_maxima:
+            d = {}
+            for m, (years, maxima) in self.massif_name_to_years_and_maxima.items():
+                mask = np.nonzero(maxima)
+                d[m] = (years[mask], maxima[mask])
+        else:
+            d = self.massif_name_to_years_and_maxima
+            if self.fit_only_time_series_with_ninety_percent_of_non_null_values:
+                d = {m: v for m, v in d.items() if self.massif_name_to_psnow[m] >= 0.90}
         return d
 
     @property
@@ -137,7 +149,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         massif_name_to_trend_test_that_minimized_aic = {}
         massif_name_to_stationary_trend_test_that_minimized_aic = {}
         massif_name_to_gumbel_trend_test_that_minimized_aic = {}
-        for massif_name, (x, y) in self.massif_name_to_non_null_years_and_maxima.items():
+        for massif_name, (x, y) in self.massif_name_to_years_and_maxima_for_model_fitting.items():
             quantile_level = self.massif_name_to_eurocode_quantile_level_in_practice[massif_name]
             all_trend_test = [
                 t(years=x, maxima=y, starting_year=starting_year, quantile_level=quantile_level,
@@ -317,7 +329,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             -> Dict[str, EurocodeConfidenceIntervalFromExtremes]:
         # Compute for the uncertainty massif names
         arguments = [
-            [self.massif_name_to_non_null_years_and_maxima[m],
+            [self.massif_name_to_years_and_maxima_for_model_fitting[m],
              self.massif_name_and_model_subset_to_model_class(m, model_subset_for_uncertainty),
              ci_method, self.effective_temporal_covariate,
              self.massif_name_to_eurocode_quantile_level_in_practice[m]
@@ -353,7 +365,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     # Some checks with Gelman convergence diagnosis
 
     def massif_name_to_gelman_convergence_value(self, mcmc_iterations, model_class, nb_chains):
-        arguments = [(self.massif_name_to_non_null_years_and_maxima[m], mcmc_iterations, model_class, nb_chains)
+        arguments = [(self.massif_name_to_years_and_maxima_for_model_fitting[m], mcmc_iterations, model_class, nb_chains)
                      for m in self.uncertainty_massif_names]
         if self.multiprocessing:
             with Pool(NB_CORES) as p:

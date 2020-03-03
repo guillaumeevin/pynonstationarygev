@@ -18,7 +18,7 @@ class StudyVisualizerForFitWithoutMaximum(StudyVisualizerForNonStationaryTrends)
 
     @cached_property
     def massif_name_to_maximum_index_for_non_null_values(self) -> Tuple[Dict, Dict]:
-        d = super().massif_name_to_non_null_years_and_maxima
+        d = super().massif_name_to_years_and_maxima_for_model_fitting
         d_without_maximum = {}
         d_maximum = {}
         for m, (years, maxima) in d.items():
@@ -35,7 +35,7 @@ class StudyVisualizerForFitWithoutMaximum(StudyVisualizerForNonStationaryTrends)
         return self.massif_name_to_maximum_index_for_non_null_values[1]
 
     @cached_property
-    def massif_name_to_non_null_years_and_maxima(self):
+    def massif_name_to_years_and_maxima_for_model_fitting(self):
         return self.massif_name_to_maximum_index_for_non_null_values[0]
 
     def maximum_value_test(self):

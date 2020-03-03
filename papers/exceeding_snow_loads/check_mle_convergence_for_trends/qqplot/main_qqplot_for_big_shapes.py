@@ -17,6 +17,8 @@ def get_tuple_ordered_by_shape(fast=False):
                                                                               select_only_acceptable_shape_parameter=False,
                                                                               multiprocessing=True,
                                                                               save_to_file=True,
+                                                                              fit_gev_only_on_non_null_maxima=False,
+                                                                              fit_only_time_series_with_ninety_percent_of_non_null_values=False,
                                                                               show=False)
                               for altitude in altitudes}
     # Extract all the values

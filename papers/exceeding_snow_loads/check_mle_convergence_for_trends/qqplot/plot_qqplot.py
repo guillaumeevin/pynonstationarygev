@@ -7,6 +7,8 @@ import pandas as pd
 from matplotlib.ticker import PercentFormatter
 
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
+    ALL_ALTITUDES_WITHOUT_NAN
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
@@ -183,20 +185,21 @@ if __name__ == '__main__':
     300 Haut_Var-Haut_Verdon 0.8446498197950775
 
     """
-    altitudes = [300, 600, 900, 1200, 1500, 1800][:]
+    altitudes = [300, 600, 900, 1200, 1500, 1800][:3]
     # altitudes = ALL_ALTITUDES_WITHOUT_NAN
     # altitudes = [900, 1800, 2700]
     altitude_to_visualizer = {altitude: StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude),
                                                                               select_only_acceptable_shape_parameter=True,
                                                                               fit_method=TemporalMarginFitMethod.extremes_fevd_mle,
                                                                               multiprocessing=True,
+                                                                              fit_gev_only_on_non_null_maxima=True,
                                                                               save_to_file=True,
                                                                               show=False)
                               for altitude in altitudes}
 
     # plot_qqplot_wrt_standard_gumbel(altitude_to_visualizer)
-    # plot_hist_psnow(altitude_to_visualizer)
-    plot_intensity_against_gumbel_quantile_for_time_series_with_missing_zeros(altitude_to_visualizer, nb_worst_examples=None)
+    plot_hist_psnow(altitude_to_visualizer)
+    # plot_intensity_against_gumbel_quantile_for_time_series_with_missing_zeros(altitude_to_visualizer, nb_worst_examples=None)
     # plot_exceedance_psnow(altitude_to_visualizer)
     # non_stationarity_psnow(altitude_to_visualizer)
 
