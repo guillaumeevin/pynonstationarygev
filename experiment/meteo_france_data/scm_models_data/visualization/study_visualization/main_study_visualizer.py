@@ -1,6 +1,7 @@
 import time
 from typing import List
 
+from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusDensityVariable
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
     StudyVisualizer
 from papers.exceeding_snow_loads.discussion_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import \
@@ -25,7 +26,7 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
 from root_utils import get_display_name_from_object_type
 
 snow_density_str = '$\\rho_{SNOW}$'
-eurocode_snow_density = '{}=150 kg $m^-3$'.format(snow_density_str)
+eurocode_snow_density = '{}=150 {}'.format(snow_density_str, CrocusDensityVariable.UNIT)
 SLEurocode = 'SL from max HS with ' + eurocode_snow_density
 
 SCM_STUDIES = [SafranSnowfall, CrocusSweTotal, CrocusDepth, CrocusSwe3Days]

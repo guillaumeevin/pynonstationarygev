@@ -90,7 +90,8 @@ class CrocusDepthVariable(CrocusVariable):
 
 class CrocusDensityVariable(CrocusVariable):
     NAME = 'Snow Density'
-    UNIT = 'kg $m^-3$'
+    # UNIT = '$\\textnormal{kg m}^{-3}$'
+    UNIT = 'kg $m^{-3}$'
 
     @classmethod
     def keyword(cls):

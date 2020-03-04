@@ -17,7 +17,7 @@ def plot_trend_map(altitude_to_visualizer):
 
     for altitude, visualizer in altitude_to_visualizer.items():
         if 900 <= altitude <= 4200:
-            add_color = (visualizer.study.altitude - 1500) % 1200 == 0
+            add_color = (visualizer.study.altitude - 1800) % 1200 == 0
             visualizer.plot_trends(max_abs_tdrl_above_900, add_colorbar=add_color)
             # Plot 2700 also with a colorbar
             if altitude == 2700:

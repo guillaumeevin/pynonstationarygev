@@ -63,7 +63,7 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
     ax_twiny.tick_params(labelsize=fontsize_label)
     ax_twiny.set_xlim(ax.get_xlim())
     ax_twiny.set_xticks(altitudes)
-    nb_massif_names = [v.study.nb_study_massif_names for v in altitude_to_visualizer.values()]
+    nb_massif_names = [len(v.massif_names_fitted) for v in altitude_to_visualizer.values()]
     print(nb_massif_names)
     ax_twiny.set_xticklabels(nb_massif_names)
     ax_twiny.set_xlabel('Total number of massifs at each altitude (for the percentage)', fontsize=fontsize_label)

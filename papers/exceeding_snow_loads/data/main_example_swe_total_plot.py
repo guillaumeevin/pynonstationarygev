@@ -18,12 +18,11 @@ def tuples_for_examples_paper1(examples_for_the_paper=True):
         ]
     else:
         marker_altitude_massif_name_for_paper1 = [
-            ('magenta', 600, 'Ubaye'),
-            ('darkmagenta', 600, 'Parpaillon'),
+            ('magenta', 600, 'Parpaillon'),
+            ('darkmagenta', 300, 'Devoluy'),
             ('mediumpurple', 300, 'Aravis'),
         ]
     return marker_altitude_massif_name_for_paper1
-
 
 
 def max_graph_annual_maxima_poster():
@@ -53,9 +52,10 @@ def max_graph_annual_maxima_poster():
                                                verbose=True,
                                                multiprocessing=True)
             snow_abbreviation = SCM_STUDY_CLASS_TO_ABBREVIATION[study_class]
-            last_plot = massif_name == "Ubaye"
+            last_plot = color == "magenta"
             label = '{} massif at {}m'.format(massif_name, altitude)
             tight_pad = {'h_pad': 0.2}
+            snow_abbreviation = 'max ' + snow_abbreviation
             study_visualizer.visualize_max_graphs_poster(massif_name, altitude, snow_abbreviation, color, label,
                                                          last_plot, ax, tight_pad=tight_pad,
                                                          dpi=dpi_paper1_figure,
