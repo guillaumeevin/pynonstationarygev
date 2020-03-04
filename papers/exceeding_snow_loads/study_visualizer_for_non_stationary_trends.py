@@ -30,7 +30,8 @@ from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two
     GumbelLocationAndScaleTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import GumbelTemporalModel
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import GumbelTemporalModel, \
+    StationaryTemporalModel
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
@@ -322,6 +323,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def massif_name_and_model_subset_to_model_class(self, massif_name, model_subset_for_uncertainty):
         if model_subset_for_uncertainty is ModelSubsetForUncertainty.stationary_gumbel:
             return GumbelTemporalModel
+        if model_subset_for_uncertainty is ModelSubsetForUncertainty.stationary_gev:
+            return StationaryTemporalModel
         elif model_subset_for_uncertainty is ModelSubsetForUncertainty.stationary_gumbel_and_gev:
             return self.massif_name_to_stationary_trend_test_that_minimized_aic[massif_name].unconstrained_model_class
         elif model_subset_for_uncertainty is ModelSubsetForUncertainty.non_stationary_gumbel:
@@ -395,7 +398,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         triplet = [(massif_name_to_eurocode_region[massif_name],
                     self.massif_name_to_eurocode_values[massif_name],
                     self.triplet_to_eurocode_uncertainty[(ci_method, model_subset_for_uncertainty, massif_name)])
-                   for massif_name in self.uncertainty_massif_names]
+                   for massif_name in self.massif_names_fitted]
         # First array for histogram
         a = 100 * np.array([(uncertainty.confidence_interval[0] > eurocode,
                              uncertainty.mean_estimate > eurocode,

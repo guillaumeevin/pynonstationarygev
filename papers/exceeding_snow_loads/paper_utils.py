@@ -32,3 +32,4 @@ class ModelSubsetForUncertainty(Enum):
     stationary_gumbel_and_gev = 1
     non_stationary_gumbel = 2
     non_stationary_gumbel_and_gev = 3
+    stationary_gev = 4

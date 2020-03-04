@@ -2,7 +2,10 @@ from multiprocessing.pool import Pool
 
 import matplotlib as mpl
 
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoad3Days
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoad3Days, \
+    CrocusSnowLoad5Days, CrocusSnowLoad7Days
+from papers.exceeding_snow_loads.check_mle_convergence_for_trends.uncertainty_interval_size import \
+    uncertainty_interval_size
 from papers.exceeding_snow_loads.paper_main_utils import load_altitude_to_visualizer
 from papers.exceeding_snow_loads.paper_utils import paper_study_classes, paper_altitudes
 from papers.exceeding_snow_loads.result_trends_and_return_levels.plot_diagnosis_risk import plot_diagnosis_risk
@@ -71,7 +74,7 @@ def intermediate_result(altitudes, massif_names=None,
     # plot_uncertainty_massifs(altitude_to_visualizer)
     plot_uncertainty_histogram(altitude_to_visualizer)
     # plot_selection_curves(altitude_to_visualizer)
-
+    # uncertainty_interval_size(altitude_to_visualizer)
 
 
 def major_result():
@@ -92,7 +95,7 @@ def major_result():
 
 if __name__ == '__main__':
     major_result()
-    # intermediate_result(altitudes=[1800], massif_names=None,
+    # intermediate_result(altitudes=[300], massif_names=None,
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
     #                     multiprocessing=True)
