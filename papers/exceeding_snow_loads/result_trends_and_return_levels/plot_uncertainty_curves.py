@@ -151,7 +151,7 @@ def add_title(ax, eurocode_region, massif_name, non_stationary_context):
 
 def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, legend_size, fontsize):
     visualizers = [v for a, v in altitude_to_visualizer.items()
-                   if a in valid_altitudes and massif_name in v.uncertainty_massif_names]
+                   if a in valid_altitudes and massif_name in v.massif_names_fitted]
     if len(visualizers) > 0:
         tdrl_values = [v.massif_name_to_tdrl_value[massif_name] for v in visualizers]
         # Plot bars

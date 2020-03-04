@@ -69,7 +69,7 @@ def intermediate_result(altitudes, massif_names=None,
     plot_trend_map(altitude_to_visualizer)
     # plot_trend_curves(altitude_to_visualizer={a: v for a, v in altitude_to_visualizer.items() if a >= 900})
     # plot_uncertainty_massifs(altitude_to_visualizer)
-    # plot_uncertainty_histogram(altitude_to_visualizer)
+    plot_uncertainty_histogram(altitude_to_visualizer)
     # plot_selection_curves(altitude_to_visualizer)
 
 
@@ -77,7 +77,7 @@ def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
                            ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
     massif_names = None
-    study_classes = paper_study_classes[:1]
+    study_classes = paper_study_classes[:2]
     # model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel,
     #                                  ModelSubsetForUncertainty.stationary_gumbel_and_gev,
     #                                  ModelSubsetForUncertainty.non_stationary_gumbel,
@@ -90,11 +90,11 @@ def major_result():
 
 
 if __name__ == '__main__':
-    # major_result()
-    intermediate_result(altitudes=[1800], massif_names=None,
-                        uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
-                                             ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
-                        multiprocessing=True)
+    major_result()
+    # intermediate_result(altitudes=[1800], massif_names=None,
+    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
+    #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
+    #                     multiprocessing=True)
     # intermediate_result(altitudes=[900, 1200], massif_names=['Maurienne'],
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],

@@ -11,16 +11,13 @@ def load_altitude_to_visualizer(altitudes, massif_names, model_subsets_for_uncer
                                 study_visualizer_class=StudyVisualizerForNonStationaryTrends,
                                 save_to_file=True):
     fit_method = TemporalMarginFitMethod.extremes_fevd_mle
-    select_only_acceptable_shape_parameter = True
-    print('Fit method: {}, Select only acceptable shape parameter: {}'
-          .format(fit_method, select_only_acceptable_shape_parameter))
     altitude_to_visualizer = OrderedDict()
     for altitude in altitudes:
         altitude_to_visualizer[altitude] = study_visualizer_class(
             study=study_class(altitude=altitude), multiprocessing=True, save_to_file=save_to_file,
             uncertainty_massif_names=massif_names, uncertainty_methods=uncertainty_methods,
             model_subsets_for_uncertainty=model_subsets_for_uncertainty, fit_method=fit_method,
-            select_only_acceptable_shape_parameter=select_only_acceptable_shape_parameter)
+            select_only_acceptable_shape_parameter=True,
+            fit_gev_only_on_non_null_maxima=False,
+            fit_only_time_series_with_ninety_percent_of_non_null_values=True)
     return altitude_to_visualizer
-
-

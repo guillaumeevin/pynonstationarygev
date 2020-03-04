@@ -117,6 +117,10 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         else:
             return {m: EUROCODE_QUANTILE for m in self.massif_name_to_psnow.keys()}
 
+    @property
+    def massif_names_fitted(self):
+        return list(self.massif_name_to_years_and_maxima_for_model_fitting.keys())
+
     @cached_property
     def massif_name_to_years_and_maxima_for_model_fitting(self):
         if self.fit_gev_only_on_non_null_maxima:
@@ -162,6 +166,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                 all_trend_test = [t for t in all_trend_test
                                   if acceptable_shape_parameter(t.unconstrained_estimator_gev_params.shape)]
             sorted_trend_test = sorted(all_trend_test, key=lambda t: t.aic)
+
             # Extract the stationary or non-stationary model that minimized AIC
             trend_test_that_minimized_aic = sorted_trend_test[0]
             massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
@@ -175,6 +180,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                                                     [GumbelVersusGumbel, GumbelLocationTrendTest, GumbelScaleTrendTest,
                                                      GumbelLocationAndScaleTrendTest]][0]
             massif_name_to_gumbel_trend_test_that_minimized_aic[massif_name] = gumbel_trend_test_that_minimized_aic
+
         return massif_name_to_trend_test_that_minimized_aic, massif_name_to_stationary_trend_test_that_minimized_aic, massif_name_to_gumbel_trend_test_that_minimized_aic
 
     # Part 1 - Trends
@@ -342,9 +348,9 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                 res = p.starmap(compute_eurocode_confidence_interval, arguments)
         else:
             res = [compute_eurocode_confidence_interval(*argument) for argument in arguments]
-        massif_name_to_eurocode_return_level_uncertainty = dict(zip(self.uncertainty_massif_names, res))
+        massif_name_to_eurocode_return_level_uncertainty = dict(zip(massifs_names, res))
         # For the rest of the massif names. Create a Eurocode Return Level Uncertainty as nan
-        for massif_name in set(self.study.all_massif_names) - set(self.uncertainty_massif_names):
+        for massif_name in set(self.study.all_massif_names) - set(massifs_names):
             massif_name_to_eurocode_return_level_uncertainty[massif_name] = self.default_eurocode_uncertainty
         return massif_name_to_eurocode_return_level_uncertainty
 

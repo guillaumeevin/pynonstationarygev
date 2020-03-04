@@ -17,7 +17,7 @@ def plot_trend_map(altitude_to_visualizer):
 
     for altitude, visualizer in altitude_to_visualizer.items():
         if 900 <= altitude <= 4200:
-            add_color = (visualizer.study.altitude - 1500) % 900 == 0
+            add_color = (visualizer.study.altitude - 1500) % 1200 == 0
             visualizer.plot_trends(max_abs_tdrl_above_900, add_colorbar=add_color)
             # Plot 2700 also with a colorbar
             if altitude == 2700:
@@ -52,7 +52,7 @@ def plot_trend_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNonSta
     ax.bar(altitudes, percent_decrease, width=width, color=color, edgecolor='blue', label='decreasing trend',
            linewidth=linewidth)
     ax.bar(altitudes, percent_decrease_signi, width=width, color=color, edgecolor='black',
-           label='significative decreasing trend',
+           label='significant decreasing trend',
            linewidth=linewidth)
     ax.legend(loc='upper left', prop={'size': size})
 

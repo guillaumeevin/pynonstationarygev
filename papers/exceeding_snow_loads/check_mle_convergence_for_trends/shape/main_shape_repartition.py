@@ -27,8 +27,8 @@ def main_shape_repartition(altitudes, massif_names=None,
 
 if __name__ == '__main__':
     # main_shape_repartition([900], save_to_file=False)
-    # main_shape_repartition([900, 1800, 2700])
+    main_shape_repartition([900, 1800, 2700])
     # main_shape_repartition([300, 600, 900, 1200, 1500, 1800, 2700])
-    main_shape_repartition(paper_altitudes, study_visualizer_class=StudyVisualizerForShape, save_to_file=True)
+    # main_shape_repartition(paper_altitudes, study_visualizer_class=StudyVisualizerForShape, save_to_file=True)
     # main_shape_repartition([300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200],
     #                        study_visualizer_class=StudyVisualizerForShape, save_to_file=True)

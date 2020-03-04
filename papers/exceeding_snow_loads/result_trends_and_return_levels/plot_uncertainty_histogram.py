@@ -46,7 +46,6 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
             width = 200
         plot_histogram_ci_method(visualizers, model_subset_for_uncertainty, ci_method, ax, bincenters, width=width)
 
-
     ax.set_xticks(altitudes)
     ax.tick_params(labelsize=fontsize_label)
     if not (len(visualizer.uncertainty_methods) == 1
@@ -57,19 +56,36 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
     ax.set_ylabel('Massifs exceeding French standards (\%)', fontsize=fontsize_label)
     ax.set_xlabel('Altitude (m)', fontsize=fontsize_label)
     ax.set_ylim([0, 100])
+    ax.yaxis.grid()
+
+    ax_twiny = ax.twiny()
+    ax_twiny.plot(altitudes, [0 for _ in altitudes], linewidth=0)
+    ax_twiny.tick_params(labelsize=fontsize_label)
+    ax_twiny.set_xlim(ax.get_xlim())
+    ax_twiny.set_xticks(altitudes)
+    nb_massif_names = [v.study.nb_study_massif_names for v in altitude_to_visualizer.values()]
+    print(nb_massif_names)
+    ax_twiny.set_xticklabels(nb_massif_names)
+    ax_twiny.set_xlabel('Total number of massifs at each altitude (for the percentage)', fontsize=fontsize_label)
+
     ax.set_yticks([10 * i for i in range(11)])
-    visualizer.plot_name = 'Percentages of exceedance with {}'.format(get_display_name_from_object_type(model_subset_for_uncertainty))
+    visualizer.plot_name = 'Percentages of exceedance with {}'.format(
+        get_display_name_from_object_type(model_subset_for_uncertainty))
     # visualizer.show = True
     visualizer.show_or_save_to_file(no_title=True, dpi=dpi_paper1_figure)
     ax.clear()
+    ax_twiny.clear()
+    plt.close()
 
 
 def plot_histogram_ci_method(visualizers, model_subset_for_uncertainty, ci_method, ax, bincenters, width):
     three_percentages_of_excess = [v.excess_metrics(ci_method, model_subset_for_uncertainty)[:3] for v in
                                    visualizers]
     epsilon = 0.5
-    three_percentages_of_excess = [(a, b, c) if a == b else (max(epsilon, a), b, c) for (a, b, c) in three_percentages_of_excess]
-    three_percentages_of_excess = [(a, b, c) if b == c else (a, b, min(100 - epsilon, c)) for (a, b, c) in three_percentages_of_excess]
+    three_percentages_of_excess = [(a, b, c) if a == b else (max(epsilon, a), b, c) for (a, b, c) in
+                                   three_percentages_of_excess]
+    three_percentages_of_excess = [(a, b, c) if b == c else (a, b, min(100 - epsilon, c)) for (a, b, c) in
+                                   three_percentages_of_excess]
     y = [d[1] for d in three_percentages_of_excess]
     yerr = np.array([[d[1] - d[0], d[2] - d[1]] for d in three_percentages_of_excess]).transpose()
     label = ci_method_to_label[ci_method]
