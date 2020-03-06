@@ -9,10 +9,10 @@ from experiment.meteo_france_data.scm_models_data.abstract_study import Abstract
 from root_utils import get_display_name_from_object_type
 
 
-def main_eurocode_norms(ax=None):
+def main_eurocode_norms(ax=None, poster_plot=False):
     if ax is None:
         ax = plt.gca()
-        altitudes = np.linspace(200, 2000)
+        altitudes = np.linspace(200, 2000, 1800 + 1)
         for region_class in [E, C]:
             region_object = region_class()
             label = get_display_name_from_object_type(region_class) + ' ' + 'region'
@@ -21,14 +21,18 @@ def main_eurocode_norms(ax=None):
                                                                                                  linestyle='-')
             if region_class == C:
                 ax.xaxis.set_ticks([250 * i for i in range(1, 9)])
-                ax.tick_params(axis='both', which='major', labelsize=13)
-                ax.set_ylabel(EUROCODE_RETURN_LEVEL_STR)
-                ax.set_xlabel('Altitude (m)')
+                labelsize = 13 if not poster_plot else 20
+                ax.tick_params(axis='both', which='major', labelsize=labelsize)
+                legend_fontsize = 18
+                ax.set_ylabel(EUROCODE_RETURN_LEVEL_STR, fontsize = legend_fontsize)
+                ax.set_xlabel('Altitude (m)', fontsize = legend_fontsize)
                 ax.set_ylim([0.0, 12.0])
                 ax.set_yticks(list(range(0, 13, 2)))
                 ax.set_xlim([0, 2000])
                 ax.set_xticks(list(range(0, 2001, 500)))
-                ax.legend()
+                prop = {'size': 25} if poster_plot else {}
+                ax.legend(prop=prop, loc='upper left')
+
                 ax.grid()
                 plt.show()
 
@@ -42,5 +46,5 @@ def main_eurocode_map(ax=None):
 
 
 if __name__ == '__main__':
-    main_eurocode_norms()
-    main_eurocode_map()
+    main_eurocode_norms(poster_plot=True)
+    # main_eurocode_map()
