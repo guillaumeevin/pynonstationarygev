@@ -40,6 +40,7 @@ with redirect_stdout(f):
     from simpledbf import Dbf5
 
 filled_marker_legend_list = ['Filled marker =', 'Selected model is significant', 'w.r.t $\mathcal{M}_0$']
+filled_marker_legend_list2 = ['Filled marker = Selected', 'model is significant', 'w.r.t $\mathcal{M}_0$']
 
 
 class AbstractStudy(object):

@@ -5,7 +5,8 @@ import numpy as np
 
 from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES, \
     YEAR_OF_INTEREST_FOR_RETURN_LEVEL
-from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy, filled_marker_legend_list
+from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy, filled_marker_legend_list, \
+    filled_marker_legend_list2
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION
 from papers.exceeding_snow_loads.paper_utils import dpi_paper1_figure, ModelSubsetForUncertainty
@@ -90,7 +91,7 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, m
     altitudes = list(altitude_to_visualizer.keys())
     visualizer = list(altitude_to_visualizer.values())[0]
     alpha = 0.2
-    legend_size = 25
+    legend_size = 30
     fontsize_label = 35
     # Display the EUROCODE return level
     eurocode_region = massif_name_to_eurocode_region[massif_name]()
@@ -130,7 +131,8 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, m
     # add_title(ax, eurocode_region, massif_name, non_stationary_context)
     ax.set_xticks(altitudes)
     ax.tick_params(labelsize=fontsize_label)
-    ylabel = EUROCODE_RETURN_LEVEL_STR.replace('GSL', SCM_STUDY_CLASS_TO_ABBREVIATION[type(visualizer.study)])
+    ylabel = EUROCODE_RETURN_LEVEL_STR
+    # ylabel = EUROCODE_RETURN_LEVEL_STR.replace('GSL', SCM_STUDY_CLASS_TO_ABBREVIATION[type(visualizer.study)])
     ax.set_ylabel(ylabel, fontsize=fontsize_label)
     ax.set_xlabel('Altitude (m)', fontsize=fontsize_label)
     ax.grid()
@@ -179,12 +181,16 @@ def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, leg
         ax2 = ax.twinx()
         # ax2.legend(handles=legend_elements, bbox_to_anchor=(0.93, 0.7), loc='upper right')
         # ax2.annotate("Filled symbol = significant trend ", xy=(0.85, 0.5), xycoords='axes fraction', fontsize=7)
-        ax2.legend(handles=legend_elements, loc='center left', prop={'size': legend_size})
+        upper_legend_y = 0.55
+        ax2.annotate('\n'.join(filled_marker_legend_list2), xy=(0.23, upper_legend_y - 0.2), xycoords='axes fraction', fontsize=fontsize)
+        ax2.annotate('Markers show selected model $\mathcal{M}_N$', xy=(0.02, upper_legend_y), xycoords='axes fraction', fontsize=fontsize)
+        print(legend_size)
+        ax2.legend(handles=legend_elements, prop={'size': legend_size},
+                   loc='upper left', bbox_to_anchor=(0.00, upper_legend_y))
         # for handle in lgnd.legendHandles:
         #     handle.set_sizes([6.0])
         # ax2.annotate("Filled symbol =\nsignificant trend  \nw.r.t $\mathcal{M}_0$", xy=(0.6, 0.85), xycoords='axes fraction', fontsize=fontsize)
-        ax2.annotate('\n'.join(filled_marker_legend_list), xy=(0.23, 0.43), xycoords='axes fraction', fontsize=fontsize)
-        ax2.annotate('Markers show selected model $\mathcal{M}_N$', xy=(0.02, 0.605), xycoords='axes fraction', fontsize=fontsize)
+
         ax2.set_yticks([])
 
 
