@@ -47,5 +47,5 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         return compute_nllh(self, self.maxima_gev_train, self.coordinate_temp, self.margin_model)
 
     @cached_property
-    def margin_function_from_fit(self) -> LinearMarginFunction:
+    def function_from_fit(self) -> LinearMarginFunction:
         return load_margin_function(self, self.margin_model)

@@ -34,7 +34,7 @@ class SmoothMarginalsThenUnitaryMsp(AbstractFullEstimator):
         maxima_frech = AbstractMarginModel.gev2frech(maxima_gev=maxima_gev_train,
                                                      coordinates_values=self.dataset.coordinates_values(
                                                          self.train_split),
-                                                     margin_function=self.margin_estimator.margin_function_from_fit)
+                                                     margin_function=self.margin_estimator.function_from_fit)
         # Update maxima frech field through the dataset object
         self.dataset.set_maxima_frech(maxima_frech, split=self.train_split)
         # Estimate the max stable parameters
@@ -86,7 +86,7 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
         )
 
     @cached_property
-    def margin_function_from_fit(self) -> LinearMarginFunction:
+    def function_from_fit(self) -> LinearMarginFunction:
         return load_margin_function(self, self.linear_margin_model)
 
 

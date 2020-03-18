@@ -75,7 +75,7 @@ class AbstractNonStationaryTrendTest(object):
     def get_mu_coefs(self, starting_point):
         # for the non stationary model gives the mu1 parameters that was fitted
         estimator = self.get_estimator(starting_point)
-        margin_function = estimator.margin_function_from_fit  # type: LinearMarginFunction
+        margin_function = estimator.function_from_fit  # type: LinearMarginFunction
         assert isinstance(margin_function, LinearMarginFunction)
         mu_coefs = [margin_function.mu_intercept, margin_function.mu1_temporal_trend]
         if self.has_spatial_coordinates:

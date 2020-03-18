@@ -32,7 +32,7 @@ class TestSmoothMarginEstimator(unittest.TestCase):
 
             for quantile_estimator in quantile_estimators:
                 quantile_estimator.fit()
-                print(quantile_estimator.margin_function_from_fit)
+                print(quantile_estimator.function_from_fit)
 
         # self.assertTrue(True)
 

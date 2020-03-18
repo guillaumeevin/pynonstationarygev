@@ -59,7 +59,7 @@ class AbstractSimulation(object):
             estimator = estimator_class.from_dataset(dataset)  # type: AbstractEstimator
             # Fit the estimator and get the margin_function
             estimator.fit()
-            margin_function_fitted_list.append(estimator.margin_function_from_fit)
+            margin_function_fitted_list.append(estimator.function_from_fit)
 
         # Individual error dict
         self.dump_fitted_margins_pickle(estimator_class, margin_function_fitted_list)

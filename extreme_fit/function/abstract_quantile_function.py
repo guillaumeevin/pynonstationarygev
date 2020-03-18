@@ -1,9 +1,10 @@
 import numpy as np
 
+from extreme_fit.function.abstract_function import AbstractFunction
 from extreme_fit.function.margin_function.abstract_margin_function import AbstractMarginFunction
 
 
-class AbstractQuantileFunction(object):
+class AbstractQuantileFunction(AbstractFunction):
 
     def __init__(self, margin_function: AbstractMarginFunction, quantile: float):
         self.margin_function = margin_function

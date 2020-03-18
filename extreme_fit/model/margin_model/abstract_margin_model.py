@@ -32,6 +32,7 @@ class AbstractMarginModel(AbstractModel, ABC):
         raise NotImplementedError
 
     def default_load_margin_functions(self, margin_function_class):
+        # todo: check it i could remove these attributes
         self.margin_function_sample = margin_function_class(coordinates=self.coordinates,
                                                             default_params=GevParams.from_dict(self.params_sample))
         self.margin_function_start_fit = margin_function_class(coordinates=self.coordinates,

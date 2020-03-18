@@ -2,6 +2,7 @@ from typing import Union
 
 from cached_property import cached_property
 
+from extreme_fit.function.abstract_function import AbstractFunction
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
 from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
@@ -35,7 +36,7 @@ class AbstractEstimator(object):
         return self._result_from_fit
 
     @cached_property
-    def margin_function_from_fit(self) -> AbstractMarginFunction:
+    def function_from_fit(self) -> AbstractFunction:
         raise NotImplementedError
 
     # Short cut properties

@@ -7,12 +7,13 @@ import pandas as pd
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
 from extreme_fit.distribution.gev.gev_params import GevParams
 from experiment.meteo_france_data.plot.create_shifted_cmap import imshow_shifted
+from extreme_fit.function.abstract_function import AbstractFunction
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.slicer.split import Split
 from root_utils import cached_property
 
 
-class AbstractMarginFunction(object):
+class AbstractMarginFunction(AbstractFunction):
     """
     AbstractMarginFunction maps points from a space S (could be 1D, 2D,...) to R^3 (the 3 parameters of the GEV)
     """
