@@ -7,8 +7,8 @@ from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model impo
 from extreme_fit.model.max_stable_model.abstract_max_stable_model import CovarianceFunction
 from extreme_fit.model.max_stable_model.max_stable_models import Schlather
 from extreme_fit.model.utils import r
-from test.test_unitary.test_rmaxstab.test_rmaxstab_with_margin import TestRMaxStabWithMarginConstant
-from test.test_unitary.test_unitary_abstract import TestUnitaryAbstract
+from test.test_unitary_r_packages.test_spatial_extreme.test_rmaxstab.test_rmaxstab_with_margin import TestRMaxStabWithMarginConstant
+from test.test_unitary_r_packages.test_unitary_abstract import TestUnitaryAbstract
 
 
 class TestMaxStableFitWithConstantMargin(TestUnitaryAbstract):

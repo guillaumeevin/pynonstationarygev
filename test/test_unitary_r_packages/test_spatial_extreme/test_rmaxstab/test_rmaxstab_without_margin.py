@@ -10,7 +10,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import MaxStableAnnualMaxima
-from test.test_unitary.test_unitary_abstract import TestUnitaryAbstract
+from test.test_unitary_r_packages.test_unitary_abstract import TestUnitaryAbstract
 
 
 class TestRMaxStab(TestUnitaryAbstract):

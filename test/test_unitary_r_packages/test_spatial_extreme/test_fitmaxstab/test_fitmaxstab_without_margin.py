@@ -5,8 +5,8 @@ from extreme_fit.model.max_stable_model.abstract_max_stable_model import Covaria
 from extreme_fit.model.max_stable_model.max_stable_models import Schlather
 from extreme_fit.model.utils import r
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
-from test.test_unitary.test_rmaxstab.test_rmaxstab_without_margin import TestRMaxStab
-from test.test_unitary.test_unitary_abstract import TestUnitaryAbstract
+from test.test_unitary_r_packages.test_spatial_extreme.test_rmaxstab.test_rmaxstab_without_margin import TestRMaxStab
+from test.test_unitary_r_packages.test_unitary_abstract import TestUnitaryAbstract
 
 
 class TestMaxStableFitWithoutMargin(TestUnitaryAbstract):
