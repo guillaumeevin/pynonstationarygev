@@ -4,9 +4,9 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer
     StudyVisualizer
 import matplotlib.pyplot as plt
 
-from experiment.exceeding_snow_loads.discussion_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import \
+from projects.exceeding_snow_loads.section_discussion.crocus_study_comparison_with_eurocode import \
     CrocusSnowDensityAtMaxofSwe
-from experiment.exceeding_snow_loads.paper_utils import dpi_paper1_figure
+from projects.exceeding_snow_loads.utils import dpi_paper1_figure
 
 
 def density_wrt_altitude():

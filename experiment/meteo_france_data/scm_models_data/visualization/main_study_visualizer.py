@@ -12,7 +12,7 @@ from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSno
     SafranTemperature, SafranPrecipitation
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
-from projects.exceeding_snow_loads.discussion_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import \
+from projects.exceeding_snow_loads.section_discussion.crocus_study_comparison_with_eurocode import \
     CrocusDifferenceSnowLoad, \
     CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization, \
     CrocusSnowDepthDifference, CrocusSnowDepthAtMaxofSwe

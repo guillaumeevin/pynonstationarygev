@@ -2,9 +2,8 @@ from collections import OrderedDict
 
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod
-from projects.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
+from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
-
 
 def load_altitude_to_visualizer(altitudes, massif_names, model_subsets_for_uncertainty, study_class,
                                 uncertainty_methods,

@@ -2,20 +2,11 @@ from multiprocessing.pool import Pool
 
 import matplotlib as mpl
 
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoad3Days, \
-    CrocusSnowLoad5Days, CrocusSnowLoad7Days
-from projects.exceeding_snow_loads.check_mle_convergence_for_trends.uncertainty_interval_size import \
-    uncertainty_interval_size
-from projects.exceeding_snow_loads.paper_main_utils import load_altitude_to_visualizer
-from projects.exceeding_snow_loads.paper_utils import paper_study_classes, paper_altitudes
-from projects.exceeding_snow_loads.result_trends_and_return_levels.plot_diagnosis_risk import plot_diagnosis_risk
-from projects.exceeding_snow_loads.result_trends_and_return_levels.plot_selection_curves import plot_selection_curves
-from projects.exceeding_snow_loads.result_trends_and_return_levels.plot_trend_curves import plot_trend_curves, \
-    plot_trend_map
-from projects.exceeding_snow_loads.result_trends_and_return_levels.plot_uncertainty_curves import plot_uncertainty_massifs
-from projects.exceeding_snow_loads.result_trends_and_return_levels.plot_uncertainty_histogram import \
-    plot_uncertainty_histogram
-from projects.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from extreme_trend_test.visualizers.utils import load_altitude_to_visualizer
+from projects.exceeding_snow_loads.utils import paper_study_classes, paper_altitudes
+from projects.exceeding_snow_loads.section_results.plot_uncertainty_curves import plot_uncertainty_massifs
+from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
@@ -99,29 +90,3 @@ if __name__ == '__main__':
     #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
     #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
     #                     multiprocessing=True)
-    # intermediate_result(altitudes=[900, 1200], massif_names=['Maurienne'],
-    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.my_bayes,
-    #                                          ConfidenceIntervalMethodFromExtremes.ci_mle][1:],
-    #                     non_stationary_uncertainty=[False, True][:],
-    #                     multiprocessing=True)
-    # intermediate_result(altitudes=[900, 1200], massif_names=None)
-    # intermediate_result(ALL_ALTITUDES_WITHOUT_NAN)
-    # intermediate_result(paper_altitudes)
-    # minor_result(altitude=900)
-    # intermediate_result(altitudes=[1500, 1800], massif_names=['Chartreuse'],
-    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,
-    #                                          ConfidenceIntervalMethodFromExtremes.ci_bayes],
-    #                     non_stationary_uncertainty=[True])
-    # intermediate_result(altitudes=[1500, 1800], massif_names=None,
-    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle],
-    #                     non_stationary_uncertainty=[False])
-    # intermediate_result(altitudes=[300, 600, 900, 1200, 1500, 1800], massif_names=None,
-    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle],
-    #                     non_stationary_uncertainty=[False])
-    # intermediate_result(altitudes=[300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700], massif_names=None,
-    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle,
-    #                                          ConfidenceIntervalMethodFromExtremes.ci_bayes],
-    #                     non_stationary_uncertainty=[False, True])
-    # intermediate_result(altitudes=[300, 600, 900], massif_names=None,
-    #                     uncertainty_methods=[ConfidenceIntervalMethodFromExtremes.ci_mle],
-    #                     non_stationary_uncertainty=[False, True])

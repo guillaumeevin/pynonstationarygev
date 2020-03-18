@@ -28,13 +28,15 @@ class AbstractGevTrendTest(object):
                  constrained_model_class=StationaryTemporalModel,
                  quantile_level=EUROCODE_QUANTILE,
                  fit_method=TemporalMarginFitMethod.extremes_fevd_mle):
-        super().__init__(years, maxima, starting_year)
+        self.years = years
+        self.maxima = maxima
+        self.starting_year = starting_year
         self.unconstrained_model_class = unconstrained_model_class
         self.constrained_model_class = constrained_model_class
         self.quantile_level = quantile_level
         self.fit_method = fit_method
         # Load observations, coordinates and datasets
-        self.coordinates, self.dataset = load_temporal_coordinates_and_dataset(maxima, years)
+        self.coordinates, self.dataset = load_temporal_coordinates_and_dataset(self.maxima, self.years)
         # By default crashed boolean is False
         self.crashed = False
         try:

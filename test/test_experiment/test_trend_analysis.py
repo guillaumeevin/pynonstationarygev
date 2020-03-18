@@ -1,6 +1,6 @@
 import unittest
 
-from projects.exceeding_snow_loads.paper_utils import NON_STATIONARY_TREND_TEST_PAPER
+from projects.exceeding_snow_loads.utils import NON_STATIONARY_TREND_TEST_PAPER
 
 
 class TestTrendAnalysis(unittest.TestCase):

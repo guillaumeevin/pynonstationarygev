@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
 from experiment.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     ALL_ALTITUDES_WITHOUT_NAN
-from projects.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
+from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 
 

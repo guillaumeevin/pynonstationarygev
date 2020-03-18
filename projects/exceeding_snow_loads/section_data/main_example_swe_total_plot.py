@@ -5,7 +5,7 @@ from experiment.meteo_france_data.scm_models_data.visualization.main_study_visua
     study_iterator_global, SCM_STUDY_CLASS_TO_ABBREVIATION
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
-from projects.exceeding_snow_loads.paper_utils import dpi_paper1_figure
+from projects.exceeding_snow_loads.utils import dpi_paper1_figure
 
 
 def tuples_for_examples_paper1(examples_for_the_paper=True):

@@ -12,7 +12,7 @@ from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
 from projects.exceeding_snow_loads.data.main_example_swe_total_plot import tuples_for_examples_paper1
-from projects.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
+from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.distribution.gev.gev_params import GevParams
 

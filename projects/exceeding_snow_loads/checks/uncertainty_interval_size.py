@@ -3,8 +3,8 @@ from typing import Dict
 import pandas as pd
 
 from experiment.eurocode_data.utils import EUROCODE_ALTITUDES
-from projects.exceeding_snow_loads.paper_utils import ModelSubsetForUncertainty
-from projects.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import StudyVisualizerForNonStationaryTrends
+from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
+    StudyVisualizerForNonStationaryTrends, ModelSubsetForUncertainty
 
 
 def uncertainty_interval_size(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):

@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
-from projects.exceeding_snow_loads.paper_utils import dpi_paper1_figure
-from projects.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
+from projects.exceeding_snow_loads.utils import dpi_paper1_figure
+from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 
 

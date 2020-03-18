@@ -1,6 +1,9 @@
 from multiprocessing.pool import Pool
 
 import matplotlib as mpl
+
+from extreme_trend_test.visualizers.utils import load_altitude_to_visualizer
+
 mpl.use('Agg')
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
@@ -11,21 +14,13 @@ from experiment.meteo_france_data.scm_models_data.safran.safran import SafranPre
     SafranSnowfall5Days, SafranSnowfall3Days, SafranSnowfall7Days, SafranRainfall1Day, SafranRainfall3Days, \
     SafranRainfall5Days, SafranRainfall7Days
 
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoad3Days, \
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad3Days, \
     CrocusSnowLoad5Days, CrocusSnowLoad7Days, CrocusSnowLoad1Day
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
 from projects.contrasting_snow_loads.plot_contrasting_trend_curves import plot_contrasting_trend_curves
-from projects.exceeding_snow_loads.paper_main_utils import load_altitude_to_visualizer
-from projects.exceeding_snow_loads.paper_utils import paper_study_classes, paper_altitudes
-from projects.exceeding_snow_loads.result_trends_and_return_levels.main_result_trends_and_return_levels import \
+from projects.exceeding_snow_loads.section_results.main_result_trends_and_return_levels import \
     compute_minimized_aic
-from projects.exceeding_snow_loads.result_trends_and_return_levels.plot_selection_curves import plot_selection_curves
-from projects.exceeding_snow_loads.result_trends_and_return_levels.plot_trend_curves import plot_trend_curves, \
-    plot_trend_map
-from projects.exceeding_snow_loads.result_trends_and_return_levels.plot_uncertainty_curves import plot_uncertainty_massifs
-from projects.exceeding_snow_loads.result_trends_and_return_levels.plot_uncertainty_histogram import \
-    plot_uncertainty_histogram
 from root_utils import NB_CORES
 
 

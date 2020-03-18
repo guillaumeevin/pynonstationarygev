@@ -1,4 +1,5 @@
 from collections import OrderedDict, Counter
+from enum import Enum
 from multiprocessing.pool import Pool
 from typing import Dict, List, Tuple
 
@@ -15,9 +16,7 @@ from experiment.meteo_france_data.scm_models_data.abstract_extended_study import
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
-from projects.exceeding_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
-    compute_gelman_convergence_value
-from projects.exceeding_snow_loads.paper_utils import ModelSubsetForUncertainty, NON_STATIONARY_TREND_TEST_PAPER
+from projects.exceeding_snow_loads.utils import NON_STATIONARY_TREND_TEST_PAPER
 from extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
     GumbelLocationTrendTest, GevStationaryVersusGumbel, GumbelScaleTrendTest, GumbelVersusGumbel
@@ -32,6 +31,14 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_int
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     compute_eurocode_confidence_interval, EurocodeConfidenceIntervalFromExtremes
 from root_utils import NB_CORES
+
+
+class ModelSubsetForUncertainty(Enum):
+    stationary_gumbel = 0
+    stationary_gumbel_and_gev = 1
+    non_stationary_gumbel = 2
+    non_stationary_gumbel_and_gev = 3
+    stationary_gev = 4
 
 
 class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
@@ -368,17 +375,6 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def model_name_to_uncertainty_method_to_ratio_above_eurocode(self):
         assert self.uncertainty_massif_names == self.study.study_massif_names
 
-    # Some checks with Gelman convergence diagnosis
-
-    def massif_name_to_gelman_convergence_value(self, mcmc_iterations, model_class, nb_chains):
-        arguments = [(self.massif_name_to_years_and_maxima_for_model_fitting[m], mcmc_iterations, model_class, nb_chains)
-                     for m in self.uncertainty_massif_names]
-        if self.multiprocessing:
-            with Pool(NB_CORES) as p:
-                res = p.starmap(compute_gelman_convergence_value, arguments)
-        else:
-            res = [compute_gelman_convergence_value(*argument) for argument in arguments]
-        return dict(zip(self.uncertainty_massif_names, res))
 
     # Some values for the histogram
 
@@ -505,3 +501,4 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             psnow_before, psnow_after = [np.count_nonzero(s) / len(s) for s in [maxima_before, maxima_after]]
             return 100 * (psnow_after - psnow_before) / psnow_before
         return {m: compute_relative_change_in_psnow(self.massif_name_to_years_and_maxima[m][1]) for m in self.massifs_names_with_year_without_snow}
+

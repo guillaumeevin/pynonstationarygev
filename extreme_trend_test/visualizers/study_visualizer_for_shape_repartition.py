@@ -3,7 +3,7 @@ from cached_property import cached_property
 
 from experiment.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from projects.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
+from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 
 

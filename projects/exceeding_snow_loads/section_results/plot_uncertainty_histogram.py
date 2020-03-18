@@ -2,9 +2,9 @@ from typing import Dict
 import matplotlib.pyplot as plt
 import numpy as np
 
-from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES
-from projects.exceeding_snow_loads.paper_utils import dpi_paper1_figure, ModelSubsetForUncertainty
-from projects.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
+from experiment.eurocode_data.utils import EUROCODE_ALTITUDES
+from projects.exceeding_snow_loads.utils import dpi_paper1_figure
+from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import ci_method_to_color, \
     ci_method_to_label, ConfidenceIntervalMethodFromExtremes

@@ -6,9 +6,9 @@ import numpy as np
 from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES, \
     YEAR_OF_INTEREST_FOR_RETURN_LEVEL
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy, filled_marker_legend_list2
-from projects.exceeding_snow_loads.paper_utils import dpi_paper1_figure, ModelSubsetForUncertainty
-from projects.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
-    StudyVisualizerForNonStationaryTrends
+from projects.exceeding_snow_loads.utils import dpi_paper1_figure
+from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
+    StudyVisualizerForNonStationaryTrends, ModelSubsetForUncertainty
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
 from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region

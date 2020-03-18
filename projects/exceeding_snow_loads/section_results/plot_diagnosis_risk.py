@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 
-from projects.exceeding_snow_loads.paper_utils import ModelSubsetForUncertainty, dpi_paper1_figure
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
+from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import ModelSubsetForUncertainty
 
 
 def plot_diagnosis_risk(altitude_to_visualizer):

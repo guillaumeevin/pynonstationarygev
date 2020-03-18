@@ -24,11 +24,3 @@ NON_STATIONARY_TREND_TEST_PAPER = [GumbelVersusGumbel,
                                    GevLocationAgainstGumbel, GevScaleAgainstGumbel,
                                    GevLocationAndScaleTrendTestAgainstGumbel]
 
-
-
-class ModelSubsetForUncertainty(Enum):
-    stationary_gumbel = 0
-    stationary_gumbel_and_gev = 1
-    non_stationary_gumbel = 2
-    non_stationary_gumbel_and_gev = 3
-    stationary_gev = 4
