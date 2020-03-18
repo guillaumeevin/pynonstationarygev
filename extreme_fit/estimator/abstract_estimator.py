@@ -11,7 +11,7 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 class AbstractEstimator(object):
 
-    def __init__(self, dataset: AbstractDataset):
+    def __init__(self, dataset: AbstractDataset, **kwargs):
         self.dataset = dataset  # type: AbstractDataset
         self._result_from_fit = None  # type: Union[None, AbstractResultFromModelFit]
 

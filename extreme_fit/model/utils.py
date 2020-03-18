@@ -23,6 +23,7 @@ numpy2ri.activate()
 pandas2ri.activate()
 r.library('SpatialExtremes')
 r.library('data.table')
+r.library('quantreg')
 # Desactivate temporarily warnings
 default_filters = warnings.filters.copy()
 warnings.filterwarnings("ignore")
@@ -125,11 +126,10 @@ def get_coord(df_coordinates: pd.DataFrame):
 def get_coord_df(df_coordinates: pd.DataFrame):
     coord = pandas2ri.py2ri_pandasdataframe(df_coordinates)
     # coord = r.transpose(coord)
-    colname = df_coordinates.columns[0]
+    colname = df_coordinates.columns
     coord.colnames = r.c(colname)
     coord = r('data.frame')(coord, stringsAsFactors=True)
     return coord
-
 
 def get_null():
     as_null = r['as.null']

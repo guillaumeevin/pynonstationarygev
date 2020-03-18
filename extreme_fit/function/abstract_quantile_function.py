@@ -13,3 +13,8 @@ class AbstractQuantileFunction(AbstractFunction):
     def get_quantile(self, coordinate: np.ndarray) -> float:
         gev_params = self.margin_function.get_gev_params(coordinate)
         return gev_params.quantile(self.quantile)
+
+    def visualize(self):
+        pass
+        # for coordine
+        # self.margin_function.

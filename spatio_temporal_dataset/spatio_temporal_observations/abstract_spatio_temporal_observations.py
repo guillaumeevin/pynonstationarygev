@@ -53,7 +53,7 @@ class AbstractSpatioTemporalObservations(object):
                            (self.df_maxima_frech, self.OBSERVATIONS_FRECH)]:
             if df is not None:
                 df_maxima = df.copy()
-                df_maxima.columns = [str(c) + ' ' + suffix for c in df_maxima.columns]
+                df_maxima.columns = [str(c) for c in df_maxima.columns]
                 df_maxima_list.append(df_maxima)
         return pd.concat(df_maxima_list, axis=1)
 

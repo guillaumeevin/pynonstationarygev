@@ -6,7 +6,8 @@ from experiment.meteo_france_data.scm_models_data.crocus.crocus import Crocus, C
 from extreme_fit.estimator.full_estimator.abstract_full_estimator import SmoothMarginalsThenUnitaryMsp, \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_fit.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
-from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import \
+    LinearAllParametersAllDimsMarginModel, \
     ConstantMarginModel
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel, NonStationaryShapeTemporalModel
@@ -16,6 +17,8 @@ from extreme_fit.model.max_stable_model.max_stable_models import Smith, BrownRes
     Geometric, ExtremalT, ISchlather
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, Safran, SafranRainfall, \
     SafranTemperature, SafranPrecipitation
+from extreme_fit.model.quantile_model.quantile_regression_model import ConstantQuantileRegressionModel, \
+    AllCoordinatesQuantileRegressionModel
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
@@ -40,7 +43,9 @@ TEST_3D_SPATIAL_COORDINATES = [AlpsStation3DCoordinatesWithAnisotropy]
 TEST_TEMPORAL_COORDINATES = [ConsecutiveTemporalCoordinates]
 TEST_SPATIO_TEMPORAL_COORDINATES = [UniformSpatioTemporalCoordinates, LinSpaceSpatial2DSpatioTemporalCoordinates]
 TEST_MARGIN_TYPES = [ConstantMarginModel, LinearAllParametersAllDimsMarginModel][:]
-TEST_NON_STATIONARY_TEMPORAL_MARGIN_TYPES = [NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel, NonStationaryShapeTemporalModel]
+TEST_QUANTILES_TYPES = [ConstantQuantileRegressionModel, AllCoordinatesQuantileRegressionModel][:]
+TEST_NON_STATIONARY_TEMPORAL_MARGIN_TYPES = [NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel,
+                                             NonStationaryShapeTemporalModel]
 TEST_MAX_STABLE_ESTIMATOR = [MaxStableEstimator]
 TEST_FULL_ESTIMATORS = [SmoothMarginalsThenUnitaryMsp, FullEstimatorInASingleStepWithSmoothMargin][:]
 
@@ -60,6 +65,10 @@ def load_test_max_stable_estimators(dataset, max_stable_model):
 
 def load_smooth_margin_models(coordinates):
     return [margin_class(coordinates=coordinates) for margin_class in TEST_MARGIN_TYPES]
+
+
+def load_smooth_quantile_model_classes():
+    return [quantile_reg_class for quantile_reg_class in TEST_QUANTILES_TYPES]
 
 
 def load_test_max_stable_models(default_covariance_function=None):
@@ -84,14 +93,16 @@ def load_test_spatial_coordinates(nb_points, coordinate_types, train_split_ratio
             for coordinate_class in coordinate_types]
 
 
-def load_test_1D_and_2D_spatial_coordinates(nb_points, train_split_ratio=None, transformation_class=None) -> List[AbstractSpatialCoordinates]:
+def load_test_1D_and_2D_spatial_coordinates(nb_points, train_split_ratio=None, transformation_class=None) -> List[
+    AbstractSpatialCoordinates]:
     return load_test_spatial_coordinates(nb_points, TEST_1D_AND_2D_SPATIAL_COORDINATES,
                                          train_split_ratio=train_split_ratio,
                                          transformation_class=transformation_class)
 
 
 def load_test_3D_spatial_coordinates(nb_points, transformation_class=None) -> List[AbstractSpatialCoordinates]:
-    return load_test_spatial_coordinates(nb_points, TEST_3D_SPATIAL_COORDINATES, transformation_class=transformation_class)
+    return load_test_spatial_coordinates(nb_points, TEST_3D_SPATIAL_COORDINATES,
+                                         transformation_class=transformation_class)
 
 
 def load_test_temporal_coordinates(nb_steps, train_split_ratio=None, transformation_class=None):
