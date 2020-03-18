@@ -1,7 +1,7 @@
 import pandas as pd
 
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
-from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import StudyVisualizerForNonStationaryTrends
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import StudyVisualizerForNonStationaryTrends
 
 
 def mix_dsitrbution_impact():

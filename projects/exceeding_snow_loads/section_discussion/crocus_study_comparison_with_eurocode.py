@@ -3,9 +3,9 @@ from collections import OrderedDict
 import numpy as np
 from cached_property import cached_property
 
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import Crocus, CrocusSweTotal, CrocusSnowLoadTotal, \
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import Crocus, CrocusSweTotal, CrocusSnowLoadTotal, \
     CrocusSnowLoadEurocode, CrocusDepth
-from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import TotalSnowLoadVariable, \
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import TotalSnowLoadVariable, \
     CrocusDensityVariable, CrocusDepthVariable
 
 

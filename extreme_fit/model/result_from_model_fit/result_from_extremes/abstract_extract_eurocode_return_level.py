@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 from cached_property import cached_property
 
-from experiment.eurocode_data.utils import EUROCODE_QUANTILE
+from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.estimator.utils import load_margin_function

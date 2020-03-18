@@ -1,9 +1,9 @@
 from typing import Dict
 import matplotlib.pyplot as plt
 
-from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
+from extreme_data.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
 from projects.exceeding_snow_loads.utils import dpi_paper1_figure
-from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import StudyVisualizerForNonStationaryTrends
+from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import StudyVisualizerForNonStationaryTrends
 
 
 def permute(l, permutation):
@@ -32,7 +32,7 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
     print(l)
     print(select_list)
     print(selected_and_signifcative_list)
-    # [(5, <    class 'data.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters.GevLocationAgainstGumbel'> ), (6, < class 'data.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters.GevScaleAgainstGumbel' > ), (2, < class 'data.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter.GumbelScaleTrendTest' > ), (1, < class 'data.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter.GumbelLocationTrendTest' > ), (7, < class 'data.trend_analysis.univariate_test.extreme_trend_test.trend_test_three_parameters.gev_trend_test_three_parameters.GevLocationAndScaleTrendTestAgainstGumbel' > ), (3, < class 'data.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gumbel_test_two_parameters.GumbelLocationAndScaleTrendTest' > ), (4, < class 'data.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter.GevStationaryVersusGumbel' > ), (0, < class 'data.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter.GumbelVersusGumbel' > )]
+    # [(5, <    class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_two_parameters.gev_trend_test_two_parameters.GevLocationAgainstGumbel'> ), (6, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_two_parameters.gev_trend_test_two_parameters.GevScaleAgainstGumbel' > ), (2, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter.GumbelScaleTrendTest' > ), (1, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter.GumbelLocationTrendTest' > ), (7, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_three_parameters.gev_trend_test_three_parameters.GevLocationAndScaleTrendTestAgainstGumbel' > ), (3, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_two_parameters.gumbel_test_two_parameters.GumbelLocationAndScaleTrendTest' > ), (4, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter.GevStationaryVersusGumbel' > ), (0, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter.GumbelVersusGumbel' > )]
     # [32.64462809917355, 24.380165289256198, 12.396694214876034, 9.50413223140496, 9.090909090909092, 5.785123966942149, 3.71900826446281, 2.479338842975207]
     # [0, 13.223140495867769, 7.851239669421488, 8.264462809917354, 4.958677685950414, 2.479338842975207, 0.8264462809917356, 2.0661157024793386]
 

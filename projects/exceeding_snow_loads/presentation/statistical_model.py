@@ -28,8 +28,8 @@ def binomial_observation():
 
 def histogram_for_gev():
     import matplotlib.pyplot as plt
-    from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
-    from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable
+    from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+    from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable
     ax = plt.gca()
     study = CrocusSnowLoadTotal(altitude=1800)
     s = study.observations_annual_maxima.df_maxima_gev.loc['Vercors']

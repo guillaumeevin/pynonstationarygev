@@ -1,10 +1,10 @@
 from typing import Dict
 import matplotlib.pyplot as plt
 
-from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
-from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
+from extreme_data.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
+from extreme_data.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
 from projects.exceeding_snow_loads.utils import dpi_paper1_figure
-from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
+from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 
 

@@ -2,8 +2,8 @@ from typing import Dict
 
 import pandas as pd
 
-from experiment.eurocode_data.utils import EUROCODE_ALTITUDES
-from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
+from extreme_data.eurocode_data.utils import EUROCODE_ALTITUDES
+from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends, ModelSubsetForUncertainty
 
 

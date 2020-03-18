@@ -1,4 +1,4 @@
-from experiment.eurocode_data.utils import EUROCODE_QUANTILE
+from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     ExtractEurocodeReturnLevelFromMyBayesianExtremes, ExtractEurocodeReturnLevelFromCiMethod

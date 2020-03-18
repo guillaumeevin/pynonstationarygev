@@ -1,7 +1,7 @@
-from experiment.meteo_france_data.adamont_data.ensemble_simulation import EnsembleSimulation
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad3Days, \
+from extreme_data.meteo_france_data.adamont_data.ensemble_simulation import EnsembleSimulation
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad3Days, \
     CrocusSweTotal
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
+from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 import matplotlib.pyplot as plt
 

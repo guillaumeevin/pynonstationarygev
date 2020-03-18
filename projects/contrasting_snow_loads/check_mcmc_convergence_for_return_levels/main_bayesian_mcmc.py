@@ -2,9 +2,9 @@ import pandas as pd
 import seaborn as sns
 
 import matplotlib.pyplot as plt
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
-from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
-from experiment.exceeding_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from extreme_data.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
+from extreme_data.exceeding_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
     compute_gelman_score
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
 from extreme_fit.distribution.gev.gev_params import GevParams

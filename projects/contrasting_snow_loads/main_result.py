@@ -2,19 +2,19 @@ from multiprocessing.pool import Pool
 
 import matplotlib as mpl
 
-from extreme_trend_test.visualizers.utils import load_altitude_to_visualizer
+from extreme_trend.visualizers.utils import load_altitude_to_visualizer
 
 mpl.use('Agg')
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
-from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from experiment.meteo_france_data.scm_models_data.safran.safran import SafranPrecipitation3Days, \
+from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranPrecipitation3Days, \
     SafranPrecipitation1Day, SafranPrecipitation5Days, SafranPrecipitation7Days, SafranSnowfall1Day, \
     SafranSnowfall5Days, SafranSnowfall3Days, SafranSnowfall7Days, SafranRainfall1Day, SafranRainfall3Days, \
     SafranRainfall5Days, SafranRainfall7Days
 
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad3Days, \
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad3Days, \
     CrocusSnowLoad5Days, CrocusSnowLoad7Days, CrocusSnowLoad1Day
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes

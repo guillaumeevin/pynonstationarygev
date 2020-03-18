@@ -1,6 +1,6 @@
-from experiment.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
+from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     study_iterator_global, SCM_STUDY_CLASS_TO_ABBREVIATION
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
+from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 import matplotlib.pyplot as plt
 

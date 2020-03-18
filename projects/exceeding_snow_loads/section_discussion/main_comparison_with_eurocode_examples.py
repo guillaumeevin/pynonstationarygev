@@ -1,9 +1,9 @@
 # mpl.rcParams['text.usetex'] = True
 # mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
-from experiment.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
+from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     study_iterator_global, SCM_STUDY_CLASS_TO_ABBREVIATION, snow_density_str
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
+from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 import matplotlib.pyplot as plt
 

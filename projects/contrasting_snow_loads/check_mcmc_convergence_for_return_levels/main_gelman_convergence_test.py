@@ -1,7 +1,7 @@
 import pandas as pd
 
-from experiment.exceeding_snow_loads.paper_main_utils import load_altitude_to_visualizer
-from experiment.exceeding_snow_loads.paper_utils import paper_altitudes, paper_study_classes
+from extreme_data.exceeding_snow_loads.paper_main_utils import load_altitude_to_visualizer
+from extreme_data.exceeding_snow_loads.paper_utils import paper_altitudes, paper_study_classes
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
 from root_utils import get_display_name_from_object_type
 

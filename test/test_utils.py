@@ -1,8 +1,8 @@
 from itertools import product
 from typing import List
 
-from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import Crocus, CrocusSweTotal, CrocusDepth
+from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import Crocus, CrocusSweTotal, CrocusDepth
 from extreme_fit.estimator.full_estimator.abstract_full_estimator import SmoothMarginalsThenUnitaryMsp, \
     FullEstimatorInASingleStepWithSmoothMargin
 from extreme_fit.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
@@ -15,7 +15,7 @@ from extreme_fit.model.max_stable_model.abstract_max_stable_model import \
     AbstractMaxStableModelWithCovarianceFunction, CovarianceFunction
 from extreme_fit.model.max_stable_model.max_stable_models import Smith, BrownResnick, Schlather, \
     Geometric, ExtremalT, ISchlather
-from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, Safran, SafranRainfall, \
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, Safran, SafranRainfall, \
     SafranTemperature, SafranPrecipitation
 from extreme_fit.model.quantile_model.quantile_regression_model import ConstantQuantileRegressionModel, \
     AllCoordinatesQuantileRegressionModel

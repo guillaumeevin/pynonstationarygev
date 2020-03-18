@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
-from experiment.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     study_iterator_global, SCM_STUDY_CLASS_TO_ABBREVIATION
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
+from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 from projects.exceeding_snow_loads.utils import dpi_paper1_figure
 

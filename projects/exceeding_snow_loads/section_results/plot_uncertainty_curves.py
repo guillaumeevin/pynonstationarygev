@@ -3,16 +3,16 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES, \
+from extreme_data.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES, \
     YEAR_OF_INTEREST_FOR_RETURN_LEVEL
-from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy, filled_marker_legend_list2
+from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy, filled_marker_legend_list2
 from projects.exceeding_snow_loads.utils import dpi_paper1_figure
-from extreme_trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
+from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends, ModelSubsetForUncertainty
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
-from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
-from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
+from extreme_data.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
+from extreme_data.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import ci_method_to_color
 from root_utils import get_display_name_from_object_type
 
