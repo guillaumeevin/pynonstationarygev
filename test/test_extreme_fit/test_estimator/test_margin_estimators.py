@@ -40,6 +40,3 @@ class TestSmoothMarginEstimator(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-    # t = TestSmoothMarginEstimator()
-    # t.test_smooth_margin_estimator_spatio_temporal()
-    # t.tearDown()
