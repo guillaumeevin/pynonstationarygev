@@ -5,10 +5,7 @@ import numpy as np
 
 from experiment.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR, EUROCODE_ALTITUDES, \
     YEAR_OF_INTEREST_FOR_RETURN_LEVEL
-from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy, filled_marker_legend_list, \
-    filled_marker_legend_list2
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
-    SCM_STUDY_CLASS_TO_ABBREVIATION
+from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy, filled_marker_legend_list2
 from papers.exceeding_snow_loads.paper_utils import dpi_paper1_figure, ModelSubsetForUncertainty
 from papers.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
@@ -16,8 +13,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
     AbstractExtractEurocodeReturnLevel
 from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
-from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import ci_method_to_color, \
-    ConfidenceIntervalMethodFromExtremes
+from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import ci_method_to_color
 from root_utils import get_display_name_from_object_type
 
 

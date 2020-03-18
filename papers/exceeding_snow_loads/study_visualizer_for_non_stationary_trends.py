@@ -10,10 +10,10 @@ from experiment.eurocode_data.eurocode_region import C2, C1, E
 from experiment.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE, EUROCODE_RETURN_LEVEL_STR, \
     YEAR_OF_INTEREST_FOR_RETURN_LEVEL
-from experiment.meteo_france_data.plot.create_shifted_cmap import get_shifted_map, get_colors
+from experiment.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map, get_colors
 from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 from papers.exceeding_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
     compute_gelman_convergence_value
@@ -22,10 +22,6 @@ from experiment.trend_analysis.abstract_score import MeanScore
 from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
     GumbelLocationTrendTest, GevStationaryVersusGumbel, GumbelScaleTrendTest, GumbelVersusGumbel
-from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_three_parameters.gev_trend_test_three_parameters import \
-    GevLocationAndScaleTrendTestAgainstGumbel
-from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gev_trend_test_two_parameters import \
-    GevLocationAgainstGumbel, GevScaleAgainstGumbel
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gumbel_test_two_parameters import \
     GumbelLocationAndScaleTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \

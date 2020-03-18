@@ -5,7 +5,7 @@ from typing import List
 from cached_property import cached_property
 
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
+from experiment.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     ALL_ALTITUDES
 from extreme_fit.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin

@@ -25,7 +25,7 @@ from experiment.meteo_france_data.scm_models_data.scm_constants import ALTITUDES
 from experiment.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
 from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
-from experiment.meteo_france_data.plot.create_shifted_cmap import create_colorbase_axis, \
+from experiment.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import create_colorbase_axis, \
     get_shifted_map, get_colors
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
@@ -369,11 +369,7 @@ class AbstractStudy(object):
 
         for coordinate_id, coords_list in cls.idx_to_coords_list.items():
             # Retrieve the list of coords (x,y) that define the contour of the massif of id coordinate_id
-
-            # if j == 0:
-            #     mask_outside_polygon(poly_verts=l, ax=ax)
             # Plot the contour of the massif
-
             coords_list = list(zip(*coords_list))
             ax.plot(*coords_list, color='black')
 

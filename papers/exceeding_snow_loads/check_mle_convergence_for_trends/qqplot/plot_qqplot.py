@@ -7,8 +7,6 @@ import pandas as pd
 from matplotlib.ticker import PercentFormatter
 
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
-    ALL_ALTITUDES_WITHOUT_NAN
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \

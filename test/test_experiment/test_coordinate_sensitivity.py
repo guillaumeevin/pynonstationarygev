@@ -1,9 +1,9 @@
 import unittest
 
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSweTotal
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
+from experiment.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     study_iterator_global
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 from experiment.trend_analysis.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest

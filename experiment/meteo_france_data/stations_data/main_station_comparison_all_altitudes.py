@@ -1,4 +1,4 @@
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
+from experiment.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     ALL_ALTITUDES
 from experiment.meteo_france_data.stations_data.visualization.comparisons_visualization.comparisons_visualization import \
     ComparisonsVisualization

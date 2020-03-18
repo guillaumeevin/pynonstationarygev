@@ -1,15 +1,12 @@
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth
-from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusDepthVariable
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
-    study_iterator_global, SCM_STUDY_CLASS_TO_ABBREVIATION, snow_density_str
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
+from experiment.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
+    study_iterator_global, SCM_STUDY_CLASS_TO_ABBREVIATION
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 import matplotlib.pyplot as plt
 
 from experiment.exceeding_snow_loads.discussion_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import \
     CrocusDifferenceSnowLoad, \
-    CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization, \
-    CrocusSnowDepthAtMaxofSwe, CrocusSnowDepthDifference
+    CrocusSnowDensityAtMaxofSwe, CrocusSnowDepthDifference
 from experiment.exceeding_snow_loads.paper_utils import dpi_paper1_figure
 
 

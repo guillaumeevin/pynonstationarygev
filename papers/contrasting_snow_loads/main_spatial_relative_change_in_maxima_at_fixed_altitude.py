@@ -1,19 +1,9 @@
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSnowLoad3Days, \
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad3Days, \
     CrocusSnowLoadTotal
-from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusDepthVariable
 from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, SafranRainfall, SafranPrecipitation
-from experiment.meteo_france_data.scm_models_data.safran.safran_variable import SafranTotalPrecipVariable
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
-    study_iterator_global, SCM_STUDY_CLASS_TO_ABBREVIATION, snow_density_str, ALL_ALTITUDES_WITHOUT_NAN
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 import matplotlib.pyplot as plt
-
-from papers.exceeding_snow_loads.discussion_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import \
-    CrocusDifferenceSnowLoad, \
-    CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization, \
-    CrocusSnowDepthAtMaxofSwe, CrocusSnowDepthDifference
-from papers.exceeding_snow_loads.paper_utils import dpi_paper1_figure
 
 
 def test():

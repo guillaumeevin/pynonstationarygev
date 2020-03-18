@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.study_visualizer import \
+from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     VisualizationParameters
 from experiment.meteo_france_data.stations_data.comparison_analysis import ComparisonAnalysis, MASSIF_COLUMN_NAME, \
     REANALYSE_STR, ALTITUDE_COLUMN_NAME, STATION_COLUMN_NAME

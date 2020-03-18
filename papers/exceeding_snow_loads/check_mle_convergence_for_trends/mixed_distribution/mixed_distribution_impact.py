@@ -1,10 +1,6 @@
 import pandas as pd
 
 from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualization.main_study_visualizer import \
-    ALL_ALTITUDES_WITHOUT_NAN
-from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
-    ConfidenceIntervalMethodFromExtremes
 from papers.exceeding_snow_loads.study_visualizer_for_non_stationary_trends import StudyVisualizerForNonStationaryTrends
 
 
