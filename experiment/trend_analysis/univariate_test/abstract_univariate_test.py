@@ -48,24 +48,6 @@ class AbstractUnivariateTest(object):
     def three_main_trend_types(cls):
         return [cls.SIGNIFICATIVE_NEGATIVE_TREND, cls.NON_SIGNIFICATIVE_TREND, cls.SIGNIFICATIVE_POSITIVE_TREND]
 
-    @classmethod
-    def rgb_code_of_trend_colors(cls):
-        for name in ['lightgreen', 'lightcoral', 'darkgreen', 'darkred']:
-            print(name, colors.to_rgba(name)[:-1])
-
-    @classmethod
-    def display_trend_type_to_style(cls):
-        d = OrderedDict()
-        d[cls.POSITIVE_TREND] = 'lightgreen-'
-        d[cls.NEGATIVE_TREND] = 'lightcoral-'
-        d[cls.ALL_TREND] = 'k-'
-        d[cls.NON_SIGNIFICATIVE_TREND] = 'b-'
-        # d[cls.SIGNIFICATIVE_ALL_TREND] = 'k-'
-        d[cls.SIGNIFICATIVE_POSITIVE_TREND] = 'darkgreen-'
-        d[cls.SIGNIFICATIVE_NEGATIVE_TREND] = 'darkred-'
-        # d[cls.NO_TREND] = 'k--'
-        return d
-
 
     @classmethod
     def get_display_trend_type(cls, real_trend_type):
@@ -74,35 +56,6 @@ class AbstractUnivariateTest(object):
         else:
             return cls.NON_SIGNIFICATIVE_TREND
 
-    @classmethod
-    def get_real_trend_types(cls, display_trend_type):
-        if display_trend_type is cls.ALL_TREND:
-            return cls.real_trend_types()
-        elif display_trend_type is cls.SIGNIFICATIVE_ALL_TREND:
-            return [cls.SIGNIFICATIVE_POSITIVE_TREND, cls.SIGNIFICATIVE_NEGATIVE_TREND]
-        if display_trend_type is cls.POSITIVE_TREND:
-            return [cls.POSITIVE_TREND, cls.SIGNIFICATIVE_POSITIVE_TREND]
-        elif display_trend_type is cls.NEGATIVE_TREND:
-            return [cls.NEGATIVE_TREND, cls.SIGNIFICATIVE_NEGATIVE_TREND]
-        elif display_trend_type is cls.NON_SIGNIFICATIVE_TREND:
-            return [cls.POSITIVE_TREND, cls.NEGATIVE_TREND, cls.NO_TREND]
-        else:
-            return [display_trend_type]
-
-    @classmethod
-    def get_cmap_from_trend_type(cls, trend_type):
-        if 'positive' in trend_type:
-            return plt.cm.Greens
-        elif 'negative' in trend_type:
-            return plt.cm.Reds
-        elif 'non' in trend_type:
-            return plt.cm.Blues
-        else:
-            return plt.cm.binary
-
-    @property
-    def n(self):
-        return len(self.years)
 
     @property
     def time_derivative_of_return_level(self):
@@ -130,20 +83,6 @@ class AbstractUnivariateTest(object):
         raise NotImplementedError
 
 
-class ExampleRandomTrendTest(AbstractUnivariateTest):
-
-    @property
-    def test_sign(self) -> int:
-        return random.randint(0, 2) - 1
-
-    @property
-    def is_significant(self) -> bool:
-        return random.randint(1, 10) == 10
 
 
-class WarningScoreValue(Warning):
-    pass
 
-
-if __name__ == '__main__':
-    AbstractUnivariateTest.rgb_code_of_trend_colors()

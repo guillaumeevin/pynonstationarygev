@@ -64,13 +64,6 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
     def real_trend_types(cls):
         return super().real_trend_types() + [cls.RRunTimeError_TREND]
 
-    @classmethod
-    def get_real_trend_types(cls, display_trend_type):
-        real_trend_types = super().get_real_trend_types(display_trend_type)
-        if display_trend_type is cls.NON_SIGNIFICATIVE_TREND:
-            real_trend_types.append(cls.RRunTimeError_TREND)
-        return real_trend_types
-
     @property
     def test_trend_type(self) -> str:
         if self.crashed:

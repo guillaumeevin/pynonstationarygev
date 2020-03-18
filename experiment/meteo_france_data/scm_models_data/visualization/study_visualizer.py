@@ -17,7 +17,6 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_retur
 from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from experiment.trend_analysis.abstract_score import MeanScore, AbstractTrendScore
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.trend_analysis.non_stationary_trends import \
     ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
@@ -413,24 +412,6 @@ class StudyVisualizer(VisualizationParameters):
             massif_name_to_scores[massif_name] = np.array(detailed_scores)
         return massif_name_to_scores
 
-    def massif_name_to_df_trend_type(self, trend_test_class, starting_year_to_weight):
-        """
-        Create a DataFrame with massif as index
-        :param trend_test_class:
-        :param starting_year_to_weight:
-        :return:
-        """
-        massif_name_to_df_trend_type = {}
-        for massif_id, massif_name in enumerate(self.study.study_massif_names):
-            trend_type_and_weight = []
-            years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
-            for starting_year, weight in starting_year_to_weight.items():
-                test_trend_type = self.compute_trend_test_result(smooth_maxima, starting_year, trend_test_class, years)
-                trend_type_and_weight.append((test_trend_type, weight))
-            df = pd.DataFrame(trend_type_and_weight, columns=['trend type', 'weight'])
-            massif_name_to_df_trend_type[massif_name] = df
-        return massif_name_to_df_trend_type
-
     def massif_name_to_gev_change_point_test_results(self, trend_test_class_for_change_point_test,
                                                      starting_years_for_change_point_test,
                                                      nb_massif_for_change_point_test=None,
@@ -510,32 +491,6 @@ class StudyVisualizer(VisualizationParameters):
                                   for idx_res in range(nb_res)]
         return [pd.DataFrame(massif_name_to_res, index=self.starting_years_for_change_point_test).transpose()
                 for massif_name_to_res in all_massif_name_to_res]
-
-    @staticmethod
-    def compute_trend_test_result(smooth_maxima, starting_year, trend_test_class, years):
-        trend_test = trend_test_class(years, smooth_maxima, starting_year)  # type: AbstractUnivariateTest
-        return trend_test.test_trend_type
-
-    def df_trend_test_count(self, trend_test_class, starting_year_to_weight):
-        """
-        Index are the trend type
-        Columns are the massif
-
-        :param starting_year_to_weight:
-        :param trend_test_class:
-        :return:
-        """
-        massif_name_to_df_trend_type = self.massif_name_to_df_trend_type(trend_test_class, starting_year_to_weight)
-        df = pd.concat([100 * v.groupby(['trend type']).sum()
-                        for v in massif_name_to_df_trend_type.values()], axis=1, sort=False)
-        df.fillna(0.0, inplace=True)
-        assert np.allclose(df.sum(axis=0), 100)
-        # Add the significant trend into the count of normal trend
-        if AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND in df.index:
-            df.loc[AbstractUnivariateTest.POSITIVE_TREND] += df.loc[AbstractUnivariateTest.SIGNIFICATIVE_POSITIVE_TREND]
-        if AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND in df.index:
-            df.loc[AbstractUnivariateTest.NEGATIVE_TREND] += df.loc[AbstractUnivariateTest.SIGNIFICATIVE_NEGATIVE_TREND]
-        return df
 
     @cached_property
     def massif_name_to_scores(self):

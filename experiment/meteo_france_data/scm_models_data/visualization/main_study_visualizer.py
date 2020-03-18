@@ -4,7 +4,7 @@ from typing import List
 from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusDensityVariable
 from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
-from papers.exceeding_snow_loads.discussion_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import \
+from projects.exceeding_snow_loads.discussion_data_comparison_with_eurocode.crocus_study_comparison_with_eurocode import \
     CrocusDifferenceSnowLoad, \
     CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization, \
     CrocusSnowDepthDifference, CrocusSnowDepthAtMaxofSwe
