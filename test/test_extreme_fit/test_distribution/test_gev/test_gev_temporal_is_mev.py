@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from experiment.trend_analysis.univariate_test.utils import fitted_linear_margin_estimator
+from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod

@@ -5,15 +5,10 @@ from random import sample
 import pandas as pd
 
 from experiment.meteo_france_data.scm_models_data.safran.cumulated_study import NB_DAYS
-from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
-    SafranTemperature, \
+from experiment.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, SafranTemperature, \
     SafranPrecipitation
 from experiment.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
-    study_iterator, study_iterator_global, SCM_STUDIES, ALL_ALTITUDES
-from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer import \
-    StudyVisualizer
-from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gev_trend_test_one_parameter import \
-    GevLocationTrendTest
+    study_iterator_global, SCM_STUDIES, ALL_ALTITUDES
 from root_utils import get_display_name_from_object_type
 
 

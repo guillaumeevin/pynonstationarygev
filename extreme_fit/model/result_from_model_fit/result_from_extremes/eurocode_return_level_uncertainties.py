@@ -1,10 +1,8 @@
-from enum import Enum
-
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE
+from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     ExtractEurocodeReturnLevelFromMyBayesianExtremes, ExtractEurocodeReturnLevelFromCiMethod
-from experiment.trend_analysis.univariate_test.utils import load_temporal_coordinates_and_dataset, \
-    fitted_linear_margin_estimator
+from spatio_temporal_dataset.utils import load_temporal_coordinates_and_dataset
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod

@@ -1,6 +1,6 @@
 # Comparison with the Gumbel model
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE
-from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gev_trend_test_one_parameter import \
+from extreme_trend_test.trend_test_one_parameter.gev_trend_test_one_parameter import \
     GevTrendTestOneParameter, GevTrendTestOneParameterAgainstStationary
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \

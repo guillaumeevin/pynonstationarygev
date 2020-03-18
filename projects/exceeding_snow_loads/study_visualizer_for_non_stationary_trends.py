@@ -18,10 +18,10 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer
 from projects.exceeding_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
     compute_gelman_convergence_value
 from projects.exceeding_snow_loads.paper_utils import ModelSubsetForUncertainty, NON_STATIONARY_TREND_TEST_PAPER
-from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
-from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
+from extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
+from extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
     GumbelLocationTrendTest, GevStationaryVersusGumbel, GumbelScaleTrendTest, GumbelVersusGumbel
-from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_two_parameters.gumbel_test_two_parameters import \
+from extreme_trend_test.trend_test_two_parameters.gumbel_test_two_parameters import \
     GumbelLocationAndScaleTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod

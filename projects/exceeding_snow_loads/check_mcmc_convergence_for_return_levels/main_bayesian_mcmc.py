@@ -2,12 +2,11 @@ import pandas as pd
 import seaborn as sns
 
 import matplotlib.pyplot as plt
-from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSwe3Days, CrocusSnowLoadTotal
+from experiment.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
 from experiment.exceeding_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
     compute_gelman_score
-from experiment.trend_analysis.univariate_test.utils import load_temporal_coordinates_and_dataset, \
-    fitted_linear_margin_estimator
+from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod
@@ -16,6 +15,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
     ExtractEurocodeReturnLevelFromMyBayesianExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
+from spatio_temporal_dataset.utils import load_temporal_coordinates_and_dataset
 
 
 def main_drawing_bayesian(N=10000):

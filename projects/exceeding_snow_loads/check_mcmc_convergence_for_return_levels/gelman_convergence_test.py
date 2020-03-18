@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
-from experiment.trend_analysis.univariate_test.utils import load_temporal_coordinates_and_dataset, \
-    fitted_linear_margin_estimator
+from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_bayesian_extremes import \
     ResultFromBayesianExtremes
 from extreme_fit.model.utils import r
+from spatio_temporal_dataset.utils import load_temporal_coordinates_and_dataset
 
 
 def compute_gelman_score(means, variances, N, M):

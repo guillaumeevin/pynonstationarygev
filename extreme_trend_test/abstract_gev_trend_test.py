@@ -7,8 +7,7 @@ from scipy.stats import chi2
 
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE, YEAR_OF_INTEREST_FOR_RETURN_LEVEL
 from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable
-from experiment.trend_analysis.univariate_test.utils import load_temporal_coordinates_and_dataset, \
-    fitted_linear_margin_estimator
+from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod
@@ -17,6 +16,7 @@ from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_m
 from extreme_fit.model.utils import SafeRunException
 from root_utils import classproperty
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from spatio_temporal_dataset.utils import load_temporal_coordinates_and_dataset
 
 
 class AbstractGevTrendTest(object):

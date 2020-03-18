@@ -1,12 +1,11 @@
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE
-from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
+from extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel, NonStationaryShapeTemporalModel, \
     StationaryTemporalModel
 from extreme_fit.distribution.gev.gev_params import GevParams
-from root_utils import classproperty
 
 
 class GevTrendTestOneParameter(AbstractGevTrendTest):

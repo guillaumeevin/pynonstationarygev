@@ -1,3 +1,5 @@
+
+
 import pandas as pd
 
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
@@ -18,10 +20,3 @@ def load_temporal_coordinates_and_dataset(maxima, years):
     coordinates = AbstractTemporalCoordinates.from_df(df, transformation_class=CenteredScaledNormalization)
     dataset = AbstractDataset(observations=observations, coordinates=coordinates)
     return coordinates, dataset
-
-
-def fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year, fit_method, **model_kwargs):
-    model = model_class(coordinates, starting_point=starting_year, fit_method=fit_method, **model_kwargs)
-    estimator = LinearMarginEstimator(dataset, model)
-    estimator.fit()
-    return estimator
