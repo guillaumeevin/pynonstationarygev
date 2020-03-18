@@ -5,7 +5,7 @@ from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import Lin
 from extreme_fit.estimator.max_stable_estimator.abstract_max_stable_estimator import MaxStableEstimator
 from extreme_fit.estimator.utils import load_margin_function
 from extreme_fit.model.margin_model.abstract_margin_model import AbstractMarginModel
-from extreme_fit.model.margin_model.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_fit.function.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
 from extreme_fit.model.max_stable_model.abstract_max_stable_model import AbstractMaxStableModel
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset

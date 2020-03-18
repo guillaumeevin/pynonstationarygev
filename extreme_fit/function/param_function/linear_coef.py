@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from extreme_fit.model.margin_model.param_function.abstract_coef import AbstractCoef
+from extreme_fit.function.param_function.abstract_coef import AbstractCoef
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 

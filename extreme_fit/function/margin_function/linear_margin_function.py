@@ -1,11 +1,11 @@
 from typing import Dict, List, Union
 
 from extreme_fit.distribution.abstract_params import AbstractParams
-from extreme_fit.model.margin_model.margin_function.parametric_margin_function import \
+from extreme_fit.function.margin_function.parametric_margin_function import \
     ParametricMarginFunction
-from extreme_fit.model.margin_model.param_function.abstract_coef import AbstractCoef
-from extreme_fit.model.margin_model.param_function.linear_coef import LinearCoef
-from extreme_fit.model.margin_model.param_function.param_function import AbstractParamFunction, \
+from extreme_fit.function.param_function.abstract_coef import AbstractCoef
+from extreme_fit.function.param_function.linear_coef import LinearCoef
+from extreme_fit.function.param_function.param_function import AbstractParamFunction, \
     LinearParamFunction
 from extreme_fit.distribution.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates

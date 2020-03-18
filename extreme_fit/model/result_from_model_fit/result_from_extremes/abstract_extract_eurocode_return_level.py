@@ -3,11 +3,11 @@ from typing import List
 import numpy as np
 from cached_property import cached_property
 
-from experiment.eurocode_data.utils import EUROCODE_QUANTILE, YEAR_OF_INTEREST_FOR_RETURN_LEVEL
+from experiment.eurocode_data.utils import EUROCODE_QUANTILE
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.estimator.utils import load_margin_function
-from extreme_fit.model.margin_model.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_fit.function.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_bayesian_extremes import \
     ResultFromBayesianExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_mle_extremes import ResultFromMleExtremes

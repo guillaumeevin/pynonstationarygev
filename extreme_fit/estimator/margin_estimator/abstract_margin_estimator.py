@@ -5,7 +5,7 @@ from cached_property import cached_property
 from extreme_fit.estimator.abstract_estimator import AbstractEstimator
 from extreme_fit.estimator.utils import load_margin_function, compute_nllh
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
-from extreme_fit.model.margin_model.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_fit.function.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.slicer.split import Split

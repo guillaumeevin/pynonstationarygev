@@ -3,7 +3,7 @@ from collections import OrderedDict
 import numpy as np
 
 from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.model.margin_model.param_function.linear_coef import LinearCoef
+from extreme_fit.function.param_function.linear_coef import LinearCoef
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 

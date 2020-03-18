@@ -14,7 +14,7 @@ from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model impo
     LinearStationaryMarginModel, LinearNonStationaryLocationMarginModel
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     StationaryTemporalModel, NonStationaryLocationTemporalModel
-from extreme_fit.model.margin_model.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_fit.function.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_fit.model.utils import OptimizationConstants
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from root_utils import get_display_name_from_object_type

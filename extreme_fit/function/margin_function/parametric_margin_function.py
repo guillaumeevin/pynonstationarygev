@@ -2,10 +2,10 @@ from typing import Dict, List, Union
 
 import numpy as np
 
-from extreme_fit.model.margin_model.margin_function.independent_margin_function import \
+from extreme_fit.function.margin_function.independent_margin_function import \
     IndependentMarginFunction
-from extreme_fit.model.margin_model.param_function.abstract_coef import AbstractCoef
-from extreme_fit.model.margin_model.param_function.param_function import AbstractParamFunction, \
+from extreme_fit.function.param_function.abstract_coef import AbstractCoef
+from extreme_fit.function.param_function.param_function import AbstractParamFunction, \
     ConstantParamFunction
 from extreme_fit.distribution.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates

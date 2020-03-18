@@ -1,8 +1,6 @@
 import datetime
 
 from matplotlib.lines import Line2D
-from matplotlib.markers import MarkerStyle
-from matplotlib.patches import Polygon, Patch
 import io
 import os
 import os.path as op
@@ -25,7 +23,7 @@ from experiment.meteo_france_data.scm_models_data.scm_constants import ALTITUDES
     LATITUDES, ORIENTATIONS, SLOPES, ORDERED_ALLSLOPES_ALTITUDES, ORDERED_ALLSLOPES_ORIENTATIONS, \
     ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM
 from experiment.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
-from extreme_fit.model.margin_model.margin_function.abstract_margin_function import \
+from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from experiment.meteo_france_data.plot.create_shifted_cmap import create_colorbase_axis, \
     get_shifted_map, get_colors

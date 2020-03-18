@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from extreme_fit.model.abstract_model import AbstractModel
-from extreme_fit.model.margin_model.margin_function.abstract_margin_function \
+from extreme_fit.function.margin_function.abstract_margin_function \
     import AbstractMarginFunction
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
 from extreme_fit.model.utils import r

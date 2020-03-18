@@ -14,11 +14,11 @@ import seaborn as sns
 from numpy.linalg import LinAlgError
 
 from extreme_fit.estimator.abstract_estimator import AbstractEstimator
-from extreme_fit.model.margin_model.margin_function.abstract_margin_function import \
+from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
-from extreme_fit.model.margin_model.margin_function.combined_margin_function import \
+from extreme_fit.function.margin_function.combined_margin_function import \
     CombinedMarginFunction
-from extreme_fit.model.margin_model.margin_function.utils import error_dict_between_margin_functions
+from extreme_fit.function.margin_function.utils import error_dict_between_margin_functions
 from extreme_fit.distribution.gev.gev_params import GevParams
 from spatio_temporal_dataset.dataset.abstract_dataset import get_subset_dataset
 from spatio_temporal_dataset.dataset.simulation_dataset import SimulatedDataset

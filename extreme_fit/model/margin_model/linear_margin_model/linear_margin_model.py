@@ -1,8 +1,7 @@
-from extreme_fit.model.margin_model.margin_function.linear_margin_function import LinearMarginFunction
-from extreme_fit.model.margin_model.param_function.linear_coef import LinearCoef
+from extreme_fit.function.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_fit.function.param_function.linear_coef import LinearCoef
 from extreme_fit.model.margin_model.parametric_margin_model import ParametricMarginModel
 from extreme_fit.distribution.gev.gev_params import GevParams
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 class LinearMarginModel(ParametricMarginModel):

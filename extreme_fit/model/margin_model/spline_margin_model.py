@@ -1,8 +1,8 @@
 from typing import Dict, List
 
-from extreme_fit.model.margin_model.margin_function.spline_margin_function import SplineMarginFunction
-from extreme_fit.model.margin_model.param_function.abstract_coef import AbstractCoef
-from extreme_fit.model.margin_model.param_function.spline_coef import SplineCoef, KnotCoef, \
+from extreme_fit.function.margin_function.spline_margin_function import SplineMarginFunction
+from extreme_fit.function.param_function.abstract_coef import AbstractCoef
+from extreme_fit.function.param_function.spline_coef import SplineCoef, KnotCoef, \
     PolynomialCoef
 from extreme_fit.model.margin_model.parametric_margin_model import ParametricMarginModel
 from extreme_fit.distribution.gev.gev_params import GevParams

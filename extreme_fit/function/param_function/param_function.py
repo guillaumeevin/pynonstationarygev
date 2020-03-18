@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
-from extreme_fit.model.margin_model.param_function.linear_coef import LinearCoef
-from extreme_fit.model.margin_model.param_function.spline_coef import SplineCoef
+from extreme_fit.function.param_function.linear_coef import LinearCoef
+from extreme_fit.function.param_function.spline_coef import SplineCoef
 
 
 class AbstractParamFunction(object):

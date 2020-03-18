@@ -2,12 +2,12 @@ from typing import Dict, List
 
 import numpy as np
 
-from extreme_fit.model.margin_model.margin_function.parametric_margin_function import \
+from extreme_fit.function.margin_function.parametric_margin_function import \
     ParametricMarginFunction
-from extreme_fit.model.margin_model.param_function.abstract_coef import AbstractCoef
-from extreme_fit.model.margin_model.param_function.param_function import AbstractParamFunction, \
+from extreme_fit.function.param_function.abstract_coef import AbstractCoef
+from extreme_fit.function.param_function.param_function import AbstractParamFunction, \
     SplineParamFunction
-from extreme_fit.model.margin_model.param_function.spline_coef import SplineCoef
+from extreme_fit.function.param_function.spline_coef import SplineCoef
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 

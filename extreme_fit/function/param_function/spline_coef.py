@@ -1,6 +1,6 @@
 from typing import Dict
 
-from extreme_fit.model.margin_model.param_function.abstract_coef import AbstractCoef
+from extreme_fit.function.param_function.abstract_coef import AbstractCoef
 
 
 class PolynomialCoef(AbstractCoef):

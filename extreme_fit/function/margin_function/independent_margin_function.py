@@ -2,9 +2,9 @@ from typing import Dict, Union
 
 import numpy as np
 
-from extreme_fit.model.margin_model.param_function.param_function import AbstractParamFunction
+from extreme_fit.function.param_function.param_function import AbstractParamFunction
 from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.model.margin_model.margin_function.abstract_margin_function import \
+from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 

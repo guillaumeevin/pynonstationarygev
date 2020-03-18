@@ -29,9 +29,9 @@ from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import Lin
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import \
     LinearNonStationaryLocationMarginModel, \
     LinearStationaryMarginModel
-from extreme_fit.model.margin_model.margin_function.abstract_margin_function import \
+from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
-from extreme_fit.model.margin_model.param_function.param_function import AbstractParamFunction
+from extreme_fit.function.param_function.param_function import AbstractParamFunction
 from extreme_fit.model.max_stable_model.abstract_max_stable_model import CovarianceFunction
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gev.ismev_gev_fit import IsmevGevFit

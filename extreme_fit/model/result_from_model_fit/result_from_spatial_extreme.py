@@ -2,7 +2,7 @@ from typing import Dict
 
 import numpy as np
 
-from extreme_fit.model.margin_model.param_function.linear_coef import LinearCoef
+from extreme_fit.function.param_function.linear_coef import LinearCoef
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import \
     AbstractResultFromModelFit
 

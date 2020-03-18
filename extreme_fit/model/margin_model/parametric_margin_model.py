@@ -3,7 +3,7 @@ from abc import ABC
 import numpy as np
 import pandas as pd
 
-from extreme_fit.model.margin_model.margin_function.parametric_margin_function import \
+from extreme_fit.function.margin_function.parametric_margin_function import \
     ParametricMarginFunction
 from extreme_fit.model.result_from_model_fit.result_from_spatial_extreme import ResultFromSpatialExtreme
 from extreme_fit.model.margin_model.abstract_margin_model import AbstractMarginModel

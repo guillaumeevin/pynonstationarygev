@@ -1,7 +1,7 @@
 import numpy as np
 
 from extreme_fit.estimator.full_estimator.abstract_full_estimator import FullEstimatorInASingleStepWithSmoothMargin
-from extreme_fit.model.margin_model.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_fit.function.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearAllParametersAllDimsMarginModel, \
     ConstantMarginModel
 from extreme_fit.model.max_stable_model.max_stable_models import Smith

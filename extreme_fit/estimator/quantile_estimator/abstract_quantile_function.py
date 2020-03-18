@@ -1,6 +1,6 @@
 import numpy as np
 
-from extreme_fit.model.margin_model.margin_function.abstract_margin_function import AbstractMarginFunction
+from extreme_fit.function.margin_function.abstract_margin_function import AbstractMarginFunction
 
 
 class AbstractQuantileFunction(object):
