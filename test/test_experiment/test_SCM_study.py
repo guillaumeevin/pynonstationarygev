@@ -19,15 +19,6 @@ from root_utils import get_display_name_from_object_type
 
 class TestSCMAllStudy(unittest.TestCase):
 
-    def test_extended_run(self):
-        for study_class in [ExtendedSafranSnowfall]:
-            for study in study_iterator(study_class, only_first_one=True, verbose=False):
-                study_visualizer = StudyVisualizer(study, show=False, save_to_file=False, multiprocessing=True)
-                study_visualizer.df_trend_spatio_temporal(GevLocationTrendTest, [1959, 1960, 1961],
-                                                          nb_massif_for_change_point_test=3,
-                                                          sample_one_massif_from_each_region=False)
-        self.assertTrue(True)
-
     def test_instantiate_studies(self):
         nb_sample = 2
         for nb_days in sample(set(NB_DAYS), k=nb_sample):

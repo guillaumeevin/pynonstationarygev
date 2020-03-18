@@ -18,7 +18,6 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer
 from projects.exceeding_snow_loads.check_mcmc_convergence_for_return_levels.gelman_convergence_test import \
     compute_gelman_convergence_value
 from projects.exceeding_snow_loads.paper_utils import ModelSubsetForUncertainty, NON_STATIONARY_TREND_TEST_PAPER
-from experiment.trend_analysis.abstract_score import MeanScore
 from experiment.trend_analysis.univariate_test.extreme_trend_test.abstract_gev_trend_test import AbstractGevTrendTest
 from experiment.trend_analysis.univariate_test.extreme_trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
     GumbelLocationTrendTest, GevStationaryVersusGumbel, GumbelScaleTrendTest, GumbelVersusGumbel
@@ -41,7 +40,6 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False,
                  temporal_non_stationarity=False, transformation_class=None, verbose=False, multiprocessing=False,
                  complete_non_stationary_trend_analysis=False, normalization_under_one_observations=True,
-                 score_class=MeanScore,
                  uncertainty_methods=None,
                  model_subsets_for_uncertainty=None,
                  uncertainty_massif_names=None,
@@ -56,7 +54,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         super().__init__(study, show, save_to_file, only_one_graph, only_first_row, vertical_kde_plot,
                          year_for_kde_plot, plot_block_maxima_quantiles, temporal_non_stationarity,
                          transformation_class, verbose, multiprocessing, complete_non_stationary_trend_analysis,
-                         normalization_under_one_observations, score_class)
+                         normalization_under_one_observations)
         # Add some attributes
         self.fit_only_time_series_with_ninety_percent_of_non_null_values = fit_only_time_series_with_ninety_percent_of_non_null_values
         self.fit_gev_only_on_non_null_maxima = fit_gev_only_on_non_null_maxima

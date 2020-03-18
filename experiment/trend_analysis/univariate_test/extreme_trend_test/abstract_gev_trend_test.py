@@ -7,7 +7,6 @@ from scipy.stats import chi2
 
 from experiment.eurocode_data.utils import EUROCODE_QUANTILE, YEAR_OF_INTEREST_FOR_RETURN_LEVEL
 from experiment.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable
-from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
 from experiment.trend_analysis.univariate_test.utils import load_temporal_coordinates_and_dataset, \
     fitted_linear_margin_estimator
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -20,9 +19,10 @@ from root_utils import classproperty
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
-class AbstractGevTrendTest(AbstractUnivariateTest):
+class AbstractGevTrendTest(object):
     RRunTimeError_TREND = 'R RunTimeError trend'
     nb_years_for_quantile_evolution = 10
+    SIGNIFICANCE_LEVEL = 0.05
 
     def __init__(self, years, maxima, starting_year, unconstrained_model_class,
                  constrained_model_class=StationaryTemporalModel,
@@ -57,19 +57,6 @@ class AbstractGevTrendTest(AbstractUnivariateTest):
                                                   self.starting_year, self.fit_method)
         except SafeRunException:
             self.crashed = True
-
-    # Type of trends
-
-    @classmethod
-    def real_trend_types(cls):
-        return super().real_trend_types() + [cls.RRunTimeError_TREND]
-
-    @property
-    def test_trend_type(self) -> str:
-        if self.crashed:
-            return self.RRunTimeError_TREND
-        else:
-            return super().test_trend_type
 
     # Likelihood ratio test
 

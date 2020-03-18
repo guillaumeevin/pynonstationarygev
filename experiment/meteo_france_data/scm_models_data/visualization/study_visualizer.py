@@ -15,12 +15,8 @@ import seaborn as sns
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     EurocodeConfidenceIntervalFromExtremes, compute_eurocode_confidence_interval
 from experiment.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
-from experiment.trend_analysis.abstract_score import MeanScore, AbstractTrendScore
 from experiment.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from experiment.trend_analysis.non_stationary_trends import \
-    ConditionalIndedendenceLocationTrendTest, MaxStableLocationTrendTest, IndependenceLocationTrendTest
 from experiment.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
-from experiment.trend_analysis.univariate_test.univariate_test_results import compute_gev_change_point_test_results
 from extreme_fit.distribution.abstract_params import AbstractParams
 from extreme_fit.estimator.full_estimator.abstract_full_estimator import \
     FullEstimatorInASingleStepWithSmoothMargin
@@ -75,8 +71,7 @@ class StudyVisualizer(VisualizationParameters):
     def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False,
                  vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False,
                  temporal_non_stationarity=False, transformation_class=None, verbose=False, multiprocessing=False,
-                 complete_non_stationary_trend_analysis=False, normalization_under_one_observations=True,
-                 score_class=MeanScore):
+                 complete_non_stationary_trend_analysis=False, normalization_under_one_observations=True):
         super().__init__(save_to_file, only_one_graph, only_first_row, show)
         self.nb_cores = 7
         self.massif_id_to_smooth_maxima = {}
@@ -107,8 +102,6 @@ class StudyVisualizer(VisualizationParameters):
 
         self.window_size_for_smoothing = 1  # other value could be
         self.number_of_top_values = 10  # 1 if we just want the maxima
-        self.score_class = score_class
-        self.score = self.score_class(self.number_of_top_values)  # type: AbstractTrendScore
 
         # Modify some class attributes
         # Remove some assert
@@ -206,50 +199,6 @@ class StudyVisualizer(VisualizationParameters):
                     else:
                         ax = axes[row_id, column_id]
                     visualize_function(ax, massif_id)
-
-    # TEMPORAL TREND
-
-    def visualize_all_independent_temporal_trend(self):
-        massifs_ids = [self.study.study_massif_names.index(name) for name in self.specified_massif_names_median_scores]
-        self.visualize_massif_graphs(self.visualize_independent_temporal_trend, specified_massif_ids=massifs_ids)
-        self.plot_name = ' Independent temporal trend \n'
-        self.show_or_save_to_file()
-
-    def visualize_independent_temporal_trend(self, ax, massif_id):
-        assert self.temporal_non_stationarity
-        # Create a dataset with temporal coordinates from the massif id
-        dataset_massif_id = AbstractDataset(self.observation_massif_id(massif_id), self.temporal_coordinates)
-        trend_test = IndependenceLocationTrendTest(station_name=self.study.study_massif_names[massif_id],
-                                                   dataset=dataset_massif_id, verbose=self.verbose,
-                                                   multiprocessing=self.multiprocessing)
-        trend_test.visualize(ax, self.complete_non_stationary_trend_analysis)
-
-    def visualize_temporal_trend_relevance(self):
-        assert self.temporal_non_stationarity
-        trend_tests = [ConditionalIndedendenceLocationTrendTest(dataset=self.dataset, verbose=self.verbose,
-                                                                multiprocessing=self.multiprocessing)]
-
-        max_stable_models = load_test_max_stable_models(default_covariance_function=self.default_covariance_function)
-        for max_stable_model in [max_stable_models[1], max_stable_models[-2]]:
-            trend_tests.append(MaxStableLocationTrendTest(dataset=self.dataset,
-                                                          max_stable_model=max_stable_model, verbose=self.verbose,
-                                                          multiprocessing=self.multiprocessing))
-
-        nb_trend_tests = len(trend_tests)
-        fig, axes = plt.subplots(1, nb_trend_tests, figsize=self.figsize)
-        if nb_trend_tests == 1:
-            axes = [axes]
-        fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
-        for ax, trend_test in zip(axes, trend_tests):
-            trend_test.visualize(ax, complete_analysis=self.complete_non_stationary_trend_analysis)
-
-        plot_name = 'trend tests'
-        plot_name += ' with {} applied spatially & temporally'.format(
-            get_display_name_from_object_type(self.transformation_class))
-        if self.normalization_under_one_observations:
-            plot_name += '(and maxima <= 1)'
-        self.plot_name = plot_name
-        self.show_or_save_to_file()
 
     # EXPERIMENTAL LAW
 
@@ -371,200 +320,6 @@ class StudyVisualizer(VisualizationParameters):
             zip([massif_name for _, massif_name in massif_ids_and_names], altitudes_and_res))
         return massif_name_to_eurocode_return_level_uncertainty
 
-    # def dep_class_to_eurocode_level_uncertainty(self, model_class, last_year_for_the_data):
-    #     """ Take the max with respect to the posterior mean for each departement """
-    #     massif_name_to_eurocode_level_uncertainty = self.massif_name_to_eurocode_level_uncertainty(model_class,
-    #                                                                                                last_year_for_the_data)
-    #     dep_class_to_eurocode_level_uncertainty = {}
-    #     for dep_class, massif_names in dep_class_to_massif_names.items():
-    #         # Filter the couple of interest
-    #         couples = [(k, v) for k, v in massif_name_to_eurocode_level_uncertainty.items() if k in massif_names]
-    #         assert len(couples) > 0
-    #         massif_name, eurocode_level_uncertainty = max(couples, key=lambda c: c[1].posterior_mean)
-    #         dep_class_to_eurocode_level_uncertainty[dep_class] = eurocode_level_uncertainty
-    #     return dep_class_to_eurocode_level_uncertainty
-
-    @cached_property
-    def massif_name_to_detailed_scores(self):
-        """
-        This score respect the following property.
-        Between two successive score, then if the starting year was neither a top10 maxima nor a top10 minima,
-        then the score will not change
-
-        The following case for instance gives a constant score wrt to the starting year
-        because all the maxima and all the minima are at the end
-            smooth_maxima = [0 for _ in years]
-            smooth_maxima[-20:-10] = [i for i in range(10)]
-            smooth_maxima[-10:] = [-i for i in range(10)]
-        :return:
-        """
-        # Ordered massif by scores
-        massif_name_to_scores = {}
-        for massif_id, massif_name in enumerate(self.study.study_massif_names):
-            years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
-            detailed_scores = []
-            for j, starting_year in enumerate(self.starting_years):
-                detailed_scores.append(self.score.get_detailed_score(years, smooth_maxima))
-                assert years[0] == starting_year, "{} {}".format(years[0], starting_year)
-                # Remove the first element from the list
-                years = years[1:]
-                smooth_maxima = smooth_maxima[1:]
-            massif_name_to_scores[massif_name] = np.array(detailed_scores)
-        return massif_name_to_scores
-
-    def massif_name_to_gev_change_point_test_results(self, trend_test_class_for_change_point_test,
-                                                     starting_years_for_change_point_test,
-                                                     nb_massif_for_change_point_test=None,
-                                                     sample_one_massif_from_each_region=True):
-        if self.trend_test_class_for_change_point_test is None:
-            # Set the attribute is not already done
-            self.trend_test_class_for_change_point_test = trend_test_class_for_change_point_test
-            self.starting_years_for_change_point_test = starting_years_for_change_point_test
-            self.nb_massif_for_change_point_test = nb_massif_for_change_point_test
-            self.sample_one_massif_from_each_region = sample_one_massif_from_each_region
-        else:
-            # Check that the argument are the same
-            assert self.trend_test_class_for_change_point_test == trend_test_class_for_change_point_test
-            assert self.starting_years == starting_years_for_change_point_test
-            assert self.nb_massif_for_change_point_test == nb_massif_for_change_point_test
-            assert self.sample_one_massif_from_each_region == sample_one_massif_from_each_region
-
-        return self._massif_name_to_gev_change_point_test_results
-
-    @cached_property
-    def _massif_name_to_gev_change_point_test_results(self):
-        massif_name_to_gev_change_point_test_results = {}
-        if self.nb_massif_for_change_point_test is None:
-            massif_names = self.study.study_massif_names
-        else:
-            # Set the random seed to the same number so that
-            print('Setting the random seed to ensure similar sampling in the fast mode')
-            seed(42)
-            if self.sample_one_massif_from_each_region:
-                # Get one massif from each region to ensure that the fast plot will not crash
-                assert self.nb_massif_for_change_point_test >= 4, 'we need at least one massif from each region'
-                massif_names = [AbstractExtendedStudy.region_name_to_massif_names[r][0]
-                                for r in AbstractExtendedStudy.real_region_names]
-                massif_names_for_sampling = list(set(self.study.study_massif_names) - set(massif_names))
-                nb_massif_for_sampling = self.nb_massif_for_change_point_test - len(
-                    AbstractExtendedStudy.real_region_names)
-                massif_names += sample(massif_names_for_sampling, k=nb_massif_for_sampling)
-            else:
-                massif_names = sample(self.study.study_massif_names, k=self.nb_massif_for_change_point_test)
-
-        for massif_id, massif_name in enumerate(massif_names):
-            years, smooth_maxima = self.smooth_maxima_x_y(massif_id)
-            gev_change_point_test_results = compute_gev_change_point_test_results(self.multiprocessing, smooth_maxima,
-                                                                                  self.starting_years_for_change_point_test,
-                                                                                  self.trend_test_class_for_change_point_test,
-                                                                                  years)
-            massif_name_to_gev_change_point_test_results[massif_name] = gev_change_point_test_results
-        return massif_name_to_gev_change_point_test_results
-
-    def df_trend_spatio_temporal(self, trend_test_class_for_change_point_test,
-                                 starting_years_for_change_point_test,
-                                 nb_massif_for_change_point_test=None,
-                                 sample_one_massif_from_each_region=True):
-        """
-        Index are the massif
-        Columns are the starting year
-
-        :param trend_test_class:
-        :param starting_year_to_weight:
-        :return:
-        """
-        massif_name_to_trend_res = {}
-        massif_name_to_gev_change_point_test_results = self.massif_name_to_gev_change_point_test_results(
-            trend_test_class_for_change_point_test,
-            starting_years_for_change_point_test,
-            nb_massif_for_change_point_test,
-            sample_one_massif_from_each_region)
-        for massif_name, gev_change_point_test_results in massif_name_to_gev_change_point_test_results.items():
-            trend_test_res, best_idxs = gev_change_point_test_results
-            trend_test_res = [(a, b, c, d, e, f) if i in best_idxs else (np.nan, np.nan, c, np.nan, np.nan, np.nan)
-                              for i, (a, b, c, d, e, f, *_) in enumerate(trend_test_res)]
-            massif_name_to_trend_res[massif_name] = list(zip(*trend_test_res))
-        nb_res = len(list(massif_name_to_trend_res.values())[0])
-        assert nb_res == 6
-
-        all_massif_name_to_res = [{k: v[idx_res] for k, v in massif_name_to_trend_res.items()}
-                                  for idx_res in range(nb_res)]
-        return [pd.DataFrame(massif_name_to_res, index=self.starting_years_for_change_point_test).transpose()
-                for massif_name_to_res in all_massif_name_to_res]
-
-    @cached_property
-    def massif_name_to_scores(self):
-        return {k: v[:, 0] for k, v in self.massif_name_to_detailed_scores.items()}
-
-    @cached_property
-    def massif_name_to_first_detailed_score(self):
-        return {k: v[0] for k, v in self.massif_name_to_detailed_scores.items()}
-
-    @cached_property
-    def massif_name_to_first_score(self):
-        return {k: v[0] for k, v in self.massif_name_to_scores.items()}
-
-    @property
-    def specified_massif_names_median_scores(self):
-        return sorted(self.study.study_massif_names, key=lambda s: np.median(self.massif_name_to_scores[s]))
-
-    @property
-    def specified_massif_names_first_score(self):
-        return sorted(self.study.study_massif_names, key=lambda s: self.massif_name_to_scores[s][0])
-
-    def visualize_all_score_wrt_starting_year(self):
-        specified_massif_names = self.specified_massif_names_median_scores
-        # Add one graph at the end
-        specified_massif_names += [None]
-        self.visualize_massif_graphs(self.visualize_score_wrt_starting_year,
-                                     specified_massif_ids=specified_massif_names)
-        plot_name = ''
-        plot_name += '{} top values for each score, abscisse represents starting year for a trend'.format(
-            self.number_of_top_values)
-        self.plot_name = plot_name
-        self.show_or_save_to_file()
-
-    def visualize_score_wrt_starting_year(self, ax, massif_name):
-        if massif_name is None:
-            percentage, title = self.percentages_of_negative_trends()
-            scores = percentage
-            ax.set_ylabel('% of negative trends')
-            # Add two lines of interest
-            years_of_interest = [1963, 1976]
-            colors = ['g', 'r']
-            for year_interest, color in zip(years_of_interest, colors):
-                ax.axvline(x=year_interest, color=color)
-                year_score = scores[self.starting_years.index(year_interest)]
-                ax.axhline(y=year_score, color=color)
-        else:
-            ax.set_ylabel(get_display_name_from_object_type(self.score))
-            scores = self.massif_name_to_scores[massif_name]
-            title = massif_name
-        ax.plot(self.starting_years, scores)
-        ax.set_title(title)
-        ax.xaxis.set_ticks(self.starting_years[2::20])
-
-    def percentages_of_negative_trends(self):
-        print('start computing percentages negative trends')
-        # scores = np.median([np.array(v) < 0 for v in self.massif_name_to_scores.values()], axis=0)
-        # Take the mean with respect to the massifs
-        # We obtain an array whose length equal the length of starting years
-        scores = np.mean([np.array(v) < 0 for v in self.massif_name_to_scores.values()], axis=0)
-        percentages = 100 * scores
-        # First argmin, first argmax
-        argmin, argmax = np.argmin(scores), np.argmax(scores)
-        # Last argmin, last argmax
-        # argmin, argmax = len(scores) - 1 - np.argmin(scores[::-1]), len(scores) - 1 - np.argmax(scores[::-1])
-        top_starting_year_for_positive_trend = self.starting_years[argmin]
-        top_starting_year_for_negative_trend = self.starting_years[argmax]
-        top_percentage_positive_trend = round(100 - percentages[argmin], 0)
-        top_percentage_negative_trend = round(percentages[argmax], 0)
-        title = "Global trend; > 0: {}% in {}; < 0: {}% in {}".format(top_percentage_positive_trend,
-                                                                      top_starting_year_for_positive_trend,
-                                                                      top_percentage_negative_trend,
-                                                                      top_starting_year_for_negative_trend)
-
-        return percentages, title
 
     def visualize_all_mean_and_max_graphs(self):
         specified_massif_ids = [self.study.study_massif_names.index(massif_name)

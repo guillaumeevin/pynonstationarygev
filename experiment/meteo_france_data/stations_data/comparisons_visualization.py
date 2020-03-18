@@ -14,8 +14,6 @@ from experiment.meteo_france_data.scm_models_data.visualization.study_visualizer
     VisualizationParameters
 from experiment.meteo_france_data.stations_data.comparison_analysis import ComparisonAnalysis, MASSIF_COLUMN_NAME, \
     REANALYSE_STR, ALTITUDE_COLUMN_NAME, STATION_COLUMN_NAME
-from experiment.trend_analysis.univariate_test.abstract_univariate_test import AbstractUnivariateTest
-from experiment.trend_analysis.univariate_test.univariate_test_results import compute_gev_change_point_test_results
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 path = r'/data/meteo_france_data/stations_data/csv'
@@ -114,10 +112,6 @@ class ComparisonsVisualization(VisualizationParameters):
             df.to_csv(csv_filepath)
 
         if TREND_TYPE_CNAME in df.columns:
-            # Display the confusion matrix
-            m = confusion_matrix(y_true=df[TREND_TYPE_CNAME].values,
-                                 y_pred=df[SAFRAN_TREND_TYPE_CNAME].values,
-                                 labels=AbstractUnivariateTest.three_main_trend_types())
 
             # Display the classification score per massif
             df[WELL_CLASSIFIED_CNAME] = df[TREND_TYPE_CNAME] == df[SAFRAN_TREND_TYPE_CNAME]
@@ -226,25 +220,6 @@ class ComparisonsVisualization(VisualizationParameters):
 
     def plot_maxima(self, ax, ax2, years, maxima, label, plot_color):
         ordered_dict = OrderedDict()
-        if self.keep_only_station_without_nan_values:
-            # Run trend test to improve the label
-            starting_years = years[:-4]
-            trend_test_res, best_idxs = compute_gev_change_point_test_results(multiprocessing=True,
-                                                                              maxima=maxima,
-                                                                              starting_years=starting_years,
-                                                                              trend_test_class=self.trend_test_class,
-                                                                              years=years)
-            best_idx = best_idxs[0]
-            most_likely_year = years[best_idx]
-            most_likely_trend_type = trend_test_res[best_idx][0]
-            display_trend_type = AbstractUnivariateTest.get_display_trend_type(real_trend_type=most_likely_trend_type)
-            label += "\n {} starting in {}".format(display_trend_type, most_likely_year)
-            ordered_dict[TREND_TYPE_CNAME] = display_trend_type
-            ordered_dict['most likely year'] = most_likely_year
-            # Display the deviance against the starting year
-            step = 1
-            ax2.plot(starting_years[::step], [t[4] for t in trend_test_res][::step], color=plot_color, marker='o')
-            ax2.plot(starting_years[::step], [t[5] for t in trend_test_res][::step], color=plot_color, marker='x')
         # Plot maxima
         ax.grid()
         ax.plot(years, maxima, label=label, color=plot_color)
