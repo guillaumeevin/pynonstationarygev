@@ -5,7 +5,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 class AbstractCoef(object):
 
-    def __init__(self, gev_param_name: str, default_value: float = 0.0, idx_to_coef=None):
+    def __init__(self, gev_param_name: str = '', default_value: float = 0.0, idx_to_coef=None):
         self.gev_param_name = gev_param_name
         self.default_value = default_value
         self.idx_to_coef = idx_to_coef
