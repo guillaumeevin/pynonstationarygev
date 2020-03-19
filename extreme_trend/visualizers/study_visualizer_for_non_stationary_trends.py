@@ -82,6 +82,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                                         ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
         if self.uncertainty_massif_names is None:
             self.uncertainty_massif_names = self.study.study_massif_names
+        else:
+            assert set(self.uncertainty_massif_names).issubset(set(self.study.study_massif_names))
         if self.non_stationary_trend_test_to_marker is None:
             # Assign default argument for the non stationary trends
             self.non_stationary_trend_test = NON_STATIONARY_TREND_TEST_PAPER
@@ -95,7 +97,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     @cached_property
     def massif_name_to_years_and_maxima(self):
         d = {}
-        df_maxima = self.study.observations_annual_maxima.df_maxima_gev
+        df_maxima = self.study.observations_annual_maxima.df_maxima_gev.loc[self.uncertainty_massif_names]
         years = np.array(df_maxima.columns)
         for massif_name, s_maxima in df_maxima.iterrows():
             d[massif_name] = (years, np.array(s_maxima))
@@ -135,6 +137,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         # In both cases, we remove any massif with psnow < 0.9
         if self.fit_only_time_series_with_ninety_percent_of_non_null_values:
             d = {m: v for m, v in d.items() if self.massif_name_to_psnow[m] >= 0.9}
+        print(d.keys())
         return d
 
     @property

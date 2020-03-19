@@ -24,3 +24,5 @@ NON_STATIONARY_TREND_TEST_PAPER = [GumbelVersusGumbel,
                                    GevLocationAgainstGumbel, GevScaleAgainstGumbel,
                                    GevLocationAndScaleTrendTestAgainstGumbel]
 
+
+

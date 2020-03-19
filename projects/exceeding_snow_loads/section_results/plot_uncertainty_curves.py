@@ -1,4 +1,9 @@
 from typing import Dict
+
+import matplotlib as mpl
+mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+
 import matplotlib.pyplot as plt
 
 import numpy as np

@@ -1,19 +1,20 @@
 from multiprocessing.pool import Pool
 
 import matplotlib as mpl
-
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
-from extreme_trend.visualizers.utils import load_altitude_to_visualizer
-from projects.exceeding_snow_loads.utils import paper_study_classes, paper_altitudes
-from projects.exceeding_snow_loads.section_results.plot_uncertainty_curves import plot_uncertainty_massifs
-from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import \
-    StudyVisualizerForNonStationaryTrends
-from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
-    ConfidenceIntervalMethodFromExtremes
-from root_utils import NB_CORES
-
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
+    ConfidenceIntervalMethodFromExtremes
+from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import \
+    StudyVisualizerForNonStationaryTrends
+from extreme_trend.visualizers.utils import load_altitude_to_visualizer
+from projects.exceeding_snow_loads.section_results.plot_uncertainty_curves import plot_uncertainty_massifs
+from projects.exceeding_snow_loads.utils import paper_study_classes, paper_altitudes
+from root_utils import NB_CORES
+
+
 import matplotlib.pyplot as plt
 
 

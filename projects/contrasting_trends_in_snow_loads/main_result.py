@@ -18,7 +18,7 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusS
     CrocusSnowLoad5Days, CrocusSnowLoad7Days, CrocusSnowLoad1Day
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
-from projects.contrasting_snow_loads.plot_contrasting_trend_curves import plot_contrasting_trend_curves
+from projects.contrasting_trends_in_snow_loads.plot_contrasting_trend_curves import plot_contrasting_trend_curves
 from projects.exceeding_snow_loads.section_results.main_result_trends_and_return_levels import \
     compute_minimized_aic
 from root_utils import NB_CORES
