@@ -18,7 +18,7 @@ from extreme_fit.model.max_stable_model.max_stable_models import Smith, BrownRes
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, Safran, SafranRainfall, \
     SafranTemperature, SafranPrecipitation
 from extreme_fit.model.quantile_model.quantile_regression_model import ConstantQuantileRegressionModel, \
-    AllCoordinatesQuantileRegressionModel
+    TemporalCoordinatesQuantileRegressionModel
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
@@ -43,7 +43,7 @@ TEST_3D_SPATIAL_COORDINATES = [AlpsStation3DCoordinatesWithAnisotropy]
 TEST_TEMPORAL_COORDINATES = [ConsecutiveTemporalCoordinates]
 TEST_SPATIO_TEMPORAL_COORDINATES = [UniformSpatioTemporalCoordinates, LinSpaceSpatial2DSpatioTemporalCoordinates]
 TEST_MARGIN_TYPES = [ConstantMarginModel, LinearAllParametersAllDimsMarginModel][:]
-TEST_QUANTILES_TYPES = [ConstantQuantileRegressionModel, AllCoordinatesQuantileRegressionModel][:]
+TEST_QUANTILES_TYPES = [ConstantQuantileRegressionModel, TemporalCoordinatesQuantileRegressionModel][:]
 TEST_NON_STATIONARY_TEMPORAL_MARGIN_TYPES = [NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel,
                                              NonStationaryShapeTemporalModel]
 TEST_MAX_STABLE_ESTIMATOR = [MaxStableEstimator]

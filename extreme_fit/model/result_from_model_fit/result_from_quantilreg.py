@@ -1,3 +1,4 @@
+import numpy as np
 from cached_property import cached_property
 
 from extreme_fit.function.param_function.param_function import LinearParamFunction
@@ -8,4 +9,4 @@ class ResultFromQuantreg(AbstractResultFromModelFit):
 
     @property
     def coefficients(self):
-        return self.name_to_value['coefficients']
+        return np.array(self.name_to_value['coefficients'])

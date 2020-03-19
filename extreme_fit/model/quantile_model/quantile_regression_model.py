@@ -4,6 +4,7 @@ from rpy2 import robjects
 from extreme_fit.model.abstract_model import AbstractModel
 from extreme_fit.model.result_from_model_fit.result_from_quantilreg import ResultFromQuantreg
 from extreme_fit.model.utils import r, safe_run_r_estimator, get_coord_df
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
@@ -47,8 +48,10 @@ class ConstantQuantileRegressionModel(AbstractQuantileRegressionModel):
         return '1'
 
 
-class AllCoordinatesQuantileRegressionModel(AbstractQuantileRegressionModel):
+class TemporalCoordinatesQuantileRegressionModel(AbstractQuantileRegressionModel):
 
     @property
     def formula_str(self):
-        return  '+'.join(self.dataset.coordinates.coordinates_names[-1:])
+        assert self.dataset.coordinates.has_temporal_coordinates \
+               and not self.dataset.coordinates.has_spatial_coordinates
+        return AbstractCoordinates.COORDINATE_T
