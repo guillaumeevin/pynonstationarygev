@@ -13,16 +13,16 @@ from spatio_temporal_dataset.slicer.split import Split
 
 class AbstractMarginEstimator(AbstractEstimator, ABC):
 
-    def __init__(self, dataset: AbstractDataset):
-        super().__init__(dataset)
+    def __init__(self, dataset: AbstractDataset, **kwargs):
+        super().__init__(dataset, **kwargs)
         assert self.dataset.maxima_gev() is not None
 
 
 class LinearMarginEstimator(AbstractMarginEstimator):
     """# with different type of marginals: cosntant, linear...."""
 
-    def __init__(self, dataset: AbstractDataset, margin_model: LinearMarginModel):
-        super().__init__(dataset)
+    def __init__(self, dataset: AbstractDataset, margin_model: LinearMarginModel, **kwargs):
+        super().__init__(dataset, **kwargs)
         assert isinstance(margin_model, LinearMarginModel)
         self.margin_model = margin_model
 

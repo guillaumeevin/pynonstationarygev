@@ -1,4 +1,8 @@
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 class AbstractFunction(object):
-    pass
+
+    def __init__(self, coordinates: AbstractCoordinates):
+        self.coordinates = coordinates
+

@@ -90,7 +90,6 @@ def safe_run_r_estimator(function, data=None, use_start=False, max_ratio_between
         if isinstance(data, np.ndarray):
             # Raise warning if the gap is too important between the two biggest values of data
             sorted_data = sorted(data.flatten())
-            print(data)
             if sorted_data[-2] * max_ratio_between_two_extremes_values < sorted_data[-1]:
                 msg = "maxmimum absolute value in data {} is too high, i.e. above the defined threshold {}" \
                     .format(sorted_data[-1], max_ratio_between_two_extremes_values)

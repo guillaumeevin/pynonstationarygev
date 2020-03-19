@@ -19,12 +19,9 @@ class AbstractQuantileRegressionModel(AbstractModel):
 
     @property
     def first_column_of_observation(self):
-        return self.data.colnames[1]
-        # print(self.dataset.df_dataset.columns)
-        # return str(self.dataset.df_dataset.columns[0])
+        return self.data.colnames[0]
 
     def fit(self):
-        print(self.data)
         parameters = {
             'tau': self.quantile,
             'data': self.data,

@@ -13,7 +13,7 @@ class TestQuantileEstimator(unittest.TestCase):
     def test_smooth_margin_estimator_spatial(self):
         self.nb_points = 20
         self.nb_obs = 1
-        self.coordinates = load_test_1D_and_2D_spatial_coordinates(nb_points=self.nb_points)
+        self.coordinates = load_test_1D_and_2D_spatial_coordinates(nb_points=self.nb_points)[:1]
 
     def test_smooth_margin_estimator_spatio_temporal(self):
         self.nb_points = 2
@@ -28,7 +28,6 @@ class TestQuantileEstimator(unittest.TestCase):
             dataset = MarginDataset.from_sampling(nb_obs=self.nb_obs,
                                                   margin_model=constant_margin_model,
                                                   coordinates=coordinates)
-            print(dataset)
             # Load quantile estimators
             quantile_estimators = [
                 QuantileEstimatorFromMargin(dataset, constant_margin_model, quantile),
@@ -40,7 +39,7 @@ class TestQuantileEstimator(unittest.TestCase):
             # Fit quantile estimators
             for quantile_estimator in quantile_estimators:
                 quantile_estimator.fit()
-                print(quantile_estimator.quantile_function_from_fit)
+                quantile_estimator.function_from_fit.visualize(show=self.DISPLAY)
 
         self.assertTrue(True)
 

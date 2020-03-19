@@ -21,7 +21,7 @@ class AbstractMarginFunction(AbstractFunction):
     VISUALIZATION_TEMPORAL_STEPS = 2
 
     def __init__(self, coordinates: AbstractCoordinates):
-        self.coordinates = coordinates
+        super().__init__(coordinates)
         self.mask_2D = None
 
         # Visualization parameters

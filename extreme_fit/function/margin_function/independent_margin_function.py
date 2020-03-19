@@ -29,7 +29,7 @@ class IndependentMarginFunction(AbstractMarginFunction):
         gev_params = {}
         for gev_param_name in GevParams.PARAM_NAMES:
             param_function = self.gev_param_name_to_param_function[gev_param_name]
-            gev_params[gev_param_name] = param_function.get_gev_param_value(transformed_coordinate)
+            gev_params[gev_param_name] = param_function.get_param_value(transformed_coordinate)
         return GevParams.from_dict(gev_params)
 
     def transform(self, coordinate: np.ndarray) -> np.ndarray:
