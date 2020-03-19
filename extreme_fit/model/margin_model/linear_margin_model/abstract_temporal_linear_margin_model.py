@@ -39,8 +39,9 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
 
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
                                   df_coordinates_temp: pd.DataFrame) -> AbstractResultFromModelFit:
-        assert data.shape[1] == len(df_coordinates_temp.values)
-        x = ro.FloatVector(data[0])
+        data = data[0]
+        assert len(data) == len(df_coordinates_temp.values)
+        x = ro.FloatVector(data)
         if self.fit_method == TemporalMarginFitMethod.is_mev_gev_fit:
             return self.ismev_gev_fit(x, df_coordinates_temp)
         if self.fit_method == TemporalMarginFitMethod.extremes_fevd_bayesian:

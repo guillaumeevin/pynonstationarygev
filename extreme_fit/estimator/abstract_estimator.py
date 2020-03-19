@@ -15,10 +15,10 @@ class AbstractEstimator(object):
         self.dataset = dataset  # type: AbstractDataset
         self._result_from_fit = None  # type: Union[None, AbstractResultFromModelFit]
 
-    # Class constructor
+    # Class constructor (shortcut to initialize some subclasses)
     @classmethod
     def from_dataset(cls, dataset: AbstractDataset):
-        raise NotImplementedError
+        return cls(dataset)
 
     # Fit estimator
 
@@ -28,7 +28,7 @@ class AbstractEstimator(object):
     def _fit(self) -> AbstractResultFromModelFit:
         raise NotImplementedError
 
-    # Results from model fit
+    # Fit results
 
     @property
     def result_from_model_fit(self) -> AbstractResultFromModelFit:

@@ -62,6 +62,10 @@ class WarningWhileRunningR(Warning):
     pass
 
 
+class WarningTooMuchZeroValues(Warning):
+    pass
+
+
 class WarningMaximumAbsoluteValueTooHigh(Warning):
     pass
 
@@ -74,7 +78,7 @@ class SafeRunException(Exception):
     pass
 
 
-def safe_run_r_estimator(function, data=None, use_start=False, threshold_max_abs_value=100, maxit=1000000,
+def safe_run_r_estimator(function, data=None, use_start=False, max_ratio_between_two_extremes_values=10, maxit=1000000,
                          **parameters) -> robjects.ListVector:
     if OptimizationConstants.USE_MAXIT:
         # Add optimization parameters
@@ -83,14 +87,21 @@ def safe_run_r_estimator(function, data=None, use_start=False, threshold_max_abs
 
     # Some checks for Spatial Extremes
     if data is not None:
-        # Raise warning if the maximum absolute value is above a threshold
         if isinstance(data, np.ndarray):
-            maximum_absolute_value = np.max(np.abs(data))
-            if maximum_absolute_value > threshold_max_abs_value:
+            # Raise warning if the gap is too important between the two biggest values of data
+            sorted_data = sorted(data.flatten())
+            print(data)
+            if sorted_data[-2] * max_ratio_between_two_extremes_values < sorted_data[-1]:
                 msg = "maxmimum absolute value in data {} is too high, i.e. above the defined threshold {}" \
-                    .format(maximum_absolute_value, threshold_max_abs_value)
+                    .format(sorted_data[-1], max_ratio_between_two_extremes_values)
                 msg += '\nPotentially in that case, data should be re-normalized'
                 warnings.warn(msg, WarningMaximumAbsoluteValueTooHigh)
+            # Raise warning if ratio of zeros in data is above some percentage (90% so far)
+            limit_percentage = 90
+            if 100 * np.count_nonzero(data) / len(data) < limit_percentage:
+                msg = 'data contains more than {}% of zero values'.format(100 - limit_percentage)
+                warnings.warn(msg, WarningTooMuchZeroValues)
+        # Add data to the parameters
         parameters['data'] = data
     # First run without using start value
     # Then if it crashes, use start value
@@ -130,6 +141,7 @@ def get_coord_df(df_coordinates: pd.DataFrame):
     coord.colnames = r.c(colname)
     coord = r('data.frame')(coord, stringsAsFactors=True)
     return coord
+
 
 def get_null():
     as_null = r['as.null']
