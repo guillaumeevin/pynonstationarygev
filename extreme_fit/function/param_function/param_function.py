@@ -37,7 +37,7 @@ class LinearOneAxisParamFunction(AbstractParamFunction):
 
 class LinearParamFunction(AbstractParamFunction):
 
-    def __init__(self, dims: List[int], coordinates: np.ndarray, linear_coef: LinearCoef = None):
+    def __init__(self, dims: List[int], coordinates: np.ndarray, linear_coef: LinearCoef):
         self.linear_coef = linear_coef
         # Load each one axis linear function
         self.linear_one_axis_param_functions = []  # type: List[LinearOneAxisParamFunction]
