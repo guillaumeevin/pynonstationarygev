@@ -24,8 +24,7 @@ class QuantileRegressionEstimator(AbstractQuantileEstimator):
 
     def __init__(self, dataset: AbstractDataset, quantile: float, quantile_regression_model_class: type, **kwargs):
         super().__init__(dataset, quantile, **kwargs)
-        self.quantile_regression_model = quantile_regression_model_class(dataset,
-                                                                         quantile)  # type: AbstractQuantileRegressionModel
+        self.quantile_regression_model = quantile_regression_model_class(dataset, quantile)
 
     def _fit(self) -> AbstractResultFromModelFit:
         return self.quantile_regression_model.fit()

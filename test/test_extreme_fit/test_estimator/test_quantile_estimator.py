@@ -24,7 +24,7 @@ class TestQuantileEstimator(unittest.TestCase):
                                                   coordinates=coordinates)
             # Load quantile estimators
             quantile_estimators = [
-                QuantileEstimatorFromMargin(dataset, constant_margin_model, quantile),
+                QuantileEstimatorFromMargin(dataset, quantile, StationaryTemporalModel),
             ]
             for quantile_model_class in load_smooth_quantile_model_classes()[:]:
                 quantile_estimator = QuantileRegressionEstimator(dataset, quantile, quantile_model_class)

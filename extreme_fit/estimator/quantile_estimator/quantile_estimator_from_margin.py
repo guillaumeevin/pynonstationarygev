@@ -22,8 +22,8 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 class QuantileEstimatorFromMargin(LinearMarginEstimator, AbstractQuantileEstimator):
 
-    def __init__(self, dataset: AbstractDataset, margin_model: AbstractTemporalLinearMarginModel, quantile):
-        super().__init__(dataset=dataset, quantile=quantile, margin_model=margin_model)
+    def __init__(self, dataset: AbstractDataset, quantile, margin_model_class: type):
+        super().__init__(dataset=dataset, quantile=quantile, margin_model=margin_model_class(dataset.coordinates))
 
     @cached_property
     def function_from_fit(self) -> AbstractQuantileFunction:
