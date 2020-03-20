@@ -1,7 +1,7 @@
 import unittest
 
-from extreme_fit.estimator.quantile_estimator.abstract_quantile_estimator import QuantileEstimatorFromMargin, \
-    QuantileRegressionEstimator
+from extreme_fit.estimator.quantile_estimator.quantile_estimator_from_margin import QuantileEstimatorFromMargin
+from extreme_fit.estimator.quantile_estimator.quantile_estimator_from_regression import QuantileRegressionEstimator
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
 from spatio_temporal_dataset.dataset.simulation_dataset import MarginDataset
 from test.test_utils import load_test_1D_and_2D_spatial_coordinates, load_test_spatiotemporal_coordinates, \
