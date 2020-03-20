@@ -32,6 +32,7 @@ class AbstractSimulation(object):
         self.quantile = quantile
         self.time_series_lengths = time_series_lengths
         self.nb_time_series = nb_time_series
+        self.uncertainty_interval_size = 0.5
 
     def generate_all_observation(self, nb_time_series, length) -> List[AbstractSpatioTemporalObservations]:
         raise NotImplementedError
@@ -83,7 +84,8 @@ class AbstractSimulation(object):
             length_to_error_values = OrderedDict()
             for length, estimators_fitted in d_sub.items():
                 errors = self.compute_errors(length, estimators_fitted)
-                error_values = [np.quantile(errors, q=0.025), np.mean(errors), np.quantile(errors, q=0.975)]
+                leftover = (1 - self.uncertainty_interval_size) / 2
+                error_values = [np.quantile(errors, q=leftover), np.mean(errors), np.quantile(errors, q=1-leftover)]
                 length_to_error_values[length] = error_values
             d[model_class] = length_to_error_values
         return d
@@ -92,15 +94,28 @@ class AbstractSimulation(object):
         raise NotImplementedError
 
     def plot_error_for_last_year_quantile(self, show=True):
+        # Display properties
+        alpha = 0.1
+        colors = ['green', 'orange', 'blue', 'red']
         ax = plt.gca()
-        for model_class, length_to_error_values in self.model_class_to_error_last_year_quantile.items():
+        for color, (model_class, length_to_error_values) in zip(colors, self.model_class_to_error_last_year_quantile.items()):
             lengths = list(length_to_error_values.keys())
             errors_values = np.array(list(length_to_error_values.values()))
             mean_error = errors_values[:, 1]
             label = get_display_name_from_object_type(model_class)
             ax.plot(lengths, mean_error, label=label)
             ax.set_xlabel('# Data')
-            ax.set_ylabel('Relative error for the {} quantile at the last coordinate'.format(self.quantile))
+            ax.set_ylabel('Average (out of {} samples) relative error\nfor the {} quantile at the last coordinate (%)'.format(self.nb_time_series,
+                                                                                                                              self.quantile))
+
+            lower_bound = errors_values[:, 0]
+            upper_bound = errors_values[:, 2]
+            # confidence_interval_str = '95 \% confidence interval'
+            ax.fill_between(lengths, lower_bound, upper_bound, color=color, alpha=alpha)
+            title = "{} + {}".format(get_display_name_from_object_type(type(self)),
+                                     get_display_name_from_object_type(self.transformation_class))
+            ax.set_title(title)
+
             ax.legend()
         if show:
             plt.show()

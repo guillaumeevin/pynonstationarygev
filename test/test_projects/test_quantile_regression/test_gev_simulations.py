@@ -5,7 +5,7 @@ from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_m
 from extreme_fit.model.quantile_model.quantile_regression_model import ConstantQuantileRegressionModel, \
     TemporalCoordinatesQuantileRegressionModel
 from projects.quantile_regression_vs_evt.GevSimulation import GevSimulation, StationarySimulation, \
-    NonStationaryLocationSimulation
+    NonStationaryLocationGumbelSimulation
 
 
 class TestGevSimulations(unittest.TestCase):
@@ -17,8 +17,8 @@ class TestGevSimulations(unittest.TestCase):
         simulation.plot_error_for_last_year_quantile(self.DISPLAY)
 
     def test_non_stationary_run(self):
-        simulation = NonStationaryLocationSimulation(nb_time_series=1, quantile=0.5, time_series_lengths=[50, 60],
-                                                     model_classes=[NonStationaryLocationTemporalModel,
+        simulation = NonStationaryLocationGumbelSimulation(nb_time_series=1, quantile=0.5, time_series_lengths=[50, 60],
+                                                           model_classes=[NonStationaryLocationTemporalModel,
                                                                     TemporalCoordinatesQuantileRegressionModel])
         simulation.plot_error_for_last_year_quantile(self.DISPLAY)
 
