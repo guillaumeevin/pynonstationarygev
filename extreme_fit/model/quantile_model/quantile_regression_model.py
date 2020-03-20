@@ -27,7 +27,6 @@ class AbstractQuantileRegressionModel(AbstractModel):
             'tau': self.quantile,
             'data': self.data,
             'formula': self.formula
-
         }
         res = safe_run_r_estimator(r.rq, **parameters)
         return ResultFromQuantreg(res)

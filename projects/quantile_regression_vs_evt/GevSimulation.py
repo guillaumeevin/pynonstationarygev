@@ -33,7 +33,7 @@ class GevSimulation(AbstractSimulation):
     def generate_all_observation(self, nb_time_series, length) -> List[AbstractSpatioTemporalObservations]:
         coordinates = self.time_serie_length_to_coordinates[length]
         margin_model = self.time_series_lengths_to_margin_model[length]
-        return [MarginAnnualMaxima.from_sampling(nb_obs=length, coordinates=coordinates, margin_model=margin_model)
+        return [MarginAnnualMaxima.from_sampling(nb_obs=1, coordinates=coordinates, margin_model=margin_model)
                 for _ in range(nb_time_series)]
 
     def compute_errors(self, length: int, estimators: List[AbstractQuantileEstimator]):
@@ -44,7 +44,7 @@ class GevSimulation(AbstractSimulation):
         true_quantile = margin_model.margin_function_sample.get_gev_params(last_coordinate).quantile(self.quantile)
         # Compute estimated values
         estimated_quantiles = [estimator.function_from_fit.get_quantile(last_coordinate) for estimator in estimators]
-        return np.abs(np.array(estimated_quantiles) - true_quantile)
+        return 100 * np.abs(np.array(estimated_quantiles) - true_quantile) / true_quantile
 
 
 class StationarySimulation(GevSimulation):
@@ -63,7 +63,7 @@ class NonStationaryLocationSimulation(GevSimulation):
 
     def create_model(self, coordinates):
         gev_param_name_to_coef_list = {
-            GevParams.LOC: [0, 1],
+            GevParams.LOC: [0, 10],
             GevParams.SHAPE: [0],
             GevParams.SCALE: [1],
         }

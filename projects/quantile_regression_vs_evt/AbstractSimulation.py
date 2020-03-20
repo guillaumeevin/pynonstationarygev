@@ -15,6 +15,8 @@ from root_utils import get_display_name_from_object_type
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
+from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
+    CenteredScaledNormalization, IdentityTransformation
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
@@ -27,7 +29,8 @@ class Coordinates(object):
 class AbstractSimulation(object):
 
     def __init__(self, nb_time_series, quantile, time_series_lengths=None, multiprocessing=False,
-                 model_classes=None):
+                 model_classes=None, transformation_class=CenteredScaledNormalization):
+        self.transformation_class = transformation_class
         self.models_classes = model_classes
         self.multiprocessing = multiprocessing
         self.quantile = quantile
@@ -48,7 +51,8 @@ class AbstractSimulation(object):
     def time_serie_length_to_coordinates(self) -> Dict[int, AbstractCoordinates]:
         d = OrderedDict()
         for length in self.time_series_lengths:
-            d[length] = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(length)
+            d[length] = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(length,
+                                                                              transformation_class=self.transformation_class)
         return d
 
     @cached_property
@@ -100,7 +104,7 @@ class AbstractSimulation(object):
             label = get_display_name_from_object_type(model_class)
             ax.plot(lengths, mean_error, label=label)
             ax.set_xlabel('# Data')
-            ax.set_ylabel('Absolute error for the {} quantile at the last coordinate'.format(self.quantile))
+            ax.set_ylabel('Relative error for the {} quantile at the last coordinate'.format(self.quantile))
             ax.legend()
         if show:
             plt.show()

@@ -129,7 +129,7 @@ class AbstractCoordinates(object):
     @property
     def df_merged(self) -> pd.DataFrame:
         # Merged DataFrame of df_coord with s_split
-        return self.df_all_coordinates.join(self.df_split)
+        return self.df_coordinates().join(self.df_split)
 
     # Split
 

@@ -6,7 +6,7 @@ from extreme_fit.function.param_function.linear_coef import LinearCoef
 from extreme_fit.function.param_function.param_function import LinearParamFunction
 
 
-class ParamFunction(unittest.TestCase):
+class TestParamFunction(unittest.TestCase):
 
     def test_out_of_bounds(self):
         param_function = LinearParamFunction(dims=[0], coordinates=np.array([[0]]), linear_coef=LinearCoef())
