@@ -7,7 +7,10 @@ from cached_property import cached_property
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.estimator.quantile_estimator.abstract_quantile_estimator import AbstractQuantileEstimator
 from extreme_fit.model.margin_model.abstract_margin_model import AbstractMarginModel
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
+from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
+    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
+    NonStationaryLocationTemporalModel
 from projects.quantile_regression_vs_evt.AbstractSimulation import AbstractSimulation
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
@@ -52,4 +55,17 @@ class StationarySimulation(GevSimulation):
             GevParams.SHAPE: [0],
             GevParams.SCALE: [1],
         }
-        return StationaryTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list)
+        return StationaryTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list,
+                                                      fit_method=TemporalMarginFitMethod.extremes_fevd_mle)
+
+
+class NonStationaryLocationSimulation(GevSimulation):
+
+    def create_model(self, coordinates):
+        gev_param_name_to_coef_list = {
+            GevParams.LOC: [0, 1],
+            GevParams.SHAPE: [0],
+            GevParams.SCALE: [1],
+        }
+        return NonStationaryLocationTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list,
+                                                                 fit_method=TemporalMarginFitMethod.extremes_fevd_mle)

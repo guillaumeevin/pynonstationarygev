@@ -7,12 +7,12 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 class LinearMarginModel(ParametricMarginModel):
 
     @classmethod
-    def from_coef_list(cls, coordinates, gev_param_name_to_coef_list):
+    def from_coef_list(cls, coordinates, gev_param_name_to_coef_list, **kwargs):
         params = {}
         for gev_param_name in GevParams.PARAM_NAMES:
             for idx, coef in enumerate(gev_param_name_to_coef_list[gev_param_name], -1):
                 params[(gev_param_name, idx)] = coef
-        return cls(coordinates, params_sample=params, params_start_fit=params)
+        return cls(coordinates, params_sample=params, params_start_fit=params, **kwargs)
 
     def load_margin_functions(self, gev_param_name_to_dims=None):
         assert gev_param_name_to_dims is not None, 'LinearMarginModel cannot be used for sampling/fitting \n' \
