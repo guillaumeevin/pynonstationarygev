@@ -2,17 +2,22 @@ import unittest
 
 import numpy as np
 
+from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import LinSpaceSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
     GeneratedSpatioTemporalCoordinates, UniformSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
-    CenteredScaledNormalization
+    CenteredScaledNormalization, IdentityTransformation
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization, BetweenMinusOneAndOneNormalization
 
 
 class TestTransformation(unittest.TestCase):
+
+    def test_default_transformation(self):
+        coordinates = LinSpaceSpatialCoordinates.from_nb_points(3)
+        self.assertIsInstance(coordinates.transformation, IdentityTransformation)
 
     def test_temporal_normalization(self):
         nb_steps = 3
