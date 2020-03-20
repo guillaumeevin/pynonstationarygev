@@ -5,11 +5,14 @@ from collections import OrderedDict
 import numpy as np
 from cached_property import cached_property
 
+from extreme_fit.estimator.quantile_estimator.abstract_quantile_estimator import AbstractQuantileEstimator
 from extreme_fit.estimator.quantile_estimator.quantile_estimator_from_margin import QuantileEstimatorFromMargin
 from extreme_fit.estimator.quantile_estimator.quantile_estimator_from_regression import QuantileRegressionEstimator
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.quantile_model.quantile_regression_model import AbstractQuantileRegressionModel
+from root_utils import get_display_name_from_object_type
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
@@ -31,22 +34,18 @@ class AbstractSimulation(object):
         self.time_series_lengths = time_series_lengths
         self.nb_time_series = nb_time_series
 
-    def generate_all_observation(self, nb_time_series, length, coordinates) -> List[AbstractSpatioTemporalObservations]:
+    def generate_all_observation(self, nb_time_series, length) -> List[AbstractSpatioTemporalObservations]:
         raise NotImplementedError
 
     @cached_property
     def time_serie_length_to_observation_list(self) -> Dict[int, List[AbstractSpatioTemporalObservations]]:
         d = OrderedDict()
         for length in self.time_series_lengths:
-            if self.multiprocessing:
-                raise NotImplementedError
-            else:
-                coordinates = self.time_serie_length_to_coordinates[length]
-                d[length] = self.generate_all_observation(self.nb_time_series, length, coordinates)
+            d[length] = self.generate_all_observation(self.nb_time_series, length)
         return d
 
     @cached_property
-    def time_serie_length_to_coordinates(self) -> Dict[int, Coordinates]:
+    def time_serie_length_to_coordinates(self) -> Dict[int, AbstractCoordinates]:
         d = OrderedDict()
         for length in self.time_series_lengths:
             d[length] = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(length)
@@ -83,22 +82,25 @@ class AbstractSimulation(object):
         for model_class, d_sub in self.model_class_to_time_serie_length_to_estimator_fitted.items():
             length_to_error_values = OrderedDict()
             for length, estimators_fitted in d_sub.items():
-                errors = []
-                # Add the mean, and the quantile of the 95% confidence interval
-                error_values = [0.2, 1, 1.3]
+                errors = self.compute_errors(length, estimators_fitted)
+                error_values = [np.quantile(errors, q=0.025), np.mean(errors), np.quantile(errors, q=0.975)]
                 length_to_error_values[length] = error_values
             d[model_class] = length_to_error_values
-        print(d)
         return d
+
+    def compute_errors(self, length: int, estimators_fitted: List[AbstractQuantileEstimator]):
+        raise NotImplementedError
 
     def plot_error_for_last_year_quantile(self, show=True):
         ax = plt.gca()
         for model_class, length_to_error_values in self.model_class_to_error_last_year_quantile.items():
             lengths = list(length_to_error_values.keys())
             errors_values = np.array(list(length_to_error_values.values()))
-            print(errors_values.shape)
             mean_error = errors_values[:, 1]
-            ax.plot(lengths, mean_error, label=str(model_class))
+            label = get_display_name_from_object_type(model_class)
+            ax.plot(lengths, mean_error, label=label)
+            ax.set_xlabel('# Data')
+            ax.set_ylabel('Absolute error for the {} quantile at the last coordinate'.format(self.quantile))
             ax.legend()
         if show:
             plt.show()
