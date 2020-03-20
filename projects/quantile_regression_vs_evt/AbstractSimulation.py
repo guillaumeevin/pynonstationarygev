@@ -16,14 +16,10 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
-    CenteredScaledNormalization, IdentityTransformation
+    CenteredScaledNormalization
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
-
-
-class Coordinates(object):
-    pass
 
 
 class AbstractSimulation(object):
@@ -41,31 +37,31 @@ class AbstractSimulation(object):
         raise NotImplementedError
 
     @cached_property
-    def time_serie_length_to_observation_list(self) -> Dict[int, List[AbstractSpatioTemporalObservations]]:
+    def time_series_length_to_observation_list(self) -> Dict[int, List[AbstractSpatioTemporalObservations]]:
         d = OrderedDict()
         for length in self.time_series_lengths:
             d[length] = self.generate_all_observation(self.nb_time_series, length)
         return d
 
     @cached_property
-    def time_serie_length_to_coordinates(self) -> Dict[int, AbstractCoordinates]:
+    def time_series_length_to_coordinates(self) -> Dict[int, AbstractCoordinates]:
         d = OrderedDict()
         for length in self.time_series_lengths:
-            d[length] = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(length,
-                                                                              transformation_class=self.transformation_class)
+            d[length] = ConsecutiveTemporalCoordinates.\
+                from_nb_temporal_steps(length, transformation_class=self.transformation_class)
         return d
 
     @cached_property
-    def model_class_to_time_serie_length_to_estimator_fitted(self):
+    def model_class_to_time_series_length_to_estimators(self):
         d = OrderedDict()
         for model_class in self.models_classes:
             d_sub = OrderedDict()
-            for time_serie_length, observation_list in self.time_serie_length_to_observation_list.items():
-                coordinates = self.time_serie_length_to_coordinates[time_serie_length]
-                estimators_fitted = []
+            for time_series_length, observation_list in self.time_series_length_to_observation_list.items():
+                coordinates = self.time_series_length_to_coordinates[time_series_length]
+                estimators = []
                 for observations in observation_list:
-                    estimators_fitted.append(self.get_fitted_quantile_estimator(model_class, observations, coordinates))
-                d_sub[time_serie_length] = estimators_fitted
+                    estimators.append(self.get_fitted_quantile_estimator(model_class, observations, coordinates))
+                d_sub[time_series_length] = estimators
             d[model_class] = d_sub
         return d
 
@@ -83,7 +79,7 @@ class AbstractSimulation(object):
     @cached_property
     def model_class_to_error_last_year_quantile(self):
         d = OrderedDict()
-        for model_class, d_sub in self.model_class_to_time_serie_length_to_estimator_fitted.items():
+        for model_class, d_sub in self.model_class_to_time_series_length_to_estimators.items():
             length_to_error_values = OrderedDict()
             for length, estimators_fitted in d_sub.items():
                 errors = self.compute_errors(length, estimators_fitted)

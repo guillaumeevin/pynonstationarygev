@@ -10,7 +10,11 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 class AbstractQuantileFunction(AbstractFunction):
 
-    def get_quantile(self, coordinate: np.ndarray) -> float:
+    def get_quantile(self, coordinate: np.ndarray, is_transformed: bool = True) -> float:
+        transformed_coordinate = coordinate if is_transformed else self.transform(coordinate)
+        return self._get_quantile(transformed_coordinate)
+
+    def _get_quantile(self, coordinate: np.ndarray):
         raise NotImplementedError
 
     def visualize(self, show=True):
@@ -43,7 +47,7 @@ class QuantileFunctionFromParamFunction(AbstractQuantileFunction):
         super().__init__(coordinates)
         self.param_function = param_function
 
-    def get_quantile(self, coordinate: np.ndarray) -> float:
+    def _get_quantile(self, coordinate: np.ndarray) -> float:
         return self.param_function.get_param_value(coordinate)
 
 
@@ -54,6 +58,6 @@ class QuantileFunctionFromMarginFunction(AbstractQuantileFunction):
         self.margin_function = margin_function
         self.quantile = quantile
 
-    def get_quantile(self, coordinate: np.ndarray) -> float:
+    def _get_quantile(self, coordinate: np.ndarray) -> float:
         gev_params = self.margin_function.get_gev_params(coordinate)
         return gev_params.quantile(self.quantile)

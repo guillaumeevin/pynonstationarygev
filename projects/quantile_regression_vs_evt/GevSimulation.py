@@ -23,7 +23,7 @@ class GevSimulation(AbstractSimulation):
     def time_series_lengths_to_margin_model(self) -> Dict[int, AbstractMarginModel]:
         d = OrderedDict()
         for length in self.time_series_lengths:
-            coordinates = self.time_serie_length_to_coordinates[length]
+            coordinates = self.time_series_length_to_coordinates[length]
             d[length] = self.create_model(coordinates)
         return d
 
@@ -31,13 +31,13 @@ class GevSimulation(AbstractSimulation):
         raise NotImplementedError
 
     def generate_all_observation(self, nb_time_series, length) -> List[AbstractSpatioTemporalObservations]:
-        coordinates = self.time_serie_length_to_coordinates[length]
+        coordinates = self.time_series_length_to_coordinates[length]
         margin_model = self.time_series_lengths_to_margin_model[length]
         return [MarginAnnualMaxima.from_sampling(nb_obs=1, coordinates=coordinates, margin_model=margin_model)
                 for _ in range(nb_time_series)]
 
     def compute_errors(self, length: int, estimators: List[AbstractQuantileEstimator]):
-        coordinates = self.time_serie_length_to_coordinates[length]
+        coordinates = self.time_series_length_to_coordinates[length]
         last_coordinate = coordinates.coordinates_values()[-1]
         # Compute true value
         margin_model = self.time_series_lengths_to_margin_model[length]
