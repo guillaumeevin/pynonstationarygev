@@ -18,7 +18,9 @@ from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coo
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
     CircleSpatialCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
-    AbstractTemporalCovariateForFit, TimeTemporalCovariate
+    AbstractTemporalCovariateForFit, TimeTemporalCovariate, MeanGlobalTemperatureCovariate
+from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
+    ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
     CenteredScaledNormalization
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
@@ -161,7 +163,13 @@ class TestCoordinatesWithModifiedCovariate(unittest.TestCase):
         old_df = coordinates.df_temporal_coordinates_for_fit().copy()
         new_df = coordinates.df_temporal_coordinates_for_fit(temporal_covariate_for_fit=TimeTemporalCovariate)
         pd.testing.assert_frame_equal(old_df, new_df)
-        # pd.as.assertEqual(old_df, new_df)
+
+    def test_mean_global_time_covariate(self):
+        coordinates = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(nb_temporal_steps=10, start=2000)
+        df = coordinates.df_temporal_coordinates_for_fit(temporal_covariate_for_fit=MeanGlobalTemperatureCovariate)
+        self.assertIsInstance(df, pd.DataFrame)
+        self.assertEqual(df.iloc[0].values[0], 14.3262)
+        self.assertEqual(df.iloc[-1].values[0], 14.5367)
 
 
 if __name__ == '__main__':

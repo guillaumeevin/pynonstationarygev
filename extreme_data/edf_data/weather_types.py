@@ -1,7 +1,5 @@
-import os
-import os.path as op
-import numpy as np
 import pandas as pd
+
 from root_utils import get_full_path
 
 relative_path = r'local/EDF_data/Weather_types/CatalogueTT_EDF_France0_5308.txt'

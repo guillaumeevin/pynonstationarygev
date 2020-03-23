@@ -268,7 +268,7 @@ class AbstractCoordinates(object):
         # Potentially transform the time covariate into another covariate
         if temporal_covariate_for_fit is not None:
             assert issubclass(temporal_covariate_for_fit, AbstractTemporalCovariateForFit)
-            df = df.apply(temporal_covariate_for_fit.get_temporal_covariate)
+            df.iloc[:, 0] = df.iloc[:, 0].apply(temporal_covariate_for_fit.get_temporal_covariate)
         return df
 
     @property
