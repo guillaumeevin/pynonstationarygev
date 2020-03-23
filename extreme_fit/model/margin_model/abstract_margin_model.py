@@ -69,11 +69,12 @@ class AbstractMarginModel(AbstractModel, ABC):
         maxima_gev = self.frech2gev(maxima_frech, coordinates_values, self.margin_function_sample)
         return maxima_gev
 
-    def rmargin_from_nb_obs(self, nb_obs: int, coordinates_values: np.ndarray) -> np.ndarray:
+    def rmargin_from_nb_obs(self, nb_obs: int, coordinates_values: np.ndarray,
+                            sample_r_function='rgev') -> np.ndarray:
         maxima_gev = []
         for coordinate in coordinates_values:
             gev_params = self.margin_function_sample.get_gev_params(coordinate)
-            x_gev = r.rgev(nb_obs, **gev_params.to_dict())
+            x_gev = r(sample_r_function)(nb_obs, **gev_params.to_dict())
             maxima_gev.append(x_gev)
         return np.array(maxima_gev)
 
