@@ -9,9 +9,9 @@ class LinearMarginModel(ParametricMarginModel):
     @classmethod
     def from_coef_list(cls, coordinates, gev_param_name_to_coef_list, **kwargs):
         params = {}
-        for gev_param_name in GevParams.PARAM_NAMES:
-            for idx, coef in enumerate(gev_param_name_to_coef_list[gev_param_name], -1):
-                params[(gev_param_name, idx)] = coef
+        for param_name, coef_list in gev_param_name_to_coef_list.items():
+            for idx, coef in enumerate(coef_list, -1):
+                params[(param_name, idx)] = coef
         return cls(coordinates, params_sample=params, params_start_fit=params, **kwargs)
 
     def load_margin_functions(self, gev_param_name_to_dims=None):

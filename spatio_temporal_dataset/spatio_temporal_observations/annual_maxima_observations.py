@@ -30,6 +30,22 @@ class MarginAnnualMaxima(AnnualMaxima):
         return cls(df_maxima_gev=df_maxima_gev)
 
 
+class DailyExpAnnualMaxima(AnnualMaxima):
+
+    @classmethod
+    def from_sampling(cls, nb_obs: int, coordinates: AbstractCoordinates,
+                      margin_model: AbstractMarginModel):
+        pass
+
+
+class DailyExp(AbstractSpatioTemporalObservations):
+
+    @classmethod
+    def from_sampling(cls, nb_obs: int, coordinates: AbstractCoordinates,
+                      margin_model: AbstractMarginModel):
+        pass
+
+
 class MaxStableAnnualMaxima(AnnualMaxima):
 
     @classmethod

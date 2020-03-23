@@ -1,13 +1,10 @@
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationTemporalModel, NonStationaryLocationGumbelModel
-from extreme_fit.model.quantile_model.quantile_regression_model import ConstantQuantileRegressionModel, \
-    TemporalCoordinatesQuantileRegressionModel
-from projects.quantile_regression_vs_evt.GevSimulation import StationarySimulation, \
+from extreme_fit.model.quantile_model.quantile_regression_model import TemporalCoordinatesQuantileRegressionModel
+from projects.quantile_regression_vs_evt.annual_maxima_simulation.gev_simulation import \
     NonStationaryLocationGumbelSimulation, NonStationaryLocationGevSimulation
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
     CenteredScaledNormalization, IdentityTransformation
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
-    BetweenZeroAndOneNormalization
 
 nb_time_series = 10
 quantile = 0.98
