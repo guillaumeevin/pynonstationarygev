@@ -17,6 +17,8 @@ from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coo
     AlpsStation3DCoordinatesWithAnisotropy
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
     CircleSpatialCoordinates
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
+    AbstractTemporalCovariateForFit, TimeTemporalCovariate
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
     CenteredScaledNormalization
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
@@ -137,17 +139,29 @@ class TestCoordinatesWithTransformedStartingPoint(unittest.TestCase):
                                                                      transformation_class=BetweenZeroAndOneNormalization)[
             0]
         temporal_coordinates = \
-        load_test_temporal_coordinates(nb_steps=self.nb_steps, transformation_class=CenteredScaledNormalization)[0]
+            load_test_temporal_coordinates(nb_steps=self.nb_steps, transformation_class=CenteredScaledNormalization)[0]
         coordinates = AbstractSpatioTemporalCoordinates.from_spatial_coordinates_and_temporal_coordinates(
             spatial_coordinates=spatial_coordinate,
             temporal_coordinates=temporal_coordinates)
         # Check that df_all_coordinates have not yet been normalized
         self.assertEqual(coordinates.df_temporal_coordinates(transformed=False).iloc[-1, 0], 49.0)
         # Check that the normalization is working
-        self.assertAlmostEqual(coordinates.df_temporal_coordinates_for_fit(starting_point=None).iloc[0, 0], -1.697749375254331)
-        self.assertAlmostEqual(coordinates.df_temporal_coordinates_for_fit(starting_point=2).iloc[2, 0], -1.5739459974625107)
+        self.assertAlmostEqual(coordinates.df_temporal_coordinates_for_fit(starting_point=None).iloc[0, 0],
+                               -1.697749375254331)
+        self.assertAlmostEqual(coordinates.df_temporal_coordinates_for_fit(starting_point=2).iloc[2, 0],
+                               -1.5739459974625107)
         self.assertNotEqual(coordinates.df_temporal_coordinates_for_fit(starting_point=2).iloc[2, 0],
                             coordinates.df_temporal_coordinates_for_fit(starting_point=2).iloc[3, 0])
+
+
+class TestCoordinatesWithModifiedCovariate(unittest.TestCase):
+
+    def test_time_covariate(self):
+        coordinates = load_test_temporal_coordinates(nb_steps=10)[0]
+        old_df = coordinates.df_temporal_coordinates_for_fit().copy()
+        new_df = coordinates.df_temporal_coordinates_for_fit(temporal_covariate_for_fit=TimeTemporalCovariate)
+        pd.testing.assert_frame_equal(old_df, new_df)
+        # pd.as.assertEqual(old_df, new_df)
 
 
 if __name__ == '__main__':

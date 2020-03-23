@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
+    AbstractTemporalCovariateForFit
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
     AbstractTransformation, IdentityTransformation
 from spatio_temporal_dataset.coordinates.utils import get_index_without_spatio_temporal_index_suffix
@@ -240,9 +242,11 @@ class AbstractCoordinates(object):
             return self.df_coordinates(split, transformed=transformed).loc[:, self.temporal_coordinates_names] \
                 .drop_duplicates()
 
-    def df_temporal_coordinates_for_fit(self, split=Split.all, starting_point=None) -> pd.DataFrame:
+    def df_temporal_coordinates_for_fit(self, split=Split.all, starting_point=None,
+                                        temporal_covariate_for_fit: Union[None, type] = None) -> pd.DataFrame:
+        # Load time covariate
         if starting_point is None:
-            return self.df_temporal_coordinates(split=split, transformed=True)
+            df = self.df_temporal_coordinates(split=split, transformed=True)
         else:
             # Load the un transformed coordinates
             df_temporal_coordinates = self.df_temporal_coordinates(split=split, transformed=False)
@@ -252,7 +256,7 @@ class AbstractCoordinates(object):
             ind_to_modify = df_temporal_coordinates.iloc[:, 0] <= starting_point  # type: pd.Series
             # Assert that some coordinates are selected but not all
             msg = '{} First year={} Last_year={}'.format(sum(ind_to_modify), df_temporal_coordinates.iloc[0, 0],
-                                  df_temporal_coordinates.iloc[-1, 0])
+                                                         df_temporal_coordinates.iloc[-1, 0])
             assert 0 < sum(ind_to_modify) < len(ind_to_modify), msg
             # Modify the temporal coordinates to enforce the stationarity
             df_temporal_coordinates.loc[ind_to_modify] = starting_point
@@ -260,7 +264,12 @@ class AbstractCoordinates(object):
             temporal_transformation = self.temporal_coordinates.transformation_class(
                 df_temporal_coordinates)  # type: AbstractTransformation
             # Return the result of the temporal transformation
-            return temporal_transformation.transform_df(df_temporal_coordinates)
+            df = temporal_transformation.transform_df(df_temporal_coordinates)
+        # Potentially transform the time covariate into another covariate
+        if temporal_covariate_for_fit is not None:
+            assert issubclass(temporal_covariate_for_fit, AbstractTemporalCovariateForFit)
+            df = df.apply(temporal_covariate_for_fit.get_temporal_covariate)
+        return df
 
     @property
     def temporal_coordinates(self):

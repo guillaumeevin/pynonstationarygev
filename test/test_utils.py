@@ -28,6 +28,8 @@ from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_c
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
     UniformSpatioTemporalCoordinates, LinSpaceSpatial2DSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import UniformSpatialCoordinates
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
+    AbstractTemporalCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
 
@@ -105,7 +107,7 @@ def load_test_3D_spatial_coordinates(nb_points, transformation_class=None) -> Li
                                          transformation_class=transformation_class)
 
 
-def load_test_temporal_coordinates(nb_steps, train_split_ratio=None, transformation_class=None):
+def load_test_temporal_coordinates(nb_steps, train_split_ratio=None, transformation_class=None) -> List[AbstractTemporalCoordinates]:
     return [coordinate_class.from_nb_temporal_steps(nb_temporal_steps=nb_steps,
                                                     train_split_ratio=train_split_ratio,
                                                     transformation_class=transformation_class)
