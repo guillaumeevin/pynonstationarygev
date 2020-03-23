@@ -80,8 +80,10 @@ class SafranTotalPrecipVariable(AbstractVariable):
 
     def __init__(self, snow_variable_array, rain_variable_array, nb_consecutive_days):
         super().__init__(None)
-        self.snow_precipitation = SafranSnowfallVariable(snow_variable_array, nb_consecutive_days)
-        self.rain_precipitation = SafranRainfallVariable(rain_variable_array, nb_consecutive_days)
+        snow_precipitation = SafranSnowfallVariable(snow_variable_array, nb_consecutive_days)
+        rain_precipitation = SafranRainfallVariable(rain_variable_array, nb_consecutive_days)
+        self._daily_time_serie_array = snow_precipitation.daily_time_serie_array \
+                                       + rain_precipitation.daily_time_serie_array
 
     @classmethod
     def keyword(cls):
@@ -89,7 +91,7 @@ class SafranTotalPrecipVariable(AbstractVariable):
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:
-        return self.snow_precipitation.daily_time_serie_array + self.rain_precipitation.daily_time_serie_array
+        return self._daily_time_serie_array
 
 
 class SafranTemperatureVariable(AbstractVariable):
