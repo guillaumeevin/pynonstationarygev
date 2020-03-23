@@ -18,7 +18,7 @@ class CombinedMarginFunction(AbstractMarginFunction):
     def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
         gev_params_list = [margin_function.get_gev_params(coordinate) for margin_function in self.margin_functions]
         mean_gev_params = np.mean(np.array([gev_param.to_array() for gev_param in gev_params_list]), axis=0)
-        gev_param = GevParams(*mean_gev_params)
+        gev_param = self.params_class(*mean_gev_params)
         return gev_param
 
     @classmethod

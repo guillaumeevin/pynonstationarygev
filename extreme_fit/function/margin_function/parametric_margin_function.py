@@ -31,10 +31,11 @@ class ParametricMarginFunction(IndependentMarginFunction):
     COEF_CLASS = None
 
     def __init__(self, coordinates: AbstractCoordinates, gev_param_name_to_dims: Dict[str, List[int]],
-                 gev_param_name_to_coef: Dict[str, AbstractCoef], starting_point: Union[None, int] = None):
+                 gev_param_name_to_coef: Dict[str, AbstractCoef], starting_point: Union[None, int] = None,
+                 params_class: type = GevParams):
         # Starting point for the trend is the same for all the parameters
         self.starting_point = starting_point
-        super().__init__(coordinates)
+        super().__init__(coordinates, params_class)
         self.gev_param_name_to_dims = gev_param_name_to_dims  # type: Dict[str, List[int]]
 
         # Check the dimension are well-defined with respect to the coordinates
@@ -48,7 +49,7 @@ class ParametricMarginFunction(IndependentMarginFunction):
         # Build gev_parameter_to_param_function dictionary
         self.gev_param_name_to_param_function = {}  # type: Dict[str, AbstractParamFunction]
         # Map each gev_param_name to its corresponding param_function
-        for gev_param_name in GevParams.PARAM_NAMES:
+        for gev_param_name in self.params_class.PARAM_NAMES:
             # By default, if dims are not specified, a constantParamFunction is chosen
             if self.gev_param_name_to_dims.get(gev_param_name) is None:
                 param_function = ConstantParamFunction(constant=self.gev_param_name_to_coef[gev_param_name].intercept)

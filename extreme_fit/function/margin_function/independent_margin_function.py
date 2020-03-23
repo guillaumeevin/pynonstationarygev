@@ -14,9 +14,9 @@ class IndependentMarginFunction(AbstractMarginFunction):
         IndependentMarginFunction: each parameter of the GEV are modeled independently
     """
 
-    def __init__(self, coordinates: AbstractCoordinates):
+    def __init__(self, coordinates: AbstractCoordinates, params_class: type = GevParams):
         """Attribute 'gev_param_name_to_param_function' maps each GEV parameter to its corresponding function"""
-        super().__init__(coordinates)
+        super().__init__(coordinates, params_class)
         self.gev_param_name_to_param_function = None  # type: Union[None, Dict[str, AbstractParamFunction]]
 
     def get_gev_params(self, coordinate: np.ndarray, is_transformed: bool = True) -> GevParams:
@@ -24,13 +24,11 @@ class IndependentMarginFunction(AbstractMarginFunction):
         # Since all the coordinates are usually transformed by default
         # then we assume that the input coordinate are transformed by default
         assert self.gev_param_name_to_param_function is not None
-        assert len(self.gev_param_name_to_param_function) == 3
+        assert len(self.gev_param_name_to_param_function) == len(self.params_class.PARAM_NAMES)
         transformed_coordinate = coordinate if is_transformed else self.transform(coordinate)
-        gev_params = {}
-        for gev_param_name in GevParams.PARAM_NAMES:
-            param_function = self.gev_param_name_to_param_function[gev_param_name]
-            gev_params[gev_param_name] = param_function.get_param_value(transformed_coordinate)
-        return GevParams.from_dict(gev_params)
+        params = {param_name: param_function.get_param_value(transformed_coordinate)
+                  for param_name, param_function in self.gev_param_name_to_param_function.items()}
+        return self.params_class.from_dict(params)
 
 
 

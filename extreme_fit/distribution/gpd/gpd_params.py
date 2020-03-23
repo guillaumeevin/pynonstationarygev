@@ -1,8 +1,9 @@
+from extreme_fit.distribution.abstract_extreme_params import AbstractExtremeParams
 from extreme_fit.distribution.abstract_params import AbstractParams
 from extreme_fit.model.utils import r
 
 
-class GpdParams(AbstractParams):
+class GpdParams(AbstractExtremeParams):
     # TODO: understand better why the gpdfit return 2 parameters, alors que d'un autre cote d autres definitions de la distribution parlent d un parametre location
 
     # Parameters

@@ -20,12 +20,14 @@ class AbstractMarginModel(AbstractModel, ABC):
     """
 
     def __init__(self, coordinates: AbstractCoordinates, use_start_value=False,
-                 params_start_fit=None, params_sample=None):
+                 params_start_fit=None, params_sample=None,
+                 params_class=GevParams):
         super().__init__(use_start_value, params_start_fit, params_sample)
         assert isinstance(coordinates, AbstractCoordinates), type(coordinates)
         self.coordinates = coordinates
         self.margin_function_sample = None  # type: AbstractMarginFunction
         self.margin_function_start_fit = None  # type: AbstractMarginFunction
+        self.params_class = params_class
         self.load_margin_functions()
 
     def load_margin_functions(self):
@@ -34,9 +36,9 @@ class AbstractMarginModel(AbstractModel, ABC):
     def default_load_margin_functions(self, margin_function_class):
         # todo: check it i could remove these attributes
         self.margin_function_sample = margin_function_class(coordinates=self.coordinates,
-                                                            default_params=GevParams.from_dict(self.params_sample))
+                                                            default_params=self.params_class.from_dict(self.params_sample))
         self.margin_function_start_fit = margin_function_class(coordinates=self.coordinates,
-                                                               default_params=GevParams.from_dict(
+                                                               default_params=self.params_class.from_dict(
                                                                    self.params_start_fit))
 
     # Conversion class methods

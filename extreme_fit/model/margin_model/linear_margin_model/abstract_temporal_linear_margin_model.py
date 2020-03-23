@@ -29,8 +29,10 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                  fit_method=TemporalMarginFitMethod.is_mev_gev_fit,
                  nb_iterations_for_bayesian_fit=5000,
                  params_start_fit_bayesian=None,
-                 type_for_MLE="GEV"):
-        super().__init__(coordinates, use_start_value, params_start_fit, params_sample, starting_point)
+                 type_for_MLE="GEV",
+                 params_class=GevParams):
+        super().__init__(coordinates, use_start_value, params_start_fit, params_sample, starting_point,
+                         params_class)
         self.type_for_mle = type_for_MLE
         self.params_start_fit_bayesian = params_start_fit_bayesian
         self.nb_iterations_for_bayesian_fit = nb_iterations_for_bayesian_fit

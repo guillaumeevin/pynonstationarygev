@@ -5,13 +5,14 @@ from typing import List
 from cached_property import cached_property
 from mpmath import euler, pi
 
+from extreme_fit.distribution.abstract_extreme_params import AbstractExtremeParams
 from extreme_fit.distribution.abstract_params import AbstractParams
 from extreme_fit.model.utils import r
 import numpy as np
 from scipy.special import gamma
 
 
-class GevParams(AbstractParams):
+class GevParams(AbstractExtremeParams):
     # Parameters
     PARAM_NAMES = [AbstractParams.LOC, AbstractParams.SCALE, AbstractParams.SHAPE]
     # Summary

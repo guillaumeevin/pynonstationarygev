@@ -21,6 +21,7 @@ class DailyExp(AbstractSpatioTemporalObservations):
     def from_sampling(cls, nb_obs: int, coordinates: AbstractCoordinates,
                       margin_model: AbstractMarginModel):
         exponential_values = margin_model.rmargin_from_nb_obs(nb_obs=nb_obs,
-                                                              coordinates_values=coordinates.coordinates_values())
+                                                              coordinates_values=coordinates.coordinates_values(),
+                                                              sample_r_function='rexp')
         df_exponential_values = pd.DataFrame(data=exponential_values, index=coordinates.index)
         return cls(df_maxima_gev=df_exponential_values)
