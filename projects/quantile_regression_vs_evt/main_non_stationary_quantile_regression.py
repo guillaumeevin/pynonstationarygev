@@ -12,7 +12,7 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
 nb_time_series = 10
 quantile = 0.98
 time_series_lengths = [50, 100, 200]
-transformation_class = [IdentityTransformation, CenteredScaledNormalization][0]
+transformation_class = [IdentityTransformation, CenteredScaledNormalization][1]
 model_classes = [
     NonStationaryLocationTemporalModel,
     TemporalCoordinatesQuantileRegressionModel,
