@@ -1,5 +1,6 @@
 import unittest
 
+from extreme_fit.model.daily_data_model import ConstantQuantileRegressionModelOnDailyData
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_exp_models import \
     NonStationaryRateTemporalModel
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
@@ -40,6 +41,12 @@ class TestExpSimulations(unittest.TestCase):
                                                 model_classes=[NonStationaryLocationTemporalModel,
                                                                TemporalCoordinatesQuantileRegressionModel])
         simulation.plot_error_for_last_year_quantile(self.DISPLAY)
+
+    # Fit is way too long.... Probability the regression quantile estimator does not scale well at all...
+    # def test_stationary_run_daily_data_model(self):
+    #     simulation = StationaryExpSimulation(nb_time_series=1, quantile=0.5, time_series_lengths=[1, 2],
+    #                                          model_classes=[ConstantQuantileRegressionModelOnDailyData])
+    #     simulation.plot_error_for_last_year_quantile(self.DISPLAY)
 
 
 if __name__ == '__main__':

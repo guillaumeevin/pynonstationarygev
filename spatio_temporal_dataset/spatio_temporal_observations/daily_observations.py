@@ -1,21 +1,21 @@
 import pandas as pd
 
-from extreme_fit.distribution.abstract_params import AbstractParams
-from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.abstract_margin_model import AbstractMarginModel
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
-    ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
 
 
 class DailyObservations(AbstractSpatioTemporalObservations):
-    pass
+
+    def transform_to_standard_shape(self, coordinates: AbstractCoordinates):
+        coordinates.df_all_coordinates = pd.concat([coordinates.df_all_coordinates for _ in range(self.nb_obs)])
+        df = pd.DataFrame(pd.concat([self.df_maxima_gev[c] for c in self.columns]), index=coordinates.index)
+        observation = AbstractSpatioTemporalObservations(df_maxima_gev=df)
+        return observation, coordinates
 
 
-class DailyExp(AbstractSpatioTemporalObservations):
+class DailyExp(DailyObservations):
 
     @classmethod
     def from_sampling(cls, nb_obs: int, coordinates: AbstractCoordinates,

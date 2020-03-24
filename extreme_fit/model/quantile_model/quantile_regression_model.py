@@ -54,3 +54,5 @@ class TemporalCoordinatesQuantileRegressionModel(AbstractQuantileRegressionModel
         assert self.dataset.coordinates.has_temporal_coordinates \
                and not self.dataset.coordinates.has_spatial_coordinates
         return AbstractCoordinates.COORDINATE_T
+
+

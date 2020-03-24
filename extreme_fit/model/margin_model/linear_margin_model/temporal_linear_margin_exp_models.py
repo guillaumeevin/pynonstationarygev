@@ -1,9 +1,10 @@
 from extreme_fit.distribution.exp_params import ExpParams
+from extreme_fit.model.daily_data_model import AbstractModelOnDailyData
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 
 
-class NonStationaryRateTemporalModel(AbstractTemporalLinearMarginModel):
+class NonStationaryRateTemporalModel(AbstractTemporalLinearMarginModel, AbstractModelOnDailyData):
 
     def __init__(self, *arg, **kwargs):
         kwargs['params_class'] = ExpParams

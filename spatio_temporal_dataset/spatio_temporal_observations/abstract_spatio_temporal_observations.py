@@ -21,6 +21,7 @@ class AbstractSpatioTemporalObservations(object):
         Columns are independent observations from the same coordinates index
         """
         assert df_maxima_gev is not None or df_maxima_frech is not None
+        assert isinstance(df_maxima_gev, pd.DataFrame) or isinstance(df_maxima_frech, pd.DataFrame)
         if df_maxima_gev is not None and df_maxima_frech is not None:
             assert pd.Index.equals(df_maxima_gev.index, df_maxima_frech.index)
         self.df_maxima_gev = df_maxima_gev  # type: pd.DataFrame

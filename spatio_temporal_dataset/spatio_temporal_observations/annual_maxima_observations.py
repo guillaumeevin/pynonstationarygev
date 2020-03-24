@@ -1,3 +1,5 @@
+from typing import Union
+
 import pandas as pd
 
 from extreme_fit.model.margin_model.abstract_margin_model import AbstractMarginModel
@@ -9,7 +11,7 @@ from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_sp
     AbstractSpatioTemporalCoordinates
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations \
     import AbstractSpatioTemporalObservations
-from spatio_temporal_dataset.spatio_temporal_observations.daily_observations import DailyExp
+from spatio_temporal_dataset.spatio_temporal_observations.daily_observations import DailyExp, DailyObservations
 
 
 class AnnualMaxima(AbstractSpatioTemporalObservations):
@@ -34,15 +36,19 @@ class MarginAnnualMaxima(AnnualMaxima):
 
 class DailyExpAnnualMaxima(AnnualMaxima):
 
+    def __init__(self, df_maxima_gev: pd.DataFrame = None, df_maxima_frech: pd.DataFrame = None,
+                 daily_observations: Union[None, DailyObservations] = None):
+        super().__init__(df_maxima_gev, df_maxima_frech)
+        self.daily_observations = daily_observations
+
     @classmethod
     def from_sampling(cls, nb_obs: int, coordinates: AbstractCoordinates,
                       margin_model: AbstractMarginModel):
         # todo: to take nb_obs into accoutn i could generate nb_obs * 365 observations
-        observations = DailyExp.from_sampling(nb_obs=365, coordinates=coordinates, margin_model=margin_model)
-        df_daily_values = observations.df_maxima_gev
+        daily_observations = DailyExp.from_sampling(nb_obs=365, coordinates=coordinates, margin_model=margin_model)
+        df_daily_values = daily_observations.df_maxima_gev
         df_maxima_gev = pd.DataFrame({'0': df_daily_values.max(axis=1)}, index=df_daily_values.index)
-        return cls(df_maxima_gev=df_maxima_gev)
-
+        return cls(df_maxima_gev=df_maxima_gev, daily_observations=daily_observations)
 
 
 class MaxStableAnnualMaxima(AnnualMaxima):
