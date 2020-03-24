@@ -1,3 +1,4 @@
+from multiprocessing.dummy import Pool
 from typing import Dict, List
 import matplotlib.pyplot as plt
 from collections import OrderedDict
@@ -11,7 +12,7 @@ from extreme_fit.estimator.quantile_estimator.quantile_estimator_from_regression
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.quantile_model.quantile_regression_model import AbstractQuantileRegressionModel
-from root_utils import get_display_name_from_object_type
+from root_utils import get_display_name_from_object_type, NB_CORES
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
@@ -64,14 +65,26 @@ class AbstractSimulation(object):
     @cached_property
     def model_class_to_time_series_length_to_estimators(self):
         d = OrderedDict()
-        for model_class in self.models_classes:
+        for i, model_class in enumerate(self.models_classes, 1):
             d_sub = OrderedDict()
             for time_series_length, observation_list in self.time_series_length_to_observation_list.items():
+                print(model_class, '{}/{}'.format(i, len(self.models_classes)), time_series_length)
                 coordinates = self.time_series_length_to_coordinates[time_series_length]
-                estimators = []
-                for observations in observation_list:
-                    estimators.append(self.get_fitted_quantile_estimator(model_class, observations, coordinates,
-                                                                         self.quantile_estimator))
+
+                arguments = [
+                    [model_class, observations, coordinates, self.quantile_estimator]
+                    for observations in observation_list
+                ]
+                if self.multiprocessing:
+                    raise NotImplementedError('The multiprocessing seems slow compared to the other,'
+                                              'maybe it would be best to call an external function rather than'
+                                              'a method, but this methods is override in other classes...')
+                    # with Pool(NB_CORES) as p:
+                    #     estimators = p.starmap(self.get_fitted_quantile_estimator, arguments)
+                else:
+                    estimators = []
+                    for argument in arguments:
+                        estimators.append(self.get_fitted_quantile_estimator(*argument))
                 d_sub[time_series_length] = estimators
             d[model_class] = d_sub
         return d

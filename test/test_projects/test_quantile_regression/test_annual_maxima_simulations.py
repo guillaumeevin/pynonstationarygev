@@ -47,6 +47,7 @@ class TestExpSimulations(unittest.TestCase):
 class TestExpSimulationsDailyDataModels(unittest.TestCase):
     DISPLAY = False
 
+    # Warning this method is quite long...
     def test_stationary_run_daily_data_quantile_regression_model(self):
         simulation = StationaryExpSimulation(nb_time_series=1, quantile=0.5, time_series_lengths=[50, 60],
                                              model_classes=[ConstantQuantileRegressionModelOnDailyData])

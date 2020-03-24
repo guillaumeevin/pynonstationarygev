@@ -12,7 +12,7 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
 nb_time_series = 10
 quantile = 0.98
 time_series_lengths = [50, 100, 200]
-transformation_class = [IdentityTransformation, CenteredScaledNormalization][1]
+transformation_class = [IdentityTransformation, CenteredScaledNormalization][0]
 model_classes = [
     NonStationaryLocationTemporalModel,
     TemporalCoordinatesQuantileRegressionModel,
@@ -27,5 +27,6 @@ simulation = simulation_class(nb_time_series=nb_time_series,
                               quantile=quantile,
                               time_series_lengths=time_series_lengths,
                               model_classes=model_classes,
-                              transformation_class=transformation_class)
+                              transformation_class=transformation_class,
+                              multiprocessing=False)
 simulation.plot_error_for_last_year_quantile()
