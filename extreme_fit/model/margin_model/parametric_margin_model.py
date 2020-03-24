@@ -23,6 +23,7 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         self.starting_point = starting_point
         self.margin_function_sample = None  # type: ParametricMarginFunction
         self.margin_function_start_fit = None  # type: ParametricMarginFunction
+        self.drop_duplicates = True
         super().__init__(coordinates, use_start_value, params_start_fit, params_sample, params_class)
 
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,

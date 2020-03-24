@@ -235,18 +235,23 @@ class AbstractCoordinates(object):
     def has_temporal_coordinates(self) -> bool:
         return self.nb_temporal_coordinates > 0
 
-    def df_temporal_coordinates(self, split: Split = Split.all, transformed=True) -> pd.DataFrame:
+    def df_temporal_coordinates(self, split: Split = Split.all, transformed=True,
+                                drop_duplicates=True) -> pd.DataFrame:
         if self.nb_temporal_coordinates == 0:
             return pd.DataFrame()
         else:
-            return self.df_coordinates(split, transformed=transformed).loc[:, self.temporal_coordinates_names] \
-                .drop_duplicates()
+            df = self.df_coordinates(split, transformed=transformed).loc[:, self.temporal_coordinates_names]
+            if drop_duplicates:
+                return df.drop_duplicates()
+            else:
+                return df
 
     def df_temporal_coordinates_for_fit(self, split=Split.all, starting_point=None,
-                                        temporal_covariate_for_fit: Union[None, type] = None) -> pd.DataFrame:
+                                        temporal_covariate_for_fit: Union[None, type] = None,
+                                        drop_duplicates=True) -> pd.DataFrame:
         # Load time covariate
         if starting_point is None:
-            df = self.df_temporal_coordinates(split=split, transformed=True)
+            df = self.df_temporal_coordinates(split=split, transformed=True, drop_duplicates=drop_duplicates)
         else:
             # Load the un transformed coordinates
             df_temporal_coordinates = self.df_temporal_coordinates(split=split, transformed=False)

@@ -64,7 +64,7 @@ class LinearMarginFunction(ParametricMarginFunction):
     @property
     def form_dict(self) -> Dict[str, str]:
         form_dict = {}
-        for gev_param_name in GevParams.PARAM_NAMES:
+        for gev_param_name in self.params_class.PARAM_NAMES:
             linear_dims = self.gev_param_name_to_dims.get(gev_param_name, [])
             # Load spatial form_dict (only if we have some spatial coordinates)
             if self.coordinates.has_spatial_coordinates:
