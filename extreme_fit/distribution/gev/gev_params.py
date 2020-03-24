@@ -54,9 +54,6 @@ class GevParams(AbstractExtremeParams):
         else:
             return [self.location, self.scale, self.shape]
 
-    def __str__(self):
-        return self.to_dict().__str__()
-
     def time_derivative_of_return_level(self, p=0.99, mu1=0.0, sigma1=0.0):
         """
         Compute the variation of some quantile with respect to time.

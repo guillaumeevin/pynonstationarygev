@@ -44,6 +44,7 @@ class DailyExpAnnualMaxima(AnnualMaxima):
         return cls(df_maxima_gev=df_maxima_gev)
 
 
+
 class MaxStableAnnualMaxima(AnnualMaxima):
 
     @classmethod

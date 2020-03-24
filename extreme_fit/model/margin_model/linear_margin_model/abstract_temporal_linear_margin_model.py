@@ -3,10 +3,12 @@ from enum import Enum
 import numpy as np
 import pandas as pd
 
+from extreme_fit.distribution.exp_params import ExpParams
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
-from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_bayesian_extremes import AbstractResultFromExtremes, ResultFromBayesianExtremes
+from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_bayesian_extremes import \
+    AbstractResultFromExtremes, ResultFromBayesianExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_mle_extremes import ResultFromMleExtremes
 from extreme_fit.model.result_from_model_fit.result_from_ismev import ResultFromIsmev
 from extreme_fit.model.utils import r, ro, get_null, get_margin_formula_extremes, get_coord_df
@@ -44,12 +46,20 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         data = data[0]
         assert len(data) == len(df_coordinates_temp.values)
         x = ro.FloatVector(data)
-        if self.fit_method == TemporalMarginFitMethod.is_mev_gev_fit:
-            return self.ismev_gev_fit(x, df_coordinates_temp)
-        if self.fit_method == TemporalMarginFitMethod.extremes_fevd_bayesian:
-            return self.extremes_fevd_bayesian_fit(x, df_coordinates_temp)
-        if self.fit_method in [TemporalMarginFitMethod.extremes_fevd_mle, TemporalMarginFitMethod.extremes_fevd_gmle]:
-            return self.extremes_fevd_mle_related_fit(x, df_coordinates_temp)
+        if self.params_class is GevParams:
+            if self.fit_method == TemporalMarginFitMethod.is_mev_gev_fit:
+                return self.ismev_gev_fit(x, df_coordinates_temp)
+            elif self.fit_method == TemporalMarginFitMethod.extremes_fevd_bayesian:
+                return self.extremes_fevd_bayesian_fit(x, df_coordinates_temp)
+            elif self.fit_method in [TemporalMarginFitMethod.extremes_fevd_mle,
+                                     TemporalMarginFitMethod.extremes_fevd_gmle]:
+                return self.extremes_fevd_mle_related_fit(x, df_coordinates_temp)
+            else:
+                raise NotImplementedError
+        elif self.params_class is ExpParams:
+            return self.extreme_fevd_mle_exp_fit(x, df_coordinates_temp)
+        else:
+            raise NotImplementedError
 
     # Gev Fit with isMev package
 
@@ -63,13 +73,19 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
     # Gev fit with extRemes package
 
     def extremes_fevd_mle_related_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:
-        r_type_argument_kwargs, y = self.extreme_arguments(df_coordinates_temp)
         if self.fit_method == TemporalMarginFitMethod.extremes_fevd_mle:
             method = "MLE"
         elif self.fit_method == TemporalMarginFitMethod.extremes_fevd_gmle:
             method = "GMLE"
         else:
             raise ValueError('wrong method')
+        return self.run_fevd_fixed(df_coordinates_temp, method, x)
+
+    def extreme_fevd_mle_exp_fit(self, x, df_coordinates_temp):
+        return self.run_fevd_fixed(df_coordinates_temp, "Exponential", x)
+
+    def run_fevd_fixed(self, df_coordinates_temp, method, x):
+        r_type_argument_kwargs, y = self.extreme_arguments(df_coordinates_temp)
         res = safe_run_r_estimator(function=r('fevd_fixed'),
                                    x=x,
                                    data=y,

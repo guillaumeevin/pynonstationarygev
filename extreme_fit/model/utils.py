@@ -85,8 +85,13 @@ def safe_run_r_estimator(function, data=None, use_start=False, max_ratio_between
         optim_dict = {'maxit': maxit}
         parameters['control'] = r.list(**optim_dict)
 
+    # Raise error if needed
+    if 'x' in parameters and np.isnan(parameters['x']).any():
+        raise ValueError('x contains NaN values')
+
     # Some checks for Spatial Extremes
     if data is not None:
+        # Raise some warnings
         if isinstance(data, np.ndarray):
             # Raise warning if the gap is too important between the two biggest values of data
             sorted_data = sorted(data.flatten())

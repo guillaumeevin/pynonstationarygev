@@ -77,6 +77,7 @@ class AbstractMarginModel(AbstractModel, ABC):
         for coordinate in coordinates_values:
             gev_params = self.margin_function_sample.get_gev_params(coordinate)
             x_gev = r(sample_r_function)(nb_obs, **gev_params.to_dict())
+            assert not np.isnan(x_gev).any(), 'params={} generated Nan values'.format(gev_params.__str__())
             maxima_gev.append(x_gev)
         return np.array(maxima_gev)
 

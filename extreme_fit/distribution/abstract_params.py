@@ -25,6 +25,9 @@ class AbstractParams(object):
     LOC = 'loc'
     SHAPE = 'shape'
 
+    def __str__(self):
+        return self.to_dict().__str__()
+
     @classmethod
     def from_dict(cls, params: dict):
         return cls(**params)
