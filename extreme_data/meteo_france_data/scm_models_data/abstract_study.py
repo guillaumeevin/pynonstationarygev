@@ -18,6 +18,7 @@ from PIL import ImageDraw
 from matplotlib.colors import Normalize
 from netCDF4 import Dataset
 
+from extreme_data.edf_data.weather_types import load_df_weather_types
 from extreme_data.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
 from extreme_data.meteo_france_data.scm_models_data.utils import ALTITUDES, ZS_INT_23, ZS_INT_MASK, LONGITUDES, \
     LATITUDES, ORIENTATIONS, SLOPES, ORDERED_ALLSLOPES_ALTITUDES, ORDERED_ALLSLOPES_ORIENTATIONS, \
@@ -81,7 +82,7 @@ class AbstractStudy(object):
         # Map each year to the 'days since year-08-01 06:00:00'
         year_to_days = OrderedDict()
         for year in self.ordered_years:
-            date = datetime.datetime(year=year, month=8, day=1, hour=6, minute=0, second=0)
+            date = datetime.datetime(year=year-1, month=8, day=1, hour=6, minute=0, second=0)
             days = []
             for i in range(366):
                 days.append(date_to_str(date))
@@ -95,7 +96,14 @@ class AbstractStudy(object):
     def year_to_wps(self):
         assert 1954 <= self.year_min and self.year_max <= WP_PATTERN_MAX_YEAR, \
             'Weather patterns are not available between {} and {}'.format(self.year_min, self.year_max)
-        pass
+        year_to_wps = {}
+        for year, days in self.year_to_days.items():
+            year_to_wps[year] = self.df_weather_types.loc[days].iloc[:, 0].values
+        return year_to_wps
+
+    @cached_property
+    def df_weather_types(self):
+        return load_df_weather_types()
 
     @property
     def all_days(self):
@@ -144,7 +152,6 @@ class AbstractStudy(object):
         year_to_annual_maxima = OrderedDict()
         for year, time_serie in self._year_to_max_daily_time_serie.items():
             annual_maxima = np.concatenate((time_serie[:91], time_serie[-61:]), axis=0).max(axis=0)
-            print(annual_maxima)
             year_to_annual_maxima[year] = annual_maxima
         return year_to_annual_maxima
 

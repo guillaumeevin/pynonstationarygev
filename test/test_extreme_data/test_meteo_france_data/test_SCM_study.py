@@ -14,6 +14,13 @@ from root_utils import get_display_name_from_object_type
 
 class TestSCMAllStudy(unittest.TestCase):
 
+    def test_year_to_date(self):
+        year = 2019
+        study = SafranSnowfall(altitude=900, year_min=year, year_max=year)
+        first_day, *_, last_day = study.year_to_days[year]
+        self.assertIn(str(year-1), first_day)
+        self.assertIn(str(year), last_day)
+
     def test_instantiate_studies(self):
         nb_sample = 2
         for nb_days in sample(set(NB_DAYS), k=nb_sample):

@@ -1,11 +1,12 @@
 import unittest
+import numpy as np
 from datetime import datetime
 
 import pandas as pd
 
 from extreme_data.edf_data.weather_types import load_df_weather_types
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSwe3Days
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranTemperature
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranTemperature, SafranPrecipitation1Day
 from extreme_data.meteo_france_data.scm_models_data.utils import date_to_str
 
 
@@ -45,9 +46,18 @@ class TestWeatherTypes(unittest.TestCase):
         # wp_to_found_percentages = wp_to_found_percentages.astype(int)
         self.assertEqual(wp_to_expected_percentages, wp_to_found_percentages)
 
-    def test_anticyclonique_weather_pattern(self):
-        study = CrocusSwe3Days(altitude=900, year_min=1954, year_max=2008)
-        pass
+    # def test_anticyclonique_weather_pattern(self):
+    #     study = SafranPrecipitation1Day(altitude=900, year_min=1954, year_max=2008)
+    #     p = []
+    #     for year, wps in study.year_to_wps.items():
+    #         daily_time_serie_array = study.year_to_daily_time_serie_array[year]
+    #         self.assertEqual(len(daily_time_serie_array), len(wps))
+    #         precipitation_on_anticlonic_days = np.max(daily_time_serie_array[np.array(wps) == 8, :], axis=1)
+    #         print('NB anticlonic days', len(precipitation_on_anticlonic_days))
+    #         p.extend(precipitation_on_anticlonic_days)
+    #     p = sorted(p)[::-1]
+    #     print(p[:5])
+    #     self.assertLess(p[0], 10)
 
 
 
