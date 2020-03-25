@@ -82,7 +82,7 @@ class AbstractStudy(object):
         # Map each year to the 'days since year-08-01 06:00:00'
         year_to_days = OrderedDict()
         for year in self.ordered_years:
-            date = datetime.datetime(year=year-1, month=8, day=1, hour=6, minute=0, second=0)
+            date = datetime.datetime(year=year - 1, month=8, day=1, hour=6, minute=0, second=0)
             days = []
             for i in range(366):
                 days.append(date_to_str(date))
@@ -96,10 +96,18 @@ class AbstractStudy(object):
     def year_to_wps(self):
         assert 1954 <= self.year_min and self.year_max <= WP_PATTERN_MAX_YEAR, \
             'Weather patterns are not available between {} and {}'.format(self.year_min, self.year_max)
-        year_to_wps = {}
+        year_to_wps = OrderedDict()
         for year, days in self.year_to_days.items():
             year_to_wps[year] = self.df_weather_types.loc[days].iloc[:, 0].values
         return year_to_wps
+
+    @cached_property
+    def year_to_wp_for_annual_maxima(self):
+        year_to_wp_for_annual_maxima = OrderedDict()
+        for year, idx in self.year_to_annual_maxima_index.items():
+            wps_for_annual_maxima = self.year_to_wps[year][idx]
+            year_to_wp_for_annual_maxima[year] = wps_for_annual_maxima
+        return year_to_wp_for_annual_maxima
 
     @cached_property
     def df_weather_types(self):
@@ -190,8 +198,6 @@ class AbstractStudy(object):
 
     """ Load daily observations """
 
-
-
     @cached_property
     def year_to_daily_time_serie_array(self) -> OrderedDict:
         return self._year_to_daily_time_serie_array
@@ -252,7 +258,7 @@ class AbstractStudy(object):
 
     @cached_property
     def ordered_years_and_path_files(self):
-        nc_files = [(int(f.split('_')[-2][:4])+1, f) for f in os.listdir(self.study_full_path) if f.endswith('.nc')]
+        nc_files = [(int(f.split('_')[-2][:4]) + 1, f) for f in os.listdir(self.study_full_path) if f.endswith('.nc')]
         ordered_years, path_files = zip(*[(year, op.join(self.study_full_path, nc_file))
                                           for year, nc_file in sorted(nc_files, key=lambda t: t[0])
                                           if self.year_min <= year <= self.year_max])
@@ -609,7 +615,3 @@ class AbstractStudy(object):
             mask_massif = np.array(img)
             mask_french_alps += mask_massif
         return ~np.array(mask_french_alps, dtype=bool)
-
-
-
-
