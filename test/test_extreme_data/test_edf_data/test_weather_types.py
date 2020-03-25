@@ -46,19 +46,20 @@ class TestWeatherTypes(unittest.TestCase):
         # wp_to_found_percentages = wp_to_found_percentages.astype(int)
         self.assertEqual(wp_to_expected_percentages, wp_to_found_percentages)
 
-    # def test_anticyclonique_weather_pattern(self):
-    #     study = SafranPrecipitation1Day(altitude=900, year_min=1954, year_max=2008)
-    #     p = []
-    #     for year, wps in study.year_to_wps.items():
-    #         daily_time_serie_array = study.year_to_daily_time_serie_array[year]
-    #         self.assertEqual(len(daily_time_serie_array), len(wps))
-    #         precipitation_on_anticlonic_days = np.max(daily_time_serie_array[np.array(wps) == 8, :], axis=1)
-    #         print('NB anticlonic days', len(precipitation_on_anticlonic_days))
-    #         p.extend(precipitation_on_anticlonic_days)
-    #     p = sorted(p)[::-1]
-    #     print(p[:5])
-    #     self.assertLess(p[0], 10)
-
+    def test_anticyclonique_weather_pattern(self):
+        study = SafranPrecipitation1Day(altitude=900, year_min=1954, year_max=2008)
+        no_rain = []
+        rain = []
+        for year, wps in study.year_to_wps.items():
+            daily_time_serie_array = study.year_to_daily_time_serie_array[year]
+            self.assertEqual(len(daily_time_serie_array), len(wps))
+            mask = np.array(wps) == 8
+            no_rain.extend(np.max(daily_time_serie_array[mask, :], axis=1))
+            rain.extend(np.max(daily_time_serie_array[~mask, :], axis=1))
+        # For 90% of the anticyclonic days, the daily max precipitation (snowfall + rainfall) for a massifs is < 0.2mm
+        # Valid that the anticyclonic days seems to well defined (but with a big variety still...)
+        self.assertLess(np.quantile(no_rain, 0.5), 0.2)
+        self.assertLess(5, np.quantile(rain, 0.5))
 
 
 if __name__ == '__main__':
