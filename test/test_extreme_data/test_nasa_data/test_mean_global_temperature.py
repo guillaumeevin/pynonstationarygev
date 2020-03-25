@@ -1,7 +1,5 @@
 import unittest
 
-from extreme_data.edf_data.weather_types import load_df_weather_types
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranTemperature
 from extreme_data.nasa_data.global_mean_temperature import load_year_to_mean_global_temperature
 
 
