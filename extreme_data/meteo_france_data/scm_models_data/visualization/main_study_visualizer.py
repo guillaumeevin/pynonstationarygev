@@ -139,12 +139,12 @@ def extended_visualization():
 def annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=1800):
     if safran:
         for study_class in [SafranPrecipitation, SafranRainfall, SafranSnowfall, SafranTemperature][-1:]:
-            study = study_class(altitude=altitude, year_min=1958, year_max=2002)
+            study = study_class(altitude=altitude, year_min=1958, year_max=2001)
             study_visualizer = StudyVisualizer(study)
             study_visualizer.visualize_annual_mean_values(take_mean_value=True)
     else:
         for study_class in [CrocusSweTotal, CrocusDepth, CrocusDaysWithSnowOnGround][-1:]:
-            study = study_class(altitude=altitude, year_min=1958, year_max=2005)
+            study = study_class(altitude=altitude, year_min=1958, year_max=2004)
             study_visualizer = StudyVisualizer(study)
             study_visualizer.visualize_annual_mean_values(take_mean_value=take_mean_value)
 

@@ -21,7 +21,7 @@ from netCDF4 import Dataset
 from extreme_data.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
 from extreme_data.meteo_france_data.scm_models_data.utils import ALTITUDES, ZS_INT_23, ZS_INT_MASK, LONGITUDES, \
     LATITUDES, ORIENTATIONS, SLOPES, ORDERED_ALLSLOPES_ALTITUDES, ORDERED_ALLSLOPES_ORIENTATIONS, \
-    ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM, date_to_str
+    ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM, date_to_str, WP_PATTERN_MAX_YEAR
 from extreme_data.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
 from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
@@ -58,7 +58,7 @@ class AbstractStudy(object):
 
     # REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/postes/reanalysis'
 
-    def __init__(self, variable_class: type, altitude: int = 1800, year_min=1959, year_max=2020,
+    def __init__(self, variable_class: type, altitude: int = 1800, year_min=1959, year_max=2019,
                  multiprocessing=True, orientation=None, slope=20.0):
         assert isinstance(altitude, int), type(altitude)
         assert altitude in ALTITUDES, altitude
@@ -93,8 +93,7 @@ class AbstractStudy(object):
 
     @cached_property
     def year_to_wps(self):
-        year_max_with_data = self.year_max - 1
-        assert 1954 <= self.year_min and year_max_with_data <= 2008, \
+        assert 1954 <= self.year_min and self.year_max <= WP_PATTERN_MAX_YEAR, \
             'Weather patterns are not available between {} and {}'.format(self.year_min, self.year_max)
         pass
 
@@ -249,7 +248,7 @@ class AbstractStudy(object):
         nc_files = [(int(f.split('_')[-2][:4])+1, f) for f in os.listdir(self.study_full_path) if f.endswith('.nc')]
         ordered_years, path_files = zip(*[(year, op.join(self.study_full_path, nc_file))
                                           for year, nc_file in sorted(nc_files, key=lambda t: t[0])
-                                          if self.year_min <= year < self.year_max])
+                                          if self.year_min <= year <= self.year_max])
         return path_files, ordered_years
 
     """ Temporal properties """

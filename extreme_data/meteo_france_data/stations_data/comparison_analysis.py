@@ -47,7 +47,7 @@ class ComparisonAnalysis(object):
         self.transformation_class = transformation_class
         self.nb_border_data_to_remove = nb_border_data_to_remove
         self.year_min = 1958 + nb_border_data_to_remove
-        self.year_max = 2004 - nb_border_data_to_remove
+        self.year_max = 2003 - nb_border_data_to_remove
 
     ##################### STATION ATTRIBUTES ############################
 
@@ -115,7 +115,7 @@ class ComparisonAnalysis(object):
     def get_values(self, df):
         df = df.iloc[:, 7:]
         df.columns = df.columns.astype(int)
-        df = df.loc[:, self.year_min:self.year_max]
+        df = df.loc[:, self.year_min:self.year_max+1]
         return df
 
     @property
@@ -135,7 +135,7 @@ class ComparisonAnalysis(object):
     def study(self):
         # Build the study for the same years
         return SafranSnowfall(altitude=self.altitude, nb_consecutive_days=3, year_min=self.year_min,
-                              year_max=self.year_max + 1)
+                              year_max=self.year_max)
 
     @property
     def nb_massifs(self):

@@ -58,7 +58,7 @@ class TestSCMPrecipitation(TestSCMStudy):
 
     def setUp(self) -> None:
         super().setUp()
-        self.study = SafranPrecipitation(altitude=1800, year_min=1959, year_max=2003, nb_consecutive_days=1)
+        self.study = SafranPrecipitation(altitude=1800, year_min=1959, year_max=2002, nb_consecutive_days=1)
 
     def test_durand(self):
         # Test based on Durand paper
@@ -77,7 +77,7 @@ class TestSafranTemperature(TestSCMStudy):
 
     def setUp(self):
         super().setUp()
-        self.study = SafranTemperature(altitude=1800, year_min=1959, year_max=2003)
+        self.study = SafranTemperature(altitude=1800, year_min=1959, year_max=2002)
 
     def test_durand(self):
         # Test based on Durand paper

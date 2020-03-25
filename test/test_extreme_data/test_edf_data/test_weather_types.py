@@ -45,6 +45,11 @@ class TestWeatherTypes(unittest.TestCase):
         # wp_to_found_percentages = wp_to_found_percentages.astype(int)
         self.assertEqual(wp_to_expected_percentages, wp_to_found_percentages)
 
+    def test_anticyclonique_weather_pattern(self):
+        study = CrocusSwe3Days(altitude=900, year_min=1954, year_max=2008)
+        pass
+
+
 
 if __name__ == '__main__':
     unittest.main()
