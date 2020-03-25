@@ -77,6 +77,10 @@ class AbstractStudy(object):
 
     """ Time """
 
+    @property
+    def nb_years(self):
+        return self.year_max - self.year_min + 1
+
     @cached_property
     def year_to_days(self) -> OrderedDict:
         # Map each year to the 'days since year-08-01 06:00:00'
@@ -100,6 +104,35 @@ class AbstractStudy(object):
         for year, days in self.year_to_days.items():
             year_to_wps[year] = self.df_weather_types.loc[days].iloc[:, 0].values
         return year_to_wps
+
+    def wps_for_top_annual_maxima(self, nb_top, massif_ids):
+        d = self.massif_id_to_df_ordered_by_maxima
+        wps = pd.Series(np.concatenate([d[massif_id]['WP'].values[:nb_top]
+                                        for massif_id in massif_ids]))
+        s_normalized = wps.value_counts(normalize=True) * 100
+        s_normalized = s_normalized.round()
+        s_not_normalized = wps.value_counts()
+        df = pd.concat([s_normalized, s_not_normalized], axis=1)
+        df.columns = ['Percentage', 'Nb massifs concerned']
+        df.index.name = 'Number Top={}'.format(nb_top)
+        return df
+
+    @cached_property
+    def massif_id_to_df_ordered_by_maxima(self):
+        df_annual_maxima = pd.DataFrame(self.year_to_annual_maxima)
+        df_wps = pd.DataFrame(self.year_to_wp_for_annual_maxima)
+        massif_id_to_df_ordered_by_maxima = {}
+        for massif_id, s_annual_maxima in df_annual_maxima.iterrows():
+            s_annual_maxima.sort_values(inplace=True, ascending=False)
+            d = {
+                'Year': s_annual_maxima.index,
+                'Maxima': s_annual_maxima.values,
+                'WP': df_wps.loc[massif_id, s_annual_maxima.index],
+            }
+            df = pd.DataFrame(d)
+            df.set_index('Year', inplace=True)
+            massif_id_to_df_ordered_by_maxima[massif_id] = df
+        return massif_id_to_df_ordered_by_maxima
 
     @cached_property
     def year_to_wp_for_annual_maxima(self):
