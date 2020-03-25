@@ -19,9 +19,9 @@ from matplotlib.colors import Normalize
 from netCDF4 import Dataset
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
-from extreme_data.meteo_france_data.scm_models_data.scm_constants import ALTITUDES, ZS_INT_23, ZS_INT_MASK, LONGITUDES, \
+from extreme_data.meteo_france_data.scm_models_data.utils import ALTITUDES, ZS_INT_23, ZS_INT_MASK, LONGITUDES, \
     LATITUDES, ORIENTATIONS, SLOPES, ORDERED_ALLSLOPES_ALTITUDES, ORDERED_ALLSLOPES_ORIENTATIONS, \
-    ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM
+    ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM, date_to_str
 from extreme_data.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
 from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
@@ -84,12 +84,19 @@ class AbstractStudy(object):
             date = datetime.datetime(year=year, month=8, day=1, hour=6, minute=0, second=0)
             days = []
             for i in range(366):
-                days.append(str(date).split()[0])
+                days.append(date_to_str(date))
                 date += datetime.timedelta(days=1)
                 if date.month == 8 and date.day == 1:
                     break
             year_to_days[year] = days
         return year_to_days
+
+    @cached_property
+    def year_to_wps(self):
+        year_max_with_data = self.year_max - 1
+        assert 1954 <= self.year_min and year_max_with_data <= 2008, \
+            'Weather patterns are not available between {} and {}'.format(self.year_min, self.year_max)
+        pass
 
     @property
     def all_days(self):
@@ -176,6 +183,8 @@ class AbstractStudy(object):
         return self.annual_aggregation_function(time_serie, axis=0)
 
     """ Load daily observations """
+
+
 
     @cached_property
     def year_to_daily_time_serie_array(self) -> OrderedDict:
@@ -594,3 +603,7 @@ class AbstractStudy(object):
             mask_massif = np.array(img)
             mask_french_alps += mask_massif
         return ~np.array(mask_french_alps, dtype=bool)
+
+
+
+

@@ -2,7 +2,13 @@
 """
 ZS was extracted from a netcdf file
 """
+from datetime import datetime
+
 import numpy as np
+
+
+def date_to_str(date: datetime) -> str:
+    return str(date).split()[0]
 
 ZS = """[ 300.  600.  900. 1200. 1500. 1800. 2100. 2400. 2700. 3000. 3300.  300.
 600.  900. 1200. 1500. 1800. 2100. 2400. 2700. 3000.  300.  600.  900.

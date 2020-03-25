@@ -6,7 +6,7 @@ import pandas as pd
 
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSwe3Days
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall
-from extreme_data.meteo_france_data.scm_models_data.scm_constants import SLOPES
+from extreme_data.meteo_france_data.scm_models_data.utils import SLOPES
 
 
 class TestSCMOrientedData(unittest.TestCase):
