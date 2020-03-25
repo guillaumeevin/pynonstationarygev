@@ -9,10 +9,10 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranP
 def main_spatial_distribution_wps(study_class, year_min=1954, year_max=2008):
     study = study_class(altitude=1800, year_min=year_min, year_max=year_max)
     for region_name in AbstractExtendedStudy.region_names:
-        massifs_ids = AbstractExtendedStudy.region_name_to_massif_ids[region_name]
+        massif_names = AbstractExtendedStudy.region_name_to_massif_names[region_name]
         print('\n \n', region_name, '\n')
         for nb_top in [study.nb_years, 5, 1][1:2]:
-            print(study.wps_for_top_annual_maxima(nb_top=nb_top, massif_ids=massifs_ids), '\n')
+            print(study.df_for_top_annual_maxima(nb_top=nb_top, massif_names=massif_names), '\n')
 
 
 """
@@ -53,11 +53,11 @@ def main_temporal_distribution_wps(study_class, year_min=1954, year_max=2008):
     study_before = study_class(altitude=altitude, year_min=year_min, year_max=1981)
     study_after = study_class(altitude=altitude, year_min=1981, year_max=2008)
     for region_name in AbstractExtendedStudy.region_names:
-        massifs_ids = AbstractExtendedStudy.region_name_to_massif_ids[region_name]
+        massif_names = AbstractExtendedStudy.region_name_to_massif_names[region_name]
         print('\n \n', region_name, '\n')
-        for nb_top in [study_before.nb_years, 10, 5, 1][1:2]:
-            print(study_before.wps_for_top_annual_maxima(nb_top=nb_top, massif_ids=massifs_ids), '\n')
-            print(study_after.wps_for_top_annual_maxima(nb_top=nb_top, massif_ids=massifs_ids), '\n')
+        for nb_top in [study_before.nb_years, 10, 5, 1][-1:]:
+            print(study_before.df_for_top_annual_maxima(nb_top=nb_top, massif_names=massif_names), '\n')
+            print(study_after.df_for_top_annual_maxima(nb_top=nb_top, massif_names=massif_names), '\n')
 
 """
 There is no real stationarity in the percentage of the kind of storms that are causing extreme.
@@ -71,5 +71,5 @@ even for the local region it is the same.
 
 if __name__ == '__main__':
     study_class = [CrocusSnowLoad1Day, SafranPrecipitation1Day][-1]
-    # main_spatial_distribution_wps(study_class)
-    main_temporal_distribution_wps(study_class)
+    main_spatial_distribution_wps(study_class)
+    # main_temporal_distribution_wps(study_class)

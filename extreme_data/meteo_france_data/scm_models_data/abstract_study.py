@@ -105,24 +105,39 @@ class AbstractStudy(object):
             year_to_wps[year] = self.df_weather_types.loc[days].iloc[:, 0].values
         return year_to_wps
 
-    def wps_for_top_annual_maxima(self, nb_top, massif_ids):
-        d = self.massif_id_to_df_ordered_by_maxima
-        wps = pd.Series(np.concatenate([d[massif_id]['WP'].values[:nb_top]
-                                        for massif_id in massif_ids]))
+    def df_for_top_annual_maxima(self, nb_top=None, massif_names=None):
+        # Replace default arguments
+        if nb_top is None:
+            nb_top = self.nb_years
+        if massif_names is None:
+            massif_names = self.study_massif_names
+        # Load percentages of massifs
+        wps = pd.Series(np.concatenate([self.massif_name_to_df_ordered_by_maxima[massif_name]['WP'].values[:nb_top]
+                                        for massif_name in massif_names]))
         s_normalized = wps.value_counts(normalize=True) * 100
         s_normalized = s_normalized.round()
         s_not_normalized = wps.value_counts()
+        # todo: do that, complete the last columns with the mean maxima
+        # Add a column that indicate the mean maxima associated to each weather pattern
+        # f = {}
+        # for wp in s_normalized.index:
+        #     print(wp)
+        #     for massif_id
+
+
+        # Concatenate all the results in one dataframe
         df = pd.concat([s_normalized, s_not_normalized], axis=1)
         df.columns = ['Percentage', 'Nb massifs concerned']
         df.index.name = 'Number Top={}'.format(nb_top)
         return df
 
     @cached_property
-    def massif_id_to_df_ordered_by_maxima(self):
+    def massif_name_to_df_ordered_by_maxima(self):
         df_annual_maxima = pd.DataFrame(self.year_to_annual_maxima)
         df_wps = pd.DataFrame(self.year_to_wp_for_annual_maxima)
-        massif_id_to_df_ordered_by_maxima = {}
+        massif_name_to_df_ordered_by_maxima = {}
         for massif_id, s_annual_maxima in df_annual_maxima.iterrows():
+            massif_name = self.study_massif_names[massif_id]
             s_annual_maxima.sort_values(inplace=True, ascending=False)
             d = {
                 'Year': s_annual_maxima.index,
@@ -131,8 +146,9 @@ class AbstractStudy(object):
             }
             df = pd.DataFrame(d)
             df.set_index('Year', inplace=True)
-            massif_id_to_df_ordered_by_maxima[massif_id] = df
-        return massif_id_to_df_ordered_by_maxima
+            massif_name_to_df_ordered_by_maxima[massif_name] = df
+        assert set(self.study_massif_names) == set(massif_name_to_df_ordered_by_maxima.keys())
+        return massif_name_to_df_ordered_by_maxima
 
     @cached_property
     def year_to_wp_for_annual_maxima(self):

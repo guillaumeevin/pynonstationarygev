@@ -63,12 +63,17 @@ class TestWeatherTypes(unittest.TestCase):
 
     def test_weather_patterns_maxima(self):
         study = SafranPrecipitation1Day(altitude=900, year_min=1954, year_max=2008)
-        s = pd.Series(np.concatenate([v for v in study.year_to_wp_for_annual_maxima.values()]))
-        storms_ranking = s.value_counts()
+        storms_ranking = study.df_for_top_annual_maxima()
         self.assertEqual(storms_ranking.index[0], STEADY_OCEANIC)
         self.assertEqual(storms_ranking.index[-1], ANTICYCLONIC)
-        self.assertEqual(storms_ranking.values[0], 376)
-        self.assertEqual(storms_ranking.values[-1], 9)
+        self.assertEqual(storms_ranking.values[0, 1], 376)
+        self.assertEqual(storms_ranking.values[-1, 1], 9)
+
+    def test_massif_id_to_weather_type_df(self):
+        study = SafranPrecipitation1Day(altitude=900, year_min=2004, year_max=2008)
+        df = study.massif_name_to_df_ordered_by_maxima['Chablais']
+        self.assertAlmostEqual(df.loc[2007].values[0], 57.384655)
+        self.assertEqual(df.loc[2007].values[1], 'Steady Oceanic')
 
 
 if __name__ == '__main__':
