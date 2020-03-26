@@ -7,6 +7,7 @@ import pandas as pd
 from extreme_data.meteo_france_data.scm_models_data.safran.cumulated_study import NB_DAYS
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, SafranTemperature, \
     SafranPrecipitation
+from extreme_data.meteo_france_data.scm_models_data.utils import SeasonForTheMaxima
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     study_iterator_global, SCM_STUDIES, ALL_ALTITUDES
 from root_utils import get_display_name_from_object_type
@@ -18,8 +19,18 @@ class TestSCMAllStudy(unittest.TestCase):
         year = 2019
         study = SafranSnowfall(altitude=900, year_min=year, year_max=year)
         first_day, *_, last_day = study.year_to_days[year]
-        self.assertIn(str(year-1), first_day)
-        self.assertIn(str(year), last_day)
+        self.assertEqual('{}-08-01'.format(year - 1), first_day)
+        self.assertEqual('{}-07-31'.format(year), last_day)
+
+    def test_year_to_winter_date(self):
+        year = 2019
+        study = SafranSnowfall(altitude=900, year_min=year, year_max=year, season=SeasonForTheMaxima.winter_extended)
+        first_day, *_, last_day = study.year_to_days[year]
+        self.assertEqual('{}-11-01'.format(year - 1), first_day)
+        self.assertEqual('{}-05-31'.format(year), last_day)
+        days = study.year_to_days[year]
+        daily_time_series = study.year_to_daily_time_serie_array[year]
+        self.assertEqual(len(days), len(daily_time_series))
 
     def test_instantiate_studies(self):
         nb_sample = 2
@@ -30,7 +41,8 @@ class TestSCMAllStudy(unittest.TestCase):
                 first_path_file = study.ordered_years_and_path_files[0][0]
                 variable_object = study.load_variable_object(path_file=first_path_file)
                 self.assertEqual((365, 263), variable_object.daily_time_serie_array.shape,
-                                 msg='{} days for type {}'.format(nb_days, get_display_name_from_object_type(type(variable_object))))
+                                 msg='{} days for type {}'.format(nb_days, get_display_name_from_object_type(
+                                     type(variable_object))))
 
 
 class TestSCMStudy(unittest.TestCase):

@@ -1,4 +1,5 @@
 import datetime
+from enum import Enum
 
 from matplotlib.lines import Line2D
 import io
@@ -22,7 +23,8 @@ from extreme_data.edf_data.weather_types import load_df_weather_types
 from extreme_data.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
 from extreme_data.meteo_france_data.scm_models_data.utils import ALTITUDES, ZS_INT_23, ZS_INT_MASK, LONGITUDES, \
     LATITUDES, ORIENTATIONS, SLOPES, ORDERED_ALLSLOPES_ALTITUDES, ORDERED_ALLSLOPES_ORIENTATIONS, \
-    ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM, date_to_str, WP_PATTERN_MAX_YEAR
+    ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM, date_to_str, WP_PATTERN_MAX_YEAR, SeasonForTheMaxima, \
+    first_day_and_last_day
 from extreme_data.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
 from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
@@ -60,7 +62,8 @@ class AbstractStudy(object):
     # REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/postes/reanalysis'
 
     def __init__(self, variable_class: type, altitude: int = 1800, year_min=1959, year_max=2019,
-                 multiprocessing=True, orientation=None, slope=20.0):
+                 multiprocessing=True, orientation=None, slope=20.0,
+                 season=SeasonForTheMaxima.annual):
         assert isinstance(altitude, int), type(altitude)
         assert altitude in ALTITUDES, altitude
         self.altitude = altitude
@@ -69,6 +72,7 @@ class AbstractStudy(object):
         self.year_min = year_min
         self.year_max = year_max
         self.multiprocessing = multiprocessing
+        self.season = season
         # Add some attributes, for the "allslopes" reanalysis
         assert orientation is None or orientation in ORIENTATIONS
         assert slope in SLOPES
@@ -78,10 +82,28 @@ class AbstractStudy(object):
     """ Time """
 
     @cached_property
+    def year_to_first_index_and_last_index(self):
+        year_to_first_index_and_last_index = OrderedDict()
+        first_day, last_day = first_day_and_last_day(self.season)
+        for year, all_days in self.year_to_all_days.items():
+            first_index = all_days.index('{}-{}'.format(year-1, first_day))
+            last_index = all_days.index('{}-{}'.format(year, last_day))
+            year_to_first_index_and_last_index[year] = (first_index, last_index)
+        return year_to_first_index_and_last_index
+
+    @cached_property
     def year_to_days(self) -> OrderedDict:
+        year_to_days = OrderedDict()
+        for year, (start_index, last_index) in self.year_to_first_index_and_last_index.items():
+            year_to_days[year] = self.year_to_all_days[year][start_index:last_index+1]
+        return year_to_days
+
+    @cached_property
+    def year_to_all_days(self) -> OrderedDict:
         # Map each year to the 'days since year-08-01 06:00:00'
         year_to_days = OrderedDict()
         for year in self.ordered_years:
+            # Load days for the full year
             date = datetime.datetime(year=year - 1, month=8, day=1, hour=6, minute=0, second=0)
             days = []
             for i in range(366):
@@ -266,8 +288,12 @@ class AbstractStudy(object):
             daily_time_serie = self.year_to_variable_object[year].daily_time_serie_array
             assert daily_time_serie.shape[0] in [365, 366]
             assert daily_time_serie.shape[1] == len(self.column_mask)
-            # Filter only the data corresponding to the altitude of interest
-            daily_time_serie = daily_time_serie[:, self.column_mask]
+            # Filter only the data corresponding:
+            # 1: to the start_index and last_index of the season
+            # 2: to the massifs for the altitude of interest
+            first_index, last_index = self.year_to_first_index_and_last_index[year]
+            daily_time_serie = daily_time_serie[first_index:last_index+1, self.column_mask]
+            assert daily_time_serie.shape == (len(self.year_to_days[year]), len(self.study_massif_names))
             year_to_daily_time_serie_array[year] = daily_time_serie
         return year_to_daily_time_serie_array
 

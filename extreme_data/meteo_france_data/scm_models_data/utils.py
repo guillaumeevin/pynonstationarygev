@@ -2,6 +2,7 @@
 ZS was extracted from a netcdf file
 """
 from datetime import datetime
+from enum import Enum
 
 import numpy as np
 
@@ -10,6 +11,20 @@ WP_PATTERN_MAX_YEAR = 2008
 
 def date_to_str(date: datetime) -> str:
     return str(date).split()[0]
+
+
+class SeasonForTheMaxima(Enum):
+    annual = 0
+    winter_extended = 1
+    # i could add the classical seasons if needed
+
+
+def first_day_and_last_day(season):
+    season_to_start_day_and_last_day = {
+        SeasonForTheMaxima.annual: ('08-01', '07-31'),
+        SeasonForTheMaxima.winter_extended: ('11-01', '05-31')
+    }
+    return season_to_start_day_and_last_day[season]
 
 
 ZS = """[ 300.  600.  900. 1200. 1500. 1800. 2100. 2400. 2700. 3000. 3300.  300.
