@@ -8,7 +8,7 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranP
 from extreme_data.meteo_france_data.scm_models_data.utils import SeasonForTheMaxima
 
 
-def main_spatial_distribution_wps(study_class, year_min=1954, year_max=2008, limit_for_the_percentage=None):
+def main_spatial_distribution_wps(study_class, year_min=1959, year_max=2008, limit_for_the_percentage=None):
     study = study_class(altitude=1800, year_min=year_min, year_max=year_max, season=SeasonForTheMaxima.winter_extended)
     for region_name in AbstractExtendedStudy.region_names:
         massif_names = AbstractExtendedStudy.region_name_to_massif_names[region_name]
@@ -47,56 +47,56 @@ Process finished with exit code 0
 """
 
 
-def main_temporal_distribution_wps(study_class, year_min=1954, year_max=2008, limit_for_the_percentage=None):
+def main_temporal_distribution_wps(study_class, year_min=1959, year_max=2008, limit_for_the_percentage=None):
     altitude = 1800
-    study_before = study_class(altitude=altitude, year_min=year_min, year_max=1981, season=SeasonForTheMaxima.winter_extended)
-    study_after = study_class(altitude=altitude, year_min=1981, year_max=year_max, season=SeasonForTheMaxima.winter_extended)
-    # todo: same min and max year ?
+    intermediate_year = year_min + round(float(year_max - year_min) / 2)
+    study_before = study_class(altitude=altitude, year_min=year_min, year_max=intermediate_year, season=SeasonForTheMaxima.winter_extended)
+    study_after = study_class(altitude=altitude, year_min=intermediate_year+1, year_max=year_max, season=SeasonForTheMaxima.winter_extended)
     for region_name in AbstractExtendedStudy.region_names:
         massif_names = AbstractExtendedStudy.region_name_to_massif_names[region_name]
         print('\n \n', '{} ({} massifs)'.format(region_name, len(massif_names)), '\n')
-        for nb_top in [study_before.nb_years, 10][1:]:
+        for nb_top in [study_before.nb_years, 10, 1, 10][3:]:
             print(study_before.df_for_top_annual_maxima(nb_top=nb_top, massif_names=massif_names, limit_for_the_percentage=limit_for_the_percentage), '\n')
             print(study_after.df_for_top_annual_maxima(nb_top=nb_top, massif_names=massif_names, limit_for_the_percentage=limit_for_the_percentage), '\n')
 
 """
  Northern Alps (7 massifs) 
                              %  count  mean  min  median  max
-Top 10 maxima (1954 -1981)                                   
-Steady Oceanic              94     66   130  102     127  202 
+Top 10 maxima (1959 -1983)                                   
+Steady Oceanic              92     65   131  106     128  202 
 
-Top 10 maxima (1981 -2008)                                   
-Steady Oceanic              82     58   151  104     134  282 
+Top 10 maxima (1984 -2008)                                   
+Steady Oceanic              87     61   149  103     133  282 
  
  Central Alps (7 massifs) 
                              %  count  mean  min  median  max
-Top 10 maxima (1954 -1981)                                   
-Steady Oceanic              71     50   110   76     107  190 
+Top 10 maxima (1959 -1983)                                   
+Steady Oceanic              68     48   111   76     109  190 
 
-Top 10 maxima (1981 -2008)                                   
-Steady Oceanic              74     52   125   87     115  235
-South Circulation           14     10   123  100     120  161 
+Top 10 maxima (1984 -2008)                                   
+Steady Oceanic              77     54   123   81     107  235
+South Circulation           14     10   122   93     120  161 
 
  Southern Alps (6 massifs) 
-                             %  count  mean  min  median  max
-Top 10 maxima (1954 -1981)                                   
-South Circulation           43     26   113   67     112  197
-Steady Oceanic              16     10    95   82      93  122
-Southwest Circulation       15      9   102   68      95  140 
+                             %  count  mean  std  min  median  max
+Top 10 maxima (1959 -1983)                                        
+South Circulation           50     30   114   32   70     112  197
+Southwest Circulation       13      8   107   24   79      97  140
+Steady Oceanic              13      8    97   14   82      93  122 
 
-Top 10 maxima (1981 -2008)                                   
-South Circulation           63     38   134   73     127  235
-Steady Oceanic              21     13   110   80     105  187 
-
-
+Top 10 maxima (1984 -2008)                                   
+South Circulation           58     35   135   73     125  235
+Steady Oceanic              23     14   107   69     104  187 
+ 
  Extreme South Alps (3 massifs) 
                              %  count  mean  min  median  max
-Top 10 maxima (1954 -1981)                                   
-South Circulation           63     19   136   84     139  194
+Top 10 maxima (1959 -1983)                                   
+South Circulation           66     20   141   84     146  212
 Southwest Circulation       13      4   122   95     123  146 
 
-Top 10 maxima (1981 -2008)                                   
-South Circulation           76     23   165   78     159  306 
+Top 10 maxima (1984 -2008)                                   
+South Circulation           76     23   158   74     138  306 
+
 
 
 

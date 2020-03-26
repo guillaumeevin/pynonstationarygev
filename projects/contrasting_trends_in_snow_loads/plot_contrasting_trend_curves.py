@@ -8,7 +8,8 @@ from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import
     StudyVisualizerForNonStationaryTrends
 
 
-def plot_contrasting_trend_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
+def plot_contrasting_trend_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends],
+                                  all_regions=False):
     """
     Plot a single trend curves
     :return:
@@ -20,7 +21,7 @@ def plot_contrasting_trend_curves(altitude_to_visualizer: Dict[int, StudyVisuali
     ax_twinx = ax
     ax_twiny = ax.twiny()
 
-    trend_summary_values = list(zip(*[v.trend_summary_contrasting_values() for v in altitude_to_visualizer.values()]))
+    trend_summary_values = list(zip(*[v.trend_summary_contrasting_values(all_regions=all_regions) for v in altitude_to_visualizer.values()]))
     altitudes, *mean_changes = trend_summary_values
 
     # parameters

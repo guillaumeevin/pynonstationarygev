@@ -151,7 +151,8 @@ class AbstractStudy(object):
         df.drop(columns=drop_columns, inplace=True)
         df.rename(columns={'50%': 'median'}, inplace=True)
         df = df.astype(int)
-        df.index.name = 'Top {} maxima ({} -{})'.format(nb_top, self.year_min, self.year_max)
+        start_year, end_year = self.start_year_and_stop_year
+        df.index.name = 'Top {} maxima ({} -{})'.format(nb_top, start_year, end_year)
         if limit_for_the_percentage is not None:
             ind = df['%'] > limit_for_the_percentage
             df = df.loc[ind]

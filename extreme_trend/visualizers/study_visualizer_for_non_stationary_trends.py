@@ -459,14 +459,13 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         #     mean_decreases.append(compute_mean_decrease(change_values))
         return (self.altitude, percentage_decrease, percentage_decrease_significative, *mean_decreases)
 
-    def trend_summary_contrasting_values(self):
+    def trend_summary_contrasting_values(self, all_regions = False):
         # trend_tests = list(self.massif_name_to_trend_test_that_minimized_aic.values())
         # decreasing_trend_tests = [t for t in trend_tests if t.time_derivative_of_return_level < 0]
         # percentage_decrease = 100 * len(decreasing_trend_tests) / len(trend_tests)
         # significative_decrease_trend_tests = [t for t in decreasing_trend_tests if t.is_significant]
         # percentage_decrease_significative = 100 * len(significative_decrease_trend_tests) / len(trend_tests)
         compute_mean_change = lambda l: np.mean(np.array(list(l))) if len(l) > 0 else 0
-        all_regions = False
         massif_name_to_region_name = AbstractExtendedStudy.massif_name_to_region_name
         if all_regions:
             mean_changes = [compute_mean_change(self.massif_name_to_relative_change_value.values())]

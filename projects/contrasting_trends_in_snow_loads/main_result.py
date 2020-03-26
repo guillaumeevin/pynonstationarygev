@@ -57,7 +57,7 @@ def intermediate_result(altitudes, massif_names=None,
             _ = compute_minimized_aic(visualizer)
 
     # Plots
-    plot_contrasting_trend_curves(altitude_to_visualizer)
+    plot_contrasting_trend_curves(altitude_to_visualizer, all_regions=True)
 
 
 def major_result():
@@ -75,7 +75,7 @@ def major_result():
     rainfall_classes = [SafranRainfall1Day, SafranRainfall3Days, SafranRainfall5Days, SafranRainfall7Days]
     study_classes = precipitation_classes + snow_load_classes
     # study_classes = snowfall_classes + rainfall_classes
-    for study_class in study_classes[:]:
+    for study_class in [SafranPrecipitation3Days, CrocusSnowLoad3Days]:
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,
                             uncertainty_methods, study_class, multiprocessing=True)
 
