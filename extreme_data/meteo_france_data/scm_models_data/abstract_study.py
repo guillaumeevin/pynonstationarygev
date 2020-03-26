@@ -77,10 +77,6 @@ class AbstractStudy(object):
 
     """ Time """
 
-    @property
-    def nb_years(self):
-        return self.year_max - self.year_min + 1
-
     @cached_property
     def year_to_days(self) -> OrderedDict:
         # Map each year to the 'days since year-08-01 06:00:00'
@@ -115,19 +111,24 @@ class AbstractStudy(object):
         wps = pd.Series(np.concatenate([self.massif_name_to_df_ordered_by_maxima[massif_name]['WP'].values[:nb_top]
                                         for massif_name in massif_names]))
         s_normalized = wps.value_counts(normalize=True) * 100
-        s_normalized = s_normalized.round()
-        s_not_normalized = wps.value_counts()
-        # todo: do that, complete the last columns with the mean maxima
-        # Add a column that indicate the mean maxima associated to each weather pattern
-        # f = {}
-        # for wp in s_normalized.index:
-        #     print(wp)
-        #     for massif_id
-
-
-        # Concatenate all the results in one dataframe
-        df = pd.concat([s_normalized, s_not_normalized], axis=1)
-        df.columns = ['Percentage', 'Nb massifs concerned']
+        # Add several columns that indicate the strength of the maxima to each weather pattern
+        f = {wp: [] for wp in s_normalized.index}
+        for massif_name in massif_names:
+            df_ordered_by_maxima = self.massif_name_to_df_ordered_by_maxima[massif_name]
+            df_ordered_by_maxima = df_ordered_by_maxima.iloc[:nb_top, :]  # type: pd.DataFrame
+            assert len(df_ordered_by_maxima) == nb_top
+            for _, row in df_ordered_by_maxima.iterrows():
+                wp, maxima = row['WP'], row['Maxima']
+                f[wp].append(maxima)
+        df = pd.DataFrame({wp: pd.Series(l).describe() for wp, l in f.items()}).transpose()
+        df = pd.concat([s_normalized, df], axis=1)
+        df.columns = ['%' if i == 0 else c for i, c in enumerate(df.columns)]
+        drop_columns = ['25%', '75%']
+        if df['std'].isnull().any():
+            drop_columns.append('std')
+        df.drop(columns=drop_columns, inplace=True)
+        df.rename(columns={'50%': 'median'}, inplace=True)
+        df = df.astype(int)
         df.index.name = 'Number Top={}'.format(nb_top)
         return df
 
@@ -146,6 +147,7 @@ class AbstractStudy(object):
             }
             df = pd.DataFrame(d)
             df.set_index('Year', inplace=True)
+            assert len(df) == self.nb_years
             massif_name_to_df_ordered_by_maxima[massif_name] = df
         assert set(self.study_massif_names) == set(massif_name_to_df_ordered_by_maxima.keys())
         return massif_name_to_df_ordered_by_maxima
@@ -314,6 +316,10 @@ class AbstractStudy(object):
         return path_files, ordered_years
 
     """ Temporal properties """
+
+    @property
+    def nb_years(self):
+        return len(self.ordered_years)
 
     @property
     def ordered_years(self):

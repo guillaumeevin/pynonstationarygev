@@ -26,20 +26,23 @@ If we look at the 5 biggest maxima for each massif,
 and look to which Weather pattern they correspond
 then we do some percentage for each climatic region
 
-                    Percentage  Nb massifs concerned
+
  Northern Alps 
-Steady Oceanic            77.0                    27
-Atlantic Wave             11.0                     4
+                      %  count  mean  std  min  median  max                                           
+Steady Oceanic      77     27   105   16   80     104  150
+Atlantic Wave       11      4   111   15   95     111  129
 
  Central Alps 
-Steady Oceanic            57.0                    20
-South Circulation         17.0                     6
-East Return               14.0                     5
+                      %  count  mean  min  median  max
+Steady Oceanic      57     20    90   70      86  119
+South Circulation   17      6    85   64      88  104
+East Return         14      5    88   74      93  100
 
  Southern Alps 
-South Circulation         43.0                    13
-Central Depression        37.0                    11
-East Return               17.0                     5
+                      %  count  mean  min  median  max
+South Circulation   43     13    99   72     106  122
+Central Depression  36     11    98   68      97  136
+East Return         16      5    90   70      83  121
 
  Extreme South Alps 
 Central Depression        53.0                     8
@@ -55,7 +58,7 @@ def main_temporal_distribution_wps(study_class, year_min=1954, year_max=2008):
     for region_name in AbstractExtendedStudy.region_names:
         massif_names = AbstractExtendedStudy.region_name_to_massif_names[region_name]
         print('\n \n', region_name, '\n')
-        for nb_top in [study_before.nb_years, 10, 5, 1][-1:]:
+        for nb_top in [study_before.nb_years, 10][1:]:
             print(study_before.df_for_top_annual_maxima(nb_top=nb_top, massif_names=massif_names), '\n')
             print(study_after.df_for_top_annual_maxima(nb_top=nb_top, massif_names=massif_names), '\n')
 
