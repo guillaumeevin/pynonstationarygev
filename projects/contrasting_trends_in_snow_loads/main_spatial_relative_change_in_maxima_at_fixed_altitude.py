@@ -6,13 +6,6 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualiz
 import matplotlib.pyplot as plt
 
 
-def test():
-    study = CrocusSnowLoad3Days(altitude=1200)
-    study_visualizer = StudyVisualizer(study)
-    study_visualizer.visualize_max_graphs_poster('Queyras', altitude='noope', snow_abbreviation="ok", color='red')
-    plt.show()
-
-
 def density_wrt_altitude():
     save_to_file = True
     study_class = [SafranPrecipitation, SafranRainfall, SafranSnowfall, CrocusSnowLoad3Days, CrocusSnowLoadTotal][-2]

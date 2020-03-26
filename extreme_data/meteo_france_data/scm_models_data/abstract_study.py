@@ -123,7 +123,7 @@ class AbstractStudy(object):
             year_to_wps[year] = self.df_weather_types.loc[days].iloc[:, 0].values
         return year_to_wps
 
-    def df_for_top_annual_maxima(self, nb_top=None, massif_names=None):
+    def df_for_top_annual_maxima(self, nb_top=None, massif_names=None, limit_for_the_percentage=None):
         # Replace default arguments
         if nb_top is None:
             nb_top = self.nb_years
@@ -151,7 +151,10 @@ class AbstractStudy(object):
         df.drop(columns=drop_columns, inplace=True)
         df.rename(columns={'50%': 'median'}, inplace=True)
         df = df.astype(int)
-        df.index.name = 'Number Top={}'.format(nb_top)
+        df.index.name = 'Top {} maxima ({} -{})'.format(nb_top, self.year_min, self.year_max)
+        if limit_for_the_percentage is not None:
+            ind = df['%'] > limit_for_the_percentage
+            df = df.loc[ind]
         return df
 
     @cached_property
@@ -213,33 +216,6 @@ class AbstractStudy(object):
         for year, time_serie in self._year_to_max_daily_time_serie.items():
             year_to_annual_maxima[year] = time_serie.max(axis=0)
         return year_to_annual_maxima
-
-    @cached_property
-    def year_to_winter_annual_maxima(self) -> OrderedDict:
-        # Map each year to an array of size nb_massif
-        year_to_annual_maxima = OrderedDict()
-        for year, time_serie in self._year_to_max_daily_time_serie.items():
-            year_to_annual_maxima[year] = time_serie[91:-61].max(axis=0)
-        return year_to_annual_maxima
-
-    @property
-    def observations_winter_annual_maxima(self) -> AnnualMaxima:
-        return AnnualMaxima(
-            df_maxima_gev=pd.DataFrame(self.year_to_winter_annual_maxima, index=self.study_massif_names))
-
-    @cached_property
-    def year_to_summer_annual_maxima(self) -> OrderedDict:
-        # Map each year to an array of size nb_massif
-        year_to_annual_maxima = OrderedDict()
-        for year, time_serie in self._year_to_max_daily_time_serie.items():
-            annual_maxima = np.concatenate((time_serie[:91], time_serie[-61:]), axis=0).max(axis=0)
-            year_to_annual_maxima[year] = annual_maxima
-        return year_to_annual_maxima
-
-    @property
-    def observations_summer_annual_maxima(self) -> AnnualMaxima:
-        return AnnualMaxima(
-            df_maxima_gev=pd.DataFrame(self.year_to_summer_annual_maxima, index=self.study_massif_names))
 
     @cached_property
     def year_to_annual_maxima_index(self) -> OrderedDict:
