@@ -13,7 +13,6 @@ def load_altitude_to_visualizer(altitudes, massif_names, model_subsets_for_uncer
                                 save_to_file=True,
                                 multiprocessing=True,
                                 season=SeasonForTheMaxima.annual):
-    print("Season={}".format(season))
     fit_method = TemporalMarginFitMethod.extremes_fevd_mle
     altitude_to_visualizer = OrderedDict()
     for altitude in altitudes:

@@ -9,7 +9,7 @@ from extreme_data.meteo_france_data.scm_models_data.utils import SeasonForTheMax
 
 
 def main_spatial_distribution_wps(study_class, year_min=1959, year_max=2008, limit_for_the_percentage=None):
-    study = study_class(altitude=1800, year_min=year_min, year_max=year_max, season=SeasonForTheMaxima.winter_extended)
+    study = study_class(altitude=1800, year_min=year_min, year_max=year_max)
     for region_name in AbstractExtendedStudy.region_names:
         massif_names = AbstractExtendedStudy.region_name_to_massif_names[region_name]
         print('\n \n', region_name, '\n')
@@ -50,8 +50,8 @@ Process finished with exit code 0
 def main_temporal_distribution_wps(study_class, year_min=1959, year_max=2008, limit_for_the_percentage=None):
     altitude = 1800
     intermediate_year = year_min + round(float(year_max - year_min) / 2)
-    study_before = study_class(altitude=altitude, year_min=year_min, year_max=intermediate_year, season=SeasonForTheMaxima.winter_extended)
-    study_after = study_class(altitude=altitude, year_min=intermediate_year+1, year_max=year_max, season=SeasonForTheMaxima.winter_extended)
+    study_before = study_class(altitude=altitude, year_min=year_min, year_max=intermediate_year)
+    study_after = study_class(altitude=altitude, year_min=intermediate_year+1, year_max=year_max)
     for region_name in AbstractExtendedStudy.region_names:
         massif_names = AbstractExtendedStudy.region_name_to_massif_names[region_name]
         print('\n \n', '{} ({} massifs)'.format(region_name, len(massif_names)), '\n')
@@ -105,7 +105,7 @@ South Circulation           76     23   158   74     138  306
 
 
 if __name__ == '__main__':
-    limit_percentage = 10
+    limit_percentage = 1
     study_class = [CrocusSnowLoad1Day, SafranPrecipitation1Day, SafranPrecipitation3Days][-1]
-    # main_spatial_distribution_wps(study_class, limit_for_the_percentage=limit_percentage)
-    main_temporal_distribution_wps(study_class, limit_for_the_percentage=limit_percentage)
+    main_spatial_distribution_wps(study_class, limit_for_the_percentage=limit_percentage)
+    # main_temporal_distribution_wps(study_class, limit_for_the_percentage=limit_percentage)

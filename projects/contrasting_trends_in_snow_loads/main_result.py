@@ -42,8 +42,7 @@ def intermediate_result(altitudes, massif_names=None,
     """
     # Load altitude to visualizer
     altitude_to_visualizer = load_altitude_to_visualizer(altitudes, massif_names, model_subsets_for_uncertainty,
-                                                         study_class, uncertainty_methods, save_to_file=save_to_file,
-                                                         season=SeasonForTheMaxima.winter_extended)
+                                                         study_class, uncertainty_methods, save_to_file=save_to_file)
     # Load variable object efficiently
     for v in altitude_to_visualizer.values():
         _ = v.study.year_to_variable_object
@@ -58,7 +57,6 @@ def intermediate_result(altitudes, massif_names=None,
 
     # Plots
     plot_contrasting_trend_curves(altitude_to_visualizer, all_regions=True)
-
 
 def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
@@ -75,10 +73,16 @@ def major_result():
     rainfall_classes = [SafranRainfall1Day, SafranRainfall3Days, SafranRainfall5Days, SafranRainfall7Days]
     study_classes = precipitation_classes + snow_load_classes
     # study_classes = snowfall_classes + rainfall_classes
-    for study_class in [SafranPrecipitation3Days, CrocusSnowLoad3Days]:
+    for study_class in snowfall_classes:
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,
                             uncertainty_methods, study_class, multiprocessing=True)
 
+"""
+
+est ce qu il y a une croissance signifcative en pluie, 
+
+est ce qu'il y a une decroissance signifcatieve à partir d'une certaine altitude
+"""
 
 if __name__ == '__main__':
     major_result()
