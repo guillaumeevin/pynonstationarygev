@@ -21,6 +21,7 @@ class TemporalMarginFitMethod(Enum):
     extremes_fevd_bayesian = 1
     extremes_fevd_mle = 2
     extremes_fevd_gmle = 3
+    extremes_fevd_l_moments = 4
 
 
 class AbstractTemporalLinearMarginModel(LinearMarginModel):
@@ -53,7 +54,9 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
             elif self.fit_method == TemporalMarginFitMethod.extremes_fevd_bayesian:
                 return self.extremes_fevd_bayesian_fit(x, df_coordinates_temp)
             elif self.fit_method in [TemporalMarginFitMethod.extremes_fevd_mle,
-                                     TemporalMarginFitMethod.extremes_fevd_gmle]:
+                                     TemporalMarginFitMethod.extremes_fevd_gmle,
+                                     TemporalMarginFitMethod.extremes_fevd_l_moments,
+                                     ]:
                 return self.extremes_fevd_mle_related_fit(x, df_coordinates_temp)
             else:
                 raise NotImplementedError
@@ -78,6 +81,9 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
             method = "MLE"
         elif self.fit_method == TemporalMarginFitMethod.extremes_fevd_gmle:
             method = "GMLE"
+        elif self.fit_method == TemporalMarginFitMethod.extremes_fevd_l_moments:
+            method = "Lmoments"
+            assert self.margin_function_start_fit.is_a_stationary_model
         else:
             raise ValueError('wrong method')
         return self.run_fevd_fixed(df_coordinates_temp, method, x)
