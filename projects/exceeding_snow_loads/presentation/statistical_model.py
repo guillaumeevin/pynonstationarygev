@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from extreme_fit.distribution.gev.gevmle_fit import GevMleFit
-from extreme_fit.distribution.gev.ismev_gev_fit import ismev_gev_fit
+from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
 
 
 def binomial_observation():
@@ -34,8 +33,7 @@ def histogram_for_gev():
     study = CrocusSnowLoadTotal(altitude=1800)
     s = study.observations_annual_maxima.df_maxima_gev.loc['Vercors']
     x_gev = s.values
-    gev = GevMleFit(x_gev)
-    gev_params = gev.gev_params
+    gev_params = fitted_stationary_gev(x_gev)
     samples = gev_params.sample(10000)
     nb = 10
     epsilon = 0.0

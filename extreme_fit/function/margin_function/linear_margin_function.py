@@ -62,6 +62,10 @@ class LinearMarginFunction(ParametricMarginFunction):
         return coef_dict
 
     @property
+    def is_a_stationary_model(self) -> bool:
+        return all([v == 'NULL' for v in self.form_dict.values()])
+
+    @property
     def form_dict(self) -> Dict[str, str]:
         form_dict = {}
         for gev_param_name in self.params_class.PARAM_NAMES:

@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     EurocodeConfidenceIntervalFromExtremes, compute_eurocode_confidence_interval
 from extreme_data.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
@@ -29,7 +30,6 @@ from extreme_fit.function.margin_function.abstract_margin_function import \
 from extreme_fit.function.param_function.param_function import AbstractParamFunction
 from extreme_fit.model.max_stable_model.abstract_max_stable_model import CovarianceFunction
 from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.distribution.gev.ismev_gev_fit import IsmevGevFit
 from extreme_fit.distribution.gpd.gpd_params import GpdParams
 from extreme_fit.distribution.gpd.gpdmle_fit import GpdMleFit
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
@@ -374,7 +374,7 @@ class StudyVisualizer(VisualizationParameters):
         # Display the graph of the max on top
         ax = plt.gca()
         _, y = self.smooth_maxima_x_y(massif_names.index(massif_name))
-        gev_param = IsmevGevFit(x_gev=y).gev_params
+        gev_param = fitted_stationary_gev(x_gev=y)
         # Round up
 
         # d = {k: self.round_sig(v, 2) for k, v in d.items()}
@@ -661,7 +661,7 @@ class StudyVisualizer(VisualizationParameters):
 
     @cached_property
     def massif_name_to_gev_mle_fitted(self) -> Dict[str, GevParams]:
-        return {massif_name: IsmevGevFit(self.df_maxima_gev.loc[massif_name]).gev_params
+        return {massif_name: fitted_stationary_gev(self.df_maxima_gev.loc[massif_name])
                 for massif_name in self.study.study_massif_names}
 
     @cached_property
