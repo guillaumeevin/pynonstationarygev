@@ -69,7 +69,7 @@ def main_snow_load_maxima_partition(year_min, year_max):
     rainfall_classes = [SafranRainfall1Day, SafranRainfall3Days, SafranRainfall5Days, SafranRainfall7Days]
     snowfall_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days]
     snow_load_classes = [CrocusSnowLoad1Day, CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days]
-    classes = list(zip(rainfall_classes, snowfall_classes, snow_load_classes))[:1]
+    classes = list(zip(rainfall_classes, snowfall_classes, snow_load_classes))[1:2]
     nb_top = 5
     for study_classes in classes:
         altitude_to_s = OrderedDict()
@@ -85,8 +85,9 @@ def main_snow_load_maxima_partition(year_min, year_max):
             # print(s)
             altitude_to_s[altitude] = s
         df_final = pd.DataFrame(altitude_to_s).transpose().round(2)
-        print(nb_top)
+        print(nb_top, year_min, year_max)
         print(df_final)
+        print('\n\n')
 
 
 if __name__ == '__main__':

@@ -19,7 +19,8 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusS
     CrocusSnowLoad5Days, CrocusSnowLoad7Days, CrocusSnowLoad1Day
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
-from projects.contrasting_trends_in_snow_loads.plot_contrasting_trend_curves import plot_contrasting_trend_curves
+from projects.contrasting_trends_in_snow_loads.plot_contrasting_trend_curves import plot_contrasting_trend_curves, \
+    plot_contrasting_trend_curves_massif
 from projects.exceeding_snow_loads.section_results.main_result_trends_and_return_levels import \
     compute_minimized_aic
 from root_utils import NB_CORES
@@ -49,14 +50,16 @@ def intermediate_result(altitudes, massif_names=None,
     # Compute minimized value efficiently
     visualizers = list(altitude_to_visualizer.values())
     if multiprocessing:
-        with Pool(NB_CORES) as p:
+        with Pool(4) as p:
             _ = p.map(compute_minimized_aic, visualizers)
     else:
         for visualizer in visualizers:
             _ = compute_minimized_aic(visualizer)
 
     # Plots
-    plot_contrasting_trend_curves(altitude_to_visualizer, all_regions=True)
+    # plot_contrasting_trend_curves(altitude_to_visualizer, all_regions=True)
+    plot_contrasting_trend_curves_massif(altitude_to_visualizer, all_regions=True)
+
 
 def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
@@ -73,9 +76,10 @@ def major_result():
     rainfall_classes = [SafranRainfall1Day, SafranRainfall3Days, SafranRainfall5Days, SafranRainfall7Days]
     study_classes = precipitation_classes + snow_load_classes
     # study_classes = snowfall_classes + rainfall_classes
-    for study_class in snowfall_classes:
+    for study_class in snowfall_classes[:1]:
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,
                             uncertainty_methods, study_class, multiprocessing=True)
+
 
 """
 
