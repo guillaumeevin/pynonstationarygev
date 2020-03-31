@@ -22,33 +22,32 @@ class Safran(AbstractStudy):
 
 class SafranSnowfall(Safran, CumulatedStudy):
 
-    def __init__(self, *args, **kwargs):
-        CumulatedStudy.__init__(self, SafranSnowfallVariable, *args, **kwargs)
-        Safran.__init__(self, SafranSnowfallVariable, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(SafranSnowfallVariable, **kwargs)
 
 
 class SafranSnowfall1Day(SafranSnowfall):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(nb_consecutive_days=1, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(nb_consecutive_days=1, **kwargs)
 
 
 class SafranSnowfall3Days(SafranSnowfall):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(nb_consecutive_days=3, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(nb_consecutive_days=3, **kwargs)
 
 
 class SafranSnowfall5Days(SafranSnowfall):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(nb_consecutive_days=5, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(nb_consecutive_days=5, **kwargs)
 
 
 class SafranSnowfall7Days(SafranSnowfall):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(nb_consecutive_days=7, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(nb_consecutive_days=7, **kwargs)
 
 
 class ExtendedSafranSnowfall(AbstractExtendedStudy, SafranSnowfall):
@@ -57,38 +56,38 @@ class ExtendedSafranSnowfall(AbstractExtendedStudy, SafranSnowfall):
 
 class SafranRainfall(CumulatedStudy, Safran):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(SafranRainfallVariable, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(SafranRainfallVariable, **kwargs)
 
 
 class SafranRainfall1Day(SafranRainfall):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(nb_consecutive_days=1, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(nb_consecutive_days=1, **kwargs)
 
 
 class SafranRainfall3Days(SafranRainfall):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(nb_consecutive_days=3, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(nb_consecutive_days=3, **kwargs)
 
 
 class SafranRainfall5Days(SafranRainfall):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(nb_consecutive_days=5, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(nb_consecutive_days=5, **kwargs)
 
 
 class SafranRainfall7Days(SafranRainfall):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(nb_consecutive_days=7, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(nb_consecutive_days=7, **kwargs)
 
 
 class SafranPrecipitation(CumulatedStudy, Safran):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(SafranTotalPrecipVariable, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(SafranTotalPrecipVariable, **kwargs)
 
     def load_variable_array(self, dataset):
         return [np.array(dataset.variables[k]) for k in self.load_keyword()]
@@ -100,26 +99,26 @@ class SafranPrecipitation(CumulatedStudy, Safran):
 
 class SafranPrecipitation1Day(SafranPrecipitation):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(nb_consecutive_days=1, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(nb_consecutive_days=1, **kwargs)
 
 
 class SafranPrecipitation3Days(SafranPrecipitation):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(nb_consecutive_days=3, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(nb_consecutive_days=3, **kwargs)
 
 
 class SafranPrecipitation5Days(SafranPrecipitation):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(nb_consecutive_days=5, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(nb_consecutive_days=5, **kwargs)
 
 
 class SafranPrecipitation7Days(SafranPrecipitation):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(nb_consecutive_days=7, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(nb_consecutive_days=7, **kwargs)
 
 
 class ExtendedSafranPrecipitation(AbstractExtendedStudy, SafranPrecipitation):
@@ -128,14 +127,20 @@ class ExtendedSafranPrecipitation(AbstractExtendedStudy, SafranPrecipitation):
 
 class SafranTemperature(Safran):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(SafranTemperatureVariable, *args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(SafranTemperatureVariable, **kwargs)
 
     def annual_aggregation_function(self, *args, **kwargs):
         return np.mean(*args, **kwargs)
 
 
 if __name__ == '__main__':
-    study = SafranRainfall1Day()
+    altitude = 900
+    year_min = 1959
+    year_max = 2000
+    study = SafranRainfall1Day(altitude, year_min=year_min, year_max=year_max)
+    d = study.year_to_dataset_ordered_dict[1959]
+    print(d.keywords)
+    print(d.variables.keys())
     print(study.year_to_annual_maxima[1959])
     print(study.ordered_years)

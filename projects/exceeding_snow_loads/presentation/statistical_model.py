@@ -25,6 +25,7 @@ def binomial_observation():
         plt.yticks([0.0, 1.0], ['Heads', 'Tails'])
         ax.plot(time, data, color=color, label=label, linewidth=4)
 
+
 def histogram_for_gev():
     import matplotlib.pyplot as plt
     from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
@@ -53,9 +54,6 @@ def histogram_for_gev():
     ax.set_ylim([0, 0.3])
 
 
-
-
-
 def histogram_for_normal():
     ax = plt.gca()
     linewidth = 5
@@ -69,7 +67,6 @@ def histogram_for_normal():
     ax.set_ylabel('Probability', fontsize=15)
     ax.set_xlim([0, 1])
     ax.set_ylim([0, 0.6])
-
 
 
 if __name__ == '__main__':

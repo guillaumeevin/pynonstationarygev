@@ -4,9 +4,10 @@ from random import sample
 
 import pandas as pd
 
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad3Days
 from extreme_data.meteo_france_data.scm_models_data.safran.cumulated_study import NB_DAYS
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, SafranTemperature, \
-    SafranPrecipitation
+    SafranPrecipitation, SafranSnowfall3Days, SafranRainfall3Days
 from extreme_data.meteo_france_data.scm_models_data.utils import SeasonForTheMaxima
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     study_iterator_global, SCM_STUDIES, ALL_ALTITUDES
@@ -33,9 +34,10 @@ class TestSCMAllStudy(unittest.TestCase):
         self.assertEqual(len(days), len(daily_time_series))
 
     def test_instantiate_studies(self):
+        study_classes = SCM_STUDIES
         nb_sample = 2
         for nb_days in sample(set(NB_DAYS), k=nb_sample):
-            for study in study_iterator_global(study_classes=SCM_STUDIES,
+            for study in study_iterator_global(study_classes=study_classes,
                                                only_first_one=False, verbose=False,
                                                altitudes=sample(set(ALL_ALTITUDES), k=nb_sample), nb_days=nb_days):
                 first_path_file = study.ordered_years_and_path_files[0][0]
@@ -43,6 +45,14 @@ class TestSCMAllStudy(unittest.TestCase):
                 self.assertEqual((365, 263), variable_object.daily_time_serie_array.shape,
                                  msg='{} days for type {}'.format(nb_days, get_display_name_from_object_type(
                                      type(variable_object))))
+
+    def test_instantiate_studies_with_number_of_days(self):
+        altitude = 900
+        year_min = 1959
+        year_max = 2000
+        study_classes = [SafranSnowfall3Days, SafranRainfall3Days, CrocusSnowLoad3Days]
+        for study_class in study_classes:
+            study_class(altitude=altitude, year_min=year_min, year_max=year_max)
 
 
 class TestSCMStudy(unittest.TestCase):
