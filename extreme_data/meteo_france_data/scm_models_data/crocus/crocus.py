@@ -61,9 +61,11 @@ class CrocusSnowLoadTotal(Crocus):
     def __init__(self, *args, **kwargs):
         Crocus.__init__(self, TotalSnowLoadVariable, *args, **kwargs)
 
+
 class CrocusSnowLoad1Day(CrocusSweTotal):
     def __init__(self, *args, **kwargs):
         Crocus.__init__(self, RecentSnowLoadVariableOneDay, *args, **kwargs)
+
 
 class CrocusSnowLoad3Days(CrocusSweTotal):
     def __init__(self, *args, **kwargs):

@@ -86,7 +86,7 @@ class AbstractStudy(object):
         year_to_first_index_and_last_index = OrderedDict()
         first_day, last_day = first_day_and_last_day(self.season)
         for year, all_days in self.year_to_all_days.items():
-            first_index = all_days.index('{}-{}'.format(year-1, first_day))
+            first_index = all_days.index('{}-{}'.format(year - 1, first_day))
             last_index = all_days.index('{}-{}'.format(year, last_day))
             year_to_first_index_and_last_index[year] = (first_index, last_index)
         return year_to_first_index_and_last_index
@@ -95,7 +95,7 @@ class AbstractStudy(object):
     def year_to_days(self) -> OrderedDict:
         year_to_days = OrderedDict()
         for year, (start_index, last_index) in self.year_to_first_index_and_last_index.items():
-            year_to_days[year] = self.year_to_all_days[year][start_index:last_index+1]
+            year_to_days[year] = self.year_to_all_days[year][start_index:last_index + 1]
         return year_to_days
 
     @cached_property
@@ -226,6 +226,24 @@ class AbstractStudy(object):
             year_to_annual_maxima[year] = time_serie.argmax(axis=0)
         return year_to_annual_maxima
 
+    @cached_property
+    def massif_name_to_annual_maxima_ordered_index(self):
+        massif_name_to_annual_maxima_ordered_index = OrderedDict()
+        for i, (massif_name, years) in enumerate(self.massif_name_to_annual_maxima_ordered_years.items()):
+            ordered_index = [self.year_to_annual_maxima_index[year][i] for year in years]
+            massif_name_to_annual_maxima_ordered_index[massif_name] = ordered_index
+        return massif_name_to_annual_maxima_ordered_index
+
+    @cached_property
+    def massif_name_to_annual_maxima_ordered_years(self):
+        massif_name_to_annual_maxima_ordered_years = OrderedDict()
+        for i, massif_name in enumerate(self.study_massif_names):
+            maxima = np.array([self.year_to_annual_maxima[year][i] for year in self.ordered_years])
+            annual_maxima_ordered_index = np.argsort(maxima)
+            annual_maxima_ordered_years = [self.ordered_years[idx] for idx in annual_maxima_ordered_index]
+            massif_name_to_annual_maxima_ordered_years[massif_name] = annual_maxima_ordered_years
+        return massif_name_to_annual_maxima_ordered_years
+
     """ Annual total """
 
     @property
@@ -269,7 +287,7 @@ class AbstractStudy(object):
             # 1: to the start_index and last_index of the season
             # 2: to the massifs for the altitude of interest
             first_index, last_index = self.year_to_first_index_and_last_index[year]
-            daily_time_serie = daily_time_serie[first_index:last_index+1, self.column_mask]
+            daily_time_serie = daily_time_serie[first_index:last_index + 1, self.column_mask]
             assert daily_time_serie.shape == (len(self.year_to_days[year]), len(self.study_massif_names))
             year_to_daily_time_serie_array[year] = daily_time_serie
         return year_to_daily_time_serie_array
