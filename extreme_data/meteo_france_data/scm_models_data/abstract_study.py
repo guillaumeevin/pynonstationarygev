@@ -238,12 +238,20 @@ class AbstractStudy(object):
             ordered_index = [self.year_to_annual_maxima_index[year][i] for year in years]
             massif_name_to_annual_maxima_ordered_index[massif_name] = ordered_index
         return massif_name_to_annual_maxima_ordered_index
+    
+    @cached_property
+    def massif_name_to_annual_maxima(self):
+        massif_name_to_annual_maxima = OrderedDict()
+        for i, massif_name in enumerate(self.study_massif_names):
+            maxima = np.array([self.year_to_annual_maxima[year][i] for year in self.ordered_years])
+            massif_name_to_annual_maxima[massif_name] = maxima
+        return massif_name_to_annual_maxima
 
     @cached_property
     def massif_name_to_annual_maxima_ordered_years(self):
         massif_name_to_annual_maxima_ordered_years = OrderedDict()
-        for i, massif_name in enumerate(self.study_massif_names):
-            maxima = np.array([self.year_to_annual_maxima[year][i] for year in self.ordered_years])
+        for massif_name in self.study_massif_names:
+            maxima = self.massif_name_to_annual_maxima[massif_name]
             annual_maxima_ordered_index = np.argsort(maxima)
             annual_maxima_ordered_years = [self.ordered_years[idx] for idx in annual_maxima_ordered_index]
             massif_name_to_annual_maxima_ordered_years[massif_name] = annual_maxima_ordered_years
