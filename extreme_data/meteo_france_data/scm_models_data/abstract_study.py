@@ -198,8 +198,10 @@ class AbstractStudy(object):
         return list(chain(*list(self.year_to_days.values())))
 
     @property
-    def all_daily_series(self):
-        all_daily_series = np.concatenate(list(self.year_to_daily_time_serie_array.values()))
+    def all_daily_series(self) -> np.ndarray:
+        """Return an array of approximate shape (total_number_of_days, 23) x """
+        all_daily_series = np.concatenate([ time_serie_array
+                                            for time_serie_array in self.year_to_daily_time_serie_array.values()])
         assert len(all_daily_series) == len(self.all_days)
         return all_daily_series
 

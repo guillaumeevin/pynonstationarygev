@@ -82,6 +82,12 @@ class TestSCMSafranSnowfall(TestSCMStudy):
         # Assert that the massif names are the same between SAFRAN and the coordinate file
         assert not set(self.study.study_massif_names).symmetric_difference(set(df_centroid['NOM']))
 
+    def test_all_data(self):
+        all_daily_series = self.study.all_daily_series
+        self.assertEqual(all_daily_series.ndim, 2)
+        self.assertEqual(all_daily_series.shape[1], 23)
+        self.assertEqual(all_daily_series.shape[0], 22280)
+
 
 class TestSCMPrecipitation(TestSCMStudy):
 
