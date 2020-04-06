@@ -356,7 +356,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             res = [compute_eurocode_confidence_interval(*argument) for argument in arguments]
         massif_name_to_eurocode_return_level_uncertainty = dict(zip(massifs_names, res))
         # For the rest of the massif names. Create a Eurocode Return Level Uncertainty as nan
-        for massif_name in set(self.study.all_massif_names) - set(massifs_names):
+        for massif_name in set(self.study.all_massif_names()) - set(massifs_names):
             massif_name_to_eurocode_return_level_uncertainty[massif_name] = self.default_eurocode_uncertainty
         return massif_name_to_eurocode_return_level_uncertainty
 

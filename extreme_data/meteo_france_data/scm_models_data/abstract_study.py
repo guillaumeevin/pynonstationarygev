@@ -24,7 +24,7 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_variable import Abs
 from extreme_data.meteo_france_data.scm_models_data.utils import ALTITUDES, ZS_INT_23, ZS_INT_MASK, LONGITUDES, \
     LATITUDES, ORIENTATIONS, SLOPES, ORDERED_ALLSLOPES_ALTITUDES, ORDERED_ALLSLOPES_ORIENTATIONS, \
     ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM, date_to_str, WP_PATTERN_MAX_YEAR, SeasonForTheMaxima, \
-    first_day_and_last_day
+    first_day_and_last_day, FrenchRegion, ZS_INT_MASK_PYRENNES, alps_massif_order, ZS_INT_MASK_PYRENNES_LIST
 from extreme_data.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
 from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
@@ -56,16 +56,19 @@ class AbstractStudy(object):
     The year 2017 represents the nc file that correspond to the winter between the year 2017 and 2018.
     """
     # REANALYSIS_FLAT_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_flat/reanalysis'
-    REANALYSIS_FLAT_FOLDER = 'S2M_AERIS_MARS_2020/'
-    REANALYSIS_ALLSLOPES_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_allslopes/reanalysis'
+    REANALYSIS_ALPS_FLAT_FOLDER = 'S2M_AERIS_MARS_2020/'
+    REANALYSIS_PYRENEES_FLAT_FOLDER = 'S2M_AERIS_AVRIL_2020/'
+    REANALYSIS_ALPS_ALLSLOPES_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_allslopes/reanalysis'
 
     # REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/postes/reanalysis'
 
     def __init__(self, variable_class: type, altitude: int = 1800, year_min=1959, year_max=2019,
                  multiprocessing=True, orientation=None, slope=20.0,
-                 season=SeasonForTheMaxima.annual):
+                 season=SeasonForTheMaxima.annual,
+                 french_region=FrenchRegion.alps):
         assert isinstance(altitude, int), type(altitude)
         assert altitude in ALTITUDES, altitude
+        self.french_region = french_region
         self.altitude = altitude
         self.model_name = None
         self.variable_class = variable_class
@@ -377,7 +380,7 @@ class AbstractStudy(object):
 
     @property
     def missing_massif_name(self):
-        return set(self.all_massif_names) - set(self.altitude_to_massif_names[self.altitude])
+        return set(self.all_massif_names(self.reanalysis_path, self.dbf_filename)) - set(self.altitude_to_massif_names[self.altitude])
 
     @property
     def column_mask(self):
@@ -395,7 +398,12 @@ class AbstractStudy(object):
 
     @cached_property
     def flat_mask(self):
-        altitude_mask = ZS_INT_MASK == self.altitude
+        if self.french_region is FrenchRegion.alps:
+            altitude_mask = ZS_INT_MASK == self.altitude
+        elif self.french_region is FrenchRegion.pyrenees:
+            altitude_mask = ZS_INT_MASK_PYRENNES == self.altitude
+        else:
+            raise ValueError('{}'.format(self.french_region))
         assert np.sum(altitude_mask) == len(self.altitude_to_massif_names[self.altitude])
         return altitude_mask
 
@@ -580,8 +588,27 @@ class AbstractStudy(object):
 
     @property
     def reanalysis_path(self):
-        reanalysis_folder = self.REANALYSIS_ALLSLOPES_FOLDER if self.has_orientation else self.REANALYSIS_FLAT_FOLDER
+        if self.french_region is FrenchRegion.alps:
+            if self.has_orientation:
+                reanalysis_folder = self.REANALYSIS_ALPS_ALLSLOPES_FOLDER
+            else:
+                reanalysis_folder = self.REANALYSIS_ALPS_FLAT_FOLDER
+        elif self.french_region is FrenchRegion.pyrenees and not self.has_orientation:
+            reanalysis_folder = self.REANALYSIS_PYRENEES_FLAT_FOLDER
+        else:
+            raise ValueError(
+                'french_region = {}, has_orientation = {}'.format(self.french_region, self.has_orientation))
+
         return op.join(self.full_path, reanalysis_folder)
+
+    @property
+    def dbf_filename(self) -> str:
+        if self.french_region is FrenchRegion.alps:
+            return 'massifs_alpes'
+        elif self.french_region is FrenchRegion.pyrenees:
+            return 'massifs_pyrenees'
+        else:
+            raise ValueError('{}'.format(self.french_region))
 
     @property
     def has_orientation(self):
@@ -593,19 +620,31 @@ class AbstractStudy(object):
     def original_safran_massif_id_to_massif_name(cls) -> Dict[int, str]:
         return {massif_id: massif_name for massif_id, massif_name in enumerate(cls.all_massif_names)}
 
-    @classproperty
-    def all_massif_names(cls) -> List[str]:
+    @classmethod
+    def all_massif_names(cls, reanalysis_path=None, dbf_filename='massifs_alpes') -> List[str]:
         """
         Pour l'identification des massifs, le numéro de la variable massif_num correspond à celui de l'attribut num_opp
         """
-        metadata_path = op.join(cls.full_path, cls.REANALYSIS_FLAT_FOLDER, 'metadata')
-        dbf = Dbf5(op.join(metadata_path, 'massifs_alpes.dbf'))
+        if reanalysis_path is None:
+            # Default case if the french alps
+            reanalysis_path = op.join(cls.full_path, cls.REANALYSIS_ALPS_FLAT_FOLDER)
+        if cls.REANALYSIS_ALPS_FLAT_FOLDER in reanalysis_path or cls.REANALYSIS_ALPS_ALLSLOPES_FOLDER in reanalysis_path:
+            french_region = FrenchRegion.alps
+            key = 'num_opp'
+        else:
+            french_region = FrenchRegion.pyrenees
+            key = 'massif_num'
+
+        metadata_path = op.join(reanalysis_path, 'metadata')
+        dbf = Dbf5(op.join(metadata_path, '{}.dbf'.format(dbf_filename)))
         df = dbf.to_dataframe().copy()  # type: pd.DataFrame
         dbf.f.close()
-        df.sort_values(by='num_opp', inplace=True)
+        # Important part (for the alps & pyrenees all data is order from the smaller massif number to the bigger)
+        df.sort_values(by=key, inplace=True)
         all_massif_names = list(df['nom'])
         # Correct a massif name
-        all_massif_names[all_massif_names.index('Beaufortin')] = 'Beaufortain'
+        if french_region is FrenchRegion.alps:
+            all_massif_names[all_massif_names.index('Beaufortin')] = 'Beaufortain'
         return all_massif_names
 
     @classmethod
@@ -614,17 +653,18 @@ class AbstractStudy(object):
         df_centroid = pd.read_csv(op.join(cls.map_full_path, 'coordonnees_massifs_alpes.csv'))
         df_centroid.set_index('NOM', inplace=True)
         # Check that the names of massifs are the same
-        symmetric_difference = set(df_centroid.index).symmetric_difference(cls.all_massif_names)
+        symmetric_difference = set(df_centroid.index).symmetric_difference(cls.all_massif_names())
         assert len(symmetric_difference) == 0, symmetric_difference
         # Sort the column in the order of the SAFRAN dataset
-        df_centroid = df_centroid.reindex(cls.all_massif_names, axis=0)
+        df_centroid = df_centroid.reindex(cls.all_massif_names(), axis=0)
         for coord_column in [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_Y]:
             df_centroid.loc[:, coord_column] = df_centroid[coord_column].str.replace(',', '.').astype(float)
         return df_centroid
 
     @cached_property
     def massif_name_to_altitudes(self) -> Dict[str, List[int]]:
-        s = ZS_INT_23 + [0]
+        zs = ZS_INT_23 if self.french_region is FrenchRegion.alps else ZS_INT_MASK_PYRENNES_LIST
+        s = zs + [0]
         zs_list = []
         zs_all_list = []
         for a, b in zip(s[:-1], s[1:]):
@@ -632,7 +672,8 @@ class AbstractStudy(object):
             if a > b:
                 zs_all_list.append(zs_list)
                 zs_list = []
-        return OrderedDict(zip(self.all_massif_names, zs_all_list))
+        all_massif_names = self.all_massif_names(self.reanalysis_path, self.dbf_filename)
+        return OrderedDict(zip(all_massif_names, zs_all_list))
 
     @cached_property
     def altitude_to_massif_names(self) -> Dict[int, List[str]]:

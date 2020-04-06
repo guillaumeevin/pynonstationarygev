@@ -15,4 +15,4 @@ class CumulatedStudy(AbstractStudy):
 
     @property
     def variable_name(self):
-        return super().variable_name + ' cumulated over {} day(s)'.format(self.nb_consecutive_days)
+        return super().variable_name + ' {} day(s)'.format(self.nb_consecutive_days)

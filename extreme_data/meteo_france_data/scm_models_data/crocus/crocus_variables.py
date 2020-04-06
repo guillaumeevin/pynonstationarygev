@@ -29,7 +29,7 @@ class CrocusRecentSweVariableOneDay(CrocusTotalSweVariable):
 
 
 class CrocusRecentSweVariableThreeDays(CrocusTotalSweVariable):
-    NAME = 'Snow Water Equivalent last 3 days'
+    NAME = 'SWE in 3 days'
 
     @classmethod
     def keyword(cls):
