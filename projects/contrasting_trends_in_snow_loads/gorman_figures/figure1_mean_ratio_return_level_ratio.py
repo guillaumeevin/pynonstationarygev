@@ -3,13 +3,16 @@ from collections import OrderedDict
 import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad1Day, CrocusSnowLoad3Days, \
+    CrocusSnowLoadTotal
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map, \
     get_colors, shiftedColorMap, ticks_values_and_labels_for_percentages
+from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import ALL_ALTITUDES_WITHOUT_NAN
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+    TemporalMarginFitMethod, fitmethod_to_str
 
 import matplotlib.pyplot as plt
 
@@ -54,11 +57,15 @@ class StudyVisualizerForReturnLevelChange(StudyVisualizer):
             massif_name_to_return_levels[massif_name] = return_level
         return massif_name_to_return_levels
 
-    def plot_return_level_percentage(self):
+    def plot_return_level_evolution(self):
         massif_name_to_return_level_past = self.massif_name_to_return_level(self.study_before)
         massif_name_to_return_level_recent = self.massif_name_to_return_level(self.study_after)
+        # massif_name_to_percentage = {
+        #     m: 100 * (v - massif_name_to_return_level_past[m]) / massif_name_to_return_level_past[m]
+        #     for m, v in
+        #     massif_name_to_return_level_recent.items()}
         massif_name_to_percentage = {
-            m: 100 * (v - massif_name_to_return_level_past[m]) / massif_name_to_return_level_past[m]
+            m:  (v - massif_name_to_return_level_past[m])
             for m, v in
             massif_name_to_return_level_recent.items()}
 
@@ -95,6 +102,7 @@ class StudyVisualizerForReturnLevelChange(StudyVisualizer):
         ax.get_xaxis().set_visible(True)
         ax.set_xticks([])
         ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=15)
+        ax.set_title('Fit method is {}'.format(fitmethod_to_str(self.fit_method)))
         self.plot_name = 'change in return levels'
         self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True,
                                   dpi=500)
@@ -102,10 +110,14 @@ class StudyVisualizerForReturnLevelChange(StudyVisualizer):
 
 
 if __name__ == '__main__':
-    for altitude in [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:]:
-        study_visualizer = StudyVisualizerForReturnLevelChange(study_class=SafranSnowfall1Day, altitude=altitude,
-                                                               return_period=30,
-                                                               save_to_file=True,
-                                                               fit_method=TemporalMarginFitMethod.extremes_fevd_l_moments)
-        study_visualizer.plot_return_level_percentage()
+    # for altitude in [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:]:
+    for altitude in ALL_ALTITUDES_WITHOUT_NAN:
+        for study_class in [SafranSnowfall1Day, SafranSnowfall3Days, CrocusSnowLoadTotal, CrocusSnowLoad3Days, CrocusSnowLoad1Day][:1]:
+            return_period = 50
+            study_visualizer = StudyVisualizerForReturnLevelChange(study_class=study_class,
+                                                                   altitude=altitude,
+                                                                   return_period=return_period,
+                                                                   save_to_file=True,
+                                                                   fit_method=TemporalMarginFitMethod.extremes_fevd_l_moments)
+            study_visualizer.plot_return_level_evolution()
 

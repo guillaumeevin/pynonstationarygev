@@ -24,6 +24,10 @@ class TemporalMarginFitMethod(Enum):
     extremes_fevd_l_moments = 4
 
 
+def fitmethod_to_str(fit_method):
+    return str(fit_method).split('.')[-1]
+
+
 class AbstractTemporalLinearMarginModel(LinearMarginModel):
     """Linearity only with respect to the temporal coordinates"""
 
@@ -46,7 +50,8 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                   df_coordinates_temp: pd.DataFrame) -> AbstractResultFromModelFit:
         data = data[0]
         assert len(data) == len(df_coordinates_temp.values), 'len(data)={} != len(temp)={}'.format(len(data),
-                                                                                                   len(df_coordinates_temp.values))
+                                                                                                   len(
+                                                                                                       df_coordinates_temp.values))
         x = ro.FloatVector(data)
         if self.params_class is GevParams:
             if self.fit_method == TemporalMarginFitMethod.is_mev_gev_fit:
@@ -148,3 +153,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
     @property
     def siglink(self):
         return r('identity')
+
+
+if __name__ == '__main__':
+    print(fitmethod_to_str(TemporalMarginFitMethod.extremes_fevd_l_moments))
