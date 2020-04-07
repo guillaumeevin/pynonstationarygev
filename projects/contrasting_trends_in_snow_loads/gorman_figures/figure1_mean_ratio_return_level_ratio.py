@@ -37,13 +37,30 @@ def plot_return_level_ratio(altitude, return_period=30, year_min=1959, year_midd
                             massif_name_to_return_level_recent.items()}
     max_ratio = max([e for e in massif_name_to_ratio.values()])
     min_ratio = min([e for e in massif_name_to_ratio.values()])
+    # Option to have a number of graduation constant
+    m = max(max_ratio / 1.0, 1.0 / min_ratio)
+    max_ratio = 1.0 * m
+    min_ratio = 1.0 / m
+    # Build the middle point
     midpoint = (max_ratio - 1.0) / (max_ratio - 0)
-    num = 3
-    ticks = np.concatenate([np.linspace(0, midpoint, num), np.linspace(midpoint, 1, num)])
-    labels = np.concatenate([np.linspace(min_ratio, 1.0, num), np.linspace(1.0, max_ratio, num)])
+    graduation = 0.1
+    # Build lower graduation
+    n = int(np.math.floor((1.0 - min_ratio) / graduation)) + 1
+    a1 = midpoint / (1.0 - min_ratio)
+    b1 = midpoint - 1.0 * a1
+    xlist1 = [1.0 - i * graduation for i in range(n)]
+    y_list1 = [a1 * x + b1 for x in xlist1]
+    # Build upper graduation
+    n = int(np.math.floor((max_ratio - 1.0) / graduation)) + 1
+    xlist2 = [1.0 + i * graduation for i in range(n)]
+    a2 = (1 - midpoint) / (max_ratio - 1.0)
+    b2 = 1.0 - a2 * max_ratio
+    y_list2 = [a2 * x + b2 for x in xlist2]
+    labels = xlist1 + xlist2
+    ticks = y_list1 + y_list2
+    labels = [np.round(l, 1) for l in labels]
     cmap = shiftedColorMap(plt.cm.bwr, midpoint=midpoint, name='shifted')
     ax = plt.gca()
-    print(massif_name_to_ratio)
     massif_name_to_color = {m: get_colors([v], cmap, min_ratio, max_ratio)[0]
                 for m, v in massif_name_to_ratio.items()}
     ticks_values_and_labels = ticks, labels
