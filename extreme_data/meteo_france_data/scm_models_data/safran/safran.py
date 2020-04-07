@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
@@ -5,14 +7,15 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_study import Abstra
 from extreme_data.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
 from extreme_data.meteo_france_data.scm_models_data.safran.cumulated_study import CumulatedStudy
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariable, \
-    SafranRainfallVariable, SafranTemperatureVariable, SafranTotalPrecipVariable
+    SafranRainfallVariable, SafranTemperatureVariable, SafranTotalPrecipVariable, \
+    SafranNormalizedPrecipitationRateOnWetDaysVariable
 
 
 class Safran(AbstractStudy):
 
     def __init__(self, variable_class: type, *args, **kwargs):
         assert variable_class in [SafranSnowfallVariable, SafranRainfallVariable, SafranTemperatureVariable,
-                                  SafranTotalPrecipVariable]
+                                  SafranTotalPrecipVariable, SafranNormalizedPrecipitationRateOnWetDaysVariable]
         super().__init__(variable_class, *args, **kwargs)
         self.model_name = 'Safran'
 
@@ -84,6 +87,31 @@ class SafranRainfall7Days(SafranRainfall):
         super().__init__(nb_consecutive_days=7, **kwargs)
 
 
+class SafranNormalizedPreciptationRateOnWetDays(CumulatedStudy, Safran):
+
+    def __init__(self, **kwargs):
+        super().__init__(SafranNormalizedPrecipitationRateOnWetDaysVariable, **kwargs)
+
+    def load_variable_array(self, dataset):
+        return [np.array(dataset.variables[k]) for k in self.load_keyword()]
+
+    def instantiate_variable_object(self, variable_array) -> AbstractVariable:
+        variable_array_temperature, variable_array_snowfall, variable_array_rainfall = variable_array
+        return self.variable_class(variable_array_temperature,
+                                   variable_array_snowfall, variable_array_rainfall, self.nb_consecutive_days)
+
+    @property
+    def _year_to_daily_time_serie_array(self) -> OrderedDict:
+        # Filter and keep only values different than np.nan
+        year_to_time_series = super()._year_to_daily_time_serie_array
+        updated_year_to_time_series = OrderedDict()
+        for year, time_serie in year_to_time_series.items():
+            time_serie_without_nan = time_serie[~np.isnan(time_serie)]
+            assert not np.isnan(time_serie_without_nan).any()
+            updated_year_to_time_series[year] = time_serie_without_nan
+        return updated_year_to_time_series
+
+
 class SafranPrecipitation(CumulatedStudy, Safran):
 
     def __init__(self, **kwargs):
@@ -138,7 +166,7 @@ if __name__ == '__main__':
     altitude = 900
     year_min = 1959
     year_max = 2000
-    study = SafranRainfall1Day(altitude, year_min=year_min, year_max=year_max)
+    study = SafranNormalizedPreciptationRateOnWetDays(altitude=altitude, year_min=year_min, year_max=year_max)
     d = study.year_to_dataset_ordered_dict[1959]
     print(d.keywords)
     print(d.variables.keys())

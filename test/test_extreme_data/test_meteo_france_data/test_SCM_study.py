@@ -1,4 +1,5 @@
 import os.path as op
+import numpy as np
 import unittest
 from random import sample
 
@@ -7,7 +8,7 @@ import pandas as pd
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad3Days
 from extreme_data.meteo_france_data.scm_models_data.safran.cumulated_study import NB_DAYS
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, SafranTemperature, \
-    SafranPrecipitation, SafranSnowfall3Days, SafranRainfall3Days
+    SafranPrecipitation, SafranSnowfall3Days, SafranRainfall3Days, SafranNormalizedPreciptationRateOnWetDays
 from extreme_data.meteo_france_data.scm_models_data.utils import SeasonForTheMaxima
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     study_iterator_global, SCM_STUDIES, ALL_ALTITUDES
@@ -55,6 +56,13 @@ class TestSCMAllStudy(unittest.TestCase):
             study_class(altitude=altitude, year_min=year_min, year_max=year_max)
 
 
+class TestSCMSafranNormalizedPrecipitationRateOnWetDays(unittest.TestCase):
+
+    def test_annual_maxima(self):
+        study = SafranNormalizedPreciptationRateOnWetDays(year_max=1960)
+        self.assertFalse(np.isnan(study.year_to_annual_maxima[1959]).any())
+
+
 class TestSCMStudy(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -87,7 +95,6 @@ class TestSCMSafranSnowfall(TestSCMStudy):
         self.assertEqual(all_daily_series.ndim, 2)
         self.assertEqual(all_daily_series.shape[1], 23)
         self.assertEqual(all_daily_series.shape[0], 22280)
-
 
 class TestSCMPrecipitation(TestSCMStudy):
 

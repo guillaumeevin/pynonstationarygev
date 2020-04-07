@@ -94,6 +94,27 @@ class SafranTotalPrecipVariable(AbstractVariable):
         return self._daily_time_serie_array
 
 
+class SafranNormalizedPrecipitationRateOnWetDaysVariable(AbstractVariable):
+
+    def __init__(self, temperature_variable_array, snow_variable_array, rain_variable_array, nb_consecutive_days):
+        super().__init__(None)
+        temperature = SafranTemperatureVariable(temperature_variable_array)
+        total_precipitation = SafranTotalPrecipVariable(snow_variable_array, rain_variable_array, nb_consecutive_days)
+        beta = 0.06
+        self._daily_time_serie_array = np.exp(-beta * temperature.daily_time_serie_array) \
+                                       * total_precipitation.daily_time_serie_array
+        mask_for_nan_values = total_precipitation.daily_time_serie_array < 0.01
+        self._daily_time_serie_array[mask_for_nan_values] = np.nan
+
+    @classmethod
+    def keyword(cls):
+        return [SafranTemperatureVariable.keyword(), SafranSnowfallVariable.keyword(), SafranRainfallVariable.keyword()]
+
+    @property
+    def daily_time_serie_array(self) -> np.ndarray:
+        return self._daily_time_serie_array
+
+
 class SafranTemperatureVariable(AbstractVariable):
     NAME = 'Temperature'
     UNIT = 'Celsius Degrees'

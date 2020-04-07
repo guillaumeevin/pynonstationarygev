@@ -93,6 +93,6 @@ def daily_snowfall_fraction_wrt_time():
 
 
 if __name__ == '__main__':
-    daily_snowfall_fraction_wrt_altitude(fast=False)
+    # daily_snowfall_fraction_wrt_altitude(fast=False)
     # daily_snowfall_fraction_wrt_time()
-    # ratio_of_past_and_recent_daily_snowfall_fraction_wrt_altitude()
+    ratio_of_past_and_recent_daily_snowfall_fraction_wrt_altitude()
