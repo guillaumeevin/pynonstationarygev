@@ -38,22 +38,24 @@ def snowfall_fraction_difference_between_periods(ax, altitudes, year_min=1959, y
     lim = 4
     snowfall_fractions_past, x = compute_smoother_snowfall_fraction(altitudes, year_min, year_middle, lim=lim)
     snowfall_fractions_recent, x = compute_smoother_snowfall_fraction(altitudes, year_middle + 1, year_max, lim=lim)
-    # Ensure that we do not divide by zero
-    mask = snowfall_fractions_past > 0
+    # Ensure that we do not divide by something too small and that the analysis becomes useless
+    last_percentage_of_interest = 0.5
+    mask = snowfall_fractions_past > last_percentage_of_interest
     x = x[mask]
-    snowfall_ratio = snowfall_fractions_recent[mask] / snowfall_fractions_past[mask]
-    sigma = 2.0
-    snowfall_ratio = gaussian_filter1d(snowfall_ratio, sigma=sigma)
+    snowfall_percentage = 100 * (snowfall_fractions_recent[mask] - snowfall_fractions_past[mask]) / snowfall_fractions_past[mask]
+    sigma = 1.0
+    snowfall_percentage = gaussian_filter1d(snowfall_percentage, sigma=sigma)
     label = '{}'.format(' & '.join(['{} m'.format(a) for a in altitudes]))
-    ax.plot(x, snowfall_ratio, label=label, linewidth=4)
-    ax.set_ylabel('Ratio of Snowfall fraction {}-{}\n'
-                  'divided by Snowfall fraction {}-{}'.format(year_middle + 1, year_max, year_min, year_middle))
+    ax.plot(x, snowfall_percentage, label=label, linewidth=4)
+    ax.set_ylabel('Relative change of Snowfall fraction {}-{}\n'
+                  'compared to Snowfall fraction {}-{}\n'
+                  'until the latter reach a fraction of 0.5 (%)'.format(year_middle + 1, year_max, year_min, year_middle))
     end_plot(ax, sigma)
 
 
 def end_plot(ax, sigma):
     ax.set_xlabel('Daily surface air temperature (Celsius)')
-    ax.set_title('Snowfall fraction is smoothed with a gaussian filter with standard deviation={}'.format(sigma))
+    ax.set_title('Snowfall fraction is smoothed with a gaussian filter with std={}'.format(sigma))
     ax.grid(b=True)
     ax.legend()
 
@@ -79,7 +81,7 @@ def daily_snowfall_fraction_wrt_altitude(fast=True):
 
 def ratio_of_past_and_recent_daily_snowfall_fraction_wrt_altitude():
     ax = plt.gca()
-    for altitudes in Altitudes_groups:
+    for altitudes in Altitudes_groups[:]:
         snowfall_fraction_difference_between_periods(ax, altitudes)
     plt.show()
 
