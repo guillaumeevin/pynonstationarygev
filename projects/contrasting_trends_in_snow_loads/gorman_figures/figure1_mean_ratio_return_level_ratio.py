@@ -1,6 +1,8 @@
 from collections import OrderedDict
 
+import matplotlib
 import numpy as np
+from cached_property import cached_property
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad1Day, CrocusSnowLoad3Days, \
@@ -17,21 +19,33 @@ from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear
 import matplotlib.pyplot as plt
 
 from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import StudyVisualizerForNonStationaryTrends
+from projects.contrasting_trends_in_snow_loads.gorman_figures.result_from_stationary_fit import \
+    ResultFromDoubleStationaryFit
 
 
 class StudyVisualizerForReturnLevelChange(StudyVisualizer):
 
-    def __init__(self, study_class, altitude, return_period=30, year_min=1959, year_middle=1989, year_max=2019, save_to_file=False,
+    def __init__(self, study_class, altitude, return_period=30, year_min=1959, year_middle=1989, year_max=2019,
+                 save_to_file=False,
                  fit_method=TemporalMarginFitMethod.extremes_fevd_mle):
+        self.return_period = return_period
         self.fit_method = fit_method
+
+        # Load studies
         self._year_min = year_min
         self._year_middle = year_middle
         self._year_max = year_max
         self.study_before = study_class(altitude=altitude, year_min=self.year_min_before, year_max=self.year_max_before)
+        self.study_after = study_class(altitude=altitude, year_min=self.year_min_after, year_max=self.year_max_after)
+
         # Study will always refer to study before
         super().__init__(self.study_before, save_to_file=save_to_file, show=not save_to_file)
-        self.study_after = study_class(altitude=altitude, year_min=self.year_min_after, year_max=self.year_max_after)
-        self.return_period = return_period
+
+        # Load the main part:
+        self.result_from_double_stationary_fit = ResultFromDoubleStationaryFit(self.study_before,
+                                                                               self.study_after,
+                                                                               self.fit_method,
+                                                                               self.return_period)
 
     @property
     def year_min_before(self):
@@ -49,43 +63,87 @@ class StudyVisualizerForReturnLevelChange(StudyVisualizer):
     def year_max_after(self):
         return self._year_max
 
-    def massif_name_to_return_level(self, study):
-        massif_name_to_return_levels = OrderedDict()
-        for massif_name, maxima in study.massif_name_to_annual_maxima.items():
-            gev_param = fitted_stationary_gev(maxima, fit_method=self.fit_method)
-            return_level = gev_param.return_level(return_period=self.return_period)
-            massif_name_to_return_levels[massif_name] = return_level
-        return massif_name_to_return_levels
+    def all_plots(self):
+        self.plot_return_level_change()
+        self.plot_shape_values()
+        self.plot_difference_returnn_level_maxima()
+        self.plot_returnn_level()
 
-    def plot_return_level_evolution(self):
-        massif_name_to_return_level_past = self.massif_name_to_return_level(self.study_before)
-        massif_name_to_return_level_recent = self.massif_name_to_return_level(self.study_after)
-        # massif_name_to_percentage = {
-        #     m: 100 * (v - massif_name_to_return_level_past[m]) / massif_name_to_return_level_past[m]
-        #     for m, v in
-        #     massif_name_to_return_level_recent.items()}
-        massif_name_to_percentage = {
-            m:  (v - massif_name_to_return_level_past[m])
-            for m, v in
-            massif_name_to_return_level_recent.items()}
+    def plot_returnn_level(self):
+        for result in [self.result_from_double_stationary_fit.result_before,
+                       self.result_from_double_stationary_fit.result_after]:
+            plot_name = 'return level {}-{}'.format(result.study.year_min,
+                                                    result.study.year_max)
+            label = plot_name
+            self.plot_abstract(
+                massif_name_to_value=result.massif_name_to_return_level,
+                label=label, plot_name=plot_name,
+                cmap=plt.cm.seismic)
 
-        max_abs_change = max([abs(e) for e in massif_name_to_percentage.values()])
-        ticks, labels = ticks_values_and_labels_for_percentages(graduation=10, max_abs_change=max_abs_change)
+    def plot_difference_returnn_level_maxima(self):
+        for result in [self.result_from_double_stationary_fit.result_before,
+                       self.result_from_double_stationary_fit.result_after]:
+            plot_name = 'difference return level and maxima for {}-{}'.format(result.study.year_min,
+                                                                              result.study.year_max)
+            label = plot_name
+            self.plot_abstract(
+                massif_name_to_value=result.massif_name_to_difference_return_level_and_maxima,
+                label=label, plot_name=plot_name,
+                cmap=plt.cm.coolwarm)
+
+    def plot_shape_values(self):
+        for result in [self.result_from_double_stationary_fit.result_before,
+                       self.result_from_double_stationary_fit.result_after]:
+            plot_name = 'shape for {}-{}'.format(result.study.year_min, result.study.year_max)
+            label = plot_name
+            self.plot_abstract(
+                massif_name_to_value=result.massif_name_to_shape,
+                label=label, plot_name=plot_name, graduation=0.1,
+                cmap=matplotlib.cm.get_cmap('BrBG_r'))
+
+    def plot_return_level_change(self):
+        unit = [self.study.variable_unit, '%']
+        beginning = ['', 'relative']
+        massif_name_to_values = [
+            self.result_from_double_stationary_fit.massif_name_to_difference_return_level,
+            self.result_from_double_stationary_fit.massif_name_to_relative_difference_return_level
+        ]
+        for u, b, massif_name_to_value in zip(unit, beginning, massif_name_to_values):
+            label = 'Change {} in {} return level between \n' \
+                    'a GEV fitted on {}-{} and \na GEV fitted on {}-{} ({})'.format(b,
+                                                                                    self.return_period,
+                                                                                    self.year_min_before,
+                                                                                    self.year_max_before,
+                                                                                    self.year_min_after,
+                                                                                    self.year_max_after,
+                                                                                    u)
+            plot_name = 'Change {} in return levels'.format(b)
+            self.plot_abstract(
+                massif_name_to_value=massif_name_to_value,
+                label=label, plot_name=plot_name)
+
+    def plot_abstract(self, massif_name_to_value, label, plot_name, graduation=10.0, cmap=plt.cm.bwr):
+        plot_name1 = '{}/{}'.format(self.study.altitude, plot_name)
+        plot_name2 = '{}/{}'.format(plot_name.split()[0], plot_name)
+        for plot_name in [plot_name1, plot_name2]:
+            self.load_plot(cmap, graduation, label, massif_name_to_value)
+            self.plot_name = plot_name
+            self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True,
+                                      dpi=500)
+            plt.close()
+
+    def load_plot(self, cmap, graduation, label, massif_name_to_value):
+        max_abs_change = max([abs(e) for e in massif_name_to_value.values()])
+        ticks, labels = ticks_values_and_labels_for_percentages(graduation=graduation, max_abs_change=max_abs_change)
         min_ratio = -max_abs_change
         max_ratio = max_abs_change
-        cmap = get_shifted_map(min_ratio, max_ratio)
-        ax = plt.gca()
+        cmap = get_shifted_map(min_ratio, max_ratio, cmap)
         massif_name_to_color = {m: get_colors([v], cmap, min_ratio, max_ratio)[0]
-                                for m, v in massif_name_to_percentage.items()}
+                                for m, v in massif_name_to_value.items()}
         ticks_values_and_labels = ticks, labels
-        label = 'Relative change in {} return level between \n' \
-                'a GEV fitted on {}-{} and a GEV fitted on {}-{} (%)'.format(self.return_period,
-                                                                             self.year_min_before,
-                                                                             self.year_max_before,
-                                                                             self.year_min_after,
-                                                                             self.year_max_after)
+        ax = plt.gca()
         AbstractStudy.visualize_study(ax=ax,
-                                      massif_name_to_value=massif_name_to_percentage,
+                                      massif_name_to_value=massif_name_to_value,
                                       massif_name_to_color=massif_name_to_color,
                                       replace_blue_by_white=True,
                                       axis_off=False,
@@ -103,21 +161,17 @@ class StudyVisualizerForReturnLevelChange(StudyVisualizer):
         ax.set_xticks([])
         ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=15)
         ax.set_title('Fit method is {}'.format(fitmethod_to_str(self.fit_method)))
-        self.plot_name = 'change in return levels'
-        self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True,
-                                  dpi=500)
-        plt.close()
 
 
 if __name__ == '__main__':
-    # for altitude in [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:]:
+    # for altitude in [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:1]:
     for altitude in ALL_ALTITUDES_WITHOUT_NAN:
-        for study_class in [SafranSnowfall1Day, SafranSnowfall3Days, CrocusSnowLoadTotal, CrocusSnowLoad3Days, CrocusSnowLoad1Day][:1]:
-            return_period = 50
+        for study_class in [SafranSnowfall1Day, SafranSnowfall3Days, CrocusSnowLoadTotal, CrocusSnowLoad3Days,
+                            CrocusSnowLoad1Day][:1]:
+            return_period = 30
             study_visualizer = StudyVisualizerForReturnLevelChange(study_class=study_class,
                                                                    altitude=altitude,
                                                                    return_period=return_period,
                                                                    save_to_file=True,
                                                                    fit_method=TemporalMarginFitMethod.extremes_fevd_l_moments)
-            study_visualizer.plot_return_level_evolution()
-
+            study_visualizer.all_plots()

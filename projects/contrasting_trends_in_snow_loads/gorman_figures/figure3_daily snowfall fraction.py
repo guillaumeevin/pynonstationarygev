@@ -24,12 +24,14 @@ def compute_smoother_snowfall_fraction(altitudes, year_min, year_max, lim):
 
 
 def daily_snowfall_fraction(ax, altitudes, year_min=1959, year_max=2019):
-    snowfall_fractions, x = compute_smoother_snowfall_fraction(altitudes, year_min, year_max, lim=7)
+    lim = 6
+    snowfall_fractions, x = compute_smoother_snowfall_fraction(altitudes, year_min, year_max, lim=lim)
     sigma = 1.0
     snowfall_fractions = 100 * gaussian_filter1d(snowfall_fractions, sigma=sigma)
     # Plot results
     label = '{}-{} at {}'.format(year_min, year_max, ' & '.join(['{} m'.format(a) for a in altitudes]))
-    ax.plot(x, snowfall_fractions, label=label, linewidth=4)
+    ax.set_xlim([-lim, lim])
+    ax.plot(x, snowfall_fractions, label=label, linewidth=5)
     ax.set_ylabel('Snowfall fraction (%)')
     end_plot(ax, sigma)
 
@@ -95,6 +97,6 @@ def daily_snowfall_fraction_wrt_time():
 
 
 if __name__ == '__main__':
-    # daily_snowfall_fraction_wrt_altitude(fast=False)
+    daily_snowfall_fraction_wrt_altitude(fast=False)
     # daily_snowfall_fraction_wrt_time()
-    ratio_of_past_and_recent_daily_snowfall_fraction_wrt_altitude()
+    # ratio_of_past_and_recent_daily_snowfall_fraction_wrt_altitude()
