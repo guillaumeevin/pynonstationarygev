@@ -24,7 +24,7 @@ def get_shifted_map(vmin, vmax, cmap=plt.cm.bwr):
     return shifted_cmap
 
 
-def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None):
+def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None, fontsize=15):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes('right', size='5%', pad=0.0)
     ticks = ticks_values_and_labels[0] if ticks_values_and_labels is not None else None
@@ -32,7 +32,7 @@ def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None):
     if ticks_values_and_labels is not None:
         cb.ax.set_yticklabels([str(t) for t in ticks_values_and_labels[1]])
     if isinstance(label, str):
-        cb.set_label(label, fontsize=15)
+        cb.set_label(label, fontsize=fontsize)
     return norm
 
 
@@ -67,6 +67,45 @@ def imshow_shifted(ax, gev_param_name, values, visualization_extend, mask_2D=Non
     # IMPORTANT: Origin for all the plots is at the bottom left corner
     ax.imshow(masked_array, extent=visualization_extend, cmap=shifted_cmap, origin='lower')
 
+
+def ticks_values_and_labels_for_percentages(graduation, max_abs_change):
+    positive_ticks = []
+    tick = graduation
+    while tick < max_abs_change:
+        positive_ticks.append(round(tick, 1))
+        tick += graduation
+    all_ticks_labels = [-t for t in positive_ticks] + [0] + positive_ticks
+    ticks_values = [((t / max_abs_change) + 1) / 2 for t in all_ticks_labels]
+    return ticks_values, all_ticks_labels
+
+
+def ticks_and_labels_centered_on_one(max_ratio, min_ratio):
+    """When we compute some ratio of two values.
+    Then if we want to make a plot, when the color change from blue to red is at 1,
+    then you should use this function"""
+    # Option to have a number of graduation constant
+    m = max(max_ratio / 1.0, 1.0 / min_ratio)
+    max_ratio = 1.0 * m
+    min_ratio = 1.0 / m
+    # Build the middle point
+    midpoint = (max_ratio - 1.0) / (max_ratio - 0)
+    graduation = 0.1
+    # Build lower graduation
+    n = int(np.math.floor((1.0 - min_ratio) / graduation)) + 1
+    a1 = midpoint / (1.0 - min_ratio)
+    b1 = midpoint - 1.0 * a1
+    xlist1 = [1.0 - i * graduation for i in range(n)]
+    y_list1 = [a1 * x + b1 for x in xlist1]
+    # Build upper graduation
+    n = int(np.math.floor((max_ratio - 1.0) / graduation)) + 1
+    xlist2 = [1.0 + i * graduation for i in range(n)]
+    a2 = (1 - midpoint) / (max_ratio - 1.0)
+    b2 = 1.0 - a2 * max_ratio
+    y_list2 = [a2 * x + b2 for x in xlist2]
+    labels = xlist1 + xlist2
+    ticks = y_list1 + y_list2
+    labels = [np.round(l, 1) for l in labels]
+    return labels, max_ratio, midpoint, min_ratio, ticks
 
 
 # from: https://stackoverflow.com/questions/7404116/defining-the-midpoint-of-a-colormap-in-matplotlib/20528097

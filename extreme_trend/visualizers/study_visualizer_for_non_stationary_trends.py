@@ -11,7 +11,8 @@ from extreme_data.eurocode_data.eurocode_region import C2, C1, E
 from extreme_data.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
 from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE, EUROCODE_RETURN_LEVEL_STR, \
     YEAR_OF_INTEREST_FOR_RETURN_LEVEL
-from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map, get_colors
+from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map, \
+    get_colors, ticks_values_and_labels_for_percentages
 from extreme_data.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
@@ -254,14 +255,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     @property
     def ticks_values_and_labels(self):
-        positive_ticks = []
-        tick = self.graduation
-        while tick < self._max_abs_change:
-            positive_ticks.append(round(tick, 1))
-            tick += self.graduation
-        all_ticks_labels = [-t for t in positive_ticks] + [0] + positive_ticks
-        ticks_values = [((t / self._max_abs_change) + 1) / 2 for t in all_ticks_labels]
-        return ticks_values, all_ticks_labels
+        return ticks_values_and_labels_for_percentages(self.graduation, self._max_abs_change)
 
     @property
     def graduation(self):
