@@ -1,25 +1,19 @@
-from collections import OrderedDict
-
 import matplotlib
-import numpy as np
-from cached_property import cached_property
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad1Day, CrocusSnowLoad3Days, \
     CrocusSnowLoadTotal
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map, \
-    get_colors, shiftedColorMap, ticks_values_and_labels_for_percentages
+    get_colors, ticks_values_and_labels_for_percentages
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import ALL_ALTITUDES_WITHOUT_NAN
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
-from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     TemporalMarginFitMethod, fitmethod_to_str
 
 import matplotlib.pyplot as plt
 
-from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import StudyVisualizerForNonStationaryTrends
-from projects.contrasting_trends_in_snow_loads.gorman_figures.result_from_stationary_fit import \
+from projects.contrasting_trends_in_snow_loads.gorman_figures.figure1.result_from_stationary_fit import \
     ResultFromDoubleStationaryFit
 
 
@@ -161,17 +155,3 @@ class StudyVisualizerForReturnLevelChange(StudyVisualizer):
         ax.set_xticks([])
         ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=15)
         ax.set_title('Fit method is {}'.format(fitmethod_to_str(self.fit_method)))
-
-
-if __name__ == '__main__':
-    # for altitude in [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:1]:
-    for altitude in ALL_ALTITUDES_WITHOUT_NAN:
-        for study_class in [SafranSnowfall1Day, SafranSnowfall3Days, CrocusSnowLoadTotal, CrocusSnowLoad3Days,
-                            CrocusSnowLoad1Day][:1]:
-            return_period = 30
-            study_visualizer = StudyVisualizerForReturnLevelChange(study_class=study_class,
-                                                                   altitude=altitude,
-                                                                   return_period=return_period,
-                                                                   save_to_file=True,
-                                                                   fit_method=TemporalMarginFitMethod.extremes_fevd_l_moments)
-            study_visualizer.all_plots()

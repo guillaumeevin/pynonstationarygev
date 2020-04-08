@@ -16,6 +16,10 @@ class ResultFromDoubleStationaryFit(object):
         self.result_before = ResultFromSingleStationaryFit(study_before, fit_method, return_period)
         self.result_after = ResultFromSingleStationaryFit(study_after, fit_method, return_period)
 
+    @property
+    def massif_names(self):
+        return self.re
+
     @cached_property
     def massif_name_to_difference_return_level(self):
         return {m: v - self.result_before.massif_name_to_return_level[m]
@@ -25,6 +29,16 @@ class ResultFromDoubleStationaryFit(object):
     def massif_name_to_relative_difference_return_level(self):
         return {m: 100 * v / self.result_before.massif_name_to_return_level[m]
                 for m, v in self.massif_name_to_difference_return_level.items()}
+
+    @cached_property
+    def return_level_list_couple(self):
+        return [(v, self.result_after.massif_name_to_return_level[m])
+                for m, v in self.result_before.massif_name_to_return_level.items()]
+
+    @cached_property
+    def shape_list_couple(self):
+        return [(v, self.result_after.massif_name_to_shape[m])
+                for m, v in self.result_before.massif_name_to_shape.items()]
 
 
 class ResultFromSingleStationaryFit(object):
@@ -54,4 +68,4 @@ class ResultFromSingleStationaryFit(object):
 
     @property
     def massif_name_to_difference_return_level_and_maxima(self):
-        return {m: r - np.max(self.massif_name_to_maxima[m]) for m, r in self.massif_name_to_return_level.items() }
+        return {m: r - np.max(self.massif_name_to_maxima[m]) for m, r in self.massif_name_to_return_level.items()}
