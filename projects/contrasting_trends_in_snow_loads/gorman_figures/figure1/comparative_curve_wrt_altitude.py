@@ -1,4 +1,6 @@
 from collections import OrderedDict
+from itertools import chain
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -65,9 +67,10 @@ class ComparativeCurveWrtAltitude(object):
         ax2.boxplot(x.values(), positions=self.altitudes, widths=width)
         ax2.set_xlim([min(self.altitudes) - width, max(self.altitudes) + width])
         if relative_change:
-            ax2.set_ylabel('Relative change in {} (%)'.format((ylabel.split('(')[0])))
+            ylabel2 = 'relative change in {} (%)'.format((ylabel.split('(')[0]))
         else:
-            ax2.set_ylabel('Change in {}'.format(ylabel))
+            ylabel2 = 'change in {}'.format(ylabel)
+        ax2.set_ylabel('Distribution of ' + ylabel2)
 
         # ax: Mean plots on top
         values = [list(v.values()) for v in [altitude_to_mean_value_before, altitude_to_mean_value_after]]
@@ -82,9 +85,9 @@ class ComparativeCurveWrtAltitude(object):
         ax.set_xlabel('Altitude (m)')
 
         # Set same limits to align axis
-        a = np.array(list(x.values()))
-        all_values = list(a.flatten()) + values[0] + values[1]
-        print(type(all_values))
+        a = list(x.values())
+        a = list(chain.from_iterable(a))
+        all_values = a + values[0] + values[1]
         epsilon = 0.03 * (max(all_values) - min(all_values))
         ylim = [min(all_values) - epsilon, max(all_values) + epsilon]
         ax.set_ylim(ylim)
