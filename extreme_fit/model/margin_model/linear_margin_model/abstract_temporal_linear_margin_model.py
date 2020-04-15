@@ -16,8 +16,6 @@ from extreme_fit.model.utils import safe_run_r_estimator
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
-
-
 class AbstractTemporalLinearMarginModel(LinearMarginModel):
     """Linearity only with respect to the temporal coordinates"""
 
@@ -136,7 +134,3 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
     @property
     def siglink(self):
         return r('identity')
-
-
-if __name__ == '__main__':
-    print(fitmethod_to_str(MarginFitMethod.extremes_fevd_l_moments))

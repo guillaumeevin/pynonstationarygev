@@ -13,7 +13,7 @@ class TestAltitudesStudies(unittest.TestCase):
         super().setUp()
         altitudes = [900, 1200]
         study_class = SafranSnowfall1Day
-        studies = AltitudesStudies(study_class, altitudes, year_min=1959, year_max=1962)
+        studies = AltitudesStudies(study_class, altitudes, year_min=1959, year_max=1963)
         self.two_fold_estimation = TwoFoldEstimation(studies, nb_samples=2)
 
     def test_dataset_sizes(self):
@@ -27,6 +27,11 @@ class TestAltitudesStudies(unittest.TestCase):
             dataset1.maxima_gev(split=Split.train_spatiotemporal)
         with self.assertRaises(AssertionError):
             dataset1.maxima_gev(split=Split.train_spatial)
+
+    def test_temporal_steps(self):
+        dataset1, _ = self.two_fold_estimation.two_fold_datasets('Vercors')
+        self.assertEqual(len(dataset1.coordinates.df_temporal_coordinates(split=Split.train_temporal)), 2)
+        self.assertEqual(len(dataset1.coordinates.df_temporal_coordinates(split=Split.test_temporal)), 3)
 
 
 if __name__ == '__main__':
