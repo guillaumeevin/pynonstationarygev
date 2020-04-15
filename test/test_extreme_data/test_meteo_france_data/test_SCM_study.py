@@ -34,6 +34,11 @@ class TestSCMAllStudy(unittest.TestCase):
         daily_time_series = study.year_to_daily_time_serie_array[year]
         self.assertEqual(len(days), len(daily_time_series))
 
+    def test_study_for_split(self):
+        split_years = [1959 + 10 * i for i in range(7)]
+        study = SafranSnowfall(altitude=900, split_years=split_years)
+        self.assertEqual(split_years, list(study.ordered_years))
+
     def test_instantiate_studies(self):
         study_classes = SCM_STUDIES
         nb_sample = 2

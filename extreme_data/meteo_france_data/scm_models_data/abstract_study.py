@@ -60,22 +60,30 @@ class AbstractStudy(object):
     REANALYSIS_PYRENEES_FLAT_FOLDER = 'S2M_AERIS_AVRIL_2020/'
     REANALYSIS_ALPS_ALLSLOPES_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_allslopes/reanalysis'
 
+    YEAR_MIN = 1959
+    YEAR_MAX = 2019
+
     # REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/postes/reanalysis'
 
-    def __init__(self, variable_class: type, altitude: int = 1800, year_min=1959, year_max=2019,
+    def __init__(self, variable_class: type, altitude: int = 1800, year_min=YEAR_MIN, year_max=YEAR_MAX,
                  multiprocessing=True, orientation=None, slope=20.0,
                  season=SeasonForTheMaxima.annual,
-                 french_region=FrenchRegion.alps):
+                 french_region=FrenchRegion.alps,
+                 split_years=None):
         assert isinstance(altitude, int), type(altitude)
         assert altitude in ALTITUDES, altitude
         self.french_region = french_region
         self.altitude = altitude
         self.model_name = None
         self.variable_class = variable_class
+        assert self.YEAR_MIN <= year_min <= year_max <= self.YEAR_MAX
         self.year_min = year_min
         self.year_max = year_max
         self.multiprocessing = multiprocessing
         self.season = season
+        if split_years is None:
+            split_years = list(range(year_min, year_max+1))
+        self.split_years = set(split_years)
         # Add some attributes, for the "allslopes" reanalysis
         assert orientation is None or orientation in ORIENTATIONS
         assert slope in SLOPES
@@ -358,7 +366,8 @@ class AbstractStudy(object):
         nc_files = [(int(f.split('_')[-2][:4]) + 1, f) for f in os.listdir(self.study_full_path) if f.endswith('.nc')]
         ordered_years, path_files = zip(*[(year, op.join(self.study_full_path, nc_file))
                                           for year, nc_file in sorted(nc_files, key=lambda t: t[0])
-                                          if self.year_min <= year <= self.year_max])
+                                          if (self.year_min <= year <= self.year_max)
+                                          and (year in self.split_years)])
         return path_files, ordered_years
 
     """ Temporal properties """
