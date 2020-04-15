@@ -87,6 +87,12 @@ class AbstractCoordinates(object):
         s_split_spatial = df[cls.SPATIAL_SPLIT].copy() if cls.SPATIAL_SPLIT in df.columns else None
         s_split_temporal = df[cls.TEMPORAL_SPLIT].copy() if cls.TEMPORAL_SPLIT in df.columns else None
 
+        slicer_class = cls.slicer_class_from_s_splits(s_split_spatial, s_split_temporal)
+
+        return cls(df=df, slicer_class=slicer_class, s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal)
+
+    @classmethod
+    def slicer_class_from_s_splits(cls, s_split_spatial, s_split_temporal):
         # Infer the slicer class
         if s_split_temporal is None and s_split_spatial is None:
             raise ValueError('Both split are unspecified')
@@ -96,8 +102,7 @@ class AbstractCoordinates(object):
             slicer_class = SpatialSlicer
         else:
             slicer_class = SpatioTemporalSlicer
-
-        return cls(df=df, slicer_class=slicer_class, s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal)
+        return slicer_class
 
     @classmethod
     def from_df_and_slicer(cls, df: pd.DataFrame, slicer_class: type, train_split_ratio: float = None,
@@ -106,12 +111,16 @@ class AbstractCoordinates(object):
         assert len(set(df.index)) == len(df), 'df indices are not unique'
 
         # Create a spatial split
-        s_split_spatial = s_split_from_df(df, cls.COORDINATE_X, cls.SPATIAL_SPLIT, train_split_ratio, True)
+        s_split_spatial = cls.spatial_s_split_from_df(df, train_split_ratio)
         # Create a temporal split
         s_split_temporal = cls.temporal_s_split_from_df(df, train_split_ratio)
 
         return cls(df=df, slicer_class=slicer_class, s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal,
                    transformation_class=transformation_class)
+
+    @classmethod
+    def spatial_s_split_from_df(cls, df, train_split_ratio):
+        return s_split_from_df(df, cls.COORDINATE_X, cls.SPATIAL_SPLIT, train_split_ratio, True)
 
     @classmethod
     def temporal_s_split_from_df(cls, df, train_split_ratio):
