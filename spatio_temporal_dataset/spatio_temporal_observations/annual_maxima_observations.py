@@ -15,11 +15,16 @@ from spatio_temporal_dataset.spatio_temporal_observations.daily_observations imp
 
 
 class AnnualMaxima(AbstractSpatioTemporalObservations):
-    """
-    Index are stations index
-    Columns are the annual of the maxima
-    """
-    pass
+
+    @classmethod
+    def from_coordinates(cls, coordinates: AbstractCoordinates, coordinate_values_to_maxima):
+        index_to_maxima = {}
+        for i, coordinate_values in coordinates.df_all_coordinates.iterrows():
+            coordinate_values = tuple([int(v) for v in coordinate_values])
+            index_to_maxima[i] = coordinate_values_to_maxima[coordinate_values]
+        df = pd.DataFrame(index_to_maxima).transpose()
+        df.index = coordinates.index
+        return cls(df_maxima_gev=df)
 
 
 class MarginAnnualMaxima(AnnualMaxima):

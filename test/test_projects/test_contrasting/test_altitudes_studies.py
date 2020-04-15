@@ -42,6 +42,36 @@ class TestSpatioTemporalCoordinates(TestAltitudesStudies):
         self.assertEqual(coordinates.coordinates_values(split=Split.test_spatiotemporal).shape, (1, 2))
 
 
+class TestSpatioTemporalDataset(TestAltitudesStudies):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.massif_name = "Vercors"
+
+    def test_temporal_split(self):
+        s_split_temporal = self.studies.random_s_split_temporal(train_split_ratio=0.75)
+        dataset = self.studies.spatio_temporal_dataset(massif_name=self.massif_name,
+                                                       s_split_temporal=s_split_temporal)
+        self.assertEqual(len(dataset.maxima_gev(split=Split.train_temporal)), 6)
+        self.assertEqual(len(dataset.maxima_gev(split=Split.test_temporal)), 2)
+
+    def test_spatial_split(self):
+        s_split_spatial = self.studies.random_s_split_spatial(train_split_ratio=0.5)
+        dataset = self.studies.spatio_temporal_dataset(massif_name=self.massif_name,
+                                                       s_split_spatial=s_split_spatial)
+        self.assertEqual(len(dataset.maxima_gev(split=Split.train_spatial)), 4)
+        self.assertEqual(len(dataset.maxima_gev(split=Split.test_spatial)), 4)
+
+    def test_spatio_temporal_split(self):
+        s_split_spatial = self.studies.random_s_split_spatial(train_split_ratio=0.5)
+        s_split_temporal = self.studies.random_s_split_temporal(train_split_ratio=0.75)
+        dataset = self.studies.spatio_temporal_dataset(massif_name=self.massif_name,
+                                                       s_split_spatial=s_split_spatial,
+                                                       s_split_temporal=s_split_temporal)
+        self.assertEqual(len(dataset.maxima_gev(split=Split.train_spatiotemporal)), 3)
+        self.assertEqual(len(dataset.maxima_gev(split=Split.test_spatiotemporal)), 1)
+        self.assertEqual(len(dataset.maxima_gev(split=Split.test_spatiotemporal_temporal)), 1)
+        self.assertEqual(len(dataset.maxima_gev(split=Split.test_spatiotemporal_spatial)), 3)
 
 
 if __name__ == '__main__':

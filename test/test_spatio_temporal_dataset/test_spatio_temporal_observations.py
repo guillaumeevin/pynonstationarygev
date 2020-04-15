@@ -7,11 +7,16 @@ from extreme_fit.distribution.abstract_params import AbstractParams
 from extreme_fit.distribution.exp_params import ExpParams
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
 from extreme_fit.model.utils import set_seed_for_test
+from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
+    AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
+    AbstractSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
-from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import DailyExpAnnualMaxima
+from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import DailyExpAnnualMaxima, \
+    AnnualMaxima
 from spatio_temporal_dataset.spatio_temporal_observations.daily_observations import DailyExp
 
 
@@ -25,6 +30,23 @@ class TestSpatioTemporalObservations(unittest.TestCase):
         temporal_observation.set_maxima_frech(maxima_frech_values=example)
         maxima_frech = temporal_observation.maxima_frech()
         self.assertTrue(np.equal(example, maxima_frech).all(), msg="{} {}".format(example, maxima_frech))
+
+
+class TestAnnualMaximaFromDict(unittest.TestCase):
+
+    def test_annual_maxima_from_dict(self):
+        temporal_coordinates = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(nb_temporal_steps=2)
+        spatial_coordinates = AbstractSpatialCoordinates.from_list_x_coordinates([300, 600])
+        coordinates = AbstractSpatioTemporalCoordinates(spatial_coordinates=spatial_coordinates,
+                                                        temporal_coordinates=temporal_coordinates)
+        coordinate_values_to_maxima = {
+            (300, 0): [1, 2],
+            (300, 1): [3, 4],
+            (600, 0): [1, 2],
+            (600, 1): [3, 4],
+        }
+        observations = AnnualMaxima.from_coordinates(coordinates, coordinate_values_to_maxima)
+        self.assertEqual(observations.df_maxima_gev.iloc[1, 1], 2)
 
 
 class TestDailyObservations(unittest.TestCase):
