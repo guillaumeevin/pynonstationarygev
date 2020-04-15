@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 from typing import List
 
 import unittest
@@ -6,9 +8,18 @@ from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model impo
 from extreme_fit.model.max_stable_model.max_stable_models import Smith
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
-from spatio_temporal_dataset.slicer.split import ALL_SPLITS_EXCEPT_ALL, Split
+from spatio_temporal_dataset.slicer.split import ALL_SPLITS_EXCEPT_ALL, Split, small_s_split_from_ratio, invert_s_split
 from test.test_utils import load_test_1D_and_2D_spatial_coordinates, load_test_spatiotemporal_coordinates, \
     load_test_temporal_coordinates
+
+
+class TestSplitFunctions(unittest.TestCase):
+
+    def test_inversion(self):
+        index = pd.Index([0, 1])
+        s_split = small_s_split_from_ratio(index=index, train_split_ratio=0.5)
+        inverted_s_split = invert_s_split(s_split.copy())
+        np.testing.assert_equal(inverted_s_split.iloc[::-1].values, s_split.values)
 
 
 class TestSlicerForDataset(unittest.TestCase):

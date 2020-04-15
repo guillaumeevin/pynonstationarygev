@@ -44,6 +44,13 @@ TRAIN_SPLIT_STR = 'train_split'
 TEST_SPLIT_STR = 'test_split'
 
 
+def invert_s_split(s_split):
+    ind = ind_train_from_s_split(s_split)
+    s_split.loc[ind] = TEST_SPLIT_STR
+    s_split.loc[~ind] = TRAIN_SPLIT_STR
+    return s_split
+
+
 def ind_train_from_s_split(s_split):
     if s_split is None:
         return None

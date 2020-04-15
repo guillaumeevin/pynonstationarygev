@@ -26,7 +26,7 @@ class AbstractSlicer(object):
         if split is Split.all:
             return df
 
-        assert split in self.splits, "split:{}, slicer_type:{}".format(split, type(self))
+        assert split in self.splits, "Split and slicer_type do not correspond:\nsplit:{}, slicer_type:{}".format(split, type(self))
 
         # By default, some required splits are not defined
         # instead of crashing, we return all the data for all the split
