@@ -23,8 +23,8 @@ from extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter impo
     GumbelLocationTrendTest, GevStationaryVersusGumbel, GumbelScaleTrendTest, GumbelVersusGumbel
 from extreme_trend.trend_test_two_parameters.gumbel_test_two_parameters import \
     GumbelLocationAndScaleTrendTest
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import GumbelTemporalModel, \
     StationaryTemporalModel
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
@@ -54,7 +54,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  effective_temporal_covariate=YEAR_OF_INTEREST_FOR_RETURN_LEVEL,
                  relative_change_trend_plot=True,
                  non_stationary_trend_test_to_marker=None,
-                 fit_method=TemporalMarginFitMethod.extremes_fevd_mle,
+                 fit_method=MarginFitMethod.extremes_fevd_mle,
                  select_only_acceptable_shape_parameter=True,
                  fit_gev_only_on_non_null_maxima=False,
                  fit_only_time_series_with_ninety_percent_of_non_null_values=True,

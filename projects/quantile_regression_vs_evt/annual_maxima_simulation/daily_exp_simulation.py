@@ -3,8 +3,8 @@ from abc import ABC
 from extreme_fit.distribution.abstract_params import AbstractParams
 from extreme_fit.distribution.exp_params import ExpParams
 from extreme_fit.model.daily_data_model import AbstractModelOnDailyData
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_exp_models import \
     NonStationaryRateTemporalModel
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
@@ -45,7 +45,7 @@ class StationaryExpSimulation(AbstractDailyExpSimulation):
             AbstractParams.RATE: [10],
         }
         return StationaryTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list,
-                                                      fit_method=TemporalMarginFitMethod.extremes_fevd_mle,
+                                                      fit_method=MarginFitMethod.extremes_fevd_mle,
                                                       params_class=ExpParams)
 
 
@@ -56,5 +56,5 @@ class NonStationaryExpSimulation(AbstractDailyExpSimulation):
             AbstractParams.RATE: [0.1, 0.01],
         }
         return NonStationaryRateTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list,
-                                                             fit_method=TemporalMarginFitMethod.extremes_fevd_mle,
+                                                             fit_method=MarginFitMethod.extremes_fevd_mle,
                                                              params_class=ExpParams)

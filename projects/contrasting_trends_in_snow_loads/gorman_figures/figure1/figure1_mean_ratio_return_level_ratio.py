@@ -5,8 +5,8 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusS
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days, \
     SafranSnowfall7Days, SafranSnowfall5Days
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import ALL_ALTITUDES_WITHOUT_NAN
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from projects.contrasting_trends_in_snow_loads.gorman_figures.figure1.comparative_curve_wrt_altitude import \
     ComparativeCurveWrtAltitude
 
@@ -23,7 +23,7 @@ def load_altitude_to_study_visualizer(study_class, save_to_file=True) -> Ordered
                                                                altitude=altitude,
                                                                return_period=return_period,
                                                                save_to_file=save_to_file,
-                                                               fit_method=TemporalMarginFitMethod.extremes_fevd_l_moments)
+                                                               fit_method=MarginFitMethod.extremes_fevd_l_moments)
         altitude_to_study_visualizer[altitude] = study_visualizer
     return altitude_to_study_visualizer
 

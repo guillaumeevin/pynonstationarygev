@@ -9,8 +9,8 @@ from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE, YEAR_OF_INTEREST
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
 from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     StationaryTemporalModel
 from extreme_fit.model.utils import SafeRunException
@@ -27,7 +27,7 @@ class AbstractGevTrendTest(object):
     def __init__(self, years, maxima, starting_year, unconstrained_model_class,
                  constrained_model_class=StationaryTemporalModel,
                  quantile_level=EUROCODE_QUANTILE,
-                 fit_method=TemporalMarginFitMethod.extremes_fevd_mle):
+                 fit_method=MarginFitMethod.extremes_fevd_mle):
         self.years = years
         self.maxima = maxima
         self.starting_year = starting_year

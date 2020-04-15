@@ -6,6 +6,7 @@ import pandas as pd
 from extreme_fit.distribution.exp_params import ExpParams
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
+from extreme_fit.model.margin_model.utils import MarginFitMethod, fitmethod_to_str
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_bayesian_extremes import \
     AbstractResultFromExtremes, ResultFromBayesianExtremes
@@ -16,16 +17,6 @@ from extreme_fit.model.utils import safe_run_r_estimator
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
-class TemporalMarginFitMethod(Enum):
-    is_mev_gev_fit = 0
-    extremes_fevd_bayesian = 1
-    extremes_fevd_mle = 2
-    extremes_fevd_gmle = 3
-    extremes_fevd_l_moments = 4
-
-
-def fitmethod_to_str(fit_method):
-    return str(fit_method).split('.')[-1]
 
 
 class AbstractTemporalLinearMarginModel(LinearMarginModel):
@@ -33,7 +24,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
 
     def __init__(self, coordinates: AbstractCoordinates, use_start_value=False, params_start_fit=None,
                  params_sample=None, starting_point=None,
-                 fit_method=TemporalMarginFitMethod.is_mev_gev_fit,
+                 fit_method=MarginFitMethod.is_mev_gev_fit,
                  nb_iterations_for_bayesian_fit=5000,
                  params_start_fit_bayesian=None,
                  type_for_MLE="GEV",
@@ -43,7 +34,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         self.type_for_mle = type_for_MLE
         self.params_start_fit_bayesian = params_start_fit_bayesian
         self.nb_iterations_for_bayesian_fit = nb_iterations_for_bayesian_fit
-        assert isinstance(fit_method, TemporalMarginFitMethod), fit_method
+        assert isinstance(fit_method, MarginFitMethod), fit_method
         self.fit_method = fit_method
 
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
@@ -54,13 +45,13 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                                                                                        df_coordinates_temp.values))
         x = ro.FloatVector(data)
         if self.params_class is GevParams:
-            if self.fit_method == TemporalMarginFitMethod.is_mev_gev_fit:
+            if self.fit_method == MarginFitMethod.is_mev_gev_fit:
                 return self.ismev_gev_fit(x, df_coordinates_temp)
-            elif self.fit_method == TemporalMarginFitMethod.extremes_fevd_bayesian:
+            elif self.fit_method == MarginFitMethod.extremes_fevd_bayesian:
                 return self.extremes_fevd_bayesian_fit(x, df_coordinates_temp)
-            elif self.fit_method in [TemporalMarginFitMethod.extremes_fevd_mle,
-                                     TemporalMarginFitMethod.extremes_fevd_gmle,
-                                     TemporalMarginFitMethod.extremes_fevd_l_moments,
+            elif self.fit_method in [MarginFitMethod.extremes_fevd_mle,
+                                     MarginFitMethod.extremes_fevd_gmle,
+                                     MarginFitMethod.extremes_fevd_l_moments,
                                      ]:
                 return self.extremes_fevd_mle_related_fit(x, df_coordinates_temp)
             else:
@@ -82,11 +73,11 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
     # Gev fit with extRemes package
 
     def extremes_fevd_mle_related_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:
-        if self.fit_method == TemporalMarginFitMethod.extremes_fevd_mle:
+        if self.fit_method == MarginFitMethod.extremes_fevd_mle:
             method = "MLE"
-        elif self.fit_method == TemporalMarginFitMethod.extremes_fevd_gmle:
+        elif self.fit_method == MarginFitMethod.extremes_fevd_gmle:
             method = "GMLE"
-        elif self.fit_method == TemporalMarginFitMethod.extremes_fevd_l_moments:
+        elif self.fit_method == MarginFitMethod.extremes_fevd_l_moments:
             method = "Lmoments"
             assert self.margin_function_start_fit.is_a_stationary_model
         else:
@@ -156,4 +147,4 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
 
 
 if __name__ == '__main__':
-    print(fitmethod_to_str(TemporalMarginFitMethod.extremes_fevd_l_moments))
+    print(fitmethod_to_str(MarginFitMethod.extremes_fevd_l_moments))

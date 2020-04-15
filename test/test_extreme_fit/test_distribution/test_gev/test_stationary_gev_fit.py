@@ -3,8 +3,8 @@ import unittest
 import numpy as np
 
 from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from extreme_fit.model.utils import r, set_seed_r
 from extreme_fit.distribution.gev.gev_params import GevParams
 
@@ -22,19 +22,19 @@ class TestStationaryGevFit(unittest.TestCase):
 
     def test_stationary_gev_fit_with_ismev(self):
         params_estimated = fitted_stationary_gev(x_gev=np.array(r['x_gev']),
-                                                 fit_method=TemporalMarginFitMethod.is_mev_gev_fit)
+                                                 fit_method=MarginFitMethod.is_mev_gev_fit)
         ref = {'loc': 0.0219, 'scale': 1.0347, 'shape': 0.8295}
         self.fit_estimator(params_estimated, ref)
 
     def test_stationary_gev_fit_with_mle(self):
         params_estimated = fitted_stationary_gev(x_gev=np.array(r['x_gev']),
-                                                 fit_method=TemporalMarginFitMethod.extremes_fevd_mle)
+                                                 fit_method=MarginFitMethod.extremes_fevd_mle)
         ref = {'loc': 0.02191974259369493, 'scale': 1.0347946062900268, 'shape': 0.829052520147379}
         self.fit_estimator(params_estimated, ref)
 
     def test_stationary_gev_fit_with_l_moments(self):
         params_estimated = fitted_stationary_gev(x_gev=np.array(r['x_gev']),
-                                                 fit_method=TemporalMarginFitMethod.extremes_fevd_l_moments)
+                                                 fit_method=MarginFitMethod.extremes_fevd_l_moments)
         ref = {'loc': 0.0813843045950251, 'scale': 1.1791830110181365, 'shape': 0.6610403806908737}
         self.fit_estimator(params_estimated, ref)
 

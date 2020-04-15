@@ -8,8 +8,8 @@ from extreme_data.exceeding_snow_loads.check_mcmc_convergence_for_return_levels.
     compute_gelman_score
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
 from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     ExtractEurocodeReturnLevelFromMyBayesianExtremes
@@ -103,7 +103,7 @@ def get_return_level_bayesian_example(nb_iterations_for_bayesian_fit):
     model_class = StationaryTemporalModel
     coordinates, dataset = load_temporal_coordinates_and_dataset(maxima, years)
     fitted_estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year=1959,
-                                                      fit_method=TemporalMarginFitMethod.extremes_fevd_bayesian,
+                                                      fit_method=MarginFitMethod.extremes_fevd_bayesian,
                                                       nb_iterations_for_bayesian_fit=nb_iterations_for_bayesian_fit)
     return_level_bayesian = ExtractEurocodeReturnLevelFromMyBayesianExtremes(estimator=fitted_estimator,
                                                                              ci_method=ConfidenceIntervalMethodFromExtremes.my_bayes,

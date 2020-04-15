@@ -30,17 +30,17 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
                                   df_coordinates_temp: pd.DataFrame) -> ResultFromSpatialExtreme:
         assert data.shape[1] == len(df_coordinates_spat)
 
+        return self.fit_from_statial_extremes(data, df_coordinates_spat, df_coordinates_temp)
+
+    def fit_from_statial_extremes(self, data, df_coordinates_spat, df_coordinates_temp):
         # Margin formula for fitspatgev
         fit_params = get_margin_formula_spatial_extreme(self.margin_function_start_fit.form_dict)
-
         # Covariables
         covariables = get_coord(df_coordinates=df_coordinates_spat)
         fit_params['temp.cov'] = get_coord(df_coordinates=df_coordinates_temp)
-
         # Start parameters
         coef_dict = self.margin_function_start_fit.coef_dict
         fit_params['start'] = r.list(**coef_dict)
-
         res = safe_run_r_estimator(function=r.fitspatgev, use_start=self.use_start_value, data=data,
                                    covariables=covariables, **fit_params)
         return ResultFromSpatialExtreme(res)

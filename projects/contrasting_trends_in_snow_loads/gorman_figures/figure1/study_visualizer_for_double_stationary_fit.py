@@ -8,8 +8,8 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted
     get_colors, ticks_values_and_labels_for_percentages
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import ALL_ALTITUDES_WITHOUT_NAN
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod, fitmethod_to_str
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod, fitmethod_to_str
 
 import matplotlib.pyplot as plt
 
@@ -21,7 +21,7 @@ class StudyVisualizerForReturnLevelChange(StudyVisualizer):
 
     def __init__(self, study_class, altitude, return_period=30, year_min=1959, year_middle=1989, year_max=2019,
                  save_to_file=False,
-                 fit_method=TemporalMarginFitMethod.extremes_fevd_mle):
+                 fit_method=MarginFitMethod.extremes_fevd_mle):
         self.return_period = return_period
         self.fit_method = fit_method
 

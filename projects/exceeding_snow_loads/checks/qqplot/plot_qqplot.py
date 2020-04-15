@@ -7,8 +7,8 @@ import pandas as pd
 from matplotlib.ticker import PercentFormatter
 
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
 from projects.exceeding_snow_loads.data.main_example_swe_total_plot import tuples_for_examples_paper1
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     # altitudes = [900, 1800, 2700]
     altitude_to_visualizer = {altitude: StudyVisualizerForNonStationaryTrends(CrocusSnowLoadTotal(altitude=altitude),
                                                                               select_only_acceptable_shape_parameter=True,
-                                                                              fit_method=TemporalMarginFitMethod.extremes_fevd_mle,
+                                                                              fit_method=MarginFitMethod.extremes_fevd_mle,
                                                                               multiprocessing=True,
                                                                               fit_gev_only_on_non_null_maxima=True,
                                                                               fit_only_time_series_with_ninety_percent_of_non_null_values=True,

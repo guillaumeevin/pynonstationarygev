@@ -4,8 +4,8 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
     ExtractEurocodeReturnLevelFromMyBayesianExtremes, ExtractEurocodeReturnLevelFromCiMethod
 from spatio_temporal_dataset.utils import load_temporal_coordinates_and_dataset
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
 
@@ -46,9 +46,9 @@ class EurocodeConfidenceIntervalFromExtremes(object):
         # Select fit method depending on the ci_method
         if ci_method in [ConfidenceIntervalMethodFromExtremes.ci_bayes,
                          ConfidenceIntervalMethodFromExtremes.my_bayes]:
-            fit_method = TemporalMarginFitMethod.extremes_fevd_bayesian
+            fit_method = MarginFitMethod.extremes_fevd_bayesian
         else:
-            fit_method = TemporalMarginFitMethod.extremes_fevd_mle
+            fit_method = MarginFitMethod.extremes_fevd_mle
         # Fitted estimator
         fitted_estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year=None,
                                                           fit_method=fit_method, nb_iterations_for_bayesian_fit=20000)

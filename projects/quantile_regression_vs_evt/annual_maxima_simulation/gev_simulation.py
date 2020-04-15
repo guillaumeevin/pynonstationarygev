@@ -7,8 +7,8 @@ from cached_property import cached_property
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.estimator.quantile_estimator.abstract_quantile_estimator import AbstractQuantileEstimator
 from extreme_fit.model.margin_model.abstract_margin_model import AbstractMarginModel
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
     NonStationaryLocationTemporalModel
 from projects.quantile_regression_vs_evt.AbstractSimulation import AbstractSimulation
@@ -36,7 +36,7 @@ class StationarySimulation(GevSimulation):
             GevParams.SCALE: [1],
         }
         return StationaryTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list,
-                                                      fit_method=TemporalMarginFitMethod.extremes_fevd_mle)
+                                                      fit_method=MarginFitMethod.extremes_fevd_mle)
 
 
 class NonStationaryLocationGumbelSimulation(GevSimulation):
@@ -48,7 +48,7 @@ class NonStationaryLocationGumbelSimulation(GevSimulation):
             GevParams.SCALE: [1],
         }
         return NonStationaryLocationTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list,
-                                                                 fit_method=TemporalMarginFitMethod.extremes_fevd_mle)
+                                                                 fit_method=MarginFitMethod.extremes_fevd_mle)
 
 
 class NonStationaryLocationGevSimulation(GevSimulation):
@@ -60,4 +60,4 @@ class NonStationaryLocationGevSimulation(GevSimulation):
             GevParams.SCALE: [1],
         }
         return NonStationaryLocationTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list,
-                                                                 fit_method=TemporalMarginFitMethod.extremes_fevd_mle)
+                                                                 fit_method=MarginFitMethod.extremes_fevd_mle)

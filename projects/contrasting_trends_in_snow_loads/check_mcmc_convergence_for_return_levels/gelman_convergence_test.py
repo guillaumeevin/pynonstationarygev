@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_bayesian_extremes import \
     ResultFromBayesianExtremes
 from extreme_fit.model.utils import r
@@ -57,7 +57,7 @@ def compute_mean_and_variance(mcmc_iterations, model_class, non_null_years_and_m
     maxima, years = non_null_years_and_maxima
     coordinates, dataset = load_temporal_coordinates_and_dataset(maxima, years)
     fitted_estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year=None,
-                                                      fit_method=TemporalMarginFitMethod.extremes_fevd_bayesian,
+                                                      fit_method=MarginFitMethod.extremes_fevd_bayesian,
                                                       nb_iterations_for_bayesian_fit=mcmc_iterations,
                                                       params_start_fit_bayesian=params_start_fit)
     res = fitted_estimator.result_from_model_fit  # type: ResultFromBayesianExtremes

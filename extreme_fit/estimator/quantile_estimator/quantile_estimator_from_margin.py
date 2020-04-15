@@ -5,15 +5,15 @@ from extreme_fit.estimator.quantile_estimator.abstract_quantile_estimator import
 from extreme_fit.function.abstract_quantile_function import AbstractQuantileFunction, \
     QuantileFunctionFromMarginFunction
 from extreme_fit.function.margin_function.abstract_margin_function import AbstractMarginFunction
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
 class QuantileEstimatorFromMargin(LinearMarginEstimator, AbstractQuantileEstimator):
 
     def __init__(self, dataset: AbstractDataset, quantile, margin_model_class: type):
-        margin_model = margin_model_class(dataset.coordinates, fit_method=TemporalMarginFitMethod.extremes_fevd_mle)
+        margin_model = margin_model_class(dataset.coordinates, fit_method=MarginFitMethod.extremes_fevd_mle)
         super().__init__(dataset=dataset, quantile=quantile, margin_model=margin_model)
 
     @cached_property

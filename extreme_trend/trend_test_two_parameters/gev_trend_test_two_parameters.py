@@ -2,8 +2,8 @@ from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE
 from extreme_trend.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_trend.trend_test_one_parameter.gev_trend_test_one_parameter import \
     GevLocationTrendTest, GevScaleTrendTest
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationAndScaleTemporalModel, StationaryTemporalModel, GumbelTemporalModel
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -20,7 +20,7 @@ class GevTrendTestTwoParameters(AbstractGevTrendTest):
 class GevLocationAndScaleTrendTest(GevTrendTestTwoParameters):
 
     def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel,
-                 quantile_level=EUROCODE_QUANTILE, fit_method=TemporalMarginFitMethod.extremes_fevd_mle):
+                 quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year,
                          unconstrained_model_class=NonStationaryLocationAndScaleTemporalModel,
                          constrained_model_class=constrained_model_class,
@@ -53,7 +53,7 @@ class GevLocationAndScaleTrendTest(GevTrendTestTwoParameters):
 
 class GevLocationAgainstGumbel(GevTrendTestTwoParameters, GevLocationTrendTest):
 
-    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, fit_method=TemporalMarginFitMethod.extremes_fevd_mle):
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year, quantile_level, GumbelTemporalModel, fit_method=fit_method)
 
     @classproperty
@@ -71,7 +71,7 @@ class GevLocationAgainstGumbel(GevTrendTestTwoParameters, GevLocationTrendTest):
 
 class GevScaleAgainstGumbel(GevTrendTestTwoParameters, GevScaleTrendTest):
 
-    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, fit_method=TemporalMarginFitMethod.extremes_fevd_mle):
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year, quantile_level, GumbelTemporalModel, fit_method=fit_method)
 
     @classproperty

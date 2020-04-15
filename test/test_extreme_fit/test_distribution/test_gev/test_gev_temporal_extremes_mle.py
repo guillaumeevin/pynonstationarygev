@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 
 from extreme_trend.abstract_gev_trend_test import fitted_linear_margin_estimator
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
     NonStationaryLocationTemporalModel, NonStationaryLocationAndScaleTemporalModel
 from extreme_fit.model.utils import r, set_seed_r
@@ -34,7 +34,7 @@ class TestGevTemporalExtremesMle(unittest.TestCase):
         df2 = pd.DataFrame(data=np.array(r['x_gev']), index=df.index)
         observations = AbstractSpatioTemporalObservations(df_maxima_gev=df2)
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
-        self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
+        self.fit_method = MarginFitMethod.extremes_fevd_mle
 
     def test_gev_temporal_margin_fit_stationary(self):
         # Create estimator

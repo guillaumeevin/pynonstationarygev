@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
-from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
-    TemporalMarginFitMethod
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
     NonStationaryLocationTemporalModel, NonStationaryLocationAndScaleTemporalModel, \
     NonStationaryLocationAndScaleGumbelModel, NonStationaryLocationGumbelModel
@@ -65,17 +65,17 @@ class TestConfidenceInterval(unittest.TestCase):
         }
 
     def test_my_bayes(self):
-        self.fit_method = TemporalMarginFitMethod.extremes_fevd_bayesian
+        self.fit_method = MarginFitMethod.extremes_fevd_bayesian
         self.ci_method = ConfidenceIntervalMethodFromExtremes.my_bayes
         self.model_class_to_triplet = self.bayesian_ci
 
     def test_ci_bayes(self):
-        self.fit_method = TemporalMarginFitMethod.extremes_fevd_bayesian
+        self.fit_method = MarginFitMethod.extremes_fevd_bayesian
         self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_bayes
         self.model_class_to_triplet = self.bayesian_ci
 
     def test_ci_normal_mle(self):
-        self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
+        self.fit_method = MarginFitMethod.extremes_fevd_mle
         self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_mle
         self.model_class_to_triplet = {
             StationaryTemporalModel: (-4.703945484843988, 30.482318639674023, 65.66858276419204),
@@ -86,7 +86,7 @@ class TestConfidenceInterval(unittest.TestCase):
         }
 
     def test_ci_normal_gmle(self):
-        self.fit_method = TemporalMarginFitMethod.extremes_fevd_gmle
+        self.fit_method = MarginFitMethod.extremes_fevd_gmle
         self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_mle
         self.model_class_to_triplet = {
             # Test only for the GEV cases (for the Gumbel cases results are just the same, since there is no shape parameter)
@@ -97,7 +97,7 @@ class TestConfidenceInterval(unittest.TestCase):
 
 
     def test_ci_boot(self):
-        self.fit_method = TemporalMarginFitMethod.extremes_fevd_mle
+        self.fit_method = MarginFitMethod.extremes_fevd_mle
         self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_boot
         self.model_class_to_triplet= {
             # I think the boostrapping works only in the stationary context
