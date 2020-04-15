@@ -17,9 +17,9 @@ def relative_change_in_maxima_wrt_altitude():
     study_class = [SafranSnowfall1Day, SafranPrecipitation1Day, SafranPrecipitation, SafranRainfall,
                    SafranSnowfall, CrocusSnowLoad3Days, CrocusSnowLoadTotal,
                    SafranTemperature, SafranNormalizedPreciptationRateOnWetDays,
-                   SafranNormalizedPreciptationRate][-1]
+                   SafranNormalizedPreciptationRate][1]
     altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][::-1]
-    relative = False
+    relative = True
 
     for altitude in altitudes:
 

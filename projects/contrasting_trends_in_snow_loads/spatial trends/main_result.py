@@ -57,7 +57,7 @@ def intermediate_result(altitudes, massif_names=None,
     # plot_contrasting_trend_curves(altitude_to_visualizer, all_regions=True)
     # plot_contrasting_trend_curves_massif(altitude_to_visualizer, all_regions=True)
     # plot_trend_curves(altitude_to_visualizer)
-    plot_trend_map(altitude_to_visualizer)
+    plot_trend_map(altitude_to_visualizer, )
 
 
 def major_result():
@@ -67,8 +67,8 @@ def major_result():
     model_subsets_for_uncertainty = None
     # altitudes = paper_altitudes
     # altitudes = paper_altitudes
-    # altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:]
-    altitudes = [1200, 1500, 1800, 2100, 2400, 2700][:]
+    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:]
+    # altitudes = [1200, 1500, 1800, 2100, 2400, 2700][:]
     snow_load_classes = [CrocusSnowLoad1Day, CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][:]
     precipitation_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days,
                              SafranPrecipitation7Days][:]
@@ -76,7 +76,7 @@ def major_result():
     rainfall_classes = [SafranRainfall1Day, SafranRainfall3Days, SafranRainfall5Days, SafranRainfall7Days]
     study_classes = precipitation_classes + snow_load_classes
     study_classes = snowfall_classes + rainfall_classes
-    for study_class in precipitation_classes:
+    for study_class in precipitation_classes[:1]:
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,
                             uncertainty_methods, study_class, multiprocessing=True)
 
