@@ -7,6 +7,11 @@ from spatio_temporal_dataset.slicer.spatial_slicer import SpatialSlicer
 class AbstractSpatialCoordinates(AbstractCoordinates):
 
     @classmethod
+    def from_list_x_coordinates(cls, x_coordinates, train_split_ratio: float = None, transformation_class: type = None):
+        df = pd.DataFrame({cls.COORDINATE_X: x_coordinates})
+        return cls.from_df(df, train_split_ratio, transformation_class)
+
+    @classmethod
     def from_df(cls, df: pd.DataFrame, train_split_ratio: float = None, transformation_class: type = None):
         assert cls.COORDINATE_X in df.columns
         assert cls.COORDINATE_T not in df.columns

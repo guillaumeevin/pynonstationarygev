@@ -14,11 +14,14 @@ from spatio_temporal_dataset.slicer.spatio_temporal_slicer import SpatioTemporal
 
 class AbstractSpatioTemporalCoordinates(AbstractCoordinates):
 
-    def __init__(self, df: pd.DataFrame, slicer_class: type,
+    def __init__(self, df: pd.DataFrame = None, slicer_class: type = SpatioTemporalSlicer,
                  s_split_spatial: pd.Series = None, s_split_temporal: pd.Series = None,
                  transformation_class: type = None,
                  spatial_coordinates: AbstractSpatialCoordinates = None,
                  temporal_coordinates: AbstractTemporalCoordinates = None):
+        if df is None:
+            assert spatial_coordinates is not None and temporal_coordinates is not None
+            df = self.get_df_from_spatial_and_temporal_coordinates(spatial_coordinates, temporal_coordinates)
         super().__init__(df, slicer_class, s_split_spatial, s_split_temporal, None)
         # Spatial coordinates'
         if spatial_coordinates is None:
@@ -48,6 +51,20 @@ class AbstractSpatioTemporalCoordinates(AbstractCoordinates):
         return self._temporal_coordinates
 
     @classmethod
+    def from_spatial_coordinates_and_temporal_coordinates(cls, spatial_coordinates: AbstractSpatialCoordinates,
+                                                          temporal_coordinates: AbstractTemporalCoordinates):
+        df = cls.get_df_from_spatial_and_temporal_coordinates(spatial_coordinates, temporal_coordinates)
+        return cls(df=df, slicer_class=SpatioTemporalSlicer,
+                   spatial_coordinates=spatial_coordinates, temporal_coordinates=temporal_coordinates)
+
+    @classmethod
+    def get_random_s_split_temporal(cls, spatial_coordinates: AbstractSpatialCoordinates,
+                                    temporal_coordinates: AbstractTemporalCoordinates,
+                                    train_split_ratio):
+        df = cls.get_df_from_spatial_and_temporal_coordinates(spatial_coordinates, temporal_coordinates)
+        return cls.temporal_s_split_from_df(df, train_split_ratio)
+
+    @classmethod
     def get_df_from_df_spatial_and_coordinate_t_values(cls, coordinate_t_values, df_spatial):
         df_time_steps = []
         for t, coordinate_t_value in enumerate(coordinate_t_values):
@@ -59,14 +76,13 @@ class AbstractSpatioTemporalCoordinates(AbstractCoordinates):
         return df_time_steps
 
     @classmethod
-    def from_spatial_coordinates_and_temporal_coordinates(cls, spatial_coordinates: AbstractSpatialCoordinates,
-                                                          temporal_coordinates: AbstractTemporalCoordinates):
-        df_spatial = spatial_coordinates.df_spatial_coordinates(transformed=False)
-        coordinate_t_values = temporal_coordinates.df_temporal_coordinates(transformed=False).iloc[:, 0].values
+    def get_df_from_spatial_and_temporal_coordinates(cls, spatial_coordinates, temporal_coordinates, transformed=False):
+        # Transformed is False, so that the value in the spatio temporal datasets are still readable
+        df_spatial = spatial_coordinates.df_spatial_coordinates(transformed=transformed)
+        coordinate_t_values = temporal_coordinates.df_temporal_coordinates(transformed=transformed).iloc[:, 0].values
         df = cls.get_df_from_df_spatial_and_coordinate_t_values(df_spatial=df_spatial,
                                                                 coordinate_t_values=coordinate_t_values)
-        return cls(df=df, slicer_class=SpatioTemporalSlicer,
-                   spatial_coordinates=spatial_coordinates, temporal_coordinates=temporal_coordinates)
+        return df
 
     @classmethod
     def from_df(cls, df: pd.DataFrame, train_split_ratio: float = None, transformation_class: type = None):

@@ -1,5 +1,3 @@
-from enum import Enum
-
 import numpy as np
 import pandas as pd
 
@@ -73,7 +71,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         if self.fit_method == MarginFitMethod.extremes_fevd_bayesian:
             return self.extremes_fevd_bayesian_fit(x, df_coordinates_temp)
         else:
-            return self.run_fevd_fixed(df_coordinates_temp=df_coordinates_temp, 
+            return self.run_fevd_fixed(df_coordinates_temp=df_coordinates_temp,
                                        method=FEVD_MARGIN_FIT_METHOD_TO_ARGUMENT_STR[self.fit_method], x=x)
 
     def extreme_fevd_mle_exp_fit(self, x, df_coordinates_temp):

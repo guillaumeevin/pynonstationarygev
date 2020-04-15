@@ -108,10 +108,14 @@ class AbstractCoordinates(object):
         # Create a spatial split
         s_split_spatial = s_split_from_df(df, cls.COORDINATE_X, cls.SPATIAL_SPLIT, train_split_ratio, True)
         # Create a temporal split
-        s_split_temporal = s_split_from_df(df, cls.COORDINATE_T, cls.TEMPORAL_SPLIT, train_split_ratio, False)
+        s_split_temporal = cls.temporal_s_split_from_df(df, train_split_ratio)
 
         return cls(df=df, slicer_class=slicer_class, s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal,
                    transformation_class=transformation_class)
+
+    @classmethod
+    def temporal_s_split_from_df(cls, df, train_split_ratio):
+        return s_split_from_df(df, cls.COORDINATE_T, cls.TEMPORAL_SPLIT, train_split_ratio, False)
 
     @classmethod
     def from_csv(cls, csv_path: str = None):
@@ -266,8 +270,7 @@ class AbstractCoordinates(object):
             # Modify the temporal coordinates to enforce the stationarity
             df_temporal_coordinates.loc[ind_to_modify] = starting_point
             # Load the temporal transformation object
-            temporal_transformation = self.temporal_coordinates.transformation_class(
-                df_temporal_coordinates)  # type: AbstractTransformation
+            temporal_transformation = self.temporal_coordinates.transformation_class(df_temporal_coordinates)  # type: AbstractTransformation
             # Return the result of the temporal transformation
             df = temporal_transformation.transform_df(df_temporal_coordinates)
         # Potentially transform the time covariate into another covariate
