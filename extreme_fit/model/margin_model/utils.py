@@ -8,5 +8,14 @@ class MarginFitMethod(Enum):
     extremes_fevd_gmle = 3
     extremes_fevd_l_moments = 4
 
+
+FEVD_MARGIN_FIT_METHOD_TO_ARGUMENT_STR = {
+    MarginFitMethod.extremes_fevd_mle: "MLE",
+    MarginFitMethod.extremes_fevd_gmle: "GMLE",
+    MarginFitMethod.extremes_fevd_l_moments: "Lmoments",
+    MarginFitMethod.extremes_fevd_bayesian: "Bayesian"
+}
+FEVD_MARGIN_FIT_METHODS = set(FEVD_MARGIN_FIT_METHOD_TO_ARGUMENT_STR.keys())
+
 def fitmethod_to_str(fit_method):
     return str(fit_method).split('.')[-1]
