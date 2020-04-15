@@ -2,12 +2,12 @@ from multiprocessing.pool import Pool
 
 import matplotlib as mpl
 
-from extreme_data.meteo_france_data.scm_models_data.utils import SeasonForTheMaxima
-from extreme_trend.visualizers.utils import load_altitude_to_visualizer
-
 mpl.use('Agg')
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+
+from extreme_trend.visualizers.utils import load_altitude_to_visualizer
+from projects.exceeding_snow_loads.section_results.plot_trend_curves import plot_trend_map
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranPrecipitation3Days, \
@@ -19,11 +19,8 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusS
     CrocusSnowLoad5Days, CrocusSnowLoad7Days, CrocusSnowLoad1Day
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
-from projects.contrasting_trends_in_snow_loads.plot_contrasting_trend_curves import plot_contrasting_trend_curves, \
-    plot_contrasting_trend_curves_massif
 from projects.exceeding_snow_loads.section_results.main_result_trends_and_return_levels import \
     compute_minimized_aic
-from root_utils import NB_CORES
 
 
 def intermediate_result(altitudes, massif_names=None,
@@ -58,7 +55,9 @@ def intermediate_result(altitudes, massif_names=None,
 
     # Plots
     # plot_contrasting_trend_curves(altitude_to_visualizer, all_regions=True)
-    plot_contrasting_trend_curves_massif(altitude_to_visualizer, all_regions=True)
+    # plot_contrasting_trend_curves_massif(altitude_to_visualizer, all_regions=True)
+    # plot_trend_curves(altitude_to_visualizer)
+    plot_trend_map(altitude_to_visualizer)
 
 
 def major_result():
@@ -68,15 +67,16 @@ def major_result():
     model_subsets_for_uncertainty = None
     # altitudes = paper_altitudes
     # altitudes = paper_altitudes
-    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:]
+    # altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:]
+    altitudes = [1200, 1500, 1800, 2100, 2400, 2700][:]
     snow_load_classes = [CrocusSnowLoad1Day, CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][:]
     precipitation_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days,
                              SafranPrecipitation7Days][:]
     snowfall_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days]
     rainfall_classes = [SafranRainfall1Day, SafranRainfall3Days, SafranRainfall5Days, SafranRainfall7Days]
     study_classes = precipitation_classes + snow_load_classes
-    # study_classes = snowfall_classes + rainfall_classes
-    for study_class in snowfall_classes[:1]:
+    study_classes = snowfall_classes + rainfall_classes
+    for study_class in precipitation_classes:
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,
                             uncertainty_methods, study_class, multiprocessing=True)
 

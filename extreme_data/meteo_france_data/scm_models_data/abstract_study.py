@@ -200,8 +200,8 @@ class AbstractStudy(object):
     @property
     def all_daily_series(self) -> np.ndarray:
         """Return an array of approximate shape (total_number_of_days, 23) x """
-        all_daily_series = np.concatenate([ time_serie_array
-                                            for time_serie_array in self.year_to_daily_time_serie_array.values()])
+        all_daily_series = np.concatenate([time_serie_array
+                                           for time_serie_array in self.year_to_daily_time_serie_array.values()])
         assert len(all_daily_series) == len(self.all_days)
         return all_daily_series
 
@@ -210,6 +210,10 @@ class AbstractStudy(object):
     @property
     def observations_annual_maxima(self) -> AnnualMaxima:
         return AnnualMaxima(df_maxima_gev=pd.DataFrame(self.year_to_annual_maxima, index=self.study_massif_names))
+
+    @cached_property
+    def observations_annual_mean(self) -> pd.DataFrame:
+        return pd.DataFrame(self.year_to_annual_mean, index=self.study_massif_names)
 
     def annual_maxima_and_years(self, massif_name) -> Tuple[np.ndarray, np.ndarray]:
         df = self.observations_annual_maxima.df_maxima_gev
@@ -222,6 +226,14 @@ class AbstractStudy(object):
         for year, time_serie in self._year_to_max_daily_time_serie.items():
             year_to_annual_maxima[year] = time_serie.max(axis=0)
         return year_to_annual_maxima
+
+    @cached_property
+    def year_to_annual_mean(self) -> OrderedDict:
+        # Map each year to an array of size nb_massif
+        year_to_annual_mean = OrderedDict()
+        for year, time_serie in self._year_to_max_daily_time_serie.items():
+            year_to_annual_mean[year] = time_serie.mean(axis=0)
+        return year_to_annual_mean
 
     @cached_property
     def year_to_annual_maxima_index(self) -> OrderedDict:
@@ -238,7 +250,7 @@ class AbstractStudy(object):
             ordered_index = [self.year_to_annual_maxima_index[year][i] for year in years]
             massif_name_to_annual_maxima_ordered_index[massif_name] = ordered_index
         return massif_name_to_annual_maxima_ordered_index
-    
+
     @cached_property
     def massif_name_to_annual_maxima(self):
         massif_name_to_annual_maxima = OrderedDict()
@@ -390,7 +402,8 @@ class AbstractStudy(object):
 
     @property
     def missing_massif_name(self):
-        return set(self.all_massif_names(self.reanalysis_path, self.dbf_filename)) - set(self.altitude_to_massif_names[self.altitude])
+        return set(self.all_massif_names(self.reanalysis_path, self.dbf_filename)) - set(
+            self.altitude_to_massif_names[self.altitude])
 
     @property
     def column_mask(self):

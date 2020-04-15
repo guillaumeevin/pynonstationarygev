@@ -8,14 +8,16 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_variable import Abs
 from extreme_data.meteo_france_data.scm_models_data.safran.cumulated_study import CumulatedStudy
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariable, \
     SafranRainfallVariable, SafranTemperatureVariable, SafranTotalPrecipVariable, \
-    SafranNormalizedPrecipitationRateOnWetDaysVariable
+    SafranNormalizedPrecipitationRateOnWetDaysVariable, SafranNormalizedPrecipitationRateVariable
 
 
 class Safran(AbstractStudy):
 
     def __init__(self, variable_class: type, *args, **kwargs):
         assert variable_class in [SafranSnowfallVariable, SafranRainfallVariable, SafranTemperatureVariable,
-                                  SafranTotalPrecipVariable, SafranNormalizedPrecipitationRateOnWetDaysVariable]
+                                  SafranTotalPrecipVariable,
+                                  SafranNormalizedPrecipitationRateVariable,
+                                  SafranNormalizedPrecipitationRateOnWetDaysVariable]
         super().__init__(variable_class, *args, **kwargs)
         self.model_name = 'Safran'
 
@@ -86,6 +88,20 @@ class SafranRainfall7Days(SafranRainfall):
     def __init__(self, **kwargs):
         super().__init__(nb_consecutive_days=7, **kwargs)
 
+
+
+class SafranNormalizedPreciptationRate(CumulatedStudy, Safran):
+
+    def __init__(self, **kwargs):
+        super().__init__(SafranNormalizedPrecipitationRateVariable, **kwargs)
+
+    def load_variable_array(self, dataset):
+        return [np.array(dataset.variables[k]) for k in self.load_keyword()]
+
+    def instantiate_variable_object(self, variable_array) -> AbstractVariable:
+        variable_array_temperature, variable_array_snowfall, variable_array_rainfall = variable_array
+        return self.variable_class(variable_array_temperature,
+                                   variable_array_snowfall, variable_array_rainfall, self.nb_consecutive_days)
 
 class SafranNormalizedPreciptationRateOnWetDays(CumulatedStudy, Safran):
 

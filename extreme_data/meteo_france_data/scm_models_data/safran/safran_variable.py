@@ -77,6 +77,7 @@ class SafranRainfallVariable(SafranSnowfallVariable):
 
 
 class SafranTotalPrecipVariable(AbstractVariable):
+    NAME = 'Precipitation'
 
     def __init__(self, snow_variable_array, rain_variable_array, nb_consecutive_days):
         super().__init__(None)
@@ -94,7 +95,10 @@ class SafranTotalPrecipVariable(AbstractVariable):
         return self._daily_time_serie_array
 
 
-class SafranNormalizedPrecipitationRateOnWetDaysVariable(AbstractVariable):
+class SafranNormalizedPrecipitationRateVariable(AbstractVariable):
+    NAME = 'Normalized Precip'
+
+
 
     def __init__(self, temperature_variable_array, snow_variable_array, rain_variable_array, nb_consecutive_days):
         super().__init__(None)
@@ -103,8 +107,6 @@ class SafranNormalizedPrecipitationRateOnWetDaysVariable(AbstractVariable):
         beta = 0.06
         self._daily_time_serie_array = np.exp(-beta * temperature.daily_time_serie_array) \
                                        * total_precipitation.daily_time_serie_array
-        mask_for_nan_values = total_precipitation.daily_time_serie_array < 0.01
-        self._daily_time_serie_array[mask_for_nan_values] = np.nan
 
     @classmethod
     def keyword(cls):
@@ -113,6 +115,15 @@ class SafranNormalizedPrecipitationRateOnWetDaysVariable(AbstractVariable):
     @property
     def daily_time_serie_array(self) -> np.ndarray:
         return self._daily_time_serie_array
+
+
+class SafranNormalizedPrecipitationRateOnWetDaysVariable(SafranNormalizedPrecipitationRateVariable):
+
+    def __init__(self, temperature_variable_array, snow_variable_array, rain_variable_array, nb_consecutive_days):
+        super().__init__(temperature_variable_array, snow_variable_array, rain_variable_array, nb_consecutive_days)
+        total_precipitation = SafranTotalPrecipVariable(snow_variable_array, rain_variable_array, nb_consecutive_days)
+        mask_for_nan_values = total_precipitation.daily_time_serie_array < 0.01
+        self._daily_time_serie_array[mask_for_nan_values] = np.nan
 
 
 class SafranTemperatureVariable(AbstractVariable):
