@@ -1,3 +1,6 @@
+import io
+from contextlib import redirect_stdout
+
 import numpy as np
 import pandas as pd
 import rpy2
@@ -17,7 +20,11 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
 
     @property
     def summary_name_to_value(self):
-        return self.get_python_dictionary(r('summary')(self.result_from_fit))
+        # Warning print will not work in this part
+        f = io.StringIO()
+        with redirect_stdout(f):
+            summary = r('summary')(self.result_from_fit)
+            return self.get_python_dictionary(summary)
 
     @property
     def results(self):
