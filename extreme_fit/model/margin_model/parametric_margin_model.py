@@ -6,6 +6,7 @@ import pandas as pd
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.function.margin_function.parametric_margin_function import \
     ParametricMarginFunction
+from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_spatial_extreme import ResultFromSpatialExtreme
 from extreme_fit.model.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_fit.model.utils import safe_run_r_estimator, r, get_coord, \
@@ -16,10 +17,12 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 class ParametricMarginModel(AbstractMarginModel, ABC):
 
     def __init__(self, coordinates: AbstractCoordinates, use_start_value=False, params_start_fit=None,
-                 params_sample=None, starting_point=None, params_class=GevParams):
+                 params_sample=None, starting_point=None, params_class=GevParams,
+                 fit_method=MarginFitMethod.spatial_extremes_mle):
         """
         :param starting_point: starting coordinate for the temporal trend
         """
+        self.fit_method = fit_method
         self.starting_point = starting_point
         self.margin_function_sample = None  # type: ParametricMarginFunction
         self.margin_function_start_fit = None  # type: ParametricMarginFunction
@@ -29,10 +32,12 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
                                   df_coordinates_temp: pd.DataFrame) -> ResultFromSpatialExtreme:
         assert data.shape[1] == len(df_coordinates_spat)
+        if self.fit_method == MarginFitMethod.spatial_extremes_mle:
+            return self.fit_from_spatial_extremes(data, df_coordinates_spat, df_coordinates_temp)
+        else:
+            raise NotImplementedError
 
-        return self.fit_from_statial_extremes(data, df_coordinates_spat, df_coordinates_temp)
-
-    def fit_from_statial_extremes(self, data, df_coordinates_spat, df_coordinates_temp):
+    def fit_from_spatial_extremes(self, data, df_coordinates_spat, df_coordinates_temp):
         # Margin formula for fitspatgev
         fit_params = get_margin_formula_spatial_extreme(self.margin_function_start_fit.form_dict)
         # Covariables

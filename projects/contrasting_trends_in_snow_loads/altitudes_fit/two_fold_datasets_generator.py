@@ -1,20 +1,26 @@
 from typing import Tuple, Dict, List
 
-from projects.contrasting_trends_in_snow_loads.altitunal_fit.altitudes_studies import AltitudesStudies
+from cached_property import cached_property
+
+from projects.contrasting_trends_in_snow_loads.altitudes_fit.altitudes_studies import AltitudesStudies
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.slicer.split import invert_s_split
 
 
-class TwoFoldEstimation(object):
+class TwoFoldDatasetsGenerator(object):
 
-    def __init__(self, studies: AltitudesStudies, nb_samples):
+    def __init__(self, studies: AltitudesStudies, nb_samples, massif_names=None):
         self.studies = studies
         self.nb_samples = nb_samples
+        if massif_names is None:
+            self.massif_names = self.studies.study.all_massif_names()
+        else:
+            self.massif_names = massif_names
 
-    @property
+    @cached_property
     def massif_name_to_list_two_fold_datasets(self) -> Dict[str, List[Tuple[AbstractDataset, AbstractDataset]]]:
         d = {}
-        for massif_name in self.studies.study.all_massif_names():
+        for massif_name in self.massif_names:
             l = []
             for _ in range(self.nb_samples):
                 # Append to the list

@@ -1,7 +1,7 @@
 import unittest
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
-from projects.contrasting_trends_in_snow_loads.altitunal_fit.altitudes_studies import AltitudesStudies
+from projects.contrasting_trends_in_snow_loads.altitudes_fit.altitudes_studies import AltitudesStudies
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.slicer.split import Split, small_s_split_from_ratio
 from spatio_temporal_dataset.slicer.temporal_slicer import TemporalSlicer

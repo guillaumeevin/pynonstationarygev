@@ -7,6 +7,7 @@ class MarginFitMethod(Enum):
     extremes_fevd_mle = 2
     extremes_fevd_gmle = 3
     extremes_fevd_l_moments = 4
+    spatial_extremes_mle = 5
 
 
 FEVD_MARGIN_FIT_METHOD_TO_ARGUMENT_STR = {

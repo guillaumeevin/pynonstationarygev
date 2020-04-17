@@ -1,9 +1,10 @@
 from abc import ABC
 
+import numpy as np
 from cached_property import cached_property
 
 from extreme_fit.estimator.abstract_estimator import AbstractEstimator
-from extreme_fit.estimator.utils import load_margin_function, compute_nllh
+from extreme_fit.estimator.utils import load_margin_function
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
 from extreme_fit.function.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
@@ -42,11 +43,19 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     def maxima_gev_train(self):
         return self.dataset.maxima_gev_for_spatial_extremes_package(self.train_split)
 
-    @property
-    def nllh(self, split=Split.all):
-        assert split is Split.all
-        return compute_nllh(self, self.maxima_gev_train, self.coordinate_temp, self.margin_model)
-
     @cached_property
     def function_from_fit(self) -> LinearMarginFunction:
         return load_margin_function(self, self.margin_model)
+
+    def nllh(self, split=Split.all):
+        nllh = 0
+        maxima_values = self.dataset.maxima_gev(split=split)
+        coordinate_values = self.dataset.coordinates_values(split=split)
+        for maximum, coordinate in zip(maxima_values, coordinate_values):
+            assert len(
+                maximum) == 1, 'So far, only one observation for each coordinate, but code would be easy to change'
+            maximum = maximum[0]
+            gev_params = self.function_from_fit.get_gev_params(coordinate, is_transformed=False)
+            p = gev_params.density(maximum)
+            nllh -= np.log(p)
+        return nllh

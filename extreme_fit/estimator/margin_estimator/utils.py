@@ -4,16 +4,18 @@ import pandas as pd
 
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
+from extreme_fit.model.margin_model.utils import MarginFitMethod
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
     CenteredScaledNormalization
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
-from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
-    AbstractSpatioTemporalObservations
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
+
+
+def fitted_linear_margin_estimator_short(model_class, dataset, fit_method, **model_kwargs) -> LinearMarginEstimator:
+    return fitted_linear_margin_estimator(model_class, dataset.coordinates, dataset, None, fit_method, **model_kwargs)
 
 
 def fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year, fit_method, **model_kwargs):
@@ -23,7 +25,8 @@ def fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_y
     return estimator
 
 
-def fitted_stationary_gev(x_gev, fit_method=MarginFitMethod.is_mev_gev_fit, model_class=StationaryTemporalModel, starting_year=None,
+def fitted_stationary_gev(x_gev, fit_method=MarginFitMethod.is_mev_gev_fit, model_class=StationaryTemporalModel,
+                          starting_year=None,
                           transformation_class=CenteredScaledNormalization) -> GevParams:
     coordinates = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(nb_temporal_steps=len(x_gev),
                                                                         transformation_class=CenteredScaledNormalization)

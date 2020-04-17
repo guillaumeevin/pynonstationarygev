@@ -15,12 +15,4 @@ def load_margin_function(estimator: AbstractEstimator, margin_model: LinearMargi
                                                 starting_point=margin_model.starting_point)
 
 
-def compute_nllh(estimator: AbstractEstimator, maxima, coordinate_temp, margin_model: LinearMarginModel,
-                 margin_function_class=LinearMarginFunction, coef_dict=None):
-    margin_function = load_margin_function(estimator, margin_model, margin_function_class, coef_dict)
-    nllh = 0
-    for maximum, year in zip(maxima[0], coordinate_temp.values):
-        gev_params = margin_function.get_gev_params(year, is_transformed=False)
-        p = gev_params.density(maximum)
-        nllh -= np.log(p)
-    return nllh
+

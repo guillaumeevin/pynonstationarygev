@@ -87,7 +87,7 @@ class FullSpatioTemporalAnnualMaxima(MaxStableAnnualMaxima):
                              coordinates: AbstractSpatioTemporalCoordinates, margin_model: AbstractMarginModel):
         # Sample with the max stable spatially
         spatial_coordinate = coordinates.spatial_coordinates
-        nb_total_obs = nb_obs * coordinates.nb_steps
+        nb_total_obs = nb_obs * coordinates.nb_steps()
         max_stable_annual_maxima = super().from_sampling(nb_total_obs, max_stable_model, spatial_coordinate)
         # Convert observation to a spatio temporal index
         max_stable_annual_maxima.convert_to_spatio_temporal_index(coordinates)

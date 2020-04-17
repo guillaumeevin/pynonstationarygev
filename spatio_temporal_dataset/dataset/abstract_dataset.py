@@ -57,8 +57,8 @@ class AbstractDataset(object):
         array = maxima_function(split)
         if self.coordinates.has_spatio_temporal_coordinates:
             nb_obs = self.observations.nb_obs
-            nb_stations = self.coordinates.nb_stations
-            nb_steps = self.coordinates.nb_steps
+            nb_stations = self.coordinates.nb_stations(split)
+            nb_steps = self.coordinates.nb_steps(split)
             # Permute array lines
             time_steps = np.array(range(nb_steps))
             c = [time_steps * nb_stations + i for i in range(nb_stations)]

@@ -216,7 +216,6 @@ class AbstractCoordinates(object):
         else:
             return self.df_coordinates(split, transformed).loc[:, self.spatial_coordinates_names].drop_duplicates()
 
-    @property
     def nb_stations(self, split: Split = Split.all) -> int:
         return len(self.df_spatial_coordinates(split))
 
@@ -292,7 +291,6 @@ class AbstractCoordinates(object):
     def temporal_coordinates(self):
         raise NotImplementedError
 
-    @property
     def nb_steps(self, split: Split = Split.all) -> int:
         return len(self.df_temporal_coordinates(split))
 
