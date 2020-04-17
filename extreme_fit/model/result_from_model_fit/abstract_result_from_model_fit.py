@@ -1,8 +1,4 @@
-import numpy as np
 from rpy2 import robjects
-
-from extreme_fit.model.utils import r
-
 
 class AbstractResultFromModelFit(object):
 
