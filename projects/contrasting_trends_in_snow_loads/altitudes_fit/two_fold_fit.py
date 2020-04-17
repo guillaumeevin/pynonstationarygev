@@ -1,18 +1,12 @@
-from enum import Enum
 from typing import Dict, List
 
 from cached_property import cached_property
 
-from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
-from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator, \
-    fitted_linear_margin_estimator_short
-from extreme_fit.model.margin_model.abstract_margin_model import AbstractMarginModel
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from projects.contrasting_trends_in_snow_loads.altitudes_fit.two_fold_datasets_generator import TwoFoldDatasetsGenerator
 from projects.contrasting_trends_in_snow_loads.altitudes_fit.two_fold_detail_fit import TwoFoldMassifFit
 from projects.contrasting_trends_in_snow_loads.altitudes_fit.utils import Score, Grouping
-from spatio_temporal_dataset.slicer.split import Split
 
 
 class TwoFoldFit(object):

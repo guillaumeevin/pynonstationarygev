@@ -34,7 +34,7 @@ print(res)
 # print(class(res$chain.info))
 # print(dim(m))
 # print(m)
-print(res$results$par)
+# print(res$results$par)
 # print(res$par)
 # print(m[1])
 
