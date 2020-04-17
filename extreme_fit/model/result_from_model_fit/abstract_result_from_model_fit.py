@@ -1,6 +1,7 @@
 import numpy as np
 from rpy2 import robjects
 
+from extreme_fit.model.utils import r
 
 
 class AbstractResultFromModelFit(object):
@@ -43,6 +44,14 @@ class AbstractResultFromModelFit(object):
     @property
     def deviance(self):
         return - 2 * self.nllh
+
+    @property
+    def bic(self):
+        raise NotImplementedError
+
+    @property
+    def aic(self):
+        raise NotImplementedError
 
     @property
     def convergence(self) -> str:

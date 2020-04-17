@@ -16,8 +16,20 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
         self.gev_param_name_to_dim = gev_param_name_to_dim
 
     @property
+    def summary_name_to_value(self):
+        return self.get_python_dictionary(r('summary')(self.result_from_fit))
+
+    @property
     def results(self):
         return self.get_python_dictionary(self.name_to_value['results'])
+
+    @property
+    def bic(self):
+        return np.array(self.summary_name_to_value['BIC'])[0]
+
+    @property
+    def aic(self):
+        return np.array(self.summary_name_to_value['AIC'])[0]
 
     @property
     def nllh(self):
