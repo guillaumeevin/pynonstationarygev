@@ -76,12 +76,14 @@ class AbstractGevTrendTest(object):
 
     @property
     def aic(self):
-        # deviance = - 2 * nllh
-        return 2 * self.total_number_of_parameters_for_unconstrained_model - self.unconstrained_model_deviance
+        aic = 2 * self.total_number_of_parameters_for_unconstrained_model + self.unconstrained_model_deviance
+        assert np.equal(self.unconstrained_estimator.result_from_model_fit.aic, aic)
+        return aic
 
     @property
     def likelihood_ratio(self):
-        return self.unconstrained_model_deviance - self.constrained_model_deviance
+        assert self.unconstrained_model_deviance < self.constrained_model_deviance
+        return self.constrained_model_deviance - self.unconstrained_model_deviance
 
     @property
     def constrained_model_deviance(self):
@@ -97,14 +99,6 @@ class AbstractGevTrendTest(object):
             return np.nan
         else:
             return unconstrained_estimator.result_from_model_fit.deviance
-
-    @property
-    def unconstained_nllh(self):
-        unconstrained_estimator = self.unconstrained_estimator
-        if self.crashed:
-            return np.nan
-        else:
-            return unconstrained_estimator.result_from_model_fit.nllh
 
     # Evolution of the GEV parameters and corresponding quantiles
 

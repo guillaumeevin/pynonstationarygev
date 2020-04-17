@@ -1,6 +1,9 @@
 from multiprocessing.pool import Pool
 
 import matplotlib as mpl
+
+from projects.exceeding_snow_loads.section_results.plot_trend_curves import plot_trend_map
+
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
@@ -61,9 +64,9 @@ def intermediate_result(altitudes, massif_names=None,
             _ = compute_minimized_aic(visualizer)
 
     # Plots
-    # plot_trend_map(altitude_to_visualizer)
+    plot_trend_map(altitude_to_visualizer)
     # plot_trend_curves(altitude_to_visualizer={a: v for a, v in altitude_to_visualizer.items() if a >= 900})
-    plot_uncertainty_massifs(altitude_to_visualizer)
+    # plot_uncertainty_massifs(altitude_to_visualizer)
     # plot_uncertainty_histogram(altitude_to_visualizer)
     # plot_selection_curves(altitude_to_visualizer)
     # uncertainty_interval_size(altitude_to_visualizer)
@@ -72,7 +75,8 @@ def intermediate_result(altitudes, massif_names=None,
 def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
                            ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
-    massif_names = ['Beaufortain', 'Vercors']
+    # massif_names = ['Beaufortain', 'Vercors']
+    massif_names = None
     study_classes = paper_study_classes[:1]
     # model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel,
     #                                  ModelSubsetForUncertainty.stationary_gumbel_and_gev,

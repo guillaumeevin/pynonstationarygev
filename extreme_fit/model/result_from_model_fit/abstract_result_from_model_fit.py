@@ -43,7 +43,7 @@ class AbstractResultFromModelFit(object):
 
     @property
     def deviance(self):
-        return - 2 * self.nllh
+        return 2 * self.nllh
 
     @property
     def bic(self):
