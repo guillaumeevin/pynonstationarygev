@@ -1,5 +1,4 @@
 import numpy as np
-import rpy2
 from rpy2 import robjects
 
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_result_from_extremes import \

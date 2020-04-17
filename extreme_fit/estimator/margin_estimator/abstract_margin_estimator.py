@@ -58,4 +58,5 @@ class LinearMarginEstimator(AbstractMarginEstimator):
             gev_params = self.function_from_fit.get_gev_params(coordinate, is_transformed=False)
             p = gev_params.density(maximum)
             nllh -= np.log(p)
+            assert not np.isinf(nllh)
         return nllh

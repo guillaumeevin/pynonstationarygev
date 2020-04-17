@@ -21,7 +21,7 @@ class TestTwoFoldFit(unittest.TestCase):
         set_seed_for_test()
         altitudes = [900, 1200]
         study_class = SafranSnowfall1Day
-        studies = AltitudesStudies(study_class, altitudes, year_min=1959, year_max=1963)
+        studies = AltitudesStudies(study_class, altitudes, year_min=1959, year_max=1989)
         self.two_fold_datasets_generator = TwoFoldDatasetsGenerator(studies, nb_samples=2, massif_names=['Vercors'])
         self.model_family_name_to_model_class = {'Stationary': [ConstantMarginModel],
                                                  'Linear': [ConstantMarginModel, LinearLocationAllDimsMarginModel]}
@@ -34,7 +34,7 @@ class TestTwoFoldFit(unittest.TestCase):
     def test_best_fit_spatial_extreme(self):
         two_fold_fit = self.load_two_fold_fit(fit_method=MarginFitMethod.spatial_extremes_mle)
         best_model_class = two_fold_fit.massif_name_to_best_model()['Vercors']
-        self.assertEqual(best_model_class, ConstantMarginModel)
+        self.assertEqual(best_model_class, LinearLocationAllDimsMarginModel)
 
 
 if __name__ == '__main__':
