@@ -20,17 +20,30 @@ class TestGevParams(unittest.TestCase):
     def test_time_derivative_return_level(self):
         p = 0.99
         for mu1 in [-1, 0, 1]:
-            for sigma1 in [1, 10]:
+            for sigma1 in [0, 1, 10]:
                 for shape in [-1, 0, 1]:
-                    params = GevParams(loc=mu1, scale=sigma1, shape=shape)
+                    params = GevParams(loc=mu1, scale=sigma1, shape=shape, accept_zero_scale_parameter=True)
                     quantile = params.quantile(p)
                     time_derivative = params.time_derivative_of_return_level(p, mu1, sigma1)
                     self.assertEqual(quantile, time_derivative)
+
+    def test_gumbel_standardization(self):
+        standard_gumbel = GevParams(0, 1, 0)
+        x = standard_gumbel.sample(10)
+        for shift in [-1, 0, 1]:
+            for scale in [1, 10]:
+                x_shifted_and_scaled = (x * scale) + shift
+                gumbel = GevParams(shift, scale, 0)
+                x_standardized = gumbel.gumbel_standardization(x_shifted_and_scaled)
+                np.testing.assert_almost_equal(x, x_standardized)
+                x_inverse_standardization = gumbel.gumbel_inverse_standardization(x_standardized)
+                np.testing.assert_almost_equal(x_shifted_and_scaled, x_inverse_standardization)
 
     def test_negative_scale(self):
         gev_params = GevParams(loc=1.0, shape=1.0, scale=-1.0)
         for p in [0.1, 0.5, 0.9]:
             q = gev_params.quantile(p)
+            self.assertTrue(gev_params.has_undefined_parameters)
             self.assertTrue(np.isnan(q))
 
     def test_has_undefined_parameter(self):

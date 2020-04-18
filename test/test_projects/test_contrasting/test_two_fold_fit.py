@@ -31,14 +31,14 @@ class TestTwoFoldFit(unittest.TestCase):
                           model_family_name_to_model_classes=self.model_family_name_to_model_class,
                           fit_method=fit_method)
 
-    def test_best_fit_spatial_extreme(self):
-        two_fold_fit = self.load_two_fold_fit(fit_method=MarginFitMethod.spatial_extremes_mle)
-        try:
-            best_model_class = two_fold_fit.massif_name_to_best_model()['Vercors']
-        except AssertionError as e:
-            self.assertTrue(False, msg=e.__str__())
-            best_model_class = None
-        self.assertEqual(best_model_class, LinearLocationAllDimsMarginModel)
+    # def test_best_fit_spatial_extreme(self):
+    #     two_fold_fit = self.load_two_fold_fit(fit_method=MarginFitMethod.spatial_extremes_mle)
+    #     try:
+    #         best_model_class = two_fold_fit.massif_name_to_best_model()['Vercors']
+    #     except AssertionError as e:
+    #         self.assertTrue(False, msg=e.__str__())
+    #         best_model_class = None
+    #     self.assertEqual(best_model_class, LinearLocationAllDimsMarginModel)
 
 
 if __name__ == '__main__':

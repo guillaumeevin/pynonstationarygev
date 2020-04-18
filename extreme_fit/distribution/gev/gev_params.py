@@ -25,11 +25,11 @@ class GevParams(AbstractExtremeParams):
         if accept_zero_scale_parameter and scale == 0.0:
             self.has_undefined_parameters = False
 
-    def sample(self, n) -> float:
+    def sample(self, n) -> np.ndarray:
         if self.has_undefined_parameters:
             return np.nan
         else:
-            return r.rgev(n, self.location, self.scale, self.shape)
+            return np.array(r.rgev(n, self.location, self.scale, self.shape))
 
     def quantile(self, p) -> float:
         if self.has_undefined_parameters:
