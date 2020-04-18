@@ -1,3 +1,4 @@
+import copy
 import io
 
 import os.path as op
@@ -78,7 +79,23 @@ class SafeRunException(Exception):
     pass
 
 
-def safe_run_r_estimator(function, data=None, use_start=False, max_ratio_between_two_extremes_values=10, maxit=1000000,
+def safe_run_r_estimator(function, data=None, start_dict=None, max_ratio_between_two_extremes_values=10, maxit=1000000,
+                         **parameters) -> robjects.ListVector:
+    try:
+        return _safe_run_r_estimator(function, data, max_ratio_between_two_extremes_values, maxit, **parameters)
+    except SafeRunException as e:
+        if start_dict is not None:
+            for _ in range(5):
+                parameters['start'] = r.list(**start_dict)
+                try:
+                    return _safe_run_r_estimator(function, data, max_ratio_between_two_extremes_values, maxit, **parameters)
+                except Exception:
+                    continue
+        else:
+            raise e
+
+
+def _safe_run_r_estimator(function, data=None, max_ratio_between_two_extremes_values=10, maxit=1000000,
                          **parameters) -> robjects.ListVector:
     if OptimizationConstants.USE_MAXIT:
         # Add optimization parameters
@@ -107,25 +124,18 @@ def safe_run_r_estimator(function, data=None, use_start=False, max_ratio_between
                 warnings.warn(msg, WarningTooMuchZeroValues)
         # Add data to the parameters
         parameters['data'] = data
-    # First run without using start value
-    # Then if it crashes, use start value
+
     run_successful = False
     res = None
     f = io.StringIO()
     # Warning print will not work in this part
     with redirect_stdout(f):
         while not run_successful:
-            current_parameter = parameters.copy()
-            if not use_start and 'start' in current_parameter:
-                current_parameter.pop('start')
             try:
-                res = function(**current_parameter)  # type:
+                res = function(**parameters)  # type:
                 run_successful = True
             except (RRuntimeError, RRuntimeWarning) as e:
-                if not use_start:
-                    use_start = True
-                    continue
-                elif isinstance(e, RRuntimeError):
+                if isinstance(e, RRuntimeError):
                     raise SafeRunException('Some R exception have been launched at RunTime: \n {}'.format(e.__repr__()))
                 if isinstance(e, RRuntimeWarning):
                     warnings.warn(e.__repr__(), WarningWhileRunningR)

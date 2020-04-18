@@ -57,7 +57,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
 
     def ismev_gev_fit(self, x, df_coordinates_temp) -> ResultFromIsmev:
         y = df_coordinates_temp.values
-        res = safe_run_r_estimator(function=r('gev.fit'), use_start=self.use_start_value,
+        res = safe_run_r_estimator(function=r('gev.fit'),
                                    xdat=x, y=y, mul=self.mul,
                                    sigl=self.sigl, shl=self.shl)
         return ResultFromIsmev(res, self.margin_function_start_fit.param_name_to_dims)

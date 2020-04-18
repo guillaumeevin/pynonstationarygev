@@ -67,8 +67,8 @@ class TestMaxStableEstimatorGaussFor3DCoordinates(TestMaxStableEstimators):
         self.max_stable_models = load_test_max_stable_models()[:1]
 
     def test_max_stable_estimators(self):
-        with self.assertRaises(SafeRunException):
-            self.fit_max_stable_estimator_for_all_coordinates()
+        self.fit_max_stable_estimator_for_all_coordinates()
+        self.assertTrue(True)
 
 
 if __name__ == '__main__':

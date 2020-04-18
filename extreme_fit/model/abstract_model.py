@@ -8,7 +8,7 @@ class AbstractModel(object):
 
     @property
     def params_start_fit(self) -> dict:
-        return self.merge_params(default_params=self.default_params, input_params=self.user_params_start_fit)
+        return self.default_params.copy()
 
     @property
     def params_sample(self) -> dict:

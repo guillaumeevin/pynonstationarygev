@@ -34,6 +34,7 @@ class BrownResnick(AbstractMaxStableModel):
             'smooth': 0.5,
         }
 
+
 class Schlather(AbstractMaxStableModelWithCovarianceFunction):
 
     def __init__(self, *args, **kwargs):
