@@ -42,7 +42,7 @@ class TestGevTemporalExtremesGumbel(unittest.TestCase):
                                                    fit_method=MarginFitMethod.extremes_fevd_mle)
         ref = {'loc': -0.0862185692806497, 'scale': 1.0818465357627252, 'shape': 0}
         for year in range(1, 3):
-            mle_params_estimated = estimator.function_from_fit.get_gev_params(np.array([year])).to_dict()
+            mle_params_estimated = estimator.function_from_fit.get_params(np.array([year])).to_dict()
             for key in ref.keys():
                 self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
 

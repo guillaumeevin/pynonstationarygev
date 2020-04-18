@@ -79,7 +79,7 @@ class ExtractEurocodeReturnLevelFromMyBayesianExtremes(AbstractExtractEurocodeRe
 
     @property
     def gev_params_from_fit_for_temporal_covariate(self) -> List[GevParams]:
-        return [margin_function.get_gev_params(coordinate=np.array([self.temporal_covariate]), is_transformed=False)
+        return [margin_function.get_params(coordinate=np.array([self.temporal_covariate]), is_transformed=False)
                 for margin_function in self.margin_functions_from_fit]
 
     @cached_property

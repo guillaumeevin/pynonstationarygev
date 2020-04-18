@@ -113,14 +113,14 @@ class AbstractGevTrendTest(object):
     @cached_property
     def unconstrained_estimator_gev_params(self) -> GevParams:
         # Constant parameters correspond to the gev params in 1958
-        return self.unconstrained_estimator.function_from_fit.get_gev_params(coordinate=np.array([1958]),
-                                                                             is_transformed=False)
+        return self.unconstrained_estimator.function_from_fit.get_params(coordinate=np.array([1958]),
+                                                                         is_transformed=False)
 
     @cached_property
     def constrained_estimator_gev_params(self) -> GevParams:
         # Constant parameters correspond to any gev params
-        return self.constrained_estimator.function_from_fit.get_gev_params(coordinate=np.array([1958]),
-                                                                           is_transformed=False)
+        return self.constrained_estimator.function_from_fit.get_params(coordinate=np.array([1958]),
+                                                                       is_transformed=False)
 
     def time_derivative_times_years(self, nb_years):
         # Compute the slope strength
@@ -139,7 +139,7 @@ class AbstractGevTrendTest(object):
     def relative_change_in_return_level(self, initial_year, final_year):
         return_level_values = []
         for year in [initial_year, final_year]:
-            gev_params = self.unconstrained_estimator.function_from_fit.get_gev_params(
+            gev_params = self.unconstrained_estimator.function_from_fit.get_params(
                 coordinate=np.array([year]),
                 is_transformed=False)
             return_level_values.append(gev_params.quantile(self.quantile_level))
@@ -265,7 +265,7 @@ class AbstractGevTrendTest(object):
         label = 'Y({})'.format(year) if year is not None else label
         if year is None:
             year = 2019
-        gev_params_year = self.unconstrained_estimator.function_from_fit.get_gev_params(
+        gev_params_year = self.unconstrained_estimator.function_from_fit.get_params(
                 coordinate=np.array([year]),
                 is_transformed=False)
         extended_maxima = [gev_params_year.gumbel_inverse_standardization(q) for q in extended_quantiles]
@@ -356,7 +356,7 @@ class AbstractGevTrendTest(object):
     def compute_empirical_quantiles(self, estimator):
         empirical_quantiles = []
         for year, maximum in sorted(zip(self.years, self.maxima), key=lambda t: t[1]):
-            gev_param = estimator.function_from_fit.get_gev_params(
+            gev_param = estimator.function_from_fit.get_params(
                 coordinate=np.array([year]),
                 is_transformed=False)
             maximum_standardized = gev_param.gumbel_standardization(maximum)
@@ -402,8 +402,8 @@ class AbstractGevTrendTest(object):
         plt.gca().set_ylim(bottom=0)
 
     def get_gev_params_with_big_shape_and_correct_shape(self):
-        gev_params = self.unconstrained_estimator.function_from_fit.get_gev_params(coordinate=np.array([YEAR_OF_INTEREST_FOR_RETURN_LEVEL]),
-                                                                                   is_transformed=False)  # type: GevParams
+        gev_params = self.unconstrained_estimator.function_from_fit.get_params(coordinate=np.array([YEAR_OF_INTEREST_FOR_RETURN_LEVEL]),
+                                                                               is_transformed=False)  # type: GevParams
         gev_params_with_corrected_shape = GevParams(loc=gev_params.location,
                                                     scale=gev_params.scale,
                                                     shape=0.5)

@@ -66,7 +66,7 @@ class ParametricMarginFunction(IndependentMarginFunction):
     def transformed_starting_point(self):
         return self.coordinates.temporal_coordinates.transformation.transform_array(np.array([self.starting_point]))
 
-    def get_gev_params(self, coordinate: np.ndarray, is_transformed: bool = True) -> GevParams:
+    def get_params(self, coordinate: np.ndarray, is_transformed: bool = True) -> GevParams:
         if self.starting_point is not None:
             starting_point = self.transformed_starting_point if is_transformed else self.starting_point
             # Shift temporal coordinate to enable to model temporal trend with starting point
@@ -74,7 +74,7 @@ class ParametricMarginFunction(IndependentMarginFunction):
             assert 0 <= self.coordinates.idx_temporal_coordinates < len(coordinate)
             if coordinate[self.coordinates.idx_temporal_coordinates] < starting_point:
                 coordinate[self.coordinates.idx_temporal_coordinates] = starting_point
-        return super().get_gev_params(coordinate, is_transformed=is_transformed)
+        return super().get_params(coordinate, is_transformed=is_transformed)
 
     @classmethod
     def from_coef_dict(cls, coordinates: AbstractCoordinates, gev_param_name_to_dims: Dict[str, List[int]],

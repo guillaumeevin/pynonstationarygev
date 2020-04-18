@@ -32,7 +32,7 @@ class MarginFunction(unittest.TestCase):
         margin_function = self.margin_function_class.from_coef_dict(coordinates,
                                                   margin_model.margin_function_sample.gev_param_name_to_dims,
                                                   coef_dict)
-        gev_param = margin_function.get_gev_params(coordinate=np.array([0.5, 1.0]), is_transformed=False)
+        gev_param = margin_function.get_params(coordinate=np.array([0.5, 1.0]), is_transformed=False)
         self.assertEqual({'loc': 2, 'scale': 2, 'shape': 2}, gev_param.to_dict())
 
     def test_coef_dict_spatial_coordinates(self):
@@ -46,7 +46,7 @@ class MarginFunction(unittest.TestCase):
         margin_function = self.margin_function_class.from_coef_dict(coordinates,
                                                                     margin_model.margin_function_sample.gev_param_name_to_dims,
                                                                     coef_dict)
-        gev_param = margin_function.get_gev_params(coordinate=np.array([1]), is_transformed=False)
+        gev_param = margin_function.get_params(coordinate=np.array([1]), is_transformed=False)
         self.assertEqual({'loc': 3, 'scale': 1, 'shape': 1}, gev_param.to_dict())
 
 if __name__ == '__main__':

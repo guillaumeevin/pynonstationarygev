@@ -41,8 +41,8 @@ class TestMarginTemporalTransformed(unittest.TestCase):
                'shape': 0.7289248773961512}
         for year in range(1, 3):
             coordinate = np.array([0.0, 0.0, year])
-            mle_params_estimated = estimator.function_from_fit.get_gev_params(coordinate,
-                                                                              is_transformed=False).to_dict()
+            mle_params_estimated = estimator.function_from_fit.get_params(coordinate,
+                                                                          is_transformed=False).to_dict()
             self.assertEqual(mle_params_estimated, ref)
 
     def test_margin_fit_nonstationary(self):
@@ -53,11 +53,11 @@ class TestMarginTemporalTransformed(unittest.TestCase):
         self.assertNotEqual(estimator.function_from_fit.mu1_temporal_trend, 0.0)
         # Checks that parameters returned are indeed different
         coordinate1 = np.array([0.0, 0.0, 1])
-        mle_params_estimated_year1 = estimator.function_from_fit.get_gev_params(coordinate1,
-                                                                                is_transformed=False).to_dict()
+        mle_params_estimated_year1 = estimator.function_from_fit.get_params(coordinate1,
+                                                                            is_transformed=False).to_dict()
         coordinate3 = np.array([0.0, 0.0, 3])
-        mle_params_estimated_year3 = estimator.function_from_fit.get_gev_params(coordinate3,
-                                                                                is_transformed=False).to_dict()
+        mle_params_estimated_year3 = estimator.function_from_fit.get_params(coordinate3,
+                                                                            is_transformed=False).to_dict()
         self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
 
     def test_margin_fit_nonstationary_with_start_point(self):
@@ -67,15 +67,15 @@ class TestMarginTemporalTransformed(unittest.TestCase):
         self.assertNotEqual(estimator.function_from_fit.mu1_temporal_trend, 0.0)
         # Checks that parameters returned are indeed different
         coordinate1 = np.array([0.0, 0.0, 1])
-        mle_params_estimated_year1 = estimator.function_from_fit.get_gev_params(coordinate1,
-                                                                                is_transformed=False).to_dict()
+        mle_params_estimated_year1 = estimator.function_from_fit.get_params(coordinate1,
+                                                                            is_transformed=False).to_dict()
         coordinate2 = np.array([0.0, 0.0, 2])
-        mle_params_estimated_year2 = estimator.function_from_fit.get_gev_params(coordinate2,
-                                                                                is_transformed=False).to_dict()
+        mle_params_estimated_year2 = estimator.function_from_fit.get_params(coordinate2,
+                                                                            is_transformed=False).to_dict()
         self.assertEqual(mle_params_estimated_year1, mle_params_estimated_year2)
         coordinate5 = np.array([0.0, 0.0, 5])
-        mle_params_estimated_year5 = estimator.function_from_fit.get_gev_params(coordinate5,
-                                                                                is_transformed=False).to_dict()
+        mle_params_estimated_year5 = estimator.function_from_fit.get_params(coordinate5,
+                                                                            is_transformed=False).to_dict()
         self.assertNotEqual(mle_params_estimated_year5, mle_params_estimated_year2)
 
     def fit_non_stationary_estimator(self, starting_point):

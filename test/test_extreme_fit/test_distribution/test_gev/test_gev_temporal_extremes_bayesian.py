@@ -43,7 +43,7 @@ class TestGevTemporalExtremesBayesian(unittest.TestCase):
                                                           fit_method=self.fit_method)
         ref = {'loc': 0.34272436381693616, 'scale': 1.3222588712831973, 'shape': 0.30491484962825105}
         for year in range(1, 3):
-            mle_params_estimated = estimator.function_from_fit.get_gev_params(np.array([year])).to_dict()
+            mle_params_estimated = estimator.function_from_fit.get_params(np.array([year])).to_dict()
             for key in ref.keys():
                 self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
 
@@ -55,8 +55,8 @@ class TestGevTemporalExtremesBayesian(unittest.TestCase):
         mu1_values = estimator.result_from_model_fit.df_posterior_samples.iloc[:, 1]
         self.assertTrue((mu1_values != 0).any())
         # Checks that parameters returned are indeed different
-        mle_params_estimated_year1 = estimator.function_from_fit.get_gev_params(np.array([1])).to_dict()
-        mle_params_estimated_year3 = estimator.function_from_fit.get_gev_params(np.array([3])).to_dict()
+        mle_params_estimated_year1 = estimator.function_from_fit.get_params(np.array([1])).to_dict()
+        mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([3])).to_dict()
         self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
 
     def test_gev_temporal_margin_fit_non_stationary_location_and_scale(self):
@@ -67,8 +67,8 @@ class TestGevTemporalExtremesBayesian(unittest.TestCase):
         mu1_values = estimator.result_from_model_fit.df_posterior_samples.iloc[:, 1]
         self.assertTrue((mu1_values != 0).any())
         # Checks that parameters returned are indeed different
-        mle_params_estimated_year1 = estimator.function_from_fit.get_gev_params(np.array([1])).to_dict()
-        mle_params_estimated_year3 = estimator.function_from_fit.get_gev_params(np.array([3])).to_dict()
+        mle_params_estimated_year1 = estimator.function_from_fit.get_params(np.array([1])).to_dict()
+        mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([3])).to_dict()
         self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
 
 

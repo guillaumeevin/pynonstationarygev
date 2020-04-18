@@ -37,7 +37,7 @@ class TestMaxStableTemporal(unittest.TestCase):
         ref = {'loc': 1.2091156634312243, 'scale': 1.1210085591373455, 'shape': 0.9831957705294134}
         for year in range(1, 3):
             coordinate = np.array([0.0, 0.0, year])
-            mle_params_estimated = estimator.function_from_fit.get_gev_params(coordinate).to_dict()
+            mle_params_estimated = estimator.function_from_fit.get_params(coordinate).to_dict()
             for key in ref.keys():
                 self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
 
@@ -50,9 +50,9 @@ class TestMaxStableTemporal(unittest.TestCase):
         self.assertNotEqual(estimator.function_from_fit.mu1_temporal_trend, 0.0)
         # Checks that parameters returned are indeed different
         coordinate1 = np.array([0.0, 0.0, 1])
-        mle_params_estimated_year1 = estimator.function_from_fit.get_gev_params(coordinate1).to_dict()
+        mle_params_estimated_year1 = estimator.function_from_fit.get_params(coordinate1).to_dict()
         coordinate3 = np.array([0.0, 0.0, 3])
-        mle_params_estimated_year3 = estimator.function_from_fit.get_gev_params(coordinate3).to_dict()
+        mle_params_estimated_year3 = estimator.function_from_fit.get_params(coordinate3).to_dict()
         self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
 
     def test_margin_fit_nonstationary_with_start_point(self):
@@ -67,12 +67,12 @@ class TestMaxStableTemporal(unittest.TestCase):
         self.assertEqual(2, estimator.function_from_fit.starting_point)
         # Checks that parameters returned are indeed different
         coordinate1 = np.array([0.0, 0.0, 1])
-        mle_params_estimated_year1 = estimator.function_from_fit.get_gev_params(coordinate1).to_dict()
+        mle_params_estimated_year1 = estimator.function_from_fit.get_params(coordinate1).to_dict()
         coordinate2 = np.array([0.0, 0.0, 2])
-        mle_params_estimated_year2 = estimator.function_from_fit.get_gev_params(coordinate2).to_dict()
+        mle_params_estimated_year2 = estimator.function_from_fit.get_params(coordinate2).to_dict()
         self.assertEqual(mle_params_estimated_year1, mle_params_estimated_year2)
         coordinate5 = np.array([0.0, 0.0, 5])
-        mle_params_estimated_year5 = estimator.function_from_fit.get_gev_params(coordinate5).to_dict()
+        mle_params_estimated_year5 = estimator.function_from_fit.get_params(coordinate5).to_dict()
         self.assertNotEqual(mle_params_estimated_year5, mle_params_estimated_year2)
 
     def fit_non_stationary_estimator(self, starting_point):

@@ -52,14 +52,14 @@ class AbstractMarginFunction(AbstractFunction):
     def y(self):
         return self.coordinates.y_coordinates
 
-    def get_gev_params(self, coordinate: np.ndarray) -> GevParams:
-        """Main method that maps each coordinate to its GEV parameters"""
+    def get_params(self, coordinate: np.ndarray) -> GevParams:
+        """Main method that maps each coordinate to its distribution parameters"""
         raise NotImplementedError
 
     @property
     def gev_value_name_to_serie(self) -> Dict[str, pd.Series]:
         # Load the gev_params
-        gev_params = [self.get_gev_params(coordinate) for coordinate in self.coordinates.coordinates_values()]
+        gev_params = [self.get_params(coordinate) for coordinate in self.coordinates.coordinates_values()]
         # Load the dictionary of values (distribution parameters + the quantiles)
         value_dicts = [gev_param.summary_dict for gev_param in gev_params]
         gev_value_name_to_serie = {}
@@ -154,7 +154,7 @@ class AbstractMarginFunction(AbstractFunction):
 
         grid = []
         for i, xi in enumerate(linspace):
-            gev_param = self.get_gev_params(np.array([xi]))
+            gev_param = self.get_params(np.array([xi]))
             assert not gev_param.has_undefined_parameters, 'This case needs to be handled during display,' \
                                                            'gev_parameter for xi={} is undefined'.format(xi)
             grid.append(gev_param.summary_dict)
@@ -215,7 +215,7 @@ class AbstractMarginFunction(AbstractFunction):
                 coordinate = [xi, yj]
                 if temporal_step is not None:
                     coordinate.append(temporal_step)
-                grid.append(self.get_gev_params(np.array(coordinate)).summary_dict)
+                grid.append(self.get_params(np.array(coordinate)).summary_dict)
         grid = {value_name: np.array([g[value_name] for g in grid]).reshape(
             [self.VISUALIZATION_RESOLUTION, self.VISUALIZATION_RESOLUTION])
             for value_name in GevParams.SUMMARY_NAMES}

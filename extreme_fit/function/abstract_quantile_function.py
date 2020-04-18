@@ -59,5 +59,5 @@ class QuantileFunctionFromMarginFunction(AbstractQuantileFunction):
         self.quantile = quantile
 
     def _get_quantile(self, coordinate: np.ndarray) -> float:
-        gev_params = self.margin_function.get_gev_params(coordinate)
+        gev_params = self.margin_function.get_params(coordinate)
         return gev_params.quantile(self.quantile)

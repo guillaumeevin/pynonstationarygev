@@ -50,7 +50,7 @@ class AbstractMarginModel(AbstractModel, ABC):
         assert len(maxima) == len(coordinates_values)
         converted_maxima = []
         for x, coordinate in zip(maxima, coordinates_values):
-            gev_params = margin_function.get_gev_params(coordinate)
+            gev_params = margin_function.get_params(coordinate)
             x_gev = convertion_r_function(x, **gev_params.to_dict())
             converted_maxima.append(x_gev)
         return np.array(converted_maxima)
@@ -75,7 +75,7 @@ class AbstractMarginModel(AbstractModel, ABC):
                             sample_r_function='rgev') -> np.ndarray:
         maxima_gev = []
         for coordinate in coordinates_values:
-            gev_params = self.margin_function_sample.get_gev_params(coordinate)
+            gev_params = self.margin_function_sample.get_params(coordinate)
             x_gev = r(sample_r_function)(nb_obs, **gev_params.to_dict())
             assert not np.isnan(x_gev).any(), 'params={} generated Nan values'.format(gev_params.__str__())
             maxima_gev.append(x_gev)

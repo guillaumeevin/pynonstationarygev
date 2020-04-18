@@ -19,7 +19,7 @@ class IndependentMarginFunction(AbstractMarginFunction):
         super().__init__(coordinates, params_class)
         self.gev_param_name_to_param_function = None  # type: Union[None, Dict[str, AbstractParamFunction]]
 
-    def get_gev_params(self, coordinate: np.ndarray, is_transformed: bool = True) -> GevParams:
+    def get_params(self, coordinate: np.ndarray, is_transformed: bool = True) -> GevParams:
         """Each GEV parameter is computed independently through its corresponding param_function"""
         # Since all the coordinates are usually transformed by default
         # then we assume that the input coordinate are transformed by default

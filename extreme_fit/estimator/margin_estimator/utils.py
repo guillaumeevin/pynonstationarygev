@@ -35,7 +35,7 @@ def fitted_stationary_gev(x_gev, fit_method=MarginFitMethod.is_mev_gev_fit, mode
     dataset = AbstractDataset(observations=observations, coordinates=coordinates)
     estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year, fit_method)
     first_coordinate = coordinates.coordinates_values()[0]
-    gev_param = estimator.function_from_fit.get_gev_params(first_coordinate)
+    gev_param = estimator.function_from_fit.get_params(first_coordinate)
     if not -0.5 < gev_param.shape < 0.5:
         warnings.warn('fitted shape parameter is outside physical bounds {}'.format(gev_param.shape))
     return gev_param
