@@ -37,28 +37,16 @@ class AbstractGevTrendTest(object):
         self.fit_method = fit_method
         # Load observations, coordinates and datasets
         self.coordinates, self.dataset = load_temporal_coordinates_and_dataset(self.maxima, self.years)
-        # By default crashed boolean is False
-        self.crashed = False
-        try:
-            pass
-        except SafeRunException:
-            self.crashed = True
 
     @cached_property
     def constrained_estimator(self):
-        try:
-            return fitted_linear_margin_estimator(self.constrained_model_class, self.coordinates, self.dataset,
-                                                  self.starting_year, self.fit_method)
-        except SafeRunException:
-            self.crashed = True
+        return fitted_linear_margin_estimator(self.constrained_model_class, self.coordinates, self.dataset,
+                                              self.starting_year, self.fit_method)
 
     @cached_property
     def unconstrained_estimator(self):
-        try:
-            return fitted_linear_margin_estimator(self.unconstrained_model_class, self.coordinates, self.dataset,
+        return fitted_linear_margin_estimator(self.unconstrained_model_class, self.coordinates, self.dataset,
                                                   self.starting_year, self.fit_method)
-        except SafeRunException:
-            self.crashed = True
 
     # Likelihood ratio test
 
@@ -87,24 +75,14 @@ class AbstractGevTrendTest(object):
 
     @property
     def constrained_model_deviance(self):
-        if self.crashed:
-            return np.nan
-        else:
-            return self.constrained_estimator.result_from_model_fit.deviance
+        return self.constrained_estimator.result_from_model_fit.deviance
 
     @property
     def unconstrained_model_deviance(self):
         unconstrained_estimator = self.unconstrained_estimator
-        if self.crashed:
-            return np.nan
-        else:
-            return unconstrained_estimator.result_from_model_fit.deviance
+        return unconstrained_estimator.result_from_model_fit.deviance
 
     # Evolution of the GEV parameters and corresponding quantiles
-
-    @property
-    def test_sign(self) -> int:
-        return np.sign(self.time_derivative_of_return_level)
 
     def get_non_stationary_linear_coef(self, param_name: str):
         return self.unconstrained_estimator.function_from_fit.get_coef(param_name,
@@ -116,12 +94,6 @@ class AbstractGevTrendTest(object):
         return self.unconstrained_estimator.function_from_fit.get_params(coordinate=np.array([1958]),
                                                                          is_transformed=False)
 
-    @cached_property
-    def constrained_estimator_gev_params(self) -> GevParams:
-        # Constant parameters correspond to any gev params
-        return self.constrained_estimator.function_from_fit.get_params(coordinate=np.array([1958]),
-                                                                       is_transformed=False)
-
     def time_derivative_times_years(self, nb_years):
         # Compute the slope strength
         slope = self._slope_strength()
@@ -131,10 +103,7 @@ class AbstractGevTrendTest(object):
 
     @property
     def time_derivative_of_return_level(self):
-        if self.crashed:
-            return 0.0
-        else:
-            return self.time_derivative_times_years(self.nb_years_for_quantile_evolution)
+        return self.time_derivative_times_years(self.nb_years_for_quantile_evolution)
 
     def relative_change_in_return_level(self, initial_year, final_year):
         return_level_values = []
@@ -169,10 +138,7 @@ class AbstractGevTrendTest(object):
 
     @property
     def test_trend_constant_quantile(self):
-        if self.crashed:
-            return 0.0
-        else:
-            return self.unconstrained_estimator_gev_params.quantile(p=self.quantile_level)
+        return self.unconstrained_estimator_gev_params.quantile(p=self.quantile_level)
 
     # Some class properties for display purpose
 

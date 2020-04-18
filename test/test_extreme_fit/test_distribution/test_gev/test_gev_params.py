@@ -17,6 +17,16 @@ class TestGevParams(unittest.TestCase):
         for quantile_name, p in gev_params.quantile_name_to_p.items():
             self.assertAlmostEqual(- 1 / np.log(p), quantile_dict[quantile_name])
 
+    def test_time_derivative_return_level(self):
+        p = 0.99
+        for mu1 in [-1, 0, 1]:
+            for sigma1 in [1, 10]:
+                for shape in [-1, 0, 1]:
+                    params = GevParams(loc=mu1, scale=sigma1, shape=shape)
+                    quantile = params.quantile(p)
+                    time_derivative = params.time_derivative_of_return_level(p, mu1, sigma1)
+                    self.assertEqual(quantile, time_derivative)
+
     def test_negative_scale(self):
         gev_params = GevParams(loc=1.0, shape=1.0, scale=-1.0)
         for p in [0.1, 0.5, 0.9]:

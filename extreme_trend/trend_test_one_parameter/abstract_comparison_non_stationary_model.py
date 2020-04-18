@@ -10,23 +10,20 @@ import numpy as np
 
 
 class AbstractComparisonNonStationaryModelOneParameter(GevTrendTestOneParameter):
-
-    @property
-    def test_sign(self) -> int:
-        # Test sign correspond to the difference between the 2 likelihoods
-        # Therefore, colors sum up which non stationary model explain best the data
-        return np.sign(self.likelihood_ratio)
+    pass
 
 
 class ComparisonAgainstMu(AbstractComparisonNonStationaryModelOneParameter, GevLocationAndScaleTrendTest):
 
-    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE,
+                 fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year, constrained_model_class=NonStationaryLocationTemporalModel,
                          quantile_level=quantile_level, fit_method=fit_method)
 
 
 class ComparisonAgainstSigma(AbstractComparisonNonStationaryModelOneParameter, GevLocationAndScaleTrendTest):
 
-    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE,
+                 fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year, constrained_model_class=NonStationaryScaleTemporalModel,
                          quantile_level=quantile_level, fit_method=fit_method)

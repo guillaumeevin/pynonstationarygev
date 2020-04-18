@@ -11,7 +11,7 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranS
     SafranPrecipitation, SafranSnowfall3Days, SafranRainfall3Days, SafranNormalizedPreciptationRateOnWetDays
 from extreme_data.meteo_france_data.scm_models_data.utils import SeasonForTheMaxima
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
-    study_iterator_global, SCM_STUDIES, ALL_ALTITUDES
+    study_iterator_global, SCM_STUDIES, ALL_ALTITUDES, SCM_STUDY_CLASS_TO_ABBREVIATION
 from root_utils import get_display_name_from_object_type
 
 
@@ -60,6 +60,12 @@ class TestSCMAllStudy(unittest.TestCase):
         for study_class in study_classes:
             study_class(altitude=altitude, year_min=year_min, year_max=year_max)
 
+    def test_variables(self):
+        for study_class in SCM_STUDY_CLASS_TO_ABBREVIATION.keys():
+            study = study_class(year_max=1959)
+            _ = study.year_to_annual_maxima[1959]
+        self.assertTrue(True)
+
 
 class TestSCMSafranNormalizedPrecipitationRateOnWetDays(unittest.TestCase):
 
@@ -100,6 +106,7 @@ class TestSCMSafranSnowfall(TestSCMStudy):
         self.assertEqual(all_daily_series.ndim, 2)
         self.assertEqual(all_daily_series.shape[1], 23)
         self.assertEqual(all_daily_series.shape[0], 22280)
+
 
 class TestSCMPrecipitation(TestSCMStudy):
 

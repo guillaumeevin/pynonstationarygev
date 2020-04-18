@@ -37,6 +37,7 @@ class TestTwoFoldFit(unittest.TestCase):
             best_model_class = two_fold_fit.massif_name_to_best_model()['Vercors']
         except AssertionError as e:
             self.assertTrue(False, msg=e.__str__())
+            best_model_class = None
         self.assertEqual(best_model_class, LinearLocationAllDimsMarginModel)
 
 

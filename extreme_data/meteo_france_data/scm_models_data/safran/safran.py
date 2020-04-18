@@ -12,12 +12,15 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable impor
 
 
 class Safran(AbstractStudy):
+    SAFRAN_VARIABLES = [SafranSnowfallVariable,
+                        SafranRainfallVariable,
+                        SafranTemperatureVariable,
+                        SafranTotalPrecipVariable,
+                        SafranNormalizedPrecipitationRateVariable,
+                        SafranNormalizedPrecipitationRateOnWetDaysVariable]
 
     def __init__(self, variable_class: type, *args, **kwargs):
-        assert variable_class in [SafranSnowfallVariable, SafranRainfallVariable, SafranTemperatureVariable,
-                                  SafranTotalPrecipVariable,
-                                  SafranNormalizedPrecipitationRateVariable,
-                                  SafranNormalizedPrecipitationRateOnWetDaysVariable]
+        assert variable_class in self.SAFRAN_VARIABLES
         super().__init__(variable_class, *args, **kwargs)
         self.model_name = 'Safran'
 

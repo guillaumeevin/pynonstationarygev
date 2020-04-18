@@ -79,7 +79,7 @@ class SafranRainfallVariable(SafranSnowfallVariable):
 class SafranTotalPrecipVariable(AbstractVariable):
     NAME = 'Precipitation'
 
-    def __init__(self, snow_variable_array, rain_variable_array, nb_consecutive_days):
+    def __init__(self, snow_variable_array, rain_variable_array, nb_consecutive_days=3):
         super().__init__(None)
         snow_precipitation = SafranSnowfallVariable(snow_variable_array, nb_consecutive_days)
         rain_precipitation = SafranRainfallVariable(rain_variable_array, nb_consecutive_days)
@@ -98,9 +98,7 @@ class SafranTotalPrecipVariable(AbstractVariable):
 class SafranNormalizedPrecipitationRateVariable(AbstractVariable):
     NAME = 'Normalized Precip'
 
-
-
-    def __init__(self, temperature_variable_array, snow_variable_array, rain_variable_array, nb_consecutive_days):
+    def __init__(self, temperature_variable_array, snow_variable_array, rain_variable_array, nb_consecutive_days=3):
         super().__init__(None)
         temperature = SafranTemperatureVariable(temperature_variable_array)
         total_precipitation = SafranTotalPrecipVariable(snow_variable_array, rain_variable_array, nb_consecutive_days)
@@ -119,7 +117,7 @@ class SafranNormalizedPrecipitationRateVariable(AbstractVariable):
 
 class SafranNormalizedPrecipitationRateOnWetDaysVariable(SafranNormalizedPrecipitationRateVariable):
 
-    def __init__(self, temperature_variable_array, snow_variable_array, rain_variable_array, nb_consecutive_days):
+    def __init__(self, temperature_variable_array, snow_variable_array, rain_variable_array, nb_consecutive_days=3):
         super().__init__(temperature_variable_array, snow_variable_array, rain_variable_array, nb_consecutive_days)
         total_precipitation = SafranTotalPrecipVariable(snow_variable_array, rain_variable_array, nb_consecutive_days)
         mask_for_nan_values = total_precipitation.daily_time_serie_array < 0.01
