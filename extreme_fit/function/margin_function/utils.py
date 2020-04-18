@@ -20,8 +20,8 @@ def error_dict_between_margin_functions(reference: AbstractMarginFunction, fitte
         'Coordinates have either been resampled or the split is not the same'
     reference_values = reference.gev_value_name_to_serie
     fitted_values = fitted.gev_value_name_to_serie
-    gev_param_name_to_error_serie = {}
+    param_name_to_error_serie = {}
     for gev_value_name in GevParams.SUMMARY_NAMES:
         error = 100 * relative_abs_error(reference_values[gev_value_name], fitted_values[gev_value_name])
-        gev_param_name_to_error_serie[gev_value_name] = error
-    return gev_param_name_to_error_serie
+        param_name_to_error_serie[gev_value_name] = error
+    return param_name_to_error_serie

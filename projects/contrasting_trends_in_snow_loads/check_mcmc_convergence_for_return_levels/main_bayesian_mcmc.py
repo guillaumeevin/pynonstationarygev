@@ -47,15 +47,15 @@ def plot_chain(N=10000, show=True):
     lns = []
     # Last color is for the return level
     colors = ['r', 'g', 'b', 'tab:orange']
-    gev_param_name_to_color = dict(zip(GevParams.PARAM_NAMES, colors))
-    gev_param_name_to_ax = dict(
+    param_name_to_color = dict(zip(GevParams.PARAM_NAMES, colors))
+    param_name_to_ax = dict(
         zip(GevParams.PARAM_NAMES, [ax_trajectories, ax_trajectories, ax_trajectories]))
     # zip(GevParams.PARAM_NAMES, [ax_trajectories, ax_trajectories, ax_trajectories_inverted]))
-    gev_param_name_to_label = {n: GevParams.greek_letter_from_gev_param_name(n) for n in GevParams.PARAM_NAMES}
-    for j, gev_param_name in enumerate(GevParams.PARAM_NAMES[:]):
-        label = gev_param_name_to_label[gev_param_name]
-        ax = gev_param_name_to_ax[gev_param_name]
-        color = gev_param_name_to_color[gev_param_name]
+    param_name_to_label = {n: GevParams.greek_letter_from_param_name(n) for n in GevParams.PARAM_NAMES}
+    for j, param_name in enumerate(GevParams.PARAM_NAMES[:]):
+        label = param_name_to_label[param_name]
+        ax = param_name_to_ax[param_name]
+        color = param_name_to_color[param_name]
         ln = ax.plot(iteration_step, df_all_samples.iloc[:, j].values, label=label, color=color)
         lns.extend(ln)
     ax_trajectories_inverted.set_ylim(-0.3, 10)
@@ -71,15 +71,15 @@ def plot_chain(N=10000, show=True):
     # Plot the parameter posterior on axes 1
     ax_parameter_posterior = axes[1]
     ax_parameter_posterior_flip = ax_parameter_posterior.twiny()
-    gev_param_name_to_ax = dict(
+    param_name_to_ax = dict(
         zip(GevParams.PARAM_NAMES,
             [ax_parameter_posterior, ax_parameter_posterior.twiny(), ax_parameter_posterior_flip]))
     df_posterior_samples = return_level_bayesian.result_from_fit.df_posterior_samples
     lns = []
-    for j, gev_param_name in enumerate(GevParams.PARAM_NAMES[:]):
-        label = gev_param_name_to_label[gev_param_name]
-        color = gev_param_name_to_color[gev_param_name]
-        ax = gev_param_name_to_ax[gev_param_name]
+    for j, param_name in enumerate(GevParams.PARAM_NAMES[:]):
+        label = param_name_to_label[param_name]
+        color = param_name_to_color[param_name]
+        ax = param_name_to_ax[param_name]
         ln = sns.kdeplot(df_posterior_samples.iloc[:, j], ax=ax, label=label, color=color)
         lns.append(ln)
     labs = [l.get_label() for l in lns]

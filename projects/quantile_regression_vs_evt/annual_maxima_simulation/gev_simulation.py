@@ -30,34 +30,34 @@ class GevSimulation(AnnualMaximaSimulation):
 class StationarySimulation(GevSimulation):
 
     def create_model(self, coordinates):
-        gev_param_name_to_coef_list = {
+        param_name_to_coef_list = {
             GevParams.LOC: [0],
             GevParams.SHAPE: [0],
             GevParams.SCALE: [1],
         }
-        return StationaryTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list,
+        return StationaryTemporalModel.from_coef_list(coordinates, param_name_to_coef_list,
                                                       fit_method=MarginFitMethod.extremes_fevd_mle)
 
 
 class NonStationaryLocationGumbelSimulation(GevSimulation):
 
     def create_model(self, coordinates):
-        gev_param_name_to_coef_list = {
+        param_name_to_coef_list = {
             GevParams.LOC: [0, 10],
             GevParams.SHAPE: [0],
             GevParams.SCALE: [1],
         }
-        return NonStationaryLocationTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list,
+        return NonStationaryLocationTemporalModel.from_coef_list(coordinates, param_name_to_coef_list,
                                                                  fit_method=MarginFitMethod.extremes_fevd_mle)
 
 
 class NonStationaryLocationGevSimulation(GevSimulation):
 
     def create_model(self, coordinates):
-        gev_param_name_to_coef_list = {
+        param_name_to_coef_list = {
             GevParams.LOC: [0, 1],
             GevParams.SHAPE: [0.3],
             GevParams.SCALE: [1],
         }
-        return NonStationaryLocationTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list,
+        return NonStationaryLocationTemporalModel.from_coef_list(coordinates, param_name_to_coef_list,
                                                                  fit_method=MarginFitMethod.extremes_fevd_mle)

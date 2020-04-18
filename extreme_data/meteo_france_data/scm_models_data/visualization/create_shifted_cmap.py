@@ -49,7 +49,7 @@ def get_colors(values, cmap, vmin, vmax, replace_blue_by_white=False):
     return colors
 
 
-def imshow_shifted(ax, gev_param_name, values, visualization_extend, mask_2D=None):
+def imshow_shifted(ax, param_name, values, visualization_extend, mask_2D=None):
     condition = np.isnan(values)
     if mask_2D is not None:
         condition |= mask_2D
@@ -57,9 +57,9 @@ def imshow_shifted(ax, gev_param_name, values, visualization_extend, mask_2D=Non
     vmin, vmax = np.min(masked_array), np.max(masked_array)
     shifted_cmap = get_shifted_map(vmin, vmax)
     norm = get_norm(vmin, vmax)
-    create_colorbase_axis(ax, gev_param_name, shifted_cmap, norm)
+    create_colorbase_axis(ax, param_name, shifted_cmap, norm)
     shifted_cmap.set_bad(color='white')
-    if gev_param_name != AbstractParams.SHAPE:
+    if param_name != AbstractParams.SHAPE:
         epsilon = 1e-2 * (np.max(values) - np.min(values))
         value = np.min(values)
         # The right blue corner will be blue (but most of the time, another display will be on top)

@@ -70,7 +70,7 @@ class GumbelLocationTrendTest(GevTrendTestOneParameterAgainstStationary):
     def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year,
                          unconstrained_model_class=NonStationaryLocationGumbelModel,
-                         gev_param_name=GevParams.LOC,
+                         param_name=GevParams.LOC,
                          quantile_level=quantile_level,
                          constrained_model_class=GumbelTemporalModel, fit_method=fit_method)
 
@@ -97,7 +97,7 @@ class GumbelScaleTrendTest(GevTrendTestOneParameterAgainstStationary):
                  fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year,
                          unconstrained_model_class=NonStationaryScaleGumbelModel,
-                         gev_param_name=GevParams.SCALE,
+                         param_name=GevParams.SCALE,
                          quantile_level=quantile_level,
                          constrained_model_class=GumbelTemporalModel,
                          fit_method=fit_method)

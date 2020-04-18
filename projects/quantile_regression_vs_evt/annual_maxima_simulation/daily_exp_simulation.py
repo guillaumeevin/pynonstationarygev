@@ -41,10 +41,10 @@ class AbstractDailyExpSimulation(AnnualMaximaSimulation, ABC):
 class StationaryExpSimulation(AbstractDailyExpSimulation):
 
     def create_model(self, coordinates):
-        gev_param_name_to_coef_list = {
+        param_name_to_coef_list = {
             AbstractParams.RATE: [10],
         }
-        return StationaryTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list,
+        return StationaryTemporalModel.from_coef_list(coordinates, param_name_to_coef_list,
                                                       fit_method=MarginFitMethod.extremes_fevd_mle,
                                                       params_class=ExpParams)
 
@@ -52,9 +52,9 @@ class StationaryExpSimulation(AbstractDailyExpSimulation):
 class NonStationaryExpSimulation(AbstractDailyExpSimulation):
 
     def create_model(self, coordinates):
-        gev_param_name_to_coef_list = {
+        param_name_to_coef_list = {
             AbstractParams.RATE: [0.1, 0.01],
         }
-        return NonStationaryRateTemporalModel.from_coef_list(coordinates, gev_param_name_to_coef_list,
+        return NonStationaryRateTemporalModel.from_coef_list(coordinates, param_name_to_coef_list,
                                                              fit_method=MarginFitMethod.extremes_fevd_mle,
                                                              params_class=ExpParams)

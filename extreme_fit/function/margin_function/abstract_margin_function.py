@@ -163,12 +163,12 @@ class AbstractMarginFunction(AbstractFunction):
 
     # Visualization 2D
 
-    def visualize_2D(self, gev_param_name=GevParams.LOC, ax=None, show=True, temporal_step=None):
+    def visualize_2D(self, param_name=GevParams.LOC, ax=None, show=True, temporal_step=None):
         if ax is None:
             ax = plt.gca()
 
         # Special display
-        imshow_shifted(ax, gev_param_name, self.grid_2D(temporal_step)[gev_param_name], self.visualization_extend,
+        imshow_shifted(ax, param_name, self.grid_2D(temporal_step)[param_name], self.visualization_extend,
                        self.mask_2D)
 
         # X axis
@@ -223,7 +223,7 @@ class AbstractMarginFunction(AbstractFunction):
 
     # Visualization 3D
 
-    def visualize_2D_spatial_1D_temporal(self, gev_param_name=GevParams.LOC, axes=None, show=True):
+    def visualize_2D_spatial_1D_temporal(self, param_name=GevParams.LOC, axes=None, show=True):
         if axes is None:
             axes = create_adjusted_axes(self.VISUALIZATION_TEMPORAL_STEPS, 1)
         assert len(axes) == self.VISUALIZATION_TEMPORAL_STEPS
@@ -231,8 +231,8 @@ class AbstractMarginFunction(AbstractFunction):
         # Build temporal_steps a list of time steps
         assert len(self.temporal_steps) == self.VISUALIZATION_TEMPORAL_STEPS
         for ax, temporal_step in zip(axes, self.temporal_steps):
-            self.visualize_2D(gev_param_name, ax, show=False, temporal_step=temporal_step)
-            self.set_title(ax, gev_param_name)
+            self.visualize_2D(param_name, ax, show=False, temporal_step=temporal_step)
+            self.set_title(ax, param_name)
 
         if show:
             plt.show()

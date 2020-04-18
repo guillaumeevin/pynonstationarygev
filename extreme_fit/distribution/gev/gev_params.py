@@ -124,13 +124,13 @@ class GevParams(AbstractExtremeParams):
         return indicator_name_to_value
 
     @classmethod
-    def greek_letter_from_gev_param_name(cls, gev_param_name):
-        assert gev_param_name in cls.PARAM_NAMES
+    def greek_letter_from_param_name(cls, param_name):
+        assert param_name in cls.PARAM_NAMES
         return {
             cls.LOC: 'mu',
             cls.SCALE: 'sigma',
             cls.SHAPE: 'zeta',
-        }[gev_param_name]
+        }[param_name]
 
     def gumbel_standardization(self, x):
         x -= self.location

@@ -17,7 +17,7 @@ class GevTrendTestOneParameter(AbstractGevTrendTest):
 
 class GevTrendTestOneParameterAgainstStationary(GevTrendTestOneParameter):
 
-    def __init__(self, years, maxima, starting_year, unconstrained_model_class, gev_param_name,
+    def __init__(self, years, maxima, starting_year, unconstrained_model_class, param_name,
                  quantile_level=EUROCODE_QUANTILE,
                  constrained_model_class=StationaryTemporalModel,
                  fit_method=MarginFitMethod.extremes_fevd_mle):
@@ -26,11 +26,11 @@ class GevTrendTestOneParameterAgainstStationary(GevTrendTestOneParameter):
                          quantile_level=quantile_level,
                          constrained_model_class=constrained_model_class,
                          fit_method=fit_method)
-        self.gev_param_name = gev_param_name
+        self.param_name = param_name
 
     @property
     def non_stationary_linear_coef(self):
-        return self.get_non_stationary_linear_coef(gev_param_name=self.gev_param_name)
+        return self.get_non_stationary_linear_coef(param_name=self.param_name)
 
 
 class GevLocationTrendTest(GevTrendTestOneParameterAgainstStationary):
@@ -40,7 +40,7 @@ class GevLocationTrendTest(GevTrendTestOneParameterAgainstStationary):
         super().__init__(years, maxima, starting_year,
                          unconstrained_model_class=NonStationaryLocationTemporalModel,
                          constrained_model_class=constrained_model_class,
-                         gev_param_name=GevParams.LOC,
+                         param_name=GevParams.LOC,
                          quantile_level=quantile_level,
                          fit_method=fit_method)
 
@@ -65,7 +65,7 @@ class GevScaleTrendTest(GevTrendTestOneParameterAgainstStationary):
         super().__init__(years, maxima, starting_year,
                          unconstrained_model_class=NonStationaryScaleTemporalModel,
                          constrained_model_class=constrained_model_class,
-                         gev_param_name=GevParams.SCALE,
+                         param_name=GevParams.SCALE,
                          quantile_level=quantile_level,
                          fit_method=fit_method)
 
@@ -91,7 +91,7 @@ class GevShapeTrendTest(GevTrendTestOneParameterAgainstStationary):
     def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year,
                          unconstrained_model_class=NonStationaryShapeTemporalModel,
-                         gev_param_name=GevParams.SHAPE,
+                         param_name=GevParams.SHAPE,
                          quantile_level=quantile_level,
                          fit_method=fit_method)
 

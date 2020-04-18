@@ -10,7 +10,7 @@ def load_margin_function(estimator: AbstractEstimator, margin_model: LinearMargi
     if coef_dict is None:
         coef_dict = estimator.result_from_model_fit.margin_coef_ordered_dict
     return margin_function_class.from_coef_dict(coordinates=estimator.dataset.coordinates,
-                                                gev_param_name_to_dims=margin_model.margin_function_start_fit.gev_param_name_to_dims,
+                                                param_name_to_dims=margin_model.margin_function_start_fit.param_name_to_dims,
                                                 coef_dict=coef_dict,
                                                 starting_point=margin_model.starting_point)
 

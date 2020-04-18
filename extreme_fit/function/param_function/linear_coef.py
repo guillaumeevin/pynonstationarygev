@@ -20,20 +20,20 @@ class LinearCoef(AbstractCoef):
         return self.get_coef(idx=-1)
 
     @classmethod
-    def coef_template_str(cls, gev_param_name: str, coefficient_name: str) -> str:
+    def coef_template_str(cls, param_name: str, coefficient_name: str) -> str:
         """
         Example of coef that can be specified
             -for the spatial covariates: locCoeff
             -for the temporal covariates: tempCoeffLoc
-        :param gev_param_name:
+        :param param_name:
         :param coefficient_name:
         :return:
         """
         assert coefficient_name == cls.INTERCEPT_NAME or coefficient_name in AbstractCoordinates.COORDINATES_NAMES
         if coefficient_name == cls.INTERCEPT_NAME or coefficient_name in AbstractCoordinates.COORDINATE_SPATIAL_NAMES:
-            coef_template_str = gev_param_name + cls.COEFF_STR + '{}'
+            coef_template_str = param_name + cls.COEFF_STR + '{}'
         else:
-            coef_template_str = 'temp' + cls.COEFF_STR + gev_param_name.title() + '{}'
+            coef_template_str = 'temp' + cls.COEFF_STR + param_name.title() + '{}'
         assert cls.COEFF_STR in coef_template_str
         return coef_template_str
 
@@ -49,18 +49,18 @@ class LinearCoef(AbstractCoef):
     """ Coef dict """
 
     @classmethod
-    def from_coef_dict(cls, coef_dict: Dict[str, float], gev_param_name: str, dims: List[int],
+    def from_coef_dict(cls, coef_dict: Dict[str, float], param_name: str, dims: List[int],
                        coordinates: AbstractCoordinates):
-        idx_to_coef = {-1: coef_dict[cls.coef_template_str(gev_param_name, coefficient_name=cls.INTERCEPT_NAME).format(1)]}
+        idx_to_coef = {-1: coef_dict[cls.coef_template_str(param_name, coefficient_name=cls.INTERCEPT_NAME).format(1)]}
         j = 2
         for dim in dims:
             coefficient_name = coordinates.coordinates_names[dim]
             if coefficient_name == AbstractCoordinates.COORDINATE_T:
                 j = 1
-            coef = coef_dict[cls.coef_template_str(gev_param_name, coefficient_name).format(j)]
+            coef = coef_dict[cls.coef_template_str(param_name, coefficient_name).format(j)]
             idx_to_coef[dim] = coef
             j += 1
-        return cls(gev_param_name=gev_param_name, idx_to_coef=idx_to_coef)
+        return cls(param_name=param_name, idx_to_coef=idx_to_coef)
 
     def coef_dict(self, dims, dim_to_coefficient_name: Dict[int, str]) -> Dict[str, float]:
         dims = self.add_intercept_idx(dims)
@@ -71,7 +71,7 @@ class LinearCoef(AbstractCoef):
             if coefficient_name == AbstractCoordinates.COORDINATE_T:
                 j = 1
             coef = self.idx_to_coef[dim]
-            coef_dict[self.coef_template_str(self.gev_param_name, coefficient_name).format(j)] = coef
+            coef_dict[self.coef_template_str(self.param_name, coefficient_name).format(j)] = coef
             j += 1
         return coef_dict
 

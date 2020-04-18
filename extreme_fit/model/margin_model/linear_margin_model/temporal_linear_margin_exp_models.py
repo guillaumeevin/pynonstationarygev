@@ -11,5 +11,5 @@ class NonStationaryRateTemporalModel(AbstractTemporalLinearMarginModel, Abstract
         super().__init__(*arg, **kwargs)
         self.drop_duplicates = False
 
-    def load_margin_functions(self, gev_param_name_to_dims=None):
+    def load_margin_functions(self, param_name_to_dims=None):
         super().load_margin_functions({ExpParams.RATE: [self.coordinates.idx_temporal_coordinates]})

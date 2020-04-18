@@ -5,8 +5,8 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 class AbstractCoef(object):
 
-    def __init__(self, gev_param_name: str = '', default_value: float = 0.0, idx_to_coef=None):
-        self.gev_param_name = gev_param_name
+    def __init__(self, param_name: str = '', default_value: float = 0.0, idx_to_coef=None):
+        self.param_name = param_name
         self.default_value = default_value
         self.idx_to_coef = idx_to_coef
 
@@ -29,11 +29,11 @@ class AbstractCoef(object):
         raise NotImplementedError
 
     @classmethod
-    def from_coef(cls, coef_dict: Dict[str, float], gev_param_name: str, dims: List[int], coordinates: AbstractCoordinates):
+    def from_coef(cls, coef_dict: Dict[str, float], param_name: str, dims: List[int], coordinates: AbstractCoordinates):
         raise NotImplementedError
 
     """ Form dict """
 
     def form_dict(self, names: List[str]) -> Dict[str, str]:
         formula_str = '1' if not names else '+'.join(names)
-        return {self.gev_param_name + '.form': self.gev_param_name + ' ~ ' + formula_str}
+        return {self.param_name + '.form': self.param_name + ' ~ ' + formula_str}

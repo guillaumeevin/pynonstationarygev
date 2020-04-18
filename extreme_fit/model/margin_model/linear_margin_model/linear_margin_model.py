@@ -7,15 +7,15 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 class LinearMarginModel(ParametricMarginModel):
 
     @classmethod
-    def from_coef_list(cls, coordinates, gev_param_name_to_coef_list, params_class=GevParams, **kwargs):
+    def from_coef_list(cls, coordinates, param_name_to_coef_list, params_class=GevParams, **kwargs):
         params = {}
-        for param_name, coef_list in gev_param_name_to_coef_list.items():
+        for param_name, coef_list in param_name_to_coef_list.items():
             for idx, coef in enumerate(coef_list, -1):
                 params[(param_name, idx)] = coef
         return cls(coordinates, params_sample=params, params_start_fit=params, params_class=params_class, **kwargs)
 
-    def load_margin_functions(self, gev_param_name_to_dims=None):
-        assert gev_param_name_to_dims is not None, 'LinearMarginModel cannot be used for sampling/fitting \n' \
+    def load_margin_functions(self, param_name_to_dims=None):
+        assert param_name_to_dims is not None, 'LinearMarginModel cannot be used for sampling/fitting \n' \
                                                    'load_margin_functions needs to be implemented in child class'
         # Load default params (with a dictionary format to enable quick replacement)
         # IMPORTANT: Using a dictionary format enable using the default/user params methodology
@@ -23,18 +23,18 @@ class LinearMarginModel(ParametricMarginModel):
         self.default_params_start_fit = self.default_param_name_and_dim_to_coef
 
         # Load sample coef
-        coef_sample = self.gev_param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_sample)
+        coef_sample = self.param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_sample)
         self.margin_function_sample = LinearMarginFunction(coordinates=self.coordinates,
-                                                           gev_param_name_to_coef=coef_sample,
-                                                           gev_param_name_to_dims=gev_param_name_to_dims,
+                                                           param_name_to_coef=coef_sample,
+                                                           param_name_to_dims=param_name_to_dims,
                                                            starting_point=self.starting_point,
                                                            params_class=self.params_class)
 
         # Load start fit coef
-        coef_start_fit = self.gev_param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_start_fit)
+        coef_start_fit = self.param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_start_fit)
         self.margin_function_start_fit = LinearMarginFunction(coordinates=self.coordinates,
-                                                              gev_param_name_to_coef=coef_start_fit,
-                                                              gev_param_name_to_dims=gev_param_name_to_dims,
+                                                              param_name_to_coef=coef_start_fit,
+                                                              param_name_to_dims=param_name_to_dims,
                                                               starting_point=self.starting_point,
                                                               params_class=self.params_class)
 
@@ -42,51 +42,51 @@ class LinearMarginModel(ParametricMarginModel):
     def default_param_name_and_dim_to_coef(self) -> dict:
         default_intercept = 1
         default_slope = 0.01
-        gev_param_name_and_dim_to_coef = {}
+        param_name_and_dim_to_coef = {}
         for param_name in self.params_class.PARAM_NAMES:
-            gev_param_name_and_dim_to_coef[(param_name, -1)] = default_intercept
+            param_name_and_dim_to_coef[(param_name, -1)] = default_intercept
             for dim in self.coordinates.coordinates_dims:
-                gev_param_name_and_dim_to_coef[(param_name, dim)] = default_slope
-        return gev_param_name_and_dim_to_coef
+                param_name_and_dim_to_coef[(param_name, dim)] = default_slope
+        return param_name_and_dim_to_coef
 
-    def gev_param_name_to_linear_coef(self, param_name_and_dim_to_coef):
+    def param_name_to_linear_coef(self, param_name_and_dim_to_coef):
         param_name_to_linear_coef = {}
         param_names = list(set([e[0] for e in param_name_and_dim_to_coef.keys()]))
         for param_name in param_names:
             idx_to_coef = {idx: param_name_and_dim_to_coef[(param_name, idx)] for idx in
                            [-1] + self.coordinates.coordinates_dims}
-            linear_coef = LinearCoef(gev_param_name=param_name, idx_to_coef=idx_to_coef)
+            linear_coef = LinearCoef(param_name=param_name, idx_to_coef=idx_to_coef)
             param_name_to_linear_coef[param_name] = linear_coef
         return param_name_to_linear_coef
 
 
 class ConstantMarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, gev_param_name_to_dims=None):
+    def load_margin_functions(self, param_name_to_dims=None):
         super().load_margin_functions({})
 
 
 class LinearShapeDim0MarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
         super().load_margin_functions({GevParams.SHAPE: [0]})
 
 
 class LinearScaleDim0MarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
         super().load_margin_functions({GevParams.SCALE: [0]})
 
 
 class LinearShapeDim0and1MarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
         super().load_margin_functions({GevParams.SHAPE: [0, 1]})
 
 
 class LinearAllParametersDim0MarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
         super().load_margin_functions({GevParams.SHAPE: [0],
                                        GevParams.LOC: [0],
                                        GevParams.SCALE: [0]})
@@ -94,7 +94,7 @@ class LinearAllParametersDim0MarginModel(LinearMarginModel):
 
 class LinearMarginModelExample(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
         super().load_margin_functions({GevParams.SHAPE: [0],
                                        GevParams.LOC: [1],
                                        GevParams.SCALE: [0]})
@@ -102,19 +102,19 @@ class LinearMarginModelExample(LinearMarginModel):
 
 class LinearLocationAllDimsMarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
         super().load_margin_functions({GevParams.LOC: self.coordinates.coordinates_dims})
 
 
 class LinearShapeAllDimsMarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
         super().load_margin_functions({GevParams.SHAPE: self.coordinates.coordinates_dims})
 
 
 class LinearAllParametersAllDimsMarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
         super().load_margin_functions({GevParams.SHAPE: self.coordinates.coordinates_dims,
                                        GevParams.LOC: self.coordinates.coordinates_dims,
                                        GevParams.SCALE: self.coordinates.coordinates_dims})
@@ -122,7 +122,7 @@ class LinearAllParametersAllDimsMarginModel(LinearMarginModel):
 
 class LinearStationaryMarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
         super().load_margin_functions({GevParams.SHAPE: self.coordinates.spatial_coordinates_dims,
                                        GevParams.LOC: self.coordinates.spatial_coordinates_dims,
                                        GevParams.SCALE: self.coordinates.spatial_coordinates_dims})
@@ -130,7 +130,7 @@ class LinearStationaryMarginModel(LinearMarginModel):
 
 class LinearNonStationaryLocationMarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, gev_param_name_to_dims=None):
+    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
         super().load_margin_functions({GevParams.SHAPE: self.coordinates.spatial_coordinates_dims,
                                        GevParams.LOC: self.coordinates.coordinates_dims,
                                        GevParams.SCALE: self.coordinates.spatial_coordinates_dims})

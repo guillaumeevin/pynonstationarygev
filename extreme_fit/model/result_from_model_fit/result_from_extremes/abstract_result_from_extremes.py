@@ -14,9 +14,9 @@ from extreme_fit.model.utils import r
 
 class AbstractResultFromExtremes(AbstractResultFromModelFit):
 
-    def __init__(self, result_from_fit: robjects.ListVector, gev_param_name_to_dim=None) -> None:
+    def __init__(self, result_from_fit: robjects.ListVector, param_name_to_dim=None) -> None:
         super().__init__(result_from_fit)
-        self.gev_param_name_to_dim = gev_param_name_to_dim
+        self.param_name_to_dim = param_name_to_dim
 
     @property
     def summary_name_to_value(self):
@@ -44,7 +44,7 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
 
     @property
     def is_non_stationary(self):
-        return len(self.gev_param_name_to_dim) > 0
+        return len(self.param_name_to_dim) > 0
 
     def load_dataframe_from_r_matrix(self, name):
         r_matrix = self.name_to_value[name]
@@ -58,9 +58,9 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
             'tscale': False,
             'type': r.c("return.level")
         }
-        if self.gev_param_name_to_dim:
-            d = {GevParams.greek_letter_from_gev_param_name(gev_param_name) + '1': r.c(transformed_temporal_covariate) for
-                 gev_param_name in self.gev_param_name_to_dim.keys()}
+        if self.param_name_to_dim:
+            d = {GevParams.greek_letter_from_param_name(param_name) + '1': r.c(transformed_temporal_covariate) for
+                 param_name in self.param_name_to_dim.keys()}
             kwargs = {
                 "vals": r.list(**d
                                )

@@ -30,12 +30,12 @@ class TestRMaxStabWithMarginConstant(TestUnitaryAbstract):
     def python_code(cls):
         coordinates, max_stable_model = TestRMaxStab.python_code()
         # Load margin model
-        gev_param_name_to_coef_list = {
+        param_name_to_coef_list = {
             GevParams.LOC: [0.2],
             GevParams.SHAPE: [0.2],
             GevParams.SCALE: [0.2],
         }
-        margin_model = ConstantMarginModel.from_coef_list(coordinates, gev_param_name_to_coef_list)
+        margin_model = ConstantMarginModel.from_coef_list(coordinates, param_name_to_coef_list)
         # Load dataset
         dataset = FullSimulatedDataset.from_double_sampling(nb_obs=40, margin_model=margin_model,
                                                             coordinates=coordinates,
@@ -76,12 +76,12 @@ class TestRMaxStabWithLinearMargin(TestUnitaryAbstract):
     def python_code(cls):
         coordinates, max_stable_model = TestRMaxStab.python_code()
         # Load margin model
-        gev_param_name_to_coef_list = {
+        param_name_to_coef_list = {
             GevParams.LOC: [-10, 0, 2],
             GevParams.SHAPE: [2, -3, 0],
             GevParams.SCALE: [5, 2, 1],
         }
-        margin_model = LinearAllParametersAllDimsMarginModel.from_coef_list(coordinates, gev_param_name_to_coef_list)
+        margin_model = LinearAllParametersAllDimsMarginModel.from_coef_list(coordinates, param_name_to_coef_list)
         # Load dataset
         dataset = FullSimulatedDataset.from_double_sampling(nb_obs=40, margin_model=margin_model,
                                                             coordinates=coordinates,

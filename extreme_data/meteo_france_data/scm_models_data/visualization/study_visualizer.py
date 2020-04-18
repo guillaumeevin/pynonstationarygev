@@ -583,11 +583,11 @@ class StudyVisualizer(VisualizationParameters):
             fig, axes = plt.subplots(1, len(params_names))
             fig.subplots_adjust(hspace=self.subplot_space, wspace=self.subplot_space)
 
-        for i, gev_param_name in enumerate(params_names):
+        for i, param_name in enumerate(params_names):
             ax = axes[i]
-            self.study.visualize_study(ax=ax, massif_name_to_value=df.loc[gev_param_name, :].to_dict(), show=False,
-                                       replace_blue_by_white=gev_param_name != GevParams.SHAPE,
-                                       label=gev_param_name)
+            self.study.visualize_study(ax=ax, massif_name_to_value=df.loc[param_name, :].to_dict(), show=False,
+                                       replace_blue_by_white=param_name != GevParams.SHAPE,
+                                       label=param_name)
         self.clean_axes_write_title_on_the_left(axes, title='Independent fits')
 
         if show:
@@ -613,12 +613,12 @@ class StudyVisualizer(VisualizationParameters):
 
         # 2) Second row, gev parameters fitted independently (and a qqplot)
         axes_second_row = axes[1]
-        for ax, gev_param_name in zip(axes_second_row, GevParams.PARAM_NAMES):
+        for ax, param_name in zip(axes_second_row, GevParams.PARAM_NAMES):
             self.study.visualize_study(ax=ax,
-                                       massif_name_to_value=self.df_gev_parameters.loc[gev_param_name, :].to_dict(),
+                                       massif_name_to_value=self.df_gev_parameters.loc[param_name, :].to_dict(),
                                        show=False,
-                                       replace_blue_by_white=gev_param_name != GevParams.SHAPE,
-                                       label=gev_param_name)
+                                       replace_blue_by_white=param_name != GevParams.SHAPE,
+                                       label=param_name)
         # todo: add qqplot drawn for each massif on the map in the last cell
         # or just it could be some fitting score based on the qqplot... and we just display the value
         # like the log likelihood, (or we could also display some uncertainty here)

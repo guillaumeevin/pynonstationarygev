@@ -19,25 +19,24 @@ class LinearMarginFunction(ParametricMarginFunction):
         dim = 2 correspond to the second coordinate
         dim = 3 correspond to the third coordinate....
 
-        gev_param_name_to_linear_dims             maps each parameter of the GEV distribution to its linear dimensions
+        param_name_to_linear_dims             maps each parameter of the GEV distribution to its linear dimensions
 
-        gev_param_name_to_linear_coef             maps each parameter of the GEV distribution to its linear coefficients
+        param_name_to_linear_coef             maps each parameter of the GEV distribution to its linear coefficients
 
     """
 
     COEF_CLASS = LinearCoef
 
-    def __init__(self, coordinates: AbstractCoordinates, gev_param_name_to_dims: Dict[str, List[int]],
-                 gev_param_name_to_coef: Dict[str, AbstractCoef], starting_point: Union[None, int] = None,
+    def __init__(self, coordinates: AbstractCoordinates, param_name_to_dims: Dict[str, List[int]],
+                 param_name_to_coef: Dict[str, AbstractCoef], starting_point: Union[None, int] = None,
                  params_class: type = GevParams):
-        self.gev_param_name_to_coef = None  # type: Union[None, Dict[str, LinearCoef]]
-        super().__init__(coordinates, gev_param_name_to_dims, gev_param_name_to_coef, starting_point,
-                         params_class)
+        self.param_name_to_coef = None  # type: Union[None, Dict[str, LinearCoef]]
+        super().__init__(coordinates, param_name_to_dims, param_name_to_coef, starting_point, params_class)
 
-    def load_specific_param_function(self, gev_param_name) -> AbstractParamFunction:
-        return LinearParamFunction(dims=self.gev_param_name_to_dims[gev_param_name],
+    def load_specific_param_function(self, param_name) -> AbstractParamFunction:
+        return LinearParamFunction(dims=self.param_name_to_dims[param_name],
                                    coordinates=self.coordinates.coordinates_values(),
-                                   linear_coef=self.gev_param_name_to_coef[gev_param_name])
+                                   linear_coef=self.param_name_to_coef[param_name])
 
     @classmethod
     def idx_to_coefficient_name(cls, coordinates: AbstractCoordinates) -> Dict[int, str]:
@@ -55,9 +54,9 @@ class LinearMarginFunction(ParametricMarginFunction):
     @property
     def coef_dict(self) -> Dict[str, float]:
         coef_dict = {}
-        for gev_param_name in GevParams.PARAM_NAMES:
-            dims = self.gev_param_name_to_dims.get(gev_param_name, [])
-            coef = self.gev_param_name_to_coef[gev_param_name]
+        for param_name in self.params_class.PARAM_NAMES:
+            dims = self.param_name_to_dims.get(param_name, [])
+            coef = self.param_name_to_coef[param_name]
             coef_dict.update(coef.coef_dict(dims, self.idx_to_coefficient_name(self.coordinates)))
         return coef_dict
 
@@ -68,19 +67,19 @@ class LinearMarginFunction(ParametricMarginFunction):
     @property
     def form_dict(self) -> Dict[str, str]:
         form_dict = {}
-        for gev_param_name in self.params_class.PARAM_NAMES:
-            linear_dims = self.gev_param_name_to_dims.get(gev_param_name, [])
+        for param_name in self.params_class.PARAM_NAMES:
+            linear_dims = self.param_name_to_dims.get(param_name, [])
             # Load spatial form_dict (only if we have some spatial coordinates)
             if self.coordinates.has_spatial_coordinates:
                 spatial_names = [name for name in self.coordinates.spatial_coordinates_names
                                  if self.coefficient_name_to_dim(self.coordinates)[name] in linear_dims]
-                spatial_form = self.gev_param_name_to_coef[gev_param_name].spatial_form_dict(spatial_names)
+                spatial_form = self.param_name_to_coef[param_name].spatial_form_dict(spatial_names)
                 form_dict.update(spatial_form)
             # Load temporal form dict (only if we have some temporal coordinates)
             if self.coordinates.has_temporal_coordinates:
                 temporal_names = [name for name in self.coordinates.temporal_coordinates_names
                                   if self.coefficient_name_to_dim(self.coordinates)[name] in linear_dims]
-                temporal_form = self.gev_param_name_to_coef[gev_param_name].temporal_form_dict(temporal_names)
+                temporal_form = self.param_name_to_coef[param_name].temporal_form_dict(temporal_names)
                 # Specifying a formula '~ 1' creates a bug in fitspatgev of SpatialExtreme R package
                 assert not any(['1' in formula for formula in temporal_form.values()])
                 form_dict.update(temporal_form)
@@ -88,10 +87,10 @@ class LinearMarginFunction(ParametricMarginFunction):
 
     # Properties for the location parameter
 
-    def get_coef(self, gev_param_name, coef_name):
+    def get_coef(self, param_name, coef_name):
         idx = 1 if coef_name in [AbstractCoordinates.COORDINATE_T, LinearCoef.INTERCEPT_NAME] \
             else AbstractCoordinates.COORDINATE_SPATIAL_NAMES.index(coef_name) + 2
-        return self.coef_dict[LinearCoef.coef_template_str(gev_param_name, coef_name).format(idx)]
+        return self.coef_dict[LinearCoef.coef_template_str(param_name, coef_name).format(idx)]
     
     @property
     def mu1_temporal_trend(self):

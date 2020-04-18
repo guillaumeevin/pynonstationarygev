@@ -55,10 +55,10 @@ class TestDailyObservations(unittest.TestCase):
         super().setUp()
         set_seed_for_test(seed=42)
         self.coordinates = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(nb_temporal_steps=10)
-        gev_param_name_to_coef_list = {
+        param_name_to_coef_list = {
             AbstractParams.RATE: [1],
         }
-        self.margin_model = StationaryTemporalModel.from_coef_list(self.coordinates, gev_param_name_to_coef_list,
+        self.margin_model = StationaryTemporalModel.from_coef_list(self.coordinates, param_name_to_coef_list,
                                                                    params_class=ExpParams)
 
     def test_instance_exp_params(self):

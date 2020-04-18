@@ -10,13 +10,13 @@ from extreme_fit.model.result_from_model_fit.utils import get_margin_coef_ordere
 
 class ResultFromIsmev(AbstractResultFromModelFit):
 
-    def __init__(self, result_from_fit: robjects.ListVector, gev_param_name_to_dim=None) -> None:
+    def __init__(self, result_from_fit: robjects.ListVector, param_name_to_dim=None) -> None:
         super().__init__(result_from_fit)
-        self.gev_param_name_to_dim = gev_param_name_to_dim
+        self.param_name_to_dim = param_name_to_dim
 
     @property
     def margin_coef_ordered_dict(self):
-        return get_margin_coef_ordered_dict(self.gev_param_name_to_dim, self.name_to_value['mle'])
+        return get_margin_coef_ordered_dict(self.param_name_to_dim, self.name_to_value['mle'])
 
     @property
     def all_parameters(self):

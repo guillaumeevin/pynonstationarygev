@@ -29,11 +29,11 @@ class GevLocationAndScaleTrendTest(GevTrendTestTwoParameters):
 
     @property
     def mu1(self):
-        return self.get_non_stationary_linear_coef(gev_param_name=GevParams.LOC)
+        return self.get_non_stationary_linear_coef(param_name=GevParams.LOC)
 
     @property
     def sigma1(self):
-        return self.get_non_stationary_linear_coef(gev_param_name=GevParams.SCALE)
+        return self.get_non_stationary_linear_coef(param_name=GevParams.SCALE)
 
     def _slope_strength(self):
         return self.unconstrained_estimator_gev_params.time_derivative_of_return_level(p=self.quantile_level,

@@ -106,8 +106,8 @@ class AbstractGevTrendTest(object):
     def test_sign(self) -> int:
         return np.sign(self.time_derivative_of_return_level)
 
-    def get_non_stationary_linear_coef(self, gev_param_name: str):
-        return self.unconstrained_estimator.function_from_fit.get_coef(gev_param_name,
+    def get_non_stationary_linear_coef(self, param_name: str):
+        return self.unconstrained_estimator.function_from_fit.get_coef(param_name,
                                                                        AbstractCoordinates.COORDINATE_T)
 
     @cached_property

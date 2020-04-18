@@ -11,9 +11,9 @@ from extreme_fit.model.utils import r
 
 class ResultFromBayesianExtremes(AbstractResultFromExtremes):
 
-    def __init__(self, result_from_fit: robjects.ListVector, gev_param_name_to_dim=None,
+    def __init__(self, result_from_fit: robjects.ListVector, param_name_to_dim=None,
                  burn_in_percentage=0.5) -> None:
-        super().__init__(result_from_fit, gev_param_name_to_dim)
+        super().__init__(result_from_fit, param_name_to_dim)
         self.burn_in_percentage = burn_in_percentage
 
     @property
@@ -51,7 +51,7 @@ class ResultFromBayesianExtremes(AbstractResultFromExtremes):
     def get_coef_dict_from_posterior_sample(self, s: pd.Series):
         assert len(s) >= 3
         values = {i: v for i, v in enumerate(s)}
-        return get_margin_coef_ordered_dict(self.gev_param_name_to_dim, values)
+        return get_margin_coef_ordered_dict(self.param_name_to_dim, values)
 
     @property
     def margin_coef_ordered_dict(self):
@@ -65,7 +65,7 @@ class ResultFromBayesianExtremes(AbstractResultFromExtremes):
                 'FUN': "mean",
         }
         res = r.ci(self.result_from_fit, **bayesian_ci_parameters, **common_kwargs)
-        if self.gev_param_name_to_dim:
+        if self.param_name_to_dim:
             a = np.array(res)[0]
             lower, mean_estimate, upper = a
         else:
