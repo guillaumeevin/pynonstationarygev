@@ -46,6 +46,7 @@ class TestSlicerForDataset(unittest.TestCase):
         assert self.complete_shape is not None
         for train_split_ratio, data_shape in train_split_ratio_to_observation_shape.items():
             for dataset in self.load_datasets(train_split_ratio):
+                dataset.slicer.summary(show=False)
                 self.assertEqual(self.complete_shape, self.get_shape(dataset, Split.all))
                 for split in ALL_SPLITS_EXCEPT_ALL:
                     if split in dataset.slicer.splits:

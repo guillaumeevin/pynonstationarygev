@@ -31,6 +31,12 @@ from test.test_utils import load_test_spatiotemporal_coordinates, load_test_spat
     load_test_temporal_coordinates, load_test_1D_and_2D_spatial_coordinates
 
 
+class TestCoordinatesUtils(unittest.TestCase):
+
+    def test_csv_creation(self):
+        AlpsStation3DCoordinatesWithAnisotropy.transform_txt_into_csv(create_csv=False)
+
+
 class TestSpatialCoordinates(unittest.TestCase):
     DISPLAY = False
 

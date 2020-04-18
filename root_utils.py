@@ -1,5 +1,7 @@
 import datetime
 import os.path as op
+import subprocess
+
 from cached_property import cached_property
 
 VERSION = datetime.datetime.now()
@@ -8,6 +10,10 @@ for c in [' ', ':', '-']:
     VERSION_TIME = VERSION_TIME.replace(c, '_')
 
 NB_CORES = 7
+
+
+def terminal_command(command_str):
+    return subprocess.check_output(command_str.split()).decode("utf-8").split('\n')
 
 
 def get_root_path() -> str:

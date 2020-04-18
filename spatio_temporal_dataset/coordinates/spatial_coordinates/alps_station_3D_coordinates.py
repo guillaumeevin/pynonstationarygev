@@ -23,7 +23,7 @@ class AlpsStation3DCoordinates(AbstractSpatialCoordinates):
         return super().from_csv(csv_path)
 
     @classmethod
-    def transform_txt_into_csv(cls):
+    def transform_txt_into_csv(cls, create_csv=True):
         filepath = op.join(cls.FULL_PATH, 'original data', 'coord-lambert2.txt')
         station_to_coordinates = {}
         with open(filepath, 'r') as f:
@@ -35,8 +35,9 @@ class AlpsStation3DCoordinates(AbstractSpatialCoordinates):
         df = pd.DataFrame.from_dict(data=station_to_coordinates, orient='index',
                                     columns=[cls.COORDINATE_X, cls.COORDINATE_Y, cls.COORDINATE_Z])
         filepath = op.join(cls.FULL_PATH, 'coord-lambert2.csv')
-        assert not op.exists(filepath)
-        df.to_csv(filepath)
+        if create_csv:  # pragma: no cover
+            assert not op.exists(filepath)
+            df.to_csv(filepath)
 
 
 class AlpsStation3DCoordinatesWithAnisotropy(AlpsStation3DCoordinates):

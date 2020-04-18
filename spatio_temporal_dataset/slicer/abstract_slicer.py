@@ -46,7 +46,7 @@ class AbstractSlicer(object):
                 for f, name in [(len, 'Total'), (sum, 'train')]:
                     msg += "{}: {} ".format(name, f(s))
                 msg += ' / '
-        if show:
+        if show:  # pragma: no cover
             print(msg)
         return msg
 
