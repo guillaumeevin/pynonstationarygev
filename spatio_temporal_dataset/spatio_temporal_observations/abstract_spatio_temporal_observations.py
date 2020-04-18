@@ -19,6 +19,12 @@ class AbstractSpatioTemporalObservations(object):
         Main attribute of the class is the DataFrame df_maxima
         Index are coordinates index
         Columns are independent observations from the same coordinates index
+
+        For example, if we have spatial coordinates,
+        then all the columns might correspond to annual maxima observations for different years
+
+        If we have a spatio-temporal coordinates,
+        then all the columns might correspond to observations that were made at some spatial coodinate, and for some given year
         """
         assert df_maxima_gev is not None or df_maxima_frech is not None
         assert isinstance(df_maxima_gev, pd.DataFrame) or isinstance(df_maxima_frech, pd.DataFrame)
@@ -26,13 +32,6 @@ class AbstractSpatioTemporalObservations(object):
             assert pd.Index.equals(df_maxima_gev.index, df_maxima_frech.index)
         self.df_maxima_gev = df_maxima_gev  # type: pd.DataFrame
         self.df_maxima_frech = df_maxima_frech  # type: pd.DataFrame
-
-    @classmethod
-    def from_csv(cls, csv_path: str = None):
-        assert csv_path is not None
-        assert op.exists(csv_path)
-        df = pd.read_csv(csv_path, index_col=0)
-        return cls.from_df(df)
 
     @property
     def _df_maxima(self) -> pd.DataFrame:
@@ -69,22 +68,6 @@ class AbstractSpatioTemporalObservations(object):
     @property
     def nb_obs(self) -> int:
         return len(self.columns)
-
-    @classmethod
-    def from_df(cls, df):
-        df_maxima_list = []
-        for suffix in [cls.OBSERVATIONS_GEV, cls.OBSERVATIONS_FRECH]:
-            columns_with_suffix = [c for c in df.columns if str(c).endswith(suffix)]
-            if columns_with_suffix:
-                df_maxima = df[columns_with_suffix] if columns_with_suffix else None
-                df_maxima.columns = [c.replace(' ' + suffix, '') for c in df_maxima.columns]
-            else:
-                df_maxima = None
-            df_maxima_list.append(df_maxima)
-        df_maxima_gev, df_maxima_frech = df_maxima_list
-        if df_maxima_gev is not None and df_maxima_frech is not None:
-            assert pd.Index.equals(df_maxima_gev.columns, df_maxima_frech.columns)
-        return cls(df_maxima_gev=df_maxima_gev, df_maxima_frech=df_maxima_frech)
 
     def convert_to_spatio_temporal_index(self, coordinates: AbstractCoordinates):
         assert coordinates.has_spatio_temporal_coordinates
@@ -129,9 +112,6 @@ class AbstractSpatioTemporalObservations(object):
 
     def __str__(self) -> str:
         return self._df_maxima.__str__()
-
-    def __len__(self):
-        return self._df_maxima.__len__()
 
     def print_summary(self):
         # Write a summary of observations
