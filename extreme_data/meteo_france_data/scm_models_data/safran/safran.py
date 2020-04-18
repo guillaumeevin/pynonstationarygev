@@ -89,7 +89,6 @@ class SafranRainfall7Days(SafranRainfall):
         super().__init__(nb_consecutive_days=7, **kwargs)
 
 
-
 class SafranNormalizedPreciptationRate(CumulatedStudy, Safran):
 
     def __init__(self, **kwargs):
@@ -102,6 +101,7 @@ class SafranNormalizedPreciptationRate(CumulatedStudy, Safran):
         variable_array_temperature, variable_array_snowfall, variable_array_rainfall = variable_array
         return self.variable_class(variable_array_temperature,
                                    variable_array_snowfall, variable_array_rainfall, self.nb_consecutive_days)
+
 
 class SafranNormalizedPreciptationRateOnWetDays(CumulatedStudy, Safran):
 

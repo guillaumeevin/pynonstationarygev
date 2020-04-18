@@ -19,24 +19,6 @@ class Split(Enum):
     test_temporal = 8
 
 
-def split_to_display_kwargs(split: Split):
-    marker = None
-    gridsize = 1000
-    if 'train' in split.name:
-        linewidth = 0.5
-    else:
-        linewidth = 2
-        if 'spatiotemporal' in split.name:
-            gridsize = 20
-            if 'spatial' in split.name and 'temporal' in split.name:
-                marker = '*'
-            elif 'spatial' in split.name:
-                marker = '^'
-            else:
-                marker = '>'
-    return {'marker': marker, 'linewidth': linewidth, 'gridsize': gridsize}
-
-
 ALL_SPLITS_EXCEPT_ALL = [split for split in Split if split is not Split.all]
 
 SPLIT_NAME = 'split'

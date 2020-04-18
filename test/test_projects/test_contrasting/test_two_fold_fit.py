@@ -33,7 +33,10 @@ class TestTwoFoldFit(unittest.TestCase):
 
     def test_best_fit_spatial_extreme(self):
         two_fold_fit = self.load_two_fold_fit(fit_method=MarginFitMethod.spatial_extremes_mle)
-        best_model_class = two_fold_fit.massif_name_to_best_model()['Vercors']
+        try:
+            best_model_class = two_fold_fit.massif_name_to_best_model()['Vercors']
+        except AssertionError as e:
+            self.assertTrue(False, msg=e.__str__())
         self.assertEqual(best_model_class, LinearLocationAllDimsMarginModel)
 
 

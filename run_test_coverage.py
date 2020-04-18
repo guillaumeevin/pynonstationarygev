@@ -25,5 +25,5 @@ def display_last_test_coverage():
 
 
 if __name__ == '__main__':
-    # run_test_coverage()
+    run_test_coverage()
     display_last_test_coverage()
