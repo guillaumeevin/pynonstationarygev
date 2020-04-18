@@ -43,7 +43,7 @@ class AbstractEstimator(object):
 
     @property
     def train_split(self):
-        return self.dataset.train_split
+        return self.dataset.slicer.train_split
 
 
 

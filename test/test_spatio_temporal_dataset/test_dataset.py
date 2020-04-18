@@ -63,6 +63,7 @@ class TestSpatioTemporalDataset(unittest.TestCase):
         self.dataset = MarginDataset.from_sampling(nb_obs=nb_obs,
                                                    margin_model=smooth_margin_model,
                                                    coordinates=self.coordinates)
+        print(self.dataset.__str__())
 
     def test_spatio_temporal_array_wrt_time(self):
         # The test could have been on a given station. But we decided to do it for a given time step.
