@@ -19,8 +19,7 @@ class LinearMarginModel(ParametricMarginModel):
                                                    'load_margin_functions needs to be implemented in child class'
         # Load default params (with a dictionary format to enable quick replacement)
         # IMPORTANT: Using a dictionary format enable using the default/user params methodology
-        self.default_params_sample = self.default_param_name_and_dim_to_coef
-        self.default_params_start_fit = self.default_param_name_and_dim_to_coef
+        self.default_params = self.default_param_name_and_dim_to_coef
 
         # Load sample coef
         coef_sample = self.param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_sample)

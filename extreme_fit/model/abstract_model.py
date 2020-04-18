@@ -1,19 +1,18 @@
 class AbstractModel(object):
 
     def __init__(self, use_start_value=False, params_start_fit=None, params_sample=None):
-        self.default_params_start_fit = None
-        self.default_params_sample = None
+        self.default_params = None
         self.use_start_value = use_start_value
         self.user_params_start_fit = params_start_fit
         self.user_params_sample = params_sample
 
     @property
     def params_start_fit(self) -> dict:
-        return self.merge_params(default_params=self.default_params_start_fit, input_params=self.user_params_start_fit)
+        return self.merge_params(default_params=self.default_params, input_params=self.user_params_start_fit)
 
     @property
     def params_sample(self) -> dict:
-        return self.merge_params(default_params=self.default_params_sample, input_params=self.user_params_sample)
+        return self.merge_params(default_params=self.default_params, input_params=self.user_params_sample)
 
     @staticmethod
     def merge_params(default_params, input_params):

@@ -110,7 +110,7 @@ class AbstractMaxStableModelWithCovarianceFunction(AbstractMaxStableModel):
         super().__init__(use_start_value, params_start_fit, params_sample)
         assert covariance_function is not None
         self.covariance_function = covariance_function
-        self.default_params_sample = {
+        self.default_params = {
             'range': 3,
             'smooth': 0.5,
             'nugget': 0.5
