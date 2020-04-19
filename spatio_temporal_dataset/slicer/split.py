@@ -1,4 +1,5 @@
 from enum import Enum
+import numpy as np
 from typing import Union
 
 import pandas as pd
@@ -46,7 +47,8 @@ def small_s_split_from_ratio(index: pd.Index, train_split_ratio):
     s = pd.Series(TEST_SPLIT_STR, index=index)
     nb_points_train = int(length * train_split_ratio)
     assert 0 < nb_points_train < length
-    train_ind = pd.Series.sample(s, n=nb_points_train).index
+    random_state = np.random.mtrand._rand
+    train_ind = pd.Series.sample(s, n=nb_points_train, random_state=random_state).index
     assert 0 < len(train_ind) < length, "number of training points:{} length:{}".format(len(train_ind), length)
     s.loc[train_ind] = TRAIN_SPLIT_STR
     return s

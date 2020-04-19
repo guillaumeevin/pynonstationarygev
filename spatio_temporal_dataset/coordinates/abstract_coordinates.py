@@ -158,6 +158,9 @@ class AbstractCoordinates(object):
     def coordinates_values(self, split: Split = Split.all, transformed=True) -> np.ndarray:
         return self.df_coordinates(split, transformed=transformed).values
 
+    def coordinates_index(self, split: Split = Split.all) -> pd.Index:
+        return self.df_coordinates(split).index
+
     @property
     def ind_train_spatial(self) -> pd.Series:
         return ind_train_from_s_split(s_split=self.s_split_spatial)

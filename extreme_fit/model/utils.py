@@ -45,6 +45,7 @@ warnings.filters = default_filters
 
 def set_seed_for_test(seed=42):
     set_seed_r(seed=seed)
+    np.random.seed(seed=seed)
     random.seed(seed)
 
 

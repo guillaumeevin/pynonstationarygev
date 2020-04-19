@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
@@ -59,19 +59,19 @@ class TwoFoldSampleFit(object):
         key = lambda model_class: self.model_class_to_model_fit[model_class].score(score)
         return sorted(self.model_classes, key=key)
 
+    def scores(self, score):
+        return [self.model_class_to_model_fit[model_class].score(score) for model_class in self.model_classes]
+
 
 class TwoFoldModelFit(object):
 
     def __init__(self, model_class, two_fold_datasets, fit_method):
         self.model_class = model_class
         self.fit_method = fit_method
-        self.estimator_fold_1, self.estimator_fold_2 = [
-            fitted_linear_margin_estimator_short(model_class=self.model_class, dataset=dataset,
-                                                 fit_method=self.fit_method) for dataset in two_fold_datasets]
-
-    @property
-    def estimators(self) -> List[LinearMarginEstimator]:
-        return [self.estimator_fold_1, self.estimator_fold_2]
+        self.estimators = [fitted_linear_margin_estimator_short(model_class=self.model_class, dataset=dataset,
+                                                 fit_method=self.fit_method) for dataset in two_fold_datasets] # type: List[LinearMarginEstimator]
+        self.estimator_fold_1 = self.estimators[0]
+        self.estimator_fold_2 = self.estimators[1]
 
     def score(self, score):
         if score == Score.NLLH_TEST:
