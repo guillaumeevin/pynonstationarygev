@@ -20,17 +20,16 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
     """Linearity only with respect to the temporal coordinates"""
 
     def __init__(self, coordinates: AbstractCoordinates,
-                 params_start_fit=None,
                  params_sample=None, starting_point=None,
                  fit_method=MarginFitMethod.is_mev_gev_fit,
                  nb_iterations_for_bayesian_fit=5000,
-                 params_start_fit_bayesian=None,
+                 params_initial_fit_bayesian=None,
                  type_for_MLE="GEV",
                  params_class=GevParams):
-        super().__init__(coordinates, params_start_fit, params_sample, starting_point,
+        super().__init__(coordinates, params_sample, starting_point,
                          params_class)
         self.type_for_mle = type_for_MLE
-        self.params_start_fit_bayesian = params_start_fit_bayesian
+        self.params_initial_fit_bayesian = params_initial_fit_bayesian
         self.nb_iterations_for_bayesian_fit = nb_iterations_for_bayesian_fit
         assert isinstance(fit_method, MarginFitMethod), fit_method
         self.fit_method = fit_method
@@ -92,8 +91,8 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
 
     def extremes_fevd_bayesian_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:
         r_type_argument_kwargs, y = self.extreme_arguments(df_coordinates_temp)
-        params_start_fit = self.params_start_fit_bayesian if self.params_start_fit_bayesian is not None else {}
-        r_type_argument_kwargs['initial'] = r.list(**params_start_fit)
+        params_initial_fit = self.params_initial_fit_bayesian if self.params_initial_fit_bayesian is not None else {}
+        r_type_argument_kwargs['initial'] = r.list(**params_initial_fit)
         # Assert for any non-stationary model that the shape parameter is constant
         # (because the prior function considers that the last parameter should be the shape)
         assert GevParams.SHAPE not in self.margin_function_start_fit.param_name_to_dims \

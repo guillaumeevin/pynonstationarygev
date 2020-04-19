@@ -11,9 +11,9 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 class SplineMarginModel(ParametricMarginModel):
 
-    def __init__(self, coordinates: AbstractCoordinates, params_start_fit=None,
+    def __init__(self, coordinates: AbstractCoordinates,
                  params_sample=None):
-        super().__init__(coordinates, params_start_fit, params_sample)
+        super().__init__(coordinates, params_sample)
 
     def load_margin_functions(self, param_name_to_dims: Dict[str, List[int]] = None,
                               param_name_to_coef: Dict[str, AbstractCoef] = None,

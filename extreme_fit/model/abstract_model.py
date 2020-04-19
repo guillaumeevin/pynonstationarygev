@@ -1,13 +1,13 @@
 class AbstractModel(object):
 
-    def __init__(self, params_start_fit=None, params_sample=None):
+    def __init__(self, params_sample=None):
         self.default_params = None
-        self.user_params_start_fit = params_start_fit
         self.user_params_sample = params_sample
 
     @property
     def params_start_fit(self) -> dict:
-        return self.default_params.copy()
+        # return self.default_params.copy()
+        return self.params_sample.copy()
 
     @property
     def params_sample(self) -> dict:

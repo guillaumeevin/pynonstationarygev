@@ -31,16 +31,16 @@ def compute_refined_gelman_score(means, variances, N, M):
 
 def compute_gelman_convergence_value(non_null_years_and_maxima, mcmc_iterations, model_class, nb_chains):
     s_means, s_variances = [], []
-    df_params_start_fit = sample_starting_value(nb_chains)
-    for i, row in df_params_start_fit.iterrows():
+    df_params_initial_fit_bayesian = sample_starting_value(nb_chains)
+    for i, row in df_params_initial_fit_bayesian.iterrows():
         s_mean, s_variance = compute_mean_and_variance(mcmc_iterations, model_class, non_null_years_and_maxima,
-                                                       params_start_fit=row.to_dict())
+                                                       params_initial_fit_bayesian=row.to_dict())
         s_means.append(s_mean)
         s_variances.append(s_variance)
     df_mean = pd.concat(s_means, axis=1).transpose()
     df_variance = pd.concat(s_variances, axis=1).transpose()
     param_name_to_R = {param_name: compute_gelman_score(df_mean[param_name], df_variance[param_name], N=mcmc_iterations // 2, M=nb_chains)
-                       for param_name in df_params_start_fit.columns}
+                       for param_name in df_params_initial_fit_bayesian.columns}
     print(param_name_to_R)
     return max(param_name_to_R.values())
 
@@ -53,13 +53,13 @@ def sample_starting_value(nb_chains):
     })
 
 
-def compute_mean_and_variance(mcmc_iterations, model_class, non_null_years_and_maxima, params_start_fit):
+def compute_mean_and_variance(mcmc_iterations, model_class, non_null_years_and_maxima, params_initial_fit_bayesian):
     maxima, years = non_null_years_and_maxima
     coordinates, dataset = load_temporal_coordinates_and_dataset(maxima, years)
     fitted_estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year=None,
                                                       fit_method=MarginFitMethod.extremes_fevd_bayesian,
                                                       nb_iterations_for_bayesian_fit=mcmc_iterations,
-                                                      params_start_fit_bayesian=params_start_fit)
+                                                      params_initial_fit_bayesian=params_initial_fit_bayesian)
     res = fitted_estimator.result_from_model_fit  # type: ResultFromBayesianExtremes
     return res.mean_posterior_parameters, res.variance_posterior_parameters
 

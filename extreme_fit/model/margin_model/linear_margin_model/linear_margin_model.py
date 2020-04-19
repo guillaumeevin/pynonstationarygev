@@ -12,7 +12,7 @@ class LinearMarginModel(ParametricMarginModel):
         for param_name, coef_list in param_name_to_coef_list.items():
             for idx, coef in enumerate(coef_list, -1):
                 params[(param_name, idx)] = coef
-        return cls(coordinates, params_sample=params, params_start_fit=params, params_class=params_class, **kwargs)
+        return cls(coordinates, params_sample=params, params_class=params_class, **kwargs)
 
     def load_margin_functions(self, param_name_to_dims=None):
         assert param_name_to_dims is not None, 'LinearMarginModel cannot be used for sampling/fitting \n' \
