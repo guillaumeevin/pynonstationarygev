@@ -23,19 +23,11 @@ class LinearMarginModel(ParametricMarginModel):
 
         # Load sample coef
         coef_sample = self.param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_sample)
-        self.margin_function_sample = LinearMarginFunction(coordinates=self.coordinates,
-                                                           param_name_to_coef=coef_sample,
-                                                           param_name_to_dims=param_name_to_dims,
-                                                           starting_point=self.starting_point,
-                                                           params_class=self.params_class)
-
-        # Load start fit coef
-        coef_start_fit = self.param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_start_fit)
-        self.margin_function_start_fit = LinearMarginFunction(coordinates=self.coordinates,
-                                                              param_name_to_coef=coef_start_fit,
-                                                              param_name_to_dims=param_name_to_dims,
-                                                              starting_point=self.starting_point,
-                                                              params_class=self.params_class)
+        self.margin_function = LinearMarginFunction(coordinates=self.coordinates,
+                                                    param_name_to_coef=coef_sample,
+                                                    param_name_to_dims=param_name_to_dims,
+                                                    starting_point=self.starting_point,
+                                                    params_class=self.params_class)
 
     @property
     def default_param_name_and_dim_to_coef(self) -> dict:

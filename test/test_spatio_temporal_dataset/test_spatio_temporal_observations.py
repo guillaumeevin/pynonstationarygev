@@ -63,7 +63,7 @@ class TestDailyObservations(unittest.TestCase):
 
     def test_instance_exp_params(self):
         last_coordinate = self.coordinates.coordinates_values()[-1]
-        params = self.margin_model.margin_function_sample.get_params(last_coordinate)
+        params = self.margin_model.margin_function.get_params(last_coordinate)
         self.assertIsInstance(params, ExpParams)
 
     def test_exponential_observations(self):

@@ -33,7 +33,7 @@ class TestSmoothMarginEstimator(unittest.TestCase):
                 print(estimator.result_from_model_fit.name_to_value.keys())
                 # Plot
                 if self.DISPLAY:
-                    margin_model.margin_function_sample.visualize_function(show=True)
+                    margin_model.margin_function.visualize_function(show=True)
                     estimator.function_from_fit.visualize_function(show=True)
         self.assertTrue(True)
 

@@ -5,11 +5,6 @@ class AbstractModel(object):
         self.user_params_sample = params_sample
 
     @property
-    def params_start_fit(self) -> dict:
-        # return self.default_params.copy()
-        return self.params_sample.copy()
-
-    @property
     def params_sample(self) -> dict:
         return self.merge_params(default_params=self.default_params, input_params=self.user_params_sample)
 

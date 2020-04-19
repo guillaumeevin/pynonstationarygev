@@ -37,17 +37,11 @@ class SplineMarginModel(ParametricMarginModel):
             param_name_to_nb_knots = {param_name: 2 for param_name in GevParams.PARAM_NAMES}
 
         # Load sample coef
-        self.margin_function_sample = SplineMarginFunction(coordinates=self.coordinates,
-                                                           param_name_to_dims=param_name_to_dims,
-                                                           param_name_to_coef=param_name_to_coef,
-                                                           param_name_to_nb_knots=param_name_to_nb_knots,
-                                                           degree=degree)
-        # Load start fit coef
-        self.margin_function_start_fit = SplineMarginFunction(coordinates=self.coordinates,
-                                                              param_name_to_dims=param_name_to_dims,
-                                                              param_name_to_coef=param_name_to_coef,
-                                                              param_name_to_nb_knots=param_name_to_nb_knots,
-                                                              degree=degree)
+        self.margin_function = SplineMarginFunction(coordinates=self.coordinates,
+                                                    param_name_to_dims=param_name_to_dims,
+                                                    param_name_to_coef=param_name_to_coef,
+                                                    param_name_to_nb_knots=param_name_to_nb_knots,
+                                                    degree=degree)
 
 
 class ConstantSplineMarginModel(SplineMarginModel):

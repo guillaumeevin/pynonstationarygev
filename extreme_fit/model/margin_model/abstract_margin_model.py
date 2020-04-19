@@ -14,9 +14,8 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 class AbstractMarginModel(AbstractModel, ABC):
     """
-    An AbstractMarginModel has two main AbstractMarginFunction attributes:
-        -margin_function_sample for sampling
-        -margin_function_start_fit for starting to fit
+    An AbstractMarginModel has one AbstractMarginFunction attribute:
+        -margin_function
     """
 
     def __init__(self, coordinates: AbstractCoordinates, params_sample=None,
@@ -24,8 +23,8 @@ class AbstractMarginModel(AbstractModel, ABC):
         super().__init__(params_sample)
         assert isinstance(coordinates, AbstractCoordinates), type(coordinates)
         self.coordinates = coordinates
-        self.margin_function_sample = None  # type: AbstractMarginFunction
-        self.margin_function_start_fit = None  # type: AbstractMarginFunction
+        self.margin_function = None  # type: AbstractMarginFunction
+        self.margin_function = None  # type: AbstractMarginFunction
         self.params_class = params_class
         self.load_margin_functions()
 
@@ -34,11 +33,8 @@ class AbstractMarginModel(AbstractModel, ABC):
 
     def default_load_margin_functions(self, margin_function_class):
         # todo: check it i could remove these attributes
-        self.margin_function_sample = margin_function_class(coordinates=self.coordinates,
-                                                            default_params=self.params_class.from_dict(self.params_sample))
-        self.margin_function_start_fit = margin_function_class(coordinates=self.coordinates,
-                                                               default_params=self.params_class.from_dict(
-                                                                   self.params_start_fit))
+        self.margin_function = margin_function_class(coordinates=self.coordinates,
+                                                     default_params=self.params_class.from_dict(self.params_sample))
 
     # Conversion class methods
 
@@ -67,14 +63,14 @@ class AbstractMarginModel(AbstractModel, ABC):
     # Sampling methods
 
     def rmargin_from_maxima_frech(self, maxima_frech: np.ndarray, coordinates_values: np.ndarray) -> np.ndarray:
-        maxima_gev = self.frech2gev(maxima_frech, coordinates_values, self.margin_function_sample)
+        maxima_gev = self.frech2gev(maxima_frech, coordinates_values, self.margin_function)
         return maxima_gev
 
     def rmargin_from_nb_obs(self, nb_obs: int, coordinates_values: np.ndarray,
                             sample_r_function='rgev') -> np.ndarray:
         maxima_gev = []
         for coordinate in coordinates_values:
-            gev_params = self.margin_function_sample.get_params(coordinate)
+            gev_params = self.margin_function.get_params(coordinate)
             x_gev = r(sample_r_function)(nb_obs, **gev_params.to_dict())
             assert not np.isnan(x_gev).any(), 'params={} generated Nan values'.format(gev_params.__str__())
             maxima_gev.append(x_gev)

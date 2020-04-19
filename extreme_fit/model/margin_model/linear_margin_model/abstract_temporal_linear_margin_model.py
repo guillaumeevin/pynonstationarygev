@@ -60,7 +60,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         res = safe_run_r_estimator(function=r('gev.fit'),
                                    xdat=x, y=y, mul=self.mul,
                                    sigl=self.sigl, shl=self.shl)
-        return ResultFromIsmev(res, self.margin_function_start_fit.param_name_to_dims)
+        return ResultFromIsmev(res, self.margin_function.param_name_to_dims)
 
     # Gev fit with extRemes package
 
@@ -77,7 +77,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
 
     def run_fevd_fixed(self, df_coordinates_temp, method, x):
         if self.fit_method == MarginFitMethod.extremes_fevd_l_moments:
-            assert self.margin_function_start_fit.is_a_stationary_model
+            assert self.margin_function.is_a_stationary_model
         r_type_argument_kwargs, y = self.extreme_arguments(df_coordinates_temp)
         res = safe_run_r_estimator(function=r('fevd_fixed'),
                                    x=x,
@@ -86,7 +86,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                    method=method,
                                    **r_type_argument_kwargs
                                    )
-        return ResultFromMleExtremes(res, self.margin_function_start_fit.param_name_to_dims,
+        return ResultFromMleExtremes(res, self.margin_function.param_name_to_dims,
                                      type_for_mle=self.type_for_mle)
 
     def extremes_fevd_bayesian_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:
@@ -95,8 +95,8 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         r_type_argument_kwargs['initial'] = r.list(**params_initial_fit)
         # Assert for any non-stationary model that the shape parameter is constant
         # (because the prior function considers that the last parameter should be the shape)
-        assert GevParams.SHAPE not in self.margin_function_start_fit.param_name_to_dims \
-               or len(self.margin_function_start_fit.param_name_to_dims[GevParams.SHAPE]) == 1
+        assert GevParams.SHAPE not in self.margin_function.param_name_to_dims \
+               or len(self.margin_function.param_name_to_dims[GevParams.SHAPE]) == 1
         res = safe_run_r_estimator(function=r('fevd_fixed'),
                                    x=x,
                                    data=y,
@@ -106,14 +106,14 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                    iter=self.nb_iterations_for_bayesian_fit,
                                    **r_type_argument_kwargs
                                    )
-        return ResultFromBayesianExtremes(res, self.margin_function_start_fit.param_name_to_dims)
+        return ResultFromBayesianExtremes(res, self.margin_function.param_name_to_dims)
 
     def extreme_arguments(self, df_coordinates_temp):
         # Disable the use of log sigma parametrization
         r_type_argument_kwargs = {'use.phi': False,
                                   'verbose': False}
         # Load parameters
-        r_type_argument_kwargs.update(get_margin_formula_extremes(self.margin_function_start_fit.form_dict))
+        r_type_argument_kwargs.update(get_margin_formula_extremes(self.margin_function.form_dict))
         y = get_coord_df(df_coordinates_temp)
         return r_type_argument_kwargs, y
 

@@ -24,8 +24,7 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         """
         self.fit_method = fit_method
         self.starting_point = starting_point
-        self.margin_function_sample = None  # type: ParametricMarginFunction
-        self.margin_function_start_fit = None  # type: ParametricMarginFunction
+        self.margin_function = None  # type: ParametricMarginFunction
         self.drop_duplicates = True
         super().__init__(coordinates, params_sample, params_class)
 
@@ -39,12 +38,12 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
 
     def fit_from_spatial_extremes(self, data, df_coordinates_spat, df_coordinates_temp):
         # Margin formula for fitspatgev
-        fit_params = get_margin_formula_spatial_extreme(self.margin_function_start_fit.form_dict)
+        fit_params = get_margin_formula_spatial_extreme(self.margin_function.form_dict)
         # Covariables
         covariables = get_coord(df_coordinates=df_coordinates_spat)
         fit_params['temp.cov'] = get_coord(df_coordinates=df_coordinates_temp)
         # Start parameters
-        coef_dict = self.margin_function_start_fit.coef_dict
+        coef_dict = self.margin_function.coef_dict
         # fit_params['start'] = r.list(**coef_dict)
         res = safe_run_r_estimator(function=r.fitspatgev, data=data,
                                    start_dict=coef_dict,

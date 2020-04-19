@@ -14,7 +14,7 @@ class TestVisualizationLinearMarginModel(unittest.TestCase):
     margin_model_class = LinearAllParametersAllDimsMarginModel
 
     def tearDown(self) -> None:
-        self.margin_model.margin_function_sample.visualize_function(show=self.DISPLAY)
+        self.margin_model.margin_function.visualize_function(show=self.DISPLAY)
         self.assertTrue(True)
 
     def test_example_visualization_1D(self):
@@ -37,7 +37,7 @@ class TestVisualizationSplineMarginModel(unittest.TestCase):
     margin_model_class = Degree1SplineMarginModel
 
     def tearDown(self) -> None:
-        self.margin_model.margin_function_sample.visualize_function(show=self.DISPLAY)
+        self.margin_model.margin_function.visualize_function(show=self.DISPLAY)
         self.assertTrue(True)
 
     def test_example_visualization_1D_spline(self):
@@ -50,7 +50,7 @@ class TestVisualizationSplineMarginModel(unittest.TestCase):
         # TODO: add a similar test than in the linear case
         # # Assert that the grid correspond to what we expect in a simple case
         # AbstractMarginFunction.VISUALIZATION_RESOLUTION = 2
-        # grid = self.margin_model.margin_function_sample.grid_2D['loc']
+        # grid = self.margin_model.margin_function.grid_2D['loc']
         # true_grid = np.array([[0.98, 1.0], [1.0, 1.02]])
         # self.assertTrue((grid == true_grid).all(), msg="\nexpected:\n{}, \nfound:\n{}".format(true_grid, grid))
 

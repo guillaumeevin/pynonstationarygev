@@ -56,7 +56,7 @@ class TestMarginTemporal(unittest.TestCase):
         # By default, estimator find the good margin
         self.assertNotEqual(estimator.function_from_fit.mu1_temporal_trend, 0.0)
         self.assertAlmostEqual(estimator.function_from_fit.mu1_temporal_trend,
-                               self.smooth_margin_model.margin_function_sample.mu1_temporal_trend,
+                               self.smooth_margin_model.margin_function.mu1_temporal_trend,
                                places=3)
         # Checks starting point parameter are well passed
         self.assertEqual(2, estimator.function_from_fit.starting_point)

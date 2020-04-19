@@ -49,7 +49,7 @@ class AbstractMaxStableModel(AbstractModel):
 
         #  Prepare the fit_params (a dictionary containing all additional parameters)
         fit_params = self.cov_mod_param.copy()
-        start_dict = self.params_start_fit
+        start_dict = self.params_sample
         # Remove some parameters that should only be used either in 1D or 2D case, otherwise fitmaxstab crashes
         start_dict = self.remove_unused_parameters(start_dict, fitmaxstab_with_one_dimensional_data)
         if fit_marge:

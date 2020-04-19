@@ -59,11 +59,11 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
         super().__init__(dataset)
         self.max_stable_model = max_stable_model
         self.linear_margin_model = margin_model
-        assert isinstance(self.margin_function_start_fit, LinearMarginFunction)
+        assert isinstance(self.margin_function, LinearMarginFunction)
 
     @property
-    def margin_function_start_fit(self):
-        return self.linear_margin_model.margin_function_start_fit
+    def margin_function(self):
+        return self.linear_margin_model.margin_function
 
     @property
     def df_coordinates_spat(self):
@@ -81,8 +81,8 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
             df_coordinates_spat=self.df_coordinates_spat,
             df_coordinates_temp=self.df_coordinates_temp,
             fit_marge=True,
-            fit_marge_form_dict=self.linear_margin_model.margin_function_start_fit.form_dict,
-            margin_start_dict=self.linear_margin_model.margin_function_start_fit.coef_dict
+            fit_marge_form_dict=self.linear_margin_model.margin_function.form_dict,
+            margin_start_dict=self.linear_margin_model.margin_function.coef_dict
         )
 
     @cached_property
