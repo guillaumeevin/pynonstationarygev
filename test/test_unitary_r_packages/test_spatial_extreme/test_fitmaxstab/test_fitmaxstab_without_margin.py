@@ -21,7 +21,7 @@ class TestMaxStableFitWithoutMargin(TestUnitaryAbstract):
     def python_output(self):
         coordinates, max_stable_model = TestRMaxStab.python_code()
         dataset = MaxStableDataset.from_sampling(nb_obs=40, max_stable_model=max_stable_model, coordinates=coordinates)
-        max_stable_model = Schlather(covariance_function=CovarianceFunction.whitmat, use_start_value=False)
+        max_stable_model = Schlather(covariance_function=CovarianceFunction.whitmat)
         max_stable_estimator = MaxStableEstimator(dataset, max_stable_model)
         max_stable_estimator.fit()
         return max_stable_estimator.max_stable_params_fitted

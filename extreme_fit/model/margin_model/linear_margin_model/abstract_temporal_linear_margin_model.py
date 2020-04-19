@@ -19,14 +19,15 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 class AbstractTemporalLinearMarginModel(LinearMarginModel):
     """Linearity only with respect to the temporal coordinates"""
 
-    def __init__(self, coordinates: AbstractCoordinates, use_start_value=False, params_start_fit=None,
+    def __init__(self, coordinates: AbstractCoordinates,
+                 params_start_fit=None,
                  params_sample=None, starting_point=None,
                  fit_method=MarginFitMethod.is_mev_gev_fit,
                  nb_iterations_for_bayesian_fit=5000,
                  params_start_fit_bayesian=None,
                  type_for_MLE="GEV",
                  params_class=GevParams):
-        super().__init__(coordinates, use_start_value, params_start_fit, params_sample, starting_point,
+        super().__init__(coordinates, params_start_fit, params_sample, starting_point,
                          params_class)
         self.type_for_mle = type_for_MLE
         self.params_start_fit_bayesian = params_start_fit_bayesian

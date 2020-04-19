@@ -70,10 +70,10 @@ class NonStationaryLocationAndScaleTemporalModel(AbstractTemporalLinearMarginMod
 
 class GumbelTemporalModel(StationaryTemporalModel):
 
-    def __init__(self, coordinates: AbstractCoordinates, use_start_value=False, params_start_fit=None,
+    def __init__(self, coordinates: AbstractCoordinates, params_start_fit=None,
                  params_sample=None, starting_point=None, fit_method=MarginFitMethod.is_mev_gev_fit,
                  nb_iterations_for_bayesian_fit=5000, params_start_fit_bayesian=None):
-        super().__init__(coordinates, use_start_value, params_start_fit, params_sample, starting_point, fit_method,
+        super().__init__(coordinates, params_start_fit, params_sample, starting_point, fit_method,
                          nb_iterations_for_bayesian_fit, params_start_fit_bayesian, type_for_MLE="Gumbel")
 
 

@@ -19,10 +19,10 @@ class AbstractMarginModel(AbstractModel, ABC):
         -margin_function_start_fit for starting to fit
     """
 
-    def __init__(self, coordinates: AbstractCoordinates, use_start_value=False,
+    def __init__(self, coordinates: AbstractCoordinates,
                  params_start_fit=None, params_sample=None,
                  params_class=GevParams):
-        super().__init__(use_start_value, params_start_fit, params_sample)
+        super().__init__(params_start_fit, params_sample)
         assert isinstance(coordinates, AbstractCoordinates), type(coordinates)
         self.coordinates = coordinates
         self.margin_function_sample = None  # type: AbstractMarginFunction

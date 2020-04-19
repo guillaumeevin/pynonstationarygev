@@ -80,12 +80,12 @@ class SafeRunException(Exception):
 
 
 def safe_run_r_estimator(function, data=None, start_dict=None, max_ratio_between_two_extremes_values=10, maxit=1000000,
-                         **parameters) -> robjects.ListVector:
+                         nb_tries_for_start_value=5, **parameters) -> robjects.ListVector:
     try:
         return _safe_run_r_estimator(function, data, max_ratio_between_two_extremes_values, maxit, **parameters)
     except SafeRunException as e:
         if start_dict is not None:
-            for _ in range(5):
+            for _ in range(nb_tries_for_start_value):
                 parameters['start'] = r.list(**start_dict)
                 try:
                     return _safe_run_r_estimator(function, data, max_ratio_between_two_extremes_values, maxit, **parameters)
