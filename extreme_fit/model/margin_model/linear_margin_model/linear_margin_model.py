@@ -36,6 +36,10 @@ class LinearMarginModel(ParametricMarginModel):
                 param_name_and_dim_to_coef[(param_name, dim)] = default_slope
         return param_name_and_dim_to_coef
 
+    @property
+    def nb_params(self):
+        return len(self.margin_function.coef_dict)
+
     def param_name_to_linear_coef(self, param_name_and_dim_to_coef):
         param_name_to_linear_coef = {}
         param_names = list(set([e[0] for e in param_name_and_dim_to_coef.keys()]))

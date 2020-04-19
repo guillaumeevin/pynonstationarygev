@@ -47,6 +47,8 @@ class TestGevTemporalExtremesMle(unittest.TestCase):
             for key in ref.keys():
                 self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
             self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh())
+            self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
+            self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
 
     def test_gev_temporal_margin_fit_non_stationary_location(self):
         # Create estimator
@@ -58,6 +60,8 @@ class TestGevTemporalExtremesMle(unittest.TestCase):
         mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([3])).to_dict()
         self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
         self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh())
+        self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
+        self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
 
     def test_gev_temporal_margin_fit_non_stationary_location_and_scale(self):
         # Create estimator
@@ -70,14 +74,8 @@ class TestGevTemporalExtremesMle(unittest.TestCase):
         mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([3])).to_dict()
         self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
         self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh())
-        # self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
-        # self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
-        # print(estimator.result_from_model_fit.summary_name_to_value)
-        # for k, v in estimator.result_from_model_fit.results.items():
-        #     print(k, np.array(v)[0])
-        self.assertAlmostEqual(estimator.result_from_model_fit.aic, 215.59675857481045)
-        self.assertAlmostEqual(estimator.result_from_model_fit.bic, 225.1568736019512)
-
+        self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
+        self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
 
 
 if __name__ == '__main__':

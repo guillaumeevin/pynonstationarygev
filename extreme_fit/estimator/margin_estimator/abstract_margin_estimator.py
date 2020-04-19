@@ -60,3 +60,11 @@ class LinearMarginEstimator(AbstractMarginEstimator):
             nllh -= np.log(p)
             assert not np.isinf(nllh)
         return nllh
+
+    def aic(self, split=Split.all):
+        return 2 * self.margin_model.nb_params + 2 * self.nllh(split=split)
+
+    def bic(self, split=Split.all):
+        n = len(self.dataset.maxima_gev(split=split))
+        return np.log(n) * self.margin_model.nb_params + 2 * self.nllh(split=split)
+
