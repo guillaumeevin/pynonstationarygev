@@ -14,16 +14,16 @@ class LinearMarginModel(ParametricMarginModel):
                 params[(param_name, idx)] = coef
         return cls(coordinates, params_user=params, params_class=params_class, **kwargs)
 
-    def load_margin_functions(self, param_name_to_dims=None):
+    def load_margin_function(self, param_name_to_dims=None):
         assert param_name_to_dims is not None, 'LinearMarginModel cannot be used for sampling/fitting \n' \
-                                                   'load_margin_functions needs to be implemented in child class'
+                                               'load_margin_functions needs to be implemented in child class'
         # Load sample coef
         coef_sample = self.param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_sample)
-        self.margin_function = LinearMarginFunction(coordinates=self.coordinates,
-                                                    param_name_to_coef=coef_sample,
-                                                    param_name_to_dims=param_name_to_dims,
-                                                    starting_point=self.starting_point,
-                                                    params_class=self.params_class)
+        return LinearMarginFunction(coordinates=self.coordinates,
+                                    param_name_to_coef=coef_sample,
+                                    param_name_to_dims=param_name_to_dims,
+                                    starting_point=self.starting_point,
+                                    params_class=self.params_class)
 
     @property
     def default_params(self) -> dict:
@@ -49,75 +49,75 @@ class LinearMarginModel(ParametricMarginModel):
 
 class ConstantMarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, param_name_to_dims=None):
-        super().load_margin_functions({})
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({})
 
 
 class LinearShapeDim0MarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SHAPE: [0]})
+    def load_margin_function(self, margin_function_class: type = None, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SHAPE: [0]})
 
 
 class LinearScaleDim0MarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SCALE: [0]})
+    def load_margin_function(self, margin_function_class: type = None, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SCALE: [0]})
 
 
 class LinearShapeDim0and1MarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SHAPE: [0, 1]})
+    def load_margin_function(self, margin_function_class: type = None, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SHAPE: [0, 1]})
 
 
 class LinearAllParametersDim0MarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SHAPE: [0],
-                                       GevParams.LOC: [0],
-                                       GevParams.SCALE: [0]})
+    def load_margin_function(self, margin_function_class: type = None, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SHAPE: [0],
+                                             GevParams.LOC: [0],
+                                             GevParams.SCALE: [0]})
 
 
 class LinearMarginModelExample(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SHAPE: [0],
-                                       GevParams.LOC: [1],
-                                       GevParams.SCALE: [0]})
+    def load_margin_function(self, margin_function_class: type = None, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SHAPE: [0],
+                                             GevParams.LOC: [1],
+                                             GevParams.SCALE: [0]})
 
 
 class LinearLocationAllDimsMarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.LOC: self.coordinates.coordinates_dims})
+    def load_margin_function(self, margin_function_class: type = None, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: self.coordinates.coordinates_dims})
 
 
 class LinearShapeAllDimsMarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SHAPE: self.coordinates.coordinates_dims})
+    def load_margin_function(self, margin_function_class: type = None, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SHAPE: self.coordinates.coordinates_dims})
 
 
 class LinearAllParametersAllDimsMarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SHAPE: self.coordinates.coordinates_dims,
-                                       GevParams.LOC: self.coordinates.coordinates_dims,
-                                       GevParams.SCALE: self.coordinates.coordinates_dims})
+    def load_margin_function(self, margin_function_class: type = None, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SHAPE: self.coordinates.coordinates_dims,
+                                             GevParams.LOC: self.coordinates.coordinates_dims,
+                                             GevParams.SCALE: self.coordinates.coordinates_dims})
 
 
 class LinearStationaryMarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SHAPE: self.coordinates.spatial_coordinates_dims,
-                                       GevParams.LOC: self.coordinates.spatial_coordinates_dims,
-                                       GevParams.SCALE: self.coordinates.spatial_coordinates_dims})
+    def load_margin_function(self, margin_function_class: type = None, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SHAPE: self.coordinates.spatial_coordinates_dims,
+                                             GevParams.LOC: self.coordinates.spatial_coordinates_dims,
+                                             GevParams.SCALE: self.coordinates.spatial_coordinates_dims})
 
 
 class LinearNonStationaryLocationMarginModel(LinearMarginModel):
 
-    def load_margin_functions(self, margin_function_class: type = None, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SHAPE: self.coordinates.spatial_coordinates_dims,
-                                       GevParams.LOC: self.coordinates.coordinates_dims,
-                                       GevParams.SCALE: self.coordinates.spatial_coordinates_dims})
+    def load_margin_function(self, margin_function_class: type = None, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SHAPE: self.coordinates.spatial_coordinates_dims,
+                                             GevParams.LOC: self.coordinates.coordinates_dims,
+                                             GevParams.SCALE: self.coordinates.spatial_coordinates_dims})

@@ -15,10 +15,10 @@ class SplineMarginModel(ParametricMarginModel):
                  params_user=None):
         super().__init__(coordinates, params_user)
 
-    def load_margin_functions(self, param_name_to_dims: Dict[str, List[int]] = None,
-                              param_name_to_coef: Dict[str, AbstractCoef] = None,
-                              param_name_to_nb_knots: Dict[str, int] = None,
-                              degree=3):
+    def load_margin_function(self, param_name_to_dims: Dict[str, List[int]] = None,
+                             param_name_to_coef: Dict[str, AbstractCoef] = None,
+                             param_name_to_nb_knots: Dict[str, int] = None,
+                             degree=3):
         # Default parameters
         # todo: for the default parameters: take inspiration from the linear_margin_model
         # also implement the class method thing
@@ -36,27 +36,24 @@ class SplineMarginModel(ParametricMarginModel):
         if param_name_to_nb_knots is None:
             param_name_to_nb_knots = {param_name: 2 for param_name in GevParams.PARAM_NAMES}
 
-        # Load sample coef
-        self.margin_function = SplineMarginFunction(coordinates=self.coordinates,
-                                                    param_name_to_dims=param_name_to_dims,
-                                                    param_name_to_coef=param_name_to_coef,
-                                                    param_name_to_nb_knots=param_name_to_nb_knots,
-                                                    degree=degree)
+        return SplineMarginFunction(coordinates=self.coordinates,
+                                    param_name_to_dims=param_name_to_dims,
+                                    param_name_to_coef=param_name_to_coef,
+                                    param_name_to_nb_knots=param_name_to_nb_knots,
+                                    degree=degree)
 
 
 class ConstantSplineMarginModel(SplineMarginModel):
 
-    def load_margin_functions(self, param_name_to_dims: Dict[str, List[int]] = None,
-                              param_name_to_coef: Dict[str, AbstractCoef] = None,
-                              param_name_to_nb_knots: Dict[str, int] = None, degree=3):
-        super().load_margin_functions({}, param_name_to_coef, param_name_to_nb_knots,
-                                      degree)
+    def load_margin_function(self, param_name_to_dims: Dict[str, List[int]] = None,
+                             param_name_to_coef: Dict[str, AbstractCoef] = None,
+                             param_name_to_nb_knots: Dict[str, int] = None, degree=3):
+        return super().load_margin_function({}, param_name_to_coef, param_name_to_nb_knots, degree)
 
 
 class Degree1SplineMarginModel(SplineMarginModel):
 
-    def load_margin_functions(self, param_name_to_dims: Dict[str, List[int]] = None,
-                              param_name_to_coef: Dict[str, AbstractCoef] = None,
-                              param_name_to_nb_knots: Dict[str, int] = None, degree=3):
-        super().load_margin_functions(param_name_to_dims, param_name_to_coef, param_name_to_nb_knots,
-                                      degree=1)
+    def load_margin_function(self, param_name_to_dims: Dict[str, List[int]] = None,
+                             param_name_to_coef: Dict[str, AbstractCoef] = None,
+                             param_name_to_nb_knots: Dict[str, int] = None, degree=3):
+        return super().load_margin_function(param_name_to_dims, param_name_to_coef, param_name_to_nb_knots, degree=1)

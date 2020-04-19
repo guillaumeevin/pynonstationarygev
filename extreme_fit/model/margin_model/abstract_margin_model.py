@@ -2,6 +2,7 @@ from abc import ABC
 
 import numpy as np
 import pandas as pd
+from cached_property import cached_property
 
 from extreme_fit.model.abstract_model import AbstractModel
 from extreme_fit.function.margin_function.abstract_margin_function \
@@ -18,23 +19,20 @@ class AbstractMarginModel(AbstractModel, ABC):
         -margin_function
     """
 
-    def __init__(self, coordinates: AbstractCoordinates, params_user=None,
-                 params_class=GevParams):
+    def __init__(self, coordinates: AbstractCoordinates, params_user=None, params_class=GevParams):
         super().__init__(params_user)
         assert isinstance(coordinates, AbstractCoordinates), type(coordinates)
         self.coordinates = coordinates
-        self.margin_function = None  # type: AbstractMarginFunction
-        self.margin_function = None  # type: AbstractMarginFunction
         self.params_class = params_class
-        self.load_margin_functions()
 
-    def load_margin_functions(self):
+    @cached_property
+    def margin_function(self) -> AbstractMarginFunction:
+        margin_function = self.load_margin_function()
+        assert margin_function is not None
+        return margin_function
+
+    def load_margin_function(self):
         raise NotImplementedError
-
-    def default_load_margin_functions(self, margin_function_class):
-        # todo: check it i could remove these attributes
-        self.margin_function = margin_function_class(coordinates=self.coordinates,
-                                                     default_params=self.params_class.from_dict(self.params_sample))
 
     # Conversion class methods
 

@@ -2,8 +2,10 @@ from abc import ABC
 
 import numpy as np
 import pandas as pd
+from cached_property import cached_property
 
 from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.function.margin_function.abstract_margin_function import AbstractMarginFunction
 from extreme_fit.function.margin_function.parametric_margin_function import \
     ParametricMarginFunction
 from extreme_fit.model.margin_model.abstract_margin_model import AbstractMarginModel
@@ -22,11 +24,16 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         """
         :param starting_point: starting coordinate for the temporal trend
         """
+        super().__init__(coordinates, params_user, params_class)
         self.fit_method = fit_method
         self.starting_point = starting_point
-        self.margin_function = None  # type: ParametricMarginFunction
         self.drop_duplicates = True
-        super().__init__(coordinates, params_user, params_class)
+
+    @cached_property
+    def margin_function(self) -> ParametricMarginFunction:
+        margin_function = super().margin_function
+        assert isinstance(margin_function, ParametricMarginFunction)
+        return margin_function
 
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
                                   df_coordinates_temp: pd.DataFrame) -> ResultFromSpatialExtreme:

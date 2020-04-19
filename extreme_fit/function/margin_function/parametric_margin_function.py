@@ -91,3 +91,7 @@ class ParametricMarginFunction(IndependentMarginFunction):
     @property
     def form_dict(self) -> Dict[str, str]:
         raise NotImplementedError
+
+    @property
+    def coef_dict(self) -> Dict[str, str]:
+        raise NotImplementedError

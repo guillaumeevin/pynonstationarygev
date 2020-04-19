@@ -9,14 +9,14 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 class StationaryTemporalModel(AbstractTemporalLinearMarginModel):
 
-    def load_margin_functions(self, param_name_to_dims=None):
-        super().load_margin_functions({})
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({})
 
 
 class NonStationaryLocationTemporalModel(AbstractTemporalLinearMarginModel):
 
-    def load_margin_functions(self, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.LOC: [self.coordinates.idx_temporal_coordinates]})
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: [self.coordinates.idx_temporal_coordinates]})
 
     @property
     def mul(self):
@@ -25,8 +25,8 @@ class NonStationaryLocationTemporalModel(AbstractTemporalLinearMarginModel):
 
 class NonStationaryScaleTemporalModel(AbstractTemporalLinearMarginModel):
 
-    def load_margin_functions(self, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
 
     @property
     def sigl(self):
@@ -35,8 +35,8 @@ class NonStationaryScaleTemporalModel(AbstractTemporalLinearMarginModel):
 
 class NonStationaryLogScaleTemporalModel(NonStationaryScaleTemporalModel):
 
-    def load_margin_functions(self, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
 
     @property
     def siglink(self):
@@ -45,8 +45,8 @@ class NonStationaryLogScaleTemporalModel(NonStationaryScaleTemporalModel):
 
 class NonStationaryShapeTemporalModel(AbstractTemporalLinearMarginModel):
 
-    def load_margin_functions(self, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.SHAPE: [self.coordinates.idx_temporal_coordinates]})
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SHAPE: [self.coordinates.idx_temporal_coordinates]})
 
     @property
     def shl(self):
@@ -55,9 +55,9 @@ class NonStationaryShapeTemporalModel(AbstractTemporalLinearMarginModel):
 
 class NonStationaryLocationAndScaleTemporalModel(AbstractTemporalLinearMarginModel):
 
-    def load_margin_functions(self, param_name_to_dims=None):
-        super().load_margin_functions({GevParams.LOC: [self.coordinates.idx_temporal_coordinates],
-                                       GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: [self.coordinates.idx_temporal_coordinates],
+                                      GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
 
     @property
     def mul(self):
