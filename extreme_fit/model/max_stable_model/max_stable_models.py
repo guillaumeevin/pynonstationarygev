@@ -9,7 +9,10 @@ class Smith(AbstractMaxStableModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cov_mod = 'gauss'
-        self.default_params = {
+
+    @property
+    def default_params(self):
+        return {
             'var': 1,
             'cov11': 1,
             'cov12': 0,
@@ -29,7 +32,10 @@ class BrownResnick(AbstractMaxStableModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cov_mod = 'brown'
-        self.default_params = {
+
+    @property
+    def default_params(self):
+        return {
             'range': 3,
             'smooth': 0.5,
         }
@@ -40,7 +46,6 @@ class Schlather(AbstractMaxStableModelWithCovarianceFunction):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cov_mod = self.covariance_function.name
-        self.default_params.update({})
 
 
 class Geometric(AbstractMaxStableModelWithCovarianceFunction):
@@ -48,7 +53,12 @@ class Geometric(AbstractMaxStableModelWithCovarianceFunction):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cov_mod = 'g' + self.covariance_function.name
-        self.default_params.update({'sigma2': 0.5})
+
+    @property
+    def default_params(self):
+        d = super().default_params
+        d.update({'sigma2': 0.5})
+        return d
 
 
 class ExtremalT(AbstractMaxStableModelWithCovarianceFunction):
@@ -56,7 +66,12 @@ class ExtremalT(AbstractMaxStableModelWithCovarianceFunction):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cov_mod = 't' + self.covariance_function.name
-        self.default_params.update({'DoF': 2})
+
+    @property
+    def default_params(self):
+        d = super().default_params
+        d.update({'DoF': 2})
+        return d
 
 
 class ISchlather(AbstractMaxStableModelWithCovarianceFunction):
@@ -64,4 +79,9 @@ class ISchlather(AbstractMaxStableModelWithCovarianceFunction):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cov_mod = 'i' + self.covariance_function.name
-        self.default_params.update({'alpha': 0.5})
+
+    @property
+    def default_params(self):
+        d = super().default_params
+        d.update({'alpha': 0.5})
+        return d

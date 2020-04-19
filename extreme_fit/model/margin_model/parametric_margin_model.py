@@ -17,7 +17,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 class ParametricMarginModel(AbstractMarginModel, ABC):
 
     def __init__(self, coordinates: AbstractCoordinates,
-                 params_sample=None, starting_point=None, params_class=GevParams,
+                 params_user=None, starting_point=None, params_class=GevParams,
                  fit_method=MarginFitMethod.spatial_extremes_mle):
         """
         :param starting_point: starting coordinate for the temporal trend
@@ -26,7 +26,7 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         self.starting_point = starting_point
         self.margin_function = None  # type: ParametricMarginFunction
         self.drop_duplicates = True
-        super().__init__(coordinates, params_sample, params_class)
+        super().__init__(coordinates, params_user, params_class)
 
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
                                   df_coordinates_temp: pd.DataFrame) -> ResultFromSpatialExtreme:

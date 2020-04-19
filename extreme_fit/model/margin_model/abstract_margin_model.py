@@ -18,9 +18,9 @@ class AbstractMarginModel(AbstractModel, ABC):
         -margin_function
     """
 
-    def __init__(self, coordinates: AbstractCoordinates, params_sample=None,
+    def __init__(self, coordinates: AbstractCoordinates, params_user=None,
                  params_class=GevParams):
-        super().__init__(params_sample)
+        super().__init__(params_user)
         assert isinstance(coordinates, AbstractCoordinates), type(coordinates)
         self.coordinates = coordinates
         self.margin_function = None  # type: AbstractMarginFunction

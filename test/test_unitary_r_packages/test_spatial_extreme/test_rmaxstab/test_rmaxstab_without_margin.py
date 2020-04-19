@@ -26,7 +26,7 @@ class TestRMaxStab(TestUnitaryAbstract):
         coordinates = AbstractSpatialCoordinates.from_df(df)
         # Load max stable model
         params_sample = {'range': 3, 'smooth': 0.5, 'nugget': 0}
-        max_stable_model = Schlather(covariance_function=CovarianceFunction.whitmat, params_sample=params_sample)
+        max_stable_model = Schlather(covariance_function=CovarianceFunction.whitmat, params_user=params_sample)
         return coordinates, max_stable_model
 
     @property

@@ -12,15 +12,11 @@ class LinearMarginModel(ParametricMarginModel):
         for param_name, coef_list in param_name_to_coef_list.items():
             for idx, coef in enumerate(coef_list, -1):
                 params[(param_name, idx)] = coef
-        return cls(coordinates, params_sample=params, params_class=params_class, **kwargs)
+        return cls(coordinates, params_user=params, params_class=params_class, **kwargs)
 
     def load_margin_functions(self, param_name_to_dims=None):
         assert param_name_to_dims is not None, 'LinearMarginModel cannot be used for sampling/fitting \n' \
                                                    'load_margin_functions needs to be implemented in child class'
-        # Load default params (with a dictionary format to enable quick replacement)
-        # IMPORTANT: Using a dictionary format enable using the default/user params methodology
-        self.default_params = self.default_param_name_and_dim_to_coef
-
         # Load sample coef
         coef_sample = self.param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_sample)
         self.margin_function = LinearMarginFunction(coordinates=self.coordinates,
@@ -30,7 +26,7 @@ class LinearMarginModel(ParametricMarginModel):
                                                     params_class=self.params_class)
 
     @property
-    def default_param_name_and_dim_to_coef(self) -> dict:
+    def default_params(self) -> dict:
         default_intercept = 1
         default_slope = 0.01
         param_name_and_dim_to_coef = {}

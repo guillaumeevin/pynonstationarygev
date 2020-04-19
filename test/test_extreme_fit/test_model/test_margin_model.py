@@ -19,7 +19,7 @@ class TestVisualizationLinearMarginModel(unittest.TestCase):
 
     def test_example_visualization_1D(self):
         coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=self.nb_points)
-        self.margin_model = self.margin_model_class(coordinates=coordinates, params_sample={(GevParams.SHAPE, 0): 0.02})
+        self.margin_model = self.margin_model_class(coordinates=coordinates, params_user={(GevParams.SHAPE, 0): 0.02})
 
     def test_example_visualization_2D_spatial(self):
         spatial_coordinates = LinSpaceSpatial2DCoordinates.from_nb_points(nb_points=self.nb_points)
@@ -42,7 +42,7 @@ class TestVisualizationSplineMarginModel(unittest.TestCase):
 
     def test_example_visualization_1D_spline(self):
         coordinates = LinSpaceSpatialCoordinates.from_nb_points(nb_points=self.nb_points, start=0.0)
-        self.margin_model = self.margin_model_class(coordinates=coordinates, params_sample={(GevParams.SHAPE, 1): 0.02})
+        self.margin_model = self.margin_model_class(coordinates=coordinates, params_user={(GevParams.SHAPE, 1): 0.02})
 
     def test_example_visualization_2D_spatial_spline(self):
         spatial_coordinates = LinSpaceSpatial2DCoordinates.from_nb_points(nb_points=self.nb_points)

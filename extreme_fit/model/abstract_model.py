@@ -1,8 +1,11 @@
 class AbstractModel(object):
 
-    def __init__(self, params_sample=None):
-        self.default_params = None
-        self.user_params_sample = params_sample
+    def __init__(self, params_user=None):
+        self.user_params_sample = params_user
+
+    @property
+    def default_params(self):
+        return None
 
     @property
     def params_sample(self) -> dict:

@@ -14,8 +14,8 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 class AbstractMaxStableModel(AbstractModel):
 
-    def __init__(self, params_sample=None):
-        super().__init__(params_sample)
+    def __init__(self, params_user=None):
+        super().__init__(params_user)
         self.cov_mod = None
 
     @property
@@ -105,12 +105,15 @@ class CovarianceFunction(Enum):
 
 class AbstractMaxStableModelWithCovarianceFunction(AbstractMaxStableModel):
 
-    def __init__(self, params_sample=None,
+    def __init__(self, params_user=None,
                  covariance_function: CovarianceFunction = None):
-        super().__init__(params_sample)
+        super().__init__(params_user)
         assert covariance_function is not None
         self.covariance_function = covariance_function
-        self.default_params = {
+
+    @property
+    def default_params(self):
+        return {
             'range': 3,
             'smooth': 0.5,
             'nugget': 0.5

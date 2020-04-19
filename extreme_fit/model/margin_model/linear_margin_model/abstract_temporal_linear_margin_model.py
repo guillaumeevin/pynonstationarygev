@@ -20,13 +20,13 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
     """Linearity only with respect to the temporal coordinates"""
 
     def __init__(self, coordinates: AbstractCoordinates,
-                 params_sample=None, starting_point=None,
+                 params_user=None, starting_point=None,
                  fit_method=MarginFitMethod.is_mev_gev_fit,
                  nb_iterations_for_bayesian_fit=5000,
                  params_initial_fit_bayesian=None,
                  type_for_MLE="GEV",
                  params_class=GevParams):
-        super().__init__(coordinates, params_sample, starting_point,
+        super().__init__(coordinates, params_user, starting_point,
                          params_class)
         self.type_for_mle = type_for_MLE
         self.params_initial_fit_bayesian = params_initial_fit_bayesian
