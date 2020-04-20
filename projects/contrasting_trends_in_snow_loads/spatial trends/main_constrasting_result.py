@@ -70,8 +70,7 @@ def major_result():
     altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:]
     # altitudes = [1200, 1500, 1800, 2100, 2400, 2700][:]
     snow_load_classes = [CrocusSnowLoad1Day, CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][:]
-    precipitation_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days,
-                             SafranPrecipitation7Days][:]
+    precipitation_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days, SafranPrecipitation7Days][:]
     snowfall_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days]
     rainfall_classes = [SafranRainfall1Day, SafranRainfall3Days, SafranRainfall5Days, SafranRainfall7Days]
     study_classes = precipitation_classes + snow_load_classes

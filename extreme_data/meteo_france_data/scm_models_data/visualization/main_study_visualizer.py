@@ -9,7 +9,9 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusD
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusDensityVariable
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranRainfall, \
-    SafranTemperature, SafranPrecipitation, SafranSnowfall1Day
+    SafranTemperature, SafranPrecipitation, SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, \
+    SafranSnowfall7Days, SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days, \
+    SafranPrecipitation7Days
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 from projects.exceeding_snow_loads.section_discussion.crocus_study_comparison_with_eurocode import \
@@ -30,6 +32,13 @@ SCM_STUDY_NAME_TO_SCM_STUDY = dict(zip(SCM_STUDIES_NAMES, SCM_STUDIES))
 SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
     SafranSnowfall1Day: 'SF1',
+    SafranSnowfall3Days: 'SF3',
+    SafranSnowfall5Days: 'SF5',
+    SafranSnowfall7Days: 'SF7',
+    SafranPrecipitation1Day: 'PR1',
+    SafranPrecipitation3Days: 'PR3',
+    SafranPrecipitation5Days: 'PR5',
+    SafranPrecipitation7Days: 'PR7',
     CrocusSweTotal: 'SWE',
     CrocusSwe3Days: 'SWE3',
     CrocusSnowLoadEurocode: 'GSL from annual maximum of HS \nand {}'.format(eurocode_snow_density),

@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from collections import OrderedDict
 
 from cached_property import cached_property
@@ -17,6 +18,7 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 
 
 class AltitudesStudies(object):
@@ -91,13 +93,16 @@ class AltitudesStudies(object):
         study_visualizer.plot_name = plot_name
         study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500)
 
-    def plot_maxima_time_series(self, massif_names=None, show=False):
+    def run_for_each_massif(self, function, massif_names, **kwargs):
         massif_names = massif_names if massif_names is not None else self.study.all_massif_names()
         assert isinstance(massif_names, list)
-        for massif_name in massif_names:
-            self._plot_maxima_time_series(massif_name, show=show)
+        for i, massif_name in enumerate(massif_names):
+            function(massif_name, massif_id=i, **kwargs)
 
-    def _plot_maxima_time_series(self, massif_name, show=False):
+    def plot_maxima_time_series(self, massif_names=None, show=False):
+        self.run_for_each_massif(self._plot_maxima_time_series, massif_names, show=show)
+
+    def _plot_maxima_time_series(self, massif_name, massif_id, show=False):
         ax = plt.gca()
         x = self.study.ordered_years
         for altitude, study in list(self.altitude_to_study.items())[::-1]:
@@ -113,3 +118,55 @@ class AltitudesStudies(object):
         ax.set_xlabel('years', fontsize=15)
         self.show_or_save_to_file(plot_name=plot_name, show=show)
         ax.clear()
+
+    def plot_mean_maxima_against_altitude(self, massif_names=None, show=False, std=False, change=False):
+        ax = plt.gca()
+        self.run_for_each_massif(self._plot_mean_maxima_against_altitude, massif_names, ax=ax, std=std, change=change)
+        ax.legend(prop={'size': 7}, ncol=3)
+        moment = 'Mean' if not std else 'Std'
+        if change is None:
+            moment += ' relative change for'
+        elif change:
+            moment += ' change for'
+        plot_name = '{} annual maxima of {}'.format(moment, SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class])
+        ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
+        ax.set_xlabel('altitudes', fontsize=15)
+        lim_down, lim_up = ax.get_ylim()
+        lim_up += (lim_up - lim_down) / 3
+        ax.set_ylim([lim_down, lim_up])
+        ax.tick_params(axis='both', which='major', labelsize=13)
+        self.show_or_save_to_file(plot_name=plot_name, show=show)
+        ax.clear()
+
+    def _plot_mean_maxima_against_altitude(self, massif_name, massif_id, ax=None, std=False, change=False):
+        assert ax is not None
+        altitudes = []
+        mean_moment = []
+        for altitude, study in self.altitude_to_study.items():
+            if massif_name in study.massif_name_to_annual_maxima:
+                annual_maxima = study.massif_name_to_annual_maxima[massif_name]
+                function = np.std if std else np.mean
+                if change in [True, None]:
+                    after = function(annual_maxima[31:])
+                    before = function(annual_maxima[:31])
+                    moment = after - before
+                    if change is None:
+                        moment /= before
+                else:
+                    moment = function(annual_maxima)
+                mean_moment.append(moment)
+                altitudes.append(altitude)
+        self.plot_against_altitude(altitudes, ax, massif_id, massif_name, mean_moment)
+
+    def plot_against_altitude(self, altitudes, ax, massif_id, massif_name, mean_moment):
+        di = massif_id // 8
+        if di == 0:
+            linestyle = '-'
+        elif di == 1:
+            linestyle = 'dotted'
+        else:
+            linestyle = '--'
+        colors = list(mcolors.TABLEAU_COLORS)
+        colors[-3:-1] = []  # remove gray and olive
+        color = colors[massif_id % 8]
+        ax.plot(altitudes, mean_moment, color=color, linewidth=2, label=massif_name, linestyle=linestyle)
