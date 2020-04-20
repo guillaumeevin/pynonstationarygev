@@ -89,7 +89,7 @@ class AltitudesStudies(object):
     def show_or_save_to_file(self, plot_name, show=False):
         study_visualizer = StudyVisualizer(study=self.study, show=show, save_to_file=not show)
         study_visualizer.plot_name = plot_name
-        study_visualizer.show_or_save_to_file(add_classic_title=False)
+        study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500)
 
     def plot_maxima_time_series(self, massif_names=None, show=False):
         massif_names = massif_names if massif_names is not None else self.study.all_massif_names()
@@ -99,16 +99,16 @@ class AltitudesStudies(object):
 
     def _plot_maxima_time_series(self, massif_name, show=False):
         ax = plt.gca()
-        linewidth = 5
         x = self.study.ordered_years
-        for altitude, study in self.altitude_to_study.items():
-            y = study.massif_name_to_annual_maxima[massif_name]
-            label = '{} m'.format(altitude)
-            ax.plot(x, y, linewidth=linewidth, label=label)
+        for altitude, study in list(self.altitude_to_study.items())[::-1]:
+            if massif_name in study.massif_name_to_annual_maxima:
+                y = study.massif_name_to_annual_maxima[massif_name]
+                label = '{} m'.format(altitude)
+                ax.plot(x, y, linewidth=2, label=label)
         ax.xaxis.set_ticks(x[1::10])
         ax.tick_params(axis='both', which='major', labelsize=13)
         ax.legend()
-        plot_name = 'Annual maxima of {} in {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class], massif_name)
+        plot_name = 'Annual maxima of {}\nin {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class], massif_name)
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('years', fontsize=15)
         self.show_or_save_to_file(plot_name=plot_name, show=show)
