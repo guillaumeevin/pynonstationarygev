@@ -17,6 +17,12 @@ class TestAltitudesStudies(unittest.TestCase):
         self.studies = AltitudesStudies(study_class, altitudes, year_min=1959, year_max=1962)
 
 
+class TestVisualization(TestAltitudesStudies):
+
+    def test_plot_maxima_time_series(self):
+        self.studies.plot_maxima_time_series(massif_names=['Vercors'], show=False)
+
+
 class TestSpatioTemporalCoordinates(TestAltitudesStudies):
 
     def test_temporal_split(self):
