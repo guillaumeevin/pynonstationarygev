@@ -252,6 +252,14 @@ class AbstractStudy(object):
         return year_to_annual_maxima
 
     @cached_property
+    def year_to_annual_maxima_tuple_indices_for_daily_time_series(self):
+        year_to_annual_maxima_indices_for_daily_time_series = OrderedDict()
+        for year in self.ordered_years:
+            l = [(idx, i) for i, idx in enumerate(self.year_to_annual_maxima_index[year])]
+            year_to_annual_maxima_indices_for_daily_time_series[year] = l
+        return year_to_annual_maxima_indices_for_daily_time_series
+
+    @cached_property
     def massif_name_to_annual_maxima_ordered_index(self):
         massif_name_to_annual_maxima_ordered_index = OrderedDict()
         for i, (massif_name, years) in enumerate(self.massif_name_to_annual_maxima_ordered_years.items()):
