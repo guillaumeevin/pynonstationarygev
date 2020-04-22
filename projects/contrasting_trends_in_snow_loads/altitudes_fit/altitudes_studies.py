@@ -113,7 +113,7 @@ class AltitudesStudies(object):
         ax.xaxis.set_ticks(x[1::10])
         ax.tick_params(axis='both', which='major', labelsize=13)
         ax.legend()
-        plot_name = 'Annual maxima of {}\nin {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class], massif_name)
+        plot_name = 'Annual maxima of {} in {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class], massif_name)
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('years', fontsize=15)
         self.show_or_save_to_file(plot_name=plot_name, show=show)
@@ -152,6 +152,7 @@ class AltitudesStudies(object):
                     moment = after - before
                     if change is None:
                         moment /= before
+                        moment *= 100
                 else:
                     moment = function(annual_maxima)
                 mean_moment.append(moment)

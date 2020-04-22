@@ -650,6 +650,10 @@ class AbstractStudy(object):
 
     """  Spatial properties """
 
+    @cached_property
+    def massif_name_to_massif_id(self):
+        return {name: i for i, name in enumerate(self.study_massif_names)}
+
     @classproperty
     def original_safran_massif_id_to_massif_name(cls) -> Dict[int, str]:
         return {massif_id: massif_name for massif_id, massif_name in enumerate(cls.all_massif_names)}
