@@ -2,7 +2,7 @@ import matplotlib as mpl
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
-from extreme_data.meteo_france_data.scm_models_data.utils import SeasonForTheMaxima, season_to_str
+from extreme_data.meteo_france_data.scm_models_data.utils import Season, season_to_str
 
 from collections import OrderedDict
 
@@ -16,7 +16,7 @@ from projects.contrasting_trends_in_snow_loads.gorman_figures.daily_snowfall_fra
 
 
 def distribution_temperature_of_maxima_of_snowfall(altitudes, temperature_at_maxima=True):
-    season = SeasonForTheMaxima.annual if temperature_at_maxima else SeasonForTheMaxima.winter_extended
+    season = Season.annual if temperature_at_maxima else Season.winter_extended
     # Load the temperature corresponding to the maxima of snowfall
     altitude_to_maxima_temperature = OrderedDict()
     altitude_to_optimal_temperature = OrderedDict()

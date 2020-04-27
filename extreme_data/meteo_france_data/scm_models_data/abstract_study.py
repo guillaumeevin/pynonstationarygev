@@ -23,7 +23,7 @@ from extreme_data.edf_data.weather_types import load_df_weather_types
 from extreme_data.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
 from extreme_data.meteo_france_data.scm_models_data.utils import ALTITUDES, ZS_INT_23, ZS_INT_MASK, LONGITUDES, \
     LATITUDES, ORIENTATIONS, SLOPES, ORDERED_ALLSLOPES_ALTITUDES, ORDERED_ALLSLOPES_ORIENTATIONS, \
-    ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM, date_to_str, WP_PATTERN_MAX_YEAR, SeasonForTheMaxima, \
+    ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM, date_to_str, WP_PATTERN_MAX_YEAR, Season, \
     first_day_and_last_day, FrenchRegion, ZS_INT_MASK_PYRENNES, alps_massif_order, ZS_INT_MASK_PYRENNES_LIST
 from extreme_data.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
 from extreme_fit.function.margin_function.abstract_margin_function import \
@@ -65,9 +65,10 @@ class AbstractStudy(object):
 
     # REANALYSIS_FOLDER = 'SAFRAN_montagne-CROCUS_2019/postes/reanalysis'
 
-    def __init__(self, variable_class: type, altitude: int = 1800, year_min=YEAR_MIN, year_max=YEAR_MAX,
+    def __init__(self, variable_class: type, altitude: int = 1800,
+                 year_min=YEAR_MIN, year_max=YEAR_MAX,
                  multiprocessing=True, orientation=None, slope=20.0,
-                 season=SeasonForTheMaxima.annual,
+                 season=Season.annual,
                  french_region=FrenchRegion.alps,
                  split_years=None):
         assert isinstance(altitude, int), type(altitude)

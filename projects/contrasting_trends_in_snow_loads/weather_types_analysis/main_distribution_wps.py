@@ -5,7 +5,7 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_extended_study impo
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad3Days, CrocusSnowLoad1Day
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranPrecipitation1Day, \
     SafranPrecipitation3Days
-from extreme_data.meteo_france_data.scm_models_data.utils import SeasonForTheMaxima
+from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 
 def main_spatial_distribution_wps(study_class, year_min=1959, year_max=2008, limit_for_the_percentage=None):

@@ -9,7 +9,7 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusS
 from extreme_data.meteo_france_data.scm_models_data.safran.cumulated_study import NB_DAYS
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, SafranTemperature, \
     SafranPrecipitation, SafranSnowfall3Days, SafranRainfall3Days, SafranNormalizedPreciptationRateOnWetDays
-from extreme_data.meteo_france_data.scm_models_data.utils import SeasonForTheMaxima
+from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     study_iterator_global, SCM_STUDIES, ALL_ALTITUDES, SCM_STUDY_CLASS_TO_ABBREVIATION
 from root_utils import get_display_name_from_object_type
@@ -26,7 +26,7 @@ class TestSCMAllStudy(unittest.TestCase):
 
     def test_year_to_winter_date(self):
         year = 2019
-        study = SafranSnowfall(altitude=900, year_min=year, year_max=year, season=SeasonForTheMaxima.winter_extended)
+        study = SafranSnowfall(altitude=900, year_min=year, year_max=year, season=Season.winter_extended)
         first_day, *_, last_day = study.year_to_days[year]
         self.assertEqual('{}-11-01'.format(year - 1), first_day)
         self.assertEqual('{}-05-31'.format(year), last_day)

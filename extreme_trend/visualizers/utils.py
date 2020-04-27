@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from extreme_data.meteo_france_data.scm_models_data.utils import SeasonForTheMaxima
+from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import \
@@ -12,7 +12,7 @@ def load_altitude_to_visualizer(altitudes, massif_names, model_subsets_for_uncer
                                 study_visualizer_class=StudyVisualizerForNonStationaryTrends,
                                 save_to_file=True,
                                 multiprocessing=True,
-                                season=SeasonForTheMaxima.annual):
+                                season=Season.annual):
     fit_method = MarginFitMethod.extremes_fevd_mle
     altitude_to_visualizer = OrderedDict()
     for altitude in altitudes:

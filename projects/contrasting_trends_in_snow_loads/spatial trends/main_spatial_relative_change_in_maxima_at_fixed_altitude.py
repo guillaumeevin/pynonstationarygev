@@ -6,7 +6,7 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranS
     SafranNormalizedPreciptationRateOnWetDays, SafranNormalizedPreciptationRate
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import \
     SafranNormalizedPrecipitationRateOnWetDaysVariable
-from extreme_data.meteo_france_data.scm_models_data.utils import SeasonForTheMaxima
+from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 import matplotlib.pyplot as plt
@@ -24,7 +24,7 @@ def relative_change_in_maxima_wrt_altitude():
     for altitude in altitudes:
 
         ax = plt.gca()
-        study = study_class(altitude=altitude, season=SeasonForTheMaxima.winter_extended)
+        study = study_class(altitude=altitude, season=Season.winter_extended)
         # study = study_class(altitude=altitude, nb_consecutive_days=3)
         massif_name_to_value = {}
         for massif_name in study.study_massif_names:

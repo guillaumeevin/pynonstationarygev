@@ -90,6 +90,24 @@ class CrocusDepthVariable(CrocusVariable):
         return "DSN_T_ISBA"
 
 
+class CrocusDepthIn3DaysVariable(CrocusVariable):
+    NAME = 'Snow Depth in 3 days'
+    UNIT = 'm'
+
+    @classmethod
+    def keyword(cls):
+        return "SD_3DY_ISBA"
+
+
+class CrocusDepthWetVariable(CrocusVariable):
+    NAME = 'Wet Snow Depth'
+    UNIT = 'm'
+
+    @classmethod
+    def keyword(cls):
+        return "WET_TH_ISBA"
+
+
 class CrocusDensityVariable(CrocusVariable):
     NAME = 'Snow Density'
     # UNIT = '$\\textnormal{kg m}^{-3}$'

@@ -7,22 +7,28 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_study import Abstra
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusTotalSweVariable, \
     CrocusDepthVariable, CrocusRecentSweVariableThreeDays, TotalSnowLoadVariable, RecentSnowLoadVariableThreeDays, \
     CrocusSnowLoadEurocodeVariable, CrocusDensityVariable, RecentSnowLoadVariableFiveDays, \
-    RecentSnowLoadVariableSevenDays, RecentSnowLoadVariableOneDay
+    RecentSnowLoadVariableSevenDays, RecentSnowLoadVariableOneDay, CrocusVariable, CrocusDepthIn3DaysVariable, \
+    CrocusDepthWetVariable
 
 
 class Crocus(AbstractStudy):
     """
     In the Crocus data, there is no 'massifsList' variable, thus we assume massifs are ordered just like Safran data
     """
+    CROCUS_VARIABLES = [CrocusTotalSweVariable, CrocusDepthVariable, CrocusRecentSweVariableThreeDays,
+                        RecentSnowLoadVariableThreeDays, TotalSnowLoadVariable,
+                        CrocusSnowLoadEurocodeVariable,
+                        CrocusDensityVariable,
+                        RecentSnowLoadVariableOneDay,
+                        RecentSnowLoadVariableFiveDays,
+                        RecentSnowLoadVariableSevenDays,
+                        CrocusDepthWetVariable,
+                        CrocusDepthIn3DaysVariable
+                        ]
 
     def __init__(self, variable_class, *args, **kwargs):
-        assert variable_class in [CrocusTotalSweVariable, CrocusDepthVariable, CrocusRecentSweVariableThreeDays,
-                                  RecentSnowLoadVariableThreeDays, TotalSnowLoadVariable,
-                                  CrocusSnowLoadEurocodeVariable,
-                                  CrocusDensityVariable,
-                                  RecentSnowLoadVariableOneDay,
-                                  RecentSnowLoadVariableFiveDays,
-                                  RecentSnowLoadVariableSevenDays]
+        assert issubclass(variable_class, CrocusVariable)
+        assert variable_class in self.CROCUS_VARIABLES
         super().__init__(variable_class, *args, **kwargs)
         self.model_name = 'Crocus'
 
@@ -84,6 +90,18 @@ class CrocusSnowLoad7Days(CrocusSweTotal):
 
 class ExtendedCrocusSweTotal(AbstractExtendedStudy, CrocusSweTotal):
     pass
+
+
+class CrocusDepthIn3Days(Crocus):
+
+    def __init__(self, *args, **kwargs):
+        Crocus.__init__(self, CrocusDepthIn3DaysVariable, *args, **kwargs)
+
+
+class CrocusDepthWet(Crocus):
+
+    def __init__(self, *args, **kwargs):
+        Crocus.__init__(self, CrocusDepthWetVariable, *args, **kwargs)
 
 
 class CrocusDepth(Crocus):
