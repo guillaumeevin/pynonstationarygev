@@ -126,7 +126,7 @@ class SafranNormalizedPrecipitationRateOnWetDaysVariable(SafranNormalizedPrecipi
 
 class SafranTemperatureVariable(AbstractVariable):
     NAME = 'Temperature'
-    UNIT = 'Celsius Degrees'
+    UNIT = '$^oC$'
 
     @classmethod
     def keyword(cls):

@@ -8,9 +8,10 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranR
 Altitudes_groups = [[300, 600, 900], [1200, 1500, 1800], [2100, 2400, 2700], [3000, 3300, 3600]]
 
 
-def compute_smoother_snowfall_fraction(altitudes, year_min, year_max, lim, massif_names=None):
-    all_time_series = np.concatenate(
-        [get_time_series(altitude, year_min, year_max, massif_names) for altitude in altitudes], axis=1)
+def compute_smoother_snowfall_fraction(altitudes, year_min, year_max, lim, massif_names=None, all_time_series=None):
+    if all_time_series is None:
+        all_time_series = np.concatenate(
+            [get_time_series(altitude, year_min, year_max, massif_names) for altitude in altitudes], axis=1)
     temperature_array, snowfall_array, rainfall_array = all_time_series
     # nb_bins_for_one_celsius = 4
     nb_bins_for_one_celsius = 4
@@ -25,10 +26,14 @@ def compute_smoother_snowfall_fraction(altitudes, year_min, year_max, lim, massi
     return np.array(snowfall_fractions), center_bins
 
 
-def daily_snowfall_fraction(ax, altitudes, year_min=1959, year_max=2019, massif_names=None, sigma=1.0):
+def compute_daily_snowfall_fraction(ax=None, altitudes=None, year_min=1959, year_max=2019, massif_names=None, sigma=1.0, plot=True, all_time_series=None):
+    if plot:
+        assert ax is not None
+        assert altitudes is not None
+
     lim = 6
     snowfall_fractions, center_bins = compute_smoother_snowfall_fraction(altitudes, year_min, year_max, lim=lim,
-                                                                         massif_names=massif_names)
+                                                                         massif_names=massif_names, all_time_series=all_time_series)
 
     # Smooth the data afterwards
     snowfall_fractions = 100 * gaussian_filter1d(snowfall_fractions, sigma=sigma)
@@ -39,15 +44,17 @@ def daily_snowfall_fraction(ax, altitudes, year_min=1959, year_max=2019, massif_
     h = np.exp(0.06 * center_bins_interpolation) * snowfall_fractions_interpolated
     temperature_optimal = center_bins_interpolation[np.argmax(h)]
 
+    if plot:
+        # Plot results
+        label = '{}-{} at {}'.format(year_min, year_max, ' & '.join(['{} m'.format(a) for a in altitudes]))
+        ax.set_xlim([-lim, lim])
+        p = ax.plot(center_bins, snowfall_fractions, label=label, linewidth=5)
+        color = p[0].get_color()
+        ax.plot([temperature_optimal], [0], color=color, marker='x', markersize=10)
+        ax.set_ylabel('Snowfall fraction (%)')
+        end_plot(ax, sigma)
 
-    # Plot results
-    label = '{}-{} at {}'.format(year_min, year_max, ' & '.join(['{} m'.format(a) for a in altitudes]))
-    ax.set_xlim([-lim, lim])
-    p = ax.plot(center_bins, snowfall_fractions, label=label, linewidth=5)
-    color = p[0].get_color()
-    ax.plot([temperature_optimal], [0], color=color, marker='x', markersize=10)
-    ax.set_ylabel('Snowfall fraction (%)')
-    end_plot(ax, sigma)
+    return snowfall_fractions_interpolated, center_bins_interpolation, temperature_optimal
 
 
 def snowfall_fraction_difference_between_periods(ax, altitudes, year_min=1959, year_middle=1989, year_max=2019):
@@ -101,7 +108,7 @@ def daily_snowfall_fraction_wrt_altitude(fast=True):
     massif_names = None
     # massif_names = ['Vercors']
     for altitudes in groups:
-        daily_snowfall_fraction(ax, altitudes, massif_names=massif_names)
+        compute_daily_snowfall_fraction(ax, altitudes, massif_names=massif_names)
     plt.show()
 
 
@@ -116,7 +123,7 @@ def daily_snowfall_fraction_wrt_time():
     ax = plt.gca()
     for altitudes in Altitudes_groups:
         for year_min, year_max in [(1959, 1989), (1990, 2019)]:
-            daily_snowfall_fraction(ax, altitudes, year_min, year_max)
+            compute_daily_snowfall_fraction(ax, altitudes, year_min, year_max)
     plt.show()
 
 

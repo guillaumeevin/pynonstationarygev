@@ -11,6 +11,7 @@ WP_PATTERN_MAX_YEAR = 2008
 alps_massif_order = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 30]
 pyrenees_massif_order = [64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91]
 
+
 def date_to_str(date: datetime) -> str:
     return str(date).split()[0]
 
@@ -19,6 +20,12 @@ class SeasonForTheMaxima(Enum):
     annual = 0
     winter_extended = 1
     # i could add the classical seasons if needed
+
+
+def season_to_str(season):
+    season_name = str(season).split('.')[-1]
+    season_name = ' '.join(season_name.split('_'))
+    return season_name
 
 
 class FrenchRegion(Enum):
