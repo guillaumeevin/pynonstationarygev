@@ -18,5 +18,6 @@ FEVD_MARGIN_FIT_METHOD_TO_ARGUMENT_STR = {
 }
 FEVD_MARGIN_FIT_METHODS = set(FEVD_MARGIN_FIT_METHOD_TO_ARGUMENT_STR.keys())
 
+
 def fitmethod_to_str(fit_method):
-    return str(fit_method).split('.')[-1]
+    return ' '.join(str(fit_method).split('.')[-1].split('_'))

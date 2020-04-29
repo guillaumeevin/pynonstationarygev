@@ -12,7 +12,9 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import load_plot
 from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
+from extreme_fit.model.margin_model.utils import fitmethod_to_str
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     EurocodeConfidenceIntervalFromExtremes, compute_eurocode_confidence_interval
 from extreme_data.meteo_france_data.scm_models_data.abstract_extended_study import AbstractExtendedStudy
@@ -320,7 +322,6 @@ class StudyVisualizer(VisualizationParameters):
             zip([massif_name for _, massif_name in massif_ids_and_names], altitudes_and_res))
         return massif_name_to_eurocode_return_level_uncertainty
 
-
     def visualize_all_mean_and_max_graphs(self):
         specified_massif_ids = [self.study.study_massif_names.index(massif_name)
                                 for massif_name in
@@ -409,7 +410,8 @@ class StudyVisualizer(VisualizationParameters):
         tuples_x_y = [(year, np.mean(data[:, massif_id])) for year, data in
                       self.study.year_to_daily_time_serie_array.items()]
         x, y = list(zip(*tuples_x_y))
-        x, y = self.average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
+        x, y = self.average_smoothing_with_sliding_window(x, y,
+                                                          window_size_for_smoothing=self.window_size_for_smoothing)
         ax.plot(x, y, color=color_mean)
         ax.set_ylabel('mean'.format(self.window_size_for_smoothing), color=color_mean)
         massif_name = self.study.study_massif_names[massif_id]
@@ -423,7 +425,8 @@ class StudyVisualizer(VisualizationParameters):
             tuples_x_y = [(year, annual_maxima[massif_id]) for year, annual_maxima in
                           self.study.year_to_annual_maxima.items()]
             x, y = list(zip(*tuples_x_y))
-            x, y = self.average_smoothing_with_sliding_window(x, y, window_size_for_smoothing=self.window_size_for_smoothing)
+            x, y = self.average_smoothing_with_sliding_window(x, y,
+                                                              window_size_for_smoothing=self.window_size_for_smoothing)
             self.massif_id_to_smooth_maxima[massif_id] = (x, y)
         return self.massif_id_to_smooth_maxima[massif_id]
 
@@ -701,3 +704,21 @@ class StudyVisualizer(VisualizationParameters):
             x = np.array(x)[nb_to_delete:-nb_to_delete]
         assert len(x) == len(y), "{} vs {}".format(len(x), len(y))
         return x, y
+
+    # PLot functions that should be common
+
+    def plot_map(self, cmap, fit_method, graduation, label, massif_name_to_value, plot_name):
+        load_plot(cmap, graduation, label, massif_name_to_value, self.study.altitude, fitmethod_to_str(fit_method))
+        self.plot_name = plot_name
+        # self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True, dpi=500)
+        self.show_or_save_to_file(add_classic_title=False, no_title=True, dpi=500)
+        plt.close()
+
+    def plot_abstract(self, massif_name_to_value, label, plot_name, fit_method='', graduation=10.0, cmap=plt.cm.bwr):
+        # Regroup the plot by altitudes
+        plot_name1 = '{}/{}'.format(self.study.altitude, plot_name)
+        # Regroup the plot by type of plot also
+        plot_name2 = '{}/{}'.format(plot_name.split()[0], plot_name)
+        for plot_name in [plot_name1, plot_name2]:
+            self.plot_map(cmap, fit_method, graduation, label, massif_name_to_value, plot_name)
+

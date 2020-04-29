@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from typing import List
 
 from cached_property import cached_property
-from mpmath import euler, pi
+from mpmath import euler
 
 from extreme_fit.distribution.abstract_extreme_params import AbstractExtremeParams
 from extreme_fit.distribution.abstract_params import AbstractParams
@@ -86,13 +86,15 @@ class GevParams(AbstractExtremeParams):
     @property
     def mean(self) -> float:
         if self.has_undefined_parameters:
-            return np.nan
+            mean = np.nan
         elif self.shape >= 1:
-            return np.inf
+            mean = np.inf
         elif self.shape == 0:
-            return self.location + self.scale * euler
+            mean = self.location + self.scale * float(euler)
         else:
-            return self.location + self.scale * (self.g(k=1) - 1) / self.shape
+            mean = self.location + self.scale * (self.g(k=1) - 1) / self.shape
+        assert isinstance(mean, float)
+        return mean
 
     @property
     def variance(self) -> float:
@@ -101,7 +103,7 @@ class GevParams(AbstractExtremeParams):
         elif self.shape >= 0.5:
             return np.inf
         elif self.shape == 0.0:
-            return (self.scale * pi) ** 2 / 6
+            return (self.scale * np.pi) ** 2 / 6
         else:
             return ((self.scale / self.shape) ** 2) * (self.g(k=2) - self.g(k=1) ** 2)
 

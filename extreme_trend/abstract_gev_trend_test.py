@@ -46,7 +46,7 @@ class AbstractGevTrendTest(object):
     @cached_property
     def unconstrained_estimator(self):
         return fitted_linear_margin_estimator(self.unconstrained_model_class, self.coordinates, self.dataset,
-                                                  self.starting_year, self.fit_method)
+                                              self.starting_year, self.fit_method)
 
     # Likelihood ratio test
 
@@ -108,9 +108,7 @@ class AbstractGevTrendTest(object):
     def relative_change_in_return_level(self, initial_year, final_year):
         return_level_values = []
         for year in [initial_year, final_year]:
-            gev_params = self.unconstrained_estimator.function_from_fit.get_params(
-                coordinate=np.array([year]),
-                is_transformed=False)
+            gev_params = self.get_unconstrained_gev_params(year)
             return_level_values.append(gev_params.quantile(self.quantile_level))
         change_until_final_year = self.time_derivative_times_years(nb_years=final_year - initial_year)
         change_in_between = (return_level_values[1] - return_level_values[0])
@@ -163,8 +161,6 @@ class AbstractGevTrendTest(object):
         ax.plot(standard_gumbel_quantiles, sorted_maxima, linestyle='None',
                 label='Empirical model', marker='o', color='black')
 
-
-
         ax_twiny = ax.twiny()
         return_periods = [10, 25, 50]
         quantiles = self.get_standard_quantiles_for_return_periods(return_periods, psnow)
@@ -182,11 +178,14 @@ class AbstractGevTrendTest(object):
         end_real_proba = 1 - (0.02 / psnow)
         stationary = True
         if stationary:
-            self.plot_model(ax, None, end_proba=end_real_proba, label='Selected model\nwhich is ${}$'.format(self.label),
+            self.plot_model(ax, None, end_proba=end_real_proba,
+                            label='Selected model\nwhich is ${}$'.format(self.label),
                             color='grey')
         else:
-            self.plot_model(ax, 1959, end_proba=end_real_proba, label='Selected model, which is ${}$'.format(self.label))
-            self.plot_model(ax, 2019, end_proba=end_real_proba, label='Selected model, which is ${}$'.format(self.label))
+            self.plot_model(ax, 1959, end_proba=end_real_proba,
+                            label='Selected model, which is ${}$'.format(self.label))
+            self.plot_model(ax, 2019, end_proba=end_real_proba,
+                            label='Selected model, which is ${}$'.format(self.label))
 
         # Plot for the discarded model
         # if 'Verdon' in massif_name and altitude == 300:
@@ -203,9 +202,6 @@ class AbstractGevTrendTest(object):
         #             label='Discarded model, which is ${}$\n'.format('\mathcal{M}_{\zeta_0, \sigma_1}')
         #                   + 'with $\zeta_0=0.84$',
         #             color=color)
-
-
-
 
         ax_lim = [-1.5, 4]
         ax.set_xlim(ax_lim)
@@ -231,12 +227,16 @@ class AbstractGevTrendTest(object):
         label = 'Y({})'.format(year) if year is not None else label
         if year is None:
             year = 2019
-        gev_params_year = self.unconstrained_estimator.function_from_fit.get_params(
-                coordinate=np.array([year]),
-                is_transformed=False)
+        gev_params_year = self.get_unconstrained_gev_params(year)
         extended_maxima = [gev_params_year.gumbel_inverse_standardization(q) for q in extended_quantiles]
 
         ax.plot(extended_quantiles, extended_maxima, linestyle='-', label=label, color=color, linewidth=5)
+
+    def get_unconstrained_gev_params(self, year):
+        gev_params_year = self.unconstrained_estimator.function_from_fit.get_params(
+            coordinate=np.array([year]),
+            is_transformed=False)
+        return gev_params_year
 
     def linear_extension(self, ax, q, quantiles, sorted_maxima):
         # Extend the curve linear a bit if the return period 50 is not in the quantiles
@@ -368,9 +368,22 @@ class AbstractGevTrendTest(object):
         plt.gca().set_ylim(bottom=0)
 
     def get_gev_params_with_big_shape_and_correct_shape(self):
-        gev_params = self.unconstrained_estimator.function_from_fit.get_params(coordinate=np.array([YEAR_OF_INTEREST_FOR_RETURN_LEVEL]),
-                                                                               is_transformed=False)  # type: GevParams
+        gev_params = self.unconstrained_estimator.function_from_fit.get_params(
+            coordinate=np.array([YEAR_OF_INTEREST_FOR_RETURN_LEVEL]),
+            is_transformed=False)  # type: GevParams
         gev_params_with_corrected_shape = GevParams(loc=gev_params.location,
                                                     scale=gev_params.scale,
                                                     shape=0.5)
         return gev_params, gev_params_with_corrected_shape
+
+    # Mean value
+
+    @property
+    def unconstrained_average_mean_value(self) -> float:
+        mean_values = []
+        for year in self.years:
+            mean = self.get_unconstrained_gev_params(year).mean
+            mean_values.append(mean)
+        average_mean_value = np.mean(mean_values)
+        assert isinstance(average_mean_value, float)
+        return average_mean_value

@@ -159,7 +159,8 @@ class AltitudesStudies(object):
                 altitudes.append(altitude)
         self.plot_against_altitude(altitudes, ax, massif_id, massif_name, mean_moment)
 
-    def plot_against_altitude(self, altitudes, ax, massif_id, massif_name, mean_moment):
+    @staticmethod
+    def plot_against_altitude(altitudes, ax, massif_id, massif_name, mean_moment):
         di = massif_id // 8
         if di == 0:
             linestyle = '-'

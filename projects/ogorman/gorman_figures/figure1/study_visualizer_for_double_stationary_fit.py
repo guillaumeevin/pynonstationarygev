@@ -9,8 +9,7 @@ from extreme_fit.model.margin_model.utils import \
 
 import matplotlib.pyplot as plt
 
-from projects.ogorman.gorman_figures.figure1 import \
-    ResultFromDoubleStationaryFit
+from projects.ogorman.gorman_figures.figure1.result_from_stationary_fit import ResultFromDoubleStationaryFit
 
 
 class StudyVisualizerForReturnLevelChange(StudyVisualizer):
@@ -79,6 +78,7 @@ class StudyVisualizerForReturnLevelChange(StudyVisualizer):
             self.plot_abstract(
                 massif_name_to_value=result.massif_name_to_difference_return_level_and_maxima,
                 label=label, plot_name=plot_name,
+                fit_method=self.fit_method,
                 cmap=plt.cm.coolwarm)
 
     def plot_shape_values(self):
@@ -110,44 +110,5 @@ class StudyVisualizerForReturnLevelChange(StudyVisualizer):
             plot_name = 'Change {} in return levels'.format(b)
             self.plot_abstract(
                 massif_name_to_value=massif_name_to_value,
-                label=label, plot_name=plot_name)
-
-    def plot_abstract(self, massif_name_to_value, label, plot_name, graduation=10.0, cmap=plt.cm.bwr):
-        plot_name1 = '{}/{}'.format(self.study.altitude, plot_name)
-        plot_name2 = '{}/{}'.format(plot_name.split()[0], plot_name)
-        for plot_name in [plot_name1, plot_name2]:
-            self.load_plot(cmap, graduation, label, massif_name_to_value)
-            self.plot_name = plot_name
-            self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True,
-                                      dpi=500)
-            plt.close()
-
-    def load_plot(self, cmap, graduation, label, massif_name_to_value):
-        max_abs_change = max([abs(e) for e in massif_name_to_value.values()])
-        ticks, labels = ticks_values_and_labels_for_percentages(graduation=graduation, max_abs_change=max_abs_change)
-        min_ratio = -max_abs_change
-        max_ratio = max_abs_change
-        cmap = get_shifted_map(min_ratio, max_ratio, cmap)
-        massif_name_to_color = {m: get_colors([v], cmap, min_ratio, max_ratio)[0]
-                                for m, v in massif_name_to_value.items()}
-        ticks_values_and_labels = ticks, labels
-        ax = plt.gca()
-        AbstractStudy.visualize_study(ax=ax,
-                                      massif_name_to_value=massif_name_to_value,
-                                      massif_name_to_color=massif_name_to_color,
-                                      replace_blue_by_white=True,
-                                      axis_off=False,
-                                      cmap=cmap,
-                                      show_label=False,
-                                      add_colorbar=True,
-                                      show=False,
-                                      vmin=min_ratio,
-                                      vmax=max_ratio,
-                                      ticks_values_and_labels=ticks_values_and_labels,
-                                      label=label,
-                                      fontsize_label=10,
-                                      )
-        ax.get_xaxis().set_visible(True)
-        ax.set_xticks([])
-        ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=15)
-        ax.set_title('Fit method is {}'.format(fitmethod_to_str(self.fit_method)))
+                label=label, plot_name=plot_name,
+                fit_method=self.fit_method)
