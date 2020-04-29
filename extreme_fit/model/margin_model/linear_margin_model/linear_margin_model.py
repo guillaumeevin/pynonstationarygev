@@ -17,10 +17,9 @@ class LinearMarginModel(ParametricMarginModel):
     def load_margin_function(self, param_name_to_dims=None):
         assert param_name_to_dims is not None, 'LinearMarginModel cannot be used for sampling/fitting \n' \
                                                'load_margin_functions needs to be implemented in child class'
-        # Load sample coef
-        coef_sample = self.param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_sample)
+        param_name_to_coef = self.param_name_to_linear_coef(param_name_and_dim_to_coef=self.params_sample)
         return LinearMarginFunction(coordinates=self.coordinates,
-                                    param_name_to_coef=coef_sample,
+                                    param_name_to_coef=param_name_to_coef,
                                     param_name_to_dims=param_name_to_dims,
                                     starting_point=self.starting_point,
                                     params_class=self.params_class)

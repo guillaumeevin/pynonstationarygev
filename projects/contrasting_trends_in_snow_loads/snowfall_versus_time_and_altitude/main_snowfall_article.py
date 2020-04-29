@@ -71,7 +71,7 @@ def intermediate_result(altitudes, massif_names=None,
             _ = compute_minimized_aic(visualizer)
 
     # Plots
-    # validation_plot(altitude_to_visualizer)
+    validation_plot(altitude_to_visualizer)
     plot_snowfall_mean(altitude_to_visualizer)
 
 

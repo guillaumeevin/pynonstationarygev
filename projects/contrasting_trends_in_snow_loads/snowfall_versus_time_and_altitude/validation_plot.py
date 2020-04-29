@@ -27,7 +27,7 @@ def plot_shoe_relative_differences_distribution(altitude_to_relative_differences
     width = 150
     ax.boxplot([altitude_to_relative_differences[a] for a in altitudes], positions=altitudes, widths=width)
     ax.set_xlim([min(altitudes) - width, max(altitudes) + width])
-    ylabel = 'Relative difference between empirical mean and parametric mean (%)'
+    ylabel = 'Relative difference between empirical mean and parametric mean (\%)'
     ax.set_ylabel(ylabel)
     ax.set_xlabel('Altitude (m)')
     ax.legend()

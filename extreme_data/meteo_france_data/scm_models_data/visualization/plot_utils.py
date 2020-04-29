@@ -20,7 +20,7 @@ def plot_against_altitude(altitudes, ax, massif_id, massif_name, values):
     ax.plot(altitudes, values, color=color, linewidth=2, label=massif_name, linestyle=linestyle)
 
 
-def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_method):
+def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_method, add_x_label=True):
     max_abs_change = max([abs(e) for e in massif_name_to_value.values()])
     ticks, labels = ticks_values_and_labels_for_percentages(graduation=graduation, max_abs_change=max_abs_change)
     min_ratio = -max_abs_change
@@ -47,5 +47,6 @@ def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_metho
                                   )
     ax.get_xaxis().set_visible(True)
     ax.set_xticks([])
-    ax.set_xlabel('Altitude = {}m'.format(altitude), fontsize=15)
-    ax.set_title('Fit method is {}'.format(fit_method))
+    if add_x_label:
+        ax.set_xlabel('Altitude = {}m'.format(altitude), fontsize=15)
+        ax.set_title('Fit method is {}'.format(fit_method))
