@@ -6,7 +6,7 @@ import numpy as np
 
 from cached_property import cached_property
 
-from projects.contrasting_trends_in_snow_loads.gorman_figures.figure1.study_visualizer_for_double_stationary_fit import \
+from projects.ogorman.gorman_figures.figure1.study_visualizer_for_double_stationary_fit import \
     StudyVisualizerForReturnLevelChange
 
 

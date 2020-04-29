@@ -1,19 +1,15 @@
 import matplotlib
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad1Day, CrocusSnowLoad3Days, \
-    CrocusSnowLoadTotal
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map, \
     get_colors, ticks_values_and_labels_for_percentages
-from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import ALL_ALTITUDES_WITHOUT_NAN
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod, fitmethod_to_str
 
 import matplotlib.pyplot as plt
 
-from projects.contrasting_trends_in_snow_loads.gorman_figures.figure1.result_from_stationary_fit import \
+from projects.ogorman.gorman_figures.figure1 import \
     ResultFromDoubleStationaryFit
 
 

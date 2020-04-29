@@ -1,10 +1,10 @@
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
-from projects.contrasting_trends_in_snow_loads.altitudes_fit.utils import get_key_with_min_value, Score, Grouping
+from projects.altitude_spatial_model.altitudes_fit.utils import get_key_with_min_value, Score, Grouping
 from spatio_temporal_dataset.slicer.split import Split
 
 

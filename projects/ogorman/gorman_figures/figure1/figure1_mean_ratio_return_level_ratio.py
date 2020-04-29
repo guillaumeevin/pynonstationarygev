@@ -1,16 +1,14 @@
 from collections import OrderedDict
 
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad1Day, CrocusSnowLoad3Days, \
-    CrocusSnowLoadTotal
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days, \
     SafranSnowfall7Days, SafranSnowfall5Days
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import ALL_ALTITUDES_WITHOUT_NAN
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
-from projects.contrasting_trends_in_snow_loads.gorman_figures.figure1.comparative_curve_wrt_altitude import \
+from projects.ogorman.gorman_figures.figure1 import \
     ComparativeCurveWrtAltitude
 
-from projects.contrasting_trends_in_snow_loads.gorman_figures.figure1.study_visualizer_for_double_stationary_fit import \
+from projects.ogorman.gorman_figures.figure1.study_visualizer_for_double_stationary_fit import \
     StudyVisualizerForReturnLevelChange
 
 

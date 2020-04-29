@@ -1,18 +1,16 @@
 import unittest
-import unittest
 
 import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
-from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import ConstantMarginModel, \
-    LinearLocationAllDimsMarginModel
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import ConstantMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.utils import set_seed_for_test
-from projects.contrasting_trends_in_snow_loads.altitudes_fit.altitudes_studies import AltitudesStudies
-from projects.contrasting_trends_in_snow_loads.altitudes_fit.two_fold_datasets_generator import TwoFoldDatasetsGenerator
-from projects.contrasting_trends_in_snow_loads.altitudes_fit.two_fold_detail_fit import TwoFoldModelFit
-from projects.contrasting_trends_in_snow_loads.altitudes_fit.two_fold_fit import TwoFoldFit
-from projects.contrasting_trends_in_snow_loads.altitudes_fit.utils import Score
+from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
+from projects.altitude_spatial_model.altitudes_fit.two_fold_datasets_generator import TwoFoldDatasetsGenerator
+from projects.altitude_spatial_model.altitudes_fit.two_fold_detail_fit import TwoFoldModelFit
+from projects.altitude_spatial_model.altitudes_fit.two_fold_fit import TwoFoldFit
+from projects.altitude_spatial_model.altitudes_fit.utils import Score
 from spatio_temporal_dataset.slicer.split import Split
 
 

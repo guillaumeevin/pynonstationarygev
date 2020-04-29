@@ -2,8 +2,8 @@ import unittest
 import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
-from projects.contrasting_trends_in_snow_loads.altitudes_fit.altitudes_studies import AltitudesStudies
-from projects.contrasting_trends_in_snow_loads.altitudes_fit.two_fold_datasets_generator import TwoFoldDatasetsGenerator
+from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
+from projects.altitude_spatial_model.altitudes_fit.two_fold_datasets_generator import TwoFoldDatasetsGenerator
 from spatio_temporal_dataset.slicer.split import Split
 
 

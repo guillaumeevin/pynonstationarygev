@@ -1,7 +1,7 @@
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days, \
     SafranSnowfall5Days, SafranSnowfall7Days, SafranPrecipitation1Day, SafranPrecipitation3Days, \
     SafranPrecipitation5Days, SafranPrecipitation7Days
-from projects.contrasting_trends_in_snow_loads.altitudes_fit.altitudes_studies import AltitudesStudies
+from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
 
 
 def main_plots_moments():
