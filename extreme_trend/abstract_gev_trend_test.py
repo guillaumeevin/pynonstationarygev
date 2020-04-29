@@ -238,6 +238,13 @@ class AbstractGevTrendTest(object):
             is_transformed=False)
         return gev_params_year
 
+    def get_unconstrained_time_derivative_gev_params(self, year):
+        gev_params_year = self.unconstrained_estimator.function_from_fit.get_first_derivative_param(
+            coordinate=np.array([year]),
+            is_transformed=False,
+            dim=0)
+        return gev_params_year
+
     def linear_extension(self, ax, q, quantiles, sorted_maxima):
         # Extend the curve linear a bit if the return period 50 is not in the quantiles
         def compute_slope_intercept(x, y):
@@ -387,3 +394,16 @@ class AbstractGevTrendTest(object):
         average_mean_value = np.mean(mean_values)
         assert isinstance(average_mean_value, float)
         return average_mean_value
+
+    # Derivative mean value in some year
+
+    def mean_value(self, year):
+        return self.get_unconstrained_gev_params(year).mean
+
+    def first_derivative_mean_value(self, year):
+        param_name_to_value = self.get_unconstrained_time_derivative_gev_params(year)
+        assert param_name_to_value[GevParams.SHAPE] == 0, 'The formula does not work if is not zero'
+        gev_params = self.get_unconstrained_gev_params(year)
+        gev_params.location = param_name_to_value[GevParams.LOC]
+        gev_params.scale = param_name_to_value[GevParams.SCALE]
+        return gev_params.mean

@@ -30,6 +30,14 @@ class IndependentMarginFunction(AbstractMarginFunction):
                   for param_name, param_function in self.param_name_to_param_function.items()}
         return self.params_class.from_dict(params)
 
+    def get_first_derivative_param(self, coordinate: np.ndarray, is_transformed: bool, dim: int = 0):
+        transformed_coordinate = coordinate if is_transformed else self.transform(coordinate)
+        return {
+            param_name: param_function.get_first_derivative_param_value(transformed_coordinate, dim)
+            for param_name, param_function in self.param_name_to_param_function.items()
+        }
+
+
 
 
 

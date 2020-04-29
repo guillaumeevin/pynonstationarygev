@@ -1,8 +1,23 @@
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import \
     ticks_values_and_labels_for_percentages, get_shifted_map, get_colors
+
+
+def plot_against_altitude(altitudes, ax, massif_id, massif_name, values):
+    di = massif_id // 8
+    if di == 0:
+        linestyle = '-'
+    elif di == 1:
+        linestyle = 'dotted'
+    else:
+        linestyle = '--'
+    colors = list(mcolors.TABLEAU_COLORS)
+    colors[-3:-1] = []  # remove gray and olive
+    color = colors[massif_id % 8]
+    ax.plot(altitudes, values, color=color, linewidth=2, label=massif_name, linestyle=linestyle)
 
 
 def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_method):

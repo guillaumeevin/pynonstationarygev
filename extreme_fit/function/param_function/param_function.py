@@ -8,7 +8,10 @@ class AbstractParamFunction(object):
     OUT_OF_BOUNDS_ASSERT = True
 
     def get_param_value(self, coordinate: np.ndarray) -> float:
-        pass
+        raise NotImplementedError
+
+    def get_first_derivative_param_value(self, coordinate: np.ndarray, dim: int) -> float:
+        raise NotImplementedError
 
 
 class ConstantParamFunction(AbstractParamFunction):

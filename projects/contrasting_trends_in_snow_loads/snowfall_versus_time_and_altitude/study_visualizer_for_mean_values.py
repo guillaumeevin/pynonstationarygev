@@ -39,7 +39,6 @@ class StudyVisualizerForMeanValues(StudyVisualizerForNonStationaryTrends):
         massif_name_to_parameter_value = {}
         for massif_name, trend_test in self.massif_name_to_trend_test_that_minimized_aic.items():
             parameter_value = trend_test.unconstrained_average_mean_value
-            print(type(parameter_value), parameter_value)
             massif_name_to_parameter_value[massif_name] = parameter_value
         return massif_name_to_parameter_value
 
@@ -55,5 +54,4 @@ class StudyVisualizerForMeanValues(StudyVisualizerForNonStationaryTrends):
 
     def plot_abstract_fast(self, massif_name_to_value, label, graduation=10.0, cmap=plt.cm.coolwarm):
         super().plot_abstract(massif_name_to_value, label, label, self.fit_method, graduation, cmap)
-
 

@@ -1,4 +1,5 @@
 import os
+import matplotlib.colors as mcolors
 import os.path as op
 from collections import OrderedDict
 from multiprocessing.pool import Pool

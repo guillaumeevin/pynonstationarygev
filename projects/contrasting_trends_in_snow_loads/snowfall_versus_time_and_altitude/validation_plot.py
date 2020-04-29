@@ -32,7 +32,6 @@ def plot_shoe_relative_differences_distribution(altitude_to_relative_differences
     ax.set_xlabel('Altitude (m)')
     ax.legend()
     ax.grid()
-    ax.set_ylim([-8, 5])
 
 
 def plot_relative_difference_map(visualizer: StudyVisualizerForMeanValues):
@@ -40,10 +39,8 @@ def plot_relative_difference_map(visualizer: StudyVisualizerForMeanValues):
     visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_empirical_mean,
                                   label='Empirical' + label)
 
-    print(visualizer.massif_name_to_parametric_mean)
     visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_parametric_mean,
                                   label='Model' + label)
-    print(visualizer.massif_name_to_relative_difference_for_mean)
     visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_relative_difference_for_mean,
-                                  label='Relative difference of' + label)
+                                  label='Relative difference of' + label, graduation=1)
     return list(visualizer.massif_name_to_relative_difference_for_mean.values())

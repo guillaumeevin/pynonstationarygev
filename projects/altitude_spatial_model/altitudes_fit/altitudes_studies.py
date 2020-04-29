@@ -7,6 +7,7 @@ from cached_property import cached_property
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION
+from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
@@ -18,7 +19,6 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 
 
 class AltitudesStudies(object):
@@ -157,18 +157,4 @@ class AltitudesStudies(object):
                     moment = function(annual_maxima)
                 mean_moment.append(moment)
                 altitudes.append(altitude)
-        self.plot_against_altitude(altitudes, ax, massif_id, massif_name, mean_moment)
-
-    @staticmethod
-    def plot_against_altitude(altitudes, ax, massif_id, massif_name, mean_moment):
-        di = massif_id // 8
-        if di == 0:
-            linestyle = '-'
-        elif di == 1:
-            linestyle = 'dotted'
-        else:
-            linestyle = '--'
-        colors = list(mcolors.TABLEAU_COLORS)
-        colors[-3:-1] = []  # remove gray and olive
-        color = colors[massif_id % 8]
-        ax.plot(altitudes, mean_moment, color=color, linewidth=2, label=massif_name, linestyle=linestyle)
+        plot_against_altitude(altitudes, ax, massif_id, massif_name, mean_moment)

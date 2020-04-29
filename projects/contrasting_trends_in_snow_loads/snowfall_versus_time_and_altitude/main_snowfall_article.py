@@ -4,6 +4,7 @@ from multiprocessing.pool import Pool
 import matplotlib as mpl
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
+from projects.contrasting_trends_in_snow_loads.snowfall_versus_time_and_altitude.snowfall_plot import plot_snowfall_mean
 from projects.contrasting_trends_in_snow_loads.snowfall_versus_time_and_altitude.study_visualizer_for_mean_values import \
     StudyVisualizerForMeanValues
 from projects.contrasting_trends_in_snow_loads.snowfall_versus_time_and_altitude.validation_plot import validation_plot
@@ -70,16 +71,18 @@ def intermediate_result(altitudes, massif_names=None,
             _ = compute_minimized_aic(visualizer)
 
     # Plots
-    validation_plot(altitude_to_visualizer)
+    # validation_plot(altitude_to_visualizer)
+    plot_snowfall_mean(altitude_to_visualizer)
 
 
 def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.ci_mle][:]
-    massif_names = ['Beaufortain', 'Vercors']
+    # massif_names = ['Beaufortain', 'Vercors']
     massif_names = None
     study_classes = [SafranSnowfall1Day]
     model_subsets_for_uncertainty = None
     altitudes = paper_altitudes
+    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
     # altitudes = [900, 1200]
 
     for study_class in study_classes:
