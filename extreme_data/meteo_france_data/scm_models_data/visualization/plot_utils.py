@@ -17,7 +17,8 @@ def plot_against_altitude(altitudes, ax, massif_id, massif_name, values):
     colors = list(mcolors.TABLEAU_COLORS)
     colors[-3:-1] = []  # remove gray and olive
     color = colors[massif_id % 8]
-    ax.plot(altitudes, values, color=color, linewidth=2, label=massif_name, linestyle=linestyle)
+    massif_name_str = ' '.join(massif_name.split('_'))
+    ax.plot(altitudes, values, color=color, linewidth=2, label=massif_name_str, linestyle=linestyle)
 
 
 def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_method, add_x_label=True):

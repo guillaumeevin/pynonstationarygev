@@ -1,6 +1,7 @@
 from typing import List
 import numpy as np
 from extreme_fit.function.param_function.linear_coef import LinearCoef
+from extreme_fit.function.param_function.one_axis_param_function import LinearOneAxisParamFunction
 from extreme_fit.function.param_function.spline_coef import SplineCoef
 
 
@@ -22,20 +23,8 @@ class ConstantParamFunction(AbstractParamFunction):
     def get_param_value(self, coordinate: np.ndarray) -> float:
         return self.constant
 
-
-class LinearOneAxisParamFunction(AbstractParamFunction):
-
-    def __init__(self, dim: int, coordinates: np.ndarray, coef: float = 0.01):
-        self.dim = dim
-        self.t_min = coordinates[:, dim].min()
-        self.t_max = coordinates[:, dim].max()
-        self.coef = coef
-
-    def get_param_value(self, coordinate: np.ndarray) -> float:
-        t = coordinate[self.dim]
-        if self.OUT_OF_BOUNDS_ASSERT:
-            assert self.t_min <= t <= self.t_max, '{} is out of bounds ({}, {})'.format(t, self.t_min, self.t_max)
-        return t * self.coef
+    def get_first_derivative_param_value(self, coordinate: np.ndarray, dim: int) -> float:
+        return 0
 
 
 class LinearParamFunction(AbstractParamFunction):
@@ -48,13 +37,19 @@ class LinearParamFunction(AbstractParamFunction):
             param_function = LinearOneAxisParamFunction(dim=dim, coordinates=coordinates,
                                                         coef=self.linear_coef.get_coef(idx=dim))
             self.linear_one_axis_param_functions.append(param_function)
+        self.dim_to_linear_one_axis_param_function = dict(zip(dims, self.linear_one_axis_param_functions))
 
     def get_param_value(self, coordinate: np.ndarray) -> float:
         # Add the intercept and the value with respect to each axis
         gev_param_value = self.linear_coef.intercept
         for linear_one_axis_param_function in self.linear_one_axis_param_functions:
-            gev_param_value += linear_one_axis_param_function.get_param_value(coordinate)
+            gev_param_value += linear_one_axis_param_function.get_param_value(coordinate, self.OUT_OF_BOUNDS_ASSERT)
         return gev_param_value
+
+    def get_first_derivative_param_value(self, coordinate: np.ndarray, dim: int) -> float:
+        return self.dim_to_linear_one_axis_param_function[dim].coef
+
+
 
 
 class SplineParamFunction(AbstractParamFunction):

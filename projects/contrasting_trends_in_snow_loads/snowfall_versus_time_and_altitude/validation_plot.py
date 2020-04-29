@@ -20,6 +20,7 @@ def validation_plot(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValu
     # Shoe plot with respect to the altitude.
     plot_shoe_relative_differences_distribution(altitude_to_relative_differences, altitudes)
     study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500)
+    plt.close()
 
 
 def plot_shoe_relative_differences_distribution(altitude_to_relative_differences, altitudes):
