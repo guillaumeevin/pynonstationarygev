@@ -72,9 +72,10 @@ def intermediate_result(altitudes, massif_names=None,
             _ = compute_minimized_aic(visualizer)
 
     # Plots
-    validation_plot(altitude_to_visualizer)
-    plot_snowfall_mean(altitude_to_visualizer)
-    plot_snowfall_time_derivative_mean(altitude_to_visualizer)
+    validation_plot(altitude_to_visualizer, order_derivative=0)
+    validation_plot(altitude_to_visualizer, order_derivative=1)
+    # plot_snowfall_mean(altitude_to_visualizer)
+    # plot_snowfall_time_derivative_mean(altitude_to_visualizer)
 
 
 def major_result():

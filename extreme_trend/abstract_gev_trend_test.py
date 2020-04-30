@@ -385,10 +385,9 @@ class AbstractGevTrendTest(object):
 
     # Mean value
 
-    @property
-    def unconstrained_average_mean_value(self) -> float:
+    def unconstrained_average_mean_value(self, year_min, year_max) -> float:
         mean_values = []
-        for year in self.years:
+        for year in range(year_min, year_max+1):
             mean = self.get_unconstrained_gev_params(year).mean
             mean_values.append(mean)
         average_mean_value = np.mean(mean_values)
