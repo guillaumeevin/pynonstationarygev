@@ -35,7 +35,7 @@ class StudyVisualizerForMeanValues(StudyVisualizerForNonStationaryTrends):
         return massif_name_to_empirical_value
 
     @cached_property
-    def massif_name_to_parametric_mean(self):
+    def massif_name_to_model_mean(self):
         massif_name_to_parameter_value = {}
         for massif_name, trend_test in self.massif_name_to_trend_test_that_minimized_aic.items():
             parameter_value = trend_test.unconstrained_average_mean_value
@@ -47,11 +47,12 @@ class StudyVisualizerForMeanValues(StudyVisualizerForNonStationaryTrends):
         massif_name_to_relative_difference = {}
         for massif_name in self.massif_name_to_trend_test_that_minimized_aic.keys():
             e = self.massif_name_to_empirical_mean[massif_name]
-            p = self.massif_name_to_parametric_mean[massif_name]
+            p = self.massif_name_to_model_mean[massif_name]
             relative_diference = 100 * (p-e) / e
             massif_name_to_relative_difference[massif_name] = relative_diference
         return massif_name_to_relative_difference
 
-    def plot_abstract_fast(self, massif_name_to_value, label, graduation=10.0, cmap=plt.cm.coolwarm, add_x_label=True):
-        super().plot_abstract(massif_name_to_value, label, label, self.fit_method, graduation, cmap, add_x_label)
+    def plot_abstract_fast(self, massif_name_to_value, label, graduation=10.0, cmap=plt.cm.coolwarm, add_x_label=True,
+                           negative_and_positive_values=True):
+        super().plot_abstract(massif_name_to_value, label, label, self.fit_method, graduation, cmap, add_x_label, negative_and_positive_values)
 

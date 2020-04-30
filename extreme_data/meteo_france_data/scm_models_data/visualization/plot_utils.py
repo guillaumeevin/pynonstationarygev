@@ -3,7 +3,8 @@ import matplotlib.colors as mcolors
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import \
-    ticks_values_and_labels_for_percentages, get_shifted_map, get_colors
+    ticks_values_and_labels_for_percentages, get_shifted_map, get_colors, ticks_values_and_labels_for_positive_value, \
+    get_half_colormap
 
 
 def plot_against_altitude(altitudes, ax, massif_id, massif_name, values):
@@ -21,12 +22,20 @@ def plot_against_altitude(altitudes, ax, massif_id, massif_name, values):
     ax.plot(altitudes, values, color=color, linewidth=2, label=massif_name_str, linestyle=linestyle)
 
 
-def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_method, add_x_label=True):
+def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_method, add_x_label=True,
+              negative_and_positive_values=True):
     max_abs_change = max([abs(e) for e in massif_name_to_value.values()])
-    ticks, labels = ticks_values_and_labels_for_percentages(graduation=graduation, max_abs_change=max_abs_change)
-    min_ratio = -max_abs_change
-    max_ratio = max_abs_change
-    cmap = get_shifted_map(min_ratio, max_ratio, cmap)
+    if negative_and_positive_values:
+        ticks, labels = ticks_values_and_labels_for_percentages(graduation=graduation, max_abs_change=max_abs_change)
+        min_ratio = -max_abs_change
+        max_ratio = max_abs_change
+        cmap = get_shifted_map(min_ratio, max_ratio, cmap)
+    else:
+        ticks, labels = ticks_values_and_labels_for_positive_value(graduation=graduation, max_abs_change=max_abs_change)
+        cmap = get_half_colormap(cmap)
+        min_ratio = 0
+        max_ratio = max_abs_change
+
     massif_name_to_color = {m: get_colors([v], cmap, min_ratio, max_ratio)[0]
                             for m, v in massif_name_to_value.items()}
     ticks_values_and_labels = ticks, labels

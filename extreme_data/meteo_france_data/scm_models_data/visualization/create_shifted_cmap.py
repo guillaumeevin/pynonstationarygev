@@ -4,6 +4,7 @@ import matplotlib.cm as cm
 import matplotlib.colorbar as cbar
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from extreme_fit.distribution.abstract_params import AbstractParams
@@ -22,6 +23,13 @@ def get_shifted_map(vmin, vmax, cmap=plt.cm.bwr):
     # cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
     shifted_cmap = shiftedColorMap(cmap, midpoint=midpoint, name='shifted')
     return shifted_cmap
+
+
+def get_half_colormap(cmap):
+    colors = cmap(np.linspace(0.5, 1, cmap.N // 2))
+    # Create a new colormap from those colors
+    cmap2 = LinearSegmentedColormap.from_list('Upper Half', colors)
+    return cmap2
 
 
 def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None, fontsize=15):
@@ -77,6 +85,15 @@ def ticks_values_and_labels_for_percentages(graduation, max_abs_change):
     all_ticks_labels = [-t for t in positive_ticks] + [0] + positive_ticks
     ticks_values = [((t / max_abs_change) + 1) / 2 for t in all_ticks_labels]
     return ticks_values, all_ticks_labels
+
+def ticks_values_and_labels_for_positive_value(graduation, max_abs_change):
+    positive_ticks = []
+    tick = 0
+    while tick < max_abs_change:
+        positive_ticks.append(round(tick, 1))
+        tick += graduation
+    ticks_values = [(t / max_abs_change) for t in positive_ticks]
+    return ticks_values, positive_ticks
 
 
 def ticks_and_labels_centered_on_one(max_ratio, min_ratio):
