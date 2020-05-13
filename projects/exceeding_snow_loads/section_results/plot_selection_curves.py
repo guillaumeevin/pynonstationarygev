@@ -21,6 +21,8 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
 
     selected_counter = merge_counter([v.selected_trend_test_class_counter for v in altitude_to_visualizer.values()])
     selected_and_significative_counter = merge_counter([v.selected_and_significative_trend_test_class_counter for v in altitude_to_visualizer.values()])
+    # selected_and_significative_counter = merge_counter([v.selected_and_anderson_goodness_of_fit_trend_test_class_counter for v in altitude_to_visualizer.values()])
+    # selected_and_significative_counter = merge_counter([v.selected_and_kstest_goodness_of_fit_trend_test_class_counter for v in altitude_to_visualizer.values()])
     total_of_selected_models = sum(selected_counter.values())
     l = sorted(enumerate(visualizer.non_stationary_trend_test), key=lambda e: selected_counter[e[1]])
     permutation = [i for i, v in l][::-1]

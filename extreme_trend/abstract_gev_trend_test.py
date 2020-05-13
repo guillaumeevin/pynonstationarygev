@@ -3,7 +3,9 @@ from math import ceil, floor
 import matplotlib.pyplot as plt
 import numpy as np
 from cached_property import cached_property
-from scipy.stats import chi2
+from scipy.stats import chi2, kstest, anderson
+from scipy.stats.morestats import AndersonResult
+from scipy.stats.stats import KstestResult
 
 from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE, YEAR_OF_INTEREST_FOR_RETURN_LEVEL
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable
@@ -53,6 +55,22 @@ class AbstractGevTrendTest(object):
     @property
     def is_significant(self) -> bool:
         return self.likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=self.degree_freedom_chi2)
+
+    @property
+    def goodness_of_fit_ks_test(self):
+        quantiles = self.compute_empirical_quantiles(estimator=self.unconstrained_estimator)
+        test_res = kstest(rvs=quantiles, cdf="gumbel_l")  # type: KstestResult
+        return test_res.pvalue < self.SIGNIFICANCE_LEVEL
+
+    @property
+    def goodness_of_fit_anderson_test(self):
+        assert self.SIGNIFICANCE_LEVEL == 0.05
+        # significance_level=array([25. , 10. ,  5. ,  2.5,  1. ]))
+        index_for_significance_level_5_percent = 4
+        quantiles = self.compute_empirical_quantiles(estimator=self.unconstrained_estimator)
+        test_res = anderson(quantiles, dist='gumbel')  # type: AndersonResult
+        print(test_res)
+        return test_res.statistic > test_res.critical_values[index_for_significance_level_5_percent]
 
     @property
     def degree_freedom_chi2(self) -> int:

@@ -306,6 +306,18 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             [type(t) for t in self.massif_name_to_trend_test_that_minimized_aic.values() if t.is_significant])
 
     @cached_property
+    def selected_and_anderson_goodness_of_fit_trend_test_class_counter(self):
+        return Counter(
+            [type(t) for t in self.massif_name_to_trend_test_that_minimized_aic.values()
+             if t.goodness_of_fit_anderson_test])
+
+    @cached_property
+    def selected_and_kstest_goodness_of_fit_trend_test_class_counter(self):
+        return Counter(
+            [type(t) for t in self.massif_name_to_trend_test_that_minimized_aic.values()
+             if t.goodness_of_fit_ks_test])
+
+    @cached_property
     def massif_name_to_marker_style(self):
         d = {}
         for m, t in self.massif_name_to_trend_test_that_minimized_aic.items():
