@@ -14,7 +14,7 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
-    StationaryTemporalModel
+    StationaryTemporalModel, GumbelTemporalModel
 from extreme_fit.model.utils import SafeRunException
 from root_utils import classproperty
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -49,6 +49,10 @@ class AbstractGevTrendTest(object):
     def unconstrained_estimator(self):
         return fitted_linear_margin_estimator(self.unconstrained_model_class, self.coordinates, self.dataset,
                                               self.starting_year, self.fit_method)
+
+    @property
+    def unconstrained_model_is_stationary(self):
+        return self.unconstrained_model_class in [StationaryTemporalModel, GumbelTemporalModel]
 
     # Likelihood ratio test
 
@@ -168,6 +172,58 @@ class AbstractGevTrendTest(object):
 
     # Some display function
 
+    def intensity_plot_wrt_standard_gumbel_simple(self, massif_name, altitude, color='grey', psnow=1):
+        ax = plt.gca()
+        sorted_maxima = sorted(self.maxima)
+        label_generic = '{} massif \nat {} m '.format(massif_name, altitude)
+        size = 15
+
+        # Plot for the empirical
+        standard_gumbel_quantiles = self.get_standard_gumbel_quantiles()
+        ax.plot(standard_gumbel_quantiles, sorted_maxima, linestyle='None',
+                label='Empirical model', marker='o', color='black')
+
+        ax_twiny = ax.twiny()
+
+        # Plot for the selected model with line break
+        # unconstrained_empirical_quantiles = self.compute_empirical_quantiles(self.unconstrained_estimator)
+        # ax.plot(unconstrained_empirical_quantiles, sorted_maxima,
+        #         label='Selected model, which is ${}$'.format(self.label))
+
+        end_real_proba = 1 - (0.02 / psnow)
+        if self.unconstrained_model_is_stationary:
+            years = [None]
+        else:
+            color = None
+            years = [1959, 1989, 2019]
+        for j, year in enumerate(years):
+            year_suffix = '' if year is None else 'for the year t={}'.format(year)
+            if j == 0:
+                label = 'Selected model i.e. ${}$'.format(self.label)
+                if year is not None:
+                    label += '\n' + year_suffix
+            else:
+                label = year_suffix
+            print(label)
+            self.plot_model(ax, year, end_proba=end_real_proba, label=label, color=color)
+
+        ax_lim = [-1.5, 4]
+        ax.set_xlim(ax_lim)
+        ax_twiny.set_xlim(ax_lim)
+        ax.set_xticks([-1 + i for i in range(6)])
+        epsilon = 0.005
+        ax.set_ylim(bottom=-epsilon)
+        lalsize = 13
+        ax.tick_params(axis='both', which='major', labelsize=lalsize)
+        ax_twiny.tick_params(axis='both', which='major', labelsize=lalsize)
+
+        ax.yaxis.grid()
+
+        ax.set_xlabel("Standard Gumbel quantile", fontsize=size)
+        ax.set_ylabel("Non-zero annual maxima of GSL ({})".format(AbstractSnowLoadVariable.UNIT), fontsize=size)
+        ax.legend(prop={'size': 17})
+
+
     def intensity_plot_wrt_standard_gumbel(self, massif_name, altitude, psnow):
         ax = plt.gca()
         sorted_maxima = sorted(self.maxima)
@@ -238,13 +294,14 @@ class AbstractGevTrendTest(object):
         ax.legend(prop={'size': 17})
 
     def plot_model(self, ax, year, start_proba=0.02, end_proba=0.98, label='', color=None):
+        if year is None:
+            # for the stationary model
+            year = 2019
+
         standard_gumbel = GevParams(0, 1, 0)
         start_quantile = standard_gumbel.quantile(start_proba)
         end_quantile = standard_gumbel.quantile(end_proba)
         extended_quantiles = np.linspace(start_quantile, end_quantile, 500)
-        label = 'Y({})'.format(year) if year is not None else label
-        if year is None:
-            year = 2019
         gev_params_year = self.get_unconstrained_gev_params(year)
         extended_maxima = [gev_params_year.gumbel_inverse_standardization(q) for q in extended_quantiles]
 
@@ -301,21 +358,6 @@ class AbstractGevTrendTest(object):
         label_generic = '{} massif \nat {} m '.format(massif_name, altitude)
         ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
                 label=label_generic + '(selected model is ${}$)'.format(self.label), marker='o')
-        if 'Verdon' in massif_name and altitude == 300:
-            q = [-1.4541688117485054, -1.2811308174310914, -1.216589300814509, -0.7635793791201918, -0.6298883422064275,
-                 -0.5275954855697504, -0.4577268043676126, -0.4497570331795861, -0.1647955002136654,
-                 -0.14492222503785876, -0.139173823298689, -0.11945617994263039, -0.07303100174657867,
-                 -5.497308509286266e-05, 0.13906416388625908, 0.15274793441408543, 0.1717763342727519,
-                 0.17712605315013535, 0.17900143646245203, 0.371986176207554, 0.51640780422156, 0.7380550963951035,
-                 0.7783015252180445, 0.887836077295502, 0.917853338231094, 0.9832396811506262, 1.0359396416309927,
-                 1.1892663813729711, 1.2053261113817888, 1.5695111391491652, 2.3223652143938476, 2.674882764437432,
-                 2.6955728524900406, 2.8155882785356896, 3.282838470153471, 3.2885313947906765]
-            print(len(q), len(standard_gumbel_quantiles))
-            ax.plot(standard_gumbel_quantiles, q, linestyle='None',
-                    label=label_generic
-                          + '(discarded model is ${}$\n'.format('\mathcal{M}_{\zeta_0, \sigma_1}')
-                          + 'with $\zeta_0=0.84$)',
-                    marker='o')
 
         ax.set_xlabel("Standard Gumbel quantile", fontsize=size)
         ax.set_ylabel("Standard Empirical quantile", fontsize=size)
@@ -328,8 +370,6 @@ class AbstractGevTrendTest(object):
         ax.grid()
         ax.tick_params(labelsize=size)
 
-        plt.show()
-
     def get_standard_gumbel_quantiles(self):
         # Standard Gumbel quantiles
         standard_gumbel_distribution = GevParams(loc=0, scale=1, shape=0)
@@ -338,7 +378,6 @@ class AbstractGevTrendTest(object):
         return standard_gumbel_quantiles
 
     def get_standard_quantiles_for_return_periods(self, return_periods, psnow):
-        n = len(self.years)
         p_list = [1 - ((1 / return_period) / psnow) for return_period in return_periods]
         standard_gumbel_distribution = GevParams(loc=0, scale=1, shape=0)
         corresponding_quantiles = [standard_gumbel_distribution.quantile(p) for p in p_list]

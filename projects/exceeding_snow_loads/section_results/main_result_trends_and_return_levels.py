@@ -2,6 +2,8 @@ from multiprocessing.pool import Pool
 
 import matplotlib as mpl
 
+from projects.exceeding_snow_loads.checks.qqplot.plot_qqplot import \
+    plot_intensity_against_gumbel_quantile_for_3_examples
 from projects.exceeding_snow_loads.section_results.plot_selection_curves import plot_selection_curves
 from projects.exceeding_snow_loads.section_results.plot_trend_curves import plot_trend_map
 
@@ -69,8 +71,9 @@ def intermediate_result(altitudes, massif_names=None,
     # plot_trend_curves(altitude_to_visualizer={a: v for a, v in altitude_to_visualizer.items() if a >= 900})
     # plot_uncertainty_massifs(altitude_to_visualizer)
     # plot_uncertainty_histogram(altitude_to_visualizer)
-    plot_selection_curves(altitude_to_visualizer)
+    # plot_selection_curves(altitude_to_visualizer)
     # uncertainty_interval_size(altitude_to_visualizer)
+    plot_intensity_against_gumbel_quantile_for_3_examples(altitude_to_visualizer)
 
 
 def major_result():
@@ -86,7 +89,7 @@ def major_result():
     model_subsets_for_uncertainty = None
     # study_classes = [CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][::-1]
     altitudes = paper_altitudes
-    # altitudes = [900]
+    altitudes = [900, 1800, 2700]
     for study_class in study_classes:
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,
                             uncertainty_methods, study_class,

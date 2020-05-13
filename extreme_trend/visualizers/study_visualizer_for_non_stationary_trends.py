@@ -420,9 +420,10 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     # Part 3 - QQPLOT
 
-    def intensity_plot(self, massif_name, psnow, color=None):
+    def intensity_plot(self, massif_name, color=None):
+        psnow = self.massif_name_to_psnow[massif_name]
         trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]
-        trend_test.intensity_plot_wrt_standard_gumbel(massif_name, self.altitude, psnow)
+        trend_test.intensity_plot_wrt_standard_gumbel_simple(massif_name, self.altitude, color, psnow)
         self.plot_name = 'intensity_plot_{}_{}_{}_{}'.format(self.altitude, massif_name, psnow, trend_test.unconstrained_estimator_gev_params.shape)
         self.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
@@ -430,6 +431,9 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def qqplot(self, massif_name, color=None):
         trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]
         trend_test.qqplot_wrt_standard_gumbel(massif_name, self.altitude)
+        self.plot_name = 'qpplot_plot_{}_{}_{}'.format(self.altitude, massif_name, trend_test.unconstrained_estimator_gev_params.shape)
+        self.show_or_save_to_file(add_classic_title=False, no_title=True)
+        plt.close()
 
     def return_level_plot(self, ax, ax2, massif_name, color=None):
         trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]

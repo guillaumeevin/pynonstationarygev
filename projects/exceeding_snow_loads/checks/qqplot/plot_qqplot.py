@@ -11,10 +11,10 @@ from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
-from projects.exceeding_snow_loads.data.main_example_swe_total_plot import tuples_for_examples_paper1
 from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.distribution.gev.gev_params import GevParams
+from projects.exceeding_snow_loads.section_data.main_example_swe_total_plot import tuples_for_examples_paper1
 
 
 def extract_time_serimes_with_worst_number_of_zeros(altitude_to_visualizer, nb_worst_examples):
@@ -47,6 +47,14 @@ def plot_intensity_against_gumbel_quantile_for_time_series_with_missing_zeros(
     l = extract_time_serimes_with_worst_number_of_zeros(altitude_to_visualizer, nb_worst_examples)
     for a, v, m, p in l:
         v.intensity_plot(m, p)
+
+
+def plot_intensity_against_gumbel_quantile_for_3_examples(
+        altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
+    for color, altitude, m in tuples_for_examples_paper1():
+        v = altitude_to_visualizer[altitude]
+        v.intensity_plot(m, color)
+        v.qqplot(m, color)
 
 
 def plot_qqplot_for_time_series_examples(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
