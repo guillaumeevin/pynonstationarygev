@@ -63,18 +63,17 @@ class AbstractGevTrendTest(object):
     @property
     def goodness_of_fit_ks_test(self):
         quantiles = self.compute_empirical_quantiles(estimator=self.unconstrained_estimator)
-        test_res = kstest(rvs=quantiles, cdf="gumbel_l")  # type: KstestResult
-        return test_res.pvalue < self.SIGNIFICANCE_LEVEL
+        test_res = kstest(rvs=quantiles, cdf="gumbel_r")  # type: KstestResult
+        return test_res.pvalue > self.SIGNIFICANCE_LEVEL
 
     @property
     def goodness_of_fit_anderson_test(self):
         assert self.SIGNIFICANCE_LEVEL == 0.05
         # significance_level=array([25. , 10. ,  5. ,  2.5,  1. ]))
-        index_for_significance_level_5_percent = 4
+        index_for_significance_level_5_percent = 2
         quantiles = self.compute_empirical_quantiles(estimator=self.unconstrained_estimator)
-        test_res = anderson(quantiles, dist='gumbel')  # type: AndersonResult
-        print(test_res)
-        return test_res.statistic > test_res.critical_values[index_for_significance_level_5_percent]
+        test_res = anderson(quantiles, dist='gumbel_r')  # type: AndersonResult
+        return test_res.statistic < test_res.critical_values[index_for_significance_level_5_percent]
 
     @property
     def degree_freedom_chi2(self) -> int:
@@ -204,7 +203,6 @@ class AbstractGevTrendTest(object):
                     label += '\n' + year_suffix
             else:
                 label = year_suffix
-            print(label)
             self.plot_model(ax, year, end_proba=end_real_proba, label=label, color=color)
 
         ax_lim = [-1.5, 4]

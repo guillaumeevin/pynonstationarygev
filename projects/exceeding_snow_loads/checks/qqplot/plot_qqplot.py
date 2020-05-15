@@ -57,6 +57,13 @@ def plot_intensity_against_gumbel_quantile_for_3_examples(
         v.qqplot(m, color)
 
 
+def plot_full_diagnostic(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
+    for v in altitude_to_visualizer.values():
+        for m in v.massif_name_to_trend_test_that_minimized_aic.keys():
+            v.intensity_plot(m)
+            v.qqplot(m)
+
+
 def plot_qqplot_for_time_series_examples(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
     marker_altitude_massif_name_for_paper1 = tuples_for_examples_paper1()
     for color, a, m in marker_altitude_massif_name_for_paper1:

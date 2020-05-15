@@ -25,6 +25,7 @@ pandas2ri.activate()
 r.library('SpatialExtremes')
 r.library('data.table')
 r.library('quantreg')
+r.library('gnFit')
 # Desactivate temporarily warnings
 default_filters = warnings.filters.copy()
 warnings.filterwarnings("ignore")
