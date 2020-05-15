@@ -9,6 +9,8 @@ from scipy.stats.stats import KstestResult
 
 from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE, YEAR_OF_INTEREST_FOR_RETURN_LEVEL
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable
+from extreme_fit.distribution.gumbel.gumbel_gof import \
+    cramer_von_mises_and_anderson_darling_tests_pvalues_for_gumbel_distribution
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.utils import \
@@ -72,8 +74,10 @@ class AbstractGevTrendTest(object):
         # significance_level=array([25. , 10. ,  5. ,  2.5,  1. ]))
         index_for_significance_level_5_percent = 2
         quantiles = self.compute_empirical_quantiles(estimator=self.unconstrained_estimator)
-        test_res = anderson(quantiles, dist='gumbel_r')  # type: AndersonResult
-        return test_res.statistic < test_res.critical_values[index_for_significance_level_5_percent]
+        # test_res = anderson(quantiles, dist='gumbel_r')  # type: AndersonResult
+        # return test_res.statistic < test_res.critical_values[index_for_significance_level_5_percent]
+        test = cramer_von_mises_and_anderson_darling_tests_pvalues_for_gumbel_distribution(quantiles)
+        return test[1] > self.SIGNIFICANCE_LEVEL
 
     @property
     def degree_freedom_chi2(self) -> int:

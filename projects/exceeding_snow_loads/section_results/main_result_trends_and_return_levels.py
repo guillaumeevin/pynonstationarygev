@@ -89,8 +89,8 @@ def major_result():
     #                                  ModelSubsetForUncertainty.non_stationary_gumbel_and_gev]
     model_subsets_for_uncertainty = None
     # study_classes = [CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][::-1]
-    # altitudes = paper_altitudes
-    altitudes = [900, 1800, 2700][:1]
+    altitudes = paper_altitudes
+    # altitudes = [900, 1800, 2700][:1]
     for study_class in study_classes:
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,
                             uncertainty_methods, study_class,

@@ -20,8 +20,8 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
     ax = create_adjusted_axes(1, 1)
 
     selected_counter = merge_counter([v.selected_trend_test_class_counter for v in altitude_to_visualizer.values()])
-    selected_and_significative_counter = merge_counter([v.selected_and_significative_trend_test_class_counter for v in altitude_to_visualizer.values()])
-    # selected_and_significative_counter = merge_counter([v.selected_and_anderson_goodness_of_fit_trend_test_class_counter for v in altitude_to_visualizer.values()])
+    # selected_and_significative_counter = merge_counter([v.selected_and_significative_trend_test_class_counter for v in altitude_to_visualizer.values()])
+    selected_and_significative_counter = merge_counter([v.selected_and_anderson_goodness_of_fit_trend_test_class_counter for v in altitude_to_visualizer.values()])
     # selected_and_significative_counter = merge_counter([v.selected_and_kstest_goodness_of_fit_trend_test_class_counter for v in altitude_to_visualizer.values()])
     total_of_selected_models = sum(selected_counter.values())
     l = sorted(enumerate(visualizer.non_stationary_trend_test), key=lambda e: selected_counter[e[1]])
@@ -32,8 +32,8 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
     labels = permute(['${}$'.format(t.label) for t in visualizer.non_stationary_trend_test], permutation)
 
     print(l)
-    print(select_list)
-    print(selected_and_signifcative_list)
+    print(sum(select_list), select_list)
+    print(sum(selected_and_signifcative_list), selected_and_signifcative_list)
     # [(5, <    class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_two_parameters.gev_trend_test_two_parameters.GevLocationAgainstGumbel'> ), (6, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_two_parameters.gev_trend_test_two_parameters.GevScaleAgainstGumbel' > ), (2, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter.GumbelScaleTrendTest' > ), (1, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter.GumbelLocationTrendTest' > ), (7, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_three_parameters.gev_trend_test_three_parameters.GevLocationAndScaleTrendTestAgainstGumbel' > ), (3, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_two_parameters.gumbel_test_two_parameters.GumbelLocationAndScaleTrendTest' > ), (4, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter.GevStationaryVersusGumbel' > ), (0, < class 'data.trend_analysis.univariate_test.extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter.GumbelVersusGumbel' > )]
     # [32.64462809917355, 24.380165289256198, 12.396694214876034, 9.50413223140496, 9.090909090909092, 5.785123966942149, 3.71900826446281, 2.479338842975207]
     # [0, 13.223140495867769, 7.851239669421488, 8.264462809917354, 4.958677685950414, 2.479338842975207, 0.8264462809917356, 2.0661157024793386]

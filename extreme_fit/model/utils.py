@@ -25,15 +25,15 @@ pandas2ri.activate()
 r.library('SpatialExtremes')
 r.library('data.table')
 r.library('quantreg')
-r.library('gnFit')
 # Desactivate temporarily warnings
 default_filters = warnings.filters.copy()
 warnings.filterwarnings("ignore")
 # Load ismev
 r.library('ismev')
 # Load fevd fixed
-for filename in ['ci_fevd_fixed.R', 'fevd_fixed.R']:
-    fevd_fixed_filepath = op.join(get_root_path(), 'extreme_fit', 'distribution', 'gev', filename)
+for j, filename in enumerate(['ci_fevd_fixed.R', 'fevd_fixed.R', 'gnfit_fixed.R']):
+    folder = 'gev' if j <= 1 else "gumbel"
+    fevd_fixed_filepath = op.join(get_root_path(), 'extreme_fit', 'distribution', folder, filename)
     assert op.exists(fevd_fixed_filepath)
     r.source(fevd_fixed_filepath)
 # Reactivate warning
