@@ -7,7 +7,7 @@ from sklearn.linear_model import LinearRegression
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
-from projects.contrasting_trends_in_snow_loads.snowfall_versus_time_and_altitude.study_visualizer_for_mean_values import \
+from projects.contrasting_trends_in_snow_loads.article2_snowfall_versus_time_and_altitude.study_visualizer_for_mean_values import \
     StudyVisualizerForMeanValues
 
 

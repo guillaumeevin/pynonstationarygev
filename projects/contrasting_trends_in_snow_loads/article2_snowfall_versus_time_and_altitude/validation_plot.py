@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION
-from projects.contrasting_trends_in_snow_loads.snowfall_versus_time_and_altitude.study_visualizer_for_mean_values import \
+from projects.contrasting_trends_in_snow_loads.article2_snowfall_versus_time_and_altitude.study_visualizer_for_mean_values import \
     StudyVisualizerForMeanValues
 from projects.ogorman.gorman_figures.figure1.study_visualizer_for_double_stationary_fit import \
     StudyVisualizerForReturnLevelChange

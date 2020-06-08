@@ -23,7 +23,7 @@ class TwoFoldDatasetsGenerator(object):
         for massif_name in self.massif_names:
             l = []
             for _ in range(self.nb_samples):
-                # Append to the list
+                # Append to the list a new two fold dataset
                 l.append(self.two_fold_datasets(massif_name))
             d[massif_name] = l
         return d
