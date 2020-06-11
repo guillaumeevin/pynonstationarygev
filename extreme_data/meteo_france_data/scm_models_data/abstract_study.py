@@ -492,6 +492,7 @@ class AbstractStudy(object):
                         massif_name_to_marker_style=None,
                         marker_style_to_label_name=None,
                         ticks_values_and_labels=None,
+                        massif_name_to_text=None,
                         fontsize_label=15,
                         ):
         if ax is None:
@@ -563,8 +564,11 @@ class AbstractStudy(object):
             for _, row in masssif_coordinate_for_display.df_all_coordinates.iterrows():
                 x, y = list(row)
                 massif_name = row.name
-                value = massif_name_to_value[massif_name]
-                str_value = str(value)
+                if massif_name_to_text is None:
+                    value = massif_name_to_value[massif_name]
+                    str_value = str(value)
+                else:
+                    str_value = massif_name_to_text[massif_name]
                 ax.text(x, y, str_value, horizontalalignment='center', verticalalignment='center', fontsize=fontsize)
 
         if scaled:

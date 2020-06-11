@@ -21,8 +21,8 @@ class GevLocationAndScaleAndShapeTrendTest(GevTrendTestThreeParameters):
     def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE,
                  fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year,
-                         unconstrained_model_class=StationaryTemporalModel,
-                         constrained_model_class=NonStationaryLocationAndScaleAndShapeTemporalModel,
+                         unconstrained_model_class=NonStationaryLocationAndScaleAndShapeTemporalModel,
+                         constrained_model_class=StationaryTemporalModel,
                          quantile_level=quantile_level,
                          fit_method=fit_method)
 
