@@ -80,6 +80,31 @@ class AbstractGevTrendTest(object):
         return test[1] > self.SIGNIFICANCE_LEVEL
 
     @property
+    def name(self):
+        if self.constrained_model_class is GumbelTemporalModel:
+            family = 'Gum'
+        else:
+            family = 'Gev'
+
+        if self.unconstrained_estimator.margin_model.mul == 1:
+            family += '1'
+        else:
+            family += '0'
+
+        if self.unconstrained_estimator.margin_model.sigl == 1:
+            family += '1'
+        else:
+            family += '0'
+
+        if family.startswith('Gev'):
+            if self.unconstrained_estimator.margin_model.shl == 1:
+                family += '1'
+            else:
+                family += '0'
+
+        return family
+
+    @property
     def degree_freedom_chi2(self) -> int:
         raise NotImplementedError
 
@@ -224,7 +249,6 @@ class AbstractGevTrendTest(object):
         ax.set_xlabel("Standard Gumbel quantile", fontsize=size)
         ax.set_ylabel("Non-zero annual maxima of GSL ({})".format(AbstractSnowLoadVariable.UNIT), fontsize=size)
         ax.legend(prop={'size': 17})
-
 
     def intensity_plot_wrt_standard_gumbel(self, massif_name, altitude, psnow):
         ax = plt.gca()
@@ -446,7 +470,7 @@ class AbstractGevTrendTest(object):
 
     def unconstrained_average_mean_value(self, year_min, year_max) -> float:
         mean_values = []
-        for year in range(year_min, year_max+1):
+        for year in range(year_min, year_max + 1):
             mean = self.get_unconstrained_gev_params(year).mean
             mean_values.append(mean)
         average_mean_value = np.mean(mean_values)

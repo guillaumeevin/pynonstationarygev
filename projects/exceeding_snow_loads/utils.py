@@ -31,9 +31,18 @@ NON_STATIONARY_TREND_TEST_PAPER_2 = [
     # Gumbel models
     GumbelVersusGumbel, GumbelLocationTrendTest, GumbelScaleTrendTest, GumbelLocationAndScaleTrendTest,
     # GEV models with constant shape
-    GevVersusGev, GevLocationTrendTest, GevScaleTrendTest,  GevLocationAndScaleTrendTest,
+    GevVersusGev, GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest,
     # GEV models with linear shape
     GevShapeTrendTest, GevLocationAndShapeTrendTest, GevScaleAndShapeTrendTest, GevLocationAndScaleAndShapeTrendTest
 ]
 
 
+def get_trend_test_name(trend_test_class):
+    years = list(range(10))
+    trend_test = trend_test_class(years, years, None)
+    return trend_test.name
+
+
+if __name__ == '__main__':
+    for trend_test_class in NON_STATIONARY_TREND_TEST_PAPER_2:
+        print(get_trend_test_name(trend_test_class))

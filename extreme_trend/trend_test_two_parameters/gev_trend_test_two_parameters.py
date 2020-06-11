@@ -17,7 +17,8 @@ class GevTrendTestTwoParameters(AbstractGevTrendTest):
     def degree_freedom_chi2(self) -> int:
         return 2
 
-class GevTrendTestTwoParametersAgainstGev(AbstractGevTrendTest):
+
+class GevTrendTestTwoParametersAgainstGev(GevTrendTestTwoParameters):
 
     @classproperty
     def total_number_of_parameters_for_unconstrained_model(cls) -> int:
@@ -25,7 +26,7 @@ class GevTrendTestTwoParametersAgainstGev(AbstractGevTrendTest):
 
 
 class GevLocationAndShapeTrendTest(GevTrendTestTwoParametersAgainstGev):
-    
+
     def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel,
                  quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year,
@@ -36,7 +37,6 @@ class GevLocationAndShapeTrendTest(GevTrendTestTwoParametersAgainstGev):
 
 
 class GevScaleAndShapeTrendTest(GevTrendTestTwoParametersAgainstGev):
-
 
     def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel,
                  quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
@@ -83,7 +83,8 @@ class GevLocationAndScaleTrendTest(GevTrendTestTwoParametersAgainstGev):
 
 class GevLocationAgainstGumbel(GevTrendTestTwoParameters, GevLocationTrendTest):
 
-    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE,
+                 fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year, quantile_level, GumbelTemporalModel, fit_method=fit_method)
 
     @classproperty
@@ -101,7 +102,8 @@ class GevLocationAgainstGumbel(GevTrendTestTwoParameters, GevLocationTrendTest):
 
 class GevScaleAgainstGumbel(GevTrendTestTwoParameters, GevScaleTrendTest):
 
-    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE,
+                 fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year, quantile_level, GumbelTemporalModel, fit_method=fit_method)
 
     @classproperty

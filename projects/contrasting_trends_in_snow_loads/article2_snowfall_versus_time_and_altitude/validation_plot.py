@@ -23,9 +23,9 @@ def validation_plot(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValu
     for altitude, visualizer in altitude_to_visualizer.items():
         altitude_to_relative_differences[altitude] = plot_function(visualizer)
         study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500)
-    # Shoe plot with respect to the altitude.
-    plot_shoe_relative_differences_distribution(altitude_to_relative_differences, altitudes, study_visualizer,
-                                                order_derivative)
+    # # Shoe plot with respect to the altitude.
+    # plot_shoe_relative_differences_distribution(altitude_to_relative_differences, altitudes, study_visualizer,
+    #                                             order_derivative)
     study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500)
     plt.close()
 
@@ -51,13 +51,13 @@ def plot_shoe_relative_differences_distribution(altitude_to_relative_differences
 def plot_relative_difference_map_order_zero(visualizer: StudyVisualizerForMeanValues):
     study = visualizer.study
     label = ' mean annual maxima of {} ({})'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit)
-    visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_empirical_mean,
-                                  label='Empirical' + label, negative_and_positive_values=False)
+    # visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_empirical_mean,
+    #                               label='Empirical' + label, negative_and_positive_values=False)
     visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_model_mean,
-                                  label='Model' + label, negative_and_positive_values=False)
-    visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_relative_difference_for_mean,
-                                  label='Relative difference of the model mean w.r.t. the empirical mean \n'
-                                        'for the ' + label, graduation=1)
+                                  label='Model' + label, negative_and_positive_values=False, add_text=True)
+    # visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_relative_difference_for_mean,
+    #                               label='Relative difference of the model mean w.r.t. the empirical mean \n'
+    #                                     'for the ' + label, graduation=1)
     return list(visualizer.massif_name_to_relative_difference_for_mean.values())
 
 

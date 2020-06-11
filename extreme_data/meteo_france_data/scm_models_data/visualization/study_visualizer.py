@@ -709,20 +709,22 @@ class StudyVisualizer(VisualizationParameters):
     # PLot functions that should be common
 
     def plot_map(self, cmap, fit_method, graduation, label, massif_name_to_value, plot_name, add_x_label=True,
-                 negative_and_positive_values=True):
+                 negative_and_positive_values=True, massif_name_to_text=None):
         load_plot(cmap, graduation, label, massif_name_to_value, self.study.altitude, fitmethod_to_str(fit_method),
-                  add_x_label=add_x_label, negative_and_positive_values=negative_and_positive_values)
+                  add_x_label=add_x_label, negative_and_positive_values=negative_and_positive_values,
+                  massif_name_to_text=massif_name_to_text)
         self.plot_name = plot_name
         # self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True, dpi=500)
         self.show_or_save_to_file(add_classic_title=False, no_title=True, dpi=500)
         plt.close()
 
     def plot_abstract(self, massif_name_to_value, label, plot_name, fit_method='', graduation=10.0, cmap=plt.cm.bwr,
-                      add_x_label=True, negative_and_positive_values=True):
+                      add_x_label=True, negative_and_positive_values=True, massif_name_to_text=None):
         # Regroup the plot by altitudes
         plot_name1 = '{}/{}'.format(self.study.altitude, plot_name)
         # Regroup the plot by type of plot also
         plot_name2 = '{}/{}'.format(plot_name.split()[0], plot_name)
         for plot_name in [plot_name1, plot_name2]:
-            self.plot_map(cmap, fit_method, graduation, label, massif_name_to_value, plot_name, add_x_label, negative_and_positive_values)
+            self.plot_map(cmap, fit_method, graduation, label, massif_name_to_value, plot_name, add_x_label, negative_and_positive_values,
+                          massif_name_to_text)
 

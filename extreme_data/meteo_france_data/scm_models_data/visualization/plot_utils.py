@@ -23,7 +23,7 @@ def plot_against_altitude(altitudes, ax, massif_id, massif_name, values):
 
 
 def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_method, add_x_label=True,
-              negative_and_positive_values=True):
+              negative_and_positive_values=True, massif_name_to_text=None):
     max_abs_change = max([abs(e) for e in massif_name_to_value.values()])
     if negative_and_positive_values:
         ticks, labels = ticks_values_and_labels_for_percentages(graduation=graduation, max_abs_change=max_abs_change)
@@ -54,6 +54,8 @@ def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_metho
                                   ticks_values_and_labels=ticks_values_and_labels,
                                   label=label,
                                   fontsize_label=10,
+                                  massif_name_to_text=massif_name_to_text,
+                                  add_text=massif_name_to_text is not None,
                                   )
     ax.get_xaxis().set_visible(True)
     ax.set_xticks([])

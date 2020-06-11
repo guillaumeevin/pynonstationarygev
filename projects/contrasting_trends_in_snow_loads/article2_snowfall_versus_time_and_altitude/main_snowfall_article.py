@@ -9,6 +9,7 @@ from projects.contrasting_trends_in_snow_loads.article2_snowfall_versus_time_and
 from projects.contrasting_trends_in_snow_loads.article2_snowfall_versus_time_and_altitude.study_visualizer_for_mean_values import \
     StudyVisualizerForMeanValues
 from projects.contrasting_trends_in_snow_loads.article2_snowfall_versus_time_and_altitude.validation_plot import validation_plot
+from projects.exceeding_snow_loads.section_results.plot_selection_curves import plot_selection_curves
 from projects.exceeding_snow_loads.section_results.plot_trend_curves import plot_trend_map
 
 mpl.rcParams['text.usetex'] = True
@@ -75,6 +76,7 @@ def intermediate_result(altitudes, massif_names=None,
     validation_plot(altitude_to_visualizer, order_derivative=0)
     # validation_plot(altitude_to_visualizer, order_derivative=1)
     plot_snowfall_mean(altitude_to_visualizer)
+    plot_selection_curves(altitude_to_visualizer, paper1=False)
     # plot_snowfall_time_derivative_mean(altitude_to_visualizer)
 
 
@@ -85,10 +87,10 @@ def major_result():
     study_classes = [SafranSnowfall1Day]
     model_subsets_for_uncertainty = None
     altitudes = paper_altitudes
-    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
-    # altitudes = [900, 1200]
-    draft_altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
-    altitudes = draft_altitudes
+    # altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
+    altitudes = [900, 1200, 1500, 1800]
+    # draft_altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
+    # altitudes = draft_altitudes
 
     for study_class in study_classes:
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,

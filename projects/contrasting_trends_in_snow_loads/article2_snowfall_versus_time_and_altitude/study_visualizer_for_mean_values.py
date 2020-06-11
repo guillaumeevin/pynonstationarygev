@@ -1,3 +1,4 @@
+from collections import Counter
 from typing import Dict
 
 import matplotlib.pyplot as plt
@@ -37,9 +38,23 @@ class StudyVisualizerForMeanValues(StudyVisualizerForNonStationaryTrends):
         assert len(self.non_stationary_trend_test) == len(NON_STATIONARY_TREND_TEST_PAPER_2)
 
     def plot_abstract_fast(self, massif_name_to_value, label, graduation=10.0, cmap=plt.cm.coolwarm, add_x_label=True,
-                           negative_and_positive_values=True):
+                           negative_and_positive_values=True, add_text=False):
+        massif_name_to_text = self.massif_name_to_text if add_text else None
         super().plot_abstract(massif_name_to_value, label, label, self.fit_method, graduation, cmap, add_x_label,
-                              negative_and_positive_values)
+                              negative_and_positive_values, massif_name_to_text)
+
+    @property
+    def massif_name_to_text(self):
+        d = {}
+        for m, t in self.massif_name_to_trend_test_that_minimized_aic.items():
+            if t.is_significant:
+                name = '$\\textbf{'
+                name += t.name
+                name += '}$'
+            else:
+                name = '${}$'.format(t.name)
+            d[m] = name
+        return d
 
     # Override the main dict massif_name_to_trend_test_that_minimized_aic
 
@@ -47,6 +62,10 @@ class StudyVisualizerForMeanValues(StudyVisualizerForNonStationaryTrends):
     def massif_name_to_trend_test_that_minimized_aic(self) -> Dict[str, AbstractGevTrendTest]:
         return {m: t for m, t in super().massif_name_to_trend_test_that_minimized_aic.items()
                 if t.goodness_of_fit_anderson_test}
+
+    @property
+    def super_massif_name_to_trend_test_that_minimized_aic(self):
+        return super().massif_name_to_trend_test_that_minimized_aic
 
     # Study of the mean
 
