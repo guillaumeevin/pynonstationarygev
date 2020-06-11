@@ -5,7 +5,8 @@ from extreme_trend.trend_test_one_parameter.gev_trend_test_one_parameter import 
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
-    NonStationaryLocationAndScaleTemporalModel, StationaryTemporalModel, GumbelTemporalModel
+    NonStationaryLocationAndScaleTemporalModel, StationaryTemporalModel, GumbelTemporalModel, \
+    NonStationaryScaleAndShapeTemporalModel, NonStationaryLocationAndShapeTemporalModel
 from extreme_fit.distribution.gev.gev_params import GevParams
 from root_utils import classproperty
 
@@ -16,8 +17,37 @@ class GevTrendTestTwoParameters(AbstractGevTrendTest):
     def degree_freedom_chi2(self) -> int:
         return 2
 
+class GevTrendTestTwoParametersAgainstGev(AbstractGevTrendTest):
 
-class GevLocationAndScaleTrendTest(GevTrendTestTwoParameters):
+    @classproperty
+    def total_number_of_parameters_for_unconstrained_model(cls) -> int:
+        return 5
+
+
+class GevLocationAndShapeTrendTest(GevTrendTestTwoParametersAgainstGev):
+    
+    def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel,
+                 quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
+        super().__init__(years, maxima, starting_year,
+                         unconstrained_model_class=NonStationaryLocationAndShapeTemporalModel,
+                         constrained_model_class=constrained_model_class,
+                         quantile_level=quantile_level,
+                         fit_method=fit_method)
+
+
+class GevScaleAndShapeTrendTest(GevTrendTestTwoParametersAgainstGev):
+
+
+    def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel,
+                 quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
+        super().__init__(years, maxima, starting_year,
+                         unconstrained_model_class=NonStationaryScaleAndShapeTemporalModel,
+                         constrained_model_class=constrained_model_class,
+                         quantile_level=quantile_level,
+                         fit_method=fit_method)
+
+
+class GevLocationAndScaleTrendTest(GevTrendTestTwoParametersAgainstGev):
 
     def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel,
                  quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):

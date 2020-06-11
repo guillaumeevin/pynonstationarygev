@@ -4,12 +4,15 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusS
     CrocusSnowLoad3Days
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     ALL_ALTITUDES_WITHOUT_NAN
+from extreme_trend.trend_test_one_parameter.gev_trend_test_one_parameter import GevVersusGev, GevScaleTrendTest, \
+    GevLocationTrendTest, GevShapeTrendTest
 from extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
     GumbelVersusGumbel, GumbelLocationTrendTest, GumbelScaleTrendTest, GevStationaryVersusGumbel
 from extreme_trend.trend_test_three_parameters.gev_trend_test_three_parameters import \
-    GevLocationAndScaleTrendTestAgainstGumbel
+    GevLocationAndScaleTrendTestAgainstGumbel, GevLocationAndScaleAndShapeTrendTest
 from extreme_trend.trend_test_two_parameters.gev_trend_test_two_parameters import \
-    GevLocationAgainstGumbel, GevScaleAgainstGumbel
+    GevLocationAgainstGumbel, GevScaleAgainstGumbel, GevLocationAndScaleTrendTest, GevScaleAndShapeTrendTest, \
+    GevLocationAndShapeTrendTest
 from extreme_trend.trend_test_two_parameters.gumbel_test_two_parameters import \
     GumbelLocationAndScaleTrendTest
 
@@ -17,12 +20,20 @@ paper_altitudes = ALL_ALTITUDES_WITHOUT_NAN
 paper_study_classes = [CrocusSnowLoadTotal, CrocusSnowLoadEurocode, CrocusSnowLoad3Days][:2]
 # dpi_paper1_figure = 700
 dpi_paper1_figure = None
-NON_STATIONARY_TREND_TEST_PAPER = [GumbelVersusGumbel,
-                                   GumbelLocationTrendTest, GumbelScaleTrendTest,
-                                   GumbelLocationAndScaleTrendTest,
-                                   GevStationaryVersusGumbel,
-                                   GevLocationAgainstGumbel, GevScaleAgainstGumbel,
-                                   GevLocationAndScaleTrendTestAgainstGumbel]
+NON_STATIONARY_TREND_TEST_PAPER_1 = [GumbelVersusGumbel,
+                                     GumbelLocationTrendTest, GumbelScaleTrendTest,
+                                     GumbelLocationAndScaleTrendTest,
+                                     GevStationaryVersusGumbel,
+                                     GevLocationAgainstGumbel, GevScaleAgainstGumbel,
+                                     GevLocationAndScaleTrendTestAgainstGumbel]
 
+NON_STATIONARY_TREND_TEST_PAPER_2 = [
+    # Gumbel models
+    GumbelVersusGumbel, GumbelLocationTrendTest, GumbelScaleTrendTest, GumbelLocationAndScaleTrendTest,
+    # GEV models with constant shape
+    GevVersusGev, GevLocationTrendTest, GevScaleTrendTest,  GevLocationAndScaleTrendTest,
+    # GEV models with linear shape
+    GevShapeTrendTest, GevLocationAndShapeTrendTest, GevScaleAndShapeTrendTest, GevLocationAndScaleAndShapeTrendTest
+]
 
 

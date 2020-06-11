@@ -63,7 +63,7 @@ def max_graph_annual_maxima_poster():
             tight_pad = {'h_pad': 0.2}
             snow_abbreviation = 'max ' + snow_abbreviation
             for color, _, massif_name in marker_altitude_massif_name_for_paper1[::-1]:
-                last_plot = color == "magenta" and altitude == second_altitude
+                last_plot = massif_name == 'Ubaye' and altitude == second_altitude
                 label = '{} massif at {}m'.format(massif_name, altitude)
                 study_visualizer.visualize_max_graphs_poster(massif_name, altitude, snow_abbreviation, color, label,
                                                              last_plot, ax, tight_pad=tight_pad,

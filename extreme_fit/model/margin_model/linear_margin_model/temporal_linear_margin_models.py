@@ -57,7 +57,7 @@ class NonStationaryLocationAndScaleTemporalModel(AbstractTemporalLinearMarginMod
 
     def load_margin_function(self, param_name_to_dims=None):
         return super().load_margin_function({GevParams.LOC: [self.coordinates.idx_temporal_coordinates],
-                                      GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
+                                             GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
 
     @property
     def mul(self):
@@ -65,6 +65,56 @@ class NonStationaryLocationAndScaleTemporalModel(AbstractTemporalLinearMarginMod
 
     @property
     def sigl(self):
+        return 1
+
+
+class NonStationaryLocationAndShapeTemporalModel(AbstractTemporalLinearMarginModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: [self.coordinates.idx_temporal_coordinates],
+                                             GevParams.SHAPE: [self.coordinates.idx_temporal_coordinates]})
+
+    @property
+    def mul(self):
+        return 1
+
+    @property
+    def shl(self):
+        return 1
+
+
+class NonStationaryScaleAndShapeTemporalModel(AbstractTemporalLinearMarginModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SHAPE: [self.coordinates.idx_temporal_coordinates],
+                                             GevParams.SCALE: [self.coordinates.idx_temporal_coordinates]})
+
+    @property
+    def shl(self):
+        return 1
+
+    @property
+    def sigl(self):
+        return 1
+
+
+class NonStationaryLocationAndScaleAndShapeTemporalModel(AbstractTemporalLinearMarginModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: [self.coordinates.idx_temporal_coordinates],
+                                             GevParams.SCALE: [self.coordinates.idx_temporal_coordinates],
+                                             GevParams.SHAPE: [self.coordinates.idx_temporal_coordinates]})
+
+    @property
+    def mul(self):
+        return 1
+
+    @property
+    def sigl(self):
+        return 1
+
+    @property
+    def shl(self):
         return 1
 
 

@@ -17,7 +17,7 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_extended_study impo
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
-from projects.exceeding_snow_loads.utils import NON_STATIONARY_TREND_TEST_PAPER
+from projects.exceeding_snow_loads.utils import NON_STATIONARY_TREND_TEST_PAPER_1
 from extreme_trend.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
     GumbelLocationTrendTest, GevStationaryVersusGumbel, GumbelScaleTrendTest, GumbelVersusGumbel
@@ -87,7 +87,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             assert set(self.uncertainty_massif_names).issubset(set(self.study.study_massif_names))
         if self.non_stationary_trend_test_to_marker is None:
             # Assign default argument for the non stationary trends
-            self.non_stationary_trend_test = NON_STATIONARY_TREND_TEST_PAPER
+            self.non_stationary_trend_test = NON_STATIONARY_TREND_TEST_PAPER_1
             self.non_stationary_trend_test_to_marker = {t: t.marker for t in self.non_stationary_trend_test}
         else:
             self.non_stationary_trend_test = list(self.non_stationary_trend_test_to_marker.keys())
