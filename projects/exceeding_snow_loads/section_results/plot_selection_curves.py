@@ -2,7 +2,7 @@ from typing import Dict
 import matplotlib.pyplot as plt
 
 from extreme_data.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
-from projects.exceeding_snow_loads.utils import dpi_paper1_figure
+from projects.exceeding_snow_loads.utils import dpi_paper1_figure, get_trend_test_name
 from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import StudyVisualizerForNonStationaryTrends
 
 
@@ -10,7 +10,8 @@ def permute(l, permutation):
     # permutation = [i//2  if i % 2 == 0 else 4 + i //2 for i in range(8)]
     return [l[i] for i in permutation]
 
-def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends]):
+def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNonStationaryTrends],
+                          paper1=True):
     """
     Plot a single trend curves
     :return:
@@ -20,8 +21,7 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
     ax = create_adjusted_axes(1, 1)
 
     selected_counter = merge_counter([v.selected_trend_test_class_counter for v in altitude_to_visualizer.values()])
-    # selected_and_significative_counter = merge_counter([v.selected_and_significative_trend_test_class_counter for v in altitude_to_visualizer.values()])
-    selected_and_significative_counter = merge_counter([v.selected_and_anderson_goodness_of_fit_trend_test_class_counter for v in altitude_to_visualizer.values()])
+    selected_and_significative_counter = merge_counter([v.selected_and_significative_trend_test_class_counter for v in altitude_to_visualizer.values()])
     # selected_and_significative_counter = merge_counter([v.selected_and_kstest_goodness_of_fit_trend_test_class_counter for v in altitude_to_visualizer.values()])
     total_of_selected_models = sum(selected_counter.values())
     l = sorted(enumerate(visualizer.non_stationary_trend_test), key=lambda e: selected_counter[e[1]])
@@ -29,7 +29,11 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
 
     select_list = get_ordered_list_from_counter(selected_counter, total_of_selected_models, visualizer, permutation)
     selected_and_signifcative_list = get_ordered_list_from_counter(selected_and_significative_counter, total_of_selected_models, visualizer, permutation)
-    labels = permute(['${}$'.format(t.label) for t in visualizer.non_stationary_trend_test], permutation)
+    if paper1:
+        labels = ['${}$'.format(t.label) for t in visualizer.non_stationary_trend_test]
+    else:
+        labels = [get_trend_test_name(t) for t in visualizer.non_stationary_trend_test]
+    labels = permute(labels, permutation)
 
     print(l)
     print(sum(select_list), select_list)
@@ -42,7 +46,10 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
     width = 5
     size = 30
     legend_fontsize = 30
-    labelsize = 25
+    if paper1:
+        labelsize = 25
+    else:
+        labelsize = 15
     linewidth = 3
     x = [10 * (i+1) for i in range(len(select_list))]
     ax.bar(x, select_list, width=width, color='grey', edgecolor='grey', label='Non significant model',
@@ -95,8 +102,18 @@ def plot_selection_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNo
     #     ax_twinx.plot(altitudes, mean_decrease, label=label, linewidth=linewidth, marker='o')
     #     ax_twinx.legend(loc='upper right', prop={'size': size})
 
+    # Compute the ratio of plots that pass the goodness of fit test
+    if paper1:
+        ratio = '100'
+    else:
+        nb_selected_total = 0
+        nb_selected_total_and_goodness_of_fit = 0
+        for v in altitude_to_visualizer.values():
+            nb_selected_total += len(v.super_massif_name_to_trend_test_that_minimized_aic)
+            nb_selected_total_and_goodness_of_fit += len(v.massif_name_to_trend_test_that_minimized_aic)
+        ratio = 100 * nb_selected_total_and_goodness_of_fit / nb_selected_total
     # Save plot
-    visualizer.plot_name = 'Selection curves'
+    visualizer.plot_name = 'Selection curves ({}% of selected models were kept)'.format(ratio)
     visualizer.show_or_save_to_file(no_title=True, dpi=dpi_paper1_figure)
     plt.close()
 

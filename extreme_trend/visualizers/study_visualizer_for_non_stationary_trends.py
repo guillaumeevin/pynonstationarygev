@@ -169,7 +169,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             if self.select_only_acceptable_shape_parameter:
                 acceptable_shape_parameter = lambda s: -0.5 <= s <= 0.5  # physically acceptable prior
                 all_trend_test = [t for t in all_trend_test
-                                  if acceptable_shape_parameter(t.unconstrained_estimator_gev_params.shape)]
+                                  if (acceptable_shape_parameter(t.unconstrained_estimator_gev_params_last_year.shape)
+                                  and acceptable_shape_parameter(t.unconstrained_estimator_gev_params_first_year.shape))]
             sorted_trend_test = sorted(all_trend_test, key=lambda t: t.aic)
 
             # Extract the stationary or non-stationary model that minimized AIC
@@ -424,14 +425,14 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         psnow = self.massif_name_to_psnow[massif_name]
         trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]
         trend_test.intensity_plot_wrt_standard_gumbel_simple(massif_name, self.altitude, color, psnow)
-        self.plot_name = 'intensity_plot_{}_{}_{}_{}'.format(self.altitude, massif_name, psnow, trend_test.unconstrained_estimator_gev_params.shape)
+        self.plot_name = 'intensity_plot_{}_{}_{}_{}'.format(self.altitude, massif_name, psnow, trend_test.unconstrained_estimator_gev_params_last_year.shape)
         self.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
 
     def qqplot(self, massif_name, color=None):
         trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]
         trend_test.qqplot_wrt_standard_gumbel(massif_name, self.altitude)
-        self.plot_name = 'qpplot_plot_{}_{}_{}'.format(self.altitude, massif_name, trend_test.unconstrained_estimator_gev_params.shape)
+        self.plot_name = 'qpplot_plot_{}_{}_{}'.format(self.altitude, massif_name, trend_test.unconstrained_estimator_gev_params_last_year.shape)
         self.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
 

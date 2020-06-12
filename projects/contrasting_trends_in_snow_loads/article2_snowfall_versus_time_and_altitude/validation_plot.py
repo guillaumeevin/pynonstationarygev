@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 from typing import Dict
 
 import matplotlib.pyplot as plt
@@ -8,25 +9,27 @@ from projects.contrasting_trends_in_snow_loads.article2_snowfall_versus_time_and
     StudyVisualizerForMeanValues
 from projects.ogorman.gorman_figures.figure1.study_visualizer_for_double_stationary_fit import \
     StudyVisualizerForReturnLevelChange
+from root_utils import NB_CORES
 
 
 def validation_plot(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues], order_derivative=0):
     # Plot the mean empirical, the mean parametric and the relative difference between the two
     altitudes = list(altitude_to_visualizer.keys())
     study_visualizer = list(altitude_to_visualizer.values())[0]
-    altitude_to_relative_differences = {}
+    visualizers = list(altitude_to_visualizer.values())
     if order_derivative == 0:
         plot_function = plot_relative_difference_map_order_zero
     else:
         plot_function = plot_relative_difference_map_order_one
     # Plot map for the repartition of the difference
+    altitude_to_relative_differences = {}
     for altitude, visualizer in altitude_to_visualizer.items():
         altitude_to_relative_differences[altitude] = plot_function(visualizer)
-        study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500)
+        # study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500)
     # # Shoe plot with respect to the altitude.
     # plot_shoe_relative_differences_distribution(altitude_to_relative_differences, altitudes, study_visualizer,
     #                                             order_derivative)
-    study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500)
+    # study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500)
     plt.close()
 
 
@@ -53,11 +56,12 @@ def plot_relative_difference_map_order_zero(visualizer: StudyVisualizerForMeanVa
     label = ' mean annual maxima of {} ({})'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit)
     # visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_empirical_mean,
     #                               label='Empirical' + label, negative_and_positive_values=False)
-    visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_model_mean,
+    visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_model_mean_last_year,
                                   label='Model' + label, negative_and_positive_values=False, add_text=True)
     # visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_relative_difference_for_mean,
     #                               label='Relative difference of the model mean w.r.t. the empirical mean \n'
     #                                     'for the ' + label, graduation=1)
+    visualizer.show_or_save_to_file(add_classic_title=False, dpi=500)
     return list(visualizer.massif_name_to_relative_difference_for_mean.values())
 
 

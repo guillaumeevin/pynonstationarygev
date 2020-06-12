@@ -77,6 +77,7 @@ def imshow_shifted(ax, param_name, values, visualization_extend, mask_2D=None):
 
 
 def ticks_values_and_labels_for_percentages(graduation, max_abs_change):
+    assert max_abs_change != np.inf
     positive_ticks = []
     tick = graduation
     while tick < max_abs_change:
@@ -86,7 +87,9 @@ def ticks_values_and_labels_for_percentages(graduation, max_abs_change):
     ticks_values = [((t / max_abs_change) + 1) / 2 for t in all_ticks_labels]
     return ticks_values, all_ticks_labels
 
+
 def ticks_values_and_labels_for_positive_value(graduation, max_abs_change):
+    assert max_abs_change != np.inf
     positive_ticks = []
     tick = 0
     while tick < max_abs_change:

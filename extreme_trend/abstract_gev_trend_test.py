@@ -139,10 +139,12 @@ class AbstractGevTrendTest(object):
                                                                        AbstractCoordinates.COORDINATE_T)
 
     @cached_property
-    def unconstrained_estimator_gev_params(self) -> GevParams:
-        # Constant parameters correspond to the gev params in 1958
-        return self.unconstrained_estimator.function_from_fit.get_params(coordinate=np.array([1958]),
-                                                                         is_transformed=False)
+    def unconstrained_estimator_gev_params_last_year(self) -> GevParams:
+        return self.get_unconstrained_gev_params(year=self.years[-1])
+
+    @cached_property
+    def unconstrained_estimator_gev_params_first_year(self) -> GevParams:
+        return self.get_unconstrained_gev_params(year=self.years[0])
 
     def time_derivative_times_years(self, nb_years):
         # Compute the slope strength
@@ -186,7 +188,7 @@ class AbstractGevTrendTest(object):
 
     @property
     def test_trend_constant_quantile(self):
-        return self.unconstrained_estimator_gev_params.quantile(p=self.quantile_level)
+        return self.unconstrained_estimator_gev_params_last_year.quantile(p=self.quantile_level)
 
     # Some class properties for display purpose
 
@@ -471,7 +473,8 @@ class AbstractGevTrendTest(object):
     def unconstrained_average_mean_value(self, year_min, year_max) -> float:
         mean_values = []
         for year in range(year_min, year_max + 1):
-            mean = self.get_unconstrained_gev_params(year).mean
+            gev_params = self.get_unconstrained_gev_params(year)
+            mean = gev_params.mean
             mean_values.append(mean)
         average_mean_value = np.mean(mean_values)
         assert isinstance(average_mean_value, float)

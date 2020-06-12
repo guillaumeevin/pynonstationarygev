@@ -14,7 +14,7 @@ class StudyVisualizerForShape(StudyVisualizerForNonStationaryTrends):
 
     @cached_property
     def massif_name_to_unconstrained_shape_parameter(self):
-        return {m: t.unconstrained_estimator_gev_params.shape
+        return {m: t.unconstrained_estimator_gev_params_last_year.shape
                 for m, t in self.massif_name_to_trend_test_that_minimized_aic.items()}
 
     @cached_property

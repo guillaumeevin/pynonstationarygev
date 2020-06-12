@@ -40,7 +40,7 @@ class StudyVisualizerForFitWithoutMaximum(StudyVisualizerForNonStationaryTrends)
         for massif_name, maximum in self.massif_name_to_maximum.items():
             t = self.massif_name_to_trend_test_that_minimized_aic[massif_name]
             msg = '{} {}m'.format(massif_name, self.study.altitude)
-            upper_bound = t.unconstrained_estimator_gev_params.density_upper_bound
+            upper_bound = t.unconstrained_estimator_gev_params_last_year.density_upper_bound
             if not np.isinf(upper_bound):
                 diff.append(upper_bound - maximum)
             assert maximum <= upper_bound, msg

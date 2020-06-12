@@ -88,13 +88,14 @@ def major_result():
     model_subsets_for_uncertainty = None
     altitudes = paper_altitudes
     # altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
-    altitudes = [900, 1200, 1500, 1800]
-    # draft_altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
+    # altitudes = [900, 1200, 1500, 1800][:2]
+    # altitudes = [2400, 2700][:2]
+    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
     # altitudes = draft_altitudes
 
     for study_class in study_classes:
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,
-                            uncertainty_methods, study_class)
+                            uncertainty_methods, study_class, multiprocessing=True)
 
 
 if __name__ == '__main__':

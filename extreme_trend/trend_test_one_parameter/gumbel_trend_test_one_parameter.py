@@ -79,8 +79,8 @@ class GumbelLocationTrendTest(GevTrendTestOneParameterAgainstStationary):
         return 3
 
     def _slope_strength(self):
-        return self.unconstrained_estimator_gev_params.time_derivative_of_return_level(p=self.quantile_level,
-                                                                                       mu1=self.non_stationary_linear_coef)
+        return self.unconstrained_estimator_gev_params_last_year.time_derivative_of_return_level(p=self.quantile_level,
+                                                                                                 mu1=self.non_stationary_linear_coef)
 
     @classproperty
     def label(self):
@@ -103,7 +103,7 @@ class GumbelScaleTrendTest(GevTrendTestOneParameterAgainstStationary):
                          fit_method=fit_method)
 
     def _slope_strength(self):
-        return self.unconstrained_estimator_gev_params.time_derivative_of_return_level(
+        return self.unconstrained_estimator_gev_params_last_year.time_derivative_of_return_level(
             p=self.quantile_level,
             sigma1=self.non_stationary_linear_coef)
 

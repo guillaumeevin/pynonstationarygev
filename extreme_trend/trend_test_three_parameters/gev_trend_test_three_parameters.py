@@ -50,9 +50,9 @@ class GevLocationAndScaleTrendTestAgainstGumbel(GevTrendTestThreeParameters):
         return self.get_non_stationary_linear_coef(param_name=GevParams.SCALE)
 
     def _slope_strength(self):
-        return self.unconstrained_estimator_gev_params.time_derivative_of_return_level(p=self.quantile_level,
-                                                                                       mu1=self.mu1,
-                                                                                       sigma1=self.sigma1)
+        return self.unconstrained_estimator_gev_params_last_year.time_derivative_of_return_level(p=self.quantile_level,
+                                                                                                 mu1=self.mu1,
+                                                                                                 sigma1=self.sigma1)
 
     @classproperty
     def label(self):

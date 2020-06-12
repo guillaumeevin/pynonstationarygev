@@ -23,7 +23,7 @@ def get_tuple_ordered_by_shape(fast=False):
     # Extract all the values
     l = []
     for a, v in altitude_to_visualizer.items():
-        l.extend([(a, v, m, t.unconstrained_estimator_gev_params.shape) for m, t in
+        l.extend([(a, v, m, t.unconstrained_estimator_gev_params_last_year.shape) for m, t in
                   v.massif_name_to_trend_test_that_minimized_aic.items()])
     # Sort them and keep the highest examples
     l = sorted(l, key=lambda t: t[-1])

@@ -77,19 +77,18 @@ class StudyVisualizerForMeanValues(StudyVisualizerForNonStationaryTrends):
         return massif_name_to_empirical_value
 
     @cached_property
-    def massif_name_to_model_mean(self):
-        massif_name_to_model_value = {}
+    def massif_name_to_model_mean_last_year(self):
+        massif_name_to_model_value_last_year = {}
         for massif_name, trend_test in self.massif_name_to_trend_test_that_minimized_aic.items():
-            parameter_value = trend_test.unconstrained_average_mean_value(self.study.year_min, self.study.year_max)
-            massif_name_to_model_value[massif_name] = parameter_value
-        return massif_name_to_model_value
+            massif_name_to_model_value_last_year[massif_name] = trend_test.unconstrained_estimator_gev_params_last_year.mean
+        return massif_name_to_model_value_last_year
 
     @cached_property
     def massif_name_to_relative_difference_for_mean(self):
         massif_name_to_relative_difference = {}
         for massif_name in self.massif_name_to_trend_test_that_minimized_aic.keys():
             e = self.massif_name_to_empirical_mean[massif_name]
-            m = self.massif_name_to_model_mean[massif_name]
+            m = self.massif_name_to_model_mean_last_year[massif_name]
             relative_diference = 100 * (m - e) / e
             massif_name_to_relative_difference[massif_name] = relative_diference
         return massif_name_to_relative_difference
