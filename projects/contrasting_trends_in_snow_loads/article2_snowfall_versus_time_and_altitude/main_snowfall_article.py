@@ -66,7 +66,7 @@ def intermediate_result(altitudes, massif_names=None,
     # Compute minimized value efficiently
     visualizers = list(altitude_to_visualizer.values())
     if multiprocessing:
-        with Pool(NB_CORES) as p:
+        with Pool(4) as p:
             _ = p.map(compute_minimized_aic, visualizers)
     else:
         for visualizer in visualizers:
@@ -95,7 +95,7 @@ def major_result():
 
     for study_class in study_classes:
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,
-                            uncertainty_methods, study_class, multiprocessing=True)
+                            uncertainty_methods, study_class, multiprocessing=False)
 
 
 if __name__ == '__main__':

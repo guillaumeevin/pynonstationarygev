@@ -3,21 +3,19 @@ from math import ceil, floor
 import matplotlib.pyplot as plt
 import numpy as np
 from cached_property import cached_property
-from scipy.stats import chi2, kstest, anderson
-from scipy.stats.morestats import AndersonResult
+from scipy.stats import chi2, kstest
 from scipy.stats.stats import KstestResult
 
 from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE, YEAR_OF_INTEREST_FOR_RETURN_LEVEL
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable
+from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import \
     cramer_von_mises_and_anderson_darling_tests_pvalues_for_gumbel_distribution
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
-from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.model.margin_model.utils import \
-    MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     StationaryTemporalModel, GumbelTemporalModel
-from extreme_fit.model.utils import SafeRunException
+from extreme_fit.model.margin_model.utils import \
+    MarginFitMethod
 from root_utils import classproperty
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.utils import load_temporal_coordinates_and_dataset

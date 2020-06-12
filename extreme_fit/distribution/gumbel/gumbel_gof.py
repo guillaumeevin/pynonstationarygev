@@ -1,6 +1,3 @@
-import io
-from contextlib import redirect_stdout
-
 import numpy as np
 
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
