@@ -61,7 +61,6 @@ def plot_relative_difference_map_order_zero(visualizer: StudyVisualizerForMeanVa
     # visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_relative_difference_for_mean,
     #                               label='Relative difference of the model mean w.r.t. the empirical mean \n'
     #                                     'for the ' + label, graduation=1)
-    visualizer.show_or_save_to_file(add_classic_title=False, dpi=500)
     return list(visualizer.massif_name_to_relative_difference_for_mean.values())
 
 

@@ -28,21 +28,26 @@ def plot_snowfall_change_mean(altitude_to_visualizer: Dict[int, StudyVisualizerF
     # Augmentation every km
     massif_name_to_augmentation_every_km = {m: a * 1000 for m, a in massif_name_to_a.items()}
     visualizer.plot_abstract_fast(massif_name_to_augmentation_every_km,
-                                  label='Augmentation of time derivative of mean annual maxima of {}\n for every km of elevation ({})'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
+                                  label='Augmentation of time derivative of mean annual maxima of {}\n for every km of elevation ({})'.format(
+                                      SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
                                   add_x_label=False)
     # Value at 2000 m
     massif_name_to_mean_at_2000 = {m: a * 2000 + massif_name_to_b[m] for m, a in massif_name_to_a.items()}
-    visualizer.plot_abstract_fast(massif_name_to_mean_at_2000, label='Time derivative of mean annual maxima \nof {} at 2000 m ({})'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
+    visualizer.plot_abstract_fast(massif_name_to_mean_at_2000,
+                                  label='Time derivative of mean annual maxima \nof {} at 2000 m ({})'.format(
+                                      SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
                                   add_x_label=False)
     # Altitude for the change of dynamic
     massif_name_to_altitude_change_dynamic = {m: - massif_name_to_b[m] / a for m, a in massif_name_to_a.items()}
     # Keep only those that are in a reasonable range
     massif_name_to_altitude_change_dynamic = {m: d for m, d in massif_name_to_altitude_change_dynamic.items()
                                               if 0 < d < 3000}
-    visualizer.plot_abstract_fast(massif_name_to_altitude_change_dynamic, label='Altitude for the change of dynamic (m)',
+    visualizer.plot_abstract_fast(massif_name_to_altitude_change_dynamic,
+                                  label='Altitude for the change of dynamic (m)',
                                   add_x_label=False, graduation=500)
     # R2 score
-    visualizer.plot_abstract_fast(massif_name_to_r2_score, label='r2 time derivative of the mean', graduation=0.1, add_x_label=False,
+    visualizer.plot_abstract_fast(massif_name_to_r2_score, label='r2 time derivative of the mean', graduation=0.1,
+                                  add_x_label=False,
                                   negative_and_positive_values=False)
 
 
@@ -54,11 +59,13 @@ def plot_snowfall_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanV
     # Augmentation every km
     massif_name_to_augmentation_every_km = {m: a * 1000 for m, a in massif_name_to_a.items()}
     visualizer.plot_abstract_fast(massif_name_to_augmentation_every_km,
-                                  label='Augmentation of mean annual maxima of {} \nfor every km of elevation ({})'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
+                                  label='Augmentation of mean annual maxima of {} \nfor every km of elevation ({})'.format(
+                                      SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
                                   add_x_label=False, negative_and_positive_values=False)
     # Value at 2000 m
     massif_name_to_mean_at_2000 = {m: a * 2000 + massif_name_to_b[m] for m, a in massif_name_to_a.items()}
-    visualizer.plot_abstract_fast(massif_name_to_mean_at_2000, label='Mean annual maxima of {} at 2000 m ()'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
+    visualizer.plot_abstract_fast(massif_name_to_mean_at_2000, label='Mean annual maxima of {} at 2000 m ()'.format(
+        SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
                                   add_x_label=False, negative_and_positive_values=False)
     # R2 score
     visualizer.plot_abstract_fast(massif_name_to_r2_score, label='r2 mean', graduation=0.1,
@@ -80,11 +87,12 @@ def plot_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues], d
             trend_tests = [altitude_to_visualizer[a].massif_name_to_trend_test_that_minimized_aic[massif_name]
                            for a in altitudes_massif]
             if derivative:
-                moment = 'change in 10 years for significant models'
-                values = [t.change_in_mean_for_the_last_x_years(nb_years=10) for t in trend_tests
-                          if t.is_significant]
-                altitudes_values = [a for a in altitudes_massif
-                             if altitude_to_visualizer[a].massif_name_to_trend_test_that_minimized_aic[massif_name].is_significant]
+                nb_years = 10
+                res = [(a, t.change_in_mean_for_the_last_x_years(nb_years=nb_years))
+                       for i, (a, t) in enumerate(zip(altitudes_massif, trend_tests))
+                       if not t.unconstrained_model_is_stationary]
+                altitudes_values, values = zip(*res)
+                moment = 'change in {} years for significant models'.format(nb_years)
             else:
                 moment = 'mean'
                 values = [t.unconstrained_estimator_gev_params_last_year.mean for t in trend_tests]
@@ -92,7 +100,8 @@ def plot_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues], d
             # Plot
             if len(altitudes_values) >= 2:
                 massif_name_to_linear_regression_result[massif_name] = fit_linear_regression(altitudes_values, values)
-                plot_values_against_altitudes(ax, altitudes_values, massif_id, massif_name, moment, study, values, visualizer)
+                plot_values_against_altitudes(ax, altitudes_values, massif_id, massif_name, moment, study, values,
+                                              visualizer)
     ax.legend(prop={'size': 7}, ncol=3)
     visualizer.show_or_save_to_file(dpi=500, add_classic_title=False)
     plt.close()
@@ -111,4 +120,3 @@ def plot_values_against_altitudes(ax, altitudes, massif_id, massif_name, moment,
     # ax.set_ylim([lim_down, lim_up])
     ax.tick_params(axis='both', which='major', labelsize=13)
     visualizer.plot_name = plot_name
-

@@ -47,13 +47,8 @@ class StudyVisualizerForMeanValues(StudyVisualizerForNonStationaryTrends):
     def massif_name_to_text(self):
         d = {}
         for m, t in self.massif_name_to_trend_test_that_minimized_aic.items():
-            if t.is_significant:
-                name = '$\\textbf{'
-                name += t.name
-                name += '}$'
-            else:
-                name = '${}$'.format(t.name)
-            d[m] = name
+            latex_command = 'textbf' if t.is_significant else 'textrm'
+            d[m] = '$\\' + latex_command + '{' + t.name + '}$'
         return d
 
     # Override the main dict massif_name_to_trend_test_that_minimized_aic
@@ -77,10 +72,19 @@ class StudyVisualizerForMeanValues(StudyVisualizerForNonStationaryTrends):
         return massif_name_to_empirical_value
 
     @cached_property
+    def massif_name_to_model_shape_last_year(self):
+        massif_name_to_model_value_last_year = {}
+        for massif_name, trend_test in self.massif_name_to_trend_test_that_minimized_aic.items():
+            massif_name_to_model_value_last_year[
+                massif_name] = trend_test.unconstrained_estimator_gev_params_last_year.shape
+        return massif_name_to_model_value_last_year
+
+    @cached_property
     def massif_name_to_model_mean_last_year(self):
         massif_name_to_model_value_last_year = {}
         for massif_name, trend_test in self.massif_name_to_trend_test_that_minimized_aic.items():
-            massif_name_to_model_value_last_year[massif_name] = trend_test.unconstrained_estimator_gev_params_last_year.mean
+            massif_name_to_model_value_last_year[
+                massif_name] = trend_test.unconstrained_estimator_gev_params_last_year.mean
         return massif_name_to_model_value_last_year
 
     @cached_property
