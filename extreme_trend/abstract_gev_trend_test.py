@@ -490,3 +490,10 @@ class AbstractGevTrendTest(object):
         gev_params.location = param_name_to_value[GevParams.LOC]
         gev_params.scale = param_name_to_value[GevParams.SCALE]
         return gev_params.mean
+
+    def change_in_mean_for_the_last_x_years(self, nb_years):
+        last_mean = self.unconstrained_estimator_gev_params_last_year.mean
+        old_mean = self.get_unconstrained_gev_params(year=self.years[-nb_years]).mean
+        return last_mean - old_mean
+
+

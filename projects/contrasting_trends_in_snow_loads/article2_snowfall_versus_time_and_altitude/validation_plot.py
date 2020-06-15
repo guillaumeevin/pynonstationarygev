@@ -69,12 +69,12 @@ def plot_relative_difference_map_order_one(visualizer: StudyVisualizerForMeanVal
     study = visualizer.study
     label = ' time derivative of mean annual maxima of {} ({})'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)],
                                                                        study.variable_unit)
-    visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_change_ratio_in_empirical_mean,
-                                  label='Empirical' + label, negative_and_positive_values=False, graduation=0.5)
+    # visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_change_ratio_in_empirical_mean,
+    #                               label='Empirical' + label, negative_and_positive_values=False, graduation=0.5)
     visualizer.plot_abstract_fast(massif_name_to_value=visualizer.massif_name_to_change_ratio_in_model_mean,
                                   label='Model' + label, negative_and_positive_values=False, graduation=0.5)
-    visualizer.plot_abstract_fast(
-        massif_name_to_value=visualizer.massif_name_to_relative_difference_for_change_ratio_in_mean,
-        label='Relative difference of the model mean w.r.t. the empirical mean \n'
-              'for the ' + label, graduation=5)
+    # visualizer.plot_abstract_fast(
+    #     massif_name_to_value=visualizer.massif_name_to_relative_difference_for_change_ratio_in_mean,
+    #     label='Relative difference of the model mean w.r.t. the empirical mean \n'
+    #           'for the ' + label, graduation=5)
     return list(visualizer.massif_name_to_relative_difference_for_change_ratio_in_mean.values())

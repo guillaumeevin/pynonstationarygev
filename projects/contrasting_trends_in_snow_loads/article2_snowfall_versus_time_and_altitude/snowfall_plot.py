@@ -20,7 +20,7 @@ def fit_linear_regression(x, y):
     return a, b, r2_score
 
 
-def plot_snowfall_time_derivative_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues]):
+def plot_snowfall_change_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues]):
     visualizer = list(altitude_to_visualizer.values())[0]
     study = visualizer.study
     # Plot the curve for the evolution of the mean
@@ -72,7 +72,6 @@ def plot_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues], d
     visualizers = list(altitude_to_visualizer.values())
     visualizer = visualizers[0]
     study = visualizer.study
-    year = study.year_max
 
     for massif_id, massif_name in enumerate(visualizer.study.all_massif_names()):
         altitudes_massif = [a for a, v in altitude_to_visualizer.items()
@@ -81,13 +80,19 @@ def plot_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues], d
             trend_tests = [altitude_to_visualizer[a].massif_name_to_trend_test_that_minimized_aic[massif_name]
                            for a in altitudes_massif]
             if derivative:
-                moment = 'time derivative of the mean'
-                values = [t.first_derivative_mean_value(year=year) for t in trend_tests]
+                moment = 'change in 10 years for significant models'
+                values = [t.change_in_mean_for_the_last_x_years(nb_years=10) for t in trend_tests
+                          if t.is_significant]
+                altitudes_values = [a for a in altitudes_massif
+                             if altitude_to_visualizer[a].massif_name_to_trend_test_that_minimized_aic[massif_name].is_significant]
             else:
                 moment = 'mean'
-                values = [t.mean_value(year=year) for t in trend_tests]
-            massif_name_to_linear_regression_result[massif_name] = fit_linear_regression(altitudes_massif, values)
-            plot_values_against_altitudes(ax, altitudes_massif, massif_id, massif_name, moment, study, values, visualizer)
+                values = [t.unconstrained_estimator_gev_params_last_year.mean for t in trend_tests]
+                altitudes_values = altitudes_massif
+            # Plot
+            if len(altitudes_values) >= 2:
+                massif_name_to_linear_regression_result[massif_name] = fit_linear_regression(altitudes_values, values)
+                plot_values_against_altitudes(ax, altitudes_values, massif_id, massif_name, moment, study, values, visualizer)
     ax.legend(prop={'size': 7}, ncol=3)
     visualizer.show_or_save_to_file(dpi=500, add_classic_title=False)
     plt.close()
