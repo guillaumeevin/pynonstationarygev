@@ -57,8 +57,8 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         self.assertNotAlmostEqual(diff1, diff2)
         # Assert that indicators are correctly computed
         self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh())
-        # self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
-        # self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
+        self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
+        self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
 
 
 if __name__ == '__main__':

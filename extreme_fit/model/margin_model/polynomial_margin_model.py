@@ -20,21 +20,20 @@ class PolynomialMarginModel(AbstractTemporalLinearMarginModel):
                          params_initial_fit_bayesian, type_for_MLE, params_class)
         self.max_degree = max_degree
 
-    # @property
-    # def nb_params(self):
-    #     self.margin_function.param_name_to_coef
-    #     return
+    @property
+    def nb_params(self):
+        return sum([c.nb_params for c in self.margin_function.param_name_to_coef.values()])
 
     @cached_property
     def margin_function(self) -> PolynomialMarginFunction:
         return super().margin_function
 
     def load_margin_function(self, param_name_to_list_dim_and_degree=None):
-        param_name_to_polynomial_all_coef = self.param_name_to_polynomial_all_coef(
-            param_name_and_dim_and_degree_to_coef=self.params_sample)
+        param_name_to_polynomial_all_coef = self.param_name_to_polynomial_all_coef(param_name_to_list_dim_and_degree=param_name_to_list_dim_and_degree,
+                                                                                   param_name_and_dim_and_degree_to_default_coef=self.default_params)
         return PolynomialMarginFunction(coordinates=self.coordinates,
                                         param_name_to_coef=param_name_to_polynomial_all_coef,
-                                        param_name_to_dim_and_degree=param_name_to_list_dim_and_degree,
+                                        param_name_to_dim_and_max_degree=param_name_to_list_dim_and_degree,
                                         starting_point=self.starting_point,
                                         params_class=self.params_class)
 
@@ -48,25 +47,36 @@ class PolynomialMarginModel(AbstractTemporalLinearMarginModel):
                     param_name_and_dim_and_degree_to_coef[(param_name, dim, degree)] = default_slope
         return param_name_and_dim_and_degree_to_coef
 
-    def param_name_to_polynomial_all_coef(self, param_name_and_dim_and_degree_to_coef):
+    def param_name_to_polynomial_all_coef(self, param_name_to_list_dim_and_degree,
+                                          param_name_and_dim_and_degree_to_default_coef):
         param_name_to_polynomial_all_coef = {}
-        param_names = list(set([e[0] for e in param_name_and_dim_and_degree_to_coef.keys()]))
+        param_names = list(set([e[0] for e in param_name_and_dim_and_degree_to_default_coef.keys()]))
         for param_name in param_names:
             dim_to_polynomial_coef = {}
-            for dim in self.coordinates.coordinates_dims:
+            for dim, max_degree in param_name_to_list_dim_and_degree.get(param_name, []):
                 degree_to_coef = {}
-                for (param_name_loop, dim_loop, degree), coef in param_name_and_dim_and_degree_to_coef.items():
+                for (param_name_loop, dim_loop, degree), coef in param_name_and_dim_and_degree_to_default_coef.items():
                     if param_name == param_name_loop and dim == dim_loop:
                         degree_to_coef[degree] = coef
-                dim_to_polynomial_coef[dim] = PolynomialCoef(param_name, degree_to_coef=degree_to_coef)
+                # print(degree_to_coef, param_name)
+                # if len(degree_to_coef) == 0:
+                #     degree_to_coef = {0: param_name_and_dim_and_degree_to_default_coef[(param_name, dim, 0)]}
+                polynomial_coef = PolynomialCoef(param_name, degree_to_coef=degree_to_coef)
+                dim_to_polynomial_coef[dim] = polynomial_coef
+            if len(dim_to_polynomial_coef) == 0:
+                intercept = param_name_and_dim_and_degree_to_default_coef[(param_name, 0, 0)]
+                dim_to_polynomial_coef = None
+            else:
+                intercept = None
             polynomial_all_coef = PolynomialAllCoef(param_name=param_name,
-                                                    dim_to_polynomial_coef=dim_to_polynomial_coef)
+                                                    dim_to_polynomial_coef=dim_to_polynomial_coef,
+                                                    intercept=intercept)
             param_name_to_polynomial_all_coef[param_name] = polynomial_all_coef
         return param_name_to_polynomial_all_coef
 
     @property
     def param_name_to_list_for_result(self):
-        return self.margin_function.param_name_to_dim_and_degree
+        return self.margin_function.param_name_to_dim_and_max_degree
 
 
 class NonStationaryQuadraticLocationModel(PolynomialMarginModel):

@@ -20,6 +20,10 @@ class PolynomialCoef(AbstractCoef):
     def compute_default_value(self, idx):
         return self.default_value / idx
 
+    @property
+    def nb_params(self):
+        return self.max_degree + 1
+
 
 class PolynomialAllCoef(LinearCoef):
 
@@ -27,6 +31,13 @@ class PolynomialAllCoef(LinearCoef):
         super().__init__(param_name, 1.0, None)
         self.dim_to_polynomial_coef = dim_to_polynomial_coef
         self._intercept = intercept
+
+    @property
+    def nb_params(self):
+        if self.dim_to_polynomial_coef is None:
+            return 1
+        else:
+            return sum([c.nb_params for c in self.dim_to_polynomial_coef.values()])
 
     @property
     def intercept(self) -> float:
