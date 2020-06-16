@@ -2,6 +2,7 @@ from typing import List
 import numpy as np
 from extreme_fit.function.param_function.linear_coef import LinearCoef
 from extreme_fit.function.param_function.one_axis_param_function import LinearOneAxisParamFunction
+from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoef, PolynomialCoef
 from extreme_fit.function.param_function.spline_coef import SplineCoef
 
 
@@ -50,6 +51,20 @@ class LinearParamFunction(AbstractParamFunction):
         return self.dim_to_linear_one_axis_param_function[dim].coef
 
 
+class PolynomialParamFunction(AbstractParamFunction):
+
+    def __init__(self, dim_and_degree, coef: PolynomialAllCoef):
+        self.coef = coef
+        self.dim_and_degree = dim_and_degree
+
+    def get_param_value(self, coordinate: np.ndarray) -> float:
+        gev_param_value = 0
+        for dim, max_degree in self.dim_and_degree:
+            for degree in range(max_degree+1):
+                polynomial_coef = self.coef.dim_to_polynomial_coef[dim]  # type: PolynomialCoef
+                polynomial_coef_value = polynomial_coef.idx_to_coef[degree]
+                gev_param_value += polynomial_coef_value * np.power(coordinate[dim], degree)
+        return gev_param_value
 
 
 class SplineParamFunction(AbstractParamFunction):

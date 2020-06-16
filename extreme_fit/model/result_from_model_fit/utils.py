@@ -11,8 +11,8 @@ def convertFloatVector_to_float(f):
     return np.array(f)[0]
 
 
-def get_margin_coef_ordered_dict(param_name_to_dim, mle_values, type_for_mle="GEV"):
-    assert param_name_to_dim is not None
+def get_margin_coef_ordered_dict(param_name_to_dims, mle_values, type_for_mle="GEV"):
+    assert param_name_to_dims is not None
     # Build the Coeff dict from param_name_to_dim
     coef_dict = OrderedDict()
     i = 0
@@ -26,9 +26,15 @@ def get_margin_coef_ordered_dict(param_name_to_dim, mle_values, type_for_mle="GE
         coef_dict[intercept_coef_name] = coef_value
         i += 1
         # Add a potential linear temporal trend
-        if param_name in param_name_to_dim:
-            temporal_coef_name = LinearCoef.coef_template_str(param_name,
-                                                              AbstractCoordinates.COORDINATE_T).format(1)
-            coef_dict[temporal_coef_name] = mle_values[i]
-            i += 1
+        if param_name in param_name_to_dims:
+            dims = param_name_to_dims[param_name]
+            if isinstance(dims[0], int):
+                nb_parameters = 1
+            else:
+                nb_parameters = dims[0][1]
+            for j in range(nb_parameters):
+                temporal_coef_name = LinearCoef.coef_template_str(param_name,
+                                                                  AbstractCoordinates.COORDINATE_T).format(1 + j)
+                coef_dict[temporal_coef_name] = mle_values[i]
+                i += 1
     return coef_dict

@@ -40,11 +40,11 @@ class GevParams(AbstractExtremeParams):
     def return_level(self, return_period):
         return self.quantile(1 - 1 / return_period)
 
-    def density(self, x):
+    def density(self, x, log_scale=False):
         if self.has_undefined_parameters:
             return np.nan
         else:
-            res = r.dgev(x, self.location, self.scale, self.shape)
+            res = r.dgev(x, self.location, self.scale, self.shape, log_scale)
             if isinstance(x, float):
                 return res[0]
             else:

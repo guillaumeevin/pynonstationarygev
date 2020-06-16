@@ -35,6 +35,10 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         assert isinstance(margin_function, ParametricMarginFunction)
         return margin_function
 
+    @property
+    def param_name_to_list_for_result(self):
+        return self.margin_function.param_name_to_dims
+
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
                                   df_coordinates_temp: pd.DataFrame) -> ResultFromSpatialExtreme:
         assert data.shape[1] == len(df_coordinates_spat)

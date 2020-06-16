@@ -59,7 +59,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         res = safe_run_r_estimator(function=r('gev.fit'),
                                    xdat=x, y=y, mul=self.mul,
                                    sigl=self.sigl, shl=self.shl)
-        return ResultFromIsmev(res, self.margin_function.param_name_to_dims)
+        return ResultFromIsmev(res, self.param_name_to_list_for_result)
 
     # Gev fit with extRemes package
 
@@ -85,7 +85,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                    method=method,
                                    **r_type_argument_kwargs
                                    )
-        return ResultFromMleExtremes(res, self.margin_function.param_name_to_dims,
+        return ResultFromMleExtremes(res, self.param_name_to_list_for_result,
                                      type_for_mle=self.type_for_mle)
 
     def extremes_fevd_bayesian_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:
@@ -105,7 +105,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                    iter=self.nb_iterations_for_bayesian_fit,
                                    **r_type_argument_kwargs
                                    )
-        return ResultFromBayesianExtremes(res, self.margin_function.param_name_to_dims)
+        return ResultFromBayesianExtremes(res, self.param_name_to_list_for_result)
 
     def extreme_arguments(self, df_coordinates_temp):
         # Disable the use of log sigma parametrization

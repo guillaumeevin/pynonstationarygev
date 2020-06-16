@@ -1,21 +1,8 @@
-from typing import Dict
+from typing import Dict, List
 
 from extreme_fit.function.param_function.abstract_coef import AbstractCoef
-
-
-class PolynomialCoef(AbstractCoef):
-    """
-    Object that maps each degree to its corresponding coefficient.
-        degree = 1 correspond to the coefficient of the first order polynomial
-        degree = 2 correspond to the the coefficient of the first order polynomial
-        degree = 3 correspond to the the coefficient of the first order polynomial
-    """
-
-    def __init__(self, param_name: str, default_value: float = 1.0, degree_to_coef=None):
-        super().__init__(param_name, default_value, idx_to_coef=degree_to_coef)
-
-    def compute_default_value(self, idx):
-        return self.default_value / idx
+from extreme_fit.function.param_function.linear_coef import LinearCoef
+from extreme_fit.function.param_function.polynomial_coef import PolynomialCoef
 
 
 class KnotCoef(AbstractCoef):

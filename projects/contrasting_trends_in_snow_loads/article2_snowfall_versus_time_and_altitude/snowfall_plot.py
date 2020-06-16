@@ -92,7 +92,7 @@ def plot_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues], d
                        for i, (a, t) in enumerate(zip(altitudes_massif, trend_tests))
                        if not t.unconstrained_model_is_stationary]
                 altitudes_values, values = zip(*res)
-                moment = 'change in {} years for significant models'.format(nb_years)
+                moment = 'Change in the last {} years  \nfor non-stationary models'.format(nb_years)
             else:
                 moment = 'mean'
                 values = [t.unconstrained_estimator_gev_params_last_year.mean for t in trend_tests]
