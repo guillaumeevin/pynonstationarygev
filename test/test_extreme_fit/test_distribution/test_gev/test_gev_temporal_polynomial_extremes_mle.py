@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 
 from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.model.margin_model.polynomial_margin_model import NonStationaryQuadraticLocationModel
+from extreme_fit.model.margin_model.polynomial_margin_model import NonStationaryQuadraticLocationModel, \
+    NonStationaryQuadraticScaleModel, NonStationaryQuadraticLocationGumbelModel, NonStationaryQuadraticScaleGumbelModel
 from extreme_trend.abstract_gev_trend_test import fitted_linear_margin_estimator
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
@@ -38,9 +39,9 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
         self.fit_method = MarginFitMethod.extremes_fevd_mle
 
-    def test_gev_temporal_margin_fit_non_stationary_quadratic_location(self):
+    def function_test_gev_temporal_margin_fit_non_stationary_quadratic(self, model_class, quadratic_param):
         # Create estimator
-        estimator = fitted_linear_margin_estimator(NonStationaryQuadraticLocationModel,
+        estimator = fitted_linear_margin_estimator(model_class,
                                                    self.coordinates, self.dataset,
                                                    starting_year=0,
                                                    fit_method=self.fit_method)
@@ -51,14 +52,29 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
         self.assertNotEqual(mle_params_estimated_year3, mle_params_estimated_year5)
         # Assert the relationship for the location is indeed quadratic
-        location_gev_params = GevParams.LOC
-        diff1 = mle_params_estimated_year1[location_gev_params] - mle_params_estimated_year3[location_gev_params]
-        diff2 = mle_params_estimated_year3[location_gev_params] - mle_params_estimated_year5[location_gev_params]
+        diff1 = mle_params_estimated_year1[quadratic_param] - mle_params_estimated_year3[quadratic_param]
+        diff2 = mle_params_estimated_year3[quadratic_param] - mle_params_estimated_year5[quadratic_param]
         self.assertNotAlmostEqual(diff1, diff2)
         # Assert that indicators are correctly computed
         self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh())
         self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
         self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
+
+    def test_gev_temporal_margin_fit_non_stationary_quadratic_location(self):
+        self.function_test_gev_temporal_margin_fit_non_stationary_quadratic(NonStationaryQuadraticLocationModel,
+                                                                            quadratic_param=GevParams.LOC)
+
+    def test_gev_temporal_margin_fit_non_stationary_quadratic_scale(self):
+        self.function_test_gev_temporal_margin_fit_non_stationary_quadratic(NonStationaryQuadraticScaleModel,
+                                                                            quadratic_param=GevParams.SCALE)
+
+    def test_gumbel_temporal_margin_fit_non_stationary_quadratic_location(self):
+        self.function_test_gev_temporal_margin_fit_non_stationary_quadratic(NonStationaryQuadraticLocationGumbelModel,
+                                                                            quadratic_param=GevParams.LOC)
+
+    def test_gumbel_temporal_margin_fit_non_stationary_quadratic_scale(self):
+        self.function_test_gev_temporal_margin_fit_non_stationary_quadratic(NonStationaryQuadraticScaleGumbelModel,
+                                                                            quadratic_param=GevParams.SCALE)
 
 
 if __name__ == '__main__':

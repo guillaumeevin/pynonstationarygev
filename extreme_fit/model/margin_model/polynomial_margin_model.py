@@ -29,8 +29,9 @@ class PolynomialMarginModel(AbstractTemporalLinearMarginModel):
         return super().margin_function
 
     def load_margin_function(self, param_name_to_list_dim_and_degree=None):
-        param_name_to_polynomial_all_coef = self.param_name_to_polynomial_all_coef(param_name_to_list_dim_and_degree=param_name_to_list_dim_and_degree,
-                                                                                   param_name_and_dim_and_degree_to_default_coef=self.default_params)
+        param_name_to_polynomial_all_coef = self.param_name_to_polynomial_all_coef(
+            param_name_to_list_dim_and_degree=param_name_to_list_dim_and_degree,
+            param_name_and_dim_and_degree_to_default_coef=self.default_params)
         return PolynomialMarginFunction(coordinates=self.coordinates,
                                         param_name_to_coef=param_name_to_polynomial_all_coef,
                                         param_name_to_dim_and_max_degree=param_name_to_list_dim_and_degree,
@@ -84,6 +85,24 @@ class NonStationaryQuadraticLocationModel(PolynomialMarginModel):
     def load_margin_function(self, param_name_to_dims=None):
         return super().load_margin_function({GevParams.LOC: [(self.coordinates.idx_temporal_coordinates, 2)]})
 
+    @property
+    def mul(self):
+        return 2
 
-class NonStationaryLocationGumbelModel(GumbelTemporalModel, NonStationaryQuadraticLocationModel):
+
+class NonStationaryQuadraticScaleModel(PolynomialMarginModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.SCALE: [(self.coordinates.idx_temporal_coordinates, 2)]})
+
+    @property
+    def sigl(self):
+        return 2
+
+
+class NonStationaryQuadraticLocationGumbelModel(GumbelTemporalModel, NonStationaryQuadraticLocationModel):
+    pass
+
+
+class NonStationaryQuadraticScaleGumbelModel(GumbelTemporalModel, NonStationaryQuadraticScaleModel):
     pass

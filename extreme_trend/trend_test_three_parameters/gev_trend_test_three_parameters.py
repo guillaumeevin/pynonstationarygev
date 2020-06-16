@@ -1,3 +1,5 @@
+from extreme_fit.model.margin_model.polynomial_margin_model import NonStationaryQuadraticLocationModel, \
+    NonStationaryQuadraticScaleModel
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE
@@ -61,6 +63,36 @@ class GevLocationAndScaleTrendTestAgainstGumbel(GevTrendTestThreeParameters):
     @classproperty
     def marker(self):
         return 'D'
+
+    @classproperty
+    def total_number_of_parameters_for_unconstrained_model(cls) -> int:
+        return 5
+
+
+class GevLocationQuadraticTrendTestAgainstGumbel(GevTrendTestThreeParameters):
+
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE,
+                 fit_method=MarginFitMethod.extremes_fevd_mle):
+        super().__init__(years, maxima, starting_year,
+                         unconstrained_model_class=NonStationaryQuadraticLocationModel,
+                         constrained_model_class=GumbelTemporalModel,
+                         quantile_level=quantile_level,
+                         fit_method=fit_method)
+
+    @classproperty
+    def total_number_of_parameters_for_unconstrained_model(cls) -> int:
+        return 5
+
+
+class GevScaleQuadraticTrendTestAgainstGumbel(GevTrendTestThreeParameters):
+
+    def __init__(self, years, maxima, starting_year, quantile_level=EUROCODE_QUANTILE,
+                 fit_method=MarginFitMethod.extremes_fevd_mle):
+        super().__init__(years, maxima, starting_year,
+                         unconstrained_model_class=NonStationaryQuadraticScaleModel,
+                         constrained_model_class=GumbelTemporalModel,
+                         quantile_level=quantile_level,
+                         fit_method=fit_method)
 
     @classproperty
     def total_number_of_parameters_for_unconstrained_model(cls) -> int:

@@ -17,6 +17,7 @@ from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_m
     StationaryTemporalModel, GumbelTemporalModel
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
+from extreme_fit.model.utils import get_null
 from root_utils import classproperty
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.utils import load_temporal_coordinates_and_dataset
@@ -84,23 +85,15 @@ class AbstractGevTrendTest(object):
             family = 'Gum'
         else:
             family = 'Gev'
+            
+        def get_str_number(param_l):
+            nb = 0 if param_l == get_null() else param_l
+            return str(nb)
 
-        if self.unconstrained_estimator.margin_model.mul == 1:
-            family += '1'
-        else:
-            family += '0'
-
-        if self.unconstrained_estimator.margin_model.sigl == 1:
-            family += '1'
-        else:
-            family += '0'
-
+        family += get_str_number(self.unconstrained_estimator.margin_model.mul)
+        family += get_str_number(self.unconstrained_estimator.margin_model.sigl)
         if family.startswith('Gev'):
-            if self.unconstrained_estimator.margin_model.shl == 1:
-                family += '1'
-            else:
-                family += '0'
-
+            family += get_str_number(self.unconstrained_estimator.margin_model.shl)
         return family
 
     @property

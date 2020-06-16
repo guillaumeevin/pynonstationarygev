@@ -9,12 +9,14 @@ from extreme_trend.trend_test_one_parameter.gev_trend_test_one_parameter import 
 from extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
     GumbelVersusGumbel, GumbelLocationTrendTest, GumbelScaleTrendTest, GevStationaryVersusGumbel
 from extreme_trend.trend_test_three_parameters.gev_trend_test_three_parameters import \
-    GevLocationAndScaleTrendTestAgainstGumbel, GevLocationAndScaleAndShapeTrendTest
+    GevLocationAndScaleTrendTestAgainstGumbel, GevLocationAndScaleAndShapeTrendTest, \
+    GevLocationQuadraticTrendTestAgainstGumbel, \
+    GevScaleQuadraticTrendTestAgainstGumbel
 from extreme_trend.trend_test_two_parameters.gev_trend_test_two_parameters import \
     GevLocationAgainstGumbel, GevScaleAgainstGumbel, GevLocationAndScaleTrendTest, GevScaleAndShapeTrendTest, \
-    GevLocationAndShapeTrendTest
+    GevLocationAndShapeTrendTest, GevQuadraticLocationTrendTest, GevQuadraticScaleTrendTest
 from extreme_trend.trend_test_two_parameters.gumbel_test_two_parameters import \
-    GumbelLocationAndScaleTrendTest
+    GumbelLocationAndScaleTrendTest, GumbelLocationQuadraticTrendTest, GumbelScaleQuadraticTrendTest
 
 paper_altitudes = ALL_ALTITUDES_WITHOUT_NAN
 paper_study_classes = [CrocusSnowLoadTotal, CrocusSnowLoadEurocode, CrocusSnowLoad3Days][:2]
@@ -33,7 +35,10 @@ NON_STATIONARY_TREND_TEST_PAPER_2 = [
     # GEV models with constant shape
     GevVersusGev, GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest,
     # GEV models with linear shape
-    GevShapeTrendTest, GevLocationAndShapeTrendTest, GevScaleAndShapeTrendTest, GevLocationAndScaleAndShapeTrendTest
+    GevShapeTrendTest, GevLocationAndShapeTrendTest, GevScaleAndShapeTrendTest, GevLocationAndScaleAndShapeTrendTest,
+    # Quadratic model for the Gev/Gumbel and for the location/scale
+    GevQuadraticLocationTrendTest, GevQuadraticScaleTrendTest, GumbelLocationQuadraticTrendTest,
+    GumbelScaleQuadraticTrendTest,
 ]
 
 

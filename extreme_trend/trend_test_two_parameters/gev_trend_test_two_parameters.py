@@ -1,4 +1,6 @@
 from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE
+from extreme_fit.model.margin_model.polynomial_margin_model import NonStationaryQuadraticLocationModel, \
+    NonStationaryQuadraticScaleModel
 from extreme_trend.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_trend.trend_test_one_parameter.gev_trend_test_one_parameter import \
     GevLocationTrendTest, GevScaleTrendTest
@@ -42,6 +44,26 @@ class GevScaleAndShapeTrendTest(GevTrendTestTwoParametersAgainstGev):
                  quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
         super().__init__(years, maxima, starting_year,
                          unconstrained_model_class=NonStationaryScaleAndShapeTemporalModel,
+                         constrained_model_class=constrained_model_class,
+                         quantile_level=quantile_level,
+                         fit_method=fit_method)
+        
+class GevQuadraticLocationTrendTest(GevTrendTestTwoParametersAgainstGev):
+
+    def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel,
+                 quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
+        super().__init__(years, maxima, starting_year,
+                         unconstrained_model_class=NonStationaryQuadraticLocationModel,
+                         constrained_model_class=constrained_model_class,
+                         quantile_level=quantile_level,
+                         fit_method=fit_method)
+
+class GevQuadraticScaleTrendTest(GevTrendTestTwoParametersAgainstGev):
+
+    def __init__(self, years, maxima, starting_year, constrained_model_class=StationaryTemporalModel,
+                 quantile_level=EUROCODE_QUANTILE, fit_method=MarginFitMethod.extremes_fevd_mle):
+        super().__init__(years, maxima, starting_year,
+                         unconstrained_model_class=NonStationaryQuadraticScaleModel,
                          constrained_model_class=constrained_model_class,
                          quantile_level=quantile_level,
                          fit_method=fit_method)
