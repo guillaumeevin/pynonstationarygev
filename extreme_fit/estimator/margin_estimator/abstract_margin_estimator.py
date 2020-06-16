@@ -55,7 +55,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
             assert len(
                 maximum) == 1, 'So far, only one observation for each coordinate, but code would be easy to change'
             maximum = maximum[0]
-            gev_params = self.function_from_fit.get_params(coordinate, is_transformed=False)
+            gev_params = self.function_from_fit.get_params(coordinate, is_transformed=True)
             p = gev_params.density(maximum)
             nllh -= np.log(p)
             assert not np.isinf(nllh)

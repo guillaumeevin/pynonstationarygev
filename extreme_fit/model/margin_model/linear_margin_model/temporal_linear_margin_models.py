@@ -126,6 +126,10 @@ class GumbelTemporalModel(StationaryTemporalModel):
         super().__init__(coordinates, params_user, starting_point, fit_method,
                          nb_iterations_for_bayesian_fit, params_initial_fit_bayesian, type_for_MLE="Gumbel")
 
+    @property
+    def nb_params(self):
+        return super().nb_params - 1
+
 
 class NonStationaryLocationGumbelModel(GumbelTemporalModel, NonStationaryLocationTemporalModel):
     pass
