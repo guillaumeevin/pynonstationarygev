@@ -177,8 +177,12 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             trend_test_that_minimized_aic = sorted_trend_test[0]
             massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
             # Extract the stationary model that minimized AIC
-            stationary_trend_test_that_minimized_aic = [t for t in sorted_trend_test if type(t) in
-                                                        [GumbelVersusGumbel, GevStationaryVersusGumbel]][0]
+            stationary_trend_tests_that_minimized_aic = [t for t in sorted_trend_test if type(t) in
+                                                        [GumbelVersusGumbel, GevStationaryVersusGumbel]]
+            if len(stationary_trend_tests_that_minimized_aic) == 0:
+                stationary_trend_test_that_minimized_aic = None
+            else:
+                stationary_trend_test_that_minimized_aic = stationary_trend_tests_that_minimized_aic[0]
             massif_name_to_stationary_trend_test_that_minimized_aic[
                 massif_name] = stationary_trend_test_that_minimized_aic
             # Extract the Gumbel model that minimized AIC

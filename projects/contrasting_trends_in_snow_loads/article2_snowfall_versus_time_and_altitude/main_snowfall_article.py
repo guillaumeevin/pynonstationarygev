@@ -3,7 +3,7 @@ from multiprocessing.pool import Pool
 
 import matplotlib as mpl
 
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranPrecipitation1Day
 from projects.contrasting_trends_in_snow_loads.article2_snowfall_versus_time_and_altitude.shape_plot import shape_plot
 from projects.contrasting_trends_in_snow_loads.article2_snowfall_versus_time_and_altitude.snowfall_plot import \
     plot_snowfall_mean, plot_snowfall_change_mean
@@ -74,25 +74,25 @@ def intermediate_result(altitudes, massif_names=None,
             _ = compute_minimized_aic(visualizer)
 
     # Plots
-    validation_plot(altitude_to_visualizer, order_derivative=0)
-    validation_plot(altitude_to_visualizer, order_derivative=1)
+    # validation_plot(altitude_to_visualizer, order_derivative=0)
+    # validation_plot(altitude_to_visualizer, order_derivative=1)
     plot_snowfall_mean(altitude_to_visualizer)
     plot_selection_curves(altitude_to_visualizer, paper1=False)
     plot_snowfall_change_mean(altitude_to_visualizer)
-    shape_plot(altitude_to_visualizer)
+    # shape_plot(altitude_to_visualizer)
 
 
 def major_result():
     uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.ci_mle][:]
     # massif_names = ['Beaufortain', 'Vercors']
     massif_names = None
-    study_classes = [SafranSnowfall1Day]
+    study_classes = [SafranSnowfall1Day, SafranPrecipitation1Day][::-1]
     model_subsets_for_uncertainty = None
     altitudes = paper_altitudes
-    # altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
+    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
     # altitudes = [900, 1200, 1500, 1800][:2]
     # altitudes = [1800, 2100, 2400, 2700][:2]
-    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
+    # altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
     # altitudes = draft_altitudes
 
     for study_class in study_classes:

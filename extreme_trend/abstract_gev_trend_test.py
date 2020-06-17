@@ -492,4 +492,19 @@ class AbstractGevTrendTest(object):
         old_mean = self.get_unconstrained_gev_params(year=self.years[-nb_years]).mean
         return last_mean - old_mean
 
+    def relative_change_in_mean_for_the_last_x_years(self, nb_years):
+        last_mean = self.unconstrained_estimator_gev_params_last_year.mean
+        old_mean = self.get_unconstrained_gev_params(year=self.years[-nb_years]).mean
+        return 100 * (last_mean - old_mean) / old_mean
+
+    def change_in_50_year_return_level_for_the_last_x_years(self, nb_years, return_period=50):
+        last_mean = self.unconstrained_estimator_gev_params_last_year.return_level(return_period=return_period)
+        old_mean = self.get_unconstrained_gev_params(year=self.years[-nb_years]).return_level(return_period=return_period)
+        return last_mean - old_mean
+
+    def relative_change_in_50_year_return_level_for_the_last_x_years(self, nb_years, return_period=50):
+        last_mean = self.unconstrained_estimator_gev_params_last_year.return_level(return_period=return_period)
+        old_mean = self.get_unconstrained_gev_params(year=self.years[-nb_years]).return_level(return_period=return_period)
+        return 100 * (last_mean - old_mean) / old_mean
+
 
