@@ -33,7 +33,7 @@ NON_STATIONARY_TREND_TEST_PAPER_2 = [
     # Gumbel models
     GumbelVersusGumbel, GumbelLocationTrendTest, GumbelScaleTrendTest, GumbelLocationAndScaleTrendTest,
     # GEV models with constant shape
-    GevVersusGev, GevLocationTrendTest, GevScaleTrendTest, GevLocationAndScaleTrendTest,
+    GevVersusGev, GevLocationTrendTest, GevScaleTrendTest,  GevLocationAndScaleTrendTest,
     # GEV models with linear shape
     GevShapeTrendTest, GevLocationAndShapeTrendTest, GevScaleAndShapeTrendTest, GevLocationAndScaleAndShapeTrendTest,
     # Quadratic model for the Gev/Gumbel and for the location/scale

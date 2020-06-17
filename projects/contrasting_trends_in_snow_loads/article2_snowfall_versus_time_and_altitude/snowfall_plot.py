@@ -36,7 +36,8 @@ def plot_snowfall_change_mean(altitude_to_visualizer: Dict[int, StudyVisualizerF
     visualizer.plot_abstract_fast(massif_name_to_mean_at_2000,
                                   label='Time derivative of mean annual maxima \nof {} at 2000 m ({})'.format(
                                       SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
-                                  add_x_label=False)
+                                  add_x_label=False,
+                                  add_text=True, massif_name_to_text={k: str(v) for k,v in massif_name_to_r2_score.items()})
     # Altitude for the change of dynamic
     massif_name_to_altitude_change_dynamic = {m: - massif_name_to_b[m] / a for m, a in massif_name_to_a.items()}
     # Keep only those that are in a reasonable range
@@ -44,11 +45,13 @@ def plot_snowfall_change_mean(altitude_to_visualizer: Dict[int, StudyVisualizerF
                                               if 0 < d < 3000}
     visualizer.plot_abstract_fast(massif_name_to_altitude_change_dynamic,
                                   label='Altitude for the change of dynamic (m)',
-                                  add_x_label=False, graduation=500)
+                                  add_x_label=False, graduation=500,
+                                  add_text=True, massif_name_to_text={k: str(v) for k,v in massif_name_to_r2_score.items()})
     # R2 score
-    visualizer.plot_abstract_fast(massif_name_to_r2_score, label='r2 time derivative of the mean', graduation=0.1,
-                                  add_x_label=False,
-                                  negative_and_positive_values=False)
+    # visualizer.plot_abstract_fast(massif_name_to_r2_score, label='r2 time derivative of the mean', graduation=0.1,
+    #                               add_x_label=False,
+    #                               negative_and_positive_values=False,
+    #                               )
 
 
 def plot_snowfall_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues]):
@@ -56,20 +59,35 @@ def plot_snowfall_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanV
     study = visualizer.study
     # Plot the curve for the evolution of the mean
     massif_name_to_a, massif_name_to_b, massif_name_to_r2_score = plot_mean(altitude_to_visualizer, derivative=False)
-    # Augmentation every km
-    massif_name_to_augmentation_every_km = {m: a * 1000 for m, a in massif_name_to_a.items()}
-    visualizer.plot_abstract_fast(massif_name_to_augmentation_every_km,
-                                  label='Augmentation of mean annual maxima of {} \nfor every km of elevation ({})'.format(
-                                      SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
-                                  add_x_label=False, negative_and_positive_values=False)
-    # Value at 2000 m
+    # Compute values of interest
     massif_name_to_mean_at_2000 = {m: a * 2000 + massif_name_to_b[m] for m, a in massif_name_to_a.items()}
+    massif_name_to_mean_at_1000 = {m: a * 1000 + massif_name_to_b[m] for m, a in massif_name_to_a.items()}
+    massif_name_to_augmentation_every_km = {m: a * 1000 for m, a in massif_name_to_a.items()}
+    massif_name_to_relative_augmentation_between_2000_and_3000_every_km = {m: 100 * (a * 1000) / (a * 2000 + massif_name_to_b[m]) for m, a in massif_name_to_a.items()}
+    massif_name_to_relative_augmentation_between_1000_and_2000_every_km = {m: 100 * (a * 1000) / (a * 1000 + massif_name_to_b[m]) for m, a in massif_name_to_a.items()}
+
+    # Augmentation every km
+    ds = [massif_name_to_augmentation_every_km, massif_name_to_relative_augmentation_between_1000_and_2000_every_km,
+          massif_name_to_relative_augmentation_between_2000_and_3000_every_km]
+    prefixs = ['Augmentation', 'Relative augmentation between 1000m and 2000m', 'Relative augmentation between 2000m and 3000m']
+    graduations = [1.0, 10.0, 10.0]
+    for d, prefix in zip(ds, prefixs):
+        visualizer.plot_abstract_fast(d,
+                                      graduation=1.0,
+                                      label=prefix + ' of mean annual maxima of {} \nfor every km of elevation ({})'.format(
+                                          SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
+                                      add_x_label=False, negative_and_positive_values=False,
+                                      add_text=True,
+                                      massif_name_to_text={k: str(v) for k, v in massif_name_to_r2_score.items()}
+                                      )
+    # Value at 2000 m
     visualizer.plot_abstract_fast(massif_name_to_mean_at_2000, label='Mean annual maxima of {} at 2000 m ()'.format(
         SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
-                                  add_x_label=False, negative_and_positive_values=False)
-    # R2 score
-    visualizer.plot_abstract_fast(massif_name_to_r2_score, label='r2 mean', graduation=0.1,
-                                  add_x_label=False, negative_and_positive_values=False)
+                                  add_x_label=False, negative_and_positive_values=False,
+                                  add_text=True, massif_name_to_text={k: str(v) for k,v in massif_name_to_r2_score.items()})
+    # # R2 score
+    # visualizer.plot_abstract_fast(massif_name_to_r2_score, label='r2 mean', graduation=0.1,
+    #                               add_x_label=False, negative_and_positive_values=False)
 
 
 def plot_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues], derivative=False):
@@ -90,9 +108,17 @@ def plot_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues], d
                 nb_years = 10
                 res = [(a, t.change_in_mean_for_the_last_x_years(nb_years=nb_years))
                        for i, (a, t) in enumerate(zip(altitudes_massif, trend_tests))
-                       if not t.unconstrained_model_is_stationary]
-                altitudes_values, values = zip(*res)
-                moment = 'Change in the last {} years  \nfor non-stationary models'.format(nb_years)
+                       if t.is_significant]
+                if len(res) > 0:
+                    altitudes_values, values = zip(*res)
+                else:
+                    altitudes_values, values = [], []
+                moment = 'Change in the last {} years  \nfor significative models'.format(nb_years)
+                # res = [(a, t.change_in_mean_for_the_last_x_years(nb_years=nb_years))
+                #        for i, (a, t) in enumerate(zip(altitudes_massif, trend_tests))
+                #        if not t.unconstrained_model_is_stationary]
+                # altitudes_values, values = zip(*res)
+                # moment = 'Change in the last {} years  \nfor non-stationary models'.format(nb_years)
             else:
                 moment = 'mean'
                 values = [t.unconstrained_estimator_gev_params_last_year.mean for t in trend_tests]
