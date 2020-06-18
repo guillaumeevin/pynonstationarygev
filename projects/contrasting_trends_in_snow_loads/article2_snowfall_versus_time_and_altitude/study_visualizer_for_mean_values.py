@@ -58,15 +58,37 @@ class StudyVisualizerForMeanValues(StudyVisualizerForNonStationaryTrends):
     # Override the main dict massif_name_to_trend_test_that_minimized_aic
 
     @property
-    def massif_name_to_trend_test_that_minimized_aic(self) -> Dict[str, AbstractGevTrendTest]:
+    def super_massif_name_to_trend_test_that_minimized_aic(self):
+        return super().massif_name_to_trend_test_that_minimized_aic
+
+    @property
+    def massif_name_to_trend_test_that_minimized_aic_after_anderson_test(self):
         return {m: t for m, t in super().massif_name_to_trend_test_that_minimized_aic.items()
                 if t.goodness_of_fit_anderson_test}
 
     @property
-    def super_massif_name_to_trend_test_that_minimized_aic(self):
-        return super().massif_name_to_trend_test_that_minimized_aic
+    def massif_name_to_trend_test_that_minimized_aic_after_anderson_test_and_likelihood_ratio_test(self):
+        return {m: t for m, t in self.massif_name_to_trend_test_that_minimized_aic_after_anderson_test.items()
+                if t.is_significant}
 
-    # Study of the mean
+    @property
+    def massif_name_to_trend_test_that_minimized_aic(self) -> Dict[str, AbstractGevTrendTest]:
+        return self.massif_name_to_trend_test_that_minimized_aic_after_anderson_test
+
+    # Counter for the selection process
+
+    @cached_property
+    def selected_trend_test_class_counter(self):
+        return Counter([type(t) for t in self.super_massif_name_to_trend_test_that_minimized_aic.values()])
+
+    @cached_property
+    def selected_and_anderson_trend_test_class_counter(self):
+        return Counter([type(t) for t in self.massif_name_to_trend_test_that_minimized_aic_after_anderson_test.values()])
+
+    def selected_and_anderson_and_likelihood_ratio_trend_test_class_counter(self):
+        return Counter([type(t) for t in self.massif_name_to_trend_test_that_minimized_aic_after_anderson_test_and_likelihood_ratio_test.values()])
+
+# Study of the mean
 
     @cached_property
     def massif_name_to_empirical_mean(self):

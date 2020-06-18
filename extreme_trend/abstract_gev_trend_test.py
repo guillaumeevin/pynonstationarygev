@@ -70,14 +70,18 @@ class AbstractGevTrendTest(object):
 
     @property
     def goodness_of_fit_anderson_test(self):
-        assert self.SIGNIFICANCE_LEVEL == 0.05
-        # significance_level=array([25. , 10. ,  5. ,  2.5,  1. ]))
-        index_for_significance_level_5_percent = 2
+        # significance_level_to_index = dict(zip([0.25, 0.1, 0.05, 0.025, 0.01], list(range(5))))
+        # print(significance_level_to_index)
+        # assert self.SIGNIFICANCE_LEVEL in significance_level_to_index
+        # # significance_level=array([25. , 10. ,  5. ,  2.5,  1. ]))
+        # index_for_significance_level_5_percent = 2
         quantiles = self.compute_empirical_quantiles(estimator=self.unconstrained_estimator)
         # test_res = anderson(quantiles, dist='gumbel_r')  # type: AndersonResult
         # return test_res.statistic < test_res.critical_values[index_for_significance_level_5_percent]
+        # print(quantiles)
         test = cramer_von_mises_and_anderson_darling_tests_pvalues_for_gumbel_distribution(quantiles)
-        return test[1] > self.SIGNIFICANCE_LEVEL
+        _, ander_darling_test_pvalue = test
+        return ander_darling_test_pvalue > self.SIGNIFICANCE_LEVEL
 
     @property
     def name(self):

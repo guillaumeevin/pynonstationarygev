@@ -26,7 +26,8 @@ def plot_snowfall_change_mean(altitude_to_visualizer: Dict[int, StudyVisualizerF
 
     variables = ['mean annual maxima', '50 year return level']
     mean_indicators = [True, False]
-    for variable, mean_indicator in zip(variables, mean_indicators):
+    l = list(zip(variables, mean_indicators))
+    for variable, mean_indicator in l[:1]:
         for relative in [False, True]:
             if relative:
                 variable += str(' (relative)')
@@ -41,7 +42,8 @@ def plot_snowfall_change_mean(altitude_to_visualizer: Dict[int, StudyVisualizerF
             visualizer.plot_abstract_fast(massif_name_to_augmentation_every_km,
                                           label='Slope for changes of {} of {}\n for every km of elevation ({})'.format(
                                               variable, SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)], study.variable_unit),
-                                          add_x_label=False)
+                                          add_x_label=False,
+                                          add_text=True, massif_name_to_text=massif_to_r2_score_text)
             # Value at 2000 m
             massif_name_to_mean_at_2000 = {m: a * 2000 + massif_name_to_b[m] for m, a in massif_name_to_a.items()}
             visualizer.plot_abstract_fast(massif_name_to_mean_at_2000,
@@ -123,9 +125,7 @@ def plot_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues], d
                 indicator_str = 'mean'
             else:
                 indicator_str = '50 year return level'
-            res = [(a, t)
-                   for i, (a, t) in enumerate(zip(altitudes_massif, trend_tests))
-                   if not t.unconstrained_model_is_stationary]
+            res = [(a, t) for i, (a, t) in enumerate(zip(altitudes_massif, trend_tests))]
             if derivative:
                 if mean_indicator:
                     if relative:
