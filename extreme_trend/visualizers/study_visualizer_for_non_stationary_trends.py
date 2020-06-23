@@ -155,24 +155,13 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     @cached_property
     def massif_name_to_trend_test_tuple(self) -> Tuple[
         Dict[str, AbstractGevTrendTest], Dict[str, AbstractGevTrendTest], Dict[str, AbstractGevTrendTest]]:
-        starting_year = None
+
         massif_name_to_trend_test_that_minimized_aic = {}
         massif_name_to_stationary_trend_test_that_minimized_aic = {}
         massif_name_to_gumbel_trend_test_that_minimized_aic = {}
-        for massif_name, (x, y) in self.massif_name_to_years_and_maxima_for_model_fitting.items():
-            quantile_level = self.massif_name_to_eurocode_quantile_level_in_practice[massif_name]
-            all_trend_test = [
-                t(years=x, maxima=y, starting_year=starting_year, quantile_level=quantile_level,
-                  fit_method=self.fit_method)
-                for t in self.non_stationary_trend_test]  # type: List[AbstractGevTrendTest]
-            # Exclude GEV models whose shape parameter is not in the support of the prior distribution for GMLE
-            if self.select_only_acceptable_shape_parameter:
-                acceptable_shape_parameter = lambda s: -0.5 <= s <= 0.5  # physically acceptable prior
-                all_trend_test = [t for t in all_trend_test
-                                  if (acceptable_shape_parameter(t.unconstrained_estimator_gev_params_last_year.shape)
-                                      and acceptable_shape_parameter(
-                                t.unconstrained_estimator_gev_params_first_year.shape))]
-            sorted_trend_test = sorted(all_trend_test, key=lambda t: t.aic)
+        for massif_name in self.massif_name_to_years_and_maxima_for_model_fitting.keys():
+            # Compute sorted trend test
+            sorted_trend_test = self.get_sorted_trend_test(massif_name)
 
             # Extract the stationary or non-stationary model that minimized AIC
             trend_test_that_minimized_aic = sorted_trend_test[0]
@@ -197,6 +186,24 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             massif_name_to_gumbel_trend_test_that_minimized_aic[massif_name] = gumbel_trend_test_that_minimized_aic
 
         return massif_name_to_trend_test_that_minimized_aic, massif_name_to_stationary_trend_test_that_minimized_aic, massif_name_to_gumbel_trend_test_that_minimized_aic
+
+    def get_sorted_trend_test(self, massif_name):
+        x, y = self.massif_name_to_years_and_maxima_for_model_fitting[massif_name]
+        starting_year = None
+        quantile_level = self.massif_name_to_eurocode_quantile_level_in_practice[massif_name]
+        all_trend_test = [
+            t(years=x, maxima=y, starting_year=starting_year, quantile_level=quantile_level,
+              fit_method=self.fit_method)
+            for t in self.non_stationary_trend_test]  # type: List[AbstractGevTrendTest]
+        # Exclude GEV models whose shape parameter is not in the support of the prior distribution for GMLE
+        if self.select_only_acceptable_shape_parameter:
+            acceptable_shape_parameter = lambda s: -0.5 <= s <= 0.5  # physically acceptable prior
+            all_trend_test = [t for t in all_trend_test
+                              if (acceptable_shape_parameter(t.unconstrained_estimator_gev_params_last_year.shape)
+                                  and acceptable_shape_parameter(
+                            t.unconstrained_estimator_gev_params_first_year.shape))]
+        sorted_trend_test = sorted(all_trend_test, key=lambda t: t.aic)
+        return sorted_trend_test
 
     # Part 1 - Trends
 
