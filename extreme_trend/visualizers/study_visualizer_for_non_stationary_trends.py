@@ -170,7 +170,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                 acceptable_shape_parameter = lambda s: -0.5 <= s <= 0.5  # physically acceptable prior
                 all_trend_test = [t for t in all_trend_test
                                   if (acceptable_shape_parameter(t.unconstrained_estimator_gev_params_last_year.shape)
-                                  and acceptable_shape_parameter(t.unconstrained_estimator_gev_params_first_year.shape))]
+                                      and acceptable_shape_parameter(
+                                t.unconstrained_estimator_gev_params_first_year.shape))]
             sorted_trend_test = sorted(all_trend_test, key=lambda t: t.aic)
 
             # Extract the stationary or non-stationary model that minimized AIC
@@ -178,7 +179,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
             # Extract the stationary model that minimized AIC
             stationary_trend_tests_that_minimized_aic = [t for t in sorted_trend_test if type(t) in
-                                                        [GumbelVersusGumbel, GevStationaryVersusGumbel]]
+                                                         [GumbelVersusGumbel, GevStationaryVersusGumbel]]
             if len(stationary_trend_tests_that_minimized_aic) == 0:
                 stationary_trend_test_that_minimized_aic = None
             else:
@@ -186,9 +187,13 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             massif_name_to_stationary_trend_test_that_minimized_aic[
                 massif_name] = stationary_trend_test_that_minimized_aic
             # Extract the Gumbel model that minimized AIC
-            gumbel_trend_test_that_minimized_aic = [t for t in sorted_trend_test if type(t) in
-                                                    [GumbelVersusGumbel, GumbelLocationTrendTest, GumbelScaleTrendTest,
-                                                     GumbelLocationAndScaleTrendTest]][0]
+            gumbel_trend_tests = [t for t in sorted_trend_test if
+                                  type(t) in [GumbelVersusGumbel, GumbelLocationTrendTest, GumbelScaleTrendTest,
+                                              GumbelLocationAndScaleTrendTest]]
+            if len(gumbel_trend_tests) > 0:
+                gumbel_trend_test_that_minimized_aic = gumbel_trend_tests[0]
+            else:
+                gumbel_trend_test_that_minimized_aic = None
             massif_name_to_gumbel_trend_test_that_minimized_aic[massif_name] = gumbel_trend_test_that_minimized_aic
 
         return massif_name_to_trend_test_that_minimized_aic, massif_name_to_stationary_trend_test_that_minimized_aic, massif_name_to_gumbel_trend_test_that_minimized_aic
@@ -348,11 +353,12 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         else:
             raise ValueError(model_subset_for_uncertainty)
 
-    def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self, ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
+    def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self,
+                                                                              ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
                                                                               model_subset_for_uncertainty=ModelSubsetForUncertainty.non_stationary_gumbel_and_gev) \
             -> Dict[str, EurocodeConfidenceIntervalFromExtremes]:
         # Compute for the uncertainty massif names
-        massifs_names = set(self.massif_name_to_years_and_maxima_for_model_fitting.keys()).\
+        massifs_names = set(self.massif_name_to_years_and_maxima_for_model_fitting.keys()). \
             intersection(self.uncertainty_massif_names)
         arguments = [
             [self.massif_name_to_years_and_maxima_for_model_fitting[m],
@@ -387,7 +393,6 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
     def model_name_to_uncertainty_method_to_ratio_above_eurocode(self):
         assert self.uncertainty_massif_names == self.study.study_massif_names
-
 
     # Some values for the histogram
 
@@ -429,14 +434,16 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         psnow = self.massif_name_to_psnow[massif_name]
         trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]
         trend_test.intensity_plot_wrt_standard_gumbel_simple(massif_name, self.altitude, color, psnow)
-        self.plot_name = 'intensity_plot_{}_{}_{}_{}'.format(self.altitude, massif_name, psnow, trend_test.unconstrained_estimator_gev_params_last_year.shape)
+        self.plot_name = 'intensity_plot_{}_{}_{}_{}'.format(self.altitude, massif_name, psnow,
+                                                             trend_test.unconstrained_estimator_gev_params_last_year.shape)
         self.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
 
     def qqplot(self, massif_name, color=None):
         trend_test = self.massif_name_to_trend_test_that_minimized_aic[massif_name]
         trend_test.qqplot_wrt_standard_gumbel(massif_name, self.altitude)
-        self.plot_name = 'qpplot_plot_{}_{}_{}'.format(self.altitude, massif_name, trend_test.unconstrained_estimator_gev_params_last_year.shape)
+        self.plot_name = 'qpplot_plot_{}_{}_{}'.format(self.altitude, massif_name,
+                                                       trend_test.unconstrained_estimator_gev_params_last_year.shape)
         self.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
 
@@ -474,7 +481,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         #     mean_decreases.append(compute_mean_decrease(change_values))
         return (self.altitude, percentage_decrease, percentage_decrease_significative, *mean_decreases)
 
-    def trend_summary_contrasting_values(self, all_regions = False):
+    def trend_summary_contrasting_values(self, all_regions=False):
         # trend_tests = list(self.massif_name_to_trend_test_that_minimized_aic.values())
         # decreasing_trend_tests = [t for t in trend_tests if t.time_derivative_of_return_level < 0]
         # percentage_decrease = 100 * len(decreasing_trend_tests) / len(trend_tests)
@@ -505,7 +512,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         percentages = []
         for massif_name in self.massifs_names_with_year_without_snow:
             eurocode_value = self.massif_name_to_eurocode_values[massif_name]
-            eurocode_uncertainty = self.triplet_to_eurocode_uncertainty[(ci_method, model_subset_for_uncertainty, massif_name)]
+            eurocode_uncertainty = self.triplet_to_eurocode_uncertainty[
+                (ci_method, model_subset_for_uncertainty, massif_name)]
             percentage = 100 * np.array(eurocode_uncertainty.triplet) / eurocode_value
             percentages.append(percentage)
         return np.round(np.mean(percentages, axis=0))
@@ -516,5 +524,6 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             maxima_before, maxima_after = maxima[:30], maxima[30:]
             psnow_before, psnow_after = [np.count_nonzero(s) / len(s) for s in [maxima_before, maxima_after]]
             return 100 * (psnow_after - psnow_before) / psnow_before
-        return {m: compute_relative_change_in_psnow(self.massif_name_to_years_and_maxima[m][1]) for m in self.massifs_names_with_year_without_snow}
 
+        return {m: compute_relative_change_in_psnow(self.massif_name_to_years_and_maxima[m][1]) for m in
+                self.massifs_names_with_year_without_snow}
