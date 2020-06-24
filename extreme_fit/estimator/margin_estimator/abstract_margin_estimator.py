@@ -28,13 +28,18 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         self.margin_model = margin_model
 
     def _fit(self) -> AbstractResultFromModelFit:
-        df_coordinates_spat = self.dataset.coordinates.df_spatial_coordinates(self.train_split)
         return self.margin_model.fitmargin_from_maxima_gev(data=self.maxima_gev_train,
-                                                           df_coordinates_spat=df_coordinates_spat,
-                                                           df_coordinates_temp=self.coordinate_temp)
+                                                           df_coordinates_spat=self.df_coordinates_spat,
+                                                           df_coordinates_temp=self.df_coordinates_temp)
 
     @property
-    def coordinate_temp(self):
+    def df_coordinates_spat(self):
+        return self.dataset.coordinates.df_spatial_coordinates(split=self.train_split,
+                                                               drop_duplicates=self.margin_model.drop_duplicates)
+
+
+    @property
+    def df_coordinates_temp(self):
         return self.dataset.coordinates.df_temporal_coordinates_for_fit(split=self.train_split,
                                                                         starting_point=self.margin_model.starting_point,
                                                                         drop_duplicates=self.margin_model.drop_duplicates)

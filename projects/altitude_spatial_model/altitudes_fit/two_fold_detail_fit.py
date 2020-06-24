@@ -69,7 +69,8 @@ class TwoFoldModelFit(object):
         self.model_class = model_class
         self.fit_method = fit_method
         self.estimators = [fitted_linear_margin_estimator_short(model_class=self.model_class, dataset=dataset,
-                                                 fit_method=self.fit_method) for dataset in two_fold_datasets] # type: List[LinearMarginEstimator]
+                                                                fit_method=self.fit_method)
+                           for dataset in two_fold_datasets]  # type: List[LinearMarginEstimator]
         self.estimator_fold_1 = self.estimators[0]
         self.estimator_fold_2 = self.estimators[1]
 

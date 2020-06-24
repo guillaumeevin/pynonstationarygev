@@ -210,11 +210,12 @@ class AbstractCoordinates(object):
     def has_spatial_coordinates(self) -> bool:
         return self.nb_spatial_coordinates > 0
 
-    def df_spatial_coordinates(self, split: Split = Split.all, transformed=True) -> pd.DataFrame:
+    def df_spatial_coordinates(self, split: Split = Split.all, transformed=True, drop_duplicates=True) -> pd.DataFrame:
         if self.nb_spatial_coordinates == 0:
             return pd.DataFrame()
         else:
-            return self.df_coordinates(split, transformed).loc[:, self.spatial_coordinates_names].drop_duplicates()
+            df = self.df_coordinates(split, transformed).loc[:, self.spatial_coordinates_names]
+            return df.drop_duplicates() if drop_duplicates else df
 
     def nb_stations(self, split: Split = Split.all) -> int:
         return len(self.df_spatial_coordinates(split))
@@ -302,7 +303,11 @@ class AbstractCoordinates(object):
     def idx_temporal_coordinates(self):
         return self.coordinates_names.index(self.COORDINATE_T)
 
-    # Spatio temporal attributes
+    @property
+    def idx_x_coordinates(self):
+        return self.coordinates_names.index(self.COORDINATE_X)
+
+# Spatio temporal attributes
 
     @property
     def has_spatio_temporal_coordinates(self) -> bool:

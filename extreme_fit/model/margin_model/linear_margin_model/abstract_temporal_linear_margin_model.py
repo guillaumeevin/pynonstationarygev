@@ -35,20 +35,23 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
 
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
                                   df_coordinates_temp: pd.DataFrame) -> AbstractResultFromModelFit:
-        data = data[0]
-        assert len(data) == len(df_coordinates_temp.values), 'len(data)={} != len(temp)={}'.format(len(data),
-                                                                                                   len(
-                                                                                                       df_coordinates_temp.values))
-        x = ro.FloatVector(data)
+        if len(data) == 1:
+            data = data[0]
+            assert len(data) == len(df_coordinates_temp.values), 'len(data)={} != len(temp)={}'.format(len(data),
+                                                                                                       len(
+                                                                                                           df_coordinates_temp.values))
+            x = ro.FloatVector(data)
+        else:
+            x = ro.Matrix(data)
         if self.params_class is GevParams:
             if self.fit_method == MarginFitMethod.is_mev_gev_fit:
                 return self.ismev_gev_fit(x, df_coordinates_temp)
             elif self.fit_method in FEVD_MARGIN_FIT_METHODS:
-                return self.extremes_fevd_fit(x, df_coordinates_temp)
+                return self.extremes_fevd_fit(x, df_coordinates_temp, df_coordinates_spat)
             else:
                 raise NotImplementedError
         elif self.params_class is ExpParams:
-            return self.extreme_fevd_mle_exp_fit(x, df_coordinates_temp)
+            return self.extreme_fevd_mle_exp_fit(x, df_coordinates_temp, df_coordinates_spat)
         else:
             raise NotImplementedError
 
@@ -63,21 +66,22 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
 
     # Gev fit with extRemes package
 
-    def extremes_fevd_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:
+    def extremes_fevd_fit(self, x, df_coordinates_temp, df_coordinates_spat) -> AbstractResultFromExtremes:
         assert self.fit_method in FEVD_MARGIN_FIT_METHODS
         if self.fit_method == MarginFitMethod.extremes_fevd_bayesian:
             return self.extremes_fevd_bayesian_fit(x, df_coordinates_temp)
         else:
             return self.run_fevd_fixed(df_coordinates_temp=df_coordinates_temp,
+                                       df_coordinates_spat=df_coordinates_spat,
                                        method=FEVD_MARGIN_FIT_METHOD_TO_ARGUMENT_STR[self.fit_method], x=x)
 
-    def extreme_fevd_mle_exp_fit(self, x, df_coordinates_temp):
-        return self.run_fevd_fixed(df_coordinates_temp, "Exponential", x)
+    def extreme_fevd_mle_exp_fit(self, x, df_coordinates_temp, df_coordinates_spat):
+        return self.run_fevd_fixed(df_coordinates_temp, df_coordinates_spat, "Exponential", x)
 
-    def run_fevd_fixed(self, df_coordinates_temp, method, x):
+    def run_fevd_fixed(self, df_coordinates_temp, df_coordinates_spat, method, x):
         if self.fit_method == MarginFitMethod.extremes_fevd_l_moments:
             assert self.margin_function.is_a_stationary_model
-        r_type_argument_kwargs, y = self.extreme_arguments(df_coordinates_temp)
+        r_type_argument_kwargs, y = self.extreme_arguments(df_coordinates_temp, df_coordinates_spat)
         res = safe_run_r_estimator(function=r('fevd_fixed'),
                                    x=x,
                                    data=y,
@@ -107,13 +111,22 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                    )
         return ResultFromBayesianExtremes(res, self.param_name_to_list_for_result)
 
-    def extreme_arguments(self, df_coordinates_temp):
+    def extreme_arguments(self, df_coordinates_temp, df_coordinates_spat=None):
+
+        # Load parameters
+
+        if df_coordinates_spat is None or df_coordinates_spat.empty:
+            df = df_coordinates_temp
+        else:
+            df = pd.concat([df_coordinates_spat, df_coordinates_temp], axis=1)
+            print(df.shape)
+            print(df.head())
+        y = get_coord_df(df)
+
         # Disable the use of log sigma parametrization
         r_type_argument_kwargs = {'use.phi': False,
                                   'verbose': False}
-        # Load parameters
         r_type_argument_kwargs.update(get_margin_formula_extremes(self.margin_function.form_dict))
-        y = get_coord_df(df_coordinates_temp)
         return r_type_argument_kwargs, y
 
     # Default arguments for all methods
