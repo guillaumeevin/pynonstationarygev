@@ -9,7 +9,8 @@ from extreme_fit.model.margin_model.polynomial_margin_model.polynomial_margin_mo
     NonStationaryQuadraticLocationModel, \
     NonStationaryQuadraticScaleModel, NonStationaryQuadraticLocationGumbelModel, NonStationaryQuadraticScaleGumbelModel
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
-    NonStationaryLocationSpatioTemporalLinearityModel
+    NonStationaryLocationSpatioTemporalLinearityModel, NonStationaryLocationSpatioTemporalLinearityModel2
+from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_MODELS
 from extreme_trend.abstract_gev_trend_test import fitted_linear_margin_estimator
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
@@ -44,12 +45,21 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         estimator = model_fit.estimator_fold_1
         return estimator
 
-    def test_location_spatio_temporal_linearity(self):
-        estimator = self.get_estimator_fitted(NonStationaryLocationSpatioTemporalLinearityModel)
+    def common_test(self, model_class):
+        estimator = self.get_estimator_fitted(model_class)
         # Assert that indicators are correctly computed
         self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh(split=estimator.train_split))
         self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic(split=estimator.train_split))
         self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic(split=estimator.train_split))
+
+    def test_location_spatio_temporal_models(self):
+        for model_class in [NonStationaryLocationSpatioTemporalLinearityModel,
+                            NonStationaryLocationSpatioTemporalLinearityModel2]:
+            self.common_test(model_class)
+
+    def test_altitudinal_models(self):
+        for model_class in ALTITUDINAL_MODELS:
+            self.common_test(model_class)
 
 
 if __name__ == '__main__':

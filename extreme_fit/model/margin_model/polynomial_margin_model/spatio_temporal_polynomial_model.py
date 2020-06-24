@@ -21,3 +21,12 @@ class NonStationaryLocationSpatioTemporalLinearityModel(AbstractSpatioTemporalPo
             (self.coordinates.idx_temporal_coordinates, 1),
             (self.coordinates.idx_x_coordinates, 1),
         ]})
+
+
+class NonStationaryLocationSpatioTemporalLinearityModel2(AbstractSpatioTemporalPolynomialModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: [
+            (self.coordinates.idx_temporal_coordinates, 2),
+            (self.coordinates.idx_x_coordinates, 1),
+        ]})
