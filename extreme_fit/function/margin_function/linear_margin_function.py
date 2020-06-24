@@ -42,9 +42,8 @@ class LinearMarginFunction(ParametricMarginFunction):
     def idx_to_coefficient_name(cls, coordinates: AbstractCoordinates) -> Dict[int, str]:
         # Intercept correspond to the dimension 0
         idx_to_coefficient_name = {-1: LinearCoef.INTERCEPT_NAME}
-        # Coordinates correspond to the dimension starting from 1
-        for idx, coordinate_name in enumerate(coordinates.coordinates_names):
-            idx_to_coefficient_name[idx] = coordinate_name
+        # Coordinates correspond to the dimension starting from 0
+        idx_to_coefficient_name.update(coordinates.dim_to_coordinate)
         return idx_to_coefficient_name
 
     @classmethod
@@ -65,24 +64,27 @@ class LinearMarginFunction(ParametricMarginFunction):
         return all([v == 'NULL' for v in self.form_dict.values()])
 
     @property
+    def coordinate_name_to_dim(self):
+        return self.coordinates.coordinate_name_to_dim
+
+    @property
     def form_dict(self) -> Dict[str, str]:
-        coordinate_name_to_dim = self.coefficient_name_to_dim(self.coordinates)
         form_dict = {}
         for param_name in self.params_class.PARAM_NAMES:
             linear_dims = self.param_name_to_dims.get(param_name, [])
             # Load spatial form_dict (only if we have some spatial coordinates)
             if self.coordinates.has_spatial_coordinates:
                 spatial_names = [name for name in self.coordinates.spatial_coordinates_names
-                                 if coordinate_name_to_dim[name] in linear_dims]
-                spatial_dims = [coordinate_name_to_dim[name] for name in spatial_names]
+                                 if self.coordinate_name_to_dim[name] in linear_dims]
+                spatial_dims = [self.coordinate_name_to_dim[name] for name in spatial_names]
                 spatial_form = self.param_name_to_coef[param_name].spatial_form_dict(spatial_names, spatial_dims)
                 form_dict.update(spatial_form)
             # Load temporal form dict (only if we have some temporal coordinates)
 
             if self.coordinates.has_temporal_coordinates:
                 temporal_names = [name for name in self.coordinates.temporal_coordinates_names
-                                  if coordinate_name_to_dim[name] in linear_dims]
-                temporal_dims = [coordinate_name_to_dim[name] for name in temporal_names]
+                                  if self.coordinate_name_to_dim[name] in linear_dims]
+                temporal_dims = [self.coordinate_name_to_dim[name] for name in temporal_names]
                 temporal_form = self.param_name_to_coef[param_name].temporal_form_dict(temporal_names, temporal_dims)
                 # Specifying a formula '~ 1' creates a bug in fitspatgev of SpatialExtreme R package
                 assert not any(['~ 1' in formula for formula in temporal_form.values()])

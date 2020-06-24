@@ -14,9 +14,10 @@ from extreme_fit.model.utils import r
 
 class AbstractResultFromExtremes(AbstractResultFromModelFit):
 
-    def __init__(self, result_from_fit: robjects.ListVector, param_name_to_dim=None) -> None:
+    def __init__(self, result_from_fit: robjects.ListVector, param_name_to_dim=None, dim_to_coordinate=None) -> None:
         super().__init__(result_from_fit)
         self.param_name_to_dim = param_name_to_dim
+        self.dim_to_coordinate = dim_to_coordinate
 
     @property
     def summary_name_to_value(self):

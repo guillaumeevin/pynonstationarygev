@@ -90,6 +90,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                    **r_type_argument_kwargs
                                    )
         return ResultFromMleExtremes(res, self.param_name_to_list_for_result,
+                                     self.coordinates.dim_to_coordinate,
                                      type_for_mle=self.type_for_mle)
 
     def extremes_fevd_bayesian_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:

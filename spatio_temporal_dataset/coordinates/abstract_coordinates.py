@@ -319,6 +319,14 @@ class AbstractCoordinates(object):
     def ind_of_df_all_coordinates(self, coordinate_name, value):
         return self.df_all_coordinates.loc[:, coordinate_name] == value
 
+    @property
+    def coordinate_name_to_dim(self):
+        return {v: k for k, v in self.dim_to_coordinate.items()}
+
+    @property
+    def dim_to_coordinate(self):
+        return dict(enumerate(self.coordinates_names))
+
     #  Visualization
 
     @property

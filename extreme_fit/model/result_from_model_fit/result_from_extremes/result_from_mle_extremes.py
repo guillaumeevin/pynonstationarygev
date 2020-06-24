@@ -12,8 +12,9 @@ from extreme_fit.model.utils import r
 class ResultFromMleExtremes(AbstractResultFromExtremes):
 
     def __init__(self, result_from_fit: robjects.ListVector, param_name_to_dim=None,
+                 dim_to_coordinate=None,
                  type_for_mle="GEV") -> None:
-        super().__init__(result_from_fit, param_name_to_dim)
+        super().__init__(result_from_fit, param_name_to_dim, dim_to_coordinate)
         self.type_for_mle = type_for_mle
 
     @property
@@ -25,7 +26,8 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
             values = {i: param for i, param in enumerate(np.array(d['par']))}
         else:
             values = {i: np.array(v)[0] for i, v in enumerate(d.values())}
-        return get_margin_coef_ordered_dict(self.param_name_to_dim, values, self.type_for_mle)
+        return get_margin_coef_ordered_dict(self.param_name_to_dim, values, self.type_for_mle,
+                                            dim_to_coordinate_name=self.dim_to_coordinate)
 
     def _confidence_interval_method(self, common_kwargs, ci_method, return_period):
         method_name = ci_method_to_method_name[ci_method]

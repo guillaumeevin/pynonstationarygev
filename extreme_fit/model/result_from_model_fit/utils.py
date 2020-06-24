@@ -11,7 +11,7 @@ def convertFloatVector_to_float(f):
     return np.array(f)[0]
 
 
-def get_margin_coef_ordered_dict(param_name_to_dims, mle_values, type_for_mle="GEV"):
+def get_margin_coef_ordered_dict(param_name_to_dims, mle_values, type_for_mle="GEV", dim_to_coordinate_name=None):
     assert param_name_to_dims is not None
     # Build the Coeff dict from param_name_to_dim
     coef_dict = OrderedDict()
@@ -29,12 +29,16 @@ def get_margin_coef_ordered_dict(param_name_to_dims, mle_values, type_for_mle="G
         if param_name in param_name_to_dims:
             dims = param_name_to_dims[param_name]
             if isinstance(dims[0], int):
-                nb_parameters = 1
-            else:
-                nb_parameters = dims[0][1]
-            for j in range(nb_parameters):
-                temporal_coef_name = LinearCoef.coef_template_str(param_name,
-                                                                  AbstractCoordinates.COORDINATE_T).format(1 + j)
-                coef_dict[temporal_coef_name] = mle_values[i]
+                coef_name = LinearCoef.coef_template_str(param_name, AbstractCoordinates.COORDINATE_T).format(1)
+                coef_dict[coef_name] = mle_values[i]
                 i += 1
+            else:
+                for dim, max_degree in dims:
+                    coordinate_name = dim_to_coordinate_name[dim]
+                    coef_template = LinearCoef.coef_template_str(param_name, coordinate_name)
+                    for j in range(1, max_degree + 1):
+                        k = j if coordinate_name == AbstractCoordinates.COORDINATE_T else j + 1
+                        coef_name = coef_template.format(k)
+                        coef_dict[coef_name] = mle_values[i]
+                        i += 1
     return coef_dict
