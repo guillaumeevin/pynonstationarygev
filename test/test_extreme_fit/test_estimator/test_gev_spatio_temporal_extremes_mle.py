@@ -45,27 +45,11 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         return estimator
 
     def test_location_spatio_temporal_linearity(self):
-
-        # Create estimator
-        # estimator = fitted_linear_margin_estimator(model_class,
-        #                                            self.coordinates, self.dataset,
-        #                                            starting_year=0,
-        #                                            fit_method=self.fit_method)
-        # # Checks that parameters returned are indeed different
-        # mle_params_estimated_year1 = estimator.function_from_fit.get_params(np.array([1])).to_dict()
-        # mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([21])).to_dict()
-        # mle_params_estimated_year5 = estimator.function_from_fit.get_params(np.array([41])).to_dict()
-        # self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
-        # self.assertNotEqual(mle_params_estimated_year3, mle_params_estimated_year5)
-        # # Assert the relationship for the location is indeed quadratic
-        # diff1 = mle_params_estimated_year1[quadratic_param] - mle_params_estimated_year3[quadratic_param]
-        # diff2 = mle_params_estimated_year3[quadratic_param] - mle_params_estimated_year5[quadratic_param]
-        # self.assertNotAlmostEqual(diff1, diff2)
         estimator = self.get_estimator_fitted(NonStationaryLocationSpatioTemporalLinearityModel)
         # Assert that indicators are correctly computed
         self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh(split=estimator.train_split))
-        # self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
-    #     self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
+        self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic(split=estimator.train_split))
+        self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic(split=estimator.train_split))
 
 
 if __name__ == '__main__':

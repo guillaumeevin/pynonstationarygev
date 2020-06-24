@@ -37,7 +37,8 @@ class PolynomialAllCoef(LinearCoef):
         if self.dim_to_polynomial_coef is None:
             return 1
         else:
-            return sum([c.nb_params for c in self.dim_to_polynomial_coef.values()])
+            nb_redundant_intercept = len(self.dim_to_polynomial_coef) - 1
+            return sum([c.nb_params for c in self.dim_to_polynomial_coef.values()]) - nb_redundant_intercept
 
     @property
     def intercept(self) -> float:
