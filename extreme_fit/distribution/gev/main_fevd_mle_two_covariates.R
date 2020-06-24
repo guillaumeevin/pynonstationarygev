@@ -27,7 +27,7 @@ coord = data.frame(coord, stringsAsFactors = TRUE)
 # res = fevd_fixed(x_gev, data=coord, method='MLE', verbose=TRUE, use.phi=FALSE)
 # res = fevd_fixed(x_gev, data=coord, location.fun= ~T, scale.fun= ~T, method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
 # res = fevd_fixed(x_gev, data=coord, location.fun= ~sin(X) + cos(T), method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
-res = fevd_fixed(x_gev, data=coord, location.fun= ~T * X + X +T , method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
+res = fevd_fixed(x_gev, data=coord, location.fun= ~poly(X, 1, raw = TRUE) + 1 , method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
 print(res)
 
 # Some display for the results

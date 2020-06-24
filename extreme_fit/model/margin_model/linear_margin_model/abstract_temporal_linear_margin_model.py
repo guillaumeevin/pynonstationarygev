@@ -119,8 +119,6 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
             df = df_coordinates_temp
         else:
             df = pd.concat([df_coordinates_spat, df_coordinates_temp], axis=1)
-            print(df.shape)
-            print(df.head())
         y = get_coord_df(df)
 
         # Disable the use of log sigma parametrization

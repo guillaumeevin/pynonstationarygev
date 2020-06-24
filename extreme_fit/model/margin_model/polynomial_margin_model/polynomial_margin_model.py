@@ -57,7 +57,7 @@ class PolynomialMarginModel(AbstractTemporalLinearMarginModel):
             for dim, max_degree in param_name_to_list_dim_and_degree.get(param_name, []):
                 degree_to_coef = {}
                 for (param_name_loop, dim_loop, degree), coef in param_name_and_dim_and_degree_to_default_coef.items():
-                    if param_name == param_name_loop and dim == dim_loop:
+                    if param_name == param_name_loop and dim == dim_loop and degree <= max_degree:
                         degree_to_coef[degree] = coef
                 # print(degree_to_coef, param_name)
                 # if len(degree_to_coef) == 0:

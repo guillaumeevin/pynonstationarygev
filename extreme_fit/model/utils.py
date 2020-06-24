@@ -90,7 +90,8 @@ def safe_run_r_estimator(function, data=None, start_dict=None, max_ratio_between
             for _ in range(nb_tries_for_start_value):
                 parameters['start'] = r.list(**start_dict)
                 try:
-                    return _safe_run_r_estimator(function, data, max_ratio_between_two_extremes_values, maxit, **parameters)
+                    return _safe_run_r_estimator(function, data, max_ratio_between_two_extremes_values, maxit,
+                                                 **parameters)
                 except Exception:
                     continue
         else:
@@ -98,7 +99,7 @@ def safe_run_r_estimator(function, data=None, start_dict=None, max_ratio_between
 
 
 def _safe_run_r_estimator(function, data=None, max_ratio_between_two_extremes_values=10, maxit=1000000,
-                         **parameters) -> robjects.ListVector:
+                          **parameters) -> robjects.ListVector:
     if OptimizationConstants.USE_MAXIT:
         # Add optimization parameters
         optim_dict = {'maxit': maxit}
@@ -170,17 +171,21 @@ def get_margin_formula_spatial_extreme(fit_marge_form_dict) -> Dict:
     return margin_formula
 
 
-def old_coef_name_to_new_coef_name():
+def new_coef_name_to_old_coef_names():
     return {
-        'temp.form.loc': 'location.fun',
-        'temp.form.scale': 'scale.fun',
-        'temp.form.shape': 'shape.fun',
+        'location.fun': ['loc.form', 'temp.form.loc'],
+        'scale.fun': ['scale.form', 'temp.form.scale'],
+        'shape.fun': ['shape.form', 'temp.form.shape'],
     }
 
 
 def get_margin_formula_extremes(fit_marge_form_dict) -> Dict:
-    d = old_coef_name_to_new_coef_name()
-    form_dict = {d[k]: ' '.join(v.split()[1:]) if v != 'NULL' else ' ~1' for k, v in fit_marge_form_dict.items()}
+    v_to_str = lambda v: ' '.join(v.split()[2:]) if v != 'NULL' else ' 1'
+    form_dict = {
+        k: '~' + ' + '.join(
+            [v_to_str(fit_marge_form_dict[e]) for e in l if e in fit_marge_form_dict])
+        for k, l in new_coef_name_to_old_coef_names().items()
+    }
     return {k: robjects.Formula(v) for k, v in form_dict.items()}
 
 # def conversion_to_FloatVector(data):
