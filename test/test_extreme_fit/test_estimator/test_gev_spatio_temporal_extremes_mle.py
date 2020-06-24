@@ -21,6 +21,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
     AbstractTemporalCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
+from spatio_temporal_dataset.slicer.split import Split
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
 from test.test_projects.test_contrasting.test_two_fold_fit import load_two_fold_fit
@@ -43,26 +44,27 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         estimator = model_fit.estimator_fold_1
         return estimator
 
-    # def test_location_spatio_temporal_linearity(self):
-    #     # Create estimator
-    #     # estimator = fitted_linear_margin_estimator(model_class,
-    #     #                                            self.coordinates, self.dataset,
-    #     #                                            starting_year=0,
-    #     #                                            fit_method=self.fit_method)
-    #     # # Checks that parameters returned are indeed different
-    #     # mle_params_estimated_year1 = estimator.function_from_fit.get_params(np.array([1])).to_dict()
-    #     # mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([21])).to_dict()
-    #     # mle_params_estimated_year5 = estimator.function_from_fit.get_params(np.array([41])).to_dict()
-    #     # self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
-    #     # self.assertNotEqual(mle_params_estimated_year3, mle_params_estimated_year5)
-    #     # # Assert the relationship for the location is indeed quadratic
-    #     # diff1 = mle_params_estimated_year1[quadratic_param] - mle_params_estimated_year3[quadratic_param]
-    #     # diff2 = mle_params_estimated_year3[quadratic_param] - mle_params_estimated_year5[quadratic_param]
-    #     # self.assertNotAlmostEqual(diff1, diff2)
-    #     estimator = self.get_estimator_fitted(NonStationaryLocationSpatioTemporalLinearityModel)
-    #     # Assert that indicators are correctly computed
-    #     self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh())
-    #     self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
+    def test_location_spatio_temporal_linearity(self):
+
+        # Create estimator
+        # estimator = fitted_linear_margin_estimator(model_class,
+        #                                            self.coordinates, self.dataset,
+        #                                            starting_year=0,
+        #                                            fit_method=self.fit_method)
+        # # Checks that parameters returned are indeed different
+        # mle_params_estimated_year1 = estimator.function_from_fit.get_params(np.array([1])).to_dict()
+        # mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([21])).to_dict()
+        # mle_params_estimated_year5 = estimator.function_from_fit.get_params(np.array([41])).to_dict()
+        # self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
+        # self.assertNotEqual(mle_params_estimated_year3, mle_params_estimated_year5)
+        # # Assert the relationship for the location is indeed quadratic
+        # diff1 = mle_params_estimated_year1[quadratic_param] - mle_params_estimated_year3[quadratic_param]
+        # diff2 = mle_params_estimated_year3[quadratic_param] - mle_params_estimated_year5[quadratic_param]
+        # self.assertNotAlmostEqual(diff1, diff2)
+        estimator = self.get_estimator_fitted(NonStationaryLocationSpatioTemporalLinearityModel)
+        # Assert that indicators are correctly computed
+        self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh(split=estimator.train_split))
+        # self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
     #     self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
 
 

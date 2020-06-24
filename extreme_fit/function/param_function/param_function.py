@@ -59,8 +59,11 @@ class PolynomialParamFunction(AbstractParamFunction):
 
     def get_param_value(self, coordinate: np.ndarray) -> float:
         gev_param_value = 0
-        for dim, max_degree in self.dim_and_degree:
-            for degree in range(max_degree+1):
+        for i, (dim, max_degree) in enumerate(self.dim_and_degree):
+            # Add intercept only once
+            add_intercept = i == 0
+            first_degree = 0 if add_intercept else 1
+            for degree in range(first_degree, max_degree+1):
                 polynomial_coef = self.coef.dim_to_polynomial_coef[dim]  # type: PolynomialCoef
                 polynomial_coef_value = polynomial_coef.idx_to_coef[degree]
                 gev_param_value += polynomial_coef_value * np.power(coordinate[dim], degree)

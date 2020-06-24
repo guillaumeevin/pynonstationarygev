@@ -20,7 +20,6 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
     @property
     def margin_coef_ordered_dict(self):
         values = self.name_to_value['results']
-        print(values)
         d = self.get_python_dictionary(values)
         if 'par' in d:
             values = {i: param for i, param in enumerate(np.array(d['par']))}

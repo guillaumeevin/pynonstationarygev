@@ -33,7 +33,9 @@ def get_margin_coef_ordered_dict(param_name_to_dims, mle_values, type_for_mle="G
                 coef_dict[coef_name] = mle_values[i]
                 i += 1
             else:
-                for dim, max_degree in dims:
+                # We assume that time was the first parameter
+                inverted_dims = dims[::-1]
+                for dim, max_degree in inverted_dims:
                     coordinate_name = dim_to_coordinate_name[dim]
                     coef_template = LinearCoef.coef_template_str(param_name, coordinate_name)
                     for j in range(1, max_degree + 1):

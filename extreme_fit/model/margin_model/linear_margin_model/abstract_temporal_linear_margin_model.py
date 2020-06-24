@@ -40,9 +40,9 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
             assert len(data) == len(df_coordinates_temp.values), 'len(data)={} != len(temp)={}'.format(len(data),
                                                                                                        len(
                                                                                                            df_coordinates_temp.values))
-            x = ro.FloatVector(data)
         else:
-            x = ro.Matrix(data)
+            data = data.flatten()
+        x = ro.FloatVector(data)
         if self.params_class is GevParams:
             if self.fit_method == MarginFitMethod.is_mev_gev_fit:
                 return self.ismev_gev_fit(x, df_coordinates_temp)
