@@ -17,6 +17,7 @@ from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_sp
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
+from spatio_temporal_dataset.slicer.utils import get_slicer_class_from_s_splits
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 import matplotlib.pyplot as plt
 
@@ -43,20 +44,20 @@ class AltitudesStudies(object):
 
     def spatio_temporal_dataset(self, massif_name, s_split_spatial: pd.Series = None,
                                 s_split_temporal: pd.Series = None):
-        coordinates = self.spatio_temporal_coordinates(s_split_spatial, s_split_temporal)
         coordinate_values_to_maxima = {}
         for altitude in self.altitudes:
             study = self.altitude_to_study[altitude]
-            for year, maxima in zip(study.ordered_years, study.massif_name_to_annual_maxima[massif_name]):
-                coordinate_values_to_maxima[(altitude, year)] = [maxima]
+            if massif_name in study.study_massif_names:
+                for year, maxima in zip(study.ordered_years, study.massif_name_to_annual_maxima[massif_name]):
+                    coordinate_values_to_maxima[(altitude, year)] = [maxima]
+        coordinates = self.spatio_temporal_coordinates(s_split_spatial, s_split_temporal)
         observations = AnnualMaxima.from_coordinates(coordinates, coordinate_values_to_maxima)
         return AbstractDataset(observations=observations, coordinates=coordinates)
 
     # Coordinates Loader
 
     def spatio_temporal_coordinates(self, s_split_spatial: pd.Series = None, s_split_temporal: pd.Series = None):
-        slicer_class = AbstractCoordinates.slicer_class_from_s_splits(s_split_spatial=s_split_spatial,
-                                                                      s_split_temporal=s_split_temporal)
+        slicer_class = get_slicer_class_from_s_splits(s_split_spatial, s_split_temporal)
         return AbstractSpatioTemporalCoordinates(slicer_class=slicer_class,
                                                  s_split_spatial=s_split_spatial,
                                                  s_split_temporal=s_split_temporal,

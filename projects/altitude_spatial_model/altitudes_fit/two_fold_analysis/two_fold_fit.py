@@ -4,9 +4,9 @@ from cached_property import cached_property
 
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
-from projects.altitude_spatial_model.altitudes_fit.two_fold_datasets_generator import TwoFoldDatasetsGenerator
-from projects.altitude_spatial_model.altitudes_fit.two_fold_detail_fit import TwoFoldMassifFit
-from projects.altitude_spatial_model.altitudes_fit.utils import Score, Grouping
+from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.two_fold_datasets_generator import TwoFoldDatasetsGenerator
+from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.two_fold_detail_fit import TwoFoldMassifFit
+from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.utils import Score, Grouping
 
 
 class TwoFoldFit(object):

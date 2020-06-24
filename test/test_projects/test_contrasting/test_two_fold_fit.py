@@ -7,10 +7,10 @@ from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model impo
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.utils import set_seed_for_test
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
-from projects.altitude_spatial_model.altitudes_fit.two_fold_datasets_generator import TwoFoldDatasetsGenerator
-from projects.altitude_spatial_model.altitudes_fit.two_fold_detail_fit import TwoFoldModelFit
-from projects.altitude_spatial_model.altitudes_fit.two_fold_fit import TwoFoldFit
-from projects.altitude_spatial_model.altitudes_fit.utils import Score
+from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.two_fold_datasets_generator import TwoFoldDatasetsGenerator
+from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.two_fold_detail_fit import TwoFoldModelFit
+from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.two_fold_fit import TwoFoldFit
+from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.utils import Score
 from spatio_temporal_dataset.slicer.split import Split
 
 

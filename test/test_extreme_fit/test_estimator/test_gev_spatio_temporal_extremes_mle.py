@@ -1,31 +1,14 @@
 import unittest
 
-import numpy as np
-import pandas as pd
-
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
-from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.model.margin_model.polynomial_margin_model.polynomial_margin_model import \
-    NonStationaryQuadraticLocationModel, \
-    NonStationaryQuadraticScaleModel, NonStationaryQuadraticLocationGumbelModel, NonStationaryQuadraticScaleGumbelModel
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     NonStationaryLocationSpatioTemporalLinearityModel, NonStationaryLocationSpatioTemporalLinearityModel2
 from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_MODELS
-from extreme_trend.abstract_gev_trend_test import fitted_linear_margin_estimator
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
-from extreme_fit.model.utils import r, set_seed_r
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
-from projects.altitude_spatial_model.altitudes_fit.two_fold_datasets_generator import TwoFoldDatasetsGenerator
-from projects.altitude_spatial_model.altitudes_fit.two_fold_fit import TwoFoldFit
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
-    AbstractTemporalCoordinates
-from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
-from spatio_temporal_dataset.slicer.split import Split
-from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
-    AbstractSpatioTemporalObservations
-from test.test_projects.test_contrasting.test_two_fold_fit import load_two_fold_fit
+from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.two_fold_datasets_generator import TwoFoldDatasetsGenerator
+from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.two_fold_fit import TwoFoldFit
 
 
 class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
