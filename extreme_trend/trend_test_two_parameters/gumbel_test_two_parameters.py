@@ -1,5 +1,5 @@
 from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE
-from extreme_fit.model.margin_model.polynomial_margin_model import NonStationaryQuadraticLocationModel, \
+from extreme_fit.model.margin_model.polynomial_margin_model.polynomial_margin_model import \
     NonStationaryQuadraticLocationGumbelModel, NonStationaryQuadraticScaleGumbelModel
 from extreme_trend.trend_test_two_parameters.gev_trend_test_two_parameters import \
     GevTrendTestTwoParameters

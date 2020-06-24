@@ -1,4 +1,4 @@
-from extreme_fit.model.margin_model.polynomial_margin_model import NonStationaryQuadraticLocationModel, \
+from extreme_fit.model.margin_model.polynomial_margin_model.polynomial_margin_model import NonStationaryQuadraticLocationModel, \
     NonStationaryQuadraticScaleModel
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod

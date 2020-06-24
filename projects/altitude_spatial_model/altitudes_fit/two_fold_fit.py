@@ -13,8 +13,7 @@ class TwoFoldFit(object):
 
     def __init__(self, two_fold_datasets_generator: TwoFoldDatasetsGenerator,
                  model_family_name_to_model_classes: Dict[str, List[type]],
-                 fit_method=MarginFitMethod.extremes_fevd_mle,
-                 ):
+                 fit_method=MarginFitMethod.extremes_fevd_mle):
         self.two_fold_datasets_generator = two_fold_datasets_generator
         self.fit_method = fit_method
         self.model_family_name_to_model_classes = model_family_name_to_model_classes
