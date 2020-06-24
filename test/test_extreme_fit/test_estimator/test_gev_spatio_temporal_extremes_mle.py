@@ -41,7 +41,6 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         sample_fit = massif_fit.sample_id_to_sample_fit[0]
         model_fit = sample_fit.model_class_to_model_fit[model_class]  # type: TwoFoldModelFit
         estimator = model_fit.estimator_fold_1
-        print(estimator.dataset)
         return estimator
 
     # def test_location_spatio_temporal_linearity(self):

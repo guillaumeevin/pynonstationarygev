@@ -34,6 +34,6 @@ class AbstractCoef(object):
 
     """ Form dict """
 
-    def form_dict(self, names: List[str]) -> Dict[str, str]:
+    def form_dict(self, names: List[str], dims) -> Dict[str, str]:
         formula_str = '1' if not names else '+'.join(names)
         return {self.param_name + '.form': self.param_name + ' ~ ' + formula_str}

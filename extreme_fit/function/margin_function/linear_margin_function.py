@@ -66,22 +66,26 @@ class LinearMarginFunction(ParametricMarginFunction):
 
     @property
     def form_dict(self) -> Dict[str, str]:
+        coordinate_name_to_dim = self.coefficient_name_to_dim(self.coordinates)
         form_dict = {}
         for param_name in self.params_class.PARAM_NAMES:
             linear_dims = self.param_name_to_dims.get(param_name, [])
             # Load spatial form_dict (only if we have some spatial coordinates)
             if self.coordinates.has_spatial_coordinates:
                 spatial_names = [name for name in self.coordinates.spatial_coordinates_names
-                                 if self.coefficient_name_to_dim(self.coordinates)[name] in linear_dims]
-                spatial_form = self.param_name_to_coef[param_name].spatial_form_dict(spatial_names)
+                                 if coordinate_name_to_dim[name] in linear_dims]
+                spatial_dims = [coordinate_name_to_dim[name] for name in spatial_names]
+                spatial_form = self.param_name_to_coef[param_name].spatial_form_dict(spatial_names, spatial_dims)
                 form_dict.update(spatial_form)
             # Load temporal form dict (only if we have some temporal coordinates)
+
             if self.coordinates.has_temporal_coordinates:
                 temporal_names = [name for name in self.coordinates.temporal_coordinates_names
-                                  if self.coefficient_name_to_dim(self.coordinates)[name] in linear_dims]
-                temporal_form = self.param_name_to_coef[param_name].temporal_form_dict(temporal_names)
+                                  if coordinate_name_to_dim[name] in linear_dims]
+                temporal_dims = [coordinate_name_to_dim[name] for name in temporal_names]
+                temporal_form = self.param_name_to_coef[param_name].temporal_form_dict(temporal_names, temporal_dims)
                 # Specifying a formula '~ 1' creates a bug in fitspatgev of SpatialExtreme R package
-                assert not any(['1' in formula for formula in temporal_form.values()])
+                assert not any(['~ 1' in formula for formula in temporal_form.values()])
                 form_dict.update(temporal_form)
         return form_dict
 

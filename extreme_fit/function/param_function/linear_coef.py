@@ -75,7 +75,7 @@ class LinearCoef(AbstractCoef):
             j += 1
         return coef_dict
 
-    def spatial_form_dict(self, coordinate_spatial_names: List[str]) -> Dict[str, str]:
+    def spatial_form_dict(self, coordinate_spatial_names: List[str], spatial_dims) -> Dict[str, str]:
         """
         Example of formula that could be specified:
         loc.form = loc ~ 1
@@ -85,9 +85,9 @@ class LinearCoef(AbstractCoef):
         :return:
         """
         assert all([name in AbstractCoordinates.COORDINATE_SPATIAL_NAMES for name in coordinate_spatial_names])
-        return self.form_dict(coordinate_spatial_names)
+        return self.form_dict(coordinate_spatial_names, spatial_dims)
 
-    def temporal_form_dict(self, coordinate_temporal_names: List[str]) -> Dict[str, str]:
+    def temporal_form_dict(self, coordinate_temporal_names: List[str], temporal_dims) -> Dict[str, str]:
         """
         Example of formula that could be specified:
         temp.form.loc = loc ~ coord_t
@@ -96,7 +96,7 @@ class LinearCoef(AbstractCoef):
         :return:
         """
         assert all([name in [AbstractCoordinates.COORDINATE_T] for name in coordinate_temporal_names])
-        k, v = self.form_dict(coordinate_temporal_names).popitem()
+        k, v = self.form_dict(coordinate_temporal_names, temporal_dims).popitem()
         k = 'temp.form.' + k.split('.')[0]
-        v = 'NULL' if '1' in v else v
+        v = 'NULL' if '~ 1' in v else v
         return {k: v}
