@@ -35,6 +35,7 @@ class PolynomialMarginModel(AbstractTemporalLinearMarginModel):
         # i.e. 1) spatial individual terms 2) combined terms 3) temporal individual terms
         for param_name, list_dim_and_degree in param_name_to_list_dim_and_degree.items():
             dims = [d for d, m in list_dim_and_degree]
+            assert all([isinstance(d, int) or isinstance(d, tuple) for d in dims])
             if self.coordinates.has_spatial_coordinates and self.coordinates.idx_x_coordinates in dims:
                 assert dims.index(self.coordinates.idx_x_coordinates) == 0
             if self.coordinates.has_temporal_coordinates and self.coordinates.idx_temporal_coordinates in dims:

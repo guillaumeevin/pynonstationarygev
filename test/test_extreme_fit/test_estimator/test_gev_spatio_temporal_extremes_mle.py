@@ -1,4 +1,5 @@
 import unittest
+from random import sample
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_MODELS, \
@@ -36,16 +37,16 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic(split=estimator.train_split))
 
     def test_assert_error(self):
-        for model_class in MODELS_THAT_SHOULD_RAISE_AN_ASSERTION_ERROR:
+        for model_class in sample(MODELS_THAT_SHOULD_RAISE_AN_ASSERTION_ERROR, 1):
             with self.assertRaises(AssertionError):
                 self.common_test(model_class)
 
     def test_location_spatio_temporal_models(self):
-        for model_class in VARIOUS_SPATIO_TEMPORAL_MODELS[:]:
+        for model_class in sample(VARIOUS_SPATIO_TEMPORAL_MODELS, 3):
             self.common_test(model_class)
 
     def test_altitudinal_models(self):
-        for model_class in ALTITUDINAL_MODELS:
+        for model_class in sample(ALTITUDINAL_MODELS, 3):
             self.common_test(model_class)
 
 

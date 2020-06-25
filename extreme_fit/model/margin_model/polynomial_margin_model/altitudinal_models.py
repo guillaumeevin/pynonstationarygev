@@ -3,46 +3,95 @@ from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_poly
     AbstractSpatioTemporalPolynomialModel
 
 
-class StationaryAltitudinal(AbstractSpatioTemporalPolynomialModel):
+class AbstractAltitudinalModel(AbstractSpatioTemporalPolynomialModel):
 
     def load_margin_function(self, param_name_to_dims=None):
-        return super().load_margin_function({
+        return super().load_margin_function(self.param_name_to_list_dim_and_degree)
+
+    @property
+    def param_name_to_list_dim_and_degree(self):
+        raise NotImplementedError
+
+
+class StationaryAltitudinal(AbstractAltitudinalModel):
+
+    @property
+    def param_name_to_list_dim_and_degree(self):
+        return {
             GevParams.LOC: [(self.coordinates.idx_x_coordinates, 1)],
             GevParams.SCALE: [(self.coordinates.idx_x_coordinates, 1)]
-        })
+        }
 
 
-class NonStationaryAltitudinalLocationLinear(AbstractSpatioTemporalPolynomialModel):
+class NonStationaryAltitudinalLocationLinear(AbstractAltitudinalModel):
 
-    def load_margin_function(self, param_name_to_dims=None):
-        return super().load_margin_function({
+    @property
+    def param_name_to_list_dim_and_degree(self):
+        return {
             GevParams.LOC: [(self.coordinates.idx_x_coordinates, 1), (self.coordinates.idx_temporal_coordinates, 1)],
             GevParams.SCALE: [(self.coordinates.idx_x_coordinates, 1)]
-        })
+        }
 
 
-class NonStationaryAltitudinalLocationQuadratic(AbstractSpatioTemporalPolynomialModel):
+class NonStationaryAltitudinalLocationQuadratic(AbstractAltitudinalModel):
 
-    def load_margin_function(self, param_name_to_dims=None):
-        return super().load_margin_function({
+    @property
+    def param_name_to_list_dim_and_degree(self):
+        return {
             GevParams.LOC: [(self.coordinates.idx_x_coordinates, 1), (self.coordinates.idx_temporal_coordinates, 2)],
             GevParams.SCALE: [(self.coordinates.idx_x_coordinates, 1)]
-        })
+        }
 
 
-class NonStationaryAltitudinalLocationLinearScaleLinear(AbstractSpatioTemporalPolynomialModel):
+class NonStationaryAltitudinalLocationLinearScaleLinear(AbstractAltitudinalModel):
 
-    def load_margin_function(self, param_name_to_dims=None):
-        return super().load_margin_function({
+    @property
+    def param_name_to_list_dim_and_degree(self):
+        return {
             GevParams.LOC: [(self.coordinates.idx_x_coordinates, 1), (self.coordinates.idx_temporal_coordinates, 1)],
             GevParams.SCALE: [(self.coordinates.idx_x_coordinates, 1), (self.coordinates.idx_temporal_coordinates, 1)],
-        })
+        }
 
 
-class NonStationaryAltitudinalLocationQuadraticScaleLinear(AbstractSpatioTemporalPolynomialModel):
+class NonStationaryAltitudinalLocationQuadraticScaleLinear(AbstractAltitudinalModel):
 
-    def load_margin_function(self, param_name_to_dims=None):
-        return super().load_margin_function({
+    @property
+    def param_name_to_list_dim_and_degree(self):
+        return {
             GevParams.LOC: [(self.coordinates.idx_x_coordinates, 1), (self.coordinates.idx_temporal_coordinates, 2)],
             GevParams.SCALE: [(self.coordinates.idx_x_coordinates, 1), (self.coordinates.idx_temporal_coordinates, 1)],
-        })
+        }
+
+
+# Add cross terms
+
+class AbstractAddCrossTermForLocation(AbstractAltitudinalModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        d = self.param_name_to_list_dim_and_degree
+        d[GevParams.LOC] += ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1)
+        return super().load_margin_function(d)
+
+
+class NonStationaryCrossTermForLocation(AbstractAddCrossTermForLocation, StationaryAltitudinal):
+    pass
+
+
+class NonStationaryAltitudinalLocationLinearCrossTermForLocation(AbstractAddCrossTermForLocation,
+                                                                 NonStationaryAltitudinalLocationLinear):
+    pass
+
+
+class NonStationaryAltitudinalLocationQuadraticCrossTermForLocation(AbstractAddCrossTermForLocation,
+                                                                    NonStationaryAltitudinalLocationQuadratic):
+    pass
+
+
+class NonStationaryAltitudinalLocationLinearScaleLinearCrossTermForLocation(AbstractAddCrossTermForLocation,
+                                                                            NonStationaryAltitudinalLocationLinearScaleLinear):
+    pass
+
+
+class NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation(AbstractAddCrossTermForLocation,
+                                                                               NonStationaryAltitudinalLocationQuadraticScaleLinear):
+    pass
