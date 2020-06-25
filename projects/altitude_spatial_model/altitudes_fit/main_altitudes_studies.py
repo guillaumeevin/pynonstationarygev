@@ -11,7 +11,10 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitudes_s
 def plot_altitudinal_fit(studies):
     visualizer = AltitudesStudiesVisualizerForNonStationaryModels(studies=studies,
                                                                   model_classes=ALTITUDINAL_MODELS,
-                                                                  massif_names=['Belledonne'])
+                                                                  massif_names=['Belledonne'],
+                                                                  show=True)
+    visualizer.plot_mean()
+    visualizer.plot_relative_change()
 
 
 def plot_time_series(studies):
