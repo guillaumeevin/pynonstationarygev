@@ -34,9 +34,9 @@ def main():
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days][:2]
     study_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days,
                      SafranPrecipitation7Days][:]
-    study_classes = [SafranPrecipitation1Day, SafranSnowfall1Day, SafranSnowfall3Days, SafranPrecipitation3Days][:1]
+    study_classes = [SafranSnowfall1Day, SafranPrecipitation1Day, SafranSnowfall3Days, SafranPrecipitation3Days][:1]
     massif_names = None
-    massif_names = ['Aravis']
+    # massif_names = ['Aravis']
     # massif_names = ['Chartreuse', 'Belledonne']
 
     for study_class in study_classes:

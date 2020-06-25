@@ -11,7 +11,6 @@ from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_poly
     NonStationaryLocationSpatioTemporalLinearityModel5, NonStationaryLocationSpatioTemporalLinearityModelAssertError1, \
     NonStationaryLocationSpatioTemporalLinearityModelAssertError2, \
     NonStationaryLocationSpatioTemporalLinearityModelAssertError3, NonStationaryLocationSpatioTemporalLinearityModel6
-
 ALTITUDINAL_MODELS = [
                          StationaryAltitudinal,
                          NonStationaryAltitudinalLocationLinear,
@@ -24,7 +23,8 @@ ALTITUDINAL_MODELS = [
                          NonStationaryAltitudinalLocationQuadraticCrossTermForLocation,
                          NonStationaryAltitudinalLocationLinearScaleLinearCrossTermForLocation,
                         NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation,
-                     ][:]
+                     ][:7]
+
 
 
 

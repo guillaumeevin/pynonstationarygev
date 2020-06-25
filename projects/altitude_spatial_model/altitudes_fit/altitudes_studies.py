@@ -139,7 +139,7 @@ class AltitudesStudies(object):
             moment += ' Relative'
         if change is True or change is None:
             moment += ' change (between two block of 30 years) for'
-        moment = 'mean' if not std else 'std'
+        moment += 'mean' if not std else 'std'
         plot_name = '{} of annual maxima of {}'.format(moment, SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class])
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('altitudes', fontsize=15)

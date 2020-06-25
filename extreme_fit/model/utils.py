@@ -182,7 +182,7 @@ def new_coef_name_to_old_coef_names():
 def get_margin_formula_extremes(fit_marge_form_dict) -> Dict:
     v_to_str = lambda v: ' '.join(v.split()[2:]) if v != 'NULL' else ' 1'
     form_dict = {
-        k: '~' + ' + '.join(
+        k: '~ ' + ' + '.join(
             [v_to_str(fit_marge_form_dict[e]) for e in l if e in fit_marge_form_dict])
         for k, l in new_coef_name_to_old_coef_names().items()
     }

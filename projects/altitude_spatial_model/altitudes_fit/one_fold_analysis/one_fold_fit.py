@@ -1,4 +1,6 @@
+import numpy.testing as npt
 import numpy as np
+import rpy2
 from cached_property import cached_property
 
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
@@ -49,10 +51,12 @@ class OneFoldFit(object):
         for estimator in estimators:
             try:
                 aic = estimator.aic()
+                npt.assert_almost_equal(estimator.result_from_model_fit.aic, aic, decimal=5)
                 print(self.massif_name, estimator.margin_model.name_str, aic)
                 estimators_with_finite_aic.append(estimator)
-            except AssertionError:
+            except (AssertionError, rpy2.rinterface.RRuntimeError):
                 print(self.massif_name, estimator.margin_model.name_str, 'infinite aic')
+        print('Summary {}: {}/{} fitted'.format(self.massif_name, len(estimators_with_finite_aic), len(estimators)))
         sorted_estimators_with_finite_aic = sorted([estimator for estimator in estimators_with_finite_aic],
                                                    key=lambda e: e.aic())
         return sorted_estimators_with_finite_aic
