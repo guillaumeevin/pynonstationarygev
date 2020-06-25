@@ -17,6 +17,27 @@ class AbstractAltitudinalModel(AbstractSpatioTemporalPolynomialModel):
     def param_name_to_list_dim_and_degree(self):
         raise NotImplementedError
 
+    def dims(self, param_name):
+        return [d for d, _ in self.param_name_to_list_dim_and_degree[param_name]]
+
+    def dim_to_str_number(self, param_name, dim):
+        list_dim_and_degree = self.param_name_to_list_dim_and_degree[param_name]
+        dims  = [d for d, _ in list_dim_and_degree]
+        if dim not in dims:
+            return '0'
+        else:
+            idx = dims.index(dim)
+            return str(list_dim_and_degree[idx][1])
+
+    @property
+    def name_str(self):
+        name = 'Gev'
+        name += self.dim_to_str_number(GevParams.LOC, self.coordinates.idx_temporal_coordinates)
+        name += self.dim_to_str_number(GevParams.SCALE, self.coordinates.idx_temporal_coordinates)
+        if isinstance(self, AbstractAddCrossTermForLocation):
+            name += 'x'
+        return name
+
 
 class StationaryAltitudinal(AbstractAltitudinalModel):
 

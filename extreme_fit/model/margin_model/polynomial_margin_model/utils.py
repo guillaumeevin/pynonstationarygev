@@ -26,6 +26,8 @@ ALTITUDINAL_MODELS = [
                         NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation,
                      ][:]
 
+
+
 MODELS_THAT_SHOULD_RAISE_AN_ASSERTION_ERROR = [NonStationaryLocationSpatioTemporalLinearityModelAssertError1,
                                                NonStationaryLocationSpatioTemporalLinearityModelAssertError2,
                                                NonStationaryLocationSpatioTemporalLinearityModelAssertError3]

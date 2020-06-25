@@ -10,6 +10,7 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils imp
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
+from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import \
     OneFoldFit
@@ -20,16 +21,17 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     def __init__(self, studies: AltitudesStudies,
                  model_classes: List[AbstractSpatioTemporalPolynomialModel],
                  show=False,
-                 massif_names=None):
-        study = studies.study
+                 massif_names=None,
+                 fit_method=MarginFitMethod.extremes_fevd_mle):
+        super().__init__(studies.study, show=show, save_to_file=not show)
         self.massif_names = massif_names if massif_names is not None else self.study.study_massif_names
         self.studies = studies
         self.non_stationary_models = model_classes
-        super().__init__(study, show=show, save_to_file=not show)
+        self.fit_method = fit_method
         self.massif_name_to_one_fold_fit = {}
         for massif_name in self.massif_names:
             dataset = studies.spatio_temporal_dataset(massif_name=massif_name)
-            old_fold_fit = OneFoldFit(dataset, model_classes)
+            old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method)
             self.massif_name_to_one_fold_fit[massif_name] = old_fold_fit
 
     def plot_mean(self):
@@ -58,3 +60,24 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         ax.tick_params(axis='both', which='major', labelsize=13)
         self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
         ax.clear()
+
+    def plot_abstract_fast(self, massif_name_to_value, label, graduation=10.0, cmap=plt.cm.coolwarm, add_x_label=True,
+                           negative_and_positive_values=True, massif_name_to_text=None):
+        super().plot_abstract(massif_name_to_value, label, label, self.fit_method, graduation, cmap, add_x_label,
+                              negative_and_positive_values, massif_name_to_text)
+
+    @property
+    def massif_name_to_shape(self):
+        return {massif_name: one_fold_fit.best_shape
+                for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()}
+
+    @property
+    def massif_name_to_name(self):
+        return {massif_name: one_fold_fit.best_name
+                for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()}
+
+    def plot_shape_map(self):
+        self.plot_abstract_fast(self.massif_name_to_shape,
+                                label='Shape plot for {} {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)],
+                                                                    self.study.variable_unit),
+                                add_x_label=False, graduation=0.1, massif_name_to_text=self.massif_name_to_name)

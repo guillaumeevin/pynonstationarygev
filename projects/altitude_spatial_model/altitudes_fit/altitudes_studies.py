@@ -45,24 +45,31 @@ class AltitudesStudies(object):
     def spatio_temporal_dataset(self, massif_name, s_split_spatial: pd.Series = None,
                                 s_split_temporal: pd.Series = None):
         coordinate_values_to_maxima = {}
+        massif_altitudes = []
         for altitude in self.altitudes:
             study = self.altitude_to_study[altitude]
             if massif_name in study.study_massif_names:
+                massif_altitudes.append(altitude)
                 for year, maxima in zip(study.ordered_years, study.massif_name_to_annual_maxima[massif_name]):
                     coordinate_values_to_maxima[(altitude, year)] = [maxima]
-        coordinates = self.spatio_temporal_coordinates(s_split_spatial, s_split_temporal)
+        coordinates = self.spatio_temporal_coordinates(s_split_spatial, s_split_temporal, massif_altitudes)
         observations = AnnualMaxima.from_coordinates(coordinates, coordinate_values_to_maxima)
         return AbstractDataset(observations=observations, coordinates=coordinates)
 
     # Coordinates Loader
 
-    def spatio_temporal_coordinates(self, s_split_spatial: pd.Series = None, s_split_temporal: pd.Series = None):
+    def spatio_temporal_coordinates(self, s_split_spatial: pd.Series = None, s_split_temporal: pd.Series = None,
+                                    massif_altitudes=None):
+        if massif_altitudes is None or set(massif_altitudes) == set(self.altitudes):
+            spatial_coordinates = self.spatial_coordinates
+        else:
+            spatial_coordinates = self.spatial_coordinates_for_altitudes(massif_altitudes)
         slicer_class = get_slicer_class_from_s_splits(s_split_spatial, s_split_temporal)
         return AbstractSpatioTemporalCoordinates(slicer_class=slicer_class,
                                                  s_split_spatial=s_split_spatial,
                                                  s_split_temporal=s_split_temporal,
                                                  transformation_class=self.spatial_transformation_class,
-                                                 spatial_coordinates=self.spatial_coordinates,
+                                                 spatial_coordinates=spatial_coordinates,
                                                  temporal_coordinates=self.temporal_coordinates)
 
     @cached_property
@@ -73,7 +80,10 @@ class AltitudesStudies(object):
 
     @cached_property
     def spatial_coordinates(self):
-        return AbstractSpatialCoordinates.from_list_x_coordinates(x_coordinates=self.altitudes,
+        return self.spatial_coordinates_for_altitudes(self.altitudes)
+
+    def spatial_coordinates_for_altitudes(self, altitudes):
+        return AbstractSpatialCoordinates.from_list_x_coordinates(x_coordinates=altitudes,
                                                                   transformation_class=self.temporal_transformation_class)
 
     @cached_property
@@ -124,12 +134,13 @@ class AltitudesStudies(object):
         ax = plt.gca()
         self.run_for_each_massif(self._plot_mean_maxima_against_altitude, massif_names, ax=ax, std=std, change=change)
         ax.legend(prop={'size': 7}, ncol=3)
-        moment = 'Mean' if not std else 'Std'
+        moment = ''
         if change is None:
-            moment += ' relative change for'
-        elif change:
-            moment += ' change for'
-        plot_name = '{} annual maxima of {}'.format(moment, SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class])
+            moment += ' Relative'
+        if change is True or change is None:
+            moment += ' change (between two block of 30 years) for'
+        moment = 'mean' if not std else 'std'
+        plot_name = '{} of annual maxima of {}'.format(moment, SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class])
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('altitudes', fontsize=15)
         lim_down, lim_up = ax.get_ylim()

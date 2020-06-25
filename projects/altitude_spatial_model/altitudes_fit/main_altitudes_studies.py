@@ -15,6 +15,7 @@ def plot_altitudinal_fit(studies, massif_names=None):
                                                                   show=False)
     visualizer.plot_mean()
     visualizer.plot_relative_change()
+    visualizer.plot_shape_map()
 
 
 def plot_time_series(studies, massif_names=None):
@@ -34,7 +35,9 @@ def main():
     study_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days,
                      SafranPrecipitation7Days][:]
     study_classes = [SafranPrecipitation1Day, SafranSnowfall1Day, SafranSnowfall3Days, SafranPrecipitation3Days][:1]
-    massif_names = ['Belledonne']
+    massif_names = None
+    massif_names = ['Aravis']
+    # massif_names = ['Chartreuse', 'Belledonne']
 
     for study_class in study_classes:
         studies = AltitudesStudies(study_class, altitudes, season=Season.winter_extended)
