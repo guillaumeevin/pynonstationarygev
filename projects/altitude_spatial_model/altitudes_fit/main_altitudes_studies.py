@@ -8,23 +8,23 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitudes_s
     AltitudesStudiesVisualizerForNonStationaryModels
 
 
-def plot_altitudinal_fit(studies):
+def plot_altitudinal_fit(studies, massif_names=None):
     visualizer = AltitudesStudiesVisualizerForNonStationaryModels(studies=studies,
                                                                   model_classes=ALTITUDINAL_MODELS,
-                                                                  massif_names=['Belledonne'],
-                                                                  show=True)
+                                                                  massif_names=massif_names,
+                                                                  show=False)
     visualizer.plot_mean()
     visualizer.plot_relative_change()
 
 
-def plot_time_series(studies):
-    studies.plot_maxima_time_series()
+def plot_time_series(studies, massif_names=None):
+    studies.plot_maxima_time_series(massif_names=massif_names)
 
 
-def plot_moments(studies):
+def plot_moments(studies, massif_names=None):
     for std in [True, False][1:]:
         for change in [True, False, None]:
-            studies.plot_mean_maxima_against_altitude(std=std, change=change)
+            studies.plot_mean_maxima_against_altitude(massif_names=massif_names, std=std, change=change)
 
 
 def main():
@@ -34,12 +34,13 @@ def main():
     study_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days,
                      SafranPrecipitation7Days][:]
     study_classes = [SafranPrecipitation1Day, SafranSnowfall1Day, SafranSnowfall3Days, SafranPrecipitation3Days][:1]
+    massif_names = ['Belledonne']
 
     for study_class in study_classes:
         studies = AltitudesStudies(study_class, altitudes, season=Season.winter_extended)
-        # plot_time_series(studies)
-        # plot_moments(studies)
-        plot_altitudinal_fit(studies)
+        plot_time_series(studies, massif_names)
+        plot_moments(studies, massif_names)
+        plot_altitudinal_fit(studies, massif_names)
 
 
 if __name__ == '__main__':

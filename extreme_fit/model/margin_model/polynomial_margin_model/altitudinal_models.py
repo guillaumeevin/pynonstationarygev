@@ -1,4 +1,5 @@
 from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.model.margin_model.polynomial_margin_model.polynomial_margin_model import PolynomialMarginModel
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 
@@ -6,7 +7,11 @@ from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_poly
 class AbstractAltitudinalModel(AbstractSpatioTemporalPolynomialModel):
 
     def load_margin_function(self, param_name_to_dims=None):
-        return super().load_margin_function(self.param_name_to_list_dim_and_degree)
+        return super().load_margin_function(self.param_name_to_list_dim_and_degree_for_margin_function)
+
+    @property
+    def param_name_to_list_dim_and_degree_for_margin_function(self):
+        return self.param_name_to_list_dim_and_degree
 
     @property
     def param_name_to_list_dim_and_degree(self):
@@ -67,10 +72,13 @@ class NonStationaryAltitudinalLocationQuadraticScaleLinear(AbstractAltitudinalMo
 
 class AbstractAddCrossTermForLocation(AbstractAltitudinalModel):
 
-    def load_margin_function(self, param_name_to_dims=None):
+    @property
+    def param_name_to_list_dim_and_degree_for_margin_function(self):
         d = self.param_name_to_list_dim_and_degree
-        d[GevParams.LOC] += ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1)
-        return super().load_margin_function(d)
+        assert 1 <= len(d[GevParams.LOC]) <= 2
+        assert self.coordinates.idx_x_coordinates == d[GevParams.LOC][0][0]
+        d[GevParams.LOC].insert(1, ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1))
+        return d
 
 
 class NonStationaryCrossTermForLocation(AbstractAddCrossTermForLocation, StationaryAltitudinal):
