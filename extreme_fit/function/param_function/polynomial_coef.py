@@ -59,7 +59,7 @@ class PolynomialAllCoef(LinearCoef):
             intercept = None
             dim_to_polynomial_coef = {}
             for dim, max_degree in list_dim_and_max_degree:
-                coefficient_name = coordinates.coordinates_names[dim]
+                coefficient_name = cls.coefficient_name(dim, coordinates.dim_to_coordinate)
                 j = 1 if coefficient_name == AbstractCoordinates.COORDINATE_T else 2
                 degree_to_coef = {0: degree0}
                 for degree in range(1, max_degree + 1):
@@ -70,9 +70,6 @@ class PolynomialAllCoef(LinearCoef):
         return cls(param_name=param_name, dim_to_polynomial_coef=dim_to_polynomial_coef, intercept=intercept)
 
     def form_dict(self, coordinates_names: List[str], dims) -> Dict[str, str]:
-        if len(coordinates_names) >= 2:
-            raise NotImplementedError(
-                'Check how do we sum two polynomails without having two times an intercept parameter')
         formula_list = []
         if len(coordinates_names) == 0:
             formula_str = '1'

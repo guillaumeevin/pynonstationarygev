@@ -35,12 +35,12 @@ def get_margin_coef_ordered_dict(param_name_to_dims, mle_values, type_for_mle="G
             else:
                 # We found (thanks to the test) that time was the first parameter when len(param_name_to_dims) == 1
                 # otherwise time is the second parameter in the order of the mle parameters
-                inverted_dims = dims[::-1] if len(param_name_to_dims) == 1 else dims
-                for dim, max_degree in inverted_dims:
-                    coordinate_name = dim_to_coordinate_name[dim]
-                    coef_template = LinearCoef.coef_template_str(param_name, coordinate_name)
+                # inverted_dims = dims[::-1] if len(param_name_to_dims) == 1 else dims
+                for dim, max_degree in dims:
+                    coefficient_name = LinearCoef.coefficient_name(dim, dim_to_coordinate_name)
+                    coef_template = LinearCoef.coef_template_str(param_name, coefficient_name)
                     for j in range(1, max_degree + 1):
-                        k = j if coordinate_name == AbstractCoordinates.COORDINATE_T else j + 1
+                        k = j if coefficient_name == AbstractCoordinates.COORDINATE_T else j + 1
                         coef_name = coef_template.format(k)
                         coef_dict[coef_name] = mle_values[i]
                         i += 1

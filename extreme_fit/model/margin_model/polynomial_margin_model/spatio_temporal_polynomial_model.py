@@ -14,7 +14,63 @@ class AbstractSpatioTemporalPolynomialModel(PolynomialMarginModel):
         self.drop_duplicates = False
 
 
-class NonStationaryLocationSpatioTemporalLinearityModel(AbstractSpatioTemporalPolynomialModel):
+class NonStationaryLocationSpatioTemporalLinearityModel1(AbstractSpatioTemporalPolynomialModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: [
+            (self.coordinates.idx_x_coordinates, 1),
+            (self.coordinates.idx_temporal_coordinates, 1),
+        ]})
+
+
+class NonStationaryLocationSpatioTemporalLinearityModel2(AbstractSpatioTemporalPolynomialModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: [
+            (self.coordinates.idx_x_coordinates, 1),
+            (self.coordinates.idx_temporal_coordinates, 2),
+        ]})
+
+
+class NonStationaryLocationSpatioTemporalLinearityModel3(AbstractSpatioTemporalPolynomialModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: [
+            ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1),
+        ]})
+
+
+class NonStationaryLocationSpatioTemporalLinearityModel4(AbstractSpatioTemporalPolynomialModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: [
+            (self.coordinates.idx_x_coordinates, 1),
+            ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1),
+        ]})
+
+
+class NonStationaryLocationSpatioTemporalLinearityModel5(AbstractSpatioTemporalPolynomialModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: [
+            ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1),
+            (self.coordinates.idx_temporal_coordinates, 1),
+        ]})
+
+
+class NonStationaryLocationSpatioTemporalLinearityModel6(AbstractSpatioTemporalPolynomialModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: [
+            (self.coordinates.idx_x_coordinates, 1),
+            ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1),
+            (self.coordinates.idx_temporal_coordinates, 1),
+        ]})
+
+
+# Models that are supposed to raise errors
+
+class NonStationaryLocationSpatioTemporalLinearityModelAssertError1(AbstractSpatioTemporalPolynomialModel):
 
     def load_margin_function(self, param_name_to_dims=None):
         return super().load_margin_function({GevParams.LOC: [
@@ -23,10 +79,20 @@ class NonStationaryLocationSpatioTemporalLinearityModel(AbstractSpatioTemporalPo
         ]})
 
 
-class NonStationaryLocationSpatioTemporalLinearityModel2(AbstractSpatioTemporalPolynomialModel):
+class NonStationaryLocationSpatioTemporalLinearityModelAssertError2(AbstractSpatioTemporalPolynomialModel):
 
     def load_margin_function(self, param_name_to_dims=None):
         return super().load_margin_function({GevParams.LOC: [
-            (self.coordinates.idx_temporal_coordinates, 2),
+            ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1),
             (self.coordinates.idx_x_coordinates, 1),
+        ]})
+
+
+class NonStationaryLocationSpatioTemporalLinearityModelAssertError3(AbstractSpatioTemporalPolynomialModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({GevParams.LOC: [
+            (self.coordinates.idx_temporal_coordinates, 1),
+            ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1),
+
         ]})

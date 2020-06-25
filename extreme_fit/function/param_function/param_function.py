@@ -1,3 +1,5 @@
+import operator
+from functools import reduce
 from typing import List
 import numpy as np
 from extreme_fit.function.param_function.linear_coef import LinearCoef
@@ -60,13 +62,17 @@ class PolynomialParamFunction(AbstractParamFunction):
     def get_param_value(self, coordinate: np.ndarray) -> float:
         gev_param_value = 0
         for i, (dim, max_degree) in enumerate(self.dim_and_degree):
+            if isinstance(dim, int):
+                coordinate_value_for_dim = coordinate[dim]
+            else:
+                coordinate_value_for_dim = reduce(operator.mul, [coordinate[d] for d in dim])
             # Add intercept only once
             add_intercept = i == 0
             first_degree = 0 if add_intercept else 1
             for degree in range(first_degree, max_degree+1):
                 polynomial_coef = self.coef.dim_to_polynomial_coef[dim]  # type: PolynomialCoef
                 polynomial_coef_value = polynomial_coef.idx_to_coef[degree]
-                gev_param_value += polynomial_coef_value * np.power(coordinate[dim], degree)
+                gev_param_value += polynomial_coef_value * np.power(coordinate_value_for_dim, degree)
         return gev_param_value
 
 

@@ -8,6 +8,7 @@ from extreme_fit.function.param_function.linear_coef import LinearCoef
 from extreme_fit.function.param_function.param_function import AbstractParamFunction, \
     LinearParamFunction
 from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoef
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
@@ -78,9 +79,21 @@ class LinearMarginFunction(ParametricMarginFunction):
                                  if self.coordinate_name_to_dim[name] in linear_dims]
                 spatial_dims = [self.coordinate_name_to_dim[name] for name in spatial_names]
                 spatial_form = self.param_name_to_coef[param_name].spatial_form_dict(spatial_names, spatial_dims)
+                # Load cross term combining several coordinates (necessarily including spatial coordinates)
+                tuple_dims = [e for e in linear_dims if isinstance(e, tuple)]
+                if len(tuple_dims) > 0:
+                    key, value = spatial_form.popitem()
+                    for tuple_dim in tuple_dims:
+                        coef = self.param_name_to_coef[param_name]
+                        assert isinstance(coef, PolynomialAllCoef)
+                        name = ' * '.join([self.coordinates.dim_to_coordinate[dim] for dim in tuple_dim])
+                        form = coef.form_dict([name], [tuple_dim])
+                        _, additional_value = form.popitem()
+                        additional_value = additional_value.split('~')[-1]
+                        value += ' + ' + additional_value
+                    spatial_form[key] = value
                 form_dict.update(spatial_form)
             # Load temporal form dict (only if we have some temporal coordinates)
-
             if self.coordinates.has_temporal_coordinates:
                 temporal_names = [name for name in self.coordinates.temporal_coordinates_names
                                   if self.coordinate_name_to_dim[name] in linear_dims]
@@ -89,6 +102,7 @@ class LinearMarginFunction(ParametricMarginFunction):
                 # Specifying a formula '~ 1' creates a bug in fitspatgev of SpatialExtreme R package
                 assert not any(['~ 1' in formula for formula in temporal_form.values()])
                 form_dict.update(temporal_form)
+
         return form_dict
 
     # Properties for the location parameter

@@ -1,13 +1,13 @@
 import unittest
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
-from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
-    NonStationaryLocationSpatioTemporalLinearityModel, NonStationaryLocationSpatioTemporalLinearityModel2
-from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_MODELS
+from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_MODELS, \
+    MODELS_THAT_SHOULD_RAISE_AN_ASSERTION_ERROR, VARIOUS_SPATIO_TEMPORAL_MODELS
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
-from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.two_fold_datasets_generator import TwoFoldDatasetsGenerator
+from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.two_fold_datasets_generator import \
+    TwoFoldDatasetsGenerator
 from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.two_fold_fit import TwoFoldFit
 
 
@@ -35,9 +35,13 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic(split=estimator.train_split))
         self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic(split=estimator.train_split))
 
+    def test_assert_error(self):
+        for model_class in MODELS_THAT_SHOULD_RAISE_AN_ASSERTION_ERROR:
+            with self.assertRaises(AssertionError):
+                self.common_test(model_class)
+
     def test_location_spatio_temporal_models(self):
-        for model_class in [NonStationaryLocationSpatioTemporalLinearityModel,
-                            NonStationaryLocationSpatioTemporalLinearityModel2]:
+        for model_class in VARIOUS_SPATIO_TEMPORAL_MODELS[:]:
             self.common_test(model_class)
 
     def test_altitudinal_models(self):

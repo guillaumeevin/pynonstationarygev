@@ -1,3 +1,5 @@
+import itertools
+
 from cached_property import cached_property
 
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -29,6 +31,15 @@ class PolynomialMarginModel(AbstractTemporalLinearMarginModel):
         return super().margin_function
 
     def load_margin_function(self, param_name_to_list_dim_and_degree=None):
+        # Assert the order of list of dim and degree, to match the order of the form dict,
+        # i.e. 1) spatial individual terms 2) combined terms 3) temporal individual terms
+        for param_name, list_dim_and_degree in param_name_to_list_dim_and_degree.items():
+            dims = [d for d, m in list_dim_and_degree]
+            if self.coordinates.has_spatial_coordinates and self.coordinates.idx_x_coordinates in dims:
+                assert dims.index(self.coordinates.idx_x_coordinates) == 0
+            if self.coordinates.has_temporal_coordinates and self.coordinates.idx_temporal_coordinates in dims:
+                assert dims.index(self.coordinates.idx_temporal_coordinates) == len(dims) - 1
+        # Load param_name_to_polynomial_all_coef
         param_name_to_polynomial_all_coef = self.param_name_to_polynomial_all_coef(
             param_name_to_list_dim_and_degree=param_name_to_list_dim_and_degree,
             param_name_and_dim_and_degree_to_default_coef=self.default_params)
@@ -43,7 +54,10 @@ class PolynomialMarginModel(AbstractTemporalLinearMarginModel):
         default_slope = 0.01
         param_name_and_dim_and_degree_to_coef = {}
         for param_name in self.params_class.PARAM_NAMES:
-            for dim in self.coordinates.coordinates_dims:
+            all_individual_dims = self.coordinates.coordinates_dims
+            combinations_of_two_dims = list(itertools.combinations(all_individual_dims, 2))
+            dims = all_individual_dims + combinations_of_two_dims
+            for dim in dims:
                 for degree in range(self.max_degree + 1):
                     param_name_and_dim_and_degree_to_coef[(param_name, dim, degree)] = default_slope
         return param_name_and_dim_and_degree_to_coef
@@ -59,9 +73,6 @@ class PolynomialMarginModel(AbstractTemporalLinearMarginModel):
                 for (param_name_loop, dim_loop, degree), coef in param_name_and_dim_and_degree_to_default_coef.items():
                     if param_name == param_name_loop and dim == dim_loop and degree <= max_degree:
                         degree_to_coef[degree] = coef
-                # print(degree_to_coef, param_name)
-                # if len(degree_to_coef) == 0:
-                #     degree_to_coef = {0: param_name_and_dim_and_degree_to_default_coef[(param_name, dim, 0)]}
                 polynomial_coef = PolynomialCoef(param_name, degree_to_coef=degree_to_coef)
                 dim_to_polynomial_coef[dim] = polynomial_coef
             if len(dim_to_polynomial_coef) == 0:

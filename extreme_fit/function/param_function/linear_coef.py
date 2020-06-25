@@ -29,13 +29,23 @@ class LinearCoef(AbstractCoef):
         :param coefficient_name:
         :return:
         """
-        assert coefficient_name == cls.INTERCEPT_NAME or coefficient_name in AbstractCoordinates.COORDINATES_NAMES
+        assert coefficient_name == cls.INTERCEPT_NAME or coefficient_name in AbstractCoordinates.COORDINATES_NAMES \
+               or any([coordinate_name in coefficient_name for coordinate_name in AbstractCoordinates.COORDINATES_NAMES])
         if coefficient_name == cls.INTERCEPT_NAME or coefficient_name in AbstractCoordinates.COORDINATE_SPATIAL_NAMES:
             coef_template_str = param_name + cls.COEFF_STR + '{}'
         else:
             coef_template_str = 'temp' + cls.COEFF_STR + param_name.title() + '{}'
         assert cls.COEFF_STR in coef_template_str
         return coef_template_str
+
+    @classmethod
+    def coefficient_name(cls, dim, dim_to_coordinate_name):
+        if isinstance(dim, int):
+            return dim_to_coordinate_name[dim]
+        elif isinstance(dim, tuple):
+            return ' * '.join([dim_to_coordinate_name[d] for d in dim])
+        else:
+            raise NotImplementedError
 
     @staticmethod
     def has_dependence_in_spatial_coordinates(dim_to_coefficient_name):

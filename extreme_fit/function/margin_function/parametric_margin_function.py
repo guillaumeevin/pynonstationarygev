@@ -41,8 +41,15 @@ class ParametricMarginFunction(IndependentMarginFunction):
         # Check the dimension are well-defined with respect to the coordinates
         for dims in self.param_name_to_dims.values():
             for dim in dims:
-                assert 0 <= dim < coordinates.nb_coordinates, \
-                    "dim={}, nb_columns={}".format(dim, coordinates.nb_coordinates)
+                if isinstance(dim, int):
+                    assert 0 <= dim < coordinates.nb_coordinates, \
+                        "dim={}, nb_columns={}".format(dim, coordinates.nb_coordinates)
+                elif isinstance(dim, tuple):
+                    for d in dim:
+                        assert 0 <= d < coordinates.nb_coordinates, \
+                            "dim={}, nb_columns={}".format(d, coordinates.nb_coordinates)
+                else:
+                    raise TypeError(type(dim))
 
         self.param_name_to_coef = param_name_to_coef  # type: Dict[str, AbstractCoef]
 
