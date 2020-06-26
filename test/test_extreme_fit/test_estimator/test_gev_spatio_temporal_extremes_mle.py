@@ -84,10 +84,11 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
 #         self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic(split=estimator.train_split))
 #         self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic(split=estimator.train_split))
 #
-#     # def test_altitudinal_models(self):
-#     #     for model_class in ALTITUDINAL_MODELS:
-#     #         self.common_test(model_class)
-#
+#     #
+#     #     # def test_altitudinal_models(self):
+#     #     #     for model_class in ALTITUDINAL_MODELS:
+#     #     #         self.common_test(model_class)
+#     #
 #     def test_wrong(self):
 #         self.common_test(NonStationaryAltitudinalLocationQuadraticCrossTermForLocation)
 #         # self.common_test(NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation)

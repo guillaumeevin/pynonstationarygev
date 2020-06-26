@@ -34,23 +34,26 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method)
             self.massif_name_to_one_fold_fit[massif_name] = old_fold_fit
 
-    def plot_mean(self):
-        self.plot_general('mean')
+    def plot_moments(self):
+        for method_name in ['moment', 'changes_in_the_moment', 'relative_changes_in_the_moment']:
+            for order in [1, 2]:
+                self.plot_general(method_name, order)
 
-    def plot_relative_change(self):
-        self.plot_general('relative_changes_in_the_mean')
-
-    def plot_general(self, method_name):
+    def plot_general(self, method_name, order):
         ax = plt.gca()
         min_altitude, *_, max_altitude = self.studies.altitudes
-        altitudes = np.linspace(min_altitude, max_altitude, num=50)
+        altitudes_plot = np.linspace(min_altitude, max_altitude, num=50)
         for massif_id, massif_name in enumerate(self.massif_names):
+            massif_altitudes = self.studies.massif_name_to_altitudes[massif_name]
+            ind = (min(massif_altitudes) <= altitudes_plot) & (altitudes_plot <= max(massif_altitudes))
+            massif_altitudes_plot = altitudes_plot[ind]
             old_fold_fit = self.massif_name_to_one_fold_fit[massif_name]
-            values = old_fold_fit.__getattribute__(method_name)(altitudes)
-            plot_against_altitude(altitudes, ax, massif_id, massif_name, values)
+            values = old_fold_fit.__getattribute__(method_name)(massif_altitudes_plot, order=order)
+            plot_against_altitude(massif_altitudes_plot, ax, massif_id, massif_name, values)
         # Plot settings
         ax.legend(prop={'size': 7}, ncol=3)
         moment = ' '.join(method_name.split('_'))
+        moment = moment.replace('moment', 'mean' if order == 1 else 'std')
         plot_name = '{} annual maxima of {}'.format(moment, SCM_STUDY_CLASS_TO_ABBREVIATION[self.studies.study_class])
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('altitudes', fontsize=15)

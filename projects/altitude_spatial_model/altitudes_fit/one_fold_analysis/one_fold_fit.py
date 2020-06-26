@@ -2,12 +2,15 @@ import numpy.testing as npt
 import numpy as np
 import rpy2
 from cached_property import cached_property
+from scipy.stats import chi2
 
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
+from extreme_fit.model.margin_model.polynomial_margin_model.altitudinal_models import StationaryAltitudinal
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 
 
 class OneFoldFit(object):
+    SIGNIFICANCE_LEVEL = 0.05
 
     def __init__(self, massif_name, dataset, models_classes, fit_method=MarginFitMethod.extremes_fevd_mle):
         self.massif_name = massif_name
@@ -22,22 +25,37 @@ class OneFoldFit(object):
                                                                                               dataset=self.dataset,
                                                                                               fit_method=self.fit_method)
 
-    def mean(self, altitudes, year=2019):
-        return [self.get_mean(altitude, year) for altitude in altitudes]
-
-    def get_mean(self, altitude, year):
-        return self.get_gev_params(altitude, year).mean
+    def get_moment(self, altitude, year, order=1):
+        gev_params = self.get_gev_params(altitude, year)
+        if order == 1:
+            return gev_params.mean
+        elif order == 2:
+            return gev_params.std
+        else:
+            raise NotImplementedError
 
     def get_gev_params(self, altitude, year):
         coordinate = np.array([altitude, year])
         gev_params = self.best_function_from_fit.get_params(coordinate, is_transformed=False)
         return gev_params
 
-    def relative_changes_in_the_mean(self, altitudes, year=2019, nb_years=50):
+    def moment(self, altitudes, year=2019, order=1):
+        return [self.get_moment(altitude, year, order) for altitude in altitudes]
+
+    def changes_in_the_moment(self, altitudes, year=2019, nb_years=50, order=1):
+        changes = []
+        for altitude in altitudes:
+            mean_after = self.get_moment(altitude, year, order)
+            mean_before = self.get_moment(altitude, year - nb_years, order)
+            change = mean_after - mean_before
+            changes.append(change)
+        return changes
+
+    def relative_changes_in_the_moment(self, altitudes, year=2019, nb_years=50, order=1):
         relative_changes = []
         for altitude in altitudes:
-            mean_after = self.get_mean(altitude, year)
-            mean_before = self.get_mean(altitude, year - nb_years)
+            mean_after = self.get_moment(altitude, year, order)
+            mean_before = self.get_moment(altitude, year - nb_years, order)
             relative_change = 100 * (mean_after - mean_before) / mean_before
             relative_changes.append(relative_change)
         return relative_changes
@@ -75,4 +93,29 @@ class OneFoldFit(object):
 
     @property
     def best_name(self):
-        return self.best_estimator.margin_model.name_str
+        name = self.best_estimator.margin_model.name_str
+        latex_command = 'textbf' if self.is_significant else 'textrm'
+        return '$\\' + latex_command + '{' + name + '}$'
+
+    # Significant
+
+    @property
+    def stationary_estimator(self):
+        for estimator in self.sorted_estimators_with_finite_aic:
+            if isinstance(estimator.margin_model, StationaryAltitudinal):
+                return estimator
+
+    @property
+    def likelihood_ratio(self):
+        return self.stationary_estimator.deviance() - self.best_estimator.deviance()
+
+    @property
+    def degree_freedom_chi2(self):
+        return self.best_estimator.margin_model.nb_params - self.stationary_estimator.margin_model.nb_params
+
+    @property
+    def is_significant(self) -> bool:
+        if isinstance(self.best_estimator.margin_model, StationaryAltitudinal):
+            return False
+        else:
+            return self.likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=self.degree_freedom_chi2)

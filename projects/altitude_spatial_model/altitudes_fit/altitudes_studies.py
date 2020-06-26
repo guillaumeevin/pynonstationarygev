@@ -45,16 +45,24 @@ class AltitudesStudies(object):
     def spatio_temporal_dataset(self, massif_name, s_split_spatial: pd.Series = None,
                                 s_split_temporal: pd.Series = None):
         coordinate_values_to_maxima = {}
-        massif_altitudes = []
-        for altitude in self.altitudes:
+        massif_altitudes = self.massif_name_to_altitudes[massif_name]
+        for altitude in massif_altitudes:
             study = self.altitude_to_study[altitude]
-            if massif_name in study.study_massif_names:
-                massif_altitudes.append(altitude)
-                for year, maxima in zip(study.ordered_years, study.massif_name_to_annual_maxima[massif_name]):
-                    coordinate_values_to_maxima[(altitude, year)] = [maxima]
+            for year, maxima in zip(study.ordered_years, study.massif_name_to_annual_maxima[massif_name]):
+                coordinate_values_to_maxima[(altitude, year)] = [maxima]
         coordinates = self.spatio_temporal_coordinates(s_split_spatial, s_split_temporal, massif_altitudes)
         observations = AnnualMaxima.from_coordinates(coordinates, coordinate_values_to_maxima)
         return AbstractDataset(observations=observations, coordinates=coordinates)
+
+    @cached_property
+    def massif_name_to_altitudes(self):
+        massif_names = self.study.all_massif_names()
+        massif_name_to_altitudes = {massif_name: [] for massif_name in massif_names}
+        for altitude in self.altitudes:
+            study = self.altitude_to_study[altitude]
+            for massif_name in study.study_massif_names:
+                massif_name_to_altitudes[massif_name].append(altitude)
+        return massif_name_to_altitudes
 
     # Coordinates Loader
 

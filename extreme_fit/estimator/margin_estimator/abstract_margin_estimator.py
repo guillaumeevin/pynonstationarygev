@@ -38,7 +38,6 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         return self.dataset.coordinates.df_spatial_coordinates(split=self.train_split,
                                                                drop_duplicates=self.margin_model.drop_duplicates)
 
-
     @property
     def df_coordinates_temp(self):
         return self.dataset.coordinates.df_temporal_coordinates_for_fit(split=self.train_split,
@@ -67,6 +66,9 @@ class LinearMarginEstimator(AbstractMarginEstimator):
             assert not np.isinf(nllh)
         return nllh
 
+    def deviance(self, split=Split.all):
+        return 2 * self.nllh(split=split)
+
     def aic(self, split=Split.all):
         aic = 2 * self.margin_model.nb_params + 2 * self.nllh(split=split)
         npt.assert_almost_equal(self.result_from_model_fit.aic, aic, decimal=5)
@@ -75,4 +77,3 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     def bic(self, split=Split.all):
         n = len(self.dataset.maxima_gev(split=split))
         return np.log(n) * self.margin_model.nb_params + 2 * self.nllh(split=split)
-
