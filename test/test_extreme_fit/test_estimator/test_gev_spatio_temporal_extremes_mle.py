@@ -53,7 +53,7 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
 
     def test_altitudinal_models(self):
         for model_class in ALTITUDINAL_MODELS:
-            print(model_class)
+            # print(model_class)
             self.common_test(model_class)
 
 

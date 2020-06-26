@@ -1,4 +1,5 @@
 from abc import ABC
+import numpy.testing as npt
 
 import numpy as np
 from cached_property import cached_property
@@ -67,7 +68,9 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         return nllh
 
     def aic(self, split=Split.all):
-        return 2 * self.margin_model.nb_params + 2 * self.nllh(split=split)
+        aic = 2 * self.margin_model.nb_params + 2 * self.nllh(split=split)
+        npt.assert_almost_equal(self.result_from_model_fit.aic, aic, decimal=5)
+        return aic
 
     def bic(self, split=Split.all):
         n = len(self.dataset.maxima_gev(split=split))

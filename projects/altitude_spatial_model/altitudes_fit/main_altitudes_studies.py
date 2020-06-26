@@ -23,14 +23,14 @@ def plot_time_series(studies, massif_names=None):
 
 
 def plot_moments(studies, massif_names=None):
-    for std in [True, False][1:]:
+    for std in [True, False][:]:
         for change in [True, False, None]:
             studies.plot_mean_maxima_against_altitude(massif_names=massif_names, std=std, change=change)
 
 
 def main():
-    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
-    # altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
+    # altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000]
+    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days][:2]
     study_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days,
                      SafranPrecipitation7Days][:]
@@ -41,7 +41,7 @@ def main():
 
     for study_class in study_classes:
         studies = AltitudesStudies(study_class, altitudes, season=Season.winter_extended)
-        plot_time_series(studies, massif_names)
+        # plot_time_series(studies, massif_names)
         plot_moments(studies, massif_names)
         plot_altitudinal_fit(studies, massif_names)
 
