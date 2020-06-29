@@ -60,12 +60,12 @@ class PolynomialAllCoef(LinearCoef):
             dim_to_polynomial_coef = {}
             for dim, max_degree in list_dim_and_max_degree:
                 coefficient_name = cls.coefficient_name(dim, coordinates.dim_to_coordinate)
-                j = 1 if coefficient_name == AbstractCoordinates.COORDINATE_T else 2
+                offset = cls.offset_from_coefficient_name(coefficient_name)
                 degree_to_coef = {0: degree0}
                 for degree in range(1, max_degree + 1):
-                    coef_value = coef_dict[cls.coef_template_str(param_name, coefficient_name).format(j)]
+                    coef_key = cls.coef_template_str(param_name, coefficient_name).format(offset + degree)
+                    coef_value = coef_dict[coef_key]
                     degree_to_coef[degree] = coef_value
-                    j += 1
                 dim_to_polynomial_coef[dim] = PolynomialCoef(param_name=param_name, degree_to_coef=degree_to_coef)
         return cls(param_name=param_name, dim_to_polynomial_coef=dim_to_polynomial_coef, intercept=intercept)
 

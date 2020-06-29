@@ -23,7 +23,7 @@ ALTITUDINAL_MODELS = [
                          NonStationaryAltitudinalLocationQuadraticCrossTermForLocation,
                          NonStationaryAltitudinalLocationLinearScaleLinearCrossTermForLocation,
                         NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation,
-                     ][:7]
+                     ][:]
 
 
 

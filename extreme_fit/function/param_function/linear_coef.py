@@ -33,8 +33,12 @@ class LinearCoef(AbstractCoef):
                or any([coordinate_name in coefficient_name for coordinate_name in AbstractCoordinates.COORDINATES_NAMES])
         if coefficient_name == cls.INTERCEPT_NAME or coefficient_name in AbstractCoordinates.COORDINATE_SPATIAL_NAMES:
             coef_template_str = param_name + cls.COEFF_STR + '{}'
-        else:
+        elif coefficient_name == AbstractCoordinates.COORDINATE_T:
             coef_template_str = 'temp' + cls.COEFF_STR + param_name.title() + '{}'
+        elif len([c for c in AbstractCoordinates.COORDINATES_NAMES if c in coefficient_name]) >= 2:
+            coef_template_str = 'cross' + cls.COEFF_STR + param_name.title() + '{}'
+        else:
+            raise NotImplementedError
         assert cls.COEFF_STR in coef_template_str
         return coef_template_str
 
@@ -46,6 +50,10 @@ class LinearCoef(AbstractCoef):
             return ' * '.join([dim_to_coordinate_name[d] for d in dim])
         else:
             raise NotImplementedError
+
+    @classmethod
+    def offset_from_coefficient_name(cls, coefficient_name):
+        return 1 if coefficient_name == AbstractCoordinates.COORDINATE_X else 0
 
     @staticmethod
     def has_dependence_in_spatial_coordinates(dim_to_coefficient_name):
