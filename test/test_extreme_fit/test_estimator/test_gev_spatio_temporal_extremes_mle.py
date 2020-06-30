@@ -2,12 +2,12 @@ import unittest
 from random import sample
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranPrecipitation1Day
-from extreme_fit.model.margin_model.polynomial_margin_model.altitudinal_models import \
+from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import \
     NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation, \
     NonStationaryAltitudinalLocationQuadraticCrossTermForLocation, NonStationaryAltitudinalLocationLinear, \
     NonStationaryAltitudinalLocationLinearCrossTermForLocation
-from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_MODELS, \
-    MODELS_THAT_SHOULD_RAISE_AN_ASSERTION_ERROR, VARIOUS_SPATIO_TEMPORAL_MODELS
+from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_GEV_MODELS, \
+    MODELS_THAT_SHOULD_RAISE_AN_ASSERTION_ERROR, VARIOUS_SPATIO_TEMPORAL_MODELS, ALTITUDINAL_GUMBEL_MODELS
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
@@ -52,8 +52,13 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         for model_class in VARIOUS_SPATIO_TEMPORAL_MODELS:
             self.common_test(model_class)
 
-    def test_altitudinal_models(self):
-        for model_class in ALTITUDINAL_MODELS:
+    def test_altitudinal_gev_models(self):
+        for model_class in ALTITUDINAL_GEV_MODELS:
+            self.common_test(model_class)
+
+    def test_altitudinal_gumbel_models(self):
+        for model_class in ALTITUDINAL_GUMBEL_MODELS[:3]:
+            # print(model_class)
             self.common_test(model_class)
 
 

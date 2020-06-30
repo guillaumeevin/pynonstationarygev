@@ -5,7 +5,9 @@ from cached_property import cached_property
 from scipy.stats import chi2
 
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
-from extreme_fit.model.margin_model.polynomial_margin_model.altitudinal_models import StationaryAltitudinal
+from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
+from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_models import \
+    StationaryGumbelAltitudinal, AbstractGumbelAltitudinalModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from root_utils import classproperty
 
@@ -137,9 +139,10 @@ class OneFoldFit(object):
 
     @property
     def stationary_estimator(self):
-        for estimator in self.sorted_estimators_with_finite_aic:
-            if isinstance(estimator.margin_model, StationaryAltitudinal):
-                return estimator
+        if isinstance(self.best_estimator.margin_model, AbstractGumbelAltitudinalModel):
+            return self.model_class_to_estimator_with_finite_aic[StationaryGumbelAltitudinal]
+        else:
+            return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinal]
 
     @property
     def likelihood_ratio(self):
@@ -151,7 +154,9 @@ class OneFoldFit(object):
 
     @property
     def is_significant(self) -> bool:
-        if isinstance(self.best_estimator.margin_model, StationaryAltitudinal):
+        stationary_model_classes = [StationaryAltitudinal, StationaryGumbelAltitudinal]
+        if any([isinstance(self.best_estimator.margin_model, c) 
+                for c in stationary_model_classes]):
             return False
         else:
             return self.likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=self.degree_freedom_chi2)
