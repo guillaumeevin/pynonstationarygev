@@ -74,6 +74,8 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         npt.assert_almost_equal(self.result_from_model_fit.aic, aic, decimal=5)
         return aic
 
+    def n(self, split=Split.all):
+        return len(self.dataset.maxima_gev(split=split))
+
     def bic(self, split=Split.all):
-        n = len(self.dataset.maxima_gev(split=split))
-        return np.log(n) * self.margin_model.nb_params + 2 * self.nllh(split=split)
+        return np.log(self.n(split=split)) * self.margin_model.nb_params + 2 * self.nllh(split=split)

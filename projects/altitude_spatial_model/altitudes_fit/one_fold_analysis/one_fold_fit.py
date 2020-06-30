@@ -7,10 +7,12 @@ from scipy.stats import chi2
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
 from extreme_fit.model.margin_model.polynomial_margin_model.altitudinal_models import StationaryAltitudinal
 from extreme_fit.model.margin_model.utils import MarginFitMethod
+from root_utils import classproperty
 
 
 class OneFoldFit(object):
     SIGNIFICANCE_LEVEL = 0.05
+    best_estimator_minimizes_mean_aic = False
 
     def __init__(self, massif_name, dataset, models_classes, fit_method=MarginFitMethod.extremes_fevd_mle):
         self.massif_name = massif_name
@@ -25,12 +27,30 @@ class OneFoldFit(object):
                                                                                               dataset=self.dataset,
                                                                                               fit_method=self.fit_method)
 
+        # Best estimator definition
+        self.best_estimator_class_for_mean_aic = None
+
+    @classproperty
+    def folder_for_plots(cls):
+        return 'Mean aic' if cls.best_estimator_minimizes_mean_aic else 'Individual aic'
+
+    @classmethod
+    def get_moment_str(cls, order):
+        if order == 1:
+            return 'Mean'
+        elif order == 2:
+            return 'Std'
+        elif order is None:
+            return 'Return level'
+
     def get_moment(self, altitude, year, order=1):
         gev_params = self.get_gev_params(altitude, year)
         if order == 1:
             return gev_params.mean
         elif order == 2:
             return gev_params.std
+        elif order is None:
+            return gev_params.return_level(return_period=2019)
         else:
             raise NotImplementedError
 
@@ -79,13 +99,29 @@ class OneFoldFit(object):
                                                    key=lambda e: e.aic())
         return sorted_estimators_with_finite_aic
 
+    @property
+    def model_class_to_estimator_with_finite_aic(self):
+        return {type(estimator.margin_model): estimator for estimator in self.sorted_estimators_with_finite_aic}
+
     @cached_property
+    def set_estimators_with_finite_aic(self):
+        return set(self.sorted_estimators_with_finite_aic)
+
+    @property
     def best_estimator(self):
-        return self.sorted_estimators_with_finite_aic[0]
+        if self.best_estimator_minimizes_mean_aic and self.best_estimator_class_for_mean_aic is not None:
+            return self.model_class_to_estimator[self.best_estimator_class_for_mean_aic]
+        else:
+            return self.sorted_estimators_with_finite_aic[0]
+
+    @property
+    def best_estimator_has_finite_aic(self):
+        return self.best_estimator in self.set_estimators_with_finite_aic
 
     @property
     def best_shape(self):
-        return self.get_gev_params(1000, year=2019).shape
+        # We take any altitude (altitude=1000 for instance) as the shape is constant w.r.t the altitude
+        return self.get_gev_params(altitude=1000, year=2019).shape
 
     @property
     def best_function_from_fit(self):

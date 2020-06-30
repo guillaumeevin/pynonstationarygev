@@ -36,7 +36,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     def plot_moments(self):
         for method_name in ['moment', 'changes_in_the_moment', 'relative_changes_in_the_moment']:
-            for order in [1, 2]:
+            for order in [1, 2, None]:
                 self.plot_general(method_name, order)
 
     def plot_general(self, method_name, order):
@@ -47,14 +47,16 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             massif_altitudes = self.studies.massif_name_to_altitudes[massif_name]
             ind = (min(massif_altitudes) <= altitudes_plot) & (altitudes_plot <= max(massif_altitudes))
             massif_altitudes_plot = altitudes_plot[ind]
-            old_fold_fit = self.massif_name_to_one_fold_fit[massif_name]
-            values = old_fold_fit.__getattribute__(method_name)(massif_altitudes_plot, order=order)
-            plot_against_altitude(massif_altitudes_plot, ax, massif_id, massif_name, values)
+            one_fold_fit = self.massif_name_to_one_fold_fit[massif_name]
+            if one_fold_fit.best_estimator_has_finite_aic:
+                values = one_fold_fit.__getattribute__(method_name)(massif_altitudes_plot, order=order)
+                plot_against_altitude(massif_altitudes_plot, ax, massif_id, massif_name, values)
         # Plot settings
         ax.legend(prop={'size': 7}, ncol=3)
         moment = ' '.join(method_name.split('_'))
-        moment = moment.replace('moment', 'mean' if order == 1 else 'std')
-        plot_name = '{} annual maxima of {}'.format(moment, SCM_STUDY_CLASS_TO_ABBREVIATION[self.studies.study_class])
+        moment = moment.replace('moment', '{} in 2019'.format(OneFoldFit.get_moment_str(order=order)))
+        plot_name = '{}/Model {} annual maxima of {}'.format(OneFoldFit.folder_for_plots, moment,
+                                                             SCM_STUDY_CLASS_TO_ABBREVIATION[self.studies.study_class])
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('altitudes', fontsize=15)
         # lim_down, lim_up = ax.get_ylim()
@@ -66,13 +68,16 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     def plot_abstract_fast(self, massif_name_to_value, label, graduation=10.0, cmap=plt.cm.coolwarm, add_x_label=True,
                            negative_and_positive_values=True, massif_name_to_text=None):
-        super().plot_abstract(massif_name_to_value, label, label, self.fit_method, graduation, cmap, add_x_label,
-                              negative_and_positive_values, massif_name_to_text)
+        plot_name = '{}/{}'.format(OneFoldFit.folder_for_plots, label)
+        self.plot_map(cmap, self.fit_method, graduation, label, massif_name_to_value, plot_name, add_x_label,
+                      negative_and_positive_values,
+                      massif_name_to_text)
 
     @property
     def massif_name_to_shape(self):
         return {massif_name: one_fold_fit.best_shape
-                for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()}
+                for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()
+                if one_fold_fit.best_estimator_has_finite_aic}
 
     @property
     def massif_name_to_name(self):

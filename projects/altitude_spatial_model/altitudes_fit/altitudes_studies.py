@@ -132,7 +132,8 @@ class AltitudesStudies(object):
         ax.xaxis.set_ticks(x[1::10])
         ax.tick_params(axis='both', which='major', labelsize=13)
         ax.legend()
-        plot_name = 'Annual maxima of {} in {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class], massif_name)
+        plot_name = 'Annual maxima of {} in {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
+                                                       massif_name.replace('_', ' '))
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('years', fontsize=15)
         self.show_or_save_to_file(plot_name=plot_name, show=show)
@@ -148,6 +149,8 @@ class AltitudesStudies(object):
         if change is True or change is None:
             moment += ' change (between two block of 30 years) for'
         moment += 'mean' if not std else 'std'
+        if change is False:
+            moment += ' (for the 60 years of data)'
         plot_name = '{} of annual maxima of {}'.format(moment, SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class])
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('altitudes', fontsize=15)
