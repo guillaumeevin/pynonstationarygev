@@ -8,6 +8,7 @@ library(stats4)
 library(SpatialExtremes)
 source('fevd_fixed.R')
 source('ci_fevd_fixed.R')
+source('summary_fevd_fixed.R')
 # Sample from a GEV
 set.seed(42)
 N <- 50
@@ -27,9 +28,11 @@ coord = data.frame(coord, stringsAsFactors = TRUE)
 # res = fevd_fixed(x_gev, data=coord, method='MLE', verbose=TRUE, use.phi=FALSE)
 # res = fevd_fixed(x_gev, data=coord, location.fun= ~T, scale.fun= ~T, method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
 # res = fevd_fixed(x_gev, data=coord, location.fun= ~sin(X) + cos(T), method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
-res = fevd_fixed(x_gev, data=coord, location.fun= ~poly(X * T, 1, raw = TRUE),  method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
-# res = fevd_fixed(x_gev, data=coord, location.fun= ~poly(X, 1, raw = TRUE) + poly(T, 2, raw = TRUE) , method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
-print(res)
+# res = fevd_fixed(x_gev, data=coord, location.fun= ~poly(X * T, 1, raw = TRUE),  method='MLE', type="Gumbel", verbose=FALSE, use.phi=FALSE)
+res = fevd_fixed(x_gev, data=coord, location.fun= ~poly(X, 1, raw = TRUE) + poly(T, 2, raw = TRUE) , method='MLE', type="Gumbel", verbose=FALSE, use.phi=FALSE)
+# print(res)
+print(summary.fevd.mle_fixed(res))
+# print(summary(res)$AIC)
 
 # Some display for the results
 # m = res$results

@@ -61,21 +61,22 @@ def plot_moments(studies, massif_names=None):
 
 
 def main():
-    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][4:7]
+    # altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][4:7]
     # altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:]
-    # altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
+    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days][:2]
     study_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days,
                      SafranPrecipitation7Days][:]
-    study_classes = [SafranSnowfall1Day, SafranPrecipitation1Day, SafranSnowfall3Days, SafranPrecipitation3Days][:1]
+    study_classes = [SafranSnowfall1Day, SafranPrecipitation1Day, SafranSnowfall3Days, SafranPrecipitation3Days][:]
     massif_names = None
     # massif_names = ['Aravis']
     # massif_names = ['Chartreuse', 'Belledonne']
 
     for study_class in study_classes:
+        print('change study class')
         studies = AltitudesStudies(study_class, altitudes, season=Season.winter_extended)
-        # plot_time_series(studies, massif_names)
-        # plot_moments(studies, massif_names)
+        plot_time_series(studies, massif_names)
+        plot_moments(studies, massif_names)
         plot_altitudinal_fit(studies, massif_names)
 
 

@@ -24,7 +24,7 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
         # Warning print will not work in this part
         f = io.StringIO()
         with redirect_stdout(f):
-            summary = r('summary')(self.result_from_fit)
+            summary = r('summary.fevd.mle_fixed')(self.result_from_fit)
             return self.get_python_dictionary(summary)
 
     @property

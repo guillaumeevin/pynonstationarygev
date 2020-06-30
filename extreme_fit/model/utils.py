@@ -31,8 +31,8 @@ warnings.filterwarnings("ignore")
 # Load ismev
 r.library('ismev')
 # Load fevd fixed
-for j, filename in enumerate(['ci_fevd_fixed.R', 'fevd_fixed.R', 'gnfit_fixed.R']):
-    folder = 'gev' if j <= 1 else "gumbel"
+for j, filename in enumerate(['ci_fevd_fixed.R', 'fevd_fixed.R', 'summary_fevd_fixed.R', 'gnfit_fixed.R']):
+    folder = 'gev' if j <= 2 else "gumbel"
     fevd_fixed_filepath = op.join(get_root_path(), 'extreme_fit', 'distribution', folder, filename)
     assert op.exists(fevd_fixed_filepath)
     r.source(fevd_fixed_filepath)

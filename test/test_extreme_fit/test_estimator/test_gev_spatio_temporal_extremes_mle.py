@@ -57,8 +57,7 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
             self.common_test(model_class)
 
     def test_altitudinal_gumbel_models(self):
-        for model_class in ALTITUDINAL_GUMBEL_MODELS[:3]:
-            # print(model_class)
+        for model_class in ALTITUDINAL_GUMBEL_MODELS[:]:
             self.common_test(model_class)
 
 
