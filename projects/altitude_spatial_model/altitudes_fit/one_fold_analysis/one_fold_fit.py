@@ -5,6 +5,7 @@ from cached_property import cached_property
 from scipy.stats import chi2
 
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
+from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoef, PolynomialCoef
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
 from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_models import \
     StationaryGumbelAltitudinal, AbstractGumbelAltitudinalModel
@@ -14,7 +15,7 @@ from root_utils import classproperty
 
 class OneFoldFit(object):
     SIGNIFICANCE_LEVEL = 0.05
-    best_estimator_minimizes_mean_aic = False
+    best_estimator_minimizes_total_aic = False
 
     def __init__(self, massif_name, dataset, models_classes, fit_method=MarginFitMethod.extremes_fevd_mle):
         self.massif_name = massif_name
@@ -30,11 +31,11 @@ class OneFoldFit(object):
                                                                                               fit_method=self.fit_method)
 
         # Best estimator definition
-        self.best_estimator_class_for_mean_aic = None
+        self.best_estimator_class_for_total_aic = None
 
     @classproperty
     def folder_for_plots(cls):
-        return 'Mean aic' if cls.best_estimator_minimizes_mean_aic else 'Individual aic'
+        return 'Total aic' if cls.best_estimator_minimizes_total_aic else 'Individual aic'
 
     @classmethod
     def get_moment_str(cls, order):
@@ -85,49 +86,56 @@ class OneFoldFit(object):
     # Minimizing the AIC and some properties
 
     @cached_property
-    def sorted_estimators_with_finite_aic(self):
+    def sorted_estimators(self):
         estimators = list(self.model_class_to_estimator.values())
-        estimators_with_finite_aic = []
-        for estimator in estimators:
-            try:
-                aic = estimator.aic()
-                npt.assert_almost_equal(estimator.result_from_model_fit.aic, aic, decimal=5)
-                print(self.massif_name, estimator.margin_model.name_str, aic)
-                estimators_with_finite_aic.append(estimator)
-            except (AssertionError, rpy2.rinterface.RRuntimeError):
-                print(self.massif_name, estimator.margin_model.name_str, 'infinite aic')
-        print('Summary {}: {}/{} fitted'.format(self.massif_name, len(estimators_with_finite_aic), len(estimators)))
-        sorted_estimators_with_finite_aic = sorted([estimator for estimator in estimators_with_finite_aic],
-                                                   key=lambda e: e.aic())
-        return sorted_estimators_with_finite_aic
+        # estimators_with_finite_aic = []
+        # for estimator in estimators:
+        #     # try:
+        #     aic = estimator.aic()
+        #     npt.assert_almost_equal(estimator.result_from_model_fit.aic, aic, decimal=5)
+        #     print(self.massif_name, estimator.margin_model.name_str, aic)
+        #     estimators_with_finite_aic.append(estimator)
+        #     # except (AssertionError, rpy2.rinterface.RRuntimeError) as e:
+        #     #     raise e
+        #         # print(self.massif_name, estimator.margin_model.name_str, 'infinite aic')
+        #         # print(e)
+        # print('Summary {}: {}/{} fitted'.format(self.massif_name, len(estimators_with_finite_aic), len(estimators)))
+        sorted_estimators = sorted([estimator for estimator in estimators],
+                                   key=lambda e: e.aic())
+        return sorted_estimators
 
     @property
     def model_class_to_estimator_with_finite_aic(self):
-        return {type(estimator.margin_model): estimator for estimator in self.sorted_estimators_with_finite_aic}
-
-    @cached_property
-    def set_estimators_with_finite_aic(self):
-        return set(self.sorted_estimators_with_finite_aic)
+        return {type(estimator.margin_model): estimator for estimator in self.sorted_estimators}
 
     @property
     def best_estimator(self):
-        if self.best_estimator_minimizes_mean_aic and self.best_estimator_class_for_mean_aic is not None:
-            return self.model_class_to_estimator[self.best_estimator_class_for_mean_aic]
+        if self.best_estimator_minimizes_total_aic and self.best_estimator_class_for_total_aic is not None:
+            return self.model_class_to_estimator[self.best_estimator_class_for_total_aic]
         else:
-            return self.sorted_estimators_with_finite_aic[0]
+            return self.sorted_estimators[0]
 
     @property
-    def best_estimator_has_finite_aic(self):
-        return self.best_estimator in self.set_estimators_with_finite_aic
+    def best_margin_model(self):
+        return self.best_estimator.margin_model
+
+    @property
+    def best_function_from_fit(self):
+        return self.best_estimator.function_from_fit
 
     @property
     def best_shape(self):
         # We take any altitude (altitude=1000 for instance) as the shape is constant w.r.t the altitude
         return self.get_gev_params(altitude=1000, year=2019).shape
 
-    @property
-    def best_function_from_fit(self):
-        return self.best_estimator.function_from_fit
+    def best_coef(self, param_name, dim, degree):
+        try:
+            coef = self.best_function_from_fit.param_name_to_coef[param_name]  # type: PolynomialAllCoef
+            coef = coef.dim_to_polynomial_coef[dim]  # type: PolynomialCoef
+            coef = coef.idx_to_coef[degree]
+            return coef
+        except (TypeError, KeyError):
+            return None
 
     @property
     def best_name(self):
@@ -155,7 +163,7 @@ class OneFoldFit(object):
     @property
     def is_significant(self) -> bool:
         stationary_model_classes = [StationaryAltitudinal, StationaryGumbelAltitudinal]
-        if any([isinstance(self.best_estimator.margin_model, c) 
+        if any([isinstance(self.best_estimator.margin_model, c)
                 for c in stationary_model_classes]):
             return False
         else:

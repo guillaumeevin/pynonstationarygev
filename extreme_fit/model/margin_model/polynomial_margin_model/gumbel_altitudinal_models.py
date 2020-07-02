@@ -60,12 +60,13 @@ class NonStationaryGumbelAltitudinalLocationQuadraticScaleLinear(AbstractGumbelA
 # Add cross terms
 
 
-class NonStationaryGumbelCrossTermForLocation(AbstractAddCrossTermForLocation, AbstractGumbelAltitudinalModel, StationaryAltitudinal):
+class NonStationaryGumbelCrossTermForLocation(AbstractGumbelAltitudinalModel,
+                                              NonStationaryCrossTermForLocation):
     pass
 
 
-class NonStationaryGumbelAltitudinalLocationLinearCrossTermForLocation(AbstractAddCrossTermForLocation, AbstractGumbelAltitudinalModel,
-                                                                       NonStationaryAltitudinalLocationLinear):
+class NonStationaryGumbelAltitudinalLocationLinearCrossTermForLocation(AbstractGumbelAltitudinalModel,
+                                                                       NonStationaryAltitudinalLocationLinearCrossTermForLocation):
     pass
 
 
