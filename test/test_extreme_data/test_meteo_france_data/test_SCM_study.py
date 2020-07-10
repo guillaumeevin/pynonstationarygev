@@ -24,7 +24,7 @@ class TestSCMAllStudy(unittest.TestCase):
         self.assertEqual('{}-08-01'.format(year - 1), first_day)
         self.assertEqual('{}-07-31'.format(year), last_day)
 
-    def test_year_to_winter_date(self):
+    def test_year_to_winter_extended_date(self):
         year = 2019
         study = SafranSnowfall(altitude=900, year_min=year, year_max=year, season=Season.winter_extended)
         first_day, *_, last_day = study.year_to_days[year]

@@ -107,10 +107,10 @@ class AltitudesStudies(object):
 
     # Some visualization
 
-    def show_or_save_to_file(self, plot_name, show=False):
+    def show_or_save_to_file(self, plot_name, show=False, no_title=False):
         study_visualizer = StudyVisualizer(study=self.study, show=show, save_to_file=not show)
         study_visualizer.plot_name = plot_name
-        study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500)
+        study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500, no_title=no_title)
 
     def run_for_each_massif(self, function, massif_names, **kwargs):
         massif_names = massif_names if massif_names is not None else self.study.all_massif_names()
@@ -131,12 +131,13 @@ class AltitudesStudies(object):
                 ax.plot(x, y, linewidth=2, label=label)
         ax.xaxis.set_ticks(x[1::10])
         ax.tick_params(axis='both', which='major', labelsize=13)
-        ax.legend()
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[::-1], labels[::-1])
         plot_name = 'Annual maxima of {} in {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '))
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('years', fontsize=15)
-        self.show_or_save_to_file(plot_name=plot_name, show=show)
+        self.show_or_save_to_file(plot_name=plot_name, show=show, no_title=True)
         ax.clear()
 
     def plot_mean_maxima_against_altitude(self, massif_names=None, show=False, std=False, change=False):

@@ -19,7 +19,9 @@ def date_to_str(date: datetime) -> str:
 class Season(Enum):
     annual = 0
     winter_extended = 1
-    # i could add the classical seasons if needed
+    winter = 2
+    spring = 3
+    automn = 4
 
 
 def season_to_str(season):
@@ -36,7 +38,10 @@ class FrenchRegion(Enum):
 def first_day_and_last_day(season):
     season_to_start_day_and_last_day = {
         Season.annual: ('08-01', '07-31'),
-        Season.winter_extended: ('11-01', '05-31')
+        Season.winter_extended: ('11-01', '05-31'),
+        Season.winter: ('12-01', '02-28'),
+        Season.spring: ('03-01', '05-31'),
+        Season.automn: ('09-01', '11-30'),
     }
     return season_to_start_day_and_last_day[season]
 

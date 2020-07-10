@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+from extreme_data.meteo_france_data.scm_models_data.utils import season_to_str
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import load_plot
 from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
 from extreme_fit.model.margin_model.utils import fitmethod_to_str
@@ -554,6 +555,7 @@ class StudyVisualizer(VisualizationParameters):
             plt.show()
         if self.save_to_file:
             main_title, specific_title = '_'.join(self.study.title.split()).split('/')
+            main_title += season_to_str(self.study.season)
             if folder_for_variable:
                 filename = "{}/{}/".format(VERSION_TIME, main_title)
             else:

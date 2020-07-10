@@ -98,8 +98,10 @@ class AbstractStudy(object):
         year_to_first_index_and_last_index = OrderedDict()
         first_day, last_day = first_day_and_last_day(self.season)
         for year, all_days in self.year_to_all_days.items():
-            first_index = all_days.index('{}-{}'.format(year - 1, first_day))
-            last_index = all_days.index('{}-{}'.format(year, last_day))
+            year_first_index = year - 1 if self.season is not Season.spring else year
+            year_last_index = year - 1 if self.season is Season.automn else year
+            first_index = all_days.index('{}-{}'.format(year_first_index, first_day))
+            last_index = all_days.index('{}-{}'.format(year_last_index, last_day))
             year_to_first_index_and_last_index[year] = (first_index, last_index)
         return year_to_first_index_and_last_index
 

@@ -103,11 +103,11 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                         for evaluate_coordinate in [False, True]:
                             if evaluate_coordinate:
                                 coef_name += 'evaluated at coordinates'
-                                for m in massif_name_to_best_coef.values():
+                                for massif_name in massif_name_to_best_coef.keys():
                                     if AbstractCoordinates.COORDINATE_X in coordinate_name:
-                                        massif_name_to_best_coef[m] *= np.power(1000, degree)
+                                        massif_name_to_best_coef[massif_name] *= np.power(1000, degree)
                                     if AbstractCoordinates.COORDINATE_T in coordinate_name:
-                                        massif_name_to_best_coef[m] *= np.power(1000, degree)
+                                        massif_name_to_best_coef[massif_name] *= np.power(2019, degree)
                             self.plot_best_coef_map(coef_name.replace('_', ''), massif_name_to_best_coef)
 
     def plot_best_coef_map(self, coef_name, massif_name_to_best_coef):
