@@ -81,7 +81,7 @@ def intermediate_result(altitudes, massif_names=None,
     visualizers = list(altitude_to_visualizer.values())
     if multiprocessing:
         with Pool(4) as p:
-            _ = p.map(compute_minimized_aic, visualizers)
+            _ = p.imap(compute_minimized_aic, visualizers)
     else:
         for visualizer in visualizers:
             _ = compute_minimized_aic(visualizer)

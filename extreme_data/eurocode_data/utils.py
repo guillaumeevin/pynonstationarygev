@@ -1,6 +1,6 @@
 
 # Eurocode quantile str
-EUROCODE_RETURN_LEVEL_STR = '50-year return level of GSL (kN $m^-2$)'
+EUROCODE_RETURN_LEVEL_STR = '50-year return levels of GSL (kN $m^-2$)'
 # Eurocode quantile correspond to a 50 year return period
 EUROCODE_QUANTILE = 0.98
 # Altitudes (between low and mid altitudes) < 2000m and should be > 200m

@@ -5,7 +5,8 @@ import matplotlib as mpl
 from projects.exceeding_snow_loads.checks.qqplot.plot_qqplot import \
     plot_intensity_against_gumbel_quantile_for_3_examples, plot_full_diagnostic
 from projects.exceeding_snow_loads.section_results.plot_selection_curves import plot_selection_curves
-from projects.exceeding_snow_loads.section_results.plot_trend_curves import plot_trend_map
+from projects.exceeding_snow_loads.section_results.plot_trend_curves import plot_trend_map, plot_trend_curves
+from projects.exceeding_snow_loads.section_results.plot_uncertainty_histogram import plot_uncertainty_histogram
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
@@ -33,6 +34,7 @@ def minor_result(altitude):
 
 
 def compute_minimized_aic(visualizer):
+    print(visualizer.altitude)
     _ = visualizer.massif_name_to_trend_test_that_minimized_aic
     return True
 
@@ -58,22 +60,22 @@ def intermediate_result(altitudes, massif_names=None,
     for v in altitude_to_visualizer.values():
         _ = v.study.year_to_variable_object
     # Compute minimized value efficiently
-    visualizers = list(altitude_to_visualizer.values())
+    # visualizers = list()
     if multiprocessing:
         with Pool(NB_CORES) as p:
-            _ = p.map(compute_minimized_aic, visualizers)
+            _ = p.imap(compute_minimized_aic, altitude_to_visualizer.values())
     else:
-        for visualizer in visualizers:
+        for visualizer in altitude_to_visualizer.values():
             _ = compute_minimized_aic(visualizer)
 
     # Plots
-    # plot_trend_map(altitude_to_visualizer)
-    # plot_trend_curves(altitude_to_visualizer={a: v for a, v in altitude_to_visualizer.items() if a >= 900})
-    # plot_uncertainty_massifs(altitude_to_visualizer)
-    # plot_uncertainty_histogram(altitude_to_visualizer)
+    plot_trend_map(altitude_to_visualizer)
+    plot_trend_curves(altitude_to_visualizer={a: v for a, v in altitude_to_visualizer.items() if a >= 900})
+    plot_uncertainty_massifs(altitude_to_visualizer)
+    plot_uncertainty_histogram(altitude_to_visualizer)
     plot_selection_curves(altitude_to_visualizer)
     # uncertainty_interval_size(altitude_to_visualizer)
-    # plot_intensity_against_gumbel_quantile_for_3_examples(altitude_to_visualizer)
+    plot_intensity_against_gumbel_quantile_for_3_examples(altitude_to_visualizer)
     # plot_full_diagnostic(altitude_to_visualizer)
 
 
@@ -89,6 +91,7 @@ def major_result():
     #                                  ModelSubsetForUncertainty.non_stationary_gumbel_and_gev]
     model_subsets_for_uncertainty = None
     # study_classes = [CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][::-1]
+    altitudes = [300, 600]
     altitudes = paper_altitudes
     # altitudes = [900, 1800, 2700][:1]
     for study_class in study_classes:

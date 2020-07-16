@@ -183,9 +183,8 @@ def plot_tdrl_bars(altitude_to_visualizer, ax, massif_name, valid_altitudes, leg
         # ax2.legend(handles=legend_elements, bbox_to_anchor=(0.93, 0.7), loc='upper right')
         # ax2.annotate("Filled symbol = significant trend ", xy=(0.85, 0.5), xycoords='axes fraction', fontsize=7)
         upper_legend_y = 0.55
-        ax2.annotate('\n'.join(filled_marker_legend_list2), xy=(0.23, upper_legend_y - 0.2), xycoords='axes fraction', fontsize=fontsize)
-        ax2.annotate('Markers show selected model $\mathcal{M}_N$', xy=(0.02, upper_legend_y), xycoords='axes fraction', fontsize=fontsize)
-        print(legend_size)
+        # ax2.annotate('\n'.join(filled_marker_legend_list2), xy=(0.23, upper_legend_y - 0.2), xycoords='axes fraction', fontsize=fontsize)
+        # ax2.annotate('Markers show selected model $\mathcal{M}_N$', xy=(0.02, upper_legend_y), xycoords='axes fraction', fontsize=fontsize)
         ax2.legend(handles=legend_elements, prop={'size': legend_size},
                    loc='upper left', bbox_to_anchor=(0.00, upper_legend_y))
         # for handle in lgnd.legendHandles:

@@ -24,7 +24,8 @@ def load_altitude_to_visualizer(altitudes, massif_names, model_subsets_for_uncer
                                                   model_subsets_for_uncertainty=model_subsets_for_uncertainty,
                                                   fit_method=fit_method, select_only_acceptable_shape_parameter=True,
                                                   fit_gev_only_on_non_null_maxima=False,
-                                                  fit_only_time_series_with_ninety_percent_of_non_null_values=True)
+                                                  fit_only_time_series_with_ninety_percent_of_non_null_values=True,
+                                                  select_only_model_that_pass_anderson_test=True,
+                                                  )
         altitude_to_visualizer[altitude] = study_visualizer
-
     return altitude_to_visualizer

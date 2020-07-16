@@ -58,12 +58,14 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                  select_only_acceptable_shape_parameter=True,
                  fit_gev_only_on_non_null_maxima=False,
                  fit_only_time_series_with_ninety_percent_of_non_null_values=True,
+                 select_only_model_that_pass_anderson_test=False,
                  ):
         super().__init__(study, show, save_to_file, only_one_graph, only_first_row, vertical_kde_plot,
                          year_for_kde_plot, plot_block_maxima_quantiles, temporal_non_stationarity,
                          transformation_class, verbose, multiprocessing, complete_non_stationary_trend_analysis,
                          normalization_under_one_observations)
         # Add some attributes
+        self.select_only_model_that_pass_anderson_test = select_only_model_that_pass_anderson_test
         self.fit_only_time_series_with_ninety_percent_of_non_null_values = fit_only_time_series_with_ninety_percent_of_non_null_values
         self.fit_gev_only_on_non_null_maxima = fit_gev_only_on_non_null_maxima
         self.select_only_acceptable_shape_parameter = select_only_acceptable_shape_parameter
@@ -76,6 +78,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         self.uncertainty_massif_names = uncertainty_massif_names
         # Assign some default arguments
         if self.model_subsets_for_uncertainty is None:
+            # We regroup the results either with all the models,
+            # or only the stationary gumbel model which correspond to the building standards
             self.model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel,
                                                   ModelSubsetForUncertainty.non_stationary_gumbel_and_gev][:]
         if self.uncertainty_methods is None:
@@ -155,6 +159,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     @cached_property
     def massif_name_to_trend_test_tuple(self) -> Tuple[
         Dict[str, AbstractGevTrendTest], Dict[str, AbstractGevTrendTest], Dict[str, AbstractGevTrendTest]]:
+        print('cached', self.altitude, id(self))
 
         massif_name_to_trend_test_that_minimized_aic = {}
         massif_name_to_stationary_trend_test_that_minimized_aic = {}
@@ -165,7 +170,13 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
             # Extract the stationary or non-stationary model that minimized AIC
             trend_test_that_minimized_aic = sorted_trend_test[0]
-            massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
+            if self.select_only_model_that_pass_anderson_test and \
+                    (not trend_test_that_minimized_aic.goodness_of_fit_anderson_test):
+                    print('not anderson')
+            else:
+                print('ok')
+                massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
+
             # Extract the stationary model that minimized AIC
             stationary_trend_tests_that_minimized_aic = [t for t in sorted_trend_test if type(t) in
                                                          [GumbelVersusGumbel, GevStationaryVersusGumbel]]

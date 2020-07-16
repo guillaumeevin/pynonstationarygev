@@ -30,7 +30,7 @@ def main_eurocode_norms(ax=None, poster_plot=False):
                 ax.set_yticks(list(range(0, 13, 2)))
                 ax.set_xlim([0, 2000])
                 ax.set_xticks(list(range(0, 2001, 500)))
-                prop = {'size': 25} if poster_plot else {}
+                prop = {'size': 20} if poster_plot else {}
                 ax.legend(prop=prop, loc='upper left')
 
                 ax.grid()
