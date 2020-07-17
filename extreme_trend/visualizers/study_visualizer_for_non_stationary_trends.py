@@ -144,59 +144,21 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             d = {m: v for m, v in d.items() if self.massif_name_to_psnow[m] >= 0.9}
         return d
 
-    @property
-    def massif_name_to_trend_test_that_minimized_aic(self) -> Dict[str, AbstractGevTrendTest]:
-        return self.massif_name_to_trend_test_tuple[0]
-
-    @property
-    def massif_name_to_stationary_trend_test_that_minimized_aic(self) -> Dict[str, AbstractGevTrendTest]:
-        return self.massif_name_to_trend_test_tuple[1]
-
-    @property
-    def massif_name_to_gumbel_trend_test_that_minimized_aic(self) -> Dict[str, AbstractGevTrendTest]:
-        return self.massif_name_to_trend_test_tuple[2]
-
     @cached_property
-    def massif_name_to_trend_test_tuple(self) -> Tuple[
-        Dict[str, AbstractGevTrendTest], Dict[str, AbstractGevTrendTest], Dict[str, AbstractGevTrendTest]]:
-        print('cached', self.altitude, id(self))
-
+    def massif_name_to_trend_test_that_minimized_aic(self) -> Dict[str, AbstractGevTrendTest]:
         massif_name_to_trend_test_that_minimized_aic = {}
-        massif_name_to_stationary_trend_test_that_minimized_aic = {}
-        massif_name_to_gumbel_trend_test_that_minimized_aic = {}
         for massif_name in self.massif_name_to_years_and_maxima_for_model_fitting.keys():
             # Compute sorted trend test
             sorted_trend_test = self.get_sorted_trend_test(massif_name)
-
             # Extract the stationary or non-stationary model that minimized AIC
             trend_test_that_minimized_aic = sorted_trend_test[0]
-            if self.select_only_model_that_pass_anderson_test and \
-                    (not trend_test_that_minimized_aic.goodness_of_fit_anderson_test):
-                    print('not anderson')
-            else:
-                print('ok')
+            if (not self.select_only_model_that_pass_anderson_test) or \
+                    trend_test_that_minimized_aic.goodness_of_fit_anderson_test:
                 massif_name_to_trend_test_that_minimized_aic[massif_name] = trend_test_that_minimized_aic
-
-            # Extract the stationary model that minimized AIC
-            stationary_trend_tests_that_minimized_aic = [t for t in sorted_trend_test if type(t) in
-                                                         [GumbelVersusGumbel, GevStationaryVersusGumbel]]
-            if len(stationary_trend_tests_that_minimized_aic) == 0:
-                stationary_trend_test_that_minimized_aic = None
             else:
-                stationary_trend_test_that_minimized_aic = stationary_trend_tests_that_minimized_aic[0]
-            massif_name_to_stationary_trend_test_that_minimized_aic[
-                massif_name] = stationary_trend_test_that_minimized_aic
-            # Extract the Gumbel model that minimized AIC
-            gumbel_trend_tests = [t for t in sorted_trend_test if
-                                  type(t) in [GumbelVersusGumbel, GumbelLocationTrendTest, GumbelScaleTrendTest,
-                                              GumbelLocationAndScaleTrendTest]]
-            if len(gumbel_trend_tests) > 0:
-                gumbel_trend_test_that_minimized_aic = gumbel_trend_tests[0]
-            else:
-                gumbel_trend_test_that_minimized_aic = None
-            massif_name_to_gumbel_trend_test_that_minimized_aic[massif_name] = gumbel_trend_test_that_minimized_aic
+                print('anderson test was not passed')
 
-        return massif_name_to_trend_test_that_minimized_aic, massif_name_to_stationary_trend_test_that_minimized_aic, massif_name_to_gumbel_trend_test_that_minimized_aic
+        return massif_name_to_trend_test_that_minimized_aic
 
     def get_sorted_trend_test(self, massif_name):
         x, y = self.massif_name_to_years_and_maxima_for_model_fitting[massif_name]
@@ -360,12 +322,6 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def massif_name_and_model_subset_to_model_class(self, massif_name, model_subset_for_uncertainty):
         if model_subset_for_uncertainty is ModelSubsetForUncertainty.stationary_gumbel:
             return GumbelTemporalModel
-        if model_subset_for_uncertainty is ModelSubsetForUncertainty.stationary_gev:
-            return StationaryTemporalModel
-        elif model_subset_for_uncertainty is ModelSubsetForUncertainty.stationary_gumbel_and_gev:
-            return self.massif_name_to_stationary_trend_test_that_minimized_aic[massif_name].unconstrained_model_class
-        elif model_subset_for_uncertainty is ModelSubsetForUncertainty.non_stationary_gumbel:
-            return self.massif_name_to_gumbel_trend_test_that_minimized_aic[massif_name].unconstrained_model_class
         elif model_subset_for_uncertainty is ModelSubsetForUncertainty.non_stationary_gumbel_and_gev:
             return self.massif_name_to_trend_test_that_minimized_aic[massif_name].unconstrained_model_class
         else:
@@ -378,6 +334,10 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         # Compute for the uncertainty massif names
         massifs_names = set(self.massif_name_to_years_and_maxima_for_model_fitting.keys()). \
             intersection(self.uncertainty_massif_names)
+        # Update the name of the massif (because some massifs might have been removed by anderson test)
+        if model_subset_for_uncertainty is ModelSubsetForUncertainty.non_stationary_gumbel_and_gev\
+                and self.select_only_model_that_pass_anderson_test:
+            massifs_names = massifs_names.intersection(set(self.massif_name_to_trend_test_that_minimized_aic.keys()))
         arguments = [
             [self.massif_name_to_years_and_maxima_for_model_fitting[m],
              self.massif_name_and_model_subset_to_model_class(m, model_subset_for_uncertainty),

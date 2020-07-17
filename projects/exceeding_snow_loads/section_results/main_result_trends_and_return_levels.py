@@ -74,8 +74,10 @@ def intermediate_result(altitudes, massif_names=None,
     plot_uncertainty_massifs(altitude_to_visualizer)
     plot_uncertainty_histogram(altitude_to_visualizer)
     plot_selection_curves(altitude_to_visualizer)
-    # uncertainty_interval_size(altitude_to_visualizer)
     plot_intensity_against_gumbel_quantile_for_3_examples(altitude_to_visualizer)
+
+    # Additional plots
+    # uncertainty_interval_size(altitude_to_visualizer)
     # plot_full_diagnostic(altitude_to_visualizer)
 
 
@@ -85,13 +87,9 @@ def major_result():
     # massif_names = ['Beaufortain', 'Vercors']
     massif_names = None
     study_classes = paper_study_classes[:1]
-    # model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel,
-    #                                  ModelSubsetForUncertainty.stationary_gumbel_and_gev,
-    #                                  ModelSubsetForUncertainty.non_stationary_gumbel,
-    #                                  ModelSubsetForUncertainty.non_stationary_gumbel_and_gev]
     model_subsets_for_uncertainty = None
     # study_classes = [CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][::-1]
-    altitudes = [300, 600]
+    # altitudes = [300, 600, 900, 1800, 2700][:2]
     altitudes = paper_altitudes
     # altitudes = [900, 1800, 2700][:1]
     for study_class in study_classes:

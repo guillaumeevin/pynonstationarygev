@@ -19,7 +19,7 @@ from extreme_trend.trend_test_two_parameters.gumbel_test_two_parameters import \
     GumbelLocationAndScaleTrendTest, GumbelLocationQuadraticTrendTest, GumbelScaleQuadraticTrendTest
 
 paper_altitudes = ALL_ALTITUDES_WITHOUT_NAN
-paper_study_classes = [CrocusSnowLoadTotal, CrocusSnowLoadEurocode, CrocusSnowLoad3Days][:2]
+paper_study_classes = [CrocusSnowLoadTotal, CrocusSnowLoadEurocode][:]
 # dpi_paper1_figure = 700
 dpi_paper1_figure = None
 NON_STATIONARY_TREND_TEST_PAPER_1 = [GumbelVersusGumbel,

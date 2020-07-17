@@ -372,11 +372,11 @@ class AbstractGevTrendTest(object):
         size = 15
         standard_gumbel_quantiles = self.get_standard_gumbel_quantiles()
         unconstrained_empirical_quantiles = self.compute_empirical_quantiles(self.unconstrained_estimator)
-        constrained_empirical_quantiles = self.compute_empirical_quantiles(self.constrained_estimator)
-        all_quantiles = standard_gumbel_quantiles + unconstrained_empirical_quantiles + constrained_empirical_quantiles
-        epsilon = 0.5
+        # constrained_empirical_quantiles = self.compute_empirical_quantiles(self.constrained_estimator)
+        all_quantiles = standard_gumbel_quantiles + unconstrained_empirical_quantiles
+        epsilon = 0.1
         ax_lim = [min(all_quantiles) - epsilon, max(all_quantiles) + epsilon]
-        ax.plot(standard_gumbel_quantiles, standard_gumbel_quantiles, color='k')
+
         # ax.plot(standard_gumbel_quantiles, constrained_empirical_quantiles, 'x',
         #         label='Stationary Gumbel model $\mathcal{M}_0$')
 
@@ -390,10 +390,12 @@ class AbstractGevTrendTest(object):
         ax.legend(loc='lower right', prop={'size': 10})
         ax.set_xlim(ax_lim)
         ax.set_ylim(ax_lim)
+
+        ax.plot(ax_lim, ax_lim, color='k')
         ticks = [i for i in range(ceil(ax_lim[0]), floor(ax_lim[1]) + 1)]
         ax.set_xticks(ticks)
         ax.set_yticks(ticks)
-        ax.grid()
+        # ax.grid()
         ax.tick_params(labelsize=size)
 
     def get_standard_gumbel_quantiles(self):
