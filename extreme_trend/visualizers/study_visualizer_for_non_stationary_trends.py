@@ -17,7 +17,7 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_extended_study impo
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
-from projects.exceeding_snow_loads.utils import NON_STATIONARY_TREND_TEST_PAPER_1
+from projects.exceeding_snow_loads.utils import NON_STATIONARY_TREND_TEST_PAPER_1, ALTITUDE_TO_GREY_MASSIF
 from extreme_trend.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
     GumbelLocationTrendTest, GevStationaryVersusGumbel, GumbelScaleTrendTest, GumbelVersusGumbel
@@ -82,6 +82,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             # or only the stationary gumbel model which correspond to the building standards
             self.model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel,
                                                   ModelSubsetForUncertainty.non_stationary_gumbel_and_gev][:]
+        assert isinstance(self.model_subsets_for_uncertainty, list)
         if self.uncertainty_methods is None:
             self.uncertainty_methods = [ConfidenceIntervalMethodFromExtremes.my_bayes,
                                         ConfidenceIntervalMethodFromExtremes.ci_mle][1:]
@@ -127,8 +128,19 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             return {m: EUROCODE_QUANTILE for m in self.massif_name_to_psnow.keys()}
 
     @property
-    def massif_names_fitted(self):
-        return list(self.massif_name_to_years_and_maxima_for_model_fitting.keys())
+    def intersection_of_massif_names_fitted(self) -> List[str]:
+        all_massif = set(self.study.all_massif_names())
+        missing_massifs_given = set(ALTITUDE_TO_GREY_MASSIF[self.altitude])
+        if ModelSubsetForUncertainty.non_stationary_gumbel_and_gev in self.model_subsets_for_uncertainty:
+            # Check the assertion for the missing massifs
+            # For the paper 1, I should enter in this loop only for the ground snow load
+            # (because i should not use this ModelSubsetForUncertainty for the Eurocode)
+            massifs_found = set(self.massif_name_to_trend_test_that_minimized_aic.keys())
+            missing_massifs_found = all_massif - massifs_found
+            assert missing_massifs_found == missing_massifs_given
+        # Return by default this result
+        intersection_massif_names = all_massif - missing_massifs_given
+        return list(intersection_massif_names)
 
     @cached_property
     def massif_name_to_years_and_maxima_for_model_fitting(self):
@@ -160,14 +172,20 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
         return massif_name_to_trend_test_that_minimized_aic
 
-    def get_sorted_trend_test(self, massif_name):
+
+
+    def get_trend_trend_test(self, massif_name, trend_test_classes):
         x, y = self.massif_name_to_years_and_maxima_for_model_fitting[massif_name]
-        starting_year = None
         quantile_level = self.massif_name_to_eurocode_quantile_level_in_practice[massif_name]
         all_trend_test = [
-            t(years=x, maxima=y, starting_year=starting_year, quantile_level=quantile_level,
+            t(years=x, maxima=y, starting_year=None, quantile_level=quantile_level,
               fit_method=self.fit_method)
-            for t in self.non_stationary_trend_test]  # type: List[AbstractGevTrendTest]
+            for t in trend_test_classes]  # type: List[AbstractGevTrendTest]
+        return all_trend_test
+
+    def get_sorted_trend_test(self, massif_name):
+        # Compute trend test
+        all_trend_test = self.get_trend_trend_test(massif_name, self.non_stationary_trend_test)
         # Exclude GEV models whose shape parameter is not in the support of the prior distribution for GMLE
         if self.select_only_acceptable_shape_parameter:
             acceptable_shape_parameter = lambda s: -0.5 <= s <= 0.5  # physically acceptable prior
@@ -332,12 +350,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                                                                               model_subset_for_uncertainty=ModelSubsetForUncertainty.non_stationary_gumbel_and_gev) \
             -> Dict[str, EurocodeConfidenceIntervalFromExtremes]:
         # Compute for the uncertainty massif names
-        massifs_names = set(self.massif_name_to_years_and_maxima_for_model_fitting.keys()). \
-            intersection(self.uncertainty_massif_names)
-        # Update the name of the massif (because some massifs might have been removed by anderson test)
-        if model_subset_for_uncertainty is ModelSubsetForUncertainty.non_stationary_gumbel_and_gev\
-                and self.select_only_model_that_pass_anderson_test:
-            massifs_names = massifs_names.intersection(set(self.massif_name_to_trend_test_that_minimized_aic.keys()))
+        massifs_names = self.intersection_of_massif_names_fitted
         arguments = [
             [self.massif_name_to_years_and_maxima_for_model_fitting[m],
              self.massif_name_and_model_subset_to_model_class(m, model_subset_for_uncertainty),
@@ -384,7 +397,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         triplet = [(massif_name_to_eurocode_region[massif_name],
                     self.massif_name_to_eurocode_values[massif_name],
                     self.triplet_to_eurocode_uncertainty[(ci_method, model_subset_for_uncertainty, massif_name)])
-                   for massif_name in self.massif_names_fitted]
+                   for massif_name in self.intersection_of_massif_names_fitted]
         # First array for histogram
         a = 100 * np.array([(uncertainty.confidence_interval[0] > eurocode,
                              uncertainty.mean_estimate > eurocode,
@@ -422,7 +435,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         trend_test.qqplot_wrt_standard_gumbel(massif_name, self.altitude)
         self.plot_name = 'qpplot_plot_{}_{}_{}'.format(self.altitude, massif_name,
                                                        trend_test.unconstrained_estimator_gev_params_last_year.shape)
-        self.show_or_save_to_file(add_classic_title=False, no_title=True)
+        self.show_or_save_to_file(add_classic_title=False, no_title=True, tight_layout=True)
         plt.close()
 
     def return_level_plot(self, ax, ax2, massif_name, color=None):

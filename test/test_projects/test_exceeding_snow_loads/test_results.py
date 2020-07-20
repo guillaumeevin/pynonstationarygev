@@ -14,7 +14,7 @@ class TestResults(unittest.TestCase):
 
     def test_run_intermediate_results(self):
         # Load data
-        altitude_to_visualizer = load_altitude_to_visualizer(altitudes=[300, 600], massif_names=['Chartreuse'],
+        altitude_to_visualizer = load_altitude_to_visualizer(altitudes=[300, 600], massif_names=None,
                                                              study_class=CrocusSnowLoadTotal,
                                                              model_subsets_for_uncertainty=None,
                                                              uncertainty_methods=[

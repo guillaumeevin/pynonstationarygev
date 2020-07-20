@@ -11,11 +11,11 @@ from projects.exceeding_snow_loads.section_results.plot_uncertainty_histogram im
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoadEurocode
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
 from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import \
-    StudyVisualizerForNonStationaryTrends
+    StudyVisualizerForNonStationaryTrends, ModelSubsetForUncertainty
 from extreme_trend.visualizers.utils import load_altitude_to_visualizer
 from projects.exceeding_snow_loads.section_results.plot_uncertainty_curves import plot_uncertainty_massifs
 from projects.exceeding_snow_loads.utils import paper_study_classes, paper_altitudes
@@ -87,12 +87,16 @@ def major_result():
     # massif_names = ['Beaufortain', 'Vercors']
     massif_names = None
     study_classes = paper_study_classes[:1]
-    model_subsets_for_uncertainty = None
     # study_classes = [CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][::-1]
-    # altitudes = [300, 600, 900, 1800, 2700][:2]
+    altitudes = [300, 600, 900, 1800, 2700][:2]
+    altitudes = [300, 600, 900, 1200, 1500, 1800]
     altitudes = paper_altitudes
-    # altitudes = [900, 1800, 2700][:1]
+    # altitudes = [900, 1800, 270{{0][:1]
     for study_class in study_classes:
+        if study_class == CrocusSnowLoadEurocode:
+            model_subsets_for_uncertainty = [ModelSubsetForUncertainty.stationary_gumbel]
+        else:
+            model_subsets_for_uncertainty = None
         intermediate_result(altitudes, massif_names, model_subsets_for_uncertainty,
                             uncertainty_methods, study_class,
                             multiprocessing=True)

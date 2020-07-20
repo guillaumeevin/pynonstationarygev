@@ -369,7 +369,6 @@ class AbstractGevTrendTest(object):
 
     def qqplot_wrt_standard_gumbel(self, massif_name, altitude):
         ax = plt.gca()
-        size = 15
         standard_gumbel_quantiles = self.get_standard_gumbel_quantiles()
         unconstrained_empirical_quantiles = self.compute_empirical_quantiles(self.unconstrained_estimator)
         # constrained_empirical_quantiles = self.compute_empirical_quantiles(self.constrained_estimator)
@@ -385,9 +384,11 @@ class AbstractGevTrendTest(object):
         ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
                 label=label_generic + '(selected model is ${}$)'.format(self.label), marker='o')
 
-        ax.set_xlabel("Standard Gumbel quantile", fontsize=size)
-        ax.set_ylabel("Standard Empirical quantile", fontsize=size)
-        ax.legend(loc='lower right', prop={'size': 10})
+        size_label = 20
+        ax.set_xlabel("Theoretical quantile", fontsize=size_label)
+        ax.set_ylabel("Empirical quantile", fontsize=size_label)
+        # size_legend = 14
+        # ax.legend(loc='lower right', prop={'size': size_legend})
         ax.set_xlim(ax_lim)
         ax.set_ylim(ax_lim)
 
@@ -396,7 +397,7 @@ class AbstractGevTrendTest(object):
         ax.set_xticks(ticks)
         ax.set_yticks(ticks)
         # ax.grid()
-        ax.tick_params(labelsize=size)
+        ax.tick_params(labelsize=15)
 
     def get_standard_gumbel_quantiles(self):
         # Standard Gumbel quantiles
@@ -413,12 +414,14 @@ class AbstractGevTrendTest(object):
 
     def compute_empirical_quantiles(self, estimator):
         empirical_quantiles = []
-        for year, maximum in sorted(zip(self.years, self.maxima), key=lambda t: t[1]):
+        # for year, maximum in sorted(zip(self.years, self.maxima), key=lambda t: t[1]):
+        for year, maximum in zip(self.years, self.maxima):
             gev_param = estimator.function_from_fit.get_params(
                 coordinate=np.array([year]),
                 is_transformed=False)
             maximum_standardized = gev_param.gumbel_standardization(maximum)
             empirical_quantiles.append(maximum_standardized)
+        empirical_quantiles = sorted(empirical_quantiles)
         return empirical_quantiles
 
     # For some visualizations

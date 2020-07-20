@@ -29,6 +29,15 @@ NON_STATIONARY_TREND_TEST_PAPER_1 = [GumbelVersusGumbel,
                                      GevLocationAgainstGumbel, GevScaleAgainstGumbel,
                                      GevLocationAndScaleTrendTestAgainstGumbel]
 
+ALTITUDE_TO_GREY_MASSIF = {
+    300: ['Devoluy', 'Queyras', 'Champsaur', 'Grandes-Rousses', 'Ubaye', 'Pelvoux', 'Haute-Maurienne', 'Maurienne', 'Vanoise', 'Thabor', 'Mercantour', 'Haut_Var-Haut_Verdon', 'Haute-Tarentaise', 'Parpaillon', 'Belledonne', 'Oisans'],
+    600: ['Queyras', 'Pelvoux', 'Haute-Maurienne', 'Mercantour', 'Haut_Var-Haut_Verdon', 'Thabor'],
+    900: [],
+    1200: [],
+    1500: [],
+    1800: [],
+}
+
 NON_STATIONARY_TREND_TEST_PAPER_2 = [
     # Gumbel models
     GumbelVersusGumbel,
