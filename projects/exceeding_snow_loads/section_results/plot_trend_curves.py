@@ -22,6 +22,8 @@ def plot_trend_map(altitude_to_visualizer):
             # Plot 2700 also with a colorbar
             if altitude == 2700:
                 visualizer.plot_trends(max_abs_tdrl_above_900, add_colorbar=True)
+            if altitude == 1800:
+                visualizer.plot_trends(max_abs_tdrl_above_900, add_colorbar=False)
         else:
             max_abs_tdrl_below_900 = max(altitude_to_visualizer[300].max_abs_change,
                                          altitude_to_visualizer[600].max_abs_change)

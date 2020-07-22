@@ -30,11 +30,11 @@ def plot_uncertainty_massifs(altitude_to_visualizer: Dict[int, StudyVisualizerFo
     visualizer = list(altitude_to_visualizer.values())[-1]
     # Subdivide massif names in group of 3
     m = 1
-    uncertainty_massif_names = visualizer.uncertainty_massif_names
-    n = (len(uncertainty_massif_names) // m)
+    massif_names_fitted = visualizer.intersection_of_massif_names_fitted
+    n = (len(massif_names_fitted) // m)
     print('total nb of massif', n)
     for i in list(range(n))[:]:
-        massif_names = uncertainty_massif_names[m * i: m * (i + 1)]
+        massif_names = massif_names_fitted[m * i: m * (i + 1)]
         print(massif_names)
         plot_subgroup_uncertainty_massifs(altitude_to_visualizer, massif_names)
 

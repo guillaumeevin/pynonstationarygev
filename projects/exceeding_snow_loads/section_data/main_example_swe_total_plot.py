@@ -19,7 +19,7 @@ def tuples_for_examples_paper1(examples_for_the_paper=True):
     else:
         marker_altitude_massif_name_for_paper1 = [
             ('magenta', 600, 'Parpaillon'),
-            ('darkmagenta', 300, 'Devoluy'),
+            # ('darkmagenta', 300, 'Devoluy'),
             ('mediumpurple', 300, 'Aravis'),
         ]
     return marker_altitude_massif_name_for_paper1
@@ -34,7 +34,7 @@ def max_graph_annual_maxima_poster():
     save_to_file = True
     study_class = CrocusSnowLoadTotal
 
-    examples_for_the_paper = True
+    examples_for_the_paper = False
 
     ax = plt.gca()
     if examples_for_the_paper:

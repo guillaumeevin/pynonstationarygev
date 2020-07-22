@@ -172,8 +172,6 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
 
         return massif_name_to_trend_test_that_minimized_aic
 
-
-
     def get_trend_trend_test(self, massif_name, trend_test_classes):
         x, y = self.massif_name_to_years_and_maxima_for_model_fitting[massif_name]
         quantile_level = self.massif_name_to_eurocode_quantile_level_in_practice[massif_name]
@@ -226,7 +224,7 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
         ax.get_xaxis().set_visible(True)
         ax.set_xticks([])
         ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=15)
-        middle_word = 'o' if (not add_colorbar and self.study.altitude == 2700) else ''
+        middle_word = 'o' if (not add_colorbar and self.study.altitude in [1800, 2700]) else ''
         self.plot_name = 'tdlr_trends_w' + middle_word + '_colorbar'
         self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True,
                                   dpi=500)
