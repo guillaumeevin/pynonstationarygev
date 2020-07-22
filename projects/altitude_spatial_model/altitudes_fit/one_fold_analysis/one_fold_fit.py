@@ -4,6 +4,7 @@ import rpy2
 from cached_property import cached_property
 from scipy.stats import chi2
 
+from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
 from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoef, PolynomialCoef
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
@@ -11,13 +12,14 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_m
     StationaryGumbelAltitudinal, AbstractGumbelAltitudinalModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from root_utils import classproperty
+from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
 class OneFoldFit(object):
     SIGNIFICANCE_LEVEL = 0.05
     best_estimator_minimizes_total_aic = False
 
-    def __init__(self, massif_name, dataset, models_classes, fit_method=MarginFitMethod.extremes_fevd_mle):
+    def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes, fit_method=MarginFitMethod.extremes_fevd_mle):
         self.massif_name = massif_name
         self.dataset = dataset
         self.models_classes = models_classes
@@ -88,20 +90,7 @@ class OneFoldFit(object):
     @cached_property
     def sorted_estimators(self):
         estimators = list(self.model_class_to_estimator.values())
-        # estimators_with_finite_aic = []
-        # for estimator in estimators:
-        #     # try:
-        #     aic = estimator.aic()
-        #     npt.assert_almost_equal(estimator.result_from_model_fit.aic, aic, decimal=5)
-        #     print(self.massif_name, estimator.margin_model.name_str, aic)
-        #     estimators_with_finite_aic.append(estimator)
-        #     # except (AssertionError, rpy2.rinterface.RRuntimeError) as e:
-        #     #     raise e
-        #         # print(self.massif_name, estimator.margin_model.name_str, 'infinite aic')
-        #         # print(e)
-        # print('Summary {}: {}/{} fitted'.format(self.massif_name, len(estimators_with_finite_aic), len(estimators)))
-        sorted_estimators = sorted([estimator for estimator in estimators],
-                                   key=lambda e: e.aic())
+        sorted_estimators = sorted([estimator for estimator in estimators], key=lambda e: e.aic())
         return sorted_estimators
 
     @property
@@ -168,3 +157,25 @@ class OneFoldFit(object):
             return False
         else:
             return self.likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=self.degree_freedom_chi2)
+
+    @property
+    def goodness_of_fit_anderson_test(self):
+        quantiles = self.compute_empirical_quantiles(estimator=self.best_estimator)
+        goodness_of_fit_anderson_test = goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
+        if not goodness_of_fit_anderson_test:
+            print('{} with {} does not pass the anderson test'.format(self.massif_name, self.folder_for_plots))
+        return goodness_of_fit_anderson_test
+
+    def compute_empirical_quantiles(self, estimator):
+        empirical_quantiles = []
+        df_maxima_gev = self.dataset.observations.df_maxima_gev
+        df_coordinates = self.dataset.coordinates.df_coordinates()
+        for coordinate, maximum in zip(df_coordinates.values.copy(), df_maxima_gev.values.copy()):
+            gev_param = estimator.function_from_fit.get_params(
+                coordinate=coordinate,
+                is_transformed=False)
+            assert len(maximum) == 1
+            maximum_standardized = gev_param.gumbel_standardization(maximum[0])
+            empirical_quantiles.append(maximum_standardized)
+        empirical_quantiles = sorted(empirical_quantiles)
+        return empirical_quantiles

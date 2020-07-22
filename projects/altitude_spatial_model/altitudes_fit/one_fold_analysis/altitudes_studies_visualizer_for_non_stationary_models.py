@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 import matplotlib.pyplot as plt
 
 import numpy as np
@@ -25,17 +25,26 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                  model_classes: List[AbstractSpatioTemporalPolynomialModel],
                  show=False,
                  massif_names=None,
-                 fit_method=MarginFitMethod.extremes_fevd_mle):
+                 fit_method=MarginFitMethod.extremes_fevd_mle,
+                 display_only_model_that_pass_anderson_test=True):
         super().__init__(studies.study, show=show, save_to_file=not show)
-        self.massif_names = massif_names if massif_names is not None else self.study.study_massif_names
         self.studies = studies
         self.non_stationary_models = model_classes
         self.fit_method = fit_method
-        self.massif_name_to_one_fold_fit = {}
+        self.display_only_model_that_pass_anderson_test = display_only_model_that_pass_anderson_test
+        self.massif_names = massif_names if massif_names is not None else self.study.study_massif_names
+        self.massif_name_to_massif_id = {m: i for i, m in enumerate(self.massif_names)}
+        # Load one fold fit
+        self._massif_name_to_one_fold_fit = {}
         for massif_name in self.massif_names:
             dataset = studies.spatio_temporal_dataset(massif_name=massif_name)
             old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method)
-            self.massif_name_to_one_fold_fit[massif_name] = old_fold_fit
+            self._massif_name_to_one_fold_fit[massif_name] = old_fold_fit
+
+    @property
+    def massif_name_to_one_fold_fit(self) -> Dict[str, OneFoldFit]:
+        return {massif_name: old_fold_fit for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
+                if not self.display_only_model_that_pass_anderson_test or old_fold_fit.goodness_of_fit_anderson_test}
 
     def plot_moments(self):
         for method_name in ['moment', 'changes_in_the_moment', 'relative_changes_in_the_moment']:
@@ -46,12 +55,12 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         ax = plt.gca()
         min_altitude, *_, max_altitude = self.studies.altitudes
         altitudes_plot = np.linspace(min_altitude, max_altitude, num=50)
-        for massif_id, massif_name in enumerate(self.massif_names):
+        for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
             massif_altitudes = self.studies.massif_name_to_altitudes[massif_name]
             ind = (min(massif_altitudes) <= altitudes_plot) & (altitudes_plot <= max(massif_altitudes))
             massif_altitudes_plot = altitudes_plot[ind]
-            one_fold_fit = self.massif_name_to_one_fold_fit[massif_name]
             values = one_fold_fit.__getattribute__(method_name)(massif_altitudes_plot, order=order)
+            massif_id = self.massif_name_to_massif_id[massif_name]
             plot_against_altitude(massif_altitudes_plot, ax, massif_id, massif_name, values)
         # Plot settings
         ax.legend(prop={'size': 7}, ncol=3)
@@ -128,3 +137,6 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                                 label='Shape plot for {} {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)],
                                                                     self.study.variable_unit),
                                 add_x_label=False, graduation=0.1, massif_name_to_text=self.massif_name_to_name)
+
+    def plot_altitude_change_of_sign(self):
+        pass

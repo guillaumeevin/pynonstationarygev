@@ -77,6 +77,7 @@ gnfit_fixed <- function (dat, dist, df = NULL, pr = NULL, threshold = NULL)
         pval <- exp(1.111 - 34.242 * w + 12.832 * w^2)
     }
     else {
+        pval <- 0 # I added that to avoid the code to crash
         warning("p-value is smaller than 7.37e-10")
     }
     z$Wpval <- pval
@@ -96,6 +97,7 @@ gnfit_fixed <- function (dat, dist, df = NULL, pr = NULL, threshold = NULL)
         pval <- exp(1.2937 - 5.709 * A + 0.0186 * A^2)
     }
     else {
+        pval <- 0 # I added that to avoid the code to crash
         warning("p-value is smaller than 7.37e-10")
     }
     z$Apval <- pval

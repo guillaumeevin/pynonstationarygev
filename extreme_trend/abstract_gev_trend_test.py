@@ -11,7 +11,7 @@ from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE, YEAR_OF_INTEREST
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import \
-    cramer_von_mises_and_anderson_darling_tests_pvalues_for_gumbel_distribution
+    cramer_von_mises_and_anderson_darling_tests_pvalues_for_gumbel_distribution, goodness_of_fit_anderson
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     StationaryTemporalModel, GumbelTemporalModel
@@ -70,18 +70,8 @@ class AbstractGevTrendTest(object):
 
     @property
     def goodness_of_fit_anderson_test(self):
-        # significance_level_to_index = dict(zip([0.25, 0.1, 0.05, 0.025, 0.01], list(range(5))))
-        # print(significance_level_to_index)
-        # assert self.SIGNIFICANCE_LEVEL in significance_level_to_index
-        # # significance_level=array([25. , 10. ,  5. ,  2.5,  1. ]))
-        # index_for_significance_level_5_percent = 2
         quantiles = self.compute_empirical_quantiles(estimator=self.unconstrained_estimator)
-        # test_res = anderson(quantiles, dist='gumbel_r')  # type: AndersonResult
-        # return test_res.statistic < test_res.critical_values[index_for_significance_level_5_percent]
-        # print(quantiles)
-        test = cramer_von_mises_and_anderson_darling_tests_pvalues_for_gumbel_distribution(quantiles)
-        _, ander_darling_test_pvalue = test
-        return ander_darling_test_pvalue > self.SIGNIFICANCE_LEVEL
+        return goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
 
     @property
     def name(self):
