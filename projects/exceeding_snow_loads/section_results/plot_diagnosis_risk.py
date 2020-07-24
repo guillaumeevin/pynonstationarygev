@@ -23,7 +23,7 @@ def plot_diagnosis_risk(altitude_to_visualizer):
 
 
 def plot_mean_exceedance(visualizers, altitudes, ax, model_subset_for_uncertainty, ci_method):
-    l = [v.excess_metrics(ci_method, model_subset_for_uncertainty)[3:] for v in visualizers]
+    l = [v.excess_metrics(ci_method, model_subset_for_uncertainty)[1] for v in visualizers]
     diff, diff_c, diff_e = zip(*l)
     ax.plot(altitudes, diff, marker='o', color='red', label='diff')
     ax.plot(altitudes, diff_c, marker='o', color='yellow', label='diff c')

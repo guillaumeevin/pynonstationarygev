@@ -122,10 +122,10 @@ def plot_single_uncertainty_massif_and_non_stationary_context(ax, massif_name, m
     ax.set_xlim([200, 1900])
     if massif_name in ['Maurienne', 'Chartreuse', 'Beaufortain']:
         ax.set_ylim([-1.5, 13.5])
-        ax.set_yticks([2 * i for i in range(7)])
+        ax.set_yticks([-1] + [2 * i for i in range(7)])
     if massif_name in ['Vercors']:
-        ax.set_ylim([-1, 10])
-        ax.set_yticks([2 * i for i in range(6)])
+        ax.set_ylim([-1.5, 10.5])
+        ax.set_yticks([-1] + [2 * i for i in range(6)])
 
 
 

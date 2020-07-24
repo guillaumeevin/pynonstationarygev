@@ -413,9 +413,15 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                 b[2].append(diff)
 
         b = [np.mean(np.array(e)) for e in b]
-        # Return the concatenated results
-        concatenated_result = list(a) + list(b)
-        return concatenated_result
+        # Third array for curve of percentage of exceedance for return levels
+        c = [[] , [],  []]
+        for _, eurocode, uncertainty in triplet:
+            metrics = [uncertainty.confidence_interval[0], uncertainty.mean_estimate, uncertainty.confidence_interval[1]]
+            for j, metric in enumerate(metrics):
+                relative_difference = 100 * (metric - eurocode) / eurocode
+                c[j].append(relative_difference)
+        c = np.array([np.mean(np.array(e)) if len(e) > 0 else 0 for e in c])
+        return a, b, c
 
     # Part 3 - QQPLOT
 
