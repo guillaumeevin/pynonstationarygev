@@ -36,7 +36,9 @@ class AbstractAltitudinalModel(AbstractSpatioTemporalPolynomialModel):
         name += self.dim_to_str_number(GevParams.LOC, self.coordinates.idx_temporal_coordinates)
         name += self.dim_to_str_number(GevParams.SCALE, self.coordinates.idx_temporal_coordinates)
         if isinstance(self, AbstractAddCrossTermForLocation):
-            name += 'x'
+            name += 'l'
+        if isinstance(self, AbstractAddCrossTermForScale):
+            name += 's'
         return name
 
 
@@ -111,6 +113,19 @@ class AbstractAddCrossTermForLocation(AbstractAltitudinalModel):
         assert self.coordinates.idx_x_coordinates == d[GevParams.LOC][0][0]
         d[GevParams.LOC].insert(1, ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1))
         return d
+
+class AbstractAddCrossTermForScale(AbstractAltitudinalModel):
+
+    @property
+    def param_name_to_list_dim_and_degree_for_margin_function(self):
+        d = self.param_name_to_list_dim_and_degree
+        # The two insert below enable to check that the insert_index should indeed be 1
+        assert 1 <= len(d[GevParams.SCALE]) <= 2
+        assert self.coordinates.idx_x_coordinates == d[GevParams.SCALE][0][0]
+        insert_index = 1
+        d[GevParams.SCALE].insert(insert_index, ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1))
+        return d
+
 
 
 class NonStationaryCrossTermForLocation(AbstractAddCrossTermForLocation, StationaryAltitudinal):

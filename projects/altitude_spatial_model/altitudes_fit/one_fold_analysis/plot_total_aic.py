@@ -10,11 +10,16 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fi
 from projects.exceeding_snow_loads.utils import dpi_paper1_figure
 
 
+def plots(visualizer):
+    visualizer.plot_moments()
+    visualizer.plot_best_coef_maps()
+    visualizer.plot_shape_map()
+    visualizer.plot_year_for_the_peak()
+
+
 def plot_individual_aic(visualizer):
     OneFoldFit.best_estimator_minimizes_total_aic = False
-    visualizer.plot_moments()
-    # visualizer.plot_best_coef_maps()
-    visualizer.plot_shape_map()
+    plots(visualizer)
 
 
 def plot_total_aic(model_classes, visualizer):
@@ -45,9 +50,7 @@ def plot_total_aic(model_classes, visualizer):
     # Plot the ranking of the model based on their total aic
     plot_total_aic_repartition(visualizer, sorted_labels, sorted_scores)
     # Plot the results for the model that minimizes the mean aic
-    visualizer.plot_moments()
-    visualizer.plot_shape_map()
-    visualizer.plot_best_coef_maps()
+    plots(visualizer)
 
 
 def plot_total_aic_repartition(visualizer, labels, scores):

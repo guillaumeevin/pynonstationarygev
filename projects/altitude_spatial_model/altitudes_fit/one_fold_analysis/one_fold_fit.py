@@ -163,7 +163,9 @@ class OneFoldFit(object):
         quantiles = self.compute_empirical_quantiles(estimator=self.best_estimator)
         goodness_of_fit_anderson_test = goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
         if not goodness_of_fit_anderson_test:
-            print('{} with {} does not pass the anderson test'.format(self.massif_name, self.folder_for_plots))
+            print('{} with {} does not pass the anderson test for model {}'.format(self.massif_name,
+                                                                                   self.folder_for_plots,
+                                                                                   type(self.best_margin_model)))
         return goodness_of_fit_anderson_test
 
     def compute_empirical_quantiles(self, estimator):

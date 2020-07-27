@@ -26,7 +26,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                  show=False,
                  massif_names=None,
                  fit_method=MarginFitMethod.extremes_fevd_mle,
-                 display_only_model_that_pass_anderson_test=True):
+                 display_only_model_that_pass_anderson_test=False):
         super().__init__(studies.study, show=show, save_to_file=not show)
         self.studies = studies
         self.non_stationary_models = model_classes
@@ -127,8 +127,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self.plot_abstract_fast(massif_name_to_best_coef,
                                 label='{}/Coef/{} plot for {} {}'.format(OneFoldFit.folder_for_plots,
                                                                          coef_name,
-                                                                 SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)],
-                                                                 self.study.variable_unit),
+                                                                         SCM_STUDY_CLASS_TO_ABBREVIATION[
+                                                                             type(self.study)],
+                                                                         self.study.variable_unit),
                                 add_x_label=False, graduation=graduation, massif_name_to_text=self.massif_name_to_name,
                                 negative_and_positive_values=negative_and_positive_values)
 
@@ -138,5 +139,30 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                                                                     self.study.variable_unit),
                                 add_x_label=False, graduation=0.1, massif_name_to_text=self.massif_name_to_name)
 
-    def plot_altitude_change_of_sign(self):
+    def plot_altitude_for_the_peak(self):
         pass
+
+    def plot_year_for_the_peak(self):
+        t_list = 1900 + np.arange(200)
+        for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
+            ax = plt.gca()
+            # One plot for each altitude
+            print(one_fold_fit.dataset.df_dataset.head())
+            altitudes = self.studies.altitudes
+            print(altitudes)
+            for altitude in altitudes:
+
+                mean_list = []
+                for t in t_list:
+                    coordinate = np.array([altitude, t])
+                    gev_params = one_fold_fit.best_function_from_fit.get_params(coordinate, is_transformed=False)
+                    mean_list.append(gev_params.mean)
+                label = '{} m'.format(altitude)
+                ax.plot(t_list, mean_list, label=label)
+            ax.legend()
+            ax.set_xlabel('Year')
+            ax.set_xlabel('Mean annual maxima of ')
+            self.plot_name = 'Peak year for {}'.format(massif_name)
+            self.show_or_save_to_file(no_title=True)
+            plt.close()
+
