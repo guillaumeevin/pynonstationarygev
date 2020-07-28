@@ -51,20 +51,20 @@ ALTITUDINAL_GEV_MODELS = [
                              NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation,
 
                              # Quadratic in the scale
-                             NonStationaryAltitudinalScaleQuadratic,
-                             NonStationaryAltitudinalLocationLinearScaleQuadratic,
-                             NonStationaryAltitudinalLocationQuadraticScaleQuadratic,
-                             NonStationaryAltitudinalScaleQuadraticCrossTermForLocation,
-                             NonStationaryAltitudinalLocationLinearScaleQuadraticCrossTermForLocation,
-                             NonStationaryAltitudinalLocationQuadraticScaleQuadraticCrossTermForLocation,
-
-                             # Cross term for the scale
-                             NonStationaryAltitudinalScaleLinearCrossTermForScale,
-                             NonStationaryAltitudinalLocationLinearScaleLinearCrossTermForScale,
-                             NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForScale,
-                             NonStationaryAltitudinalScaleQuadraticCrossTermForScale,
-                             NonStationaryAltitudinalLocationLinearScaleQuadraticCrossTermForScale,
-                             NonStationaryAltitudinalLocationQuadraticScaleQuadraticCrossTermForScale,
+                             # NonStationaryAltitudinalScaleQuadratic,
+                             # NonStationaryAltitudinalLocationLinearScaleQuadratic,
+                             # NonStationaryAltitudinalLocationQuadraticScaleQuadratic,
+                             # NonStationaryAltitudinalScaleQuadraticCrossTermForLocation,
+                             # NonStationaryAltitudinalLocationLinearScaleQuadraticCrossTermForLocation,
+                             # NonStationaryAltitudinalLocationQuadraticScaleQuadraticCrossTermForLocation,
+                             #
+                             # # Cross term for the scale
+                             # NonStationaryAltitudinalScaleLinearCrossTermForScale,
+                             # NonStationaryAltitudinalLocationLinearScaleLinearCrossTermForScale,
+                             # NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForScale,
+                             # NonStationaryAltitudinalScaleQuadraticCrossTermForScale,
+                             # NonStationaryAltitudinalLocationLinearScaleQuadraticCrossTermForScale,
+                             # NonStationaryAltitudinalLocationQuadraticScaleQuadraticCrossTermForScale,
 
                          ][:]
 

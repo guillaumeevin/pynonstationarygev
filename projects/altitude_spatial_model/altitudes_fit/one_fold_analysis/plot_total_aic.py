@@ -11,10 +11,10 @@ from projects.exceeding_snow_loads.utils import dpi_paper1_figure
 
 
 def plots(visualizer):
-    visualizer.plot_moments()
-    visualizer.plot_best_coef_maps()
     visualizer.plot_shape_map()
     visualizer.plot_year_for_the_peak()
+    visualizer.plot_moments()
+    visualizer.plot_best_coef_maps()
 
 
 def plot_individual_aic(visualizer):

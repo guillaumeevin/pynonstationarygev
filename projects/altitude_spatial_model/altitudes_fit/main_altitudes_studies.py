@@ -34,14 +34,15 @@ def plot_moments(studies, massif_names=None):
 
 def plot_altitudinal_fit(studies, massif_names=None):
     model_classes = ALTITUDINAL_GEV_MODELS
+    # model_classes = ALTITUDINAL_GEV_MODELS_QUADRATIC
     visualizer = AltitudesStudiesVisualizerForNonStationaryModels(studies=studies,
                                                                   model_classes=model_classes,
                                                                   massif_names=massif_names,
                                                                   show=False)
     # Plot the results for the model that minimizes the individual aic
-    # plot_individual_aic(visualizer)
+    plot_individual_aic(visualizer)
     # Plot the results for the model that minimizes the total aic
-    plot_total_aic(model_classes, visualizer)
+    # plot_total_aic(model_classes, visualizer)
 
 
 def main():

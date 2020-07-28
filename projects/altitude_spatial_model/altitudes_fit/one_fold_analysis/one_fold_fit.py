@@ -34,6 +34,8 @@ class OneFoldFit(object):
 
         # Best estimator definition
         self.best_estimator_class_for_total_aic = None
+        # Cached object
+        self._folder_to_goodness = {}
 
     @classproperty
     def folder_for_plots(cls):
@@ -160,13 +162,17 @@ class OneFoldFit(object):
 
     @property
     def goodness_of_fit_anderson_test(self):
-        quantiles = self.compute_empirical_quantiles(estimator=self.best_estimator)
-        goodness_of_fit_anderson_test = goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
-        if not goodness_of_fit_anderson_test:
-            print('{} with {} does not pass the anderson test for model {}'.format(self.massif_name,
-                                                                                   self.folder_for_plots,
-                                                                                   type(self.best_margin_model)))
-        return goodness_of_fit_anderson_test
+        if self.folder_for_plots in self._folder_to_goodness:
+            return self._folder_to_goodness[self.folder_for_plots]
+        else:
+            quantiles = self.compute_empirical_quantiles(estimator=self.best_estimator)
+            goodness_of_fit_anderson_test = goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
+            if not goodness_of_fit_anderson_test:
+                print('{} with {} does not pass the anderson test for model {}'.format(self.massif_name,
+                                                                                       self.folder_for_plots,
+                                                                                       type(self.best_margin_model)))
+            self._folder_to_goodness[self.folder_for_plots] = goodness_of_fit_anderson_test
+            return goodness_of_fit_anderson_test
 
     def compute_empirical_quantiles(self, estimator):
         empirical_quantiles = []
