@@ -40,6 +40,10 @@ class PolynomialMarginModel(AbstractTemporalLinearMarginModel):
                 assert dims.index(self.coordinates.idx_x_coordinates) == 0
             if self.coordinates.has_temporal_coordinates and self.coordinates.idx_temporal_coordinates in dims:
                 assert dims.index(self.coordinates.idx_temporal_coordinates) == len(dims) - 1
+        # Assert that the degree are inferior to the max degree
+        for list_dim_and_degree in param_name_to_list_dim_and_degree.values():
+            for _, max_degree in list_dim_and_degree:
+                assert max_degree <= self.max_degree, 'Max degree (={}) specified is too high'.format(max_degree)
         # Load param_name_to_polynomial_all_coef
         param_name_to_polynomial_all_coef = self.param_name_to_polynomial_all_coef(
             param_name_to_list_dim_and_degree=param_name_to_list_dim_and_degree,

@@ -5,7 +5,8 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_mode
     NonStationaryAltitudinalLocationQuadraticCrossTermForLocation, \
     NonStationaryAltitudinalLocationLinearScaleLinearCrossTermForLocation, \
     NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation, NonStationaryAltitudinalScaleLinear, \
-    NonStationaryAltitudinalScaleLinearCrossTermForLocation
+    NonStationaryAltitudinalScaleLinearCrossTermForLocation, NonStationaryAltitudinalLocationCubicCrossTermForLocation, \
+    NonStationaryAltitudinalLocationCubic
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models_cross_term_in_scale import \
     NonStationaryAltitudinalLocationLinearScaleQuadraticCrossTermForScale, \
     NonStationaryAltitudinalLocationQuadraticScaleQuadraticCrossTermForScale, \
@@ -33,6 +34,20 @@ from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_poly
     NonStationaryLocationSpatioTemporalLinearityModel5, NonStationaryLocationSpatioTemporalLinearityModelAssertError1, \
     NonStationaryLocationSpatioTemporalLinearityModelAssertError2, \
     NonStationaryLocationSpatioTemporalLinearityModelAssertError3, NonStationaryLocationSpatioTemporalLinearityModel6
+
+
+ALTITUDINAL_GEV_MODELS_LOCATION = [
+    StationaryAltitudinal,
+    NonStationaryAltitudinalLocationLinear,
+    NonStationaryAltitudinalLocationQuadratic,
+    NonStationaryAltitudinalLocationCubic,
+    # First order cross term
+    NonStationaryCrossTermForLocation,
+    NonStationaryAltitudinalLocationLinearCrossTermForLocation,
+    NonStationaryAltitudinalLocationQuadraticCrossTermForLocation,
+    NonStationaryAltitudinalLocationCubicCrossTermForLocation
+
+]
 
 
 ALTITUDINAL_GEV_MODELS = [

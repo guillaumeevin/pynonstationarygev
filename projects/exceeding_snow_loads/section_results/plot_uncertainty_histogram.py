@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -39,6 +39,7 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
     fontsize_label = 15
     legend_size = 15
     # Plot histogram
+    ylim = (0, 110)
     for j, ci_method in enumerate(visualizer.uncertainty_methods):
         if len(visualizer.uncertainty_methods) == 2:
             offset = -50 if j == 0 else 50
@@ -51,7 +52,7 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
         plot_histogram_ci_method(visualizers, model_subset_for_uncertainty, ci_method, ax, bincenters, width, legend_size)
 
         # Plot percentages of return level excess on the right axis
-        plot_percentage_of_excess(visualizers, model_subset_for_uncertainty, ci_method, ax.twinx(), fontsize_label, legend_size)
+        ylim = plot_percentage_of_excess(visualizers, model_subset_for_uncertainty, ci_method, ax.twinx(), fontsize_label, legend_size)
 
 
     ax.set_xticks(altitudes)
@@ -63,7 +64,7 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
     #               'exceeds French standards (\%)', fontsize=fontsize_label)
     ax.set_ylabel('Massifs exceeding French standards (\%)', fontsize=fontsize_label)
     ax.set_xlabel('Altitude (m)', fontsize=fontsize_label)
-    ax.set_ylim([0, 110])
+    ax.set_ylim(ylim)
     ax.yaxis.grid()
 
     ax_twiny = ax.twiny()
@@ -76,7 +77,8 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
     ax_twiny.set_xticklabels(nb_massif_names)
     ax_twiny.set_xlabel('Number of massifs at each altitude (for the percentage and the mean)', fontsize=fontsize_label)
 
-    ax.set_yticks([20 * i for i in range(6)])
+    nb_ticks =  1 + (ylim[1] - ylim[0]) // 20
+    ax.set_yticks([100 - 20 * i for i in range(nb_ticks)][::-1])
     visualizer.plot_name = 'Percentages of exceedance with {}'.format(
         get_display_name_from_object_type(model_subset_for_uncertainty))
     visualizer.show_or_save_to_file(no_title=True, dpi=dpi_paper1_figure, tight_layout=True)
@@ -109,7 +111,7 @@ def plot_histogram_ci_method(visualizers, model_subset_for_uncertainty, ci_metho
     ax.legend(loc='upper left', prop={'size': legend_size})
 
 
-def plot_percentage_of_excess(visualizers, model_subset_for_uncertainty, ci_method, ax, fontsize_label, legend_size=10):
+def plot_percentage_of_excess(visualizers, model_subset_for_uncertainty, ci_method, ax, fontsize_label, legend_size=10) -> Tuple[int, int]:
     l = [v.excess_metrics(ci_method, model_subset_for_uncertainty)[2] for v in visualizers]
     lower_bound, mean, upper_bound = list(zip(*l))
     other_mean = [e[1] for e in l]
@@ -121,7 +123,6 @@ def plot_percentage_of_excess(visualizers, model_subset_for_uncertainty, ci_meth
                       '50-year return levels and French standards (\%)'
 
     label_name = 'Mean relative difference'
-    print('mean relative difference', mean)
     ax.plot(altitudes, mean, linestyle='--', marker='o', color=color,
             label=label_name)
 
@@ -132,7 +133,10 @@ def plot_percentage_of_excess(visualizers, model_subset_for_uncertainty, ci_meth
     ax.tick_params(labelsize=fontsize_label)
     ax.legend(loc='upper right', prop={'size': legend_size})
     ax.set_ylabel(full_label_name, fontsize=fontsize_label)
-    ax.set_ylim([0, 110])
+
+    ylim = (-85, 110)
+    ax.set_ylim(ylim)
+    return ylim
 
 
 def get_label_confidence_interval(label_name):

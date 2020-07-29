@@ -32,7 +32,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self.non_stationary_models = model_classes
         self.fit_method = fit_method
         self.display_only_model_that_pass_anderson_test = display_only_model_that_pass_anderson_test
-        self.massif_names = massif_names if massif_names is not None else self.study.study_massif_names
+        self.massif_names = massif_names if massif_names is not None else self.study.all_massif_names()
         self.massif_name_to_massif_id = {m: i for i, m in enumerate(self.massif_names)}
         # Load one fold fit
         self._massif_name_to_one_fold_fit = {}
@@ -143,7 +143,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         pass
 
     def plot_year_for_the_peak(self):
-        t_list = 1900 + np.arange(200)
+        t_list = 1800 + np.arange(400)
         for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
             ax = plt.gca()
             # One plot for each altitude
@@ -162,7 +162,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             ax.legend()
             ax.set_xlabel('Year')
             ax.set_xlabel('Mean annual maxima of ')
-            self.plot_name = 'Peak year for {}'.format(massif_name)
-            self.show_or_save_to_file(no_title=True)
+            plot_name = '{}/{}/Peak year for {}'.format(OneFoldFit.folder_for_plots, 'Peak year', massif_name.replace('_', ''))
+            self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
             plt.close()
 

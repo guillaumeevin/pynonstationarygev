@@ -116,7 +116,8 @@ class OneFoldFit(object):
 
     @property
     def best_shape(self):
-        # We take any altitude (altitude=1000 for instance) as the shape is constant w.r.t the altitude
+        # We take any altitude (altitude=1000 for instance) and any year
+        # as the shape is constant w.r.t the altitude and the year
         return self.get_gev_params(altitude=1000, year=2019).shape
 
     def best_coef(self, param_name, dim, degree):

@@ -2,7 +2,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_GEV_MODELS
+from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_GEV_MODELS, \
+    ALTITUDINAL_GEV_MODELS_LOCATION
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.plot_total_aic import plot_total_aic, \
     plot_individual_aic
 
@@ -33,7 +34,7 @@ def plot_moments(studies, massif_names=None):
 
 
 def plot_altitudinal_fit(studies, massif_names=None):
-    model_classes = ALTITUDINAL_GEV_MODELS
+    model_classes = ALTITUDINAL_GEV_MODELS_LOCATION
     # model_classes = ALTITUDINAL_GEV_MODELS_QUADRATIC
     visualizer = AltitudesStudiesVisualizerForNonStationaryModels(studies=studies,
                                                                   model_classes=model_classes,
@@ -42,7 +43,7 @@ def plot_altitudinal_fit(studies, massif_names=None):
     # Plot the results for the model that minimizes the individual aic
     plot_individual_aic(visualizer)
     # Plot the results for the model that minimizes the total aic
-    # plot_total_aic(model_classes, visualizer)
+    plot_total_aic(model_classes, visualizer)
 
 
 def main():
@@ -50,12 +51,15 @@ def main():
     # todo: l ecart  pour les saisons de l automne ou de sprint
     #  vient probablement de certains zéros pas pris en compte pour le fit,
     # mais pris en compte pour le calcul de mon aic
-    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900][:]
+    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200][3:]
+    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:]
+    print(altitudes)
+    altitudes = [900, 1200, 1500][:]
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days][:2]
     study_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days,
                      SafranPrecipitation7Days][:]
-    study_classes = [SafranSnowfall1Day, SafranPrecipitation1Day,
-                     SafranSnowfall3Days, SafranPrecipitation3Days][:1]
+    study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranPrecipitation1Day
+                     , SafranPrecipitation3Days][:2]
     # seasons = [Season.automn, Season.winter, Season.spring][::-1]
     seasons = [Season.winter]
     # seasons = [Season.winter_extended]

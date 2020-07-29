@@ -74,7 +74,7 @@ def intermediate_result(altitudes, massif_names=None,
         # Plots
         # plot_trend_map(altitude_to_visualizer)
         # plot_trend_curves(altitude_to_visualizer={a: v for a, v in altitude_to_visualizer.items() if a >= 900})
-        plot_uncertainty_massifs(altitude_to_visualizer)
+        # plot_uncertainty_massifs(altitude_to_visualizer)
         plot_uncertainty_histogram(altitude_to_visualizer)
         # plot_selection_curves(altitude_to_visualizer)
         # plot_intensity_against_gumbel_quantile_for_3_examples(altitude_to_visualizer)
