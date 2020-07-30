@@ -20,7 +20,7 @@ class AbstractGumbelAltitudinalModel(AbstractAltitudinalModel):
 
     def __init__(self, coordinates: AbstractCoordinates, params_user=None, starting_point=None,
                  fit_method=MarginFitMethod.extremes_fevd_mle, nb_iterations_for_bayesian_fit=5000,
-                 params_initial_fit_bayesian=None, params_class=GevParams, max_degree=3):
+                 params_initial_fit_bayesian=None, params_class=GevParams, max_degree=4):
         super().__init__(coordinates, params_user, starting_point, fit_method, nb_iterations_for_bayesian_fit,
                          params_initial_fit_bayesian, "Gumbel", params_class, max_degree)
 

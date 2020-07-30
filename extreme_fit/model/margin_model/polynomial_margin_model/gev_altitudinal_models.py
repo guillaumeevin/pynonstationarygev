@@ -22,6 +22,8 @@ class AbstractAltitudinalModel(AbstractSpatioTemporalPolynomialModel):
         return [d for d, _ in self.param_name_to_list_dim_and_degree[param_name]]
 
     def dim_to_str_number(self, param_name, dim):
+        if param_name not in self.param_name_to_list_dim_and_degree:
+            return '0'
         list_dim_and_degree = self.param_name_to_list_dim_and_degree[param_name]
         dims = [d for d, _ in list_dim_and_degree]
         if dim not in dims:
@@ -90,6 +92,15 @@ class NonStationaryAltitudinalLocationCubic(AbstractAltitudinalModel):
             GevParams.SCALE: [(self.coordinates.idx_x_coordinates, 1)]
         }
 
+class NonStationaryAltitudinalLocationOrder4(AbstractAltitudinalModel):
+
+    @property
+    def param_name_to_list_dim_and_degree(self):
+        return {
+            GevParams.LOC: [(self.coordinates.idx_x_coordinates, 1), (self.coordinates.idx_temporal_coordinates, 4)],
+            GevParams.SCALE: [(self.coordinates.idx_x_coordinates, 1)]
+        }
+
 
 class NonStationaryAltitudinalLocationLinearScaleLinear(AbstractAltitudinalModel):
 
@@ -118,9 +129,11 @@ class AbstractAddCrossTermForLocation(AbstractAltitudinalModel):
     @property
     def param_name_to_list_dim_and_degree_for_margin_function(self):
         d = self.param_name_to_list_dim_and_degree
-        assert 1 <= len(d[GevParams.LOC]) <= 2
-        assert self.coordinates.idx_x_coordinates == d[GevParams.LOC][0][0]
-        d[GevParams.LOC].insert(1, ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1))
+        cross_term = ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1)
+        if GevParams.LOC in d and self.coordinates.idx_x_coordinates == d[GevParams.LOC][0][0]:
+            d[GevParams.LOC].insert(1, cross_term)
+        else:
+            d[GevParams.LOC] = [cross_term]
         return d
 
 class AbstractAddCrossTermForScale(AbstractAltitudinalModel):
@@ -152,6 +165,11 @@ class NonStationaryAltitudinalLocationQuadraticCrossTermForLocation(AbstractAddC
 
 class NonStationaryAltitudinalLocationCubicCrossTermForLocation(AbstractAddCrossTermForLocation,
                                                                 NonStationaryAltitudinalLocationCubic,
+                                                                ):
+    pass
+
+class NonStationaryAltitudinalLocationOrder4CrossTermForLocation(AbstractAddCrossTermForLocation,
+                                                                NonStationaryAltitudinalLocationOrder4,
                                                                 ):
     pass
 

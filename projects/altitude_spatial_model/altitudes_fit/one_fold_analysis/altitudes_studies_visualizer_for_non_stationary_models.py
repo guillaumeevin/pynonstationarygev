@@ -5,7 +5,7 @@ import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
-    SCM_STUDY_CLASS_TO_ABBREVIATION
+    SCM_STUDY_CLASS_TO_ABBREVIATION, ALL_ALTITUDES_WITHOUT_NAN
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -143,25 +143,28 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         pass
 
     def plot_year_for_the_peak(self):
-        t_list = 1800 + np.arange(400)
+        t_list = 1959 + np.arange(141)
         for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
             ax = plt.gca()
             # One plot for each altitude
-            print(one_fold_fit.dataset.df_dataset.head())
-            altitudes = self.studies.altitudes
-            print(altitudes)
+            altitudes = np.arange(500, 3000, 500)
             for altitude in altitudes:
-
-                mean_list = []
-                for t in t_list:
-                    coordinate = np.array([altitude, t])
-                    gev_params = one_fold_fit.best_function_from_fit.get_params(coordinate, is_transformed=False)
-                    mean_list.append(gev_params.mean)
-                label = '{} m'.format(altitude)
-                ax.plot(t_list, mean_list, label=label)
+                i = 0
+                while self.studies.altitudes[i] < altitude:
+                    i += 1
+                nearest_altitude = self.studies.altitudes[i]
+                nearest_study = self.studies.altitude_to_study[nearest_altitude]
+                if massif_name in nearest_study.study_massif_names:
+                    mean_list = []
+                    for t in t_list:
+                        coordinate = np.array([altitude, t])
+                        gev_params = one_fold_fit.best_function_from_fit.get_params(coordinate, is_transformed=False)
+                        mean_list.append(gev_params.mean)
+                    label = '{} m'.format(altitude)
+                    ax.plot(t_list, mean_list, label=label)
             ax.legend()
             ax.set_xlabel('Year')
-            ax.set_xlabel('Mean annual maxima of ')
+            ax.set_ylabel('Mean annual maxima of {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)]))
             plot_name = '{}/{}/Peak year for {}'.format(OneFoldFit.folder_for_plots, 'Peak year', massif_name.replace('_', ''))
             self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
             plt.close()

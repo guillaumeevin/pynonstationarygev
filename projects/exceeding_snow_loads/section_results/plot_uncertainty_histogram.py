@@ -40,6 +40,7 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
     legend_size = 15
     # Plot histogram
     ylim = (0, 110)
+    ticks = []
     for j, ci_method in enumerate(visualizer.uncertainty_methods):
         if len(visualizer.uncertainty_methods) == 2:
             offset = -50 if j == 0 else 50
@@ -52,7 +53,7 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
         plot_histogram_ci_method(visualizers, model_subset_for_uncertainty, ci_method, ax, bincenters, width, legend_size)
 
         # Plot percentages of return level excess on the right axis
-        ylim = plot_percentage_of_excess(visualizers, model_subset_for_uncertainty, ci_method, ax.twinx(), fontsize_label, legend_size)
+        ylim, ticks = plot_percentage_of_excess(visualizers, model_subset_for_uncertainty, ci_method, ax.twinx(), fontsize_label, legend_size)
 
 
     ax.set_xticks(altitudes)
@@ -77,8 +78,8 @@ def plot_histogram(altitude_to_visualizer, model_subset_for_uncertainty):
     ax_twiny.set_xticklabels(nb_massif_names)
     ax_twiny.set_xlabel('Number of massifs at each altitude (for the percentage and the mean)', fontsize=fontsize_label)
 
-    nb_ticks =  1 + (ylim[1] - ylim[0]) // 20
-    ax.set_yticks([100 - 20 * i for i in range(nb_ticks)][::-1])
+
+    ax.set_yticks(ticks)
     visualizer.plot_name = 'Percentages of exceedance with {}'.format(
         get_display_name_from_object_type(model_subset_for_uncertainty))
     visualizer.show_or_save_to_file(no_title=True, dpi=dpi_paper1_figure, tight_layout=True)
@@ -131,12 +132,17 @@ def plot_percentage_of_excess(visualizers, model_subset_for_uncertainty, ci_meth
                     label=label_confidence_interval)
 
     ax.tick_params(labelsize=fontsize_label)
-    ax.legend(loc='upper right', prop={'size': legend_size})
+    ax.legend(loc='lower right', prop={'size': legend_size})
     ax.set_ylabel(full_label_name, fontsize=fontsize_label)
 
     ylim = (-85, 110)
     ax.set_ylim(ylim)
-    return ylim
+
+    nb_ticks =  1 + (ylim[1] - ylim[0]) // 20
+    ticks = [100 - 20 * i for i in range(nb_ticks)][::-1]
+    ax.set_yticks(ticks)
+
+    return ylim, ticks
 
 
 def get_label_confidence_interval(label_name):

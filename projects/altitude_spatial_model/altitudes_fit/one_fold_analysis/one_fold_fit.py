@@ -8,6 +8,8 @@ from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
 from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoef, PolynomialCoef
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
+from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models_only_altitude_and_scale import \
+    AltitudinalOnlyScale, StationaryAltitudinalOnlyScale
 from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_models import \
     StationaryGumbelAltitudinal, AbstractGumbelAltitudinalModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -141,6 +143,8 @@ class OneFoldFit(object):
     def stationary_estimator(self):
         if isinstance(self.best_estimator.margin_model, AbstractGumbelAltitudinalModel):
             return self.model_class_to_estimator_with_finite_aic[StationaryGumbelAltitudinal]
+        elif isinstance(self.best_estimator.margin_model, AltitudinalOnlyScale):
+            return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinalOnlyScale]
         else:
             return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinal]
 
