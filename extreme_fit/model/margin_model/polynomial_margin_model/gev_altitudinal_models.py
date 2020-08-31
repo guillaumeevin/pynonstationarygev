@@ -37,6 +37,9 @@ class AbstractAltitudinalModel(AbstractSpatioTemporalPolynomialModel):
         name = self.DISTRIBUTION_STR
         name += self.dim_to_str_number(GevParams.LOC, self.coordinates.idx_temporal_coordinates)
         name += self.dim_to_str_number(GevParams.SCALE, self.coordinates.idx_temporal_coordinates)
+        shape_str_number = self.dim_to_str_number(GevParams.SHAPE, self.coordinates.idx_temporal_coordinates)
+        if shape_str_number != '0':
+            name += shape_str_number
         if isinstance(self, AbstractAddCrossTermForLocation):
             name += 'x'
         if isinstance(self, AbstractAddCrossTermForScale):
@@ -125,6 +128,14 @@ class NonStationaryAltitudinalLocationQuadraticScaleLinear(AbstractAltitudinalMo
 # Add cross terms
 
 class AbstractAddCrossTermForLocation(AbstractAltitudinalModel):
+
+    # @property
+    # def param_name_to_list_dim_and_degree_for_margin_function(self):
+    #     d = self.param_name_to_list_dim_and_degree
+    #     assert 1 <= len(d[GevParams.LOC]) <= 2
+    #     assert self.coordinates.idx_x_coordinates == d[GevParams.LOC][0][0]
+    #     d[GevParams.LOC].insert(1, ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1))
+    #     return d
 
     @property
     def param_name_to_list_dim_and_degree_for_margin_function(self):

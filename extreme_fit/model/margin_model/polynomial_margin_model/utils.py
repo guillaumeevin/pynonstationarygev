@@ -28,6 +28,13 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_mode
     NonStationaryAltitudinalLocationLinearScaleQuadratic, NonStationaryAltitudinalLocationQuadraticScaleQuadratic, \
     NonStationaryAltitudinalLocationLinearScaleQuadraticCrossTermForLocation, \
     NonStationaryAltitudinalLocationQuadraticScaleQuadraticCrossTermForLocation
+from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models_with_scale_2 import \
+    NonStationaryAltitudinalScaleLinearCrossTermForLocation, \
+    NonStationaryAltitudinalScaleLinearLocationLinearCrossTermForLocation, \
+    NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation, \
+    NonStationaryAltitudinalScaleQuadraticLocationLinearCrossTermForLocation, \
+    NonStationaryAltitudinalLocationCubicScaleQuadraticCrossTermForLocation, \
+    NonStationaryAltitudinalLocationCubicScaleLinearCrossTermForLocation
 from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_models import \
     StationaryGumbelAltitudinal, NonStationaryGumbelAltitudinalScaleLinear, \
     NonStationaryGumbelAltitudinalLocationLinear, NonStationaryGumbelAltitudinalLocationQuadratic, \
@@ -44,36 +51,60 @@ from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_poly
     NonStationaryLocationSpatioTemporalLinearityModelAssertError2, \
     NonStationaryLocationSpatioTemporalLinearityModelAssertError3, NonStationaryLocationSpatioTemporalLinearityModel6
 
-
 ALTITUDINAL_GEV_MODELS_LOCATION = [
     StationaryAltitudinal,
-    NonStationaryAltitudinalLocationLinear,
+    # NonStationaryAltitudinalLocationLinear,
+    # NonStationaryAltitudinalLocationQuadratic,
+    # NonStationaryAltitudinalLocationCubic,
+    # NonStationaryAltitudinalLocationOrder4,
+    # # First order cross term
+    # NonStationaryCrossTermForLocation,
+
+    # NonStationaryAltitudinalLocationLinearCrossTermForLocation,
+    NonStationaryAltitudinalLocationQuadraticCrossTermForLocation,
+    NonStationaryAltitudinalLocationCubicCrossTermForLocation,
+    # NonStationaryAltitudinalLocationOrder4CrossTermForLocation,
+    # NonStationaryAltitudinalScaleLinearCrossTermForLocation,
+    # NonStationaryAltitudinalScaleLinearLocationLinearCrossTermForLocation,
+
+    # NonStationaryAltitudinalScaleQuadraticCrossTermForLocation,
+    # NonStationaryAltitudinalScaleQuadraticLocationLinearCrossTermForLocation,
+
+    # NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation,
+    # NonStationaryAltitudinalLocationCubicScaleLinearCrossTermForLocation,
+    # NonStationaryAltitudinalLocationQuadraticScaleQuadraticCrossTermForLocation,
+    # NonStationaryAltitudinalLocationCubicScaleQuadraticCrossTermForLocation,
+
+]
+ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM = [
+    StationaryAltitudinal,
+    # NonStationaryAltitudinalLocationLinear,
     NonStationaryAltitudinalLocationQuadratic,
     NonStationaryAltitudinalLocationCubic,
     NonStationaryAltitudinalLocationOrder4,
-    # First order cross term
-    NonStationaryCrossTermForLocation,
-    NonStationaryAltitudinalLocationLinearCrossTermForLocation,
+    # # First order cross term
+    # NonStationaryCrossTermForLocation,
+    # NonStationaryAltitudinalLocationLinearCrossTermForLocation,
     NonStationaryAltitudinalLocationQuadraticCrossTermForLocation,
     NonStationaryAltitudinalLocationCubicCrossTermForLocation,
     NonStationaryAltitudinalLocationOrder4CrossTermForLocation,
 
 ]
 
-ALTITUDINAL_GEV_MODELS_LOCATION_ONLY_SCALE_ALTITUDES = [
-StationaryAltitudinalOnlyScale,
-NonStationaryAltitudinalOnlyScaleLocationLinear,
-NonStationaryAltitudinalOnlyScaleLocationQuadratic,
-NonStationaryAltitudinalOnlyScaleLocationCubic,
-NonStationaryAltitudinalOnlyScaleLocationOrder4,
-# Cross terms
-NonStationaryOnlyScaleCrossTermForLocation,
-NonStationaryAltitudinalOnlyScaleLocationLinearCrossTermForLocation,
-NonStationaryAltitudinalOnlyScaleLocationQuadraticCrossTermForLocation,
-NonStationaryAltitudinalOnlyScaleLocationCubicCrossTermForLocation,
-NonStationaryAltitudinalOnlyScaleLocationOrder4CrossTermForLocation,
-]
 
+ALTITUDINAL_GEV_MODELS_LOCATION_ONLY_SCALE_ALTITUDES = [
+    StationaryAltitudinalOnlyScale,
+    NonStationaryAltitudinalOnlyScaleLocationLinear,
+    NonStationaryAltitudinalOnlyScaleLocationQuadratic,
+    NonStationaryAltitudinalOnlyScaleLocationCubic,
+    NonStationaryAltitudinalOnlyScaleLocationOrder4,
+    # Cross terms
+    NonStationaryOnlyScaleCrossTermForLocation,
+    NonStationaryAltitudinalOnlyScaleLocationLinearCrossTermForLocation,
+    NonStationaryAltitudinalOnlyScaleLocationQuadraticCrossTermForLocation,
+    NonStationaryAltitudinalOnlyScaleLocationCubicCrossTermForLocation,
+    NonStationaryAltitudinalOnlyScaleLocationOrder4CrossTermForLocation,
+]
 
 ALTITUDINAL_GEV_MODELS = [
                              StationaryAltitudinal,
@@ -107,7 +138,6 @@ ALTITUDINAL_GEV_MODELS = [
                              # NonStationaryAltitudinalLocationQuadraticScaleQuadraticCrossTermForScale,
 
                          ][:]
-
 
 ALTITUDINAL_GUMBEL_MODELS = [
                                 StationaryGumbelAltitudinal,

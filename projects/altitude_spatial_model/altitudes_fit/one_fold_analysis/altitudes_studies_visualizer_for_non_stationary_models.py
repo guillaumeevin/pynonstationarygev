@@ -26,7 +26,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                  show=False,
                  massif_names=None,
                  fit_method=MarginFitMethod.extremes_fevd_mle,
-                 display_only_model_that_pass_anderson_test=False):
+                 display_only_model_that_pass_anderson_test=True):
         super().__init__(studies.study, show=show, save_to_file=not show)
         self.studies = studies
         self.non_stationary_models = model_classes
@@ -100,7 +100,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             dim_to_coordinate_name = dict(zip([0, 1], coordinate_names))
             for dim in [0, 1, (0, 1)]:
                 coordinate_name = LinearCoef.coefficient_name(dim, dim_to_coordinate_name)
-                for degree in range(3):
+                for degree in range(4):
                     coef_name = ' '.join([param_name + coordinate_name + str(degree)])
                     massif_name_to_best_coef = {}
                     for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
@@ -109,7 +109,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                             massif_name_to_best_coef[massif_name] = best_coef
 
                     if len(massif_name_to_best_coef) > 0:
-                        for evaluate_coordinate in [False, True]:
+                        for evaluate_coordinate in [False, True][:1]:
                             if evaluate_coordinate:
                                 coef_name += 'evaluated at coordinates'
                                 for massif_name in massif_name_to_best_coef.keys():
@@ -144,10 +144,11 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     def plot_year_for_the_peak(self):
         t_list = 1959 + np.arange(141)
+        # t_list = 1800 + np.arange(400)
         for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
             ax = plt.gca()
             # One plot for each altitude
-            altitudes = np.arange(500, 3000, 500)
+            altitudes = np.arange(500, min(3000, max(self.studies.altitudes)), 500)
             for altitude in altitudes:
                 i = 0
                 while self.studies.altitudes[i] < altitude:
@@ -163,6 +164,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                     label = '{} m'.format(altitude)
                     ax.plot(t_list, mean_list, label=label)
             ax.legend()
+            # Modify the limits of the y axis
+            lim_down, lim_up = ax.get_ylim()
+            ax_lim = (0, lim_up)
+            ax.set_ylim(ax_lim)
             ax.set_xlabel('Year')
             ax.set_ylabel('Mean annual maxima of {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)]))
             plot_name = '{}/{}/Peak year for {}'.format(OneFoldFit.folder_for_plots, 'Peak year', massif_name.replace('_', ''))
