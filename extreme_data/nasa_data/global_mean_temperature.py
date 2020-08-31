@@ -16,5 +16,9 @@ def load_year_to_mean_global_temperature():
     df = pd.read_csv(edf_filepath)
     df = df.astype({'Year': 'float'})
     d = dict(zip(df['Year'], df['Actual Temp']))
+    # Cheat for the last years
+    print('Warning: using fake values for the last few years !!!')
+    for idx in range(1, 5):
+        d[2016 + idx] = d[2016]
     return d
 

@@ -26,11 +26,13 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                  show=False,
                  massif_names=None,
                  fit_method=MarginFitMethod.extremes_fevd_mle,
+                 temporal_covariate_for_fit=None,
                  display_only_model_that_pass_anderson_test=True):
         super().__init__(studies.study, show=show, save_to_file=not show)
         self.studies = studies
         self.non_stationary_models = model_classes
         self.fit_method = fit_method
+        self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.display_only_model_that_pass_anderson_test = display_only_model_that_pass_anderson_test
         self.massif_names = massif_names if massif_names is not None else self.study.all_massif_names()
         self.massif_name_to_massif_id = {m: i for i, m in enumerate(self.massif_names)}
@@ -38,7 +40,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self._massif_name_to_one_fold_fit = {}
         for massif_name in self.massif_names:
             dataset = studies.spatio_temporal_dataset(massif_name=massif_name)
-            old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method)
+            old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method, self.temporal_covariate_for_fit)
             self._massif_name_to_one_fold_fit[massif_name] = old_fold_fit
 
     @property

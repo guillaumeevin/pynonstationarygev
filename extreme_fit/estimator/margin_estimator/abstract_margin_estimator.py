@@ -41,6 +41,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     @property
     def df_coordinates_temp(self):
         return self.dataset.coordinates.df_temporal_coordinates_for_fit(split=self.train_split,
+                                                                        temporal_covariate_for_fit=self.margin_model.temporal_covariate_for_fit,
                                                                         starting_point=self.margin_model.starting_point,
                                                                         drop_duplicates=self.margin_model.drop_duplicates)
 

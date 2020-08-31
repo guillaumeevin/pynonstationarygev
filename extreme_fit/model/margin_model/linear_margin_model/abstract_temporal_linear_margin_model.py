@@ -25,13 +25,13 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                  nb_iterations_for_bayesian_fit=5000,
                  params_initial_fit_bayesian=None,
                  type_for_MLE="GEV",
-                 params_class=GevParams):
-        super().__init__(coordinates, params_user, starting_point, params_class)
+                 params_class=GevParams,
+                 temporal_covariate_for_fit=None):
+        super().__init__(coordinates, params_user, starting_point, params_class, fit_method, temporal_covariate_for_fit)
         self.type_for_mle = type_for_MLE
         self.params_initial_fit_bayesian = params_initial_fit_bayesian
         self.nb_iterations_for_bayesian_fit = nb_iterations_for_bayesian_fit
-        assert isinstance(fit_method, MarginFitMethod), fit_method
-        self.fit_method = fit_method
+        assert isinstance(self.fit_method, MarginFitMethod), self.fit_method
 
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
                                   df_coordinates_temp: pd.DataFrame) -> AbstractResultFromModelFit:

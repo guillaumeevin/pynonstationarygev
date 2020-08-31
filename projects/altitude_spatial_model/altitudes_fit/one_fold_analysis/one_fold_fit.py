@@ -21,18 +21,21 @@ class OneFoldFit(object):
     SIGNIFICANCE_LEVEL = 0.05
     best_estimator_minimizes_total_aic = False
 
-    def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes, fit_method=MarginFitMethod.extremes_fevd_mle):
+    def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
+                 fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None):
         self.massif_name = massif_name
         self.dataset = dataset
         self.models_classes = models_classes
         self.fit_method = fit_method
+        self.temporal_covariate_for_fit = temporal_covariate_for_fit
 
         # Fit Estimators
         self.model_class_to_estimator = {}
         for model_class in models_classes:
             self.model_class_to_estimator[model_class] = fitted_linear_margin_estimator_short(model_class=model_class,
                                                                                               dataset=self.dataset,
-                                                                                              fit_method=self.fit_method)
+                                                                                              fit_method=self.fit_method,
+                                                                                              temporal_covariate_for_fit=self.temporal_covariate_for_fit)
 
         # Best estimator definition
         self.best_estimator_class_for_total_aic = None

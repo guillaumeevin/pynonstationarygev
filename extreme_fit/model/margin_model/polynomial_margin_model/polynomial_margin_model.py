@@ -17,9 +17,10 @@ class PolynomialMarginModel(AbstractTemporalLinearMarginModel):
 
     def __init__(self, coordinates: AbstractCoordinates, params_user=None, starting_point=None,
                  fit_method=MarginFitMethod.extremes_fevd_mle, nb_iterations_for_bayesian_fit=5000,
-                 params_initial_fit_bayesian=None, type_for_MLE="GEV", params_class=GevParams, max_degree=2):
+                 params_initial_fit_bayesian=None, type_for_MLE="GEV", params_class=GevParams, max_degree=2,
+                 temporal_covariate_for_fit=None):
         super().__init__(coordinates, params_user, starting_point, fit_method, nb_iterations_for_bayesian_fit,
-                         params_initial_fit_bayesian, type_for_MLE, params_class)
+                         params_initial_fit_bayesian, type_for_MLE, params_class, temporal_covariate_for_fit)
         self.max_degree = max_degree
 
     @property

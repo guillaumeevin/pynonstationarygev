@@ -6,6 +6,8 @@ from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUD
     ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM, ALTITUDINAL_GEV_MODELS_LOCATION_ONLY_SCALE_ALTITUDES, ALTITUDINAL_GEV_MODELS_LOCATION
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.plot_total_aic import plot_total_aic, \
     plot_individual_aic
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
+    MeanGlobalTemperatureCovariate
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
@@ -42,7 +44,8 @@ def plot_altitudinal_fit(studies, massif_names=None):
     visualizer = AltitudesStudiesVisualizerForNonStationaryModels(studies=studies,
                                                                   model_classes=model_classes,
                                                                   massif_names=massif_names,
-                                                                  show=False)
+                                                                  show=False,
+                                                                  temporal_covariate_for_fit=None)
     # Plot the results for the model that minimizes the individual aic
     plot_individual_aic(visualizer)
     # Plot the results for the model that minimizes the total aic
@@ -55,10 +58,10 @@ def main():
     #  vient probablement de certains zéros pas pris en compte pour le fit,
     # mais pris en compte pour le calcul de mon aic
     # altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:]
-    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 4800][:]
     # altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900][:]
     # altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][:]
     # altitudes = [600, 900, 1200, 1500, 1800, 2100][:]
+    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 4800][:]
     # altitudes = [1500, 1800][:]
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days][:2]
     study_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days,
