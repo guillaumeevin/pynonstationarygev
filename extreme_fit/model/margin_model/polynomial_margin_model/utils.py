@@ -81,13 +81,13 @@ ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM = [
     # NonStationaryAltitudinalLocationLinear,
     NonStationaryAltitudinalLocationQuadratic,
     NonStationaryAltitudinalLocationCubic,
-    NonStationaryAltitudinalLocationOrder4,
+    # NonStationaryAltitudinalLocationOrder4,
     # # First order cross term
     # NonStationaryCrossTermForLocation,
     # NonStationaryAltitudinalLocationLinearCrossTermForLocation,
     NonStationaryAltitudinalLocationQuadraticCrossTermForLocation,
     NonStationaryAltitudinalLocationCubicCrossTermForLocation,
-    NonStationaryAltitudinalLocationOrder4CrossTermForLocation,
+    # NonStationaryAltitudinalLocationOrder4CrossTermForLocation,
 
 ]
 

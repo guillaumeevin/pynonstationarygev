@@ -14,5 +14,6 @@ class TestMeanGlobalTemperatures(unittest.TestCase):
         value = list(d.values())[0]
         self.assertIsInstance(value, float)
 
+
 if __name__ == '__main__':
     unittest.main()

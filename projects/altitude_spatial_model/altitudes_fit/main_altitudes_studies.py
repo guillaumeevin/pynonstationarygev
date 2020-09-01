@@ -37,8 +37,8 @@ def plot_moments(studies, massif_names=None):
 
 def plot_altitudinal_fit(studies, massif_names=None):
     # model_classes = ALTITUDINAL_GEV_MODELS_LOCATION_ONLY_SCALE_ALTITUDES
-    # model_classes = ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM
-    model_classes = ALTITUDINAL_GEV_MODELS_LOCATION
+    model_classes = ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM
+    # model_classes = ALTITUDINAL_GEV_MODELS_LOCATION
     # model_classes = ALTITUDINAL_GEV_MODELS_LOCATION_CUBIC_MINIMUM
     # model_classes = ALTITUDINAL_GEV_MODELS_QUADRATIC
     visualizer = AltitudesStudiesVisualizerForNonStationaryModels(studies=studies,

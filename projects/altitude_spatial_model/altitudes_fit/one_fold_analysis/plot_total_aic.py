@@ -12,9 +12,12 @@ from projects.exceeding_snow_loads.utils import dpi_paper1_figure
 
 def plots(visualizer):
     visualizer.plot_shape_map()
-    visualizer.plot_year_for_the_peak()
+    for plot_mean in [True, False]:
+        visualizer.plot_year_for_the_peak(plot_mean=plot_mean)
     visualizer.plot_moments()
     visualizer.plot_best_coef_maps()
+    visualizer.plot_peak_year_against_altitude()
+    visualizer.plot_altitude_switch_against_peak_year()
 
 
 def plot_individual_aic(visualizer):

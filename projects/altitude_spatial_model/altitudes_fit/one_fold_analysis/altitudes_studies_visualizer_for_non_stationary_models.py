@@ -2,6 +2,7 @@ from typing import List, Dict
 import matplotlib.pyplot as plt
 
 import numpy as np
+from cached_property import cached_property
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
@@ -9,6 +10,7 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_vis
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.function.margin_function.abstract_margin_function import AbstractMarginFunction
 from extreme_fit.function.param_function.linear_coef import LinearCoef
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
@@ -40,7 +42,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self._massif_name_to_one_fold_fit = {}
         for massif_name in self.massif_names:
             dataset = studies.spatio_temporal_dataset(massif_name=massif_name)
-            old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method, self.temporal_covariate_for_fit)
+            old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method,
+                                      self.temporal_covariate_for_fit)
             self._massif_name_to_one_fold_fit[massif_name] = old_fold_fit
 
     @property
@@ -144,9 +147,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     def plot_altitude_for_the_peak(self):
         pass
 
-    def plot_year_for_the_peak(self):
+    def plot_year_for_the_peak(self, plot_mean=True):
         t_list = 1959 + np.arange(141)
         # t_list = 1800 + np.arange(400)
+        return_period = 50
         for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
             ax = plt.gca()
             # One plot for each altitude
@@ -158,21 +162,101 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 nearest_altitude = self.studies.altitudes[i]
                 nearest_study = self.studies.altitude_to_study[nearest_altitude]
                 if massif_name in nearest_study.study_massif_names:
-                    mean_list = []
+                    y_list = []
                     for t in t_list:
                         coordinate = np.array([altitude, t])
                         gev_params = one_fold_fit.best_function_from_fit.get_params(coordinate, is_transformed=False)
-                        mean_list.append(gev_params.mean)
+                        if plot_mean:
+                            y = gev_params.mean
+                        else:
+                            y = gev_params.return_level(return_period=return_period)
+                        y_list.append(y)
                     label = '{} m'.format(altitude)
-                    ax.plot(t_list, mean_list, label=label)
+                    ax.plot(t_list, y_list, label=label)
             ax.legend()
             # Modify the limits of the y axis
             lim_down, lim_up = ax.get_ylim()
             ax_lim = (0, lim_up)
             ax.set_ylim(ax_lim)
             ax.set_xlabel('Year')
-            ax.set_ylabel('Mean annual maxima of {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)]))
-            plot_name = '{}/{}/Peak year for {}'.format(OneFoldFit.folder_for_plots, 'Peak year', massif_name.replace('_', ''))
+            if plot_mean:
+                ylabel = 'Mean annual maxima'
+            else:
+                ylabel = '{}-year return level'.format(return_period)
+            ax.set_ylabel('{} of {}'.format(ylabel, SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)]))
+            peak_year_folder = 'Peak year ' + ylabel
+            plot_name = '{}/{}/Peak year for {}'.format(OneFoldFit.folder_for_plots, peak_year_folder,
+                                                        massif_name.replace('_', ''))
             self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
             plt.close()
+
+    # Plots "altitude switch" and "peak year"
+
+    @property
+    def massif_name_to_is_decreasing_parabol(self):
+        # For the test we only activate the Mont-Blanc massif
+        d = {massif_name: False for massif_name in self.massif_name_to_one_fold_fit.keys()}
+        for massif_name in ['Mont-Blanc', 'Vanoise', 'Aravis', 'Beaufortain', 'Chablais']:
+            d[massif_name] = True
+        return d
+
+    @property
+    def massif_name_to_altitudes_switch_and_peak_years(self):
+        return {massif_name: self.compute_couple_peak_year_and_altitude_switch(massif_name)
+                for massif_name, is_decreasing_parabol in self.massif_name_to_is_decreasing_parabol.items()
+                if is_decreasing_parabol}
+
+    def compute_couple_peak_year_and_altitude_switch(self, massif_name):
+        # Get the altitude limits
+        altitudes = self.study.massif_name_to_altitudes[massif_name]
+        # use a step of 100m for instance
+        step = 10
+        altitudes = list(np.arange(min(altitudes), max(altitudes) + step, step))
+        # Get all the correspond peak years
+        margin_function = self.massif_name_to_one_fold_fit[massif_name].best_function_from_fit
+        peak_years = []
+        year_left = 1900
+        switch_altitudes = []
+        for altitude in altitudes:
+            year_left = self.compute_peak_year(margin_function, altitude, year_left)
+            if year_left > 2020:
+                break
+            peak_years.append(year_left)
+            switch_altitudes.append(altitude)
+        print(switch_altitudes)
+        print(peak_years)
+        return switch_altitudes, peak_years
+
+    def compute_peak_year(self, margin_function: AbstractMarginFunction, altitude, year_left):
+        year_right = year_left + 0.1
+        mean_left = margin_function.get_params(np.array([altitude, year_left])).mean
+        mean_right = margin_function.get_params(np.array([altitude, year_right])).mean
+        print(year_left, year_right, mean_left, mean_right)
+        if mean_right < mean_left:
+            return year_left
+        else:
+            return self.compute_peak_year(margin_function, altitude, year_right)
+
+    def plot_peak_year_against_altitude(self):
+        ax = plt.gca()
+        for massif_name, (altitudes, peak_years) in self.massif_name_to_altitudes_switch_and_peak_years.items():
+            ax.plot(altitudes, peak_years, label=massif_name)
+        ax.legend()
+        ax.set_xlabel('Altitude')
+        ax.set_ylabel('Peak years')
+        plot_name = 'Peak Years'
+        self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
+        plt.close()
+
+    def plot_altitude_switch_against_peak_year(self):
+        ax = plt.gca()
+        for massif_name, (altitudes, peak_years) in self.massif_name_to_altitudes_switch_and_peak_years.items():
+            ax.plot(peak_years, altitudes, label=massif_name)
+        ax.legend()
+        ax.set_xlabel('Peak years')
+        ax.set_ylabel('Altitude')
+        plot_name = 'Switch altitude'
+        self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
+        plt.close()
+
 
