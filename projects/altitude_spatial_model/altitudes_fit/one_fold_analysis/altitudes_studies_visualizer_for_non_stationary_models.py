@@ -150,7 +150,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         pass
 
     def plot_year_for_the_peak(self, plot_mean=True):
-        t_list = 1959 + np.arange(141)
+        t_list = 1959 + np.arange(20 + 41)
         # t_list = 1800 + np.arange(400)
         return_period = 50
         for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():

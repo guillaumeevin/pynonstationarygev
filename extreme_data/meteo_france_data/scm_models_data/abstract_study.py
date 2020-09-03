@@ -43,6 +43,8 @@ with redirect_stdout(f):
 filled_marker_legend_list = ['Filled marker =', 'Selected model is significant', 'w.r.t $\mathcal{M}_0$']
 filled_marker_legend_list2 = ['Filled marker = Selected', 'model is significant', 'w.r.t $\mathcal{M}_0$']
 
+YEAR_MIN = 1959
+YEAR_MAX = 2019
 
 class AbstractStudy(object):
     """
