@@ -18,9 +18,11 @@ from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coo
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
     CircleSpatialCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
-    AbstractTemporalCovariateForFit, TimeTemporalCovariate, MeanGlobalTemperatureCovariate
+    AbstractTemporalCovariateForFit, TimeTemporalCovariate
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
+from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
+    MeanGlobalTemperatureCovariate
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
     CenteredScaledNormalization
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \

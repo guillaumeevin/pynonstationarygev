@@ -231,12 +231,6 @@ class AbstractCoordinates(object):
     # Temporal attributes
 
     @property
-    def temporal_dims(self):
-        start = self.nb_spatial_coordinates
-        end = start + self.nb_temporal_coordinates
-        return list(range(start, end))
-
-    @property
     def temporal_coordinates_names(self) -> List[str]:
         return [self.COORDINATE_T] if self.COORDINATE_T in self.df_all_coordinates else []
 

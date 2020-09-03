@@ -6,8 +6,7 @@ from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUD
     ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM, ALTITUDINAL_GEV_MODELS_LOCATION_ONLY_SCALE_ALTITUDES, ALTITUDINAL_GEV_MODELS_LOCATION
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.plot_total_aic import plot_total_aic, \
     plot_individual_aic
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
-    MeanGlobalTemperatureCovariate
+from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import MeanAlpsTemperatureCovariate
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
@@ -45,7 +44,10 @@ def plot_altitudinal_fit(studies, massif_names=None):
                                                                   model_classes=model_classes,
                                                                   massif_names=massif_names,
                                                                   show=False,
-                                                                  temporal_covariate_for_fit=None)
+                                                                  temporal_covariate_for_fit=None,
+                                                                  # temporal_covariate_for_fit=MeanAlpsTemperatureCovariate,
+                                                                  top_n_values_to_remove=None,
+                                                                  )
     # Plot the results for the model that minimizes the individual aic
     plot_individual_aic(visualizer)
     # Plot the results for the model that minimizes the total aic

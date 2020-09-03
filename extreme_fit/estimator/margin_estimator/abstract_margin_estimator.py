@@ -2,6 +2,7 @@ from abc import ABC
 import numpy.testing as npt
 
 import numpy as np
+import pandas as pd
 from cached_property import cached_property
 
 from extreme_fit.estimator.abstract_estimator import AbstractEstimator
@@ -29,25 +30,28 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         self.margin_model = margin_model
 
     def _fit(self) -> AbstractResultFromModelFit:
-        return self.margin_model.fitmargin_from_maxima_gev(data=self.maxima_gev_train,
-                                                           df_coordinates_spat=self.df_coordinates_spat,
-                                                           df_coordinates_temp=self.df_coordinates_temp)
+        data = self.data(self.train_split)
+        df_coordinate_temp = self.df_coordinates_temp(self.train_split)
+        df_coordinate_spat = self.df_coordinates_spat(self.train_split)
+        return self.margin_model.fitmargin_from_maxima_gev(data=data,
+                                                           df_coordinates_spat=df_coordinate_spat,
+                                                           df_coordinates_temp=df_coordinate_temp)
 
-    @property
-    def df_coordinates_spat(self):
-        return self.dataset.coordinates.df_spatial_coordinates(split=self.train_split,
+    def data(self, split):
+        return self._maxima_gev(split)
+
+    def _maxima_gev(self, split):
+        return self.dataset.maxima_gev_for_spatial_extremes_package(split)
+
+    def df_coordinates_spat(self, split):
+        return self.dataset.coordinates.df_spatial_coordinates(split=split,
                                                                drop_duplicates=self.margin_model.drop_duplicates)
 
-    @property
-    def df_coordinates_temp(self):
-        return self.dataset.coordinates.df_temporal_coordinates_for_fit(split=self.train_split,
+    def df_coordinates_temp(self, split):
+        return self.dataset.coordinates.df_temporal_coordinates_for_fit(split=split,
                                                                         temporal_covariate_for_fit=self.margin_model.temporal_covariate_for_fit,
                                                                         starting_point=self.margin_model.starting_point,
                                                                         drop_duplicates=self.margin_model.drop_duplicates)
-
-    @property
-    def maxima_gev_train(self):
-        return self.dataset.maxima_gev_for_spatial_extremes_package(self.train_split)
 
     @cached_property
     def function_from_fit(self) -> LinearMarginFunction:
@@ -56,7 +60,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     def nllh(self, split=Split.all):
         nllh = 0
         maxima_values = self.dataset.maxima_gev(split=split)
-        coordinate_values = self.dataset.coordinates_values(split=split)
+        coordinate_values = self.dataset.df_coordinates(split=split).values
         for maximum, coordinate in zip(maxima_values, coordinate_values):
             assert len(
                 maximum) == 1, 'So far, only one observation for each coordinate, but code would be easy to change'
