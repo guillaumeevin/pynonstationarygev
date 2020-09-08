@@ -16,7 +16,7 @@ def max_graph_annual_maxima_comparison():
     we also choose them because they belong to a different climatic area
     :return:
     """
-    save_to_file = False
+    save_to_file = True
     study_classes = [
                         CrocusSnowDensityAtMaxofSwe,
                         CrocusDifferenceSnowLoad,
@@ -30,10 +30,16 @@ def max_graph_annual_maxima_comparison():
     for study_class in study_classes:
         ylim, yticks = study_class_to_ylim_and_yticks[study_class]
 
+        # marker_altitude_massif_name = [
+        #                                   ('magenta', 900, 'Ubaye'),
+        #                                   ('darkmagenta', 1800, 'Vercors'),
+        #                                   ('mediumpurple', 2700, 'Beaufortain'),
+        #                               ][:]
+
         marker_altitude = [
-                              ('deepskyblue', 900),
-                              ('dodgerblue', 1800),
-                              ('blue', 2700),
+                              ('magenta', 900),
+                              ('darkmagenta', 1800),
+                              ('mediumpurple', 2700),
                           ][:]
         ax = plt.gca()
         for color, altitude in marker_altitude:

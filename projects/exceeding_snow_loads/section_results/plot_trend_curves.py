@@ -47,7 +47,7 @@ def plot_trend_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNonSta
     # parameters
     width = 150
     size = 20
-    legend_fontsize = 20
+    legend_fontsize = 35
     color = 'white'
     labelsize = 15
     linewidth = 3
