@@ -6,6 +6,7 @@ from extreme_data.meteo_france_data.adamont_data.snowfall_simulation import Safr
 class TestAdamontStudy(unittest.TestCase):
 
     def test_year_to_date(self):
+
         study = SafranSnowfallSimulationRCP85(altitude=900)
         self.assertTrue(True)
 

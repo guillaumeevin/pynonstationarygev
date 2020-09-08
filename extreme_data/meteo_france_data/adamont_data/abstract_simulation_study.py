@@ -29,6 +29,10 @@ class SimulationStudy(AbstractStudy):
                  scenario="HISTO", ensemble_idx=0):
         super().__init__(variable_class, altitude, year_min, year_max, multiprocessing, orientation, slope, season,
                          french_region, split_years)
+        if scenario == 'HISTO':
+            self.year_min, self.year_max = 1950, 2004
+        else:
+            self.year_min, self.year_max = 2006, 2100
         assert scenario in self.scenarios
         assert 0 <= ensemble_idx <= 13
         self.scenario = scenario
@@ -39,22 +43,12 @@ class SimulationStudy(AbstractStudy):
 
     @property
     def simulations_path(self):
-        return op.join(ADAMONT_PATH, self.parameter, self.scenario)
-
-    @property
-    def parameter(self):
-        return self.variable_class_to_parameter[self.variable_class]
-
-    @classproperty
-    def variable_class_to_parameter(cls):
-        return {
-            SafranSnowfallSimulationVariable: 'Snow',
-            CrocusTotalSweVariable: 'SNOWSWE',
-        }
+        return op.join(ADAMONT_PATH, self.variable_class.keyword(), self.scenario)
 
     @property
     def nc_path(self):
         nc_file = os.listdir(self.simulations_path)[self.ensemble_idx]
+        print(" ", nc_file)
         return op.join(self.simulations_path, nc_file)
 
     @property
@@ -108,7 +102,7 @@ class SimulationStudy(AbstractStudy):
         year_to_data_list = {}
         for year in self.ordered_years:
             year_to_data_list[year] = []
-        data_list = self.dataset.variables[self.variable_class.keyword]
+        data_list = self.dataset.variables[self.variable_class.keyword()]
         data_year_list = self.winter_year_for_each_time_step
         assert len(data_list) == len(data_year_list)
         for year_data, data in zip(data_year_list, data_list):
@@ -124,7 +118,7 @@ class SimulationStudy(AbstractStudy):
         zs_list = [int(e) for e in np.array(self.dataset.variables['ZS'])]
         return np.array(zs_list) == self.altitude
 
-    @property
+    @cached_property
     def study_massif_names(self) -> List[str]:
         massif_ids = np.array(self.dataset.variables['MASSIF_NUMBER'])[self.flat_mask]
         return [self.massif_number_to_massif_name[massif_id] for massif_id in massif_ids]

@@ -2,7 +2,7 @@ import matplotlib as mpl
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
-from extreme_data.meteo_france_data.scm_models_data.utils import Season, season_to_str
+from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 from collections import OrderedDict
 
@@ -51,7 +51,7 @@ def distribution_temperature_of_maxima_of_snowfall(altitudes, temperature_at_max
     ax.boxplot([altitude_to_maxima_temperature[a] for a in altitudes], positions=altitudes, widths=width)
     ax.set_xlim([min(altitudes) - width, max(altitudes) + width])
     suffix = 'at maxima of snowfall' if temperature_at_maxima else ''
-    ylabel = 'Daily {} temperature {} ({})'.format(season_to_str(season), suffix, temperature_study.variable_class.UNIT)
+    ylabel = 'Daily {} temperature {} ({})'.format(temperature_study.season_name, suffix, temperature_study.variable_class.UNIT)
     print(ylabel)
     ax.set_ylabel(ylabel)
     ax.set_xlabel('Altitude (m)')

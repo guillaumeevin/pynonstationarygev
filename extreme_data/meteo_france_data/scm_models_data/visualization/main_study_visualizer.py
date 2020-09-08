@@ -2,8 +2,10 @@ import time
 from collections import OrderedDict
 from typing import List
 
+from extreme_data.meteo_france_data.adamont_data.snowfall_simulation import SafranSnowfallSimulationRCP85
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, ExtendedCrocusDepth, \
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, \
+    ExtendedCrocusDepth, \
     ExtendedCrocusSweTotal, CrocusDaysWithSnowOnGround, CrocusSwe3Days, CrocusSnowLoad3Days, CrocusSnowLoadTotal, \
     CrocusSnowLoadEurocode, CrocusSnowLoad5Days, CrocusSnowLoad7Days
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusDensityVariable
@@ -48,10 +50,12 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusSnowLoad5Days: 'GSL5',
     CrocusSnowLoad7Days: 'GSL7',
     CrocusSnowDensityAtMaxofSwe: '{} when the max of GSL \nis reached'.format(snow_density_str),
-    CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization: 'max GSL rescaled - GSL from max HS \nboth with {}'.format(eurocode_snow_density),
+    CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization: 'max GSL rescaled - GSL from max HS \nboth with {}'.format(
+        eurocode_snow_density),
     CrocusDifferenceSnowLoad: ('max GSL - GSL from max HS \n with {}'.format(eurocode_snow_density)),
     CrocusSnowDepthDifference: 'max HS - HS at max of GSL',
     CrocusSnowDepthAtMaxofSwe: 'HS at max of GSL',
+    SafranSnowfallSimulationRCP85: 'SF1 RCP85 projections'
 }
 
 altitude_massif_name_and_study_class_for_poster = [
@@ -177,7 +181,6 @@ def case_study():
         print(y)
 
 
-
 def complete_analysis(only_first_one=False):
     """An overview of everything that is possible with study OR extended study"""
     for study_class, extended_study_class in list(SCM_STUDY_TO_EXTENDED_STUDY.items())[:]:
@@ -242,7 +245,6 @@ def altitude_analysis():
 
 def main_run():
     max_graph_annual_maxima_poster()
-
 
 
 if __name__ == '__main__':

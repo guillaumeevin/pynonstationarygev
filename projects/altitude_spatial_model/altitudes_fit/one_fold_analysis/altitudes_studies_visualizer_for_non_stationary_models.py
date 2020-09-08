@@ -142,16 +142,15 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     def plot_shape_map(self):
         self.plot_abstract_fast(self.massif_name_to_shape,
-                                label='Shape plot for {} {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)],
-                                                                    self.study.variable_unit),
+                                label='Shape parameter for {} maxima of {}'.format(self.study.season_name,
+                                                                                   SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)]),
                                 add_x_label=False, graduation=0.1, massif_name_to_text=self.massif_name_to_name)
 
     def plot_altitude_for_the_peak(self):
         pass
 
     def plot_year_for_the_peak(self, plot_mean=True):
-        t_list = 1959 + np.arange(20 + 41)
-        # t_list = 1800 + np.arange(400)
+        t_list = self.study.ordered_years
         return_period = 50
         for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
             ax = plt.gca()
@@ -182,14 +181,14 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             ax.set_ylim(ax_lim)
             ax.set_xlabel('Year')
             if plot_mean:
-                ylabel = 'Mean annual maxima'
+                ylabel = 'Mean {} maxima'.format(self.study.season_name)
             else:
                 ylabel = '{}-year return level'.format(return_period)
-            ax.set_ylabel('{} of {}'.format(ylabel, SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)]))
+            ax.set_ylabel('{} of {} in {} ({})'.format(ylabel, SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)], massif_name.replace('_', ' '), self.study.variable_unit))
             peak_year_folder = 'Peak year ' + ylabel
             plot_name = '{}/{}/Peak year for {}'.format(OneFoldFit.folder_for_plots, peak_year_folder,
                                                         massif_name.replace('_', ''))
-            self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
+            self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show, no_title=True, tight_layout=True)
             plt.close()
 
     # Plots "altitude switch" and "peak year"
@@ -198,8 +197,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     def massif_name_to_is_decreasing_parabol(self):
         # For the test we only activate the Mont-Blanc massif
         d = {massif_name: False for massif_name in self.massif_name_to_one_fold_fit.keys()}
-        for massif_name in ['Mont-Blanc', 'Vanoise', 'Aravis', 'Beaufortain', 'Chablais']:
-            d[massif_name] = True
+        if max(self.study.ordered_years) < 2030:
+            for massif_name in ['Vanoise', 'Aravis', 'Beaufortain', 'Chablais']:
+                d[massif_name] = True
         return d
 
     @property

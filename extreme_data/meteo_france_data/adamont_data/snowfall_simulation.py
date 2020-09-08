@@ -7,6 +7,8 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season, FrenchR
 
 
 class SafranSnowfallSimulationVariable(AbstractVariable):
+    UNIT = 'kg $m^{-2}$'
+
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:
@@ -21,10 +23,10 @@ class SafranSnowfallSimulationRCP85(SimulationStudy):
 
     def __init__(self, altitude: int = 1800, year_min=YEAR_MIN, year_max=YEAR_MAX,
                  multiprocessing=True, orientation=None, slope=20.0, season=Season.annual,
-                 french_region=FrenchRegion.alps, split_years=None):
+                 french_region=FrenchRegion.alps, split_years=None, ensemble_idx=0):
         super().__init__(SafranSnowfallSimulationVariable, altitude, year_min, year_max, multiprocessing, orientation,
                          slope,
-                         season, french_region, split_years, "RCP85")
+                         season, french_region, split_years, "RCP85", ensemble_idx)
 
 
 if __name__ == '__main__':

@@ -2,6 +2,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
+from extreme_data.meteo_france_data.adamont_data.abstract_simulation_study import SimulationStudy
+from extreme_data.meteo_france_data.adamont_data.snowfall_simulation import SafranSnowfallSimulationRCP85
 from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_GEV_MODELS, \
     ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM, ALTITUDINAL_GEV_MODELS_LOCATION_ONLY_SCALE_ALTITUDES, ALTITUDINAL_GEV_MODELS_LOCATION
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.plot_total_aic import plot_total_aic, \
@@ -70,21 +72,32 @@ def main():
                      SafranPrecipitation7Days][:]
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranPrecipitation1Day
                      , SafranPrecipitation3Days][:1]
-    # seasons = [Season.automn, Season.winter, Season.spring][::-1]
-    seasons = [Season.winter]
-    # seasons = [Season.winter_extended]
 
+    # altitudes = [1500, 1800]
+    study_classes = [SafranSnowfall1Day, SafranSnowfallSimulationRCP85][:]
+
+    # Common parameters
+    altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
     massif_names = None
-    # massif_names = ['Aravis']
-    # massif_names = ['Chartreuse', 'Belledonne']
+    seasons = [Season.winter]
 
     for season in seasons:
         for study_class in study_classes:
-            studies = AltitudesStudies(study_class, altitudes, season=season)
-            print('inner loop', season, study_class)
-            # plot_time_series(studies, massif_names)
-            # plot_moments(studies, massif_names)
-            plot_altitudinal_fit(studies, massif_names)
+            if issubclass(study_class, SimulationStudy):
+                for ensemble_idx in list(range(14))[:1]:
+                    studies = AltitudesStudies(study_class, altitudes, season=season,
+                                               ensemble_idx=ensemble_idx)
+                    plot_studies(massif_names, season, studies, study_class)
+            else:
+                studies = AltitudesStudies(study_class, altitudes, season=season)
+                plot_studies(massif_names, season, studies, study_class)
+
+
+def plot_studies(massif_names, season, studies, study_class):
+    print('inner loop', season, study_class)
+    # plot_time_series(studies, massif_names)
+    # plot_moments(studies, massif_names)
+    plot_altitudinal_fit(studies, massif_names)
 
 
 if __name__ == '__main__':

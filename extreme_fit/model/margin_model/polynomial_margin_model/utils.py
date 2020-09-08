@@ -34,7 +34,8 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_mode
     NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation, \
     NonStationaryAltitudinalScaleQuadraticLocationLinearCrossTermForLocation, \
     NonStationaryAltitudinalLocationCubicScaleQuadraticCrossTermForLocation, \
-    NonStationaryAltitudinalLocationCubicScaleLinearCrossTermForLocation
+    NonStationaryAltitudinalLocationCubicScaleLinearCrossTermForLocation, \
+    NonStationaryAltitudinalLocationCubicScaleLinear
 from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_models import \
     StationaryGumbelAltitudinal, NonStationaryGumbelAltitudinalScaleLinear, \
     NonStationaryGumbelAltitudinalLocationLinear, NonStationaryGumbelAltitudinalLocationQuadratic, \
@@ -89,8 +90,12 @@ ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM = [
     NonStationaryAltitudinalLocationCubicCrossTermForLocation,
     # NonStationaryAltitudinalLocationOrder4CrossTermForLocation,
 
-]
+    NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation,
+    NonStationaryAltitudinalLocationQuadraticScaleLinear,
+    NonStationaryAltitudinalLocationCubicScaleLinear,
+    NonStationaryAltitudinalLocationCubicScaleLinearCrossTermForLocation,
 
+]
 
 ALTITUDINAL_GEV_MODELS_LOCATION_ONLY_SCALE_ALTITUDES = [
     StationaryAltitudinalOnlyScale,

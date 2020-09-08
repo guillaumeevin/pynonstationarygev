@@ -46,6 +46,8 @@ class AltitudesStudies(object):
                                 s_split_temporal: pd.Series = None, top_n_values_to_remove=None):
         coordinate_values_to_maxima = {}
         massif_altitudes = self.massif_name_to_altitudes[massif_name]
+        if len(massif_altitudes) == 0:
+            print('{} has no data for these altitudes: {}'.format(massif_name, self.altitudes))
         for altitude in massif_altitudes:
             study = self.altitude_to_study[altitude]
             for year, maxima in zip(study.ordered_years, study.massif_name_to_annual_maxima[massif_name]):
@@ -71,6 +73,7 @@ class AltitudesStudies(object):
         if massif_altitudes is None or set(massif_altitudes) == set(self.altitudes):
             spatial_coordinates = self.spatial_coordinates
         else:
+            assert len(massif_altitudes) > 0
             spatial_coordinates = self.spatial_coordinates_for_altitudes(massif_altitudes)
         slicer_class = get_slicer_class_from_s_splits(s_split_spatial, s_split_temporal)
         return AbstractSpatioTemporalCoordinates(slicer_class=slicer_class,
@@ -107,10 +110,10 @@ class AltitudesStudies(object):
 
     # Some visualization
 
-    def show_or_save_to_file(self, plot_name, show=False, no_title=False):
+    def show_or_save_to_file(self, plot_name, show=False, no_title=False, tight_layout=None):
         study_visualizer = StudyVisualizer(study=self.study, show=show, save_to_file=not show)
         study_visualizer.plot_name = plot_name
-        study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500, no_title=no_title)
+        study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500, no_title=no_title, tight_layout=tight_layout)
 
     def run_for_each_massif(self, function, massif_names, **kwargs):
         massif_names = massif_names if massif_names is not None else self.study.all_massif_names()
@@ -150,16 +153,17 @@ class AltitudesStudies(object):
         if change is True or change is None:
             moment += ' change (between two block of 30 years) for'
         moment += 'mean' if not std else 'std'
-        if change is False:
-            moment += ' (for the 60 years of data)'
-        plot_name = '{} of annual maxima of {}'.format(moment, SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class])
+        # if change is False:
+            # moment += ' (for the 60 years of data)'
+        plot_name = '{} of {} maxima of {}'.format(moment, self.study.season_name,
+                                                   SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class])
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('altitudes', fontsize=15)
         lim_down, lim_up = ax.get_ylim()
         lim_up += (lim_up - lim_down) / 3
         ax.set_ylim([lim_down, lim_up])
         ax.tick_params(axis='both', which='major', labelsize=13)
-        self.show_or_save_to_file(plot_name=plot_name, show=show)
+        self.show_or_save_to_file(plot_name=plot_name, show=show, no_title=True)
         ax.clear()
 
     def _plot_mean_maxima_against_altitude(self, massif_name, massif_id, ax=None, std=False, change=False):
