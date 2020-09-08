@@ -8,6 +8,7 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusD
     ExtendedCrocusDepth, \
     ExtendedCrocusSweTotal, CrocusDaysWithSnowOnGround, CrocusSwe3Days, CrocusSnowLoad3Days, CrocusSnowLoadTotal, \
     CrocusSnowLoadEurocode, CrocusSnowLoad5Days, CrocusSnowLoad7Days
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_snow_density import CrocusSnowDensity
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusDensityVariable
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranRainfall, \
@@ -55,7 +56,8 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusDifferenceSnowLoad: ('max GSL - GSL from max HS \n with {}'.format(eurocode_snow_density)),
     CrocusSnowDepthDifference: 'max HS - HS at max of GSL',
     CrocusSnowDepthAtMaxofSwe: 'HS at max of GSL',
-    SafranSnowfallSimulationRCP85: 'SF1 RCP85 projections'
+    CrocusSnowDensity: 'Density',
+    SafranSnowfallSimulationRCP85: 'SF1 RCP85 projections',
 }
 
 altitude_massif_name_and_study_class_for_poster = [
