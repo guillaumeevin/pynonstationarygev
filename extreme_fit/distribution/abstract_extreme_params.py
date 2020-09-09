@@ -2,12 +2,6 @@ from extreme_fit.distribution.abstract_params import AbstractParams
 
 
 class AbstractExtremeParams(AbstractParams):
-    pass
-
-    # Extreme parameters
-    SCALE = 'scale'
-    LOC = 'loc'
-    SHAPE = 'shape'
 
     def __init__(self, loc: float, scale: float, shape: float):
         self.location = loc
