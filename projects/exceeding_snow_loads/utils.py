@@ -23,11 +23,18 @@ paper_study_classes = [CrocusSnowLoadTotal, CrocusSnowLoadEurocode][:]
 # dpi_paper1_figure = 700
 dpi_paper1_figure = None
 NON_STATIONARY_TREND_TEST_PAPER_1 = [GumbelVersusGumbel,
-                                     GumbelLocationTrendTest, GumbelScaleTrendTest,
-                                     GumbelLocationAndScaleTrendTest,
                                      GevStationaryVersusGumbel,
-                                     GevLocationAgainstGumbel, GevScaleAgainstGumbel,
-                                     GevLocationAndScaleTrendTestAgainstGumbel]
+
+                                     GumbelLocationTrendTest,
+                                     GevLocationAgainstGumbel,
+
+                                     GumbelScaleTrendTest,
+                                     GevScaleAgainstGumbel,
+
+                                     GumbelLocationAndScaleTrendTest,
+                                     GevLocationAndScaleTrendTestAgainstGumbel,
+
+                                     ]
 
 ALTITUDE_TO_GREY_MASSIF = {
     300: ['Devoluy', 'Queyras', 'Champsaur', 'Grandes-Rousses', 'Ubaye', 'Pelvoux', 'Haute-Maurienne', 'Maurienne', 'Vanoise', 'Thabor', 'Mercantour', 'Haut_Var-Haut_Verdon', 'Haute-Tarentaise', 'Parpaillon', 'Belledonne', 'Oisans'],

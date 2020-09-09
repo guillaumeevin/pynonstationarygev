@@ -72,7 +72,8 @@ def intermediate_result(altitudes, massif_names=None,
                 _ = compute_minimized_aic(visualizer)
 
         # Plots
-        # plot_trend_map(altitude_to_visualizer)
+
+        plot_trend_map(altitude_to_visualizer)
         plot_trend_curves(altitude_to_visualizer={a: v for a, v in altitude_to_visualizer.items() if a >= 900})
         # plot_uncertainty_massifs(altitude_to_visualizer)
         # plot_uncertainty_histogram(altitude_to_visualizer)
@@ -94,7 +95,7 @@ def major_result():
     altitudes = [300, 600, 900, 1800, 2700][:]
     altitudes = [300, 600, 900, 1200, 1500, 1800][2:]
     altitudes = paper_altitudes
-    # altitudes = [900, 1800, 270{{0][:1]
+    # altitudes = [900, 1800, 2700][:]
     for study_class in study_classes:
         print('new stuy class', study_class)
         if study_class is CrocusSnowLoadEurocode:

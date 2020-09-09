@@ -56,7 +56,7 @@ def plot_trend_curves(altitude_to_visualizer: Dict[int, StudyVisualizerForNonSta
     ax.bar(altitudes, percent_decrease_signi, width=width, color=color, edgecolor='black',
            label='significant decreasing trend',
            linewidth=linewidth)
-    ax.legend(loc='upper center', prop={'size': legend_size})
+    ax.legend(loc='upper left', prop={'size': legend_size})
 
     for ax_horizontal in [ax, ax_twiny]:
         if ax_horizontal == ax_twiny:

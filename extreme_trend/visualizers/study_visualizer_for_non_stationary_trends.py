@@ -220,7 +220,8 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
                                         cmap=self.cmap,
                                         show=False,
                                         ticks_values_and_labels=self.ticks_values_and_labels,
-                                        label=self.label)
+                                        label=self.label,
+                                        add_legend=False)
         ax.get_xaxis().set_visible(True)
         ax.set_xticks([])
         ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=15)

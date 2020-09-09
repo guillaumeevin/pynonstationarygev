@@ -499,6 +499,7 @@ class AbstractStudy(object):
                         ticks_values_and_labels=None,
                         massif_name_to_text=None,
                         fontsize_label=15,
+                        add_legend=True,
                         ):
         if ax is None:
             ax = plt.gca()
@@ -588,7 +589,7 @@ class AbstractStudy(object):
             plt.axis('off')
 
         # Add legend for the marker
-        if massif_name_to_marker_style is not None:
+        if add_legend and massif_name_to_marker_style is not None:
             legend_elements = cls.get_legend_for_model_symbol(marker_style_to_label_name, markersize=7)
             ax.legend(handles=legend_elements[:], loc='upper right', prop={'size': 9})
             # ax.legend(handles=legend_elements[4:], bbox_to_anchor=(0.01, 0.03), loc='lower left')
