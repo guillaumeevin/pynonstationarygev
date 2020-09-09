@@ -339,7 +339,8 @@ class StudyVisualizer(VisualizationParameters):
 
     def visualize_max_graphs_poster(self, massif_name, altitude, snow_abbreviation, color,
                                     label=None, last_plot=True, ax=None, linestyle=None,
-                                    tight_pad=None, dpi=None, linewidth=5):
+                                    tight_pad=None, dpi=None, linewidth=5,
+                                    legend_size=None):
         massif_names = self.study.study_massif_names
         # Display the graph of the max on top
         if ax is None:
@@ -355,12 +356,17 @@ class StudyVisualizer(VisualizationParameters):
         ax.tick_params(axis='both', which='major', labelsize=13)
         plot_name = 'Annual maxima of {} in {} at {}m'.format(snow_abbreviation, massif_name, altitude)
         self.plot_name = plot_name
-        ax.set_ylabel('{} ({})'.format(snow_abbreviation, self.study.variable_unit), fontsize=15)
-        ax.set_xlabel('years', fontsize=15)
+        fontsize = 15
+        ax.set_ylabel('{} ({})'.format(snow_abbreviation, self.study.variable_unit), fontsize=fontsize)
+        ax.set_xlabel('years', fontsize=fontsize)
         if label is None and massif_name is not None:
             ax.set_title('{} at {} m'.format(massif_name, altitude))
         if last_plot:
-            ax.legend()
+            if legend_size is None:
+                ax.legend()
+            else:
+                ax.legend(prop={'size': legend_size})
+
 
             self.show_or_save_to_file(add_classic_title=False, no_title=True,
                                       tight_layout=True, tight_pad=tight_pad,

@@ -42,6 +42,8 @@ def max_graph_annual_maxima_comparison():
                               ('mediumpurple', 2700),
                           ][:]
         ax = plt.gca()
+        legend_size = 14
+
         for color, altitude in marker_altitude:
             for study in study_iterator_global([study_class], altitudes=[altitude]):
                 study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
@@ -49,9 +51,9 @@ def max_graph_annual_maxima_comparison():
                                                    multiprocessing=True)
                 snow_abbreviation = SCM_STUDY_CLASS_TO_ABBREVIATION[study_class]
                 nb_massifs = len(study_visualizer.study.study_massif_names)
-                label = 'Mean value at {}m (out of {} massifs)'.format(altitude, nb_massifs)
+                label = 'Mean at {}m ({} massifs)'.format(altitude, nb_massifs)
                 study_visualizer.visualize_max_graphs_poster(None, altitude, snow_abbreviation, color, label,
-                                                             False, ax)
+                                                             False, ax, legend_size=legend_size)
 
                 last_plot = altitude == 2700
                 if last_plot:
@@ -59,7 +61,7 @@ def max_graph_annual_maxima_comparison():
                     #     label = '{} for French standards'.format(snow_density_str)
                     #     snow_density_eurocode = [150 for _ in study.ordered_years]
                     #     ax.plot(study.ordered_years, snow_density_eurocode, color='k', label=label)
-                    ax.legend()
+                    ax.legend(prop={'size': legend_size})
                     tight_pad = {'h_pad': 0.2}
                     ax.set_ylim(ylim)
                     ax.set_xlim([1957, 2018])
