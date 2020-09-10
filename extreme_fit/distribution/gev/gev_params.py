@@ -24,6 +24,7 @@ class GevParams(AbstractExtremeParams):
         self.block_size = block_size
         if accept_zero_scale_parameter and scale == 0.0:
             self.has_undefined_parameters = False
+        self.param_name_to_confidence_interval = None
 
     def sample(self, n) -> np.ndarray:
         if self.has_undefined_parameters:

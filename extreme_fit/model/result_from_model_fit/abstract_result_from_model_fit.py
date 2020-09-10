@@ -1,4 +1,6 @@
+import numpy as np
 from rpy2 import robjects
+
 
 class AbstractResultFromModelFit(object):
 
@@ -8,6 +10,19 @@ class AbstractResultFromModelFit(object):
             self.name_to_value = self.get_python_dictionary(result_from_fit)
         else:
             self.name_to_value = {}
+
+    @property
+    def variance_covariance_matrix(self):
+        raise NotImplementedError
+
+    @property
+    def standard_errors_for_mle(self):
+        """ See Coles 2001 page 41, for an example"""
+        return np.sqrt(np.diagonal(self.variance_covariance_matrix))
+
+    @property
+    def confidence_interval_half_sizes(self):
+        return [1.96 * s for s in self.standard_errors_for_mle]
 
     @staticmethod
     def get_python_dictionary(r_dictionary):
@@ -56,8 +71,3 @@ class AbstractResultFromModelFit(object):
     @property
     def covariance(self):
         raise NotImplementedError
-
-
-
-
-

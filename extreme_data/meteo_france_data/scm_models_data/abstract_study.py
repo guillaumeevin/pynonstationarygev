@@ -27,6 +27,7 @@ from extreme_data.meteo_france_data.scm_models_data.utils import ALTITUDES, ZS_I
     first_day_and_last_day, FrenchRegion, ZS_INT_MASK_PYRENNES, alps_massif_order, ZS_INT_MASK_PYRENNES_LIST, \
     season_to_str
 from extreme_data.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
+from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
 from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import create_colorbase_axis, \
@@ -46,6 +47,7 @@ filled_marker_legend_list2 = ['Filled marker = Selected', 'model is significant'
 
 YEAR_MIN = 1959
 YEAR_MAX = 2019
+
 
 class AbstractStudy(object):
     """
@@ -86,7 +88,7 @@ class AbstractStudy(object):
         self.multiprocessing = multiprocessing
         self.season = season
         if split_years is None:
-            split_years = list(range(year_min, year_max+1))
+            split_years = list(range(year_min, year_max + 1))
         self.split_years = set(split_years)
         # Add some attributes, for the "allslopes" reanalysis
         assert orientation is None or orientation in ORIENTATIONS
@@ -793,3 +795,27 @@ class AbstractStudy(object):
             mask_massif = np.array(img)
             mask_french_alps += mask_massif
         return ~np.array(mask_french_alps, dtype=bool)
+
+    @cached_property
+    def massif_name_to_stationary_gev_params(self):
+        massif_name_to_stationary_gev_params = {}
+        for massif_name, annual_maxima in self.massif_name_to_annual_maxima.items():
+            gev_params = fitted_stationary_gev(annual_maxima)
+            massif_name_to_stationary_gev_params[massif_name] = gev_params
+        return massif_name_to_stationary_gev_params
+
+    def massif_name_to_gev_param_list(self, year_min_and_max_list):
+        year_to_index = {y: i for i, y in enumerate(self.ordered_years)}
+        self.index_min_and_max_list = [(year_to_index[mi], year_to_index[ma]) for mi, ma in year_min_and_max_list]
+        return self._massif_name_to_gev_param_list
+
+    @cached_property
+    def _massif_name_to_gev_param_list(self):
+        massif_name_to_stationary_gev_params = {}
+        for massif_name, annual_maxima in self.massif_name_to_annual_maxima.items():
+            gev_params_list = []
+            for index_min, index_max in self.index_min_and_max_list:
+                annual_maxima_sliced = annual_maxima[index_min: index_max+1]
+                gev_params_list.append(fitted_stationary_gev(annual_maxima_sliced))
+            massif_name_to_stationary_gev_params[massif_name] = gev_params_list
+        return massif_name_to_stationary_gev_params

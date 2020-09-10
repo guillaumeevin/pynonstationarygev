@@ -15,6 +15,10 @@ class ResultFromIsmev(AbstractResultFromModelFit):
         self.param_name_to_dim = param_name_to_dim
 
     @property
+    def variance_covariance_matrix(self):
+        return np.array(self.name_to_value['cov'])
+
+    @property
     def margin_coef_ordered_dict(self):
         return get_margin_coef_ordered_dict(self.param_name_to_dim, self.name_to_value['mle'])
 
