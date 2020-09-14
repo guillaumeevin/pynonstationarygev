@@ -7,6 +7,7 @@ from extreme_data.meteo_france_data.adamont_data.snowfall_simulation import Safr
 from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_GEV_MODELS, \
     ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM, ALTITUDINAL_GEV_MODELS_LOCATION_ONLY_SCALE_ALTITUDES, \
     ALTITUDINAL_GEV_MODELS_LOCATION, ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
+from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import altitudes_for_groups
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.plot_total_aic import plot_total_aic, \
     plot_individual_aic
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import MeanAlpsTemperatureCovariate
@@ -74,15 +75,20 @@ def main():
                      SafranPrecipitation7Days][:]
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranPrecipitation1Day
                      , SafranPrecipitation3Days][:1]
-
     altitudes = [1800, 2100, 2400]
-    study_classes = [SafranSnowfall1Day][:]
+    study_classes = [SafranSnowfall1Day, SafranSnowfall3Days][:1]
 
     # Common parameters
     # altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
     massif_names = None
-    seasons = [Season.annual]
+    seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
+    all_groups = altitudes_for_groups[:]
+    for altitudes in all_groups:
+        main_loop(altitudes, massif_names, seasons, study_classes)
+
+
+def main_loop(altitudes, massif_names, seasons, study_classes):
     for season in seasons:
         for study_class in study_classes:
             if issubclass(study_class, SimulationStudy):

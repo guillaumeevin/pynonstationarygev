@@ -15,7 +15,8 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_m
 from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_with_linear_shape_wrt_altitude import \
     AltitudinalShapeLinearTimeStationary
 from extreme_fit.model.margin_model.utils import MarginFitMethod
-from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import AltitudeGroup
+from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import AbstractAltitudeGroup, \
+    DefaultAltitudeGroup
 from root_utils import classproperty
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
@@ -26,8 +27,10 @@ class OneFoldFit(object):
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
                  fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None,
-                 altitude_group=AltitudeGroup.unspecfied):
-        self.altitude_group = altitude_group
+                 altitude_class=DefaultAltitudeGroup,
+                 only_models_that_pass_anderson_test=True):
+        self.only_models_that_pass_anderson_test = only_models_that_pass_anderson_test
+        self.altitude_group = altitude_class()
         self.massif_name = massif_name
         self.dataset = dataset
         self.models_classes = models_classes
@@ -49,7 +52,7 @@ class OneFoldFit(object):
 
     @classproperty
     def folder_for_plots(cls):
-        return 'Total aic' if cls.best_estimator_minimizes_total_aic else 'Individual aic'
+        return 'Total aic/' if cls.best_estimator_minimizes_total_aic else ''
 
     @classmethod
     def get_moment_str(cls, order):
@@ -67,7 +70,7 @@ class OneFoldFit(object):
         elif order == 2:
             return gev_params.std
         elif order is None:
-            return gev_params.return_level(return_period=2019)
+            return gev_params.return_level(return_period=50)
         else:
             raise NotImplementedError
 
@@ -106,8 +109,19 @@ class OneFoldFit(object):
         return sorted_estimators
 
     @cached_property
-    def sorted_estimators_without_stationary(self):
+    def _sorted_estimators_without_stationary(self):
         return [e for e in self.sorted_estimators if not isinstance(e.margin_model, StationaryAltitudinal)]
+
+    @cached_property
+    def sorted_estimators_without_stationary(self):
+        if self.only_models_that_pass_anderson_test:
+            return [e for e in self._sorted_estimators_without_stationary if self.goodness_of_fit_test(e)]
+        else:
+            return self._sorted_estimators_without_stationary
+
+    @property
+    def has_at_least_one_valid_non_stationary_model(self):
+        return len(self.sorted_estimators_without_stationary) > 0
 
     @property
     def model_class_to_estimator_with_finite_aic(self):
@@ -118,8 +132,11 @@ class OneFoldFit(object):
         if self.best_estimator_minimizes_total_aic and self.best_estimator_class_for_total_aic is not None:
             return self.model_class_to_estimator[self.best_estimator_class_for_total_aic]
         else:
-            best_estimator = self.sorted_estimators_without_stationary[0]
-            return best_estimator
+            if self.has_at_least_one_valid_non_stationary_model:
+                best_estimator = self.sorted_estimators_without_stationary[0]
+                return best_estimator
+            else:
+                raise ValueError('This should not happen')
 
     @property
     def best_margin_model(self):
@@ -131,10 +148,11 @@ class OneFoldFit(object):
 
     @property
     def best_shape(self):
-        # We take any altitude (altitude=1000 for instance) and any year
-        # as the shape is constant w.r.t the altitude and the year
+        return self.get_gev_params(altitude=self.altitude_plot, year=2019).shape
 
-        return self.get_gev_params(altitude=1000, year=2019).shape
+    @property
+    def altitude_plot(self):
+        return self.altitude_group.reference_altitude
 
     def best_coef(self, param_name, dim, degree):
         try:
@@ -181,19 +199,24 @@ class OneFoldFit(object):
         else:
             return self.likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=self.degree_freedom_chi2)
 
-    @property
-    def goodness_of_fit_anderson_test(self):
-        if self.folder_for_plots in self._folder_to_goodness:
-            return self._folder_to_goodness[self.folder_for_plots]
-        else:
-            quantiles = self.compute_empirical_quantiles(estimator=self.best_estimator)
-            goodness_of_fit_anderson_test = goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
-            if not goodness_of_fit_anderson_test:
-                print('{} with {} does not pass the anderson test for model {}'.format(self.massif_name,
-                                                                                       self.folder_for_plots,
-                                                                                       type(self.best_margin_model)))
-            self._folder_to_goodness[self.folder_for_plots] = goodness_of_fit_anderson_test
-            return goodness_of_fit_anderson_test
+    # @property
+    # def goodness_of_fit_anderson_test(self):
+    #     if self.folder_for_plots in self._folder_to_goodness:
+    #         return self._folder_to_goodness[self.folder_for_plots]
+    #     else:
+    #         estimator = self.best_estimator
+    #         goodness_of_fit_anderson_test = self.goodness_of_fit_test(estimator)
+    #         if not goodness_of_fit_anderson_test:
+    #             print('{} with {} does not pass the anderson test for model {}'.format(self.massif_name,
+    #                                                                                    self.folder_for_plots,
+    #                                                                                    type(self.best_margin_model)))
+    #         self._folder_to_goodness[self.folder_for_plots] = goodness_of_fit_anderson_test
+    #         return goodness_of_fit_anderson_test
+
+    def goodness_of_fit_test(self, estimator):
+        quantiles = self.compute_empirical_quantiles(estimator=estimator)
+        goodness_of_fit_anderson_test = goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
+        return goodness_of_fit_anderson_test
 
     def compute_empirical_quantiles(self, estimator):
         empirical_quantiles = []

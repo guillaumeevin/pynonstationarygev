@@ -91,8 +91,6 @@ class PointWIseGevAnalysisForCluster(AltitudesStudies):
             for cluster_id, annual_maxima_list in d.items():
                 a = np.array(annual_maxima_list)
                 a = a.flatten()
-                print("here")
-                print(a.shape)
                 cluster_id_to_time_annual_maxima_list[cluster_id].append(list(a))
         return cluster_id_to_time_annual_maxima_list
 

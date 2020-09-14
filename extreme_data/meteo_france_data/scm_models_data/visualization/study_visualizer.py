@@ -716,14 +716,16 @@ class StudyVisualizer(VisualizationParameters):
     # PLot functions that should be common
 
     def plot_map(self, cmap, fit_method, graduation, label, massif_name_to_value, plot_name, add_x_label=True,
-                 negative_and_positive_values=True, massif_name_to_text=None):
+                 negative_and_positive_values=True, massif_name_to_text=None, altitude=None):
+        if altitude is None:
+            altitude = self.study.altitude
         if len(massif_name_to_value) > 0:
-            load_plot(cmap, graduation, label, massif_name_to_value, self.study.altitude, fitmethod_to_str(fit_method),
+            load_plot(cmap, graduation, label, massif_name_to_value, altitude, fitmethod_to_str(fit_method),
                       add_x_label=add_x_label, negative_and_positive_values=negative_and_positive_values,
                       massif_name_to_text=massif_name_to_text)
             self.plot_name = plot_name
             # self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True, dpi=500)
-            self.show_or_save_to_file(add_classic_title=False, no_title=True, dpi=500)
+            self.show_or_save_to_file(add_classic_title=False, no_title=True, dpi=500, tight_layout=True)
             plt.close()
 
     def plot_abstract(self, massif_name_to_value, label, plot_name, fit_method='', graduation=10.0, cmap=plt.cm.bwr,

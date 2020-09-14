@@ -22,6 +22,7 @@ class Season(Enum):
     winter = 2
     spring = 3
     automn = 4
+    summer = 5
 
 
 def season_to_str(season):
@@ -35,14 +36,18 @@ class FrenchRegion(Enum):
     pyrenees = 2
 
 
+season_to_start_day_and_last_day = {
+    Season.annual: ('08-01', '07-31'),
+    Season.winter_extended: ('11-01', '05-31'),
+    Season.winter: ('12-01', '02-28'),
+    Season.spring: ('03-01', '05-31'),
+    Season.summer: ('06-01', '08-31'),
+    Season.automn: ('09-01', '11-30'),
+
+}
+
+
 def first_day_and_last_day(season):
-    season_to_start_day_and_last_day = {
-        Season.annual: ('08-01', '07-31'),
-        Season.winter_extended: ('11-01', '05-31'),
-        Season.winter: ('12-01', '02-28'),
-        Season.spring: ('03-01', '05-31'),
-        Season.automn: ('09-01', '11-30'),
-    }
     return season_to_start_day_and_last_day[season]
 
 
