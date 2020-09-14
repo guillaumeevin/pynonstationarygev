@@ -7,25 +7,31 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted
     get_half_colormap
 
 
-def plot_against_altitude(altitudes, ax, massif_id, massif_name, values, fill=False):
-    di = massif_id // 8
-    if di == 0:
-        linestyle = '-'
-    elif di == 1:
-        linestyle = 'dotted'
+def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=None, fill=False, massif_name_as_labels=True):
+    if massif_name_as_labels:
+        di = massif_id // 8
+        if di == 0:
+            linestyle = '-'
+        elif di == 1:
+            linestyle = 'dotted'
+        else:
+            linestyle = '--'
+        colors = list(mcolors.TABLEAU_COLORS)
+        colors[-3:-1] = []  # remove gray and olive
+        color = colors[massif_id % 8]
+        # Label
+        massif_name_str = ' '.join(massif_name.split('_'))
+        label = massif_name_str
     else:
-        linestyle = '--'
-    colors = list(mcolors.TABLEAU_COLORS)
-    colors[-3:-1] = []  # remove gray and olive
-    color = colors[massif_id % 8]
-    massif_name_str = ' '.join(massif_name.split('_'))
-    label = massif_name_str
+        color = None
+        linestyle = None
+        label = '{} m'.format(altitude)
     if not fill:
-        ax.plot(altitudes, values, color=color, linewidth=2, label=label, linestyle=linestyle)
+        ax.plot(x_ticks, values, color=color, linewidth=2, label=label, linestyle=linestyle)
     else:
         lower_bound, upper_bound = zip(*values)
         # ax.fill_between(altitudes, lower_bound, upper_bound, color=color, alpha=0.2, label=label + '95\% confidence interval')
-        ax.fill_between(altitudes, lower_bound, upper_bound, color=color, alpha=0.2)
+        ax.fill_between(x_ticks, lower_bound, upper_bound, color=color, alpha=0.2)
 
 
 def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_method, add_x_label=True,

@@ -43,7 +43,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self._massif_name_to_one_fold_fit = {}
         for massif_name in self.massif_names:
             assert top_n_values_to_remove is None
-            dataset = studies.spatio_temporal_dataset(massif_name=massif_name, top_n_values_to_remove=top_n_values_to_remove)
+            dataset = studies.spatio_temporal_dataset(massif_name=massif_name,
+                                                      top_n_values_to_remove=top_n_values_to_remove)
             old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method,
                                       self.temporal_covariate_for_fit)
             self._massif_name_to_one_fold_fit[massif_name] = old_fold_fit
@@ -143,7 +144,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     def plot_shape_map(self):
         self.plot_abstract_fast(self.massif_name_to_shape,
                                 label='Shape parameter for {} maxima of {}'.format(self.study.season_name,
-                                                                                   SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)]),
+                                                                                   SCM_STUDY_CLASS_TO_ABBREVIATION[
+                                                                                       type(self.study)]),
                                 add_x_label=False, graduation=0.1, massif_name_to_text=self.massif_name_to_name)
 
     def plot_altitude_for_the_peak(self):
@@ -184,7 +186,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 ylabel = 'Mean {} maxima'.format(self.study.season_name)
             else:
                 ylabel = '{}-year return level'.format(return_period)
-            ax.set_ylabel('{} of {} in {} ({})'.format(ylabel, SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)], massif_name.replace('_', ' '), self.study.variable_unit))
+            ax.set_ylabel('{} of {} in {} ({})'.format(ylabel, SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)],
+                                                       massif_name.replace('_', ' '), self.study.variable_unit))
             peak_year_folder = 'Peak year ' + ylabel
             plot_name = '{}/{}/Peak year for {}'.format(OneFoldFit.folder_for_plots, peak_year_folder,
                                                         massif_name.replace('_', ''))
@@ -260,5 +263,3 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         plot_name = 'Switch altitude'
         self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
         plt.close()
-
-

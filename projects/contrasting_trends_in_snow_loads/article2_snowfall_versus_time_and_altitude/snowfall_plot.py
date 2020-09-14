@@ -165,7 +165,7 @@ def plot_mean(altitude_to_visualizer: Dict[int, StudyVisualizerForMeanValues], d
 
 
 def plot_values_against_altitudes(ax, altitudes, massif_id, massif_name, moment, study, values, visualizer):
-    plot_against_altitude(altitudes=altitudes, ax=ax, massif_id=massif_id, massif_name=massif_name, values=values)
+    plot_against_altitude(x_ticks=altitudes, ax=ax, massif_id=massif_id, massif_name=massif_name, values=values)
     plot_name = '{} annual maxima of {}'.format(moment, SCM_STUDY_CLASS_TO_ABBREVIATION[type(study)])
     ax.set_ylabel('{} ({})'.format(plot_name, study.variable_unit), fontsize=15)
     ax.set_xlabel('altitudes', fontsize=15)

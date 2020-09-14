@@ -4,17 +4,9 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_mode
     NonStationaryCrossTermForLocation, NonStationaryAltitudinalLocationLinearCrossTermForLocation, \
     NonStationaryAltitudinalLocationQuadraticCrossTermForLocation, \
     NonStationaryAltitudinalLocationLinearScaleLinearCrossTermForLocation, \
-    NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation, NonStationaryAltitudinalScaleLinear, \
-    NonStationaryAltitudinalScaleLinearCrossTermForLocation, NonStationaryAltitudinalLocationCubicCrossTermForLocation, \
-    NonStationaryAltitudinalLocationCubic, NonStationaryAltitudinalLocationOrder4CrossTermForLocation, \
-    NonStationaryAltitudinalLocationOrder4
-from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models_cross_term_in_scale import \
-    NonStationaryAltitudinalLocationLinearScaleQuadraticCrossTermForScale, \
-    NonStationaryAltitudinalLocationQuadraticScaleQuadraticCrossTermForScale, \
-    NonStationaryAltitudinalScaleLinearCrossTermForScale, \
-    NonStationaryAltitudinalLocationLinearScaleLinearCrossTermForScale, \
-    NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForScale, \
-    NonStationaryAltitudinalScaleQuadraticCrossTermForScale
+    NonStationaryAltitudinalScaleLinear, \
+    NonStationaryAltitudinalLocationCubicCrossTermForLocation, \
+    NonStationaryAltitudinalLocationCubic
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models_only_altitude_and_scale import \
     StationaryAltitudinalOnlyScale, NonStationaryAltitudinalOnlyScaleLocationLinear, \
     NonStationaryAltitudinalOnlyScaleLocationQuadratic, NonStationaryAltitudinalOnlyScaleLocationCubic, \
@@ -23,17 +15,9 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_mode
     NonStationaryAltitudinalOnlyScaleLocationQuadraticCrossTermForLocation, \
     NonStationaryAltitudinalOnlyScaleLocationCubicCrossTermForLocation, \
     NonStationaryAltitudinalOnlyScaleLocationOrder4CrossTermForLocation
-from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models_with_scale import \
-    NonStationaryAltitudinalScaleQuadraticCrossTermForLocation, NonStationaryAltitudinalScaleQuadratic, \
-    NonStationaryAltitudinalLocationLinearScaleQuadratic, NonStationaryAltitudinalLocationQuadraticScaleQuadratic, \
-    NonStationaryAltitudinalLocationLinearScaleQuadraticCrossTermForLocation, \
-    NonStationaryAltitudinalLocationQuadraticScaleQuadraticCrossTermForLocation
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models_with_scale_2 import \
     NonStationaryAltitudinalScaleLinearCrossTermForLocation, \
-    NonStationaryAltitudinalScaleLinearLocationLinearCrossTermForLocation, \
     NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation, \
-    NonStationaryAltitudinalScaleQuadraticLocationLinearCrossTermForLocation, \
-    NonStationaryAltitudinalLocationCubicScaleQuadraticCrossTermForLocation, \
     NonStationaryAltitudinalLocationCubicScaleLinearCrossTermForLocation, \
     NonStationaryAltitudinalLocationCubicScaleLinear
 from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_models import \
@@ -45,6 +29,16 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_m
     NonStationaryGumbelAltitudinalLocationLinearScaleLinearCrossTermForLocation, \
     NonStationaryGumbelAltitudinalLocationQuadraticScaleLinearCrossTermForLocation, \
     NonStationaryGumbelAltitudinalScaleLinearCrossTermForLocation, NonStationaryGumbelCrossTermForLocation
+from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_with_constant_shape_wrt_altitude import \
+    AltitudinalShapeConstantTimeLocShapeLinear, \
+    AltitudinalShapeConstantTimeLocScaleLinear, AltitudinalShapeConstantTimeScaleShapeLinear, \
+    AltitudinalShapeConstantTimeLocScaleShapeLinear, AltitudinalShapeConstantTimeLocationLinear, \
+    AltitudinalShapeConstantTimeScaleLinear, AltitudinalShapeConstantTimeShapeLinear
+from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_with_linear_shape_wrt_altitude import \
+    AltitudinalShapeLinearTimeStationary, AltitudinalShapeLinearTimeLocScaleShapeLinear, \
+    AltitudinalShapeLinearTimeLocationLinear, AltitudinalShapeLinearTimeScaleLinear, \
+    AltitudinalShapeLinearTimeShapeLinear, AltitudinalShapeLinearTimeLocShapeLinear, \
+    AltitudinalShapeLinearTimeLocScaleLinear, AltitudinalShapeLinearTimeScaleShapeLinear
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     NonStationaryLocationSpatioTemporalLinearityModel1, NonStationaryLocationSpatioTemporalLinearityModel2, \
     NonStationaryLocationSpatioTemporalLinearityModel3, NonStationaryLocationSpatioTemporalLinearityModel4, \
@@ -94,6 +88,29 @@ ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM = [
     NonStationaryAltitudinalLocationQuadraticScaleLinear,
     NonStationaryAltitudinalLocationCubicScaleLinear,
     NonStationaryAltitudinalLocationCubicScaleLinearCrossTermForLocation,
+
+]
+
+ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS = [
+
+    # With a constant shape for the altitude (8 models)
+    StationaryAltitudinal,
+    AltitudinalShapeConstantTimeLocationLinear,
+    AltitudinalShapeConstantTimeScaleLinear,
+    AltitudinalShapeConstantTimeShapeLinear,
+    AltitudinalShapeConstantTimeLocShapeLinear,
+    AltitudinalShapeConstantTimeLocScaleLinear,
+    AltitudinalShapeConstantTimeScaleShapeLinear,
+    AltitudinalShapeConstantTimeLocScaleShapeLinear,
+    # With a linear shape for the altitude (8 models)
+    AltitudinalShapeLinearTimeStationary,
+    AltitudinalShapeLinearTimeLocationLinear,
+    AltitudinalShapeLinearTimeScaleLinear,
+    AltitudinalShapeLinearTimeShapeLinear,
+    AltitudinalShapeLinearTimeLocShapeLinear,
+    AltitudinalShapeLinearTimeLocScaleLinear,
+    AltitudinalShapeLinearTimeScaleShapeLinear,
+    AltitudinalShapeLinearTimeLocScaleShapeLinear,
 
 ]
 

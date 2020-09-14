@@ -12,7 +12,10 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_mode
     AltitudinalOnlyScale, StationaryAltitudinalOnlyScale
 from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_models import \
     StationaryGumbelAltitudinal, AbstractGumbelAltitudinalModel
+from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_with_linear_shape_wrt_altitude import \
+    AltitudinalShapeLinearTimeStationary
 from extreme_fit.model.margin_model.utils import MarginFitMethod
+from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import AltitudeGroup
 from root_utils import classproperty
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
@@ -22,7 +25,9 @@ class OneFoldFit(object):
     best_estimator_minimizes_total_aic = False
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
-                 fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None):
+                 fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None,
+                 altitude_group=AltitudeGroup.unspecfied):
+        self.altitude_group = altitude_group
         self.massif_name = massif_name
         self.dataset = dataset
         self.models_classes = models_classes
@@ -128,6 +133,7 @@ class OneFoldFit(object):
     def best_shape(self):
         # We take any altitude (altitude=1000 for instance) and any year
         # as the shape is constant w.r.t the altitude and the year
+
         return self.get_gev_params(altitude=1000, year=2019).shape
 
     def best_coef(self, param_name, dim, degree):
@@ -153,6 +159,8 @@ class OneFoldFit(object):
             return self.model_class_to_estimator_with_finite_aic[StationaryGumbelAltitudinal]
         elif isinstance(self.best_estimator.margin_model, AltitudinalOnlyScale):
             return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinalOnlyScale]
+        elif isinstance(self.best_estimator.margin_model, AltitudinalShapeLinearTimeStationary):
+            return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
         else:
             return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinal]
 

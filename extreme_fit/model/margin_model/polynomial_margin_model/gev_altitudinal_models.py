@@ -34,16 +34,18 @@ class AbstractAltitudinalModel(AbstractSpatioTemporalPolynomialModel):
 
     @property
     def name_str(self):
-        name = self.DISTRIBUTION_STR
-        name += self.dim_to_str_number(GevParams.LOC, self.coordinates.idx_temporal_coordinates)
-        name += self.dim_to_str_number(GevParams.SCALE, self.coordinates.idx_temporal_coordinates)
-        shape_str_number = self.dim_to_str_number(GevParams.SHAPE, self.coordinates.idx_temporal_coordinates)
-        if shape_str_number != '0':
-            name += shape_str_number
-        if isinstance(self, AbstractAddCrossTermForLocation):
-            name += 'x'
-        if isinstance(self, AbstractAddCrossTermForScale):
-            name += 's'
+        name = ''
+        for coordinate_name, idx in zip(['s', 't'], [self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates]):
+            name += coordinate_name
+            for param_name in GevParams.PARAM_NAMES:
+                name += self.dim_to_str_number(param_name, idx)
+        if isinstance(self, AbstractAddCrossTerm):
+            name += 'sxt'
+            for c in [AbstractAddCrossTermForLocation, AbstractAddCrossTermForScale, AbstractAddCrossTermForShape]:
+                if isinstance(self, c):
+                    name += '1'
+                else:
+                    name += '0'
         return name
 
 
@@ -86,6 +88,7 @@ class NonStationaryAltitudinalLocationQuadratic(AbstractAltitudinalModel):
             GevParams.SCALE: [(self.coordinates.idx_x_coordinates, 1)]
         }
 
+
 class NonStationaryAltitudinalLocationCubic(AbstractAltitudinalModel):
 
     @property
@@ -94,6 +97,7 @@ class NonStationaryAltitudinalLocationCubic(AbstractAltitudinalModel):
             GevParams.LOC: [(self.coordinates.idx_x_coordinates, 1), (self.coordinates.idx_temporal_coordinates, 3)],
             GevParams.SCALE: [(self.coordinates.idx_x_coordinates, 1)]
         }
+
 
 class NonStationaryAltitudinalLocationOrder4(AbstractAltitudinalModel):
 
@@ -127,7 +131,10 @@ class NonStationaryAltitudinalLocationQuadraticScaleLinear(AbstractAltitudinalMo
 
 # Add cross terms
 
-class AbstractAddCrossTermForLocation(AbstractAltitudinalModel):
+class AbstractAddCrossTerm(AbstractAltitudinalModel):
+    pass
+
+class AbstractAddCrossTermForLocation(AbstractAddCrossTerm):
 
     # @property
     # def param_name_to_list_dim_and_degree_for_margin_function(self):
@@ -147,7 +154,8 @@ class AbstractAddCrossTermForLocation(AbstractAltitudinalModel):
             d[GevParams.LOC] = [cross_term]
         return d
 
-class AbstractAddCrossTermForScale(AbstractAltitudinalModel):
+
+class AbstractAddCrossTermForScale(AbstractAddCrossTerm):
 
     @property
     def param_name_to_list_dim_and_degree_for_margin_function(self):
@@ -156,9 +164,26 @@ class AbstractAddCrossTermForScale(AbstractAltitudinalModel):
         assert 1 <= len(d[GevParams.SCALE]) <= 2
         assert self.coordinates.idx_x_coordinates == d[GevParams.SCALE][0][0]
         insert_index = 1
-        d[GevParams.SCALE].insert(insert_index, ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1))
+        d[GevParams.SCALE].insert(insert_index,
+                                  ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1))
         return d
 
+
+class AbstractAddCrossTermForShape(AbstractAddCrossTerm):
+
+    @property
+    def param_name_to_list_dim_and_degree_for_margin_function(self):
+        d = self.param_name_to_list_dim_and_degree
+        # The two insert below enable to check that the insert_index should indeed be 1
+        # assert 1 <= len(d[GevParams.SHAPE]) <= 2
+        # assert self.coordinates.idx_x_coordinates == d[GevParams.SHAPE][0][0]
+        if GevParams.SHAPE in d:
+            insert_index = 1 if self.coordinates.idx_x_coordinates == d[GevParams.SHAPE][0][0] else 0
+            d[GevParams.SHAPE].insert(insert_index,
+                                      ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1))
+        else:
+            d[GevParams.SHAPE] = [((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1)]
+        return d
 
 
 class NonStationaryCrossTermForLocation(AbstractAddCrossTermForLocation, StationaryAltitudinal):
@@ -174,15 +199,18 @@ class NonStationaryAltitudinalLocationQuadraticCrossTermForLocation(AbstractAddC
                                                                     NonStationaryAltitudinalLocationQuadratic):
     pass
 
+
 class NonStationaryAltitudinalLocationCubicCrossTermForLocation(AbstractAddCrossTermForLocation,
                                                                 NonStationaryAltitudinalLocationCubic,
                                                                 ):
     pass
 
+
 class NonStationaryAltitudinalLocationOrder4CrossTermForLocation(AbstractAddCrossTermForLocation,
-                                                                NonStationaryAltitudinalLocationOrder4,
-                                                                ):
+                                                                 NonStationaryAltitudinalLocationOrder4,
+                                                                 ):
     pass
+
 
 class NonStationaryAltitudinalLocationLinearScaleLinearCrossTermForLocation(AbstractAddCrossTermForLocation,
                                                                             NonStationaryAltitudinalLocationLinearScaleLinear):
@@ -197,4 +225,3 @@ class NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation(A
 class NonStationaryAltitudinalScaleLinearCrossTermForLocation(AbstractAddCrossTermForLocation,
                                                               NonStationaryAltitudinalScaleLinear):
     pass
-

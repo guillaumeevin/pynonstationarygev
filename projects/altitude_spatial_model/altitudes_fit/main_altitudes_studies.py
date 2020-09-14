@@ -5,7 +5,8 @@ import numpy as np
 from extreme_data.meteo_france_data.adamont_data.abstract_simulation_study import SimulationStudy
 from extreme_data.meteo_france_data.adamont_data.snowfall_simulation import SafranSnowfallSimulationRCP85
 from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_GEV_MODELS, \
-    ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM, ALTITUDINAL_GEV_MODELS_LOCATION_ONLY_SCALE_ALTITUDES, ALTITUDINAL_GEV_MODELS_LOCATION
+    ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM, ALTITUDINAL_GEV_MODELS_LOCATION_ONLY_SCALE_ALTITUDES, \
+    ALTITUDINAL_GEV_MODELS_LOCATION, ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.plot_total_aic import plot_total_aic, \
     plot_individual_aic
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import MeanAlpsTemperatureCovariate
@@ -38,7 +39,8 @@ def plot_moments(studies, massif_names=None):
 
 def plot_altitudinal_fit(studies, massif_names=None):
     # model_classes = ALTITUDINAL_GEV_MODELS_LOCATION_ONLY_SCALE_ALTITUDES
-    model_classes = ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM
+    # model_classes = ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM
+    model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
     # model_classes = ALTITUDINAL_GEV_MODELS_LOCATION
     # model_classes = ALTITUDINAL_GEV_MODELS_LOCATION_CUBIC_MINIMUM
     # model_classes = ALTITUDINAL_GEV_MODELS_QUADRATIC
@@ -73,13 +75,13 @@ def main():
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranPrecipitation1Day
                      , SafranPrecipitation3Days][:1]
 
-    # altitudes = [1500, 1800]
-    study_classes = [SafranSnowfall1Day, SafranSnowfallSimulationRCP85][:]
+    altitudes = [1800, 2100, 2400]
+    study_classes = [SafranSnowfall1Day][:]
 
     # Common parameters
-    altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
+    # altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
     massif_names = None
-    seasons = [Season.winter]
+    seasons = [Season.annual]
 
     for season in seasons:
         for study_class in study_classes:
