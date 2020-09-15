@@ -35,8 +35,9 @@ def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=
 
 
 def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_method, add_x_label=True,
-              negative_and_positive_values=True, massif_name_to_text=None):
-    max_abs_change = max([abs(e) for e in massif_name_to_value.values()])
+              negative_and_positive_values=True, massif_name_to_text=None, add_colorbar=True, max_abs_change=None):
+    if max_abs_change is None:
+        max_abs_change = max([abs(e) for e in massif_name_to_value.values()])
     if negative_and_positive_values:
         ticks, labels = ticks_values_and_labels_for_percentages(graduation=graduation, max_abs_change=max_abs_change)
         min_ratio = -max_abs_change
@@ -52,6 +53,11 @@ def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_metho
                             for m, v in massif_name_to_value.items()}
     ticks_values_and_labels = ticks, labels
     ax = plt.gca()
+
+    massif_name_to_hatch_boolean_list = {}
+    for massif_name in set(AbstractStudy.all_massif_names()) - set(list(massif_name_to_value.keys())):
+        massif_name_to_hatch_boolean_list[massif_name] = [True, True]
+
     AbstractStudy.visualize_study(ax=ax,
                                   massif_name_to_value=massif_name_to_value,
                                   massif_name_to_color=massif_name_to_color,
@@ -59,7 +65,7 @@ def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_metho
                                   axis_off=False,
                                   cmap=cmap,
                                   show_label=False,
-                                  add_colorbar=True,
+                                  add_colorbar=add_colorbar,
                                   show=False,
                                   vmin=min_ratio,
                                   vmax=max_ratio,
@@ -68,6 +74,7 @@ def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_metho
                                   fontsize_label=10,
                                   massif_name_to_text=massif_name_to_text,
                                   add_text=massif_name_to_text is not None,
+                                  massif_name_to_hatch_boolean_list=massif_name_to_hatch_boolean_list
                                   )
     ax.get_xaxis().set_visible(True)
     ax.set_xticks([])

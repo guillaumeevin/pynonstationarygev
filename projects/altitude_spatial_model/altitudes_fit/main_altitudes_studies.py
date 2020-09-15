@@ -1,3 +1,5 @@
+from typing import List
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,37 +30,6 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitudes_s
     AltitudesStudiesVisualizerForNonStationaryModels
 
 
-def plot_time_series(studies, massif_names=None):
-    studies.plot_maxima_time_series(massif_names=massif_names)
-
-
-def plot_moments(studies, massif_names=None):
-    for std in [True, False][:]:
-        for change in [True, False, None]:
-            studies.plot_mean_maxima_against_altitude(massif_names=massif_names, std=std, change=change)
-
-
-def plot_altitudinal_fit(studies, massif_names=None):
-    # model_classes = ALTITUDINAL_GEV_MODELS_LOCATION_ONLY_SCALE_ALTITUDES
-    # model_classes = ALTITUDINAL_GEV_MODELS_LOCATION_QUADRATIC_MINIMUM
-    model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
-    # model_classes = ALTITUDINAL_GEV_MODELS_LOCATION
-    # model_classes = ALTITUDINAL_GEV_MODELS_LOCATION_CUBIC_MINIMUM
-    # model_classes = ALTITUDINAL_GEV_MODELS_QUADRATIC
-    visualizer = AltitudesStudiesVisualizerForNonStationaryModels(studies=studies,
-                                                                  model_classes=model_classes,
-                                                                  massif_names=massif_names,
-                                                                  show=False,
-                                                                  temporal_covariate_for_fit=None,
-                                                                  # temporal_covariate_for_fit=MeanAlpsTemperatureCovariate,
-                                                                  top_n_values_to_remove=None,
-                                                                  )
-    # Plot the results for the model that minimizes the individual aic
-    plot_individual_aic(visualizer)
-    # Plot the results for the model that minimizes the total aic
-    # plot_total_aic(model_classes, visualizer)
-
-
 def main():
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000][4:6]
     # todo: l ecart  pour les saisons de l automne ou de sprint
@@ -74,38 +45,87 @@ def main():
     study_classes = [SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days,
                      SafranPrecipitation7Days][:]
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranPrecipitation1Day
-                     , SafranPrecipitation3Days][:1]
+                        , SafranPrecipitation3Days][:1]
     altitudes = [1800, 2100, 2400]
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days][:1]
 
     # Common parameters
     # altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
     massif_names = None
+    massif_names = ['Mercantour', 'Vercors', 'Ubaye']
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
-    all_groups = altitudes_for_groups[:]
-    for altitudes in all_groups:
-        main_loop(altitudes, massif_names, seasons, study_classes)
+    main_loop(altitudes_for_groups, massif_names, seasons, study_classes)
 
 
-def main_loop(altitudes, massif_names, seasons, study_classes):
+def main_loop(altitudes_list, massif_names, seasons, study_classes):
+    assert isinstance(altitudes_list, List)
+    assert isinstance(altitudes_list[0], List)
     for season in seasons:
         for study_class in study_classes:
-            if issubclass(study_class, SimulationStudy):
-                for ensemble_idx in list(range(14))[:1]:
-                    studies = AltitudesStudies(study_class, altitudes, season=season,
-                                               ensemble_idx=ensemble_idx)
-                    plot_studies(massif_names, season, studies, study_class)
-            else:
-                studies = AltitudesStudies(study_class, altitudes, season=season)
-                plot_studies(massif_names, season, studies, study_class)
+            # if issubclass(study_class, SimulationStudy):
+            #     for ensemble_idx in list(range(14))[:1]:
+            #         studies = AltitudesStudies(study_class, altitudes, season=season,
+            #                                    ensemble_idx=ensemble_idx)
+            #         plot_studies(massif_names, season, studies, study_class)
+            # else:
+            visualizer_list = load_visualizer_list(season, study_class, altitudes_list, massif_names)
+            for visualizer in visualizer_list:
+                plots(massif_names, season, visualizer)
 
 
-def plot_studies(massif_names, season, studies, study_class):
-    print('inner loop', season, study_class)
-    # plot_time_series(studies, massif_names)
-    # plot_moments(studies, massif_names)
-    plot_altitudinal_fit(studies, massif_names)
+def load_visualizer_list(season, study_class, altitudes_list, massif_names):
+    model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
+    visualizer_list = []
+    # Load all studies
+    for altitudes in altitudes_list:
+        print('here', altitudes)
+        studies = AltitudesStudies(study_class, altitudes, season=season)
+        visualizer = AltitudesStudiesVisualizerForNonStationaryModels(studies=studies,
+                                                                      model_classes=model_classes,
+                                                                      massif_names=massif_names,
+                                                                      show=False,
+                                                                      temporal_covariate_for_fit=None,
+                                                                      # temporal_covariate_for_fit=MeanAlpsTemperatureCovariate,
+                                                                      )
+        visualizer_list.append(visualizer)
+    # Compute the max abs for all metrics
+    d = {}
+    for method_name in AltitudesStudiesVisualizerForNonStationaryModels.moment_names:
+        for order in AltitudesStudiesVisualizerForNonStationaryModels.orders:
+            c = (method_name, order)
+            max_abs = max([
+                max([abs(e) for e in v.method_name_and_order_to_d(method_name, order).values()
+                     ]) for v in visualizer_list])
+            d[c] = max_abs
+    # Assign the max abs dictionary
+    for v in visualizer_list:
+        v._method_name_and_order_to_max_abs = d
+    # Compute the max abs for the shape parameter
+    max_abs_for_shape = max([max([abs(e) for e in v.massif_name_to_shape.values()]) for v in visualizer_list])
+    for v in visualizer_list:
+        v._max_abs_for_shape = max_abs_for_shape
+
+    return visualizer_list
+
+
+def plots(massif_names, season, visualizer):
+    studies = visualizer.studies
+    print('inner loop', season, type(studies.study))
+
+    # Plot time series
+    # studies.plot_maxima_time_series(massif_names=massif_names)
+
+    # Plot moments
+    # for std in [True, False][:]:
+    #     for change in [True, False, None]:
+    #         studies.plot_mean_maxima_against_altitude(massif_names=massif_names, std=std, change=change)
+
+    # Plot the results for the model that minimizes the individual aic
+    plot_individual_aic(visualizer)
+
+    # Plot the results for the model that minimizes the total aic
+    # plot_total_aic(model_classes, visualizer)
 
 
 if __name__ == '__main__':

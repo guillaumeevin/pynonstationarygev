@@ -43,7 +43,7 @@ class AltitudesStudies(object):
     # Dataset Loader
 
     def spatio_temporal_dataset(self, massif_name, s_split_spatial: pd.Series = None,
-                                s_split_temporal: pd.Series = None, top_n_values_to_remove=None):
+                                s_split_temporal: pd.Series = None):
         coordinate_values_to_maxima = {}
         massif_altitudes = self.massif_name_to_altitudes[massif_name]
         if len(massif_altitudes) == 0:

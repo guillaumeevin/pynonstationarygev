@@ -716,13 +716,15 @@ class StudyVisualizer(VisualizationParameters):
     # PLot functions that should be common
 
     def plot_map(self, cmap, fit_method, graduation, label, massif_name_to_value, plot_name, add_x_label=True,
-                 negative_and_positive_values=True, massif_name_to_text=None, altitude=None):
+                 negative_and_positive_values=True, massif_name_to_text=None, altitude=None, add_colorbar=True,
+                 max_abs_change=None):
         if altitude is None:
             altitude = self.study.altitude
         if len(massif_name_to_value) > 0:
             load_plot(cmap, graduation, label, massif_name_to_value, altitude, fitmethod_to_str(fit_method),
                       add_x_label=add_x_label, negative_and_positive_values=negative_and_positive_values,
-                      massif_name_to_text=massif_name_to_text)
+                      massif_name_to_text=massif_name_to_text,
+                      add_colorbar=add_colorbar, max_abs_change=max_abs_change)
             self.plot_name = plot_name
             # self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True, dpi=500)
             self.show_or_save_to_file(add_classic_title=False, no_title=True, dpi=500, tight_layout=True)
@@ -736,5 +738,5 @@ class StudyVisualizer(VisualizationParameters):
         plot_name2 = '{}/{}'.format(plot_name.split()[0], plot_name)
         for plot_name in [plot_name1, plot_name2]:
             self.plot_map(cmap, fit_method, graduation, label, massif_name_to_value, plot_name, add_x_label, negative_and_positive_values,
-                          massif_name_to_text)
+                          massif_name_to_text, )
 

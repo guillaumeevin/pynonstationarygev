@@ -17,6 +17,7 @@ import pandas as pd
 from PIL import Image
 from PIL import ImageDraw
 from matplotlib.colors import Normalize
+from matplotlib.patches import Polygon
 from netCDF4 import Dataset
 
 from extreme_data.edf_data.weather_types import load_df_weather_types
@@ -97,6 +98,7 @@ class AbstractStudy(object):
         self.slope = slope
 
     """ Time """
+
 
     @cached_property
     def year_to_first_index_and_last_index(self):
@@ -546,15 +548,15 @@ class AbstractStudy(object):
                     ax.fill(*coords_list, **{'color': default_color_for_missing_massif})
 
                 # For the moment we comment all the part of this code
-                # # Add a hatch to visualize the mean & variance variation sign
-                # hatch_list = ['//', '\\\\']
-                # if massif_name_to_hatch_boolean_list is not None:
-                #     if massif_name in massif_name_to_hatch_boolean_list:
-                #         a = np.array(coords_list).transpose()
-                #         hatch_boolean_list = massif_name_to_hatch_boolean_list[massif_name]
-                #         for hatch, is_hatch in zip(hatch_list, hatch_boolean_list):
-                #             if is_hatch:
-                #                 ax.add_patch(Polygon(xy=a, fill=False, hatch=hatch))
+                # Add a hatch to visualize the mean & variance variation sign
+                hatch_list = ['//', '\\\\']
+                if massif_name_to_hatch_boolean_list is not None:
+                    if massif_name in massif_name_to_hatch_boolean_list:
+                        a = np.array(coords_list).transpose()
+                        hatch_boolean_list = massif_name_to_hatch_boolean_list[massif_name]
+                        for hatch, is_hatch in zip(hatch_list, hatch_boolean_list):
+                            if is_hatch:
+                                ax.add_patch(Polygon(xy=a, fill=False, hatch=hatch))
 
         if show_label:
             # Improve some explanation on the X axis and on the Y axis
