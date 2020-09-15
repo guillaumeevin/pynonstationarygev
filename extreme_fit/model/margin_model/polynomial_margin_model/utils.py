@@ -29,6 +29,14 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_m
     NonStationaryGumbelAltitudinalLocationLinearScaleLinearCrossTermForLocation, \
     NonStationaryGumbelAltitudinalLocationQuadraticScaleLinearCrossTermForLocation, \
     NonStationaryGumbelAltitudinalScaleLinearCrossTermForLocation, NonStationaryGumbelCrossTermForLocation
+from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_quadratic_location_and_scale_with_constant_shape import \
+    AltitudinalShapeConstantTimeLocationQuadratic, AltitudinalShapeConstantTimeLocationQuadraticScaleLinear, \
+    AltitudinalShapeConstantTimeLocationQuadraticScaleQuadratic, \
+    AltitudinalShapeConstantTimeLocationLinearScaleQuadratic, AltitudinalShapeConstantTimeScaleQuadratic
+from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_quadratic_location_and_scale_with_linear_shape import \
+    AltitudinalShapeLinearTimeLocationQuadratic, AltitudinalShapeLinearTimeLocationQuadraticScaleLinear, \
+    AltitudinalShapeLinearTimeLocationQuadraticScaleQuadratic, AltitudinalShapeLinearTimeLocationLinearScaleQuadratic, \
+    AltitudinalShapeLinearTimeScaleQuadratic
 from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_with_constant_shape_wrt_altitude import \
     AltitudinalShapeConstantTimeLocShapeLinear, \
     AltitudinalShapeConstantTimeLocScaleLinear, AltitudinalShapeConstantTimeScaleShapeLinear, \
@@ -111,6 +119,20 @@ ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS = [
     AltitudinalShapeLinearTimeLocScaleLinear,
     # AltitudinalShapeLinearTimeScaleShapeLinear,
     # AltitudinalShapeLinearTimeLocScaleShapeLinear,
+
+    # With a quadratic term
+
+    # AltitudinalShapeConstantTimeLocationQuadratic,
+    # AltitudinalShapeConstantTimeLocationQuadraticScaleLinear,
+    # AltitudinalShapeConstantTimeLocationQuadraticScaleQuadratic,
+    # AltitudinalShapeConstantTimeLocationLinearScaleQuadratic,
+    # AltitudinalShapeConstantTimeScaleQuadratic,
+    #
+    # AltitudinalShapeLinearTimeLocationQuadratic,
+    # AltitudinalShapeLinearTimeLocationQuadraticScaleLinear,
+    # AltitudinalShapeLinearTimeLocationQuadraticScaleQuadratic,
+    # AltitudinalShapeLinearTimeLocationLinearScaleQuadratic,
+    # AltitudinalShapeLinearTimeScaleQuadratic,
 
 ]
 

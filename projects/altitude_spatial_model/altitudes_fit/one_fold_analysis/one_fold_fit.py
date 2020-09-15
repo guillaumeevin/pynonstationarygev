@@ -24,11 +24,13 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 class OneFoldFit(object):
     SIGNIFICANCE_LEVEL = 0.05
     best_estimator_minimizes_total_aic = False
+    return_period = 50
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
                  fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None,
                  altitude_class=DefaultAltitudeGroup,
-                 only_models_that_pass_anderson_test=True):
+                 only_models_that_pass_anderson_test=True,
+                 ):
         self.only_models_that_pass_anderson_test = only_models_that_pass_anderson_test
         self.altitude_group = altitude_class()
         self.massif_name = massif_name
@@ -57,11 +59,11 @@ class OneFoldFit(object):
     @classmethod
     def get_moment_str(cls, order):
         if order == 1:
-            return 'Mean'
+            return 'mean'
         elif order == 2:
-            return 'Std'
+            return 'std'
         elif order is None:
-            return 'Return level'
+            return '{}-year return levels'.format(cls.return_period)
 
     def get_moment(self, altitude, year, order=1):
         gev_params = self.get_gev_params(altitude, year)
@@ -70,7 +72,7 @@ class OneFoldFit(object):
         elif order == 2:
             return gev_params.std
         elif order is None:
-            return gev_params.return_level(return_period=50)
+            return gev_params.return_level(return_period=self.return_period)
         else:
             raise NotImplementedError
 
@@ -82,7 +84,7 @@ class OneFoldFit(object):
     def moment(self, altitudes, year=2019, order=1):
         return [self.get_moment(altitude, year, order) for altitude in altitudes]
 
-    def changes_in_the_moment(self, altitudes, year=2019, nb_years=50, order=1):
+    def changes_for_moment(self, altitudes, year=2019, nb_years=50, order=1):
         changes = []
         for altitude in altitudes:
             mean_after = self.get_moment(altitude, year, order)
@@ -91,7 +93,7 @@ class OneFoldFit(object):
             changes.append(change)
         return changes
 
-    def relative_changes_in_the_moment(self, altitudes, year=2019, nb_years=50, order=1):
+    def relative_changes_for_moment(self, altitudes, year=2019, nb_years=50, order=1):
         relative_changes = []
         for altitude in altitudes:
             mean_after = self.get_moment(altitude, year, order)

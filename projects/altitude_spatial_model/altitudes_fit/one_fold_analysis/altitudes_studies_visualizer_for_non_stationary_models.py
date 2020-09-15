@@ -61,8 +61,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self._method_name_and_order_to_max_abs = {}
         self._max_abs_for_shape = None
 
-    moment_names = ['moment', 'changes_in_the_moment', 'relative_changes_in_the_moment'][2:]
-    orders = [1, 2, None][2:]
+    moment_names = ['moment', 'changes_for_moment', 'relative_changes_for_moment'][:]
+    orders = [1, 2, None][:]
 
     @property
     def massif_name_to_one_fold_fit(self) -> Dict[str, OneFoldFit]:
@@ -106,10 +106,13 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         # Plot settings
         moment = ' '.join(method_name.split('_'))
         moment = moment.replace('moment', '{} in 2019'.format(OneFoldFit.get_moment_str(order=order)))
-        plot_name = '{}{} annual maxima of {}'.format(OneFoldFit.folder_for_plots, moment,
+        plot_name = '{}{} for annual maxima of {}'.format(OneFoldFit.folder_for_plots, moment,
                                                       SCM_STUDY_CLASS_TO_ABBREVIATION[
                                                           self.studies.study_class])
-        ylabel = '{} ({})'.format(plot_name, self.study.variable_unit)
+        if 'change' in method_name:
+            plot_name += '\nbetween {} and {}'.format(2019-50, 2019)
+        parenthesis = self.study.variable_unit if 'relative' not in method_name else '\%'
+        ylabel = '{} ({})'.format(plot_name, parenthesis)
 
         # Plot the map
         a_change_is_displayed = self.moment_names.index(method_name) > 0
@@ -117,9 +120,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       label=ylabel, massif_name_to_value=massif_name_to_value,
                       plot_name=plot_name, add_x_label=True,
                       negative_and_positive_values=a_change_is_displayed,
-                      massif_name_to_text=None, altitude=self.altitude_group.reference_altitude,
+                      altitude=self.altitude_group.reference_altitude,
                       add_colorbar=self.add_colorbar,
-                      max_abs_change=self.method_name_and_order_to_max_abs(method_name, order)
+                      max_abs_change=self.method_name_and_order_to_max_abs(method_name, order),
+                      massif_name_to_text=self.massif_name_to_name,
                       )
 
     @property

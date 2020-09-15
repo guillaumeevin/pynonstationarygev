@@ -80,4 +80,4 @@ def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_metho
     ax.set_xticks([])
     if add_x_label:
         ax.set_xlabel('Altitude = {}m'.format(altitude), fontsize=15)
-        ax.set_title('Fit method is {}'.format(fit_method))
+        # ax.set_title('Fit method is {}'.format(fit_method))

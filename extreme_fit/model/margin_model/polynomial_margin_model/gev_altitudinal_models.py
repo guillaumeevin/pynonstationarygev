@@ -34,19 +34,37 @@ class AbstractAltitudinalModel(AbstractSpatioTemporalPolynomialModel):
 
     @property
     def name_str(self):
-        name = ''
-        for coordinate_name, idx in zip(['s', 't'], [self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates]):
-            name += coordinate_name
-            for param_name in GevParams.PARAM_NAMES:
-                name += self.dim_to_str_number(param_name, idx)
-        if isinstance(self, AbstractAddCrossTerm):
-            name += 'sxt'
-            for c in [AbstractAddCrossTermForLocation, AbstractAddCrossTermForScale, AbstractAddCrossTermForShape]:
-                if isinstance(self, c):
-                    name += '1'
-                else:
-                    name += '0'
-        return name
+        s = ''
+        if self.dim_to_str_number(GevParams.SHAPE, self.coordinates.idx_x_coordinates) == '1':
+            s += '\\zeta_s'
+        if self.dim_to_str_number(GevParams.LOC, self.coordinates.idx_temporal_coordinates) in ['1', '2']:
+            s += '\\mu_t'
+            if self.dim_to_str_number(GevParams.LOC, self.coordinates.idx_temporal_coordinates) == '2':
+                s += '^2'
+        if self.dim_to_str_number(GevParams.SCALE, self.coordinates.idx_temporal_coordinates) in ['1', '2']:
+            s += '\\sigma_t'
+            if self.dim_to_str_number(GevParams.LOC, self.coordinates.idx_temporal_coordinates) == '2':
+                s += '^2'
+        if len(s) == 0:
+            s = '0'
+        return '$ \\boldsymbol{ \\mathcal{M}_{%s} }$' % s
+
+
+    # @property
+    # def name_str(self):
+    #     name = ''
+    #     for coordinate_name, idx in zip(['s', 't'], [self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates]):
+    #         name += coordinate_name
+    #         for param_name in GevParams.PARAM_NAMES:
+    #             name += self.dim_to_str_number(param_name, idx)
+    #     if isinstance(self, AbstractAddCrossTerm):
+    #         name += 'sxt'
+    #         for c in [AbstractAddCrossTermForLocation, AbstractAddCrossTermForScale, AbstractAddCrossTermForShape]:
+    #             if isinstance(self, c):
+    #                 name += '1'
+    #             else:
+    #                 name += '0'
+    #     return name
 
 
 class StationaryAltitudinal(AbstractAltitudinalModel):
@@ -134,6 +152,7 @@ class NonStationaryAltitudinalLocationQuadraticScaleLinear(AbstractAltitudinalMo
 class AbstractAddCrossTerm(AbstractAltitudinalModel):
     pass
 
+
 class AbstractAddCrossTermForLocation(AbstractAddCrossTerm):
 
     # @property
@@ -180,7 +199,8 @@ class AbstractAddCrossTermForShape(AbstractAddCrossTerm):
         if GevParams.SHAPE in d:
             insert_index = 1 if self.coordinates.idx_x_coordinates == d[GevParams.SHAPE][0][0] else 0
             d[GevParams.SHAPE].insert(insert_index,
-                                      ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1))
+                                      ((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates),
+                                       1))
         else:
             d[GevParams.SHAPE] = [((self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates), 1)]
         return d
