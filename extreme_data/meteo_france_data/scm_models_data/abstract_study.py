@@ -128,7 +128,8 @@ class AbstractStudy(object):
             date = datetime.datetime(year=year - 1, month=8, day=1, hour=6, minute=0, second=0)
             days = []
             for i in range(366):
-                days.append(date_to_str(date))
+                day = date_to_str(date)
+                days.append(day)
                 date += datetime.timedelta(days=1)
                 if date.month == 8 and date.day == 1:
                     break

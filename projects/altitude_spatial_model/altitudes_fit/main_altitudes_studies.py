@@ -39,7 +39,7 @@ def main():
                         , SafranPrecipitation3Days][:1]
     altitudes = [1800, 2100, 2400]
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days][:1]
-    # study_classes = [SafranPrecipitation1Day][:1]
+    study_classes = [SafranPrecipitation1Day][:1]
 
     # Common parameters
     # altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]

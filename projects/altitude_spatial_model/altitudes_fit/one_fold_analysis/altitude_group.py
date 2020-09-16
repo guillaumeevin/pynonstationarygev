@@ -6,6 +6,8 @@ altitudes_for_groups = [
     [1800, 2100, 2400],
     [2700, 3000, 3300]
 ]
+
+
 # altitudes_for_groups = [
 #     [600, 900, 1200, 1500, 1800],
 #     [1500, 1800, 2100, 2400, 2700],
@@ -66,6 +68,7 @@ class DefaultAltitudeGroup(AbstractAltitudeGroup):
     @property
     def reference_altitude(self):
         return 500
+
 
 def get_altitude_group_from_altitudes(altitudes):
     s = set(altitudes)
