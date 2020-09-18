@@ -49,8 +49,11 @@ def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_metho
         min_ratio = 0
         max_ratio = max_abs_change
 
+    for v in massif_name_to_value.values():
+        assert isinstance(v, float)
     massif_name_to_color = {m: get_colors([v], cmap, min_ratio, max_ratio)[0]
                             for m, v in massif_name_to_value.items()}
+
     ticks_values_and_labels = ticks, labels
     ax = plt.gca()
 

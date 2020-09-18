@@ -2,11 +2,16 @@ from enum import Enum
 
 # The order is important
 altitudes_for_groups = [
-    [900, 1200, 1500],
-    [1800, 2100, 2400],
-    [2700, 3000, 3300]
+    [300, 600, 900],
+    [1200, 1500, 1800],
+    [2100, 2400, 2700],
+    [3000, 3300, 3600]
 ]
-
+# altitudes_for_groups = [
+#     [900, 1200, 1500],
+#     [1800, 2100, 2400],
+#     [2700, 3000, 3300]
+# ]
 
 # altitudes_for_groups = [
 #     [600, 900, 1200, 1500, 1800],
@@ -34,7 +39,7 @@ class LowAltitudeGroup(AbstractAltitudeGroup):
 
     @property
     def reference_altitude(self):
-        return 1000
+        return 600
 
 
 class MidAltitudeGroup(AbstractAltitudeGroup):
@@ -45,7 +50,7 @@ class MidAltitudeGroup(AbstractAltitudeGroup):
 
     @property
     def reference_altitude(self):
-        return 2000
+        return 1500
 
 
 class HighAltitudeGroup(AbstractAltitudeGroup):
@@ -56,7 +61,17 @@ class HighAltitudeGroup(AbstractAltitudeGroup):
 
     @property
     def reference_altitude(self):
-        return 3000
+        return 2400
+
+class VeyHighAltitudeGroup(AbstractAltitudeGroup):
+
+    @property
+    def name(self):
+        return 'very high'
+
+    @property
+    def reference_altitude(self):
+        return 3300
 
 
 class DefaultAltitudeGroup(AbstractAltitudeGroup):
@@ -78,5 +93,7 @@ def get_altitude_group_from_altitudes(altitudes):
         return MidAltitudeGroup()
     elif s == set(altitudes_for_groups[2]):
         return HighAltitudeGroup()
+    elif s == set(altitudes_for_groups[3]):
+        return VeyHighAltitudeGroup()
     else:
         return DefaultAltitudeGroup()

@@ -9,6 +9,7 @@ from extreme_fit.estimator.abstract_estimator import AbstractEstimator
 from extreme_fit.estimator.utils import load_margin_function
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
 from extreme_fit.function.margin_function.linear_margin_function import LinearMarginFunction
+from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.slicer.split import Split
@@ -41,7 +42,10 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         return self._maxima_gev(split)
 
     def _maxima_gev(self, split):
-        return self.dataset.maxima_gev_for_spatial_extremes_package(split)
+        if self.margin_model.fit_method == MarginFitMethod.spatial_extremes_mle:
+            return self.dataset.maxima_gev_for_spatial_extremes_package(split)
+        else:
+            return self.dataset.maxima_gev(split)
 
     def df_coordinates_spat(self, split):
         return self.dataset.coordinates.df_spatial_coordinates(split=split,

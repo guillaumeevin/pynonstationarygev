@@ -36,7 +36,7 @@ class AbstractAltitudinalModel(AbstractSpatioTemporalPolynomialModel):
     def name_str(self):
         s = ''
         if self.dim_to_str_number(GevParams.SHAPE, self.coordinates.idx_x_coordinates) == '1':
-            s += '\\zeta_s'
+            s += '\\zeta_z'
         if self.dim_to_str_number(GevParams.LOC, self.coordinates.idx_temporal_coordinates) in ['1', '2']:
             s += '\\mu_t'
             if self.dim_to_str_number(GevParams.LOC, self.coordinates.idx_temporal_coordinates) == '2':

@@ -20,19 +20,37 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
         super().__init__(study_class, altitudes, spatial_transformation_class, temporal_transformation_class,
                          **kwargs_study)
         # self.altitudes_for_temporal_hypothesis = [min(self.altitudes), 2100, max(self.altitudes)]
-        self.altitudes_for_temporal_hypothesis = [900, 2100, 3000]
+        self.altitudes_for_temporal_hypothesis = [600, 1500, 2400, 3300]
 
     def plot_gev_params_against_altitude(self):
         for param_name in GevParams.PARAM_NAMES[:]:
             ax = plt.gca()
+            massif_name_to_linear_coef = {}
+            massif_name_to_r2_score = {}
             for massif_name in self.study.all_massif_names()[:]:
-                self._plot_gev_params_against_altitude_one_massif(ax, massif_name, param_name)
+                linear_coef, _, r2 = self._plot_gev_params_against_altitude_one_massif(ax, massif_name, param_name)
+                massif_name_to_linear_coef[massif_name] = linear_coef[0]
+                massif_name_to_r2_score[massif_name] = str(round(r2, 2))
+            print(massif_name_to_linear_coef, massif_name_to_r2_score)
+            # Plot change against altitude
             ax.legend(prop={'size': 7}, ncol=3)
             ax.set_xlabel('Altitude')
-            ax.set_ylabel(param_name)
+            ax.set_ylabel(GevParams.full_name_from_param_name(param_name) + ' parameter for a stationary GEV distribution')
             plot_name = '{} change /with altitude'.format(param_name)
             self.show_or_save_to_file(plot_name, no_title=True, tight_layout=True, show=False)
             ax.clear()
+            # Plot map of slope for each massif
+            visualizer = StudyVisualizer(study=self.study, show=False, save_to_file=True)
+            ylabel = 'Linear slope for the {} parameter against the altitude'.format(param_name)
+            visualizer.plot_map(cmap=plt.cm.coolwarm, fit_method=self.study.fit_method,
+                                graduation=1,
+                                label=ylabel, massif_name_to_value=massif_name_to_linear_coef,
+                                plot_name=ylabel, add_x_label=False,
+                                # negative_and_positive_values=param_name == GevParams.SHAPE,
+                                negative_and_positive_values=True,
+                                add_colorbar=True,
+                                massif_name_to_text=massif_name_to_r2_score,
+                                )
             plt.close()
 
     def _plot_gev_params_against_altitude_one_massif(self, ax, massif_name, param_name):
@@ -42,11 +60,13 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
         for altitude, study in self.altitude_to_study.items():
             if massif_name in study.study_massif_names:
                 altitudes.append(altitude)
-                gev_params = study.massif_name_to_stationary_gev_params[massif_name]
+                gev_params = study.massif_name_to_stationary_gev_params_for_non_zero_annual_maxima[massif_name]
                 params.append(gev_params.to_dict()[param_name])
                 confidence_intervals.append(gev_params.param_name_to_confidence_interval[param_name])
         massif_id = self.study.all_massif_names().index(massif_name)
         plot_against_altitude(altitudes, ax, massif_id, massif_name, params, fill=False)
+
+        return fit_linear_regression(altitudes, params)
         # plot_against_altitude(altitudes, ax, massif_id, massif_name, confidence_intervals, fill=True)
 
     # Plot against the time
@@ -170,10 +190,11 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
 
 if __name__ == '__main__':
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300]
+    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
     # altitudes = paper_altitudes
     # altitudes = [1800, 2100]
     visualizer = PointwiseGevStudyVisualizer(SafranSnowfall1Day, altitudes=altitudes)
     visualizer.plot_gev_params_against_altitude()
-    visualizer.plot_gev_params_against_time_for_all_altitudes()
-    visualizer.plot_gev_params_against_time_for_all_massifs()
+    # visualizer.plot_gev_params_against_time_for_all_altitudes()
+    # visualizer.plot_gev_params_against_time_for_all_massifs()
     # visualizer.plot_time_derivative_against_time()

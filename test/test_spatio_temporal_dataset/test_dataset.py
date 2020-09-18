@@ -6,9 +6,18 @@ import numpy as np
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel
 from extreme_fit.model.utils import set_seed_for_test, SafeRunException
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
+    AbstractSpatialCoordinates
+from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
+    AbstractSpatioTemporalCoordinates
+from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
+    ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization
+from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset, MarginDataset
+from spatio_temporal_dataset.slicer.split import Split
+from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 from test.test_utils import load_test_max_stable_models, load_test_3D_spatial_coordinates, \
     load_test_1D_and_2D_spatial_coordinates, load_test_spatiotemporal_coordinates
 
@@ -16,6 +25,24 @@ from test.test_utils import load_test_max_stable_models, load_test_3D_spatial_co
 class TestDataset(unittest.TestCase):
     nb_obs = 2
     nb_points = 2
+
+    def test_remove_zero_from_dataset(self):
+        temporal_coordinates = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(nb_temporal_steps=2)
+        spatial_coordinates = AbstractSpatialCoordinates.from_list_x_coordinates([300, 600])
+        coordinates = AbstractSpatioTemporalCoordinates(spatial_coordinates=spatial_coordinates,
+                                                        temporal_coordinates=temporal_coordinates)
+        coordinate_values_to_maxima = {
+            (300, 0): [0],
+            (300, 1): [1],
+            (600, 0): [2],
+            (600, 1): [0],
+        }
+        observations = AnnualMaxima.from_coordinates(coordinates, coordinate_values_to_maxima)
+        dataset_with_zero = AbstractDataset(observations, coordinates)
+        dataset_without_zero = AbstractDataset.remove_zeros(observations,
+                                                            coordinates)
+        self.assertEqual(len(dataset_with_zero.coordinates), 4)
+        self.assertEqual(len(dataset_without_zero.coordinates), 2)
 
     def test_max_stable_dataset_R1_and_R2(self):
         max_stable_models = load_test_max_stable_models()[:]

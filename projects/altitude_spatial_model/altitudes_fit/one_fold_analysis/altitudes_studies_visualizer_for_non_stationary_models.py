@@ -25,6 +25,7 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_gr
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import \
     OneFoldFit
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
 class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
@@ -50,7 +51,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self._massif_name_to_one_fold_fit = {}
         for massif_name in self.massif_names:
             if any([massif_name in study.study_massif_names for study in self.studies.altitude_to_study.values()]):
+                # Load dataset
                 dataset = studies.spatio_temporal_dataset(massif_name=massif_name)
+                # dataset_without_zero = AbstractDataset.remove_zeros(dataset.observations,
+                #                                                     dataset.coordinates)
                 old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method,
                                           self.temporal_covariate_for_fit,
                                           type(self.altitude_group),

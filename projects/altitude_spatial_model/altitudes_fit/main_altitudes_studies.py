@@ -39,7 +39,7 @@ def main():
                         , SafranPrecipitation3Days][:1]
     altitudes = [1800, 2100, 2400]
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days][:1]
-    study_classes = [SafranPrecipitation1Day][:1]
+    # study_classes = [SafranPrecipitation1Day][:1]
 
     # Common parameters
     # altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
@@ -47,7 +47,7 @@ def main():
     # massif_names = ['Mercantour', 'Vercors', 'Ubaye']
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
-    main_loop(altitudes_for_groups, massif_names, seasons, study_classes)
+    main_loop(altitudes_for_groups[:1], massif_names, seasons, study_classes)
 
 
 def main_loop(altitudes_list, massif_names, seasons, study_classes):

@@ -36,13 +36,9 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
     def fitmargin_from_maxima_gev(self, data: np.ndarray, df_coordinates_spat: pd.DataFrame,
                                   df_coordinates_temp: pd.DataFrame) -> AbstractResultFromModelFit:
         data = data.flatten()
-        # if len(data) == 1:
-        #     data = data[0]
-        #     assert len(data) == len(df_coordinates_temp.values), 'len(data)={} != len(temp)={}'.format(len(data),
-        #                                                                                                len(
-        #                                                                                                    df_coordinates_temp.values))
-        # else:
-        #     data = data.flatten()
+        assert len(df_coordinates_temp) == len(data)
+        if not (df_coordinates_spat is None or df_coordinates_spat.empty):
+            assert len(df_coordinates_spat) == len(data)
 
         x = ro.FloatVector(data)
         if self.params_class is GevParams:

@@ -33,6 +33,7 @@ from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import create_colorbase_axis, \
     get_shifted_map, get_colors
+from extreme_fit.model.margin_model.utils import MarginFitMethod
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -96,6 +97,8 @@ class AbstractStudy(object):
         assert slope in SLOPES
         self.orientation = orientation
         self.slope = slope
+        # Add some options
+        self.fit_method = MarginFitMethod.is_mev_gev_fit
 
     """ Time """
 
@@ -800,10 +803,11 @@ class AbstractStudy(object):
         return ~np.array(mask_french_alps, dtype=bool)
 
     @cached_property
-    def massif_name_to_stationary_gev_params(self):
+    def massif_name_to_stationary_gev_params_for_non_zero_annual_maxima(self):
         massif_name_to_stationary_gev_params = {}
         for massif_name, annual_maxima in self.massif_name_to_annual_maxima.items():
-            gev_params = fitted_stationary_gev(annual_maxima)
+            non_zero_annual_maxima = annual_maxima[annual_maxima > 0]
+            gev_params = fitted_stationary_gev(non_zero_annual_maxima, fit_method=self.fit_method)
             massif_name_to_stationary_gev_params[massif_name] = gev_params
         return massif_name_to_stationary_gev_params
 

@@ -135,6 +135,15 @@ class GevParams(AbstractExtremeParams):
             cls.SHAPE: 'zeta',
         }[param_name]
 
+    @classmethod
+    def full_name_from_param_name(cls, param_name):
+        assert param_name in cls.PARAM_NAMES
+        return {
+            cls.LOC: 'location',
+            cls.SCALE: 'scale',
+            cls.SHAPE: 'shape',
+        }[param_name]
+
     def gumbel_standardization(self, x):
         x -= self.location
         x /= self.scale
