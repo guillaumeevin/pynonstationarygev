@@ -47,7 +47,7 @@ def main():
     # massif_names = ['Mercantour', 'Vercors', 'Ubaye']
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
-    main_loop(altitudes_for_groups[:1], massif_names, seasons, study_classes)
+    main_loop(altitudes_for_groups[:], massif_names, seasons, study_classes)
 
 
 def main_loop(altitudes_list, massif_names, seasons, study_classes):
@@ -66,6 +66,7 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes):
                 plots(massif_names, season, visualizer)
             del visualizer_list
             time.sleep(2)
+
 
 
 def load_visualizer_list(season, study_class, altitudes_list, massif_names):
@@ -107,7 +108,7 @@ def plots(massif_names, season, visualizer):
     print('inner loop', season, type(studies.study))
 
     # Plot time series
-    # studies.plot_maxima_time_series(massif_names=massif_names)
+    studies.plot_maxima_time_series(massif_names=massif_names)
 
     # Plot moments
     # for std in [True, False][:]:

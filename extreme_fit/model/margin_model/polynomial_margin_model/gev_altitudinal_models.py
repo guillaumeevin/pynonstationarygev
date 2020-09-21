@@ -43,7 +43,11 @@ class AbstractAltitudinalModel(AbstractSpatioTemporalPolynomialModel):
                 s += '^2'
         if self.dim_to_str_number(GevParams.SCALE, self.coordinates.idx_temporal_coordinates) in ['1', '2']:
             s += '\\sigma_t'
-            if self.dim_to_str_number(GevParams.LOC, self.coordinates.idx_temporal_coordinates) == '2':
+            if self.dim_to_str_number(GevParams.SCALE, self.coordinates.idx_temporal_coordinates) == '2':
+                s += '^2'
+        if self.dim_to_str_number(GevParams.SHAPE, self.coordinates.idx_temporal_coordinates) in ['1', '2']:
+            s += '\\zeta_t'
+            if self.dim_to_str_number(GevParams.SHAPE, self.coordinates.idx_temporal_coordinates) == '2':
                 s += '^2'
         if len(s) == 0:
             s = '0'

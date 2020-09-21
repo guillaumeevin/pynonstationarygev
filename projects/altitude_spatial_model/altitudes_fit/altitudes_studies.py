@@ -139,9 +139,11 @@ class AltitudesStudies(object):
         plot_name = 'Annual maxima of {} in {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '))
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
+        plot_name = 'time series/' + plot_name
         ax.set_xlabel('years', fontsize=15)
         self.show_or_save_to_file(plot_name=plot_name, show=show, no_title=True)
         ax.clear()
+        plt.close()
 
     def plot_mean_maxima_against_altitude(self, massif_names=None, show=False, std=False, change=False):
         ax = plt.gca()

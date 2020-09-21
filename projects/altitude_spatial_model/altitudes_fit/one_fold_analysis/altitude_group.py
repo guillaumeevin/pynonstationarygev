@@ -5,8 +5,10 @@ altitudes_for_groups = [
     [300, 600, 900],
     [1200, 1500, 1800],
     [2100, 2400, 2700],
-    [3000, 3300, 3600]
+    [3000, 3300, 3600, 3900]
 ]
+
+
 # altitudes_for_groups = [
 #     [900, 1200, 1500],
 #     [1800, 2100, 2400],
@@ -62,6 +64,7 @@ class HighAltitudeGroup(AbstractAltitudeGroup):
     @property
     def reference_altitude(self):
         return 2400
+
 
 class VeyHighAltitudeGroup(AbstractAltitudeGroup):
 

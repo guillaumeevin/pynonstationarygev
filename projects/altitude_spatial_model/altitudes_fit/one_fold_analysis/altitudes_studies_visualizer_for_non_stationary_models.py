@@ -21,7 +21,7 @@ from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_poly
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import \
-    get_altitude_group_from_altitudes, HighAltitudeGroup
+    get_altitude_group_from_altitudes, HighAltitudeGroup, VeyHighAltitudeGroup
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import \
     OneFoldFit
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -50,12 +50,12 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         # Load one fold fit
         self._massif_name_to_one_fold_fit = {}
         for massif_name in self.massif_names:
-            if any([massif_name in study.study_massif_names for study in self.studies.altitude_to_study.values()]):
+            if self.load_condition(massif_name):
                 # Load dataset
                 dataset = studies.spatio_temporal_dataset(massif_name=massif_name)
-                # dataset_without_zero = AbstractDataset.remove_zeros(dataset.observations,
-                #                                                     dataset.coordinates)
-                old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method,
+                dataset_without_zero = AbstractDataset.remove_zeros(dataset.observations,
+                                                                    dataset.coordinates)
+                old_fold_fit = OneFoldFit(massif_name, dataset_without_zero, model_classes, self.fit_method,
                                           self.temporal_covariate_for_fit,
                                           type(self.altitude_group),
                                           self.display_only_model_that_pass_anderson_test)
@@ -66,7 +66,12 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self._max_abs_for_shape = None
 
     moment_names = ['moment', 'changes_for_moment', 'relative_changes_for_moment'][:]
-    orders = [1, 2, None][:]
+    orders = [1, 2, None][2:]
+
+    def load_condition(self, massif_name):
+        altitudes_for_massif = [altitude for altitude, study in self.studies.altitude_to_study.items()
+                                if massif_name in study.study_massif_names]
+        return (self.altitude_group.reference_altitude in altitudes_for_massif) and (len(altitudes_for_massif) >= 2)
 
     @property
     def massif_name_to_one_fold_fit(self) -> Dict[str, OneFoldFit]:
@@ -132,7 +137,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     @property
     def add_colorbar(self):
-        return isinstance(self.altitude_group, HighAltitudeGroup)
+        return isinstance(self.altitude_group, VeyHighAltitudeGroup)
 
     def plot_against_years(self, method_name, order):
         ax = plt.gca()

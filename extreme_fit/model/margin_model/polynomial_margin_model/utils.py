@@ -105,18 +105,22 @@ ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS = [
     StationaryAltitudinal,
     AltitudinalShapeConstantTimeLocationLinear,
     AltitudinalShapeConstantTimeScaleLinear,
-    # AltitudinalShapeConstantTimeShapeLinear,
-    # AltitudinalShapeConstantTimeLocShapeLinear,
+
     AltitudinalShapeConstantTimeLocScaleLinear,
-    # AltitudinalShapeConstantTimeScaleShapeLinear,
-    # AltitudinalShapeConstantTimeLocScaleShapeLinear,
+
     # With a linear shape for the altitude (8 models)
     AltitudinalShapeLinearTimeStationary,
     AltitudinalShapeLinearTimeLocationLinear,
     AltitudinalShapeLinearTimeScaleLinear,
+
+    AltitudinalShapeLinearTimeLocScaleLinear,
+
+    # AltitudinalShapeConstantTimeShapeLinear,
+    # AltitudinalShapeConstantTimeLocShapeLinear,
+    # AltitudinalShapeConstantTimeScaleShapeLinear,
+    # AltitudinalShapeConstantTimeLocScaleShapeLinear,
     # AltitudinalShapeLinearTimeShapeLinear,
     # AltitudinalShapeLinearTimeLocShapeLinear,
-    AltitudinalShapeLinearTimeLocScaleLinear,
     # AltitudinalShapeLinearTimeScaleShapeLinear,
     # AltitudinalShapeLinearTimeLocScaleShapeLinear,
 

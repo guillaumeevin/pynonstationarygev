@@ -15,6 +15,10 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_m
 from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_with_linear_shape_wrt_altitude import \
     AltitudinalShapeLinearTimeStationary
 from extreme_fit.model.margin_model.utils import MarginFitMethod
+from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
+    ConfidenceIntervalMethodFromExtremes
+from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
+    EurocodeConfidenceIntervalFromExtremes
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import AbstractAltitudeGroup, \
     DefaultAltitudeGroup
 from root_utils import classproperty
@@ -111,6 +115,17 @@ class OneFoldFit(object):
         return sorted_estimators
 
     @cached_property
+    def sorted_estimators_with_stationary(self):
+        if self.only_models_that_pass_anderson_test:
+            return [e for e in self.sorted_estimators if self.goodness_of_fit_test(e)]
+        else:
+            return self._sorted_estimators_without_stationary
+
+    @property
+    def has_at_least_one_valid_model(self):
+        return len(self.sorted_estimators_with_stationary) > 0
+
+    @cached_property
     def _sorted_estimators_without_stationary(self):
         return [e for e in self.sorted_estimators if not isinstance(e.margin_model, StationaryAltitudinal)]
 
@@ -134,8 +149,13 @@ class OneFoldFit(object):
         if self.best_estimator_minimizes_total_aic and self.best_estimator_class_for_total_aic is not None:
             return self.model_class_to_estimator[self.best_estimator_class_for_total_aic]
         else:
-            if self.has_at_least_one_valid_non_stationary_model:
-                best_estimator = self.sorted_estimators_without_stationary[0]
+            # Without stationary
+            # if self.has_at_least_one_valid_non_stationary_model:
+            #     best_estimator = self.sorted_estimators_without_stationary[0]
+            #     return best_estimator
+            # With stationary
+            if self.has_at_least_one_valid_model:
+                best_estimator = self.sorted_estimators_with_stationary[0]
                 return best_estimator
             else:
                 raise ValueError('This should not happen')
@@ -169,7 +189,10 @@ class OneFoldFit(object):
     def best_name(self):
         name = self.best_estimator.margin_model.name_str
         latex_command = 'textbf' if self.is_significant else 'textrm'
-        return '$\\' + latex_command + '{' + name + '}$'
+        best_name = '$\\' + latex_command + '{' + name + '}$'
+        if self.is_significant:
+            best_name = '\\underline{' + best_name + '}'
+        return best_name
 
     # Significant
 
@@ -179,6 +202,8 @@ class OneFoldFit(object):
             return self.model_class_to_estimator_with_finite_aic[StationaryGumbelAltitudinal]
         elif isinstance(self.best_estimator.margin_model, AltitudinalOnlyScale):
             return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinalOnlyScale]
+        elif isinstance(self.best_estimator.margin_model, AltitudinalShapeLinearTimeStationary):
+            return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
         elif isinstance(self.best_estimator.margin_model, AltitudinalShapeLinearTimeStationary):
             return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
         else:
@@ -194,7 +219,7 @@ class OneFoldFit(object):
 
     @property
     def is_significant(self) -> bool:
-        stationary_model_classes = [StationaryAltitudinal, StationaryGumbelAltitudinal]
+        stationary_model_classes = [StationaryAltitudinal, StationaryGumbelAltitudinal, AltitudinalShapeLinearTimeStationary]
         if any([isinstance(self.best_estimator.margin_model, c)
                 for c in stationary_model_classes]):
             return False
@@ -233,3 +258,8 @@ class OneFoldFit(object):
             empirical_quantiles.append(maximum_standardized)
         empirical_quantiles = sorted(empirical_quantiles)
         return empirical_quantiles
+
+    # def best_confidence_interval(self):
+    #     EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(self.best_estimator,
+    #                                                                    ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
+    #                                                                    temporal_covariate=np.array([2019, self.altitude_plot]),)

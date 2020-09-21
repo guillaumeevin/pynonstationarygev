@@ -62,6 +62,7 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
         if self.param_name_to_dim:
             d = {GevParams.greek_letter_from_param_name(param_name) + '1': r.c(transformed_temporal_covariate) for
                  param_name in self.param_name_to_dim.keys()}
+            print(d)
             kwargs = {
                 "vals": r.list(**d
                                )
