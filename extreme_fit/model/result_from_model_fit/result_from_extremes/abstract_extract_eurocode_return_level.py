@@ -43,7 +43,12 @@ class ExtractEurocodeReturnLevelFromCiMethod(AbstractExtractEurocodeReturnLevel)
 
     @property
     def transformed_temporal_covariate(self):
-        return self.estimator.dataset.coordinates.transformation.transform_float(self.temporal_covariate)
+        if isinstance(self.temporal_covariate, (float, int)):
+            return self.estimator.dataset.coordinates.transformation.transform_float(self.temporal_covariate)
+        elif isinstance(self.temporal_covariate, np.ndarray):
+            return self.estimator.dataset.coordinates.transformation.transform_array(self.temporal_covariate)
+        else:
+            raise NotImplementedError
 
     @cached_property
     def confidence_interval_method(self):

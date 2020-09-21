@@ -60,9 +60,19 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
             'type': r.c("return.level")
         }
         if self.param_name_to_dim:
-            d = {GevParams.greek_letter_from_param_name(param_name) + '1': r.c(transformed_temporal_covariate) for
-                 param_name in self.param_name_to_dim.keys()}
-            print(d)
+            if isinstance(transformed_temporal_covariate, (int, float, np.int, np.float, np.int64)):
+                d = {GevParams.greek_letter_from_param_name_confidence_interval(param_name) + '1': r.c(transformed_temporal_covariate) for
+                     param_name in self.param_name_to_dim.keys()}
+            elif isinstance(transformed_temporal_covariate, np.ndarray):
+                d = {}
+                for param_name in self.param_name_to_dim:
+                    for coordinate_idx, _ in self.param_name_to_dim[param_name]:
+                        idx_str = str(coordinate_idx + 1)
+                        d2 = {GevParams.greek_letter_from_param_name_confidence_interval(param_name) + idx_str: r.c(transformed_temporal_covariate)}
+                        d.update(d2)
+            else:
+                raise NotImplementedError
+
             kwargs = {
                 "vals": r.list(**d
                                )

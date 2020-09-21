@@ -23,7 +23,7 @@ colnames(coord) = c("T")
 coord = data.frame(coord, stringsAsFactors = TRUE)
 # res = fevd_fixed(x_gev, data=coord, method='MLE', verbose=TRUE, use.phi=FALSE)
 # res = fevd_fixed(x_gev, data=coord, location.fun= ~T, scale.fun= ~T, method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
-res = fevd_fixed(x_gev, data=coord, location.fun= ~poly(T, 2), method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
+res = fevd_fixed(x_gev, data=coord, shape.fun= ~poly(T, 2), method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
 print(res)
 
 # Some display for the results
