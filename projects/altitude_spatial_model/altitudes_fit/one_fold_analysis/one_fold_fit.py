@@ -88,6 +88,14 @@ class OneFoldFit(object):
     def moment(self, altitudes, year=2019, order=1):
         return [self.get_moment(altitude, year, order) for altitude in altitudes]
 
+    @property
+    def change_for_reference_altitude(self) -> float:
+        return self.changes_for_moment(altitudes=[self.altitude_plot])[0]
+
+    @property
+    def relative_change_for_reference_altitude(self) -> float:
+        return self.relative_changes_for_moment(altitudes=[self.altitude_plot])[0]
+
     def changes_for_moment(self, altitudes, year=2019, nb_years=50, order=1):
         changes = []
         for altitude in altitudes:
@@ -184,6 +192,10 @@ class OneFoldFit(object):
             return coef
         except (TypeError, KeyError):
             return None
+
+    @property
+    def model_names(self):
+        return [e.margin_model.name_str for e in self.sorted_estimators]
 
     @property
     def best_name(self):

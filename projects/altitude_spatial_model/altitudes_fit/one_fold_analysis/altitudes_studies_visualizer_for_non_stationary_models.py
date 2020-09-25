@@ -1,3 +1,4 @@
+from collections import Counter
 from typing import List, Dict
 
 import matplotlib
@@ -116,23 +117,39 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         moment = ' '.join(method_name.split('_'))
         moment = moment.replace('moment', '{} in 2019'.format(OneFoldFit.get_moment_str(order=order)))
         plot_name = '{}{} for annual maxima of {}'.format(OneFoldFit.folder_for_plots, moment,
-                                                      SCM_STUDY_CLASS_TO_ABBREVIATION[
-                                                          self.studies.study_class])
+                                                          SCM_STUDY_CLASS_TO_ABBREVIATION[
+                                                              self.studies.study_class])
+
+        massif_name_to_text = self.massif_name_to_best_name
         if 'change' in method_name:
-            plot_name += '\nbetween {} and {}'.format(2019-50, 2019)
+            plot_name += '\nbetween {} and {}'.format(2019 - 50, 2019)
+            if 'relative' not in method_name:
+                # Put the relative score as text on the plot for the change.
+                massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
+                                       self.method_name_and_order_to_d(self.moment_names[2], order).items()}
+
         parenthesis = self.study.variable_unit if 'relative' not in method_name else '\%'
         ylabel = '{} ({})'.format(plot_name, parenthesis)
 
+        max_abs_change = self.method_name_and_order_to_max_abs(method_name, order)
+        add_colorbar = self.add_colorbar
+
+        is_return_level_plot = (self.moment_names.index(method_name) == 0) and (order is None)
+        if is_return_level_plot:
+            add_colorbar = True
+            max_abs_change = None
+            massif_name_to_text = {m: '+- 0' for m in massif_name_to_text.keys()}
+
+        negative_and_positive_values = self.moment_names.index(method_name) > 0
         # Plot the map
-        a_change_is_displayed = self.moment_names.index(method_name) > 0
         self.plot_map(cmap=plt.cm.coolwarm, fit_method=self.fit_method, graduation=10,
                       label=ylabel, massif_name_to_value=massif_name_to_value,
                       plot_name=plot_name, add_x_label=True,
-                      negative_and_positive_values=a_change_is_displayed,
+                      negative_and_positive_values=negative_and_positive_values,
                       altitude=self.altitude_group.reference_altitude,
-                      add_colorbar=self.add_colorbar,
-                      max_abs_change=self.method_name_and_order_to_max_abs(method_name, order),
-                      massif_name_to_text=self.massif_name_to_name,
+                      add_colorbar=add_colorbar,
+                      max_abs_change=max_abs_change,
+                      massif_name_to_text=massif_name_to_text,
                       )
 
     @property
@@ -175,7 +192,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()}
 
     @property
-    def massif_name_to_name(self):
+    def massif_name_to_best_name(self):
         return {massif_name: one_fold_fit.best_name
                 for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()}
 
@@ -211,23 +228,23 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         negative_and_positive_values = (max(values) > 0) and (min(values) < 0)
         raise NotImplementedError
         self.plot_map(massif_name_to_value=massif_name_to_best_coef,
-                                label='{}Coef/{} plot for {} {}'.format(OneFoldFit.folder_for_plots,
-                                                                        coef_name,
-                                                                        SCM_STUDY_CLASS_TO_ABBREVIATION[
-                                                                            type(self.study)],
-                                                                        self.study.variable_unit),
-                                add_x_label=False, graduation=graduation, massif_name_to_text=self.massif_name_to_name,
-                                negative_and_positive_values=negative_and_positive_values)
+                      label='{}Coef/{} plot for {} {}'.format(OneFoldFit.folder_for_plots,
+                                                              coef_name,
+                                                              SCM_STUDY_CLASS_TO_ABBREVIATION[
+                                                                  type(self.study)],
+                                                              self.study.variable_unit),
+                      add_x_label=False, graduation=graduation, massif_name_to_text=self.massif_name_to_best_name,
+                      negative_and_positive_values=negative_and_positive_values)
 
     def plot_shape_map(self):
 
         label = 'Shape parameter for {} maxima of {} in 2019'.format(self.study.season_name,
-                                                                          SCM_STUDY_CLASS_TO_ABBREVIATION[
-                                                                              type(self.study)])
+                                                                     SCM_STUDY_CLASS_TO_ABBREVIATION[
+                                                                         type(self.study)])
         self.plot_map(massif_name_to_value=self.massif_name_to_shape,
                       label=label,
                       plot_name=label,
-                      add_x_label=True, graduation=0.1, massif_name_to_text=self.massif_name_to_name,
+                      add_x_label=True, graduation=0.1, massif_name_to_text=self.massif_name_to_best_name,
                       cmap=matplotlib.cm.get_cmap('BrBG_r'),
                       altitude=self.altitude_group.reference_altitude,
                       add_colorbar=self.add_colorbar,
@@ -350,3 +367,53 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         plot_name = 'Switch altitude'
         self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
         plt.close()
+
+    def all_trends(self, massif_names):
+        """return percents which contain decrease, significant decrease, increase, significant increase percentages"""
+        valid_massif_names = self.get_valid_names(massif_names)
+
+        nb_valid_massif_names = len(valid_massif_names)
+        nbs = np.zeros(4)
+        relative_changes = [[], []]
+        for one_fold in [one_fold for m, one_fold in self.massif_name_to_one_fold_fit.items()
+                                   if m in valid_massif_names]:
+            if one_fold.change_for_reference_altitude == 0:
+                continue
+            # Compute relative changes
+            relative_changes[0].append(one_fold.relative_change_for_reference_altitude)
+            if one_fold.is_significant:
+                relative_changes[1].append(one_fold.relative_change_for_reference_altitude)
+            # Compute nbs
+            idx = 0 if one_fold.change_for_reference_altitude < 0 else 2
+            nbs[idx] += 1
+            if one_fold.is_significant:
+                nbs[idx + 1] += 1
+
+        percents = 100 * nbs / nb_valid_massif_names
+        mean_relative_changes = [np.mean(l) for l in relative_changes]
+        return [nb_valid_massif_names] + mean_relative_changes + list(percents)
+
+    def get_valid_names(self, massif_names):
+        valid_massif_names = set(self.massif_name_to_one_fold_fit.keys())
+        if massif_names is not None:
+            valid_massif_names = valid_massif_names.intersection(set(massif_names))
+        return valid_massif_names
+
+    def model_name_to_percentages(self, massif_names):
+        valid_massif_names = self.get_valid_names(massif_names)
+        nb_valid_massif_names = len(valid_massif_names)
+        best_names = [one_fold_fit.best_estimator.margin_model.name_str
+                      for m, one_fold_fit in self.massif_name_to_one_fold_fit.items()
+                      if m in valid_massif_names]
+        counter = Counter(best_names)
+        d = {name: 100 * c / nb_valid_massif_names for name, c in counter.items()}
+        # Add 0 for the name not present
+        for name in self.model_names:
+            if name not in d:
+                d[name] = 0
+        return d
+
+    @property
+    def model_names(self):
+        massif_name = list(self.massif_name_to_one_fold_fit.keys())[0]
+        return self.massif_name_to_one_fold_fit[massif_name].model_names

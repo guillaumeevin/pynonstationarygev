@@ -8,11 +8,12 @@ from projects.exceeding_snow_loads.section_results.plot_selection_curves import 
 from projects.exceeding_snow_loads.section_results.plot_trend_curves import plot_trend_curves, plot_trend_map
 from projects.exceeding_snow_loads.section_results.plot_uncertainty_curves import plot_uncertainty_massifs
 from projects.exceeding_snow_loads.section_results.plot_uncertainty_histogram import plot_uncertainty_histogram
-
+import matplotlib.pyplot as plt
 
 class TestResults(unittest.TestCase):
 
     def test_run_intermediate_results(self):
+        plt.close()
         # Load data
         altitude_to_visualizer = load_altitude_to_visualizer(altitudes=[300, 600], massif_names=None,
                                                              study_class=CrocusSnowLoadTotal,

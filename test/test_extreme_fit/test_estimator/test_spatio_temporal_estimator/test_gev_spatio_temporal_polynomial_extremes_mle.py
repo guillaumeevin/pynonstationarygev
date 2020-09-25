@@ -65,7 +65,7 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         self.dataset = AbstractDataset(observations=observations, coordinates=self.coordinates)
         self.fit_method = MarginFitMethod.extremes_fevd_mle
 
-    def function_test_gev_spatio_temporal_margin_fit_non_stationary_quadratic(self, model_class):
+    def function_test_gev_spatio_temporal_margin_fit_non_stationary(self, model_class):
         # Create estimator
         estimator = fitted_linear_margin_estimator_short(model_class=model_class,
                                                          dataset=self.dataset,
@@ -76,32 +76,36 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
         self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
         # Assert we can compute the return level
-        covariate_for_return_level = np.array([400, 25])[::1]
+        covariate_for_return_level = np.array([400, 20])[::1]
         confidence_interval = EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(estimator,
                                                                                              ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
                                                                                              temporal_covariate=covariate_for_return_level)
         return_level = estimator.function_from_fit.get_params(covariate_for_return_level).return_level(50)
+        print("my return level", return_level)
         self.assertAlmostEqual(return_level, confidence_interval.mean_estimate)
         self.assertFalse(np.isnan(confidence_interval.confidence_interval[0]))
         self.assertFalse(np.isnan(confidence_interval.confidence_interval[1]))
 
     def test_gev_spatio_temporal_margin_fit_1(self):
-        self.function_test_gev_spatio_temporal_margin_fit_non_stationary_quadratic(StationaryAltitudinal)
+        self.function_test_gev_spatio_temporal_margin_fit_non_stationary(StationaryAltitudinal)
 
+    #
     def test_gev_spatio_temporal_margin_fit_1_bis(self):
-        self.function_test_gev_spatio_temporal_margin_fit_non_stationary_quadratic(AltitudinalShapeLinearTimeStationary)
+        self.function_test_gev_spatio_temporal_margin_fit_non_stationary(AltitudinalShapeLinearTimeStationary)
 
     # def test_gev_spatio_temporal_margin_fit_2(self):
-    #     self.function_test_gev_spatio_temporal_margin_fit_non_stationary_quadratic(
+    #     # first model with both a time and altitude non stationarity
+    #     self.function_test_gev_spatio_temporal_margin_fit_non_stationary(
     #         AltitudinalShapeConstantTimeLocationLinear)
-    #
+
     # def test_gev_spatio_temporal_margin_fit_3(self):
-    #     self.function_test_gev_spatio_temporal_margin_fit_non_stationary_quadratic(
+    #     self.function_test_gev_spatio_temporal_margin_fit_non_stationary(
     #         AltitudinalShapeLinearTimeLocationLinear)
     #
     # def test_gev_spatio_temporal_margin_fit_4(self):
-    #     self.function_test_gev_spatio_temporal_margin_fit_non_stationary_quadratic(
+    #     self.function_test_gev_spatio_temporal_margin_fit_non_stationary(
     #         AltitudinalShapeLinearTimeLocScaleLinear)
+
 
 if __name__ == '__main__':
     unittest.main()

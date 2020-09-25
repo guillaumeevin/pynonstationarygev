@@ -29,25 +29,29 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             massif_name_to_r2_score = {}
             for massif_name in self.study.all_massif_names()[:]:
                 linear_coef, _, r2 = self._plot_gev_params_against_altitude_one_massif(ax, massif_name, param_name)
-                massif_name_to_linear_coef[massif_name] = linear_coef[0]
+                massif_name_to_linear_coef[massif_name] = 1000 * linear_coef[0]
                 massif_name_to_r2_score[massif_name] = str(round(r2, 2))
             print(massif_name_to_linear_coef, massif_name_to_r2_score)
             # Plot change against altitude
             ax.legend(prop={'size': 7}, ncol=3)
             ax.set_xlabel('Altitude')
             ax.set_ylabel(GevParams.full_name_from_param_name(param_name) + ' parameter for a stationary GEV distribution')
-            plot_name = '{} change /with altitude'.format(param_name)
+            plot_name = '{} change with altitude'.format(param_name)
             self.show_or_save_to_file(plot_name, no_title=True, tight_layout=True, show=False)
             ax.clear()
             # Plot map of slope for each massif
             visualizer = StudyVisualizer(study=self.study, show=False, save_to_file=True)
-            ylabel = 'Linear slope for the {} parameter against the altitude'.format(param_name)
+            ylabel = 'Linear slope for the {} parameter (change every 1000 m of altitude)'.format(param_name)
+            gev_param_name_to_graduation = {
+                GevParams.LOC: 5,
+                GevParams.SCALE: 1,
+                GevParams.SHAPE: 0.1,
+            }
             visualizer.plot_map(cmap=plt.cm.coolwarm, fit_method=self.study.fit_method,
-                                graduation=1,
+                                graduation=gev_param_name_to_graduation[param_name],
                                 label=ylabel, massif_name_to_value=massif_name_to_linear_coef,
                                 plot_name=ylabel, add_x_label=False,
-                                # negative_and_positive_values=param_name == GevParams.SHAPE,
-                                negative_and_positive_values=True,
+                                negative_and_positive_values=param_name == GevParams.SHAPE,
                                 add_colorbar=True,
                                 massif_name_to_text=massif_name_to_r2_score,
                                 )
@@ -190,7 +194,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
 
 if __name__ == '__main__':
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300]
-    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
+    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
     # altitudes = paper_altitudes
     # altitudes = [1800, 2100]
     visualizer = PointwiseGevStudyVisualizer(SafranSnowfall1Day, altitudes=altitudes)
