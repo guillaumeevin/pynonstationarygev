@@ -51,12 +51,12 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         # Load one fold fit
         self._massif_name_to_one_fold_fit = {}
         for massif_name in self.massif_names:
-            if self.load_condition(massif_name):
+            # Load valid massif altitudes
+            massif_altitudes = self.get_massif_altitudes(massif_name)
+            if self.load_condition(massif_altitudes):
                 # Load dataset
-                dataset = studies.spatio_temporal_dataset(massif_name=massif_name)
-                dataset_without_zero = AbstractDataset.remove_zeros(dataset.observations,
-                                                                    dataset.coordinates)
-                old_fold_fit = OneFoldFit(massif_name, dataset_without_zero, model_classes, self.fit_method,
+                dataset = studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes)
+                old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method,
                                           self.temporal_covariate_for_fit,
                                           type(self.altitude_group),
                                           self.display_only_model_that_pass_anderson_test)
@@ -69,10 +69,25 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     moment_names = ['moment', 'changes_for_moment', 'relative_changes_for_moment'][:]
     orders = [1, 2, None][2:]
 
-    def load_condition(self, massif_name):
-        altitudes_for_massif = [altitude for altitude, study in self.studies.altitude_to_study.items()
+    def get_massif_altitudes(self, massif_name):
+        valid_altitudes = [altitude for altitude, study in self.studies.altitude_to_study.items()
                                 if massif_name in study.study_massif_names]
-        return (self.altitude_group.reference_altitude in altitudes_for_massif) and (len(altitudes_for_massif) >= 2)
+        massif_altitudes = []
+        for altitude in valid_altitudes:
+            study = self.studies.altitude_to_study[altitude]
+            annual_maxima = study.massif_name_to_annual_maxima[massif_name]
+            percentage_of_non_zeros = 100 * np.count_nonzero(annual_maxima) / len(annual_maxima)
+            if percentage_of_non_zeros > 90:
+                massif_altitudes.append(altitude)
+            else:
+                print(massif_name, altitude, percentage_of_non_zeros)
+        return massif_altitudes
+
+    def load_condition(self, massif_altitudes):
+        # At least two altitudes for the estimated, including the reference altitude
+        reference_altitude_is_in_altitudes = (self.altitude_group.reference_altitude in massif_altitudes)
+        at_least_two_altitudes = (len(massif_altitudes) >= 2)
+        return reference_altitude_is_in_altitudes and at_least_two_altitudes
 
     @property
     def massif_name_to_one_fold_fit(self) -> Dict[str, OneFoldFit]:
@@ -150,6 +165,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       add_colorbar=add_colorbar,
                       max_abs_change=max_abs_change,
                       massif_name_to_text=massif_name_to_text,
+                      xlabel=self.altitude_group.xlabel,
                       )
 
     @property
@@ -250,6 +266,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       add_colorbar=self.add_colorbar,
                       max_abs_change=self._max_abs_for_shape,
                       fit_method=self.fit_method,
+                      xlabel=self.altitude_group.xlabel,
                       )
 
     def plot_altitude_for_the_peak(self):
@@ -374,24 +391,25 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
         nb_valid_massif_names = len(valid_massif_names)
         nbs = np.zeros(4)
-        relative_changes = [[], []]
+        relative_changes = []
         for one_fold in [one_fold for m, one_fold in self.massif_name_to_one_fold_fit.items()
                                    if m in valid_massif_names]:
-            if one_fold.change_for_reference_altitude == 0:
-                continue
             # Compute relative changes
-            relative_changes[0].append(one_fold.relative_change_for_reference_altitude)
-            if one_fold.is_significant:
-                relative_changes[1].append(one_fold.relative_change_for_reference_altitude)
+            relative_changes.append(one_fold.relative_change_in_return_level_for_reference_altitude)
+            # Compute nb of non stationary models
+            if one_fold.change_in_return_level_for_reference_altitude == 0:
+                continue
             # Compute nbs
-            idx = 0 if one_fold.change_for_reference_altitude < 0 else 2
+            idx = 0 if one_fold.change_in_return_level_for_reference_altitude < 0 else 2
             nbs[idx] += 1
             if one_fold.is_significant:
                 nbs[idx + 1] += 1
 
         percents = 100 * nbs / nb_valid_massif_names
-        mean_relative_changes = [np.mean(l) for l in relative_changes]
-        return [nb_valid_massif_names] + mean_relative_changes + list(percents)
+        mean_relative_change = np.mean(relative_changes)
+        median_relative_change = np.median(relative_changes)
+        print('mean', mean_relative_change, relative_changes)
+        return [nb_valid_massif_names, mean_relative_change, median_relative_change] + list(percents)
 
     def get_valid_names(self, massif_names):
         valid_massif_names = set(self.massif_name_to_one_fold_fit.keys())

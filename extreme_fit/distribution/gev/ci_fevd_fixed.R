@@ -424,6 +424,7 @@ ci.rl.ns.fevd.mle_fixed <- function (x, alpha = 0.05, return.period = 100, metho
             qcov.base = qcov.base)
         z.alpha <- qnorm(alpha/2, lower.tail = FALSE)
         cov.theta <- parcov.fevd(x)
+        # cov.theta <- parcov.fevd_fixed(x)
         if (is.null(cov.theta))
             stop("ci: Sorry, unable to calculate the parameter covariance matrix.  Maybe try a different method.")
         var.theta <- diag(cov.theta)
@@ -453,6 +454,60 @@ ci.rl.ns.fevd.mle_fixed <- function (x, alpha = 0.05, return.period = 100, metho
     class(out) <- "ci"
     return(out)
 }
+
+parcov.fevd_fixed <- function (x)
+{
+    cov.theta <- NULL
+    theta.hat <- x$results$par
+    theta.names <- names(theta.hat)
+    if (is.element("log.scale", theta.names)) {
+        theta.hat[theta.names == "log.scale"] <- exp(theta.hat[theta.names ==
+            "log.scale"])
+        theta.names[theta.names == "log.scale"] <- "scale"
+        names(theta.hat) <- theta.names
+        phiU <- FALSE
+    }
+    else phiU <- x$par.models$log.scale
+    y <- datagrabber(x)
+    if (x$data.name[2] != "") {
+        xdat <- y[, 1]
+        data <- y[, -1]
+    }
+    else {
+        xdat <- y[, 1]
+        data <- NULL
+    }
+    designs <- setup.design(x)
+    if (x$method != "GMLE") {
+        hold <- try(suppressWarnings(optimHess(theta.hat, oevd,
+            gr = grlevd, o = x, des = designs, x = xdat, data = data,
+            u = x$threshold, npy = x$npy, phi = phiU, blocks = x$blocks)),
+            silent = TRUE)
+        if ((class(hold) != "try-error") && all(!is.na(hold))) {
+            cov.theta <- try(suppressWarnings(solve(hold)), silent = TRUE)
+            print(cov.theta)
+            # if (any(diag(cov.theta) <= 0))
+            #     re.do <- TRUE
+            # else re.do <- FALSE
+            re.do = TRUE
+        }
+        else re.do <- TRUE
+    }
+    else re.do <- TRUE
+    if (re.do) {
+        hold <- try(optimHess(theta.hat, oevd, o = x, des = designs,
+            x = xdat, data = data, u = x$threshold, npy = x$npy,
+            phi = phiU, blocks = x$blocks), silent = TRUE)
+        if (class(hold) != "try-error" && all(!is.na(hold))) {
+            cov.theta <- try(solve(hold), silent = TRUE)
+            if (class(cov.theta) == "try-error" || any(diag(cov.theta) <=
+                0))
+                cov.theta <- NULL
+        }
+    }
+    return(cov.theta)
+}
+
 
 return.level.ns.fevd.mle_fixed <- function (x, return.period = c(2, 20, 100), ..., alpha = 0.05,
     method = c("normal"), do.ci = FALSE, verbose = FALSE, qcov = NULL,

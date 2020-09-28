@@ -28,7 +28,7 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 class OneFoldFit(object):
     SIGNIFICANCE_LEVEL = 0.05
     best_estimator_minimizes_total_aic = False
-    return_period = 50
+    return_period = 100
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
                  fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None,
@@ -89,12 +89,12 @@ class OneFoldFit(object):
         return [self.get_moment(altitude, year, order) for altitude in altitudes]
 
     @property
-    def change_for_reference_altitude(self) -> float:
-        return self.changes_for_moment(altitudes=[self.altitude_plot])[0]
+    def change_in_return_level_for_reference_altitude(self) -> float:
+        return self.changes_for_moment(altitudes=[self.altitude_plot], order=None)[0]
 
     @property
-    def relative_change_for_reference_altitude(self) -> float:
-        return self.relative_changes_for_moment(altitudes=[self.altitude_plot])[0]
+    def relative_change_in_return_level_for_reference_altitude(self) -> float:
+        return self.relative_changes_for_moment(altitudes=[self.altitude_plot], order=None)[0]
 
     def changes_for_moment(self, altitudes, year=2019, nb_years=50, order=1):
         changes = []

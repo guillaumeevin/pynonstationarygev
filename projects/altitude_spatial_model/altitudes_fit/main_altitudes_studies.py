@@ -9,7 +9,6 @@ from projects.altitude_spatial_model.altitudes_fit.plot_histogram_altitude_studi
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
-
 from projects.altitude_spatial_model.altitudes_fit.utils_altitude_studies_visualizer import load_visualizer_list
 
 from extreme_fit.model.margin_model.polynomial_margin_model.utils import \
@@ -29,13 +28,20 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitudes_s
 def main():
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days][:1]
     # study_classes = [SafranPrecipitation1Day][:1]
-
-    massif_names = None
-    # massif_names = ['Mercantour', 'Vercors', 'Ubaye']
-
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
-    main_loop(altitudes_for_groups[:], massif_names, seasons, study_classes)
+    fast = None
+    if fast is None:
+        massif_names = None
+        altitudes_list = altitudes_for_groups[:2]
+    elif fast:
+        massif_names = ['Mercantour', 'Vercors', 'Ubaye']
+        altitudes_list = altitudes_for_groups[:2]
+    else:
+        massif_names = None
+        altitudes_list = altitudes_for_groups
+
+    main_loop(altitudes_list, massif_names, seasons, study_classes)
 
 
 def main_loop(altitudes_list, massif_names, seasons, study_classes):
@@ -59,7 +65,7 @@ def plot_visualizers(massif_names, visualizer_list):
 
 def plot_visualizer(massif_names, visualizer):
     # Plot time series
-    # visualizer.studies.plot_maxima_time_series(massif_names=massif_names)
+    visualizer.studies.plot_maxima_time_series(massif_names=massif_names)
     # Plot moments against altitude
     # for std in [True, False][:]:
     #     for change in [True, False, None]:

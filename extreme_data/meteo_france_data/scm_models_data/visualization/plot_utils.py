@@ -35,7 +35,8 @@ def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=
 
 
 def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_method, add_x_label=True,
-              negative_and_positive_values=True, massif_name_to_text=None, add_colorbar=True, max_abs_change=None):
+              negative_and_positive_values=True, massif_name_to_text=None, add_colorbar=True, max_abs_change=None,
+              xlabel=None):
     if max_abs_change is None:
         max_abs_change = max([abs(e) for e in massif_name_to_value.values()])
     if negative_and_positive_values:
@@ -82,5 +83,8 @@ def load_plot(cmap, graduation, label, massif_name_to_value, altitude, fit_metho
     ax.get_xaxis().set_visible(True)
     ax.set_xticks([])
     if add_x_label:
-        ax.set_xlabel('Altitude = {}m'.format(altitude), fontsize=15)
+        if xlabel is None:
+            ax.set_xlabel('Altitude = {}m'.format(altitude), fontsize=15)
+        else:
+            ax.set_xlabel(xlabel, fontsize=10)
         # ax.set_title('Fit method is {}'.format(fit_method))
