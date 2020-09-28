@@ -30,7 +30,7 @@ def main():
     # study_classes = [SafranPrecipitation1Day][:1]
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
-    fast = None
+    fast = False
     if fast is None:
         massif_names = None
         altitudes_list = altitudes_for_groups[:2]

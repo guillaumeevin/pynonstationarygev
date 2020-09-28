@@ -26,14 +26,31 @@ class AbstractDataset(object):
     def remove_zeros(cls, observations: AbstractSpatioTemporalObservations,
                      coordinates: AbstractCoordinates):
         ind_without_zero = ~(observations.df_maxima_gev == 0).any(axis=1)
+        return cls.create_new_dataset(coordinates, ind_without_zero, observations)
+
+    @classmethod
+    def create_new_dataset(cls, coordinates, ind, observations):
         # Create new observations
-        new_df_maxima_gev = observations.df_maxima_gev.loc[ind_without_zero].copy()
+        new_df_maxima_gev = observations.df_maxima_gev.loc[ind].copy()
         new_observations = AbstractSpatioTemporalObservations(df_maxima_gev=new_df_maxima_gev)
         # Create new coordinates
         coordinate_class = type(coordinates)
-        new_df = coordinates.df_all_coordinates.loc[ind_without_zero].copy()
+        new_df = coordinates.df_all_coordinates.loc[ind].copy()
         new_coordinates = coordinate_class(df=new_df, slicer_class=type(coordinates.slicer))
         return cls(new_observations, new_coordinates)
+
+    @classmethod
+    def remove_top_maxima(cls, observations: AbstractSpatioTemporalObservations,
+                     coordinates: AbstractSpatioTemporalCoordinates):
+        """ We remove the top maxima w.r.t. each spatial coordinates"""
+        assert isinstance(coordinates, AbstractSpatioTemporalCoordinates)
+        idxs_top = []
+        for spatial_coordinate in coordinates.spatial_coordinates.coordinates_values():
+            ind = coordinates.df_all_coordinates[coordinates.COORDINATE_X] == spatial_coordinate[0]
+            idx = observations.df_maxima_gev.loc[ind].idxmax()[0]
+            idxs_top.append(idx)
+        ind = ~coordinates.index.isin(idxs_top)
+        return cls.create_new_dataset(coordinates, ind, observations)
 
 
     @property

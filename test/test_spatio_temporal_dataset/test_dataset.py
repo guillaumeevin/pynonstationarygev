@@ -27,6 +27,21 @@ class TestDataset(unittest.TestCase):
     nb_points = 2
 
     def test_remove_zero_from_dataset(self):
+        coordinates, dataset_initial, observations = self.build_initial_dataset()
+        dataset_without_zero = AbstractDataset.remove_zeros(observations,
+                                                            coordinates)
+        self.assertEqual(len(dataset_initial.coordinates), 4)
+        self.assertEqual(len(dataset_without_zero.coordinates), 2)
+
+    def test_remove_top_maxima_from_dataset(self):
+        coordinates, dataset_initial, observations = self.build_initial_dataset()
+        dataset_without_top = AbstractDataset.remove_top_maxima(observations,
+                                                            coordinates)
+        self.assertEqual(4, len(dataset_initial.coordinates), 4)
+        self.assertEqual(2, len(dataset_without_top.coordinates))
+        self.assertEqual(set(dataset_without_top.coordinates.index.values), {0, 3})
+
+    def build_initial_dataset(self):
         temporal_coordinates = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(nb_temporal_steps=2)
         spatial_coordinates = AbstractSpatialCoordinates.from_list_x_coordinates([300, 600])
         coordinates = AbstractSpatioTemporalCoordinates(spatial_coordinates=spatial_coordinates,
@@ -38,11 +53,9 @@ class TestDataset(unittest.TestCase):
             (600, 1): [0],
         }
         observations = AnnualMaxima.from_coordinates(coordinates, coordinate_values_to_maxima)
-        dataset_with_zero = AbstractDataset(observations, coordinates)
-        dataset_without_zero = AbstractDataset.remove_zeros(observations,
-                                                            coordinates)
-        self.assertEqual(len(dataset_with_zero.coordinates), 4)
-        self.assertEqual(len(dataset_without_zero.coordinates), 2)
+        dataset_initial = AbstractDataset(observations, coordinates)
+        return coordinates, dataset_initial, observations
+
 
     def test_max_stable_dataset_R1_and_R2(self):
         max_stable_models = load_test_max_stable_models()[:]

@@ -5,6 +5,8 @@ from cached_property import cached_property
 from scipy.stats import chi2
 
 from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson
+from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import AbstractMarginEstimator, \
+    LinearMarginEstimator
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
 from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoef, PolynomialCoef
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
@@ -125,7 +127,8 @@ class OneFoldFit(object):
     @cached_property
     def sorted_estimators_with_stationary(self):
         if self.only_models_that_pass_anderson_test:
-            return [e for e in self.sorted_estimators if self.goodness_of_fit_test(e)]
+            return [e for e in self.sorted_estimators
+                    if self.goodness_of_fit_test(e) and self.sensitivity_of_fit_test(e)]
         else:
             return self._sorted_estimators_without_stationary
 
@@ -231,7 +234,8 @@ class OneFoldFit(object):
 
     @property
     def is_significant(self) -> bool:
-        stationary_model_classes = [StationaryAltitudinal, StationaryGumbelAltitudinal, AltitudinalShapeLinearTimeStationary]
+        stationary_model_classes = [StationaryAltitudinal, StationaryGumbelAltitudinal,
+                                    AltitudinalShapeLinearTimeStationary]
         if any([isinstance(self.best_estimator.margin_model, c)
                 for c in stationary_model_classes]):
             return False
@@ -251,6 +255,30 @@ class OneFoldFit(object):
     #                                                                                    type(self.best_margin_model)))
     #         self._folder_to_goodness[self.folder_for_plots] = goodness_of_fit_anderson_test
     #         return goodness_of_fit_anderson_test
+
+    def sensitivity_of_fit_test(self, estimator: LinearMarginEstimator):
+        # Build the dataset without the maxima for each altitude
+        new_dataset = AbstractDataset.remove_top_maxima(self.dataset.observations,
+                                                        self.dataset.coordinates)
+        # Fit the new estimator
+        new_estimator = fitted_linear_margin_estimator_short(model_class=type(estimator.margin_model),
+                                                             dataset=new_dataset,
+                                                             fit_method=self.fit_method,
+                                                             temporal_covariate_for_fit=self.temporal_covariate_for_fit)
+        # Compare sign of change
+        print(self.massif_name, self.sign_of_change(estimator), self.sign_of_change(new_estimator))
+        has_not_opposite_sign = self.sign_of_change(estimator) * self.sign_of_change(new_estimator) >= 0
+        return has_not_opposite_sign
+
+    def sign_of_change(self, estimator):
+        return_levels = []
+        for year in [2019 - 50, 2019]:
+            coordinate = np.array([self.altitude_plot, year])
+            return_level = estimator.function_from_fit.get_params(
+                coordinate=coordinate,
+                is_transformed=False).return_level(return_period=self.return_period)
+            return_levels.append(return_level)
+        return 100 * (return_levels[1] - return_levels[0]) / return_levels[0]
 
     def goodness_of_fit_test(self, estimator):
         quantiles = self.compute_empirical_quantiles(estimator=estimator)
