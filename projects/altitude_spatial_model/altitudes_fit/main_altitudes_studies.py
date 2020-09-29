@@ -3,26 +3,19 @@ from typing import List
 
 import matplotlib as mpl
 
-from projects.altitude_spatial_model.altitudes_fit.plot_histogram_altitude_studies import \
-    plot_histogram_all_trends_against_altitudes, plot_histogram_all_models_against_altitudes
+from projects.altitude_spatial_model.altitudes_fit.plots.plot_coherence_curves import plot_coherence_curves
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 from projects.altitude_spatial_model.altitudes_fit.utils_altitude_studies_visualizer import load_visualizer_list
 
-from extreme_fit.model.margin_model.polynomial_margin_model.utils import \
-    ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import altitudes_for_groups
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.plot_total_aic import plot_individual_aic
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days, \
-    SafranSnowfall5Days, SafranSnowfall7Days, SafranPrecipitation1Day, SafranPrecipitation3Days, \
-    SafranPrecipitation5Days, SafranPrecipitation7Days
+    SafranSnowfall5Days, SafranSnowfall7Days
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
-from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
-from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitudes_studies_visualizer_for_non_stationary_models import \
-    AltitudesStudiesVisualizerForNonStationaryModels
 
 
 def main():
@@ -59,13 +52,15 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes):
 
 
 def plot_visualizers(massif_names, visualizer_list):
-    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
-    plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
+    # plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
+    # plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
+    # plot_coherence_curves(massif_names, visualizer_list)
+    pass
 
 
 def plot_visualizer(massif_names, visualizer):
     # Plot time series
-    visualizer.studies.plot_maxima_time_series(massif_names=massif_names)
+    # visualizer.studies.plot_maxima_time_series(massif_names=massif_names)
     # Plot moments against altitude
     # for std in [True, False][:]:
     #     for change in [True, False, None]:

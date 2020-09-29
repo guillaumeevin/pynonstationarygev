@@ -3,7 +3,8 @@ from itertools import product
 
 import numpy as np
 
-from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearNonStationaryLocationMarginModel
+from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import \
+    LinearNonStationaryLocationMarginModel
 from extreme_fit.model.utils import set_seed_for_test, SafeRunException
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
@@ -36,10 +37,21 @@ class TestDataset(unittest.TestCase):
     def test_remove_top_maxima_from_dataset(self):
         coordinates, dataset_initial, observations = self.build_initial_dataset()
         dataset_without_top = AbstractDataset.remove_top_maxima(observations,
-                                                            coordinates)
+                                                                coordinates)
         self.assertEqual(4, len(dataset_initial.coordinates), 4)
         self.assertEqual(2, len(dataset_without_top.coordinates))
-        self.assertEqual(set(dataset_without_top.coordinates.index.values), {0, 3})
+        maxima = list(dataset_without_top.observations.df_maxima_gev.values[:, 0])
+        self.assertEqual(set(maxima), {0})
+
+    def test_remove_last_maxima_from_dataset(self):
+        coordinates, dataset_initial, observations = self.build_initial_dataset()
+        dataset_without_last = AbstractDataset.remove_last_maxima(observations,
+                                                                  coordinates,
+                                                                  nb_years=1)
+        self.assertEqual(4, len(dataset_initial.coordinates), 4)
+        self.assertEqual(2, len(dataset_without_last.coordinates))
+        maxima = list(dataset_without_last.observations.df_maxima_gev.values[:, 0])
+        self.assertEqual(set(maxima), {0, 2})
 
     def build_initial_dataset(self):
         temporal_coordinates = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(nb_temporal_steps=2)
@@ -55,7 +67,6 @@ class TestDataset(unittest.TestCase):
         observations = AnnualMaxima.from_coordinates(coordinates, coordinate_values_to_maxima)
         dataset_initial = AbstractDataset(observations, coordinates)
         return coordinates, dataset_initial, observations
-
 
     def test_max_stable_dataset_R1_and_R2(self):
         max_stable_models = load_test_max_stable_models()[:]
@@ -79,8 +90,9 @@ class TestDataset(unittest.TestCase):
     def test_max_stable_dataset_R3_with_R2_spatial_structure(self):
         """Test to create a dataset in R3, but where the spatial structure is only with respect to the 2 fisrt coordinates"""
         coordinates = \
-        load_test_3D_spatial_coordinates(nb_points=self.nb_points, transformation_class=BetweenZeroAndOneNormalization)[
-            0]
+            load_test_3D_spatial_coordinates(nb_points=self.nb_points,
+                                             transformation_class=BetweenZeroAndOneNormalization)[
+                0]
         smith_process = load_test_max_stable_models()[0]
         MaxStableDataset.from_sampling(nb_obs=self.nb_obs,
                                        max_stable_model=smith_process,

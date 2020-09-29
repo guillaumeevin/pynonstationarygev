@@ -4,6 +4,7 @@ import rpy2
 from cached_property import cached_property
 from scipy.stats import chi2
 
+from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import AbstractMarginEstimator, \
     LinearMarginEstimator
@@ -128,7 +129,9 @@ class OneFoldFit(object):
     def sorted_estimators_with_stationary(self):
         if self.only_models_that_pass_anderson_test:
             return [e for e in self.sorted_estimators
-                    if self.goodness_of_fit_test(e) and self.sensitivity_of_fit_test(e)]
+                    if self.goodness_of_fit_test(e)
+                    and self.sensitivity_of_fit_test_top_maxima(e)
+                    and self.sensitivity_of_fit_test_last_years(e)]
         else:
             return self._sorted_estimators_without_stationary
 
@@ -256,7 +259,7 @@ class OneFoldFit(object):
     #         self._folder_to_goodness[self.folder_for_plots] = goodness_of_fit_anderson_test
     #         return goodness_of_fit_anderson_test
 
-    def sensitivity_of_fit_test(self, estimator: LinearMarginEstimator):
+    def sensitivity_of_fit_test_top_maxima(self, estimator: LinearMarginEstimator):
         # Build the dataset without the maxima for each altitude
         new_dataset = AbstractDataset.remove_top_maxima(self.dataset.observations,
                                                         self.dataset.coordinates)
@@ -266,8 +269,25 @@ class OneFoldFit(object):
                                                              fit_method=self.fit_method,
                                                              temporal_covariate_for_fit=self.temporal_covariate_for_fit)
         # Compare sign of change
-        print(self.massif_name, self.sign_of_change(estimator), self.sign_of_change(new_estimator))
         has_not_opposite_sign = self.sign_of_change(estimator) * self.sign_of_change(new_estimator) >= 0
+        return has_not_opposite_sign
+
+
+    def sensitivity_of_fit_test_last_years(self, estimator: LinearMarginEstimator):
+        # Build the dataset without the maxima for each altitude
+        new_dataset = AbstractDataset.remove_last_maxima(self.dataset.observations,
+                                                        self.dataset.coordinates,
+                                                         nb_years=10)
+        # Fit the new estimator
+        model_class = type(estimator.margin_model)
+        new_estimator = fitted_linear_margin_estimator_short(model_class=model_class,
+                                                             dataset=new_dataset,
+                                                             fit_method=self.fit_method,
+                                                             temporal_covariate_for_fit=self.temporal_covariate_for_fit)
+        # Compare sign of change
+        has_not_opposite_sign = self.sign_of_change(estimator) * self.sign_of_change(new_estimator) >= 0
+        # if not has_not_opposite_sign:
+            # print('Last years', self.massif_name, model_class, self.sign_of_change(estimator), self.sign_of_change(new_estimator))
         return has_not_opposite_sign
 
     def sign_of_change(self, estimator):
@@ -281,25 +301,19 @@ class OneFoldFit(object):
         return 100 * (return_levels[1] - return_levels[0]) / return_levels[0]
 
     def goodness_of_fit_test(self, estimator):
-        quantiles = self.compute_empirical_quantiles(estimator=estimator)
+        quantiles = estimator.sorted_empirical_standard_gumbel_quantiles()
         goodness_of_fit_anderson_test = goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
         return goodness_of_fit_anderson_test
 
-    def compute_empirical_quantiles(self, estimator):
-        empirical_quantiles = []
-        df_maxima_gev = self.dataset.observations.df_maxima_gev
-        df_coordinates = self.dataset.coordinates.df_coordinates()
-        for coordinate, maximum in zip(df_coordinates.values.copy(), df_maxima_gev.values.copy()):
-            gev_param = estimator.function_from_fit.get_params(
-                coordinate=coordinate,
-                is_transformed=False)
-            assert len(maximum) == 1
-            maximum_standardized = gev_param.gumbel_standardization(maximum[0])
-            empirical_quantiles.append(maximum_standardized)
-        empirical_quantiles = sorted(empirical_quantiles)
-        return empirical_quantiles
+    def standard_gumbel_quantiles(self):
+        standard_gumbel_distribution = GevParams(loc=0, scale=1, shape=0)
+        n = len(self.dataset.coordinates)
+        standard_gumbel_quantiles = [standard_gumbel_distribution.quantile(i / (n + 1)) for i in range(1, n + 1)]
+        return standard_gumbel_quantiles
+
 
     # def best_confidence_interval(self):
     #     EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(self.best_estimator,
     #                                                                    ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
     #                                                                    temporal_covariate=np.array([2019, self.altitude_plot]),)
+

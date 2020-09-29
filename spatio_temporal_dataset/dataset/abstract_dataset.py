@@ -17,8 +17,9 @@ from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_tempor
 
 class AbstractDataset(object):
 
-    def __init__(self, observations: AbstractSpatioTemporalObservations, coordinates: AbstractCoordinates,):
-        assert pd.Index.equals(observations.index, coordinates.index), '\n{}\n{}'.format(observations.index, coordinates.index)
+    def __init__(self, observations: AbstractSpatioTemporalObservations, coordinates: AbstractCoordinates, ):
+        assert pd.Index.equals(observations.index, coordinates.index), '\n{}\n{}'.format(observations.index,
+                                                                                         coordinates.index)
         self.observations = observations  # type: AbstractSpatioTemporalObservations
         self.coordinates = coordinates  # type: AbstractCoordinates
 
@@ -41,7 +42,7 @@ class AbstractDataset(object):
 
     @classmethod
     def remove_top_maxima(cls, observations: AbstractSpatioTemporalObservations,
-                     coordinates: AbstractSpatioTemporalCoordinates):
+                          coordinates: AbstractSpatioTemporalCoordinates):
         """ We remove the top maxima w.r.t. each spatial coordinates"""
         assert isinstance(coordinates, AbstractSpatioTemporalCoordinates)
         idxs_top = []
@@ -52,6 +53,16 @@ class AbstractDataset(object):
         ind = ~coordinates.index.isin(idxs_top)
         return cls.create_new_dataset(coordinates, ind, observations)
 
+    @classmethod
+    def remove_last_maxima(cls, observations: AbstractSpatioTemporalObservations,
+                           coordinates: AbstractSpatioTemporalCoordinates,
+                           nb_years=1):
+        """ We remove the top maxima w.r.t. each spatial coordinates"""
+        assert isinstance(coordinates, AbstractSpatioTemporalCoordinates)
+        years = list(coordinates.temporal_coordinates.coordinates_values()[:, 0])
+        last_years = sorted(years)[-nb_years:]
+        ind = ~coordinates.df_all_coordinates[coordinates.COORDINATE_T].isin(last_years)
+        return cls.create_new_dataset(coordinates, ind, observations)
 
     @property
     def df_dataset(self) -> pd.DataFrame:
@@ -111,4 +122,3 @@ class AbstractDataset(object):
 
     def __str__(self) -> str:
         return 'coordinates:\n{}\nobservations:\n{}'.format(self.coordinates.__str__(), self.observations.__str__())
-

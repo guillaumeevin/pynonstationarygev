@@ -1,4 +1,5 @@
 from collections import Counter
+from math import ceil, floor
 from typing import List, Dict
 
 import matplotlib
@@ -49,11 +50,14 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self.massif_name_to_massif_id = {m: i for i, m in enumerate(self.massif_names)}
         self.altitude_group = get_altitude_group_from_altitudes(self.studies.altitudes)
         # Load one fold fit
+        self.massif_name_to_massif_altitudes = {}
         self._massif_name_to_one_fold_fit = {}
         for massif_name in self.massif_names:
             # Load valid massif altitudes
             massif_altitudes = self.get_massif_altitudes(massif_name)
             if self.load_condition(massif_altitudes):
+                # Save the massif altitudes only for those who pass the condition
+                self.massif_name_to_massif_altitudes[massif_name] = massif_altitudes
                 # Load dataset
                 dataset = studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes)
                 old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method,
@@ -79,8 +83,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             percentage_of_non_zeros = 100 * np.count_nonzero(annual_maxima) / len(annual_maxima)
             if percentage_of_non_zeros > 90:
                 massif_altitudes.append(altitude)
-            else:
-                print(massif_name, altitude, percentage_of_non_zeros)
+            # else:
+            #     print(massif_name, altitude, percentage_of_non_zeros)
         return massif_altitudes
 
     def load_condition(self, massif_altitudes):
@@ -435,3 +439,34 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     def model_names(self):
         massif_name = list(self.massif_name_to_one_fold_fit.keys())[0]
         return self.massif_name_to_one_fold_fit[massif_name].model_names
+
+    def plot_qqplots(self):
+        for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
+            ax = plt.gca()
+            standard_gumbel_quantiles = one_fold_fit.standard_gumbel_quantiles()
+            unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles()
+            all_quantiles = standard_gumbel_quantiles + unconstrained_empirical_quantiles
+            epsilon = 0.1
+            ax_lim = [min(all_quantiles) - epsilon, max(all_quantiles) + epsilon]
+
+            model_name = self.massif_name_to_best_name[massif_name]
+            altitudes = self.massif_name_to_massif_altitudes[massif_name]
+            massif_name_corrected = massif_name.replace('_', ' ')
+            label = '{} for altitudes  {}'.format(massif_name_corrected, ' & '.join([str(a) + 'm' for a in altitudes]))
+            ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
+                    label=label + '\n(selected model is ${}$)'.format(model_name), marker='o')
+
+            size_label = 20
+            ax.set_xlabel("Theoretical quantile", fontsize=size_label)
+            ax.set_ylabel("Empirical quantile", fontsize=size_label)
+            ax.set_xlim(ax_lim)
+            ax.set_ylim(ax_lim)
+
+            ax.plot(ax_lim, ax_lim, color='k')
+            ticks = [i for i in range(ceil(ax_lim[0]), floor(ax_lim[1]) + 1)]
+            ax.set_xticks(ticks)
+            ax.set_yticks(ticks)
+            ax.tick_params(labelsize=15)
+            plot_name = 'qqplot/{}'.format(massif_name_corrected)
+            self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
+            plt.close()
