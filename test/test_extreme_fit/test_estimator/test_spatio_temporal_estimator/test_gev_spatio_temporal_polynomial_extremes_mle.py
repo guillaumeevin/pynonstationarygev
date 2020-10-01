@@ -76,15 +76,25 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
         self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
         # Assert we can compute the return level
-        covariate_for_return_level = np.array([400, 20])[::1]
-        confidence_interval = EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(estimator,
-                                                                                             ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
-                                                                                             temporal_covariate=covariate_for_return_level)
-        return_level = estimator.function_from_fit.get_params(covariate_for_return_level).return_level(50)
-        print("my return level", return_level)
-        self.assertAlmostEqual(return_level, confidence_interval.mean_estimate)
-        self.assertFalse(np.isnan(confidence_interval.confidence_interval[0]))
-        self.assertFalse(np.isnan(confidence_interval.confidence_interval[1]))
+        covariate1_for_return_level = np.array([700, 0])
+        covariate2_for_return_level = np.array([700, 1000])
+        covariate3_for_return_level = np.array([400, 0])
+        coordinates = [covariate1_for_return_level, covariate2_for_return_level, covariate3_for_return_level]
+        for coordinate in coordinates:
+            EurocodeConfidenceIntervalFromExtremes.quantile_level = 0.98
+            confidence_interval = EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(estimator,
+                                                                                                 ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
+                                                                                                 temporal_covariate=coordinate)
+            gev_params = estimator.function_from_fit.get_params(coordinate)
+            # print(gev_params, coordinate)
+            return_level = gev_params.return_level(return_period=50)
+            # print("my return level", return_level)
+            # print("their return level", confidence_interval.mean_estimate)
+            # print("diff", confidence_interval.mean_estimate - return_level)
+            # print('\n\n')
+            self.assertAlmostEqual(return_level, confidence_interval.mean_estimate)
+            self.assertFalse(np.isnan(confidence_interval.confidence_interval[0]))
+            self.assertFalse(np.isnan(confidence_interval.confidence_interval[1]))
 
     def test_gev_spatio_temporal_margin_fit_1(self):
         self.function_test_gev_spatio_temporal_margin_fit_non_stationary(StationaryAltitudinal)
@@ -93,10 +103,10 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
     def test_gev_spatio_temporal_margin_fit_1_bis(self):
         self.function_test_gev_spatio_temporal_margin_fit_non_stationary(AltitudinalShapeLinearTimeStationary)
 
-    # def test_gev_spatio_temporal_margin_fit_2(self):
-    #     # first model with both a time and altitude non stationarity
-    #     self.function_test_gev_spatio_temporal_margin_fit_non_stationary(
-    #         AltitudinalShapeConstantTimeLocationLinear)
+    def test_gev_spatio_temporal_margin_fit_2(self):
+        # first model with both a time and altitude non stationarity
+        self.function_test_gev_spatio_temporal_margin_fit_non_stationary(
+            AltitudinalShapeConstantTimeLocationLinear)
 
     # def test_gev_spatio_temporal_margin_fit_3(self):
     #     self.function_test_gev_spatio_temporal_margin_fit_non_stationary(

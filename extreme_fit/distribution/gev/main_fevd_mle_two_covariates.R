@@ -21,15 +21,15 @@ x_gev <- rgev(N, loc = loc, scale = scale, shape = shape)
 print(N)
 coord <- matrix(ncol=2, nrow = N)
 coord[,1]=seq(0,N-1,1)
-coord[,2]=seq(0,N-1,1)
+coord[,2]=seq(0,N-1,4)
 
 colnames(coord) = c("X", "T")
 coord = data.frame(coord, stringsAsFactors = TRUE)
 # res = fevd_fixed(x_gev, data=coord, method='MLE', verbose=TRUE, use.phi=FALSE)
 # res = fevd_fixed(x_gev, data=coord, location.fun= ~T, scale.fun= ~T, method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
 # res = fevd_fixed(x_gev, data=coord, location.fun= ~sin(X) + cos(T), method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
-# res = fevd_fixed(x_gev, data=coord, location.fun= ~poly(X * T, 1, raw = TRUE),  method='MLE', type="Gumbel", verbose=FALSE, use.phi=FALSE)
-res = fevd_fixed(x_gev, data=coord, location.fun= ~poly(X, 1, raw = TRUE) + poly(T, 1, raw = TRUE) , method='MLE', type="Gumbel", verbose=FALSE, use.phi=FALSE)
+# res = fevd_fixed(x_gev, data=coord, location.fun= ~poly(X, 1, raw = TRUE),  method='MLE', type="Gumbel", verbose=FALSE, use.phi=FALSE)
+res = fevd_fixed(x_gev, data=coord, location.fun= ~poly(X, 1, raw = TRUE) + poly(T, 1, raw = TRUE), scale.fun= ~ T + X, method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
 # print(res)
 print(summary.fevd.mle_fixed(res))
 # print(summary(res)$AIC)
@@ -45,7 +45,24 @@ print(summary.fevd.mle_fixed(res))
 
 
 # v = make.qcov(res, vals = list(mu0 = c(0.0), mu1 = c(0.0), mu2 = c(0.0), sigma = c(0.0)))
-v = make.qcov(res, vals = list(mu1 = c(0.0), mu2 = c(0.0)))
+
+
+# does not give the same result depending on the number of calls we make
+spatial_cov = c(100.0, 100.0, 100.0)
+temporal_cov = c(500.0, 500.0, 500.0)
+
+#
+spatial_cov = c(100.0, 100.0)
+temporal_cov = c(500.0, 500.0)
+#
+spatial_cov = c(100.0, 100.0, 100.0, 100.0)
+temporal_cov = c(500.0, 500.0, 500.0, 500.0)
+
+# spatial_cov = c(200.0)
+# temporal_cov = c(500.0)
+# v = make.qcov(res, vals = list(sigma2 = temporal_cov, mu2 = temporal_cov, mu0 = c(1.0), sigma0 = c(1.0), mu1 = spatial_cov, sigma1 = spatial_cov))
+v = make.qcov(res, vals = list( mu1 = spatial_cov, mu2 = temporal_cov, sigma2 =spatial_cov, sigma1 = temporal_cov ))
+# v = make.qcov(res, vals = list(mu1 = c(0.0)))
 
 res_ci = ci.fevd.mle_fixed(res, alpha = 0.05, type = c("return.level"),
     return.period = 50, method = "normal", xrange = NULL, nint = 20, verbose = FALSE,

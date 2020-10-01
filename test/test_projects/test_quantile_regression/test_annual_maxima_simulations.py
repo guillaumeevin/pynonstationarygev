@@ -46,20 +46,21 @@ class TestExpSimulations(unittest.TestCase):
 
 class TestExpSimulationsDailyDataModels(unittest.TestCase):
     DISPLAY = False
+    pass
 
     # Warning this method is quite long...
-    def test_stationary_run_daily_data_quantile_regression_model(self):
-        simulation = StationaryExpSimulation(nb_time_series=1, quantile=0.5, time_series_lengths=[50, 60],
-                                             model_classes=[ConstantQuantileRegressionModelOnDailyData])
-        simulation.plot_error_for_last_year_quantile(self.DISPLAY)
+    # def test_stationary_run_daily_data_quantile_regression_model(self):
+    #     simulation = StationaryExpSimulation(nb_time_series=1, quantile=0.5, time_series_lengths=[50, 60],
+    #                                          model_classes=[ConstantQuantileRegressionModelOnDailyData])
+    #     simulation.plot_error_for_last_year_quantile(self.DISPLAY)
 
-    def test_non_stationary_run_daily_data_quantile_regression_model(self):
-        simulation = NonStationaryExpSimulation(nb_time_series=1, quantile=0.5, time_series_lengths=[50, 60],
-                                                model_classes=[TemporalCoordinatesQuantileRegressionModelOnDailyData])
-        first_estimator = simulation.model_class_to_time_series_length_to_estimators[
-            TemporalCoordinatesQuantileRegressionModelOnDailyData][50][0]
-        self.assertEqual(len(first_estimator.dataset.df_dataset), 50 * 365)
-        simulation.plot_error_for_last_year_quantile(self.DISPLAY)
+    # def test_non_stationary_run_daily_data_quantile_regression_model(self):
+    #     simulation = NonStationaryExpSimulation(nb_time_series=1, quantile=0.5, time_series_lengths=[50, 60],
+    #                                             model_classes=[TemporalCoordinatesQuantileRegressionModelOnDailyData])
+    #     first_estimator = simulation.model_class_to_time_series_length_to_estimators[
+    #         TemporalCoordinatesQuantileRegressionModelOnDailyData][50][0]
+    #     self.assertEqual(len(first_estimator.dataset.df_dataset), 50 * 365)
+    #     simulation.plot_error_for_last_year_quantile(self.DISPLAY)
 
     # WARNING: It does not work yet, read fevd manual to understand how does he expect the parameters
     # probably the formula to provide should be w.r.t to the scale parameter

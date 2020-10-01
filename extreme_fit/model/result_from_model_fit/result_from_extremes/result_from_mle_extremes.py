@@ -23,6 +23,7 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
         d = self.get_python_dictionary(values)
         if 'par' in d:
             values = {i: param for i, param in enumerate(np.array(d['par']))}
+            print(values)
         else:
             values = {i: np.array(v)[0] for i, v in enumerate(d.values())}
         return get_margin_coef_ordered_dict(self.param_name_to_dim, values, self.type_for_mle,
@@ -31,17 +32,20 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
     def _confidence_interval_method(self, common_kwargs, ci_method, return_period):
         method_name = ci_method_to_method_name[ci_method]
         mle_ci_parameters = {
-                'method': method_name,
+            'method': method_name,
             # xrange = NULL, nint = 20
         }
         res = r('ci.fevd.mle_fixed')(self.result_from_fit, **mle_ci_parameters, **common_kwargs)
         if self.is_non_stationary:
-            a = np.array(res)[0]
+            b = np.array(res)
+            print(b)
+            a = b[0]
             lower, mean_estimate, upper, _ = a
         else:
             d = self.get_python_dictionary(res)
             keys = ['{}-year return level'.format(return_period), '95% lower CI', '95% upper CI']
             mean_estimate, lower, upper = [np.array(d[k])[0] for k in keys]
+
         return mean_estimate, (lower, upper)
 
 

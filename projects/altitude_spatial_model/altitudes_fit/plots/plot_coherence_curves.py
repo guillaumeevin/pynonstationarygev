@@ -20,20 +20,30 @@ def plot_coherence_curves(massif_names, visualizer_list: List[
 
 
 def plot_coherence_curve(massif_name, visualizer_list: List[AltitudesStudiesVisualizerForNonStationaryModels]):
-    x, gev_params_list = load_all_list(massif_name, visualizer_list)
-    values = [(gev_params.location, gev_params.scale, gev_params.shape, gev_params.return_level(return_period=OneFoldFit.return_period))
-              for gev_params in gev_params_list]
-    values = list(zip(*values))
-    labels = ['loc', 'scale', 'shape', 'return level']
+    x_all_list, values_all_list, labels = load_all_list(massif_name, visualizer_list)
     _, axes = plt.subplots(2, 2)
-    for label, value, ax in zip(labels, values, axes.flatten()):
-        ax.plot(x, value)
+    axes = axes.flatten()
+    for i, label in enumerate(labels):
+        ax = axes[i]
+        # Plot with complete line
+        for x_list, value_list in zip(x_all_list, values_all_list):
+            value_list = value_list[i]
+            ax.plot(x_list, value_list, linestyle='solid')
+        # Plot with dotted line
+        for x_list_before, value_list_before, x_list_after, value_list_after in zip(x_all_list, values_all_list,
+                                                                                    x_all_list[1:],
+                                                                                    values_all_list[1:]):
+            x_list = [x_list_before[-1], x_list_after[0]]
+            value_list = [value_list_before[i][-1], value_list_after[i][0]]
+            ax.plot(x_list, value_list, linestyle='dotted')
+
         ax.set_ylabel(label)
         ax.set_xlabel('Altitude')
 
+
 def load_all_list(massif_name, visualizer_list):
     all_altitudes_list = []
-    all_gev_params_list = []
+    all_values_list = []
     for visualizer in visualizer_list:
         if massif_name in visualizer.massif_name_to_one_fold_fit:
             min_altitude, *_, max_altitude = visualizer.massif_name_to_massif_altitudes[massif_name]
@@ -42,6 +52,11 @@ def load_all_list(massif_name, visualizer_list):
             for altitude in altitudes_list:
                 gev_params = visualizer.massif_name_to_one_fold_fit[massif_name].get_gev_params(altitude, 2019)
                 gev_params_list.append(gev_params)
-            all_gev_params_list.extend(gev_params_list)
-            all_altitudes_list.extend(altitudes_list)
-    return all_altitudes_list, all_gev_params_list
+            values = [(gev_params.location, gev_params.scale, gev_params.shape,
+                       gev_params.return_level(return_period=OneFoldFit.return_period))
+                      for gev_params in gev_params_list]
+            values_list = list(zip(*values))
+            all_values_list.append(values_list)
+            all_altitudes_list.append(altitudes_list)
+    labels = ['loc', 'scale', 'shape', 'return level']
+    return all_altitudes_list, all_values_list, labels

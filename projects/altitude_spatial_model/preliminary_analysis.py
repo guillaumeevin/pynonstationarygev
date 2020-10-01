@@ -33,7 +33,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
                 massif_name_to_r2_score[massif_name] = str(round(r2, 2))
             print(massif_name_to_linear_coef, massif_name_to_r2_score)
             # Plot change against altitude
-            ax.legend(prop={'size': 7}, ncol=3)
+            # ax.legend(prop={'size': 7}, ncol=3)
             ax.set_xlabel('Altitude')
             ax.set_ylabel(GevParams.full_name_from_param_name(param_name) + ' parameter for a stationary GEV distribution')
             plot_name = '{} change with altitude'.format(param_name)
@@ -194,7 +194,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
 
 if __name__ == '__main__':
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300]
-    altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
+    altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
     # altitudes = paper_altitudes
     # altitudes = [1800, 2100]
     visualizer = PointwiseGevStudyVisualizer(SafranSnowfall1Day, altitudes=altitudes)

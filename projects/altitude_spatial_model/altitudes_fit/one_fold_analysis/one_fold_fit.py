@@ -130,8 +130,9 @@ class OneFoldFit(object):
         if self.only_models_that_pass_anderson_test:
             return [e for e in self.sorted_estimators
                     if self.goodness_of_fit_test(e)
-                    and self.sensitivity_of_fit_test_top_maxima(e)
-                    and self.sensitivity_of_fit_test_last_years(e)]
+                    # and self.sensitivity_of_fit_test_top_maxima(e)
+                    # and self.sensitivity_of_fit_test_last_years(e)
+                    ]
         else:
             return self._sorted_estimators_without_stationary
 

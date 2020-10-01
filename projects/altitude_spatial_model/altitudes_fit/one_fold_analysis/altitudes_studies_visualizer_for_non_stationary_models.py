@@ -23,7 +23,7 @@ from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_poly
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import \
-    get_altitude_group_from_altitudes, HighAltitudeGroup, VeyHighAltitudeGroup
+    get_altitude_group_from_altitudes, HighAltitudeGroup, VeyHighAltitudeGroup, MidAltitudeGroup
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import \
     OneFoldFit
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -174,7 +174,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     @property
     def add_colorbar(self):
-        return isinstance(self.altitude_group, VeyHighAltitudeGroup)
+        return isinstance(self.altitude_group, (VeyHighAltitudeGroup, MidAltitudeGroup))
 
     def plot_against_years(self, method_name, order):
         ax = plt.gca()
@@ -421,12 +421,12 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             valid_massif_names = valid_massif_names.intersection(set(massif_names))
         return valid_massif_names
 
-    def model_name_to_percentages(self, massif_names):
+    def model_name_to_percentages(self, massif_names, only_significant=False):
         valid_massif_names = self.get_valid_names(massif_names)
         nb_valid_massif_names = len(valid_massif_names)
         best_names = [one_fold_fit.best_estimator.margin_model.name_str
                       for m, one_fold_fit in self.massif_name_to_one_fold_fit.items()
-                      if m in valid_massif_names]
+                      if m in valid_massif_names and (not only_significant or one_fold_fit.is_significant)]
         counter = Counter(best_names)
         d = {name: 100 * c / nb_valid_massif_names for name, c in counter.items()}
         # Add 0 for the name not present

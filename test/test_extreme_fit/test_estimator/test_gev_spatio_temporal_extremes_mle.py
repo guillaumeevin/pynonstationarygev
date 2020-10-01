@@ -43,22 +43,22 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic(split=estimator.train_split))
         self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic(split=estimator.train_split))
 
-    def test_assert_error(self):
-        for model_class in MODELS_THAT_SHOULD_RAISE_AN_ASSERTION_ERROR:
-            with self.assertRaises(AssertionError):
-                self.common_test(model_class)
+    # def test_assert_error(self):
+    #     for model_class in MODELS_THAT_SHOULD_RAISE_AN_ASSERTION_ERROR:
+    #         with self.assertRaises(AssertionError):
+    #             self.common_test(model_class)
 
-    def test_location_spatio_temporal_models(self):
-        for model_class in VARIOUS_SPATIO_TEMPORAL_MODELS:
-            self.common_test(model_class)
+    # def test_location_spatio_temporal_models(self):
+    #     for model_class in VARIOUS_SPATIO_TEMPORAL_MODELS:
+    #         self.common_test(model_class)
 
-    def test_altitudinal_gev_models(self):
-        for model_class in ALTITUDINAL_GEV_MODELS:
-            self.common_test(model_class)
+    # def test_altitudinal_gev_models(self):
+    #     for model_class in ALTITUDINAL_GEV_MODELS:
+    #         self.common_test(model_class)
 
-    def test_altitudinal_gumbel_models(self):
-        for model_class in ALTITUDINAL_GUMBEL_MODELS[:]:
-            self.common_test(model_class)
+    # def test_altitudinal_gumbel_models(self):
+    #     for model_class in ALTITUDINAL_GUMBEL_MODELS[:]:
+    #         self.common_test(model_class)
 
 
 if __name__ == '__main__':

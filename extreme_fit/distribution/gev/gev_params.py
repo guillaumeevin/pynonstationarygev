@@ -136,12 +136,12 @@ class GevParams(AbstractExtremeParams):
         }[param_name]
 
     @classmethod
-    def greek_letter_from_param_name_confidence_interval(cls, param_name):
+    def greek_letter_from_param_name_confidence_interval(cls, param_name, linearity_in_shape=False):
         assert param_name in cls.PARAM_NAMES
         return {
             cls.LOC: 'mu',
             cls.SCALE: 'sigma',
-            cls.SHAPE: 'xi',
+            cls.SHAPE: 'shape' if not linearity_in_shape else 'xi',
         }[param_name]
 
     @classmethod

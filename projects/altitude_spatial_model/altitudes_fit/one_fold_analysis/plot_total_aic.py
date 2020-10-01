@@ -12,8 +12,8 @@ from projects.exceeding_snow_loads.utils import dpi_paper1_figure
 
 def plots(visualizer):
     visualizer.plot_shape_map()
-    # visualizer.plot_moments()
-    visualizer.plot_qqplots()
+    visualizer.plot_moments()
+    # visualizer.plot_qqplots()
 
 
     # for plot_mean in [True, False]:
