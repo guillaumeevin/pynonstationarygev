@@ -69,8 +69,8 @@ class ExtractEurocodeReturnLevelFromCiMethod(AbstractExtractEurocodeReturnLevel)
 class ExtractEurocodeReturnLevelFromMyBayesianExtremes(AbstractExtractEurocodeReturnLevel):
     result_from_fit: ResultFromBayesianExtremes
 
-    def __init__(self, estimator: LinearMarginEstimator, ci_method, temporal_covariate, quantile_level=EUROCODE_QUANTILE):
-        super().__init__(estimator, ci_method, temporal_covariate, quantile_level)
+    def __init__(self, estimator: LinearMarginEstimator, ci_method, coordinate, quantile_level=EUROCODE_QUANTILE):
+        super().__init__(estimator, ci_method, coordinate, quantile_level)
         assert isinstance(self.result_from_fit, ResultFromBayesianExtremes)
 
     @property

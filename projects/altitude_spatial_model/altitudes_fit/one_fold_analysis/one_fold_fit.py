@@ -273,11 +273,10 @@ class OneFoldFit(object):
         has_not_opposite_sign = self.sign_of_change(estimator) * self.sign_of_change(new_estimator) >= 0
         return has_not_opposite_sign
 
-
     def sensitivity_of_fit_test_last_years(self, estimator: LinearMarginEstimator):
         # Build the dataset without the maxima for each altitude
         new_dataset = AbstractDataset.remove_last_maxima(self.dataset.observations,
-                                                        self.dataset.coordinates,
+                                                         self.dataset.coordinates,
                                                          nb_years=10)
         # Fit the new estimator
         model_class = type(estimator.margin_model)
@@ -288,7 +287,7 @@ class OneFoldFit(object):
         # Compare sign of change
         has_not_opposite_sign = self.sign_of_change(estimator) * self.sign_of_change(new_estimator) >= 0
         # if not has_not_opposite_sign:
-            # print('Last years', self.massif_name, model_class, self.sign_of_change(estimator), self.sign_of_change(new_estimator))
+        # print('Last years', self.massif_name, model_class, self.sign_of_change(estimator), self.sign_of_change(new_estimator))
         return has_not_opposite_sign
 
     def sign_of_change(self, estimator):
@@ -312,9 +311,9 @@ class OneFoldFit(object):
         standard_gumbel_quantiles = [standard_gumbel_distribution.quantile(i / (n + 1)) for i in range(1, n + 1)]
         return standard_gumbel_quantiles
 
-
-    # def best_confidence_interval(self):
-    #     EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(self.best_estimator,
-    #                                                                    ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
-    #                                                                    temporal_covariate=np.array([2019, self.altitude_plot]),)
-
+    @property
+    def best_confidence_interval(self) -> EurocodeConfidenceIntervalFromExtremes:
+        return EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(self.best_estimator,
+                                                                       ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
+                                                                       coordinate=np.array(
+                                                                           [2019, self.altitude_plot]), )

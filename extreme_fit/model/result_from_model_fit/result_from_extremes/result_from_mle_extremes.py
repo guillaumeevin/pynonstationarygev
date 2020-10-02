@@ -23,7 +23,6 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
         d = self.get_python_dictionary(values)
         if 'par' in d:
             values = {i: param for i, param in enumerate(np.array(d['par']))}
-            print(values)
         else:
             values = {i: np.array(v)[0] for i, v in enumerate(d.values())}
         return get_margin_coef_ordered_dict(self.param_name_to_dim, values, self.type_for_mle,
@@ -38,7 +37,6 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
         res = r('ci.fevd.mle_fixed')(self.result_from_fit, **mle_ci_parameters, **common_kwargs)
         if self.is_non_stationary:
             b = np.array(res)
-            print(b)
             a = b[0]
             lower, mean_estimate, upper, _ = a
         else:

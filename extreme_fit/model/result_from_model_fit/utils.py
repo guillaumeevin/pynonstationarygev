@@ -41,5 +41,4 @@ def get_margin_coef_ordered_dict(param_name_to_dims, mle_values, type_for_mle="G
                         coef_name = coef_template.format(k + offset)
                         coef_dict[coef_name] = mle_values[i]
                         i += 1
-    print(coef_dict)
     return coef_dict

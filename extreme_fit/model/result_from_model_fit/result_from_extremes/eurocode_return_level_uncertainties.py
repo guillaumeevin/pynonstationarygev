@@ -1,3 +1,7 @@
+from typing import Union
+
+import numpy as np
+
 from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
@@ -29,12 +33,12 @@ class EurocodeConfidenceIntervalFromExtremes(object):
     @classmethod
     def from_estimator_extremes(cls, estimator_extremes: LinearMarginEstimator,
                                 ci_method: ConfidenceIntervalMethodFromExtremes,
-                                temporal_covariate: int,
+                                coordinate: Union[int, np.ndarray],
                                 ):
         if ci_method == ConfidenceIntervalMethodFromExtremes.my_bayes:
-            extractor = ExtractEurocodeReturnLevelFromMyBayesianExtremes(estimator_extremes, ci_method, temporal_covariate, cls.quantile_level)
+            extractor = ExtractEurocodeReturnLevelFromMyBayesianExtremes(estimator_extremes, ci_method, coordinate, cls.quantile_level)
         else:
-            extractor = ExtractEurocodeReturnLevelFromCiMethod(estimator_extremes, ci_method, temporal_covariate, cls.quantile_level)
+            extractor = ExtractEurocodeReturnLevelFromCiMethod(estimator_extremes, ci_method, coordinate, cls.quantile_level)
         return cls(extractor.mean_estimate,  extractor.confidence_interval)
 
     @classmethod

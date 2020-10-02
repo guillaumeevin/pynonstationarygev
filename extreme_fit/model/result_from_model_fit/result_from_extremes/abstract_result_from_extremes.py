@@ -61,15 +61,13 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
             'type': r.c("return.level")
         }
         if self.param_name_to_dim:
-            print("here")
             if isinstance(transformed_temporal_covariate, (int, float, np.int, np.float, np.int64)):
-                print("here2")
                 d = {GevParams.greek_letter_from_param_name_confidence_interval(param_name) + '1': r.c(transformed_temporal_covariate) for
                      param_name in self.param_name_to_dim.keys()}
             elif isinstance(transformed_temporal_covariate, np.ndarray):
                 d = OrderedDict()
                 linearity_in_shape = GevParams.SHAPE in self.param_name_to_dim
-                nb_calls = 2  # or 4 (1 and 3 did not work for the test)
+                nb_calls = 4  # or 4 (1 and 3 did not work for the test)
                 for param_name in GevParams.PARAM_NAMES:
                     suffix = '0' if param_name in self.param_name_to_dim else ''
                     covariate = np.array([1] * nb_calls)

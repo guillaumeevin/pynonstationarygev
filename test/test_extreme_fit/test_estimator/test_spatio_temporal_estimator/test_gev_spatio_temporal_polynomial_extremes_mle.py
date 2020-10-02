@@ -14,6 +14,8 @@ from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pari
 from extreme_fit.model.margin_model.polynomial_margin_model.polynomial_margin_model import \
     NonStationaryQuadraticLocationModel, \
     NonStationaryQuadraticScaleModel, NonStationaryQuadraticLocationGumbelModel, NonStationaryQuadraticScaleGumbelModel
+from extreme_fit.model.margin_model.polynomial_margin_model.utils import \
+    ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
@@ -76,45 +78,27 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
         self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
         # Assert we can compute the return level
-        covariate1_for_return_level = np.array([700, 0])
-        covariate2_for_return_level = np.array([700, 1000])
+        covariate1_for_return_level = np.array([500, 0])
+        covariate2_for_return_level = np.array([500, 50])
         covariate3_for_return_level = np.array([400, 0])
         coordinates = [covariate1_for_return_level, covariate2_for_return_level, covariate3_for_return_level]
         for coordinate in coordinates:
             EurocodeConfidenceIntervalFromExtremes.quantile_level = 0.98
             confidence_interval = EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(estimator,
                                                                                                  ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
-                                                                                                 temporal_covariate=coordinate)
+                                                                                                 coordinate=coordinate)
             gev_params = estimator.function_from_fit.get_params(coordinate)
-            # print(gev_params, coordinate)
             return_level = gev_params.return_level(return_period=50)
-            # print("my return level", return_level)
-            # print("their return level", confidence_interval.mean_estimate)
-            # print("diff", confidence_interval.mean_estimate - return_level)
-            # print('\n\n')
-            self.assertAlmostEqual(return_level, confidence_interval.mean_estimate)
-            self.assertFalse(np.isnan(confidence_interval.confidence_interval[0]))
-            self.assertFalse(np.isnan(confidence_interval.confidence_interval[1]))
+            if np.isnan(return_level) or np.isnan(confidence_interval.mean_estimate):
+                self.assertTrue(np.isnan(return_level) and np.isnan(confidence_interval.mean_estimate))
+            else:
+                self.assertAlmostEqual(return_level, confidence_interval.mean_estimate)
+                self.assertFalse(np.isnan(confidence_interval.confidence_interval[0]))
+                self.assertFalse(np.isnan(confidence_interval.confidence_interval[1]))
 
-    def test_gev_spatio_temporal_margin_fit_1(self):
-        self.function_test_gev_spatio_temporal_margin_fit_non_stationary(StationaryAltitudinal)
-
-    #
-    def test_gev_spatio_temporal_margin_fit_1_bis(self):
-        self.function_test_gev_spatio_temporal_margin_fit_non_stationary(AltitudinalShapeLinearTimeStationary)
-
-    def test_gev_spatio_temporal_margin_fit_2(self):
-        # first model with both a time and altitude non stationarity
-        self.function_test_gev_spatio_temporal_margin_fit_non_stationary(
-            AltitudinalShapeConstantTimeLocationLinear)
-
-    # def test_gev_spatio_temporal_margin_fit_3(self):
-    #     self.function_test_gev_spatio_temporal_margin_fit_non_stationary(
-    #         AltitudinalShapeLinearTimeLocationLinear)
-    #
-    # def test_gev_spatio_temporal_margin_fit_4(self):
-    #     self.function_test_gev_spatio_temporal_margin_fit_non_stationary(
-    #         AltitudinalShapeLinearTimeLocScaleLinear)
+    def test_gev_spatio_temporal_all(self):
+        for model_class in ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS:
+            self.function_test_gev_spatio_temporal_margin_fit_non_stationary(model_class)
 
 
 if __name__ == '__main__':

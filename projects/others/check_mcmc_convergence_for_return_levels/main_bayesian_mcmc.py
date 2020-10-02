@@ -107,7 +107,7 @@ def get_return_level_bayesian_example(nb_iterations_for_bayesian_fit):
                                                       nb_iterations_for_bayesian_fit=nb_iterations_for_bayesian_fit)
     return_level_bayesian = ExtractEurocodeReturnLevelFromMyBayesianExtremes(estimator=fitted_estimator,
                                                                              ci_method=ConfidenceIntervalMethodFromExtremes.my_bayes,
-                                                                             temporal_covariate=2019)
+                                                                             coordinate=2019)
     return return_level_bayesian
 
 
