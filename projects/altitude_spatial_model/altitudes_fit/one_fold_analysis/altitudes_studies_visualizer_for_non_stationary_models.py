@@ -395,11 +395,11 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
         nb_valid_massif_names = len(valid_massif_names)
         nbs = np.zeros(4)
-        relative_changes = []
+        changes = []
         for one_fold in [one_fold for m, one_fold in self.massif_name_to_one_fold_fit.items()
                                    if m in valid_massif_names]:
-            # Compute relative changes
-            relative_changes.append(one_fold.relative_change_in_return_level_for_reference_altitude)
+            # Compute changes
+            changes.append(one_fold.change_in_return_level_for_reference_altitude)
             # Compute nb of non stationary models
             if one_fold.change_in_return_level_for_reference_altitude == 0:
                 continue
@@ -410,10 +410,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 nbs[idx + 1] += 1
 
         percents = 100 * nbs / nb_valid_massif_names
-        mean_relative_change = np.mean(relative_changes)
-        median_relative_change = np.median(relative_changes)
-        print('mean', mean_relative_change, relative_changes)
-        return [nb_valid_massif_names, mean_relative_change, median_relative_change] + list(percents)
+        mean_change = np.mean(changes)
+        median_change = np.median(changes)
+        return [nb_valid_massif_names, mean_change, median_change] + list(percents)
 
     def get_valid_names(self, massif_names):
         valid_massif_names = set(self.massif_name_to_one_fold_fit.keys())

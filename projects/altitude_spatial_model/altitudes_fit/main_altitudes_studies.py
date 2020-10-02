@@ -30,7 +30,7 @@ def main():
         massif_names = None
         altitudes_list = altitudes_for_groups[:2]
     elif fast:
-        massif_names = ['Mercantour', 'Vercors', 'Ubaye']
+        massif_names = ['Vanoise', 'Haute-Tarentaise', 'Vercors']
         altitudes_list = altitudes_for_groups[:2]
     else:
         massif_names = None
@@ -54,7 +54,7 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes):
 
 
 def plot_visualizers(massif_names, visualizer_list):
-    # plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
+    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
     # plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
     plot_coherence_curves(massif_names, visualizer_list)
     pass

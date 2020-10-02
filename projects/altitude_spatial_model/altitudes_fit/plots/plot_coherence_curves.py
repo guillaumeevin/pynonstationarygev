@@ -16,19 +16,20 @@ def plot_coherence_curves(massif_names, visualizer_list: List[
     for massif_name in all_valid_names:
         _, axes = plt.subplots(2, 2)
         axes = axes.flatten()
-        colors = ['blue', 'green']
-        labels = ['Altitudinal model', 'Pointwise model']
-        altitudinal_model = [True, False]
-        for color, global_label, boolean in list(zip(colors, labels, altitudinal_model))[:]:
-            plot_coherence_curve(axes, massif_name, visualizer_list, boolean, color, global_label)
+        colors = ['blue', 'yellow', 'green']
+        labels = ['Altitudinal-temporal model in 2019', 'Altitudinal-temporal model in 1969', 'Stationary model']
+        altitudinal_model = [True, True, False]
+        years = [2019, 1969, None]
+        for color, global_label, boolean, year in list(zip(colors, labels, altitudinal_model, years))[::2]:
+            plot_coherence_curve(axes, massif_name, visualizer_list, boolean, color, global_label, year)
         visualizer.plot_name = '{}/{}'.format(folder, massif_name.replace('_', '-'))
-        visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
+        visualizer.show_or_save_to_file(add_classic_title=False, no_title=True, dpi=200)
         plt.close()
 
 
 def plot_coherence_curve(axes, massif_name, visualizer_list: List[AltitudesStudiesVisualizerForNonStationaryModels],
-                         is_altitudinal, color, global_label):
-    x_all_list, values_all_list, labels, all_bound_list = load_all_list(massif_name, visualizer_list, is_altitudinal)
+                         is_altitudinal, color, global_label, year):
+    x_all_list, values_all_list, labels, all_bound_list = load_all_list(massif_name, visualizer_list, is_altitudinal, year)
     for i, label in enumerate(labels):
         ax = axes[i]
         # Plot with complete line
@@ -58,12 +59,12 @@ def plot_coherence_curve(axes, massif_name, visualizer_list: List[AltitudesStudi
 
         ax.set_ylabel(label)
 
-        ax.legend(prop={'size': 10})
+        ax.legend(prop={'size': 5})
         if i >= 2:
             ax.set_xlabel('Altitude')
 
 
-def load_all_list(massif_name, visualizer_list, altitudinal_model=True):
+def load_all_list(massif_name, visualizer_list, altitudinal_model=True, year=2019):
     all_altitudes_list = []
     all_values_list = []
     all_bound_list = []
@@ -74,8 +75,8 @@ def load_all_list(massif_name, visualizer_list, altitudinal_model=True):
                 min_altitude, *_, max_altitude = visualizer.massif_name_to_massif_altitudes[massif_name]
                 one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
                 altitudes_list = list(range(min_altitude, max_altitude, 10))
-                gev_params_list = [one_fold_fit.get_gev_params(altitude, 2019) for altitude in altitudes_list]
-                confidence_interval_values = [one_fold_fit.best_confidence_interval(altitude) for altitude in altitudes_list]
+                gev_params_list = [one_fold_fit.get_gev_params(altitude, year) for altitude in altitudes_list]
+                confidence_interval_values = [one_fold_fit.best_confidence_interval(altitude, year) for altitude in altitudes_list]
             else:
                 assert OneFoldFit.return_period == 100, 'change the call below'
                 altitudes_list, study_list_valid = zip(*[(a, s) for a, s in visualizer.studies.altitude_to_study.items()
@@ -98,7 +99,6 @@ def load_all_list(massif_name, visualizer_list, altitudinal_model=True):
             all_altitudes_list.append(altitudes_list)
             all_bound_list.append(list(zip(*bound_list)))
     labels = ['location parameter', 'scale parameter', 'shape pameter', '{}-year return level'.format(OneFoldFit.return_period)]
-    labels = [l + ' in 2019' for l in labels]
     return all_altitudes_list, all_values_list, labels, all_bound_list
 
 

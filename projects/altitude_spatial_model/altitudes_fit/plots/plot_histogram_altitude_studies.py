@@ -69,7 +69,7 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
     visualizer = visualizer_list[0]
 
     all_trends = [v.all_trends(massif_names) for v in visualizer_list]
-    nb_massifs, mean_relative_changes, median_relative_changes, *all_l = zip(*all_trends)
+    nb_massifs, mean_changes, median_changes, *all_l = zip(*all_trends)
 
     plt.close()
     ax = plt.gca()
@@ -101,13 +101,18 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
 
     # PLot mean relative change against altitude
     ax_twinx = ax.twinx()
-    ax_twinx.plot(x, mean_relative_changes, label='Mean relative change', color='black')
-    # ax_twinx.plot(x, median_relative_changes, label='Median relative change', color='grey')
+    ax_twinx.plot(x, mean_changes, label='Mean change', color='black')
+    # ax_twinx.plot(x, median_changes, label='Median change', color='grey')
     ax_twinx.legend(loc='upper right', prop={'size': size})
-    ylabel = 'Relative change of {}-year return levels ({})'.format(OneFoldFit.return_period,
-                                                            visualizer.study.variable_unit)
+    ylabel = 'Change of {}-year return levels ({})'.format(OneFoldFit.return_period, visualizer.study.variable_unit)
     ax_twinx.set_ylabel(ylabel, fontsize=legend_fontsize)
 
+
+    low, up = ax_twinx.get_ylim()
+    low2, up2 = ax.get_ylim()
+    new_lim = min(low, low2), max(up, up2)
+    ax.set_ylim(new_lim)
+    ax_twinx.set_ylim(new_lim)
 
     visualizer.plot_name = 'All trends'
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
