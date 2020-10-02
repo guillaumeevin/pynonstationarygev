@@ -28,6 +28,11 @@ def fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_y
 def fitted_stationary_gev(x_gev, fit_method=MarginFitMethod.is_mev_gev_fit, model_class=StationaryTemporalModel,
                           starting_year=None,
                           transformation_class=CenteredScaledNormalization) -> GevParams:
+    _, gev_param = _fitted_stationary_gev(fit_method, model_class, starting_year, x_gev)
+    return gev_param
+
+
+def _fitted_stationary_gev(fit_method, model_class, starting_year, x_gev):
     coordinates = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(nb_temporal_steps=len(x_gev),
                                                                         transformation_class=CenteredScaledNormalization)
     df = pd.DataFrame([pd.Series(dict(zip(coordinates.index, x_gev)))]).transpose()
@@ -36,18 +41,17 @@ def fitted_stationary_gev(x_gev, fit_method=MarginFitMethod.is_mev_gev_fit, mode
     estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year, fit_method)
     first_coordinate = coordinates.coordinates_values()[0]
     gev_param = estimator.function_from_fit.get_params(first_coordinate)
-
     # Build confidence interval
     fit_method_with_confidence_interval_implemented = [MarginFitMethod.is_mev_gev_fit]
     if fit_method in fit_method_with_confidence_interval_implemented:
         param_name_to_confidence_interval = {}
         for i, (param_name, param_value) in enumerate(gev_param.to_dict().items()):
             confidence_interval_half_size = estimator.result_from_model_fit.confidence_interval_half_sizes[i]
-            confidence_interval = (param_value - confidence_interval_half_size, param_value + confidence_interval_half_size)
+            confidence_interval = (
+                param_value - confidence_interval_half_size, param_value + confidence_interval_half_size)
             param_name_to_confidence_interval[param_name] = confidence_interval
         gev_param.param_name_to_confidence_interval = param_name_to_confidence_interval
-
     # Warning
     if not -0.5 < gev_param.shape < 0.5:
         warnings.warn('fitted shape parameter is outside physical bounds {}'.format(gev_param.shape))
-    return gev_param
+    return estimator, gev_param

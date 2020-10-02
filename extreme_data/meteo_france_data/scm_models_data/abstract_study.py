@@ -27,6 +27,8 @@ from extreme_data.meteo_france_data.scm_models_data.utils import ALTITUDES, ZS_I
     ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM, date_to_str, WP_PATTERN_MAX_YEAR, Season, \
     first_day_and_last_day, FrenchRegion, ZS_INT_MASK_PYRENNES, alps_massif_order, ZS_INT_MASK_PYRENNES_LIST, \
     season_to_str
+from extreme_data.meteo_france_data.scm_models_data.utils_function import \
+    fitted_stationary_gev_with_uncertainty_interval
 from extreme_data.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
 from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
 from extreme_fit.function.margin_function.abstract_margin_function import \
@@ -34,6 +36,8 @@ from extreme_fit.function.margin_function.abstract_margin_function import \
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import create_colorbase_axis, \
     get_shifted_map, get_colors
 from extreme_fit.model.margin_model.utils import MarginFitMethod
+from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
+    EurocodeConfidenceIntervalFromExtremes
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -803,13 +807,28 @@ class AbstractStudy(object):
         return ~np.array(mask_french_alps, dtype=bool)
 
     @cached_property
-    def massif_name_to_stationary_gev_params_for_non_zero_annual_maxima(self):
+    def massif_name_to_stationary_gev_params(self):
+        d, _ = self._massif_name_to_stationary_gev_params_and_confidence(quantile_level=None)
+        return d
+    
+    @cached_property
+    def massif_name_to_stationary_gev_params_and_confidence_for_return_level_100(self):
+        return self._massif_name_to_stationary_gev_params_and_confidence(quantile_level=0.99)
+    
+    def _massif_name_to_stationary_gev_params_and_confidence(self, quantile_level=None):
+        """ at least 90% of values must be above zero"""
         massif_name_to_stationary_gev_params = {}
+        massif_name_to_confidence = {}
         for massif_name, annual_maxima in self.massif_name_to_annual_maxima.items():
-            non_zero_annual_maxima = annual_maxima[annual_maxima > 0]
-            gev_params = fitted_stationary_gev(non_zero_annual_maxima, fit_method=self.fit_method)
-            massif_name_to_stationary_gev_params[massif_name] = gev_params
-        return massif_name_to_stationary_gev_params
+            percentage_of_non_zeros = 100 * np.count_nonzero(annual_maxima) / len(annual_maxima)
+            if percentage_of_non_zeros > 90:
+                gev_params, confidence = fitted_stationary_gev_with_uncertainty_interval(annual_maxima,
+                                                                                         fit_method=MarginFitMethod.extremes_fevd_mle,
+                                                                                         quantile_level=quantile_level)
+                if -0.5 <= gev_params.shape <= 0.5:
+                    massif_name_to_stationary_gev_params[massif_name] = gev_params
+                    massif_name_to_confidence[massif_name] = confidence
+        return massif_name_to_stationary_gev_params, massif_name_to_confidence
 
     def massif_name_to_gev_param_list(self, year_min_and_max_list):
         year_to_index = {y: i for i, y in enumerate(self.ordered_years)}

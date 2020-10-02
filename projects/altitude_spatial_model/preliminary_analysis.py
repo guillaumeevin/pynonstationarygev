@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from cached_property import cached_property
 
-from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
@@ -60,13 +59,13 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
     def _plot_gev_params_against_altitude_one_massif(self, ax, massif_name, param_name):
         altitudes = []
         params = []
-        confidence_intervals = []
+        # confidence_intervals = []
         for altitude, study in self.altitude_to_study.items():
-            if massif_name in study.study_massif_names:
+            if massif_name in study.massif_name_to_stationary_gev_params:
+                gev_params = study.massif_name_to_stationary_gev_params[massif_name]
                 altitudes.append(altitude)
-                gev_params = study.massif_name_to_stationary_gev_params_for_non_zero_annual_maxima[massif_name]
                 params.append(gev_params.to_dict()[param_name])
-                confidence_intervals.append(gev_params.param_name_to_confidence_interval[param_name])
+                # confidence_intervals.append(gev_params.param_name_to_confidence_interval[param_name])
         massif_id = self.study.all_massif_names().index(massif_name)
         plot_against_altitude(altitudes, ax, massif_id, massif_name, params, fill=False)
 
@@ -196,7 +195,7 @@ if __name__ == '__main__':
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300]
     altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
     # altitudes = paper_altitudes
-    # altitudes = [1800, 2100]
+    # altitudes = [1500, 1800]
     visualizer = PointwiseGevStudyVisualizer(SafranSnowfall1Day, altitudes=altitudes)
     visualizer.plot_gev_params_against_altitude()
     # visualizer.plot_gev_params_against_time_for_all_altitudes()

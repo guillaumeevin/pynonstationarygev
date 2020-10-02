@@ -33,8 +33,8 @@ class EurocodeConfidenceIntervalFromExtremes(object):
     @classmethod
     def from_estimator_extremes(cls, estimator_extremes: LinearMarginEstimator,
                                 ci_method: ConfidenceIntervalMethodFromExtremes,
-                                coordinate: Union[int, np.ndarray],
-                                ):
+                                coordinate: Union[int, np.ndarray]):
+
         if ci_method == ConfidenceIntervalMethodFromExtremes.my_bayes:
             extractor = ExtractEurocodeReturnLevelFromMyBayesianExtremes(estimator_extremes, ci_method, coordinate, cls.quantile_level)
         else:

@@ -32,6 +32,7 @@ class OneFoldFit(object):
     SIGNIFICANCE_LEVEL = 0.05
     best_estimator_minimizes_total_aic = False
     return_period = 100
+    quantile_level = 1 - (1 / return_period)
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
                  fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None,
@@ -311,9 +312,8 @@ class OneFoldFit(object):
         standard_gumbel_quantiles = [standard_gumbel_distribution.quantile(i / (n + 1)) for i in range(1, n + 1)]
         return standard_gumbel_quantiles
 
-    @property
-    def best_confidence_interval(self) -> EurocodeConfidenceIntervalFromExtremes:
-        return EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(self.best_estimator,
-                                                                       ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
-                                                                       coordinate=np.array(
-                                                                           [2019, self.altitude_plot]), )
+    def best_confidence_interval(self, altitude) -> EurocodeConfidenceIntervalFromExtremes:
+        EurocodeConfidenceIntervalFromExtremes.quantile_level = 1 - (1 / self.return_period)
+        return EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(estimator_extremes=self.best_estimator,
+                                                                              ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
+                                                                              coordinate=np.array([altitude, 2019]))
