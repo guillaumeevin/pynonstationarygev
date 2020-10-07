@@ -11,7 +11,7 @@ def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=
     if massif_name_as_labels:
         di = massif_id // 8
         if di == 0:
-            linestyle = '-'
+            linestyle = '-.'
         elif di == 1:
             linestyle = 'dotted'
         else:
@@ -27,7 +27,7 @@ def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=
         linestyle = None
         label = '{} m'.format(altitude)
     if not fill:
-        ax.plot(x_ticks, values, color=color, linewidth=2, label=label, linestyle=linestyle)
+        ax.plot(x_ticks, values, color=color, linewidth=2, label=label, linestyle=linestyle, marker='o')
     else:
         lower_bound, upper_bound = zip(*values)
         # ax.fill_between(altitudes, lower_bound, upper_bound, color=color, alpha=0.2, label=label + '95\% confidence interval')

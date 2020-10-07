@@ -70,12 +70,12 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self._method_name_and_order_to_max_abs = {}
         self._max_abs_for_shape = None
 
-    moment_names = ['moment', 'changes_for_moment', 'relative_changes_for_moment'][:]
+    moment_names = ['moment', 'changes_of_moment', 'relative_changes_of_moment'][:]
     orders = [1, 2, None][2:]
 
     def get_massif_altitudes(self, massif_name):
         valid_altitudes = [altitude for altitude, study in self.studies.altitude_to_study.items()
-                                if massif_name in study.study_massif_names]
+                           if massif_name in study.study_massif_names]
         massif_altitudes = []
         for altitude in valid_altitudes:
             study = self.studies.altitude_to_study[altitude]
@@ -135,13 +135,11 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         # Plot settings
         moment = ' '.join(method_name.split('_'))
         moment = moment.replace('moment', '{} in 2019'.format(OneFoldFit.get_moment_str(order=order)))
-        plot_name = '{}{} for annual maxima of {}'.format(OneFoldFit.folder_for_plots, moment,
-                                                          SCM_STUDY_CLASS_TO_ABBREVIATION[
-                                                              self.studies.study_class])
+        plot_name = '{}{} '.format(OneFoldFit.folder_for_plots, moment)
 
         massif_name_to_text = self.massif_name_to_best_name
         if 'change' in method_name:
-            plot_name += '\nbetween {} and {}'.format(2019 - 50, 2019)
+            plot_name += ' between {} and {}'.format(2019 - 50, 2019)
             if 'relative' not in method_name:
                 # Put the relative score as text on the plot for the change.
                 massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
@@ -174,6 +172,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     @property
     def add_colorbar(self):
+        # return isinstance(self.altitude_group, (VeyHighAltitudeGroup))
         return isinstance(self.altitude_group, (VeyHighAltitudeGroup, MidAltitudeGroup))
 
     def plot_against_years(self, method_name, order):
@@ -258,9 +257,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     def plot_shape_map(self):
 
-        label = 'Shape parameter for {} maxima of {} in 2019'.format(self.study.season_name,
-                                                                     SCM_STUDY_CLASS_TO_ABBREVIATION[
-                                                                         type(self.study)])
+        label = 'Shape parameter in 2019 (no unit)'
         self.plot_map(massif_name_to_value=self.massif_name_to_shape,
                       label=label,
                       plot_name=label,
@@ -395,11 +392,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
         nb_valid_massif_names = len(valid_massif_names)
         nbs = np.zeros(4)
-        changes = []
         for one_fold in [one_fold for m, one_fold in self.massif_name_to_one_fold_fit.items()
-                                   if m in valid_massif_names]:
-            # Compute changes
-            changes.append(one_fold.change_in_return_level_for_reference_altitude)
+                         if m in valid_massif_names]:
             # Compute nb of non stationary models
             if one_fold.change_in_return_level_for_reference_altitude == 0:
                 continue
@@ -410,9 +404,18 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 nbs[idx + 1] += 1
 
         percents = 100 * nbs / nb_valid_massif_names
-        mean_change = np.mean(changes)
-        median_change = np.median(changes)
-        return [nb_valid_massif_names, mean_change, median_change] + list(percents)
+        return [nb_valid_massif_names] + list(percents)
+
+    def all_changes(self, massif_names):
+        """return percents which contain decrease, significant decrease, increase, significant increase percentages"""
+        valid_massif_names = self.get_valid_names(massif_names)
+        changes = []
+        for one_fold in [one_fold for m, one_fold in self.massif_name_to_one_fold_fit.items()
+                         if m in valid_massif_names]:
+            # Compute changes
+            changes.append(one_fold.change_in_return_level_for_reference_altitude)
+
+        return changes
 
     def get_valid_names(self, massif_names):
         valid_massif_names = set(self.massif_name_to_one_fold_fit.keys())

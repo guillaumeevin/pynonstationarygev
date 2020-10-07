@@ -20,19 +20,31 @@ class AbstractAltitudeGroup(object):
         raise NotImplementedError
 
     @property
+    def group_id(self):
+        raise NotImplementedError
+
+    @property
     def xlabel(self):
         # warning: the label could not correspond to all massifs, some might have been fitted with less data
         # idx = get_index_group_from_reference_altitude(reference_altitude)
         # min_altitude, *_, max_altitude = altitudes_for_groups[idx]
         i = self.reference_altitude // 1000
-        min_altitude, max_altitude = 1000 * i, 1000 * (i + 1)
-        return 'Altitude = {} m\n' \
-               'Estimated with maxima between {} m and {} m'.format(self.reference_altitude,
-                                                                        min_altitude,
-                                                                        max_altitude)
+        if self.group_id == 1:
+            formula = 'below 1000 m'
+        elif self.group_id == 4:
+            formula = 'above 3000 m'
+        else:
+            min_altitude, max_altitude = 1000 * i, 1000 * (i + 1)
+            formula = 'between {} m and {} m'.format(min_altitude, max_altitude)
+        return 'Altitude = {} m. Selected models were estimated with\n' \
+               'altitude group {}, i.e. with maxima {}'.format(self.reference_altitude, self.group_id, formula)
 
 
 class LowAltitudeGroup(AbstractAltitudeGroup):
+
+    @property
+    def group_id(self):
+        return 1
 
     @property
     def name(self):
@@ -46,6 +58,10 @@ class LowAltitudeGroup(AbstractAltitudeGroup):
 class MidAltitudeGroup(AbstractAltitudeGroup):
 
     @property
+    def group_id(self):
+        return 2
+
+    @property
     def name(self):
         return 'mid'
 
@@ -57,6 +73,10 @@ class MidAltitudeGroup(AbstractAltitudeGroup):
 class HighAltitudeGroup(AbstractAltitudeGroup):
 
     @property
+    def group_id(self):
+        return 3
+
+    @property
     def name(self):
         return 'high'
 
@@ -66,6 +86,10 @@ class HighAltitudeGroup(AbstractAltitudeGroup):
 
 
 class VeyHighAltitudeGroup(AbstractAltitudeGroup):
+
+    @property
+    def group_id(self):
+        return 4
 
     @property
     def name(self):
@@ -85,6 +109,7 @@ class DefaultAltitudeGroup(AbstractAltitudeGroup):
     @property
     def reference_altitude(self):
         return 500
+
 
 def get_altitude_group_from_altitudes(altitudes):
     s = set(altitudes)

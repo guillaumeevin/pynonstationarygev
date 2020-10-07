@@ -52,13 +52,14 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
         r_matrix = self.name_to_value[name]
         return pd.DataFrame(np.array(r_matrix), columns=r.colnames(r_matrix))
 
-    def confidence_interval_method(self, quantile_level, alpha_interval, transformed_temporal_covariate, ci_method):
+    def confidence_interval_method(self, quantile_level, alpha_interval, transformed_temporal_covariate, ci_method,
+                                   return_level_interval=True):
         return_period = round(1 / (1 - quantile_level))
         common_kwargs = {
             'return.period': return_period,
             'alpha': alpha_interval,
             'tscale': False,
-            'type': r.c("return.level")
+            'type': r.c("return.level") if return_level_interval else r.c("parameter")
         }
         if self.param_name_to_dim:
             if isinstance(transformed_temporal_covariate, (int, float, np.int, np.float, np.int64)):

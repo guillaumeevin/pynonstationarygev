@@ -81,7 +81,8 @@ def ticks_values_and_labels_for_percentages(graduation, max_abs_change):
     positive_ticks = []
     tick = graduation
     while tick < max_abs_change:
-        positive_ticks.append(round(tick, 1))
+        new_tick = round(tick, 2)
+        positive_ticks.append(new_tick)
         tick += graduation
     all_ticks_labels = [-t for t in positive_ticks] + [0] + positive_ticks
     ticks_values = [((t / max_abs_change) + 1) / 2 for t in all_ticks_labels]

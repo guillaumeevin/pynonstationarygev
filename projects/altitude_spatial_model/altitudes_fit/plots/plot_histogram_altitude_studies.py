@@ -21,10 +21,16 @@ def plot_histogram_all_models_against_altitudes(massif_names, visualizer_list: L
         model_name_to_significant_percentages_for_v = v.model_name_to_percentages(massif_names, only_significant=True)
         for model_name in model_names:
             model_name_to_percentages[model_name].append(model_name_to_percentages_for_v[model_name])
-            model_name_to_percentages_significant[model_name].append(model_name_to_significant_percentages_for_v[model_name])
+            model_name_to_percentages_significant[model_name].append(
+                model_name_to_significant_percentages_for_v[model_name])
     # Sort model based on their mean percentage.
     model_name_to_mean_percentage = {m: np.mean(a) for m, a in model_name_to_percentages.items()}
+    model_name_to_mean_percentage_significant = {m: np.mean(a) for m, a in
+                                                 model_name_to_percentages_significant.items()}
     sorted_model_names = sorted(model_names, key=lambda m: model_name_to_mean_percentage[m], reverse=True)
+    for model_name in sorted_model_names:
+        print(model_name_to_mean_percentage[model_name], model_name_to_mean_percentage_significant[model_name],
+              model_name)
 
     # Plot part
     ax = plt.gca()
@@ -40,9 +46,11 @@ def plot_histogram_all_models_against_altitudes(massif_names, visualizer_list: L
         percentages = model_name_to_percentages[model_name]
         percentages_significant = model_name_to_percentages_significant[model_name]
         colors = ['white', 'yellow', 'orange', 'red']
-        labels = ['{} m - {} m (\% out of {} massifs)'.format(1000 * i, 1000 * (i+1),
-                                                      len(v.get_valid_names(massif_names))) for i, v in enumerate(visualizer_list)]
-        for x, color, percentage, label,percentage_significant in zip(x_shifted, colors, percentages, labels, percentages_significant):
+        labels = ['{} m - {} m (\% out of {} massifs)'.format(1000 * i, 1000 * (i + 1),
+                                                              len(v.get_valid_names(massif_names))) for i, v in
+                  enumerate(visualizer_list)]
+        for x, color, percentage, label, percentage_significant in zip(x_shifted, colors, percentages, labels,
+                                                                       percentages_significant):
             ax.bar([x], [percentage], width=width, label=label,
                    linewidth=2 * linewidth, edgecolor='black', color=color)
             heights = list(range(0, math.ceil(percentage_significant), 1))[::-1]
@@ -69,7 +77,7 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
     visualizer = visualizer_list[0]
 
     all_trends = [v.all_trends(massif_names) for v in visualizer_list]
-    nb_massifs, mean_changes, median_changes, *all_l = zip(*all_trends)
+    nb_massifs, *all_l = zip(*all_trends)
 
     plt.close()
     ax = plt.gca()
@@ -99,22 +107,48 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
 
     plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x)
 
-    # PLot mean relative change against altitude
-    ax_twinx = ax.twinx()
-    ax_twinx.plot(x, mean_changes, label='Mean change', color='black')
-    # ax_twinx.plot(x, median_changes, label='Median change', color='grey')
-    ax_twinx.legend(loc='upper right', prop={'size': size})
-    ylabel = 'Change of {}-year return levels ({})'.format(OneFoldFit.return_period, visualizer.study.variable_unit)
-    ax_twinx.set_ylabel(ylabel, fontsize=legend_fontsize)
-
-
-    low, up = ax_twinx.get_ylim()
-    low2, up2 = ax.get_ylim()
-    new_lim = min(low, low2), max(up, up2)
-    ax.set_ylim(new_lim)
-    ax_twinx.set_ylim(new_lim)
-
     visualizer.plot_name = 'All trends'
+    visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
+
+    plt.close()
+
+
+def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
+    AltitudesStudiesVisualizerForNonStationaryModels]):
+    visualizer = visualizer_list[0]
+
+    all_changes = [v.all_changes(massif_names) for v in visualizer_list]
+    nb_massifs = [len(v.get_valid_names(massif_names)) for v in visualizer_list]
+
+    plt.close()
+    ax = plt.gca()
+    width = 5
+    size = 8
+    legend_fontsize = 10
+    labelsize = 10
+    linewidth = 3
+
+    x = np.array([3 * width * (i + 1) for i in range(len(nb_massifs))])
+
+    ax.boxplot(all_changes, positions=x, widths=width)
+
+    ax.legend(loc='upper left', prop={'size': size})
+    ax.set_ylabel('Changes between 1969 and 2019 in {}-year return levels ({})'.format(OneFoldFit.return_period,
+                                                                                       visualizer.study.variable_unit),
+                  fontsize=legend_fontsize)
+    ax.set_xlabel('Altitudes', fontsize=legend_fontsize)
+    ax.tick_params(axis='both', which='major', labelsize=labelsize)
+    ax.set_xticks(x)
+    ax.yaxis.grid()
+    altitudes = [v.altitude_group.reference_altitude for v in visualizer_list]
+    ax.set_xticklabels([str(a) for a in altitudes])
+
+    shift = 300
+    ax.set_xlim((min(altitudes) - shift, max(altitudes) + shift))
+
+    plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x)
+
+    visualizer.plot_name = 'All changes'
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
 
     plt.close()

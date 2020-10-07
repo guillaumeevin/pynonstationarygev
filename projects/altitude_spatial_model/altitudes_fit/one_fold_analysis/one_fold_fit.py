@@ -94,13 +94,13 @@ class OneFoldFit(object):
 
     @property
     def change_in_return_level_for_reference_altitude(self) -> float:
-        return self.changes_for_moment(altitudes=[self.altitude_plot], order=None)[0]
+        return self.changes_of_moment(altitudes=[self.altitude_plot], order=None)[0]
 
     @property
     def relative_change_in_return_level_for_reference_altitude(self) -> float:
-        return self.relative_changes_for_moment(altitudes=[self.altitude_plot], order=None)[0]
+        return self.relative_changes_of_moment(altitudes=[self.altitude_plot], order=None)[0]
 
-    def changes_for_moment(self, altitudes, year=2019, nb_years=50, order=1):
+    def changes_of_moment(self, altitudes, year=2019, nb_years=50, order=1):
         changes = []
         for altitude in altitudes:
             mean_after = self.get_moment(altitude, year, order)
@@ -109,7 +109,7 @@ class OneFoldFit(object):
             changes.append(change)
         return changes
 
-    def relative_changes_for_moment(self, altitudes, year=2019, nb_years=50, order=1):
+    def relative_changes_of_moment(self, altitudes, year=2019, nb_years=50, order=1):
         relative_changes = []
         for altitude in altitudes:
             mean_after = self.get_moment(altitude, year, order)

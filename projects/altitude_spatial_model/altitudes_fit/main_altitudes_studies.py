@@ -5,7 +5,8 @@ import matplotlib as mpl
 
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_coherence_curves import plot_coherence_curves
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_histogram_altitude_studies import \
-    plot_histogram_all_models_against_altitudes, plot_histogram_all_trends_against_altitudes
+    plot_histogram_all_models_against_altitudes, plot_histogram_all_trends_against_altitudes, \
+    plot_shoe_plot_changes_against_altitude
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
@@ -55,8 +56,9 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes):
 
 def plot_visualizers(massif_names, visualizer_list):
     plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
-    # plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
-    plot_coherence_curves(massif_names, visualizer_list)
+    plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
+    plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list)
+    # plot_coherence_curves(massif_names, visualizer_list)
     pass
 
 
@@ -68,7 +70,7 @@ def plot_visualizer(massif_names, visualizer):
     #     for change in [True, False, None]:
     #         studies.plot_mean_maxima_against_altitude(massif_names=massif_names, std=std, change=change)
     # Plot the results for the model that minimizes the individual aic
-    # plot_individual_aic(visualizer)
+    plot_individual_aic(visualizer)
     # Plot the results for the model that minimizes the total aic
     # plot_total_aic(model_classes, visualizer)
     pass

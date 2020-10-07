@@ -56,7 +56,9 @@ spatial_cov = c(100.0, 100.0)
 temporal_cov = c(500.0, 500.0)
 #
 spatial_cov = c(100.0, 100.0, 100.0, 100.0)
-temporal_cov = c(500.0, 500.0, 500.0, 500.0)
+spatial_cov = c(1000.0, 1000.0, 1000.0, 1000)
+# temporal_cov = c(500.0, 500.0, 500.0, 500.0)
+temporal_cov = c(300.0, 300.0, 300.0, 300.0)
 
 # spatial_cov = c(200.0)
 # temporal_cov = c(500.0)
@@ -64,10 +66,17 @@ temporal_cov = c(500.0, 500.0, 500.0, 500.0)
 v = make.qcov(res, vals = list( mu1 = spatial_cov, mu2 = temporal_cov, sigma2 =spatial_cov, sigma1 = temporal_cov ))
 # v = make.qcov(res, vals = list(mu1 = c(0.0)))
 
-res_ci = ci.fevd.mle_fixed(res, alpha = 0.05, type = c("return.level"),
+
+
+res_ci = ci.fevd.mle_fixed(res, alpha = 0.05, type = c("parameter"),
     return.period = 50, method = "normal", xrange = NULL, nint = 20, verbose = FALSE,
     tscale = FALSE, return.samples = FALSE, qcov=v)
 print(res_ci)
+
+# res_ci = ci.fevd.mle_fixed(res, alpha = 0.05, type = c("return.level"),
+#     return.period = 50, method = "normal", xrange = NULL, nint = 20, verbose = FALSE,
+#     tscale = FALSE, return.samples = FALSE, qcov=v)
+# print(res_ci)
 
 
 

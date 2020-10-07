@@ -22,37 +22,89 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
         self.altitudes_for_temporal_hypothesis = [600, 1500, 2400, 3300]
 
     def plot_gev_params_against_altitude(self):
-        for param_name in GevParams.PARAM_NAMES[:]:
+        for j, param_name in enumerate(GevParams.PARAM_NAMES + [100]):
             ax = plt.gca()
+
             massif_name_to_linear_coef = {}
             massif_name_to_r2_score = {}
-            for massif_name in self.study.all_massif_names()[:]:
-                linear_coef, _, r2 = self._plot_gev_params_against_altitude_one_massif(ax, massif_name, param_name)
-                massif_name_to_linear_coef[massif_name] = 1000 * linear_coef[0]
-                massif_name_to_r2_score[massif_name] = str(round(r2, 2))
-            print(massif_name_to_linear_coef, massif_name_to_r2_score)
-            # Plot change against altitude
-            # ax.legend(prop={'size': 7}, ncol=3)
-            ax.set_xlabel('Altitude')
-            ax.set_ylabel(GevParams.full_name_from_param_name(param_name) + ' parameter for a stationary GEV distribution')
+            massif_names = self.study.all_massif_names()[:]
+            for i in range(8):
+                for massif_name in massif_names[i::8]:
+                    linear_coef, _, r2 = self._plot_gev_params_against_altitude_one_massif(ax, massif_name, param_name)
+                    massif_name_to_linear_coef[massif_name] = 100 * linear_coef[0]
+                    massif_name_to_r2_score[massif_name] = str(round(r2, 2))
+
+            # Display x label
+            xticks = [1000 * i for i in range(1, 5)]
+            ax.set_xticks(xticks)
+            fontsize_label = 15
+            ax.tick_params(labelsize=fontsize_label)
+
+            # ax.set_xlabel('Altitude')
+
+            # Compute the y label
+            if param_name in GevParams.PARAM_NAMES:
+                ylabel = GevParams.full_name_from_param_name(param_name) + ' parameter'
+            else:
+                ylabel = '{}-year return levels'.format(param_name)
+            # Add units
+            if param_name == GevParams.SHAPE:
+                unit = 'no unit'
+            else:
+                unit = self.study.variable_unit
+            ylabel += ' ({})'.format(unit)
+
+            # Display the y label on the twin axis
+            if param_name in [100, GevParams.SCALE]:
+                ax2 = ax.twinx()
+                ax2.set_yticks(ax.get_yticks())
+                ax2.set_ylim(ax.get_ylim())
+                ax2.set_ylabel(ylabel, fontsize=fontsize_label)
+                ax2.tick_params(labelsize=fontsize_label)
+                ax.set_yticks([])
+                tight_layout = False
+            else:
+                ax.tick_params(labelsize=fontsize_label)
+                tight_layout = True
+                ax.set_ylabel(ylabel, fontsize=fontsize_label)
+            # Make room for the ylabel
+            if param_name == 100:
+                plt.gcf().subplots_adjust(right=0.85)
+
             plot_name = '{} change with altitude'.format(param_name)
-            self.show_or_save_to_file(plot_name, no_title=True, tight_layout=True, show=False)
+
+            # # Display the legend
+            # ax.legend(labelspacing=2.5, ncol=8, handlelength=12, markerscale=0.7, bbox_to_anchor=(1.05, 1), loc='upper left',
+            #           prop={'size': 2}, fontsize='x-large')
+            # plt.gcf().subplots_adjust(right=0.15)
+            # ax.set_yticks([])
+            # ax.set_ylabel('')
+
+            # plt.show()
+            self.show_or_save_to_file(plot_name, no_title=True, tight_layout=tight_layout, show=False)
             ax.clear()
+            plt.close()
+
             # Plot map of slope for each massif
             visualizer = StudyVisualizer(study=self.study, show=False, save_to_file=True)
-            ylabel = 'Linear slope for the {} parameter (change every 1000 m of altitude)'.format(param_name)
+            idx = 8 if param_name == GevParams.SHAPE else 1
+            label = 'Altitude gradient for the {}'.format(ylabel[:-idx] + '/100m)')
             gev_param_name_to_graduation = {
-                GevParams.LOC: 5,
-                GevParams.SCALE: 1,
-                GevParams.SHAPE: 0.1,
+                GevParams.LOC: 0.5,
+                GevParams.SCALE: 0.1,
+                GevParams.SHAPE: 0.01,
+                100: 1,
             }
+            if param_name == GevParams.SHAPE:
+                print(massif_name_to_linear_coef)
             visualizer.plot_map(cmap=plt.cm.coolwarm, fit_method=self.study.fit_method,
                                 graduation=gev_param_name_to_graduation[param_name],
-                                label=ylabel, massif_name_to_value=massif_name_to_linear_coef,
-                                plot_name=ylabel, add_x_label=False,
+                                label=label, massif_name_to_value=massif_name_to_linear_coef,
+                                plot_name=label.replace('/', ' every '), add_x_label=False,
                                 negative_and_positive_values=param_name == GevParams.SHAPE,
                                 add_colorbar=True,
                                 massif_name_to_text=massif_name_to_r2_score,
+
                                 )
             plt.close()
 
@@ -64,7 +116,12 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             if massif_name in study.massif_name_to_stationary_gev_params:
                 gev_params = study.massif_name_to_stationary_gev_params[massif_name]
                 altitudes.append(altitude)
-                params.append(gev_params.to_dict()[param_name])
+                if param_name in GevParams.PARAM_NAMES:
+                    param = gev_params.to_dict()[param_name]
+                else:
+                    assert isinstance(param_name, int)
+                    param = gev_params.return_level(return_period=param_name)
+                params.append(param)
                 # confidence_intervals.append(gev_params.param_name_to_confidence_interval[param_name])
         massif_id = self.study.all_massif_names().index(massif_name)
         plot_against_altitude(altitudes, ax, massif_id, massif_name, params, fill=False)
@@ -195,7 +252,7 @@ if __name__ == '__main__':
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300]
     altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
     # altitudes = paper_altitudes
-    # altitudes = [1500, 1800]
+    altitudes = [1800, 2100]
     visualizer = PointwiseGevStudyVisualizer(SafranSnowfall1Day, altitudes=altitudes)
     visualizer.plot_gev_params_against_altitude()
     # visualizer.plot_gev_params_against_time_for_all_altitudes()

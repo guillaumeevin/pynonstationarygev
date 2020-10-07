@@ -16,6 +16,10 @@ def plot_coherence_curves(massif_names, visualizer_list: List[
     for massif_name in all_valid_names:
         _, axes = plt.subplots(2, 2)
         axes = axes.flatten()
+        for i, ax in enumerate(axes):
+            if i % 2 == 1:
+                ax.set_yticks([])
+        axes = [ax if i % 2 == 0 else ax.twinx() for i, ax in enumerate(axes)]
         colors = ['blue', 'yellow', 'green']
         labels = ['Altitudinal-temporal model in 2019', 'Altitudinal-temporal model in 1969', 'Stationary model']
         altitudinal_model = [True, True, False]
@@ -29,7 +33,8 @@ def plot_coherence_curves(massif_names, visualizer_list: List[
 
 def plot_coherence_curve(axes, massif_name, visualizer_list: List[AltitudesStudiesVisualizerForNonStationaryModels],
                          is_altitudinal, color, global_label, year):
-    x_all_list, values_all_list, labels, all_bound_list = load_all_list(massif_name, visualizer_list, is_altitudinal, year)
+    x_all_list, values_all_list, labels, all_bound_list = load_all_list(massif_name, visualizer_list, is_altitudinal,
+                                                                        year)
     for i, label in enumerate(labels):
         ax = axes[i]
         # Plot with complete line
@@ -37,9 +42,11 @@ def plot_coherence_curve(axes, massif_name, visualizer_list: List[AltitudesStudi
             value_list_i = value_list[i]
             label_plot = global_label if j == 0 else None
             if is_altitudinal:
-                ax.plot(x_list, value_list_i, linestyle='solid', color=color, label=label_plot)
+                ax.plot(x_list, value_list_i, linestyle='solid', color=color)
+                # ax.plot(x_list, value_list_i, linestyle='solid', color=color, label=label_plot)
             else:
-                ax.plot(x_list, value_list_i, linestyle='None', color=color, label=label_plot, marker='x')
+                # ax.plot(x_list, value_list_i, linestyle='None', color=color, label=label_plot, marker='o')
+                ax.plot(x_list, value_list_i, linestyle='None', color=color, marker='o')
                 ax.plot(x_list, value_list_i, linestyle='dotted', color=color)
 
         # Plot with dotted line
@@ -52,16 +59,21 @@ def plot_coherence_curve(axes, massif_name, visualizer_list: List[AltitudesStudi
 
         # Plot confidence interval
         if i == 3:
-            for x_list, bounds in zip(x_all_list, all_bound_list):
+            for j, (x_list, bounds) in enumerate(list(zip(x_all_list, all_bound_list))):
                 if len(bounds) > 0:
                     lower_bound, upper_bound = bounds
+                    # model_name = 'altitudinal-temporal' if is_altitudinal else 'stationary'
+                    # fill_label = "95\% confidence interval for the {} model".format(model_name) if j == 0 else None
+                    # ax.fill_between(x_list, lower_bound, upper_bound, color=color, alpha=0.2, label=fill_label)
                     ax.fill_between(x_list, lower_bound, upper_bound, color=color, alpha=0.2)
 
+            # if is_altitudinal:
+            #     min, max = ax.get_ylim()
+            #     ax.set_ylim([min, 1.5 * max])
+            # ax.legend(prop={'size': 5})
         ax.set_ylabel(label)
-
-        ax.legend(prop={'size': 5})
-        if i >= 2:
-            ax.set_xlabel('Altitude')
+        # if i >= 2:
+        #     ax.set_xlabel('Altitude')
 
 
 def load_all_list(massif_name, visualizer_list, altitudinal_model=True, year=2019):
@@ -76,15 +88,20 @@ def load_all_list(massif_name, visualizer_list, altitudinal_model=True, year=201
                 one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
                 altitudes_list = list(range(min_altitude, max_altitude, 10))
                 gev_params_list = [one_fold_fit.get_gev_params(altitude, year) for altitude in altitudes_list]
-                confidence_interval_values = [one_fold_fit.best_confidence_interval(altitude, year) for altitude in altitudes_list]
+                confidence_interval_values = [one_fold_fit.best_confidence_interval(altitude, year) for altitude in
+                                              altitudes_list]
             else:
                 assert OneFoldFit.return_period == 100, 'change the call below'
                 altitudes_list, study_list_valid = zip(*[(a, s) for a, s in visualizer.studies.altitude_to_study.items()
-                                            if massif_name in s.massif_name_to_stationary_gev_params_and_confidence_for_return_level_100[0]])
-                gev_params_list = [study.massif_name_to_stationary_gev_params_and_confidence_for_return_level_100[0][massif_name]
-                                   for study in study_list_valid]
-                confidence_interval_values = [study.massif_name_to_stationary_gev_params_and_confidence_for_return_level_100[1][massif_name]
-                                   for study in study_list_valid]
+                                                         if massif_name in
+                                                         s.massif_name_to_stationary_gev_params_and_confidence_for_return_level_100[
+                                                             0]])
+                gev_params_list = [
+                    study.massif_name_to_stationary_gev_params_and_confidence_for_return_level_100[0][massif_name]
+                    for study in study_list_valid]
+                confidence_interval_values = [
+                    study.massif_name_to_stationary_gev_params_and_confidence_for_return_level_100[1][massif_name]
+                    for study in study_list_valid]
 
             # Checks
             values = [(gev_params.location, gev_params.scale, gev_params.shape,
@@ -98,7 +115,13 @@ def load_all_list(massif_name, visualizer_list, altitudinal_model=True, year=201
             all_values_list.append(values_list)
             all_altitudes_list.append(altitudes_list)
             all_bound_list.append(list(zip(*bound_list)))
-    labels = ['location parameter', 'scale parameter', 'shape pameter', '{}-year return level'.format(OneFoldFit.return_period)]
+    labels = ['location', 'scale', 'shape', '{}-year return levels'.format(OneFoldFit.return_period)]
+
+    for i, label in enumerate(labels):
+        if i < 3:
+            label += ' parameter'
+        unit = 'no unit' if i == 2 else visualizer_list[0].study.variable_unit
+        label += ' ({})'.format(unit)
+        labels[i] = label
+
     return all_altitudes_list, all_values_list, labels, all_bound_list
-
-
