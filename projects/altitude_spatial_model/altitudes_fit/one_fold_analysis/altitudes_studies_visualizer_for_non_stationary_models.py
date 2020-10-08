@@ -155,11 +155,15 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         if is_return_level_plot:
             add_colorbar = True
             max_abs_change = None
-            massif_name_to_text = {m: '+- 0' for m in massif_name_to_text.keys()}
+            massif_name_to_text = None
+            graduation = self.altitude_group.graduation_for_return_level
+        else:
+            graduation = 10
 
         negative_and_positive_values = self.moment_names.index(method_name) > 0
         # Plot the map
-        self.plot_map(cmap=plt.cm.coolwarm, fit_method=self.fit_method, graduation=10,
+
+        self.plot_map(cmap=plt.cm.coolwarm, fit_method=self.fit_method, graduation=graduation,
                       label=ylabel, massif_name_to_value=massif_name_to_value,
                       plot_name=plot_name, add_x_label=True,
                       negative_and_positive_values=negative_and_positive_values,
@@ -172,8 +176,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     @property
     def add_colorbar(self):
-        # return isinstance(self.altitude_group, (VeyHighAltitudeGroup))
-        return isinstance(self.altitude_group, (VeyHighAltitudeGroup, MidAltitudeGroup))
+        return isinstance(self.altitude_group, (VeyHighAltitudeGroup))
+        # return isinstance(self.altitude_group, (VeyHighAltitudeGroup, MidAltitudeGroup))
 
     def plot_against_years(self, method_name, order):
         ax = plt.gca()
@@ -406,16 +410,26 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         percents = 100 * nbs / nb_valid_massif_names
         return [nb_valid_massif_names] + list(percents)
 
-    def all_changes(self, massif_names):
+    def all_changes(self, massif_names, relative=False):
         """return percents which contain decrease, significant decrease, increase, significant increase percentages"""
         valid_massif_names = self.get_valid_names(massif_names)
         changes = []
+        non_stationary_changes = []
+        non_stationary_significant_changes = []
         for one_fold in [one_fold for m, one_fold in self.massif_name_to_one_fold_fit.items()
                          if m in valid_massif_names]:
             # Compute changes
-            changes.append(one_fold.change_in_return_level_for_reference_altitude)
+            if relative:
+                change = one_fold.relative_change_in_return_level_for_reference_altitude
+            else:
+                change = one_fold.change_in_return_level_for_reference_altitude
+            changes.append(change)
+            if change != 0:
+                non_stationary_changes.append(change)
+                if one_fold.is_significant:
+                    non_stationary_significant_changes.append(change)
 
-        return changes
+        return changes, non_stationary_changes, non_stationary_significant_changes
 
     def get_valid_names(self, massif_names):
         valid_massif_names = set(self.massif_name_to_one_fold_fit.keys())

@@ -4,6 +4,7 @@ from typing import List
 import numpy as np
 
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
@@ -114,10 +115,14 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
 
 
 def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
-    AltitudesStudiesVisualizerForNonStationaryModels]):
+    AltitudesStudiesVisualizerForNonStationaryModels],
+                                            relative=False):
     visualizer = visualizer_list[0]
 
-    all_changes = [v.all_changes(massif_names) for v in visualizer_list]
+    all_changes = [v.all_changes(massif_names, relative=relative) for v in visualizer_list]
+    all_changes = list(zip(*all_changes))
+    labels = ['All models', 'Non-stationary models', 'Non-stationary and significant models']
+    colors = ['darkgreen', 'forestgreen', 'limegreen']
     nb_massifs = [len(v.get_valid_names(massif_names)) for v in visualizer_list]
 
     plt.close()
@@ -128,27 +133,39 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
     labelsize = 10
     linewidth = 3
 
-    x = np.array([3 * width * (i + 1) for i in range(len(nb_massifs))])
 
-    ax.boxplot(all_changes, positions=x, widths=width)
+    x = np.array([4 * width * (i + 1) for i in range(len(nb_massifs))])
 
-    ax.legend(loc='upper left', prop={'size': size})
-    ax.set_ylabel('Changes between 1969 and 2019 in {}-year return levels ({})'.format(OneFoldFit.return_period,
-                                                                                       visualizer.study.variable_unit),
+    for changes in all_changes:
+        print(changes)
+    for j, (changes, label, color) in enumerate(list(zip(all_changes, labels, colors)), -1):
+        bplot = ax.boxplot(list(changes), positions=x + j * width, widths=width, patch_artist=True)
+        for patch in bplot['boxes']:
+            patch.set_facecolor(color)
+
+    custom_lines = [Line2D([0], [0], color=color, lw=4) for color in colors]
+    ax.legend(custom_lines, labels, loc='lower right')
+
+    start = 'Relative changes' if relative else 'Changes'
+    unit = '\%' if relative else visualizer.study.variable_unit
+    ax.set_ylabel('{} between 1969 and 2019 in {}-year return levels ({})'.format(start, OneFoldFit.return_period,
+                                                                                  unit),
                   fontsize=legend_fontsize)
     ax.set_xlabel('Altitudes', fontsize=legend_fontsize)
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(x)
     ax.yaxis.grid()
+
     altitudes = [v.altitude_group.reference_altitude for v in visualizer_list]
     ax.set_xticklabels([str(a) for a in altitudes])
 
-    shift = 300
-    ax.set_xlim((min(altitudes) - shift, max(altitudes) + shift))
+    shift = 2 * width
+    ax.set_xlim((min(x) - shift, max(x) + shift))
 
-    plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x)
+    # I could display the number of massif used to build each box plot.
+    # plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x)
 
-    visualizer.plot_name = 'All changes'
+    visualizer.plot_name = 'All ' + start
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
 
     plt.close()

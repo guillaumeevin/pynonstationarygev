@@ -33,6 +33,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
                     linear_coef, _, r2 = self._plot_gev_params_against_altitude_one_massif(ax, massif_name, param_name)
                     massif_name_to_linear_coef[massif_name] = 100 * linear_coef[0]
                     massif_name_to_r2_score[massif_name] = str(round(r2, 2))
+            print(param_name, np.mean([c for c in massif_name_to_linear_coef.values()]))
 
             # Display x label
             xticks = [1000 * i for i in range(1, 5)]
@@ -252,7 +253,7 @@ if __name__ == '__main__':
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300]
     altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
     # altitudes = paper_altitudes
-    altitudes = [1800, 2100]
+    # altitudes = [1800, 2100]
     visualizer = PointwiseGevStudyVisualizer(SafranSnowfall1Day, altitudes=altitudes)
     visualizer.plot_gev_params_against_altitude()
     # visualizer.plot_gev_params_against_time_for_all_altitudes()

@@ -47,6 +47,10 @@ class LowAltitudeGroup(AbstractAltitudeGroup):
         return 1
 
     @property
+    def graduation_for_return_level(self):
+        return 10
+
+    @property
     def name(self):
         return 'low'
 
@@ -62,6 +66,10 @@ class MidAltitudeGroup(AbstractAltitudeGroup):
         return 2
 
     @property
+    def graduation_for_return_level(self):
+        return 20
+
+    @property
     def name(self):
         return 'mid'
 
@@ -75,6 +83,10 @@ class HighAltitudeGroup(AbstractAltitudeGroup):
     @property
     def group_id(self):
         return 3
+
+    @property
+    def graduation_for_return_level(self):
+        return 40
 
     @property
     def name(self):
@@ -94,6 +106,10 @@ class VeyHighAltitudeGroup(AbstractAltitudeGroup):
     @property
     def name(self):
         return 'very high'
+
+    @property
+    def graduation_for_return_level(self):
+        return 80
 
     @property
     def reference_altitude(self):
