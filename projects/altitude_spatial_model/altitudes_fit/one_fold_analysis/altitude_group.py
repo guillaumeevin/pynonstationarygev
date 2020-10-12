@@ -25,6 +25,11 @@ class AbstractAltitudeGroup(object):
 
     @property
     def xlabel(self):
+        return 'Elevation = {} m. Models are estimated with\n' \
+               'maxima from group {}, i.e. {}'.format(self.reference_altitude, self.group_id, self.formula)
+
+    @property
+    def formula(self):
         # warning: the label could not correspond to all massifs, some might have been fitted with less data
         # idx = get_index_group_from_reference_altitude(reference_altitude)
         # min_altitude, *_, max_altitude = altitudes_for_groups[idx]
@@ -36,8 +41,12 @@ class AbstractAltitudeGroup(object):
         else:
             min_altitude, max_altitude = 1000 * i, 1000 * (i + 1)
             formula = 'between {} m and {} m'.format(min_altitude, max_altitude)
-        return 'Altitude = {} m. Selected models were estimated with\n' \
-               'altitude group {}, i.e. with maxima {}'.format(self.reference_altitude, self.group_id, formula)
+        return formula
+
+    @property
+    def formula_upper(self):
+        f = self.formula
+        return f[0].upper() + f[1:]
 
 
 class LowAltitudeGroup(AbstractAltitudeGroup):

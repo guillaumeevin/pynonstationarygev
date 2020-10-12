@@ -100,11 +100,12 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
                linewidth=linewidth)
     ax.legend(loc='upper left', prop={'size': size})
     ax.set_ylabel('Percentage of massifs (\%) ', fontsize=legend_fontsize)
-    ax.set_xlabel('Altitudes', fontsize=legend_fontsize)
+    ax.set_xlabel('Elevation', fontsize=legend_fontsize)
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(x)
     ax.yaxis.grid()
-    ax.set_xticklabels([str(v.altitude_group.reference_altitude) for v in visualizer_list])
+    ax.set_ylim(bottom=0)
+    ax.set_xticklabels([v.altitude_group.formula_upper for v in visualizer_list])
 
     plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x)
 
@@ -135,23 +136,22 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
 
 
     x = np.array([4 * width * (i + 1) for i in range(len(nb_massifs))])
-
-    for changes in all_changes:
-        print(changes)
     for j, (changes, label, color) in enumerate(list(zip(all_changes, labels, colors)), -1):
-        bplot = ax.boxplot(list(changes), positions=x + j * width, widths=width, patch_artist=True)
+        positions = x + j * width
+        bplot = ax.boxplot(list(changes), positions=positions, widths=width, patch_artist=True, showmeans=True)
         for patch in bplot['boxes']:
             patch.set_facecolor(color)
 
     custom_lines = [Line2D([0], [0], color=color, lw=4) for color in colors]
-    ax.legend(custom_lines, labels, loc='lower right')
+    loc = 'lower right' if relative else 'upper left'
+    ax.legend(custom_lines, labels, loc=loc)
 
     start = 'Relative changes' if relative else 'Changes'
     unit = '\%' if relative else visualizer.study.variable_unit
-    ax.set_ylabel('{} between 1969 and 2019 in {}-year return levels ({})'.format(start, OneFoldFit.return_period,
+    ax.set_ylabel('{} of {}-year return levels between 1969 and 2019 ({})'.format(start, OneFoldFit.return_period,
                                                                                   unit),
                   fontsize=legend_fontsize)
-    ax.set_xlabel('Altitudes', fontsize=legend_fontsize)
+    ax.set_xlabel('Elevation', fontsize=legend_fontsize)
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(x)
     ax.yaxis.grid()
@@ -179,4 +179,4 @@ def plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x):
     ax_twiny.tick_params(labelsize=labelsize)
     ax_twiny.set_xticklabels(nb_massifs)
     ax_twiny.set_xlim(ax.get_xlim())
-    ax_twiny.set_xlabel('Total number of massifs at each altitude (for the percentage)', fontsize=legend_fontsize)
+    ax_twiny.set_xlabel('Total number of massifs at each elevation (for the percentage)', fontsize=legend_fontsize)

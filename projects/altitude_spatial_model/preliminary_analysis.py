@@ -89,7 +89,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             # Plot map of slope for each massif
             visualizer = StudyVisualizer(study=self.study, show=False, save_to_file=True)
             idx = 8 if param_name == GevParams.SHAPE else 1
-            label = 'Altitude gradient for the {}'.format(ylabel[:-idx] + '/100m)')
+            label = 'Elevation gradient for the {}'.format(ylabel[:-idx] + '/100m)')
             gev_param_name_to_graduation = {
                 GevParams.LOC: 0.5,
                 GevParams.SCALE: 0.1,

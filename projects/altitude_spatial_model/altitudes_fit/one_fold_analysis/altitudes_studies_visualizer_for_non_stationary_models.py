@@ -429,6 +429,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 if one_fold.is_significant:
                     non_stationary_significant_changes.append(change)
 
+        moment = 'relative mean' if relative else 'Mean'
+        print('{} for {}m'.format(moment, self.altitude_group.reference_altitude), np.mean(changes))
         return changes, non_stationary_changes, non_stationary_significant_changes
 
     def get_valid_names(self, massif_names):

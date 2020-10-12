@@ -31,7 +31,7 @@ def main():
         massif_names = None
         altitudes_list = altitudes_for_groups[:2]
     elif fast:
-        massif_names = ['Vanoise', 'Haute-Tarentaise', 'Vercors']
+        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors']
         altitudes_list = altitudes_for_groups[:2]
     else:
         massif_names = None
@@ -57,15 +57,15 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes):
 def plot_visualizers(massif_names, visualizer_list):
     # plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
     # plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
-    for relative in [True, False]:
-        plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
+    # for relative in [True, False]:
+    #     plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
     # plot_coherence_curves(massif_names, visualizer_list)
     pass
 
 
 def plot_visualizer(massif_names, visualizer):
     # Plot time series
-    # visualizer.studies.plot_maxima_time_series(massif_names=massif_names)
+    visualizer.studies.plot_maxima_time_series(massif_names=massif_names)
     # Plot moments against altitude
     # for std in [True, False][:]:
     #     for change in [True, False, None]:

@@ -313,7 +313,7 @@ class OneFoldFit(object):
         return standard_gumbel_quantiles
 
     def best_confidence_interval(self, altitude, year) -> EurocodeConfidenceIntervalFromExtremes:
-        EurocodeConfidenceIntervalFromExtremes.quantile_level = 1 - (1 / self.return_period)
+        EurocodeConfidenceIntervalFromExtremes.quantile_level = self.quantile_level
         return EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(estimator_extremes=self.best_estimator,
                                                                               ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
                                                                               coordinate=np.array([altitude, year]))
