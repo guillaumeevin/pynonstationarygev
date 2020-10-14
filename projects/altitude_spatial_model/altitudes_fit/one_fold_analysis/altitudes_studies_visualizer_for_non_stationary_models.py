@@ -157,8 +157,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             max_abs_change = None
             massif_name_to_text = None
             graduation = self.altitude_group.graduation_for_return_level
+            fontsize_label = 17
         else:
             graduation = 10
+            fontsize_label = 10
 
         negative_and_positive_values = self.moment_names.index(method_name) > 0
         # Plot the map
@@ -172,6 +174,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       max_abs_change=max_abs_change,
                       massif_name_to_text=massif_name_to_text,
                       xlabel=self.altitude_group.xlabel,
+                      fontsize_label=fontsize_label,
                       )
 
     @property

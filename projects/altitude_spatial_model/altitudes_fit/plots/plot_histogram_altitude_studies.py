@@ -83,8 +83,8 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
     plt.close()
     ax = plt.gca()
     width = 5
-    size = 8
-    legend_fontsize = 10
+    size = 10
+    legend_fontsize = 15
     labelsize = 10
     linewidth = 3
     x = np.array([3 * width * (i + 1) for i in range(len(nb_massifs))])
@@ -100,7 +100,7 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
                linewidth=linewidth)
     ax.legend(loc='upper left', prop={'size': size})
     ax.set_ylabel('Percentage of massifs (\%) ', fontsize=legend_fontsize)
-    ax.set_xlabel('Elevation', fontsize=legend_fontsize)
+    ax.set_xlabel('Elevation group', fontsize=legend_fontsize)
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(x)
     ax.yaxis.grid()

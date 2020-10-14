@@ -40,12 +40,14 @@ class AbstractAltitudeGroup(object):
             formula = 'above 3000 m'
         else:
             min_altitude, max_altitude = 1000 * i, 1000 * (i + 1)
-            formula = 'between {} m and {} m'.format(min_altitude, max_altitude)
+            formula = 'from {} m to {} m'.format(min_altitude, max_altitude)
         return formula
 
     @property
     def formula_upper(self):
         f = self.formula
+        f = f.replace('from ', '')
+        f = f.replace(' to ', '-')
         return f[0].upper() + f[1:]
 
 
