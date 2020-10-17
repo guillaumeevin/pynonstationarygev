@@ -15,7 +15,7 @@ def plot_coherence_curves(massif_names, visualizer_list: List[AltitudesStudiesVi
     for massif_name in all_valid_names:
 
         # For plotting the legend
-        legend = False
+        legend = True
         if legend:
             ax = plt.gca()
             axes = [ax for _ in range(4)]
@@ -27,7 +27,7 @@ def plot_coherence_curves(massif_names, visualizer_list: List[AltitudesStudiesVi
                 ax.set_yticks([])
         axes = [ax if i % 2 == 0 else ax.twinx() for i, ax in enumerate(axes)]
         colors = ['blue', 'yellow', 'green']
-        labels = ['Elevational-temporal model in 2019', 'Elevational-temporal model in 1969', 'Stationary distribution']
+        labels = ['Elevational-temporal model in 2019', 'Elevational-temporal model in 1969', 'Pointwise distribution']
         altitudinal_model = [True, True, False]
         years = [2019, 1969, None]
         for color, global_label, boolean, year in list(zip(colors, labels, altitudinal_model, years))[::2]:
@@ -53,12 +53,12 @@ def plot_coherence_curve(axes, massif_name, visualizer_list: List[AltitudesStudi
             label_plot = global_label if j == 0 else None
             if is_altitudinal:
                 if legend and legend_line:
-                    ax.plot(x_list, value_list_i, linestyle='solid', color=color, label=label_plot)
+                    ax.plot(x_list, value_list_i, linestyle='solid', color=color, label=label_plot, linewidth=5)
                 else:
                     ax.plot(x_list, value_list_i, linestyle='solid', color=color)
             else:
                 if legend and legend_line:
-                    ax.plot(x_list, value_list_i, linestyle='None', color=color, label=label_plot, marker='o')
+                    ax.plot(x_list, value_list_i, linestyle='None', color=color, label=label_plot, marker='o', markersize=10)
                 else:
                     ax.plot(x_list, value_list_i, linestyle='None', color=color, marker='o')
                     ax.plot(x_list, value_list_i, linestyle='dotted', color=color)
@@ -77,7 +77,7 @@ def plot_coherence_curve(axes, massif_name, visualizer_list: List[AltitudesStudi
                 if len(bounds) > 0:
                     lower_bound, upper_bound = bounds
                     if legend and not legend_line:
-                        model_name = 'elevational-temporal model' if is_altitudinal else 'stationary distribution'
+                        model_name = 'elevational-temporal model' if is_altitudinal else 'pointwise distribution'
                         fill_label = "95\% confidence interval for the {}".format(model_name) if j == 0 else None
                         ax.fill_between(x_list, lower_bound, upper_bound, color=color, alpha=0.2, label=fill_label)
                     else:
@@ -86,7 +86,7 @@ def plot_coherence_curve(axes, massif_name, visualizer_list: List[AltitudesStudi
             if is_altitudinal:
                 min, max = ax.get_ylim()
                 ax.set_ylim([min, 2 * max])
-            size = 17 if legend_line else 11
+            size = 15 if legend_line else 11
             ax.legend(prop={'size': size})
         ax.set_ylabel(label)
 

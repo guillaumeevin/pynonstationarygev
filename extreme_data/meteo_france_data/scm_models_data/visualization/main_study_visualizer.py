@@ -34,7 +34,7 @@ SCM_STUDIES_NAMES = [get_display_name_from_object_type(k) for k in SCM_STUDIES]
 SCM_STUDY_NAME_TO_SCM_STUDY = dict(zip(SCM_STUDIES_NAMES, SCM_STUDIES))
 SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
-    SafranSnowfall1Day: 'SF1',
+    SafranSnowfall1Day: 'daily snowfall',
     SafranSnowfall3Days: 'SF3',
     SafranSnowfall5Days: 'SF5',
     SafranSnowfall7Days: 'SF7',

@@ -22,7 +22,11 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
         self.altitudes_for_temporal_hypothesis = [600, 1500, 2400, 3300]
 
     def plot_gev_params_against_altitude(self):
-        for j, param_name in enumerate(GevParams.PARAM_NAMES + [100]):
+        legend = True
+        param_names = GevParams.PARAM_NAMES + [100]
+        if legend:
+            param_names = param_names[:1]
+        for j, param_name in enumerate(param_names):
             ax = plt.gca()
 
             massif_name_to_linear_coef = {}
@@ -40,8 +44,6 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             ax.set_xticks(xticks)
             fontsize_label = 15
             ax.tick_params(labelsize=fontsize_label)
-
-            # ax.set_xlabel('Altitude')
 
             # Compute the y label
             if param_name in GevParams.PARAM_NAMES:
@@ -75,11 +77,14 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             plot_name = '{} change with altitude'.format(param_name)
 
             # # Display the legend
-            # ax.legend(labelspacing=2.5, ncol=8, handlelength=12, markerscale=0.7, bbox_to_anchor=(1.05, 1), loc='upper left',
-            #           prop={'size': 2}, fontsize='x-large')
-            # plt.gcf().subplots_adjust(right=0.15)
-            # ax.set_yticks([])
-            # ax.set_ylabel('')
+            if legend:
+                # ax.legend(labelspacing=2.5, ncol=8, handlelength=12, markerscale=0.7, bbox_to_anchor=(1.05, 1), loc='upper left',
+                #           prop={'size': 2}, fontsize='x-large')
+                ax.legend(labelspacing=2.5, ncol=8, handlelength=10, markerscale=0.7, bbox_to_anchor=(1.05, 1), loc='upper left',
+                          prop={'size': 2}, fontsize='xx-large')
+                plt.gcf().subplots_adjust(right=0.15)
+                ax.set_yticks([])
+                ax.set_ylabel('')
 
             # plt.show()
             self.show_or_save_to_file(plot_name, no_title=True, tight_layout=tight_layout, show=False)

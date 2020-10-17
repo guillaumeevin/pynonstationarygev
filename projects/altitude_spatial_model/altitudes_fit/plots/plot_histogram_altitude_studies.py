@@ -122,7 +122,7 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
 
     all_changes = [v.all_changes(massif_names, relative=relative) for v in visualizer_list]
     all_changes = list(zip(*all_changes))
-    labels = ['All models', 'Non-stationary models', 'Non-stationary and significant models']
+    labels = ['All models', 'Temporally non-stationary models', 'Temporally non-stationary models which are significant']
     colors = ['darkgreen', 'forestgreen', 'limegreen']
     nb_massifs = [len(v.get_valid_names(massif_names)) for v in visualizer_list]
 
@@ -151,7 +151,7 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
     ax.set_ylabel('{} of {}-year return levels between 1969 and 2019 ({})'.format(start, OneFoldFit.return_period,
                                                                                   unit),
                   fontsize=legend_fontsize)
-    ax.set_xlabel('Elevation', fontsize=legend_fontsize)
+    ax.set_xlabel('Elevation', fontsize=legend_fontsize + 5)
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(x)
     ax.yaxis.grid()

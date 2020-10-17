@@ -140,7 +140,7 @@ class AltitudesStudies(object):
         ax.legend(handles[::-1], labels[::-1])
         plot_name = 'Annual maxima of {} in {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '))
-        # ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
+        ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         # ax.set_xlabel('years', fontsize=15)
         plot_name = 'time series/' + plot_name
         self.show_or_save_to_file(plot_name=plot_name, show=show, no_title=True, tight_layout=True)
