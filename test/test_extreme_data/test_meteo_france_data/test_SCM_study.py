@@ -5,7 +5,7 @@ from random import sample
 
 import pandas as pd
 
-from extreme_data.meteo_france_data.adamont_data.abstract_simulation_study import SimulationStudy
+from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoad3Days
 from extreme_data.meteo_france_data.scm_models_data.safran.cumulated_study import NB_DAYS
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, SafranTemperature, \
@@ -64,9 +64,7 @@ class TestSCMAllStudy(unittest.TestCase):
     def test_variables(self):
         for study_class in SCM_STUDY_CLASS_TO_ABBREVIATION.keys():
             study = study_class(year_max=1959)
-            if not issubclass(study_class, SimulationStudy):
-                print(study_class)
-                _ = study.year_to_annual_maxima[1959]
+            _ = study.year_to_annual_maxima[1959]
         self.assertTrue(True)
 
 

@@ -122,7 +122,8 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
 
     all_changes = [v.all_changes(massif_names, relative=relative) for v in visualizer_list]
     all_changes = list(zip(*all_changes))
-    labels = ['All models', 'Temporally non-stationary models', 'Temporally non-stationary models which are significant']
+    labels = ['All models', 'Temporally non-stationary models',
+              'Temporally non-stationary models which are significant']
     colors = ['darkgreen', 'forestgreen', 'limegreen']
     nb_massifs = [len(v.get_valid_names(massif_names)) for v in visualizer_list]
 
@@ -133,7 +134,6 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
     legend_fontsize = 10
     labelsize = 10
     linewidth = 3
-
 
     x = np.array([4 * width * (i + 1) for i in range(len(nb_massifs))])
     for j, (changes, label, color) in enumerate(list(zip(all_changes, labels, colors)), -1):

@@ -5,7 +5,7 @@ import os.path as op
 import numpy as np
 from cached_property import cached_property
 
-from extreme_data.meteo_france_data.adamont_data.single_simulation import SingleSimulation
+from extreme_data.meteo_france_data.adamont_data.deprecated.single_simulation import SingleSimulation
 
 ADAMONT_PATH = r"/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/ADAMONT"
 

@@ -2,7 +2,7 @@ import time
 from collections import OrderedDict
 from typing import List
 
-from extreme_data.meteo_france_data.adamont_data.snowfall_simulation import SafranSnowfallSimulationRCP85
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, \
     ExtendedCrocusDepth, \
@@ -57,7 +57,7 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusSnowDepthDifference: 'max HS - HS at max of GSL',
     CrocusSnowDepthAtMaxofSwe: 'HS at max of GSL',
     CrocusSnowDensity: 'Density',
-    SafranSnowfallSimulationRCP85: 'SF1 RCP85 projections',
+    SafranSnowfall: 'SF1 RCP85 projections',
     SafranDateFirstSnowfall: 'SF1 first date'
 }
 
@@ -155,7 +155,7 @@ def extended_visualization():
 
 def annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=1800):
     if safran:
-        for study_class in [SafranPrecipitation, SafranRainfall, SafranSnowfall, SafranTemperature][-1:]:
+        for study_class in [SafranPrecipitation, SafranRainfall, AdamontSnowfall, SafranTemperature][-1:]:
             study = study_class(altitude=altitude, year_min=1958, year_max=2001)
             study_visualizer = StudyVisualizer(study)
             study_visualizer.visualize_annual_mean_values(take_mean_value=True)
@@ -173,7 +173,7 @@ def all_normal_vizu():
 
 
 def case_study():
-    for study in study_iterator(study_class=SafranSnowfall, only_first_one=False, altitudes=[2100],
+    for study in study_iterator(study_class=AdamontSnowfall, only_first_one=False, altitudes=[2100],
                                 nb_consecutive_days=3):
         study_visualizer = StudyVisualizer(study, save_to_file=False, temporal_non_stationarity=False)
         study_visualizer.visualize_all_mean_and_max_graphs()

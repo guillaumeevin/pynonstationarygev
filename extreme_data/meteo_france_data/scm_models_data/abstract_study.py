@@ -1,5 +1,4 @@
 import datetime
-from enum import Enum
 
 from matplotlib.lines import Line2D
 import io

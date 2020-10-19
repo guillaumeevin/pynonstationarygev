@@ -36,6 +36,13 @@ class FrenchRegion(Enum):
     pyrenees = 2
 
 
+def french_region_to_str(french_region):
+    if french_region is FrenchRegion.alps:
+        return 'alp'
+    else:
+        raise NotImplementedError()
+
+
 season_to_start_day_and_last_day = {
     Season.annual: ('08-01', '07-31'),
     Season.winter_extended: ('11-01', '05-31'),
