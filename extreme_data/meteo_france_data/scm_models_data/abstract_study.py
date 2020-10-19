@@ -339,18 +339,21 @@ class AbstractStudy(object):
         year_to_daily_time_serie_array = OrderedDict()
         for year in self.ordered_years:
             # Check daily data
-            daily_time_serie = self.year_to_variable_object[year].daily_time_serie_array
-            print(daily_time_serie.shape)
-            assert daily_time_serie.shape[0] in [365, 366]
-            assert daily_time_serie.shape[1] == len(self.column_mask)
+            daily_time_serie = self.daily_time_series(year)
             # Filter only the data corresponding:
             # 1: to treturnhe start_index and last_index of the season
             # 2: to the massifs for the altitude of interest
-            first_index, last_index = self.year_to_first_index_and_last_index[year]
-            daily_time_serie = daily_time_serie[first_index:last_index + 1, self.column_mask]
             assert daily_time_serie.shape == (len(self.year_to_days[year]), len(self.study_massif_names))
             year_to_daily_time_serie_array[year] = daily_time_serie
         return year_to_daily_time_serie_array
+
+    def daily_time_series(self, year):
+        daily_time_serie = self.year_to_variable_object[year].daily_time_serie_array
+        assert daily_time_serie.shape[0] in [365, 366]
+        assert daily_time_serie.shape[1] == len(self.column_mask)
+        first_index, last_index = self.year_to_first_index_and_last_index[year]
+        daily_time_serie = daily_time_serie[first_index:last_index + 1, self.column_mask]
+        return daily_time_serie
 
     """ Load Variables and Datasets """
 

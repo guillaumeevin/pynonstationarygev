@@ -67,6 +67,27 @@ class SafranSnowfallVariable(AbstractVariable):
         return snowfall_in_consecutive_days
 
 
+class SafranDateFirstSnowfallVariable(SafranSnowfallVariable):
+    NAME = 'Date First Snow'
+    UNIT = 'days'
+
+    @property
+    def daily_time_serie_array(self) -> np.ndarray:
+        daily_time_series = super().daily_time_serie_array
+        new_daily_time_series = []
+        for i, s in enumerate(daily_time_series.transpose()):
+            dates_with_snow = np.nonzero(s)[0]
+            if len(dates_with_snow) > 0:
+                min = np.min(dates_with_snow)
+            else:
+                min = np.nan
+            # first_date = 1 - min / 366
+            first_date = 1 - min / 366
+            first_date_repeated = np.ones(len(s))  * first_date
+            new_daily_time_series.append(first_date_repeated)
+        new_daily_time_series_array = np.array(new_daily_time_series).transpose()
+        return new_daily_time_series_array
+
 class SafranRainfallVariable(SafranSnowfallVariable):
     """Warning: this corresponds to water falling. Total precipitaiton equals Rainfall + Snowfall"""
     NAME = 'Rainfall'

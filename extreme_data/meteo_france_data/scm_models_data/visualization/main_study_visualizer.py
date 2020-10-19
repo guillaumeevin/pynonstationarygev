@@ -14,7 +14,7 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranS
     SafranRainfall, \
     SafranTemperature, SafranPrecipitation, SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, \
     SafranSnowfall7Days, SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days, \
-    SafranPrecipitation7Days
+    SafranPrecipitation7Days, SafranDateFirstSnowfall
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 from projects.exceeding_snow_loads.section_discussion.crocus_study_comparison_with_eurocode import \
@@ -58,6 +58,7 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusSnowDepthAtMaxofSwe: 'HS at max of GSL',
     CrocusSnowDensity: 'Density',
     SafranSnowfallSimulationRCP85: 'SF1 RCP85 projections',
+    SafranDateFirstSnowfall: 'SF1 first date'
 }
 
 altitude_massif_name_and_study_class_for_poster = [

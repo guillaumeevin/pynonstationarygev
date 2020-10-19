@@ -93,7 +93,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
 
     def aic(self, split=Split.all):
         aic = 2 * self.margin_model.nb_params + 2 * self.nllh(split=split)
-        npt.assert_almost_equal(self.result_from_model_fit.aic, aic, decimal=1)
+        npt.assert_almost_equal(self.result_from_model_fit.aic, aic, decimal=0)
         return aic
 
     def n(self, split=Split.all):

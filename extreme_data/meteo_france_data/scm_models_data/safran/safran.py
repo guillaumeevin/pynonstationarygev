@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from typing import List, Union, Dict
 
 import numpy as np
 
@@ -8,7 +9,8 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_variable import Abs
 from extreme_data.meteo_france_data.scm_models_data.safran.cumulated_study import CumulatedStudy
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariable, \
     SafranRainfallVariable, SafranTemperatureVariable, SafranTotalPrecipVariable, \
-    SafranNormalizedPrecipitationRateOnWetDaysVariable, SafranNormalizedPrecipitationRateVariable
+    SafranNormalizedPrecipitationRateOnWetDaysVariable, SafranNormalizedPrecipitationRateVariable, \
+    SafranDateFirstSnowfallVariable
 
 
 class Safran(AbstractStudy):
@@ -17,7 +19,8 @@ class Safran(AbstractStudy):
                         SafranTemperatureVariable,
                         SafranTotalPrecipVariable,
                         SafranNormalizedPrecipitationRateVariable,
-                        SafranNormalizedPrecipitationRateOnWetDaysVariable]
+                        SafranNormalizedPrecipitationRateOnWetDaysVariable,
+                        SafranDateFirstSnowfallVariable]
 
     def __init__(self, variable_class: type, *args, **kwargs):
         assert variable_class in self.SAFRAN_VARIABLES
@@ -38,6 +41,28 @@ class SafranSnowfall1Day(SafranSnowfall):
 
     def __init__(self, **kwargs):
         super().__init__(nb_consecutive_days=1, **kwargs)
+
+
+class SafranDateFirstSnowfall(Safran, CumulatedStudy):
+
+    def __init__(self, **kwargs):
+        super().__init__(SafranDateFirstSnowfallVariable, nb_consecutive_days=1, **kwargs)
+        self.massif_id_to_remove = set()
+        for year in self.ordered_years:
+            s = super().daily_time_series(year)
+            column_has_nan = np.isnan(s).any(axis=0)
+            index_with_nan = list(np.nonzero(column_has_nan)[0])
+            if len(index_with_nan) > 0:
+                self.massif_id_to_remove.update(set(index_with_nan))
+        self.massif_id_to_keep = tuple([i for i in range(s.shape[1])
+                                        if i not in self.massif_id_to_remove])
+
+    def daily_time_series(self, year):
+        return super().daily_time_series(year)[:, self.massif_id_to_keep]
+
+    @property
+    def study_massif_names(self) -> List[str]:
+        return [m for i, m in enumerate(super().study_massif_names) if i not in self.massif_id_to_remove]
 
 
 class SafranSnowfall3Days(SafranSnowfall):
@@ -182,12 +207,10 @@ class SafranTemperature(Safran):
 
 
 if __name__ == '__main__':
-    altitude = 900
+    altitude = 600
     year_min = 1959
-    year_max = 2000
-    study = SafranNormalizedPreciptationRateOnWetDays(altitude=altitude, year_min=year_min, year_max=year_max)
-    d = study.year_to_dataset_ordered_dict[1959]
-    print(d.keywords)
-    print(d.variables.keys())
-    print(study.year_to_annual_maxima[1959])
-    print(study.ordered_years)
+    year_max = 2019
+    study = SafranDateFirstSnowfall(altitude=altitude, year_min=year_min, year_max=year_max)
+    print(study.study_massif_names)
+    # print(study.year_to_annual_maxima[1959])
+    # print(study.ordered_years)
