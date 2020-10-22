@@ -67,7 +67,8 @@ class AbstractAdamontStudy(AbstractStudy):
         data_year_list = self.winter_year_for_each_time_step
         assert len(data_list) == len(data_year_list)
         for year_data, data in zip(data_year_list, data_list):
-            year_to_data_list[year_data].append(data)
+            if self.year_min <= year_data <= self.year_max:
+                year_to_data_list[year_data].append(data)
         year_to_variable_object = OrderedDict()
         for year in self.ordered_years:
             variable_array = np.array(year_to_data_list[year])

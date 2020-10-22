@@ -209,8 +209,11 @@ class SafranTemperature(Safran):
 if __name__ == '__main__':
     altitude = 600
     year_min = 1959
-    year_max = 2019
+    year_max = 1962
     study = SafranDateFirstSnowfall(altitude=altitude, year_min=year_min, year_max=year_max)
     print(study.study_massif_names)
+    print(study.massif_name_to_annual_maxima)
+    print(study.year_to_daily_time_serie_array[1959].shape)
+    print(study.massif_name_to_daily_time_series['Vanoise'].shape)
     # print(study.year_to_annual_maxima[1959])
     # print(study.ordered_years)

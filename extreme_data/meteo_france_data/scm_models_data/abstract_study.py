@@ -105,7 +105,6 @@ class AbstractStudy(object):
 
     """ Time """
 
-
     @cached_property
     def year_to_first_index_and_last_index(self):
         year_to_first_index_and_last_index = OrderedDict()
@@ -291,6 +290,15 @@ class AbstractStudy(object):
             maxima = np.array([self.year_to_annual_maxima[year][i] for year in self.ordered_years])
             massif_name_to_annual_maxima[massif_name] = maxima
         return massif_name_to_annual_maxima
+
+    @cached_property
+    def massif_name_to_daily_time_series(self):
+        massif_name_to_daily_time_series = OrderedDict()
+        for i, massif_name in enumerate(self.study_massif_names):
+            a = [self.year_to_daily_time_serie_array[year][:, i] for year in self.ordered_years]
+            daily_time_series = np.array(list(chain.from_iterable(a)))
+            massif_name_to_daily_time_series[massif_name] = daily_time_series
+        return massif_name_to_daily_time_series
 
     @cached_property
     def massif_name_to_annual_maxima_ordered_years(self):
@@ -813,11 +821,11 @@ class AbstractStudy(object):
     def massif_name_to_stationary_gev_params(self):
         d, _ = self._massif_name_to_stationary_gev_params_and_confidence(quantile_level=None)
         return d
-    
+
     @cached_property
     def massif_name_to_stationary_gev_params_and_confidence_for_return_level_100(self):
         return self._massif_name_to_stationary_gev_params_and_confidence(quantile_level=0.99)
-    
+
     def _massif_name_to_stationary_gev_params_and_confidence(self, quantile_level=None):
         """ at least 90% of values must be above zero"""
         massif_name_to_stationary_gev_params = {}
@@ -844,7 +852,7 @@ class AbstractStudy(object):
         for massif_name, annual_maxima in self.massif_name_to_annual_maxima.items():
             gev_params_list = []
             for index_min, index_max in self.index_min_and_max_list:
-                annual_maxima_sliced = annual_maxima[index_min: index_max+1]
+                annual_maxima_sliced = annual_maxima[index_min: index_max + 1]
                 gev_params_list.append(fitted_stationary_gev(annual_maxima_sliced))
             massif_name_to_stationary_gev_params[massif_name] = gev_params_list
         return massif_name_to_stationary_gev_params
