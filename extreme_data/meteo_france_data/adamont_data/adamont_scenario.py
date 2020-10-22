@@ -24,6 +24,16 @@ def get_year_min_and_year_max_from_scenario(adamont_scenario, gcm_rcm_couple):
     else:
         return 2006, 2100
 
+def load_gcm_rcm_couples_for_year_min_and_year_max(year_min, year_max):
+    gcm_rcm_couples = []
+    for gcm_rcm_couple in gcm_rcm_couple_to_full_name.keys():
+        year_min_couple, year_max_couple = get_year_min_and_year_max_from_scenario(adamont_scenario=AdamontScenario.histo,
+                                                                                   gcm_rcm_couple=gcm_rcm_couple)
+        if year_min_couple <= year_min and year_max <= year_max_couple:
+            gcm_rcm_couples.append(gcm_rcm_couple)
+    return gcm_rcm_couples
+
+
 
 def get_suffix_for_the_nc_file(adamont_scenario, gcm_rcm_couple):
     year_min, year_max = get_year_min_and_year_max_from_scenario(adamont_scenario, gcm_rcm_couple)
@@ -33,6 +43,9 @@ def get_suffix_for_the_nc_file(adamont_scenario, gcm_rcm_couple):
 def scenario_to_str(adamont_scenario):
     return str(adamont_scenario).split('.')[-1].upper()
 
+
+def gcm_rcm_couple_to_str(gcm_rcm_couple):
+    return  ' / '.join(gcm_rcm_couple)
 
 def get_color_from_gcm_rcm_couple(gcm_rcm_couple):
     return gcm_rcm_couple_to_color[gcm_rcm_couple]

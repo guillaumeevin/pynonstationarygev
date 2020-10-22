@@ -43,7 +43,13 @@ class AbstractAdamontStudy(AbstractStudy):
         for i, massif_name in enumerate(self.all_massif_names()):
             assert massif_name == massif_number_to_massif_name[i + 1]
 
+    @property
+    def variable_name(self):
+        return scenario_to_str(self.scenario) + ' ' + super().variable_name
+
     # Loading part
+
+
 
     @cached_property
     def ordered_years(self):
@@ -92,7 +98,7 @@ class AbstractAdamontStudy(AbstractStudy):
     # PATHS
 
     @property
-    def variable_name(self):
+    def variable_folder_name(self):
         return self.variable_class.variable_name_for_folder_and_nc_file()
 
     @property
@@ -105,11 +111,11 @@ class AbstractAdamontStudy(AbstractStudy):
 
     @property
     def nc_files_path(self):
-        return op.join(ADAMONT_PATH, self.variable_name, self.scenario_name)
+        return op.join(ADAMONT_PATH, self.variable_folder_name, self.scenario_name)
 
     @property
     def nc_file_path(self):
         suffix_nc_file = get_suffix_for_the_nc_file(self.scenario, self.gcm_rcm_couple)
-        nc_file = '{}_FORCING_{}_{}_{}_{}.nc'.format(self.variable_name, self.gcm_rcm_full_name, self.scenario_name,
+        nc_file = '{}_FORCING_{}_{}_{}_{}.nc'.format(self.variable_folder_name, self.gcm_rcm_full_name, self.scenario_name,
                                                      self.region_name, suffix_nc_file)
         return op.join(self.nc_files_path, nc_file)

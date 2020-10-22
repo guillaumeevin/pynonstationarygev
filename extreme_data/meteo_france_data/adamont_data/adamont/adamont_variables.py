@@ -1,6 +1,7 @@
 import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariable
 
 
 class AbstractAdamontVariable(AbstractVariable):
@@ -11,7 +12,8 @@ class AbstractAdamontVariable(AbstractVariable):
 
 
 class SafranSnowfallSimulationVariable(AbstractAdamontVariable):
-    UNIT = 'kg $m^{-2}$'
+    UNIT = SafranSnowfallVariable.UNIT
+    NAME = SafranSnowfallVariable.NAME
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:

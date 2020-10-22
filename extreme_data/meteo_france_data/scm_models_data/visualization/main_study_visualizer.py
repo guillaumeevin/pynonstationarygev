@@ -57,7 +57,7 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusSnowDepthDifference: 'max HS - HS at max of GSL',
     CrocusSnowDepthAtMaxofSwe: 'HS at max of GSL',
     CrocusSnowDensity: 'Density',
-    SafranSnowfall: 'SF1 RCP85 projections',
+    AdamontSnowfall: 'daily snowfall',
     SafranDateFirstSnowfall: 'SF1 first date'
 }
 
