@@ -10,8 +10,8 @@ class AdamontScenario(Enum):
 
 def get_year_min_and_year_max_from_scenario(adamont_scenario, gcm_rcm_couple):
     assert isinstance(adamont_scenario, AdamontScenario)
+    gcm, rcm = gcm_rcm_couple
     if adamont_scenario == AdamontScenario.histo:
-        gcm, rcm = gcm_rcm_couple
         if gcm == 'HadGEM2-ES':
             year_min = 1982
         elif rcm == 'RCA4':
@@ -20,19 +20,25 @@ def get_year_min_and_year_max_from_scenario(adamont_scenario, gcm_rcm_couple):
             year_min = 1952
         else:
             year_min = 1951
-        return year_min, 2005
+        year_max = 2005
     else:
-        return 2006, 2100
+        year_min = 2006
+        if gcm == 'HadGEM2-ES':
+            year_max = 2099
+        else:
+            year_max = 2100
+    return year_min, year_max
 
-def load_gcm_rcm_couples_for_year_min_and_year_max(year_min, year_max):
+
+def load_gcm_rcm_couples_for_year_min_and_year_max(year_min, year_max, adamont_scenario=AdamontScenario.histo):
     gcm_rcm_couples = []
     for gcm_rcm_couple in gcm_rcm_couple_to_full_name.keys():
-        year_min_couple, year_max_couple = get_year_min_and_year_max_from_scenario(adamont_scenario=AdamontScenario.histo,
-                                                                                   gcm_rcm_couple=gcm_rcm_couple)
+        year_min_couple, year_max_couple = get_year_min_and_year_max_from_scenario(
+            adamont_scenario=adamont_scenario,
+            gcm_rcm_couple=gcm_rcm_couple)
         if year_min_couple <= year_min and year_max <= year_max_couple:
             gcm_rcm_couples.append(gcm_rcm_couple)
     return gcm_rcm_couples
-
 
 
 def get_suffix_for_the_nc_file(adamont_scenario, gcm_rcm_couple):
@@ -45,7 +51,8 @@ def scenario_to_str(adamont_scenario):
 
 
 def gcm_rcm_couple_to_str(gcm_rcm_couple):
-    return  ' / '.join(gcm_rcm_couple)
+    return ' / '.join(gcm_rcm_couple)
+
 
 def get_color_from_gcm_rcm_couple(gcm_rcm_couple):
     return gcm_rcm_couple_to_color[gcm_rcm_couple]
@@ -71,7 +78,6 @@ gcm_rcm_couple_to_color = {
     ('IPSL-CM5A-MR', 'RCA4'): 'orange',
 
     ('NorESM1-M', 'DMI-HIRHAM5'): 'yellow',
-
 
 }
 

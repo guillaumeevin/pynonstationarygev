@@ -1,15 +1,14 @@
-
-
 import matplotlib.pyplot as plt
 import numpy as np
+from cached_property import cached_property
 from matplotlib.lines import Line2D
 
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import get_color_from_gcm_rcm_couple, \
-    gcm_rcm_couple_to_str
+    gcm_rcm_couple_to_str, gcm_rcm_couple_to_color
 from extreme_data.meteo_france_data.adamont_data.adamont_studies import AdamontStudies
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
-    SCM_STUDY_CLASS_TO_ABBREVIATION
+    SCM_STUDY_CLASS_TO_ABBREVIATION, ADAMONT_STUDY_CLASS_TO_ABBREVIATION
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
 
@@ -23,6 +22,7 @@ class ComparisonHistoricalVisualizer(StudyVisualizer):
                  ):
         super().__init__(adamont_studies.study, show=show, save_to_file=not show)
         self.scm_study = scm_study
+        self.altitude = self.scm_study.altitude
         self.adamont_studies = adamont_studies
         if massif_names is None:
             massif_names = scm_study.study_massif_names
@@ -45,16 +45,36 @@ class ComparisonHistoricalVisualizer(StudyVisualizer):
                 pass
         return np.array(values), gcm_rcm_couples
 
+    @cached_property
+    def mean_bias_maxima(self):
+        return self.get_mean_bias(plot_maxima=True)
+
+    def get_mean_bias(self, plot_maxima=True):
+        # Return an array: nb_ensemble x nb_massif
+        study_method = self.get_study_method(plot_maxima)
+        gcm_rcm_couple_to_bias_list = {couple: [] for couple in self.adamont_studies.gcm_rcm_couples}
+        for massif_name in self.massif_names:
+            values, gcm_rcm_couples = self.get_values(study_method, massif_name)
+            mean_values = np.mean(values, axis=1)
+            bias = (mean_values - mean_values[0])[1:]
+            for b, couple in zip(bias, gcm_rcm_couples):
+                gcm_rcm_couple_to_bias_list[couple].append(b)
+        return gcm_rcm_couple_to_bias_list
+
     def plot_comparison(self, plot_maxima=True):
-        if plot_maxima:
-            study_method = 'massif_name_to_annual_maxima'
-        else:
-            study_method = 'massif_name_to_daily_time_series'
+        study_method = self.get_study_method(plot_maxima)
         value_name = study_method.split('to_')[1]
         for massif_name in self.massif_names:
             values, gcm_rcm_couples = self.get_values(study_method, massif_name)
             plot_name = value_name + ' for {}'.format(massif_name.replace('_', '-'))
             self.shoe_plot_comparison(values, gcm_rcm_couples, plot_name)
+
+    def get_study_method(self, plot_maxima):
+        if plot_maxima:
+            study_method = 'massif_name_to_annual_maxima'
+        else:
+            study_method = 'massif_name_to_daily_time_series'
+        return study_method
 
     def shoe_plot_comparison(self, values, gcm_rcm_couples, plot_name):
         ax = plt.gca()
@@ -78,12 +98,33 @@ class ComparisonHistoricalVisualizer(StudyVisualizer):
         ax.set_xlim([min(positions) - width, max(positions) + width])
         ylabel = 'Annual maxima' if 'maxima' in plot_name else 'daily values'
         ax.set_ylabel('{} of {} ({})'.format(ylabel,
-                                             SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)],
-                                                        self.study.variable_unit))
+                                             ADAMONT_STUDY_CLASS_TO_ABBREVIATION[type(self.study)],
+                                             self.study.variable_unit))
 
-        self.plot_name = 'comparison/{}'.format(plot_name)
+        self.plot_name = 'comparison/{}/{}'.format(self.scm_study.altitude, plot_name)
         self.show_or_save_to_file(add_classic_title=False, no_title=True, tight_layout=True)
         ax.clear()
         plt.close()
 
+    def shoe_plot_bias_maxima_comparison(self):
+        couples = list(self.mean_bias_maxima.keys())
+        values = list(self.mean_bias_maxima.values())
+        colors = [gcm_rcm_couple_to_color[couple] for couple in couples]
+        labels = [gcm_rcm_couple_to_str(couple) for couple in couples]
 
+        ax = plt.gca()
+        width = 10
+        positions = [i * width * 2 for i in range(len(values))]
+        bplot = ax.boxplot(values, positions=positions, widths=width, patch_artist=True, showmeans=True)
+        for color, patch in zip(colors, bplot['boxes']):
+            patch.set_facecolor(color)
+        custom_lines = [Line2D([0], [0], color=color, lw=4) for color in colors]
+        ax.legend(custom_lines, labels, ncol=2)
+        ax.set_xticks([])
+        plot_name = 'Mean bias w.r.t to the reanalysis at {} m '.format(self.altitude)
+        ax.set_ylabel(plot_name)
+        ax.set_xlim([min(positions) - width, max(positions) + width])
+        self.plot_name = 'altitude_comparison/{}'.format(plot_name)
+        self.show_or_save_to_file(add_classic_title=False, no_title=True, tight_layout=True)
+        ax.clear()
+        plt.close()

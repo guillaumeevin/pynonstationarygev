@@ -356,7 +356,8 @@ class AbstractStudy(object):
 
     def daily_time_series(self, year):
         daily_time_serie = self.year_to_variable_object[year].daily_time_serie_array
-        assert daily_time_serie.shape[0] in [365, 366]
+        nb_days = daily_time_serie.shape[0]
+        assert nb_days == 365 or (nb_days == 366 and year % 4 == 0)
         assert daily_time_serie.shape[1] == len(self.column_mask)
         first_index, last_index = self.year_to_first_index_and_last_index[year]
         daily_time_serie = daily_time_serie[first_index:last_index + 1, self.column_mask]

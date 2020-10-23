@@ -57,8 +57,10 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusSnowDepthDifference: 'max HS - HS at max of GSL',
     CrocusSnowDepthAtMaxofSwe: 'HS at max of GSL',
     CrocusSnowDensity: 'Density',
-    AdamontSnowfall: 'daily snowfall',
     SafranDateFirstSnowfall: 'SF1 first date'
+}
+ADAMONT_STUDY_CLASS_TO_ABBREVIATION = {
+    AdamontSnowfall: 'daily snowfall',
 }
 
 altitude_massif_name_and_study_class_for_poster = [

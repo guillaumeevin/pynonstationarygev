@@ -31,8 +31,11 @@ class AbstractAdamontStudy(AbstractStudy):
                  french_region=FrenchRegion.alps,
                  scenario=AdamontScenario.histo, gcm_rcm_couple=('CNRM-CM5', 'ALADIN53')):
         # Load the default year_min & year_max for the scenario if not specified
-        if year_min is None and year_max is None:
-            year_min, year_max = get_year_min_and_year_max_from_scenario(scenario, gcm_rcm_couple)
+        year_min_scenario, year_max_scenario = get_year_min_and_year_max_from_scenario(scenario, gcm_rcm_couple)
+        if year_min is None:
+            year_min = year_min_scenario
+        if year_max is None:
+            year_max = year_max_scenario
         super().__init__(variable_class=variable_class, altitude=altitude, year_min=year_min, year_max=year_max,
                          multiprocessing=multiprocessing, season=season, french_region=french_region)
         self.gcm_rcm_couple = gcm_rcm_couple
@@ -49,19 +52,22 @@ class AbstractAdamontStudy(AbstractStudy):
 
     # Loading part
 
-
-
     @cached_property
     def ordered_years(self):
         return list(range(self.year_min, self.year_max + 1))
 
     @cached_property
     def winter_year_for_each_time_step(self):
-        start = datetime(year=self.year_min - 1, month=8, day=1, hour=6, minute=0, second=0)
+        year_min, _ = get_year_min_and_year_max_from_scenario(self.scenario, self.gcm_rcm_couple)
+        # It was written in the dataset  for the TIME variable that it represents
+        # "'hours since 1950-08-01 06:00:00'" for the HISTO scenario
+        # "'hours since 2005-08-01 06:00:00'" for the RCP scenario
+        start = datetime(year=year_min - 1, month=8, day=1, hour=6, minute=0, second=0)
         hours_after_start = np.array(self.dataset.variables['TIME'])
         dates = [start + timedelta(hours=h) for h in hours_after_start]
         winter_year = [date.year if date.month < 8 else date.year + 1 for date in dates]
-        winter_year[-1] = winter_year[-2]
+        # Remark. The last winter year for the HISTO scenario correspond to 2006.
+        # Thus, the last value is not taken into account
         return np.array(winter_year)
 
     @cached_property
@@ -116,6 +122,7 @@ class AbstractAdamontStudy(AbstractStudy):
     @property
     def nc_file_path(self):
         suffix_nc_file = get_suffix_for_the_nc_file(self.scenario, self.gcm_rcm_couple)
-        nc_file = '{}_FORCING_{}_{}_{}_{}.nc'.format(self.variable_folder_name, self.gcm_rcm_full_name, self.scenario_name,
+        nc_file = '{}_FORCING_{}_{}_{}_{}.nc'.format(self.variable_folder_name, self.gcm_rcm_full_name,
+                                                     self.scenario_name,
                                                      self.region_name, suffix_nc_file)
         return op.join(self.nc_files_path, nc_file)

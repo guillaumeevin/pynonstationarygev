@@ -8,7 +8,7 @@ from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm
     gcm_rcm_couple_to_str, get_color_from_gcm_rcm_couple
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
-    SCM_STUDY_CLASS_TO_ABBREVIATION
+    SCM_STUDY_CLASS_TO_ABBREVIATION, ADAMONT_STUDY_CLASS_TO_ABBREVIATION
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 
 
@@ -57,7 +57,6 @@ class AdamontStudies(object):
                 ax.plot(x, y, linewidth=linewidth, label=label, color=color)
         if scm_study is not None:
             try:
-                print(type(scm_study))
                 y = scm_study.massif_name_to_annual_maxima[massif_name]
                 label = 'Reanalysis'
                 color = 'black'
@@ -69,7 +68,7 @@ class AdamontStudies(object):
         ax.tick_params(axis='both', which='major', labelsize=13)
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[::-1], labels[::-1])
-        plot_name = 'Annual maxima of {} in {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
+        plot_name = 'Annual maxima of {} in {}'.format(ADAMONT_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '))
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('years', fontsize=15)
