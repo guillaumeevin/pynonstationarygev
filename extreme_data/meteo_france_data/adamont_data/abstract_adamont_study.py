@@ -10,7 +10,8 @@ from netCDF4._netCDF4 import Dataset
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_variables import AbstractAdamontVariable
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import scenario_to_str, AdamontScenario, \
-    get_year_min_and_year_max_from_scenario, gcm_rcm_couple_to_full_name, get_suffix_for_the_nc_file
+    get_year_min_and_year_max_from_scenario, gcm_rcm_couple_to_full_name, get_suffix_for_the_nc_file, \
+    scenario_to_real_scenarios, get_year_max
 from extreme_data.meteo_france_data.adamont_data.utils.utils import massif_number_to_massif_name
 
 ADAMONT_PATH = r"/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/ADAMONT"
@@ -56,31 +57,37 @@ class AbstractAdamontStudy(AbstractStudy):
     def ordered_years(self):
         return list(range(self.year_min, self.year_max + 1))
 
-    @cached_property
-    def winter_year_for_each_time_step(self):
-        year_min, _ = get_year_min_and_year_max_from_scenario(self.scenario, self.gcm_rcm_couple)
+    def winter_years_for_each_time_step(self, real_scenario, dataset):
+        year_min, year_max = get_year_min_and_year_max_from_scenario(real_scenario, self.gcm_rcm_couple)
         # It was written in the dataset  for the TIME variable that it represents
         # "'hours since 1950-08-01 06:00:00'" for the HISTO scenario
         # "'hours since 2005-08-01 06:00:00'" for the RCP scenario
         start = datetime(year=year_min - 1, month=8, day=1, hour=6, minute=0, second=0)
-        hours_after_start = np.array(self.dataset.variables['TIME'])
+        hours_after_start = np.array(dataset.variables['TIME'])
         dates = [start + timedelta(hours=h) for h in hours_after_start]
-        winter_year = [date.year if date.month < 8 else date.year + 1 for date in dates]
-        # Remark. The last winter year for the HISTO scenario correspond to 2006.
-        # Thus, the last value is not taken into account
-        return np.array(winter_year)
+        winter_years = [date.year if date.month < 8 else date.year + 1 for date in dates]
+        return winter_years
 
     @cached_property
     def year_to_variable_object(self) -> OrderedDict:
         year_to_data_list = {}
         for year in self.ordered_years:
             year_to_data_list[year] = []
-        data_list = self.dataset.variables[self.variable_class.keyword()]
-        data_year_list = self.winter_year_for_each_time_step
-        assert len(data_list) == len(data_year_list)
+        # Load data & year list
+        data_list, data_year_list = [], []
+        for dataset, real_scenario in zip(self.datasets, self.adamont_real_scenarios):
+            data_list.extend(dataset.variables[self.variable_class.keyword()])
+            data_year_list.extend(self.winter_years_for_each_time_step(real_scenario, dataset))
+            # Remark. The last winter year for the HISTO scenario correspond to 2006.
+            # Thus, the last value is not taken into account
+            if data_year_list[-1] > get_year_max(real_scenario, self.gcm_rcm_couple):
+                data_year_list = data_year_list[:-1]
+                data_list = data_list[:-1]
+            assert len(data_list) == len(data_year_list)
         for year_data, data in zip(data_year_list, data_list):
             if self.year_min <= year_data <= self.year_max:
                 year_to_data_list[year_data].append(data)
+        # Load the variable object
         year_to_variable_object = OrderedDict()
         for year in self.ordered_years:
             variable_array = np.array(year_to_data_list[year])
@@ -98,8 +105,13 @@ class AbstractAdamontStudy(AbstractStudy):
         return [massif_number_to_massif_name[massif_id] for massif_id in massif_ids]
 
     @cached_property
+    def datasets(self):
+        return [Dataset(file_path) for file_path in self.nc_file_paths]
+
+    @property
     def dataset(self):
-        return Dataset(self.nc_file_path)
+        # todo: improve that
+        return self.datasets[0]
 
     # PATHS
 
@@ -108,21 +120,28 @@ class AbstractAdamontStudy(AbstractStudy):
         return self.variable_class.variable_name_for_folder_and_nc_file()
 
     @property
-    def scenario_name(self):
-        return scenario_to_str(self.scenario)
-
-    @property
     def region_name(self):
         return french_region_to_str(self.french_region)
 
     @property
-    def nc_files_path(self):
-        return op.join(ADAMONT_PATH, self.variable_folder_name, self.scenario_name)
+    def adamont_real_scenarios(self):
+        return scenario_to_real_scenarios(self.scenario)
 
     @property
-    def nc_file_path(self):
-        suffix_nc_file = get_suffix_for_the_nc_file(self.scenario, self.gcm_rcm_couple)
-        nc_file = '{}_FORCING_{}_{}_{}_{}.nc'.format(self.variable_folder_name, self.gcm_rcm_full_name,
-                                                     self.scenario_name,
-                                                     self.region_name, suffix_nc_file)
-        return op.join(self.nc_files_path, nc_file)
+    def scenario_names(self):
+        return [scenario_to_str(scenario) for scenario in self.adamont_real_scenarios]
+
+    @property
+    def nc_files_paths(self):
+        return [op.join(ADAMONT_PATH, self.variable_folder_name, name) for name in self.scenario_names]
+
+    @property
+    def nc_file_paths(self):
+        file_paths = []
+        for scenario, scenario_name, files_path in zip(self.adamont_real_scenarios, self.scenario_names, self.nc_files_paths):
+            suffix_nc_file = get_suffix_for_the_nc_file(scenario, self.gcm_rcm_couple)
+            nc_file = '{}_FORCING_{}_{}_{}_{}.nc'.format(self.variable_folder_name, self.gcm_rcm_full_name,
+                                                         scenario_name,
+                                                         self.region_name, suffix_nc_file)
+            file_paths.append(op.join(files_path, nc_file))
+        return file_paths

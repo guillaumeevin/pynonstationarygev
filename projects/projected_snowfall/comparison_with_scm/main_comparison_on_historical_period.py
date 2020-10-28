@@ -1,9 +1,11 @@
+from collections import OrderedDict
+
 import matplotlib as mpl
 mpl.use('Agg')
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
-from projects.projected_snowfall.comparison_with_scm.comparison_plot import individual_plot
+from projects.projected_snowfall.comparison_with_scm.comparison_plot import individual_plot, collective_plot
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import load_gcm_rcm_couples_for_year_min_and_year_max, \
@@ -34,15 +36,15 @@ def main():
     # Load visualizers
 
     # Individual plot
-    for altitude in altitudes:
-        v = load_visualizer_histo(altitude, massif_names, year_min)
-        individual_plot(v)
+    # for altitude in altitudes:
+    #     v = load_visualizer_histo(altitude, massif_names, year_min)
+    #     individual_plot(v)
 
     # # Collective plot
-    # altitude_to_visualizer = OrderedDict()
-    # for altitude in altitudes:
-    #     altitude_to_visualizer[altitude] = load_visualizer_histo(altitude, massif_names, year_min)
-    # collective_plot(altitude_to_visualizer)
+    altitude_to_visualizer = OrderedDict()
+    for altitude in altitudes:
+        altitude_to_visualizer[altitude] = load_visualizer_histo(altitude, massif_names, year_min)
+    collective_plot(altitude_to_visualizer)
 
 
 def load_visualizer_histo(altitude, massif_names, year_min):

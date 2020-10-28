@@ -2,8 +2,10 @@ import matplotlib.pyplot as plt
 
 from collections import OrderedDict
 
+import numpy as np
 from cached_property import cached_property
 
+from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_full_name, \
     gcm_rcm_couple_to_str, get_color_from_gcm_rcm_couple
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
@@ -19,7 +21,7 @@ class AdamontStudies(object):
         if gcm_rcm_couples is None:
             gcm_rcm_couples = list(gcm_rcm_couple_to_full_name.keys())
         self.gcm_rcm_couples = gcm_rcm_couples
-        self.gcm_rcm_couple_to_study = OrderedDict()  # type: OrderedDict[int, AbstractStudy]
+        self.gcm_rcm_couple_to_study = OrderedDict()  # type: OrderedDict[int, AbstractAdamontStudy]
         for gcm_rcm_couple in self.gcm_rcm_couples:
             study = study_class(gcm_rcm_couple=gcm_rcm_couple, **kwargs_study)
             self.gcm_rcm_couple_to_study[gcm_rcm_couple] = study
@@ -55,7 +57,16 @@ class AdamontStudies(object):
                 label = gcm_rcm_couple_to_str(gcm_rcm_couple)
                 color = get_color_from_gcm_rcm_couple(gcm_rcm_couple)
                 ax.plot(x, y, linewidth=linewidth, label=label, color=color)
-        if scm_study is not None:
+        if scm_study is None:
+            y = np.array([study.massif_name_to_annual_maxima[massif_name] for study in self.study_list
+                 if massif_name in study.massif_name_to_annual_maxima])
+            if len(y) > 0:
+                y = np.mean(y, axis=0)
+                label = 'Mean maxima'
+                color = 'black'
+                ax.plot(x, y, linewidth=linewidth * 2, label=label, color=color)
+        else:
+            # todo: otherwise display the mean in strong black
             try:
                 y = scm_study.massif_name_to_annual_maxima[massif_name]
                 label = 'Reanalysis'
@@ -64,10 +75,11 @@ class AdamontStudies(object):
             except KeyError:
                 pass
 
-        ax.xaxis.set_ticks(x[1::10])
+        ax.xaxis.set_ticks([year for year in y if year % 10 == 0])
+        ax.grid()
         ax.tick_params(axis='both', which='major', labelsize=13)
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles[::-1], labels[::-1])
+        ax.legend(handles[::-1], labels[::-1], ncol=2)
         plot_name = 'Annual maxima of {} in {}'.format(ADAMONT_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '))
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)

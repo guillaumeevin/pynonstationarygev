@@ -18,7 +18,7 @@ from projects.projected_snowfall.comparison_with_scm.comparison_historical_visua
 
 
 def main():
-    fast = True
+    fast = False
     # Set the year_min and year_max for the comparison
     if fast:
         year_min = [2006][0]
@@ -29,18 +29,19 @@ def main():
         year_min = [2006][0]
         year_max = [2100][0]
         massif_names = None
-        altitudes = [900, 1800, 2700]
+        altitudes = [900, 1800, 2700, 3600][2:]
+    adamont_scenario = AdamontScenario.rcp85
 
     # Load studies
     for altitude in altitudes:
         adamont_study_class = AdamontSnowfall
         season = Season.annual
         gcm_rcm_couples = load_gcm_rcm_couples_for_year_min_and_year_max(year_min, year_max,
-                                                                         adamont_scenario=AdamontScenario.rcp85)
+                                                                         adamont_scenario=adamont_scenario)
         adamont_studies = AdamontStudies(adamont_study_class, gcm_rcm_couples,
                                          altitude=altitude, year_min=year_min,
                                          year_max=year_max, season=season,
-                                         scenario=AdamontScenario.rcp85)
+                                         scenario=adamont_scenario)
         adamont_studies.plot_maxima_time_series(massif_names)
 
 
