@@ -571,8 +571,9 @@ class StudyVisualizer(VisualizationParameters):
             self.savefig_in_results(filename, dpi=dpi)
 
     @classmethod
-    def savefig_in_results(cls, filename, dpi=None):
-        filepath = op.join(AbstractStudy.result_full_path, filename + '.png')
+    def savefig_in_results(cls, filename, dpi=None, format='svg'):
+        assert format in ['png', 'svg']
+        filepath = op.join(AbstractStudy.result_full_path, filename + '.' + format)
         dirname = op.dirname(filepath)
         if not op.exists(dirname):
             os.makedirs(dirname, exist_ok=True)

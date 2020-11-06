@@ -2,10 +2,10 @@ from enum import Enum
 
 # The order is important
 altitudes_for_groups = [
-    [300, 600, 900][1:],
+    [600, 900],
     [1200, 1500, 1800],
     [2100, 2400, 2700],
-    [3000, 3300, 3600, 3900]
+    [3000, 3300, 3600]
 ]
 
 
@@ -26,7 +26,7 @@ class AbstractAltitudeGroup(object):
     @property
     def xlabel(self):
         return 'Elevation = {} m. Models are estimated with\n' \
-               'maxima from group {}, i.e. {}'.format(self.reference_altitude, self.group_id, self.formula)
+               'maxima from range {}, i.e. {}'.format(self.reference_altitude, self.group_id, self.formula)
 
     @property
     def formula(self):

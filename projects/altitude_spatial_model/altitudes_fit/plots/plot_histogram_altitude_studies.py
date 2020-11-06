@@ -100,7 +100,7 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
                linewidth=linewidth)
     ax.legend(loc='upper left', prop={'size': size})
     ax.set_ylabel('Percentage of massifs (\%) ', fontsize=legend_fontsize)
-    ax.set_xlabel('Elevation group', fontsize=legend_fontsize)
+    ax.set_xlabel('Elevation range', fontsize=legend_fontsize)
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(x)
     ax.yaxis.grid()
@@ -122,7 +122,7 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
 
     all_changes = [v.all_changes(massif_names, relative=relative) for v in visualizer_list]
     all_changes = list(zip(*all_changes))
-    labels = ['All models', 'Temporally non-stationary models',
+    labels = ['All selected models', 'Temporally non-stationary models',
               'Temporally non-stationary models which are significant']
     colors = ['darkgreen', 'forestgreen', 'limegreen']
     nb_massifs = [len(v.get_valid_names(massif_names)) for v in visualizer_list]

@@ -134,13 +134,18 @@ class AltitudesStudies(object):
                 y = study.massif_name_to_annual_maxima[massif_name]
                 label = '{} m'.format(altitude)
                 ax.plot(x, y, linewidth=2, label=label)
-        ax.xaxis.set_ticks(x[1::10])
-        ax.tick_params(axis='both', which='major', labelsize=13)
+        ax.xaxis.set_ticks(x[11::20])
+
+        # Plot for the paper 2
+        if massif_name == "Vanoise":
+            ax.yaxis.set_ticks([25 * (j) for j in range(6)])
+
+        ax.tick_params(axis='both', which='major', labelsize=20)
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[::-1], labels[::-1])
         plot_name = 'Annual maxima of {} in {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '))
-        ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
+        # ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         # ax.set_xlabel('years', fontsize=15)
         plot_name = 'time series/' + plot_name
         self.show_or_save_to_file(plot_name=plot_name, show=show, no_title=True, tight_layout=True)

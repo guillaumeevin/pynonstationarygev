@@ -10,7 +10,6 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fi
 def plot_coherence_curves(massif_names, visualizer_list: List[AltitudesStudiesVisualizerForNonStationaryModels]):
     folder = 'Coherence'
     visualizer = visualizer_list[0]
-    names = visualizer.get_valid_names(massif_names)
     all_valid_names = set.union(*[v.get_valid_names(massif_names) for v in visualizer_list])
     for massif_name in all_valid_names:
 

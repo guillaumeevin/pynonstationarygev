@@ -18,19 +18,18 @@ from projects.projected_snowfall.comparison_with_scm.comparison_historical_visua
 
 
 def main():
-    fast = False
+    fast = True
+    adamont_scenario = AdamontScenario.rcp85
+    year_min = 1982 if adamont_scenario is AdamontScenario.rcp85_extended else 2006
     # Set the year_min and year_max for the comparison
     if fast:
-        year_min = [2006][0]
         year_max = [2030][0]
         massif_names = ['Vanoise']
         altitudes = [1800]
     else:
-        year_min = [2006][0]
         year_max = [2100][0]
         massif_names = None
         altitudes = [900, 1800, 2700, 3600][2:]
-    adamont_scenario = AdamontScenario.rcp85
 
     # Load studies
     for altitude in altitudes:

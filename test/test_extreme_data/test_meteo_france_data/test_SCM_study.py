@@ -67,6 +67,24 @@ class TestSCMAllStudy(unittest.TestCase):
             _ = study.year_to_annual_maxima[1959]
         self.assertTrue(True)
 
+    def test_study_visualization(self):
+        year = 2019
+        study = SafranSnowfall(altitude=900, year_min=year, year_max=year)
+
+        massif_to_value = {m: a[0] for m, a in study.massif_name_to_annual_maxima.items()}
+        values = list(massif_to_value.values())
+        vmin, vmax = min(values), max(values)
+        massif_to_text = {m: round(a) for m, a in massif_to_value.items()}
+        # study.visualize_study(massif_name_to_value=massif_to_value,
+        #                       massif_name_to_text=massif_to_text,
+        #                       add_text=True,
+        #                       add_colorbar=True,
+        #                       vmin=vmin, vmax=vmax,
+        #                       show=False)
+        self.assertTrue(True)
+
+
+
 
 class TestSCMSafranNormalizedPrecipitationRateOnWetDays(unittest.TestCase):
 

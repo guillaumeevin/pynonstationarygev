@@ -155,7 +155,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         if is_return_level_plot:
             add_colorbar = True
             max_abs_change = None
-            massif_name_to_text = None
+            massif_name_to_text = {m: round(v) for m, v in massif_name_to_value.items()}
             graduation = self.altitude_group.graduation_for_return_level
             fontsize_label = 17
         else:

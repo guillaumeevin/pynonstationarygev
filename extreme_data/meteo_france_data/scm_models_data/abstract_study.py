@@ -499,8 +499,18 @@ class AbstractStudy(object):
         # Coordinate object that represents the massif coordinates in Lambert extended
         # extracted for a csv file, and used only for display purposes
         df = cls.load_df_centroid()
+        # Lower a bit the Mercantour massif
+        df.loc['Mercantour', 'coord_x'] += 14000 # shift to the right
+        df.loc['Mercantour', 'coord_y'] -= 7000 # shift down
+        # Lower a bit the Maurienne massif
+        # df.loc['Mercantour', 'coord_x'] += 14000 # shift to the right
+        df.loc['Maurienne', 'coord_y'] -= 6000 # shift down
+        df.loc['Vanoise', 'coord_y'] -= 4000 # shift down
+        df.loc['Ubaye', 'coord_y'] -= 4000 # shift down
         # Filter, keep massifs present at the altitude of interest
         df = df.loc[massif_names, :]
+
+
         # Build coordinate object from df_centroid
         return AbstractSpatialCoordinates.from_df(df)
 

@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+from itertools import chain
+
 import numpy as np
 from cached_property import cached_property
 
@@ -7,6 +9,7 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils imp
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.distribution.gev.gev_params import GevParams
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
+from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import altitudes_for_groups
 from projects.contrasting_trends_in_snow_loads.article2_snowfall_versus_time_and_altitude.snowfall_plot import \
     fit_linear_regression
 from projects.exceeding_snow_loads.utils import paper_altitudes
@@ -256,8 +259,8 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
 
 
 if __name__ == '__main__':
-    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300]
-    altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900]
+    altitudes = list(chain.from_iterable(altitudes_for_groups))
+
     # altitudes = paper_altitudes
     # altitudes = [1800, 2100]
     visualizer = PointwiseGevStudyVisualizer(SafranSnowfall1Day, altitudes=altitudes)
