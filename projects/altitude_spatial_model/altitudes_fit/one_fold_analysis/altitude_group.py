@@ -1,6 +1,8 @@
 from enum import Enum
 
 # The order is important
+MIDDLE_WORD = 'and'
+START_WORD = 'between'
 altitudes_for_groups = [
     [600, 900],
     [1200, 1500, 1800],
@@ -25,8 +27,9 @@ class AbstractAltitudeGroup(object):
 
     @property
     def xlabel(self):
-        return 'Elevation = {} m. Models are estimated with\n' \
-               'maxima from range {}, i.e. {}'.format(self.reference_altitude, self.group_id, self.formula)
+        return 'Elevation = {} m. Models are fitted with\n' \
+               'maxima from elevation range {}, i.e.\n' \
+               'maxima {}'.format(self.reference_altitude, self.group_id, self.formula)
 
     @property
     def formula(self):
@@ -40,14 +43,14 @@ class AbstractAltitudeGroup(object):
             formula = 'above 3000 m'
         else:
             min_altitude, max_altitude = 1000 * i, 1000 * (i + 1)
-            formula = 'from {} m to {} m'.format(min_altitude, max_altitude)
+            formula = '{} {} m {} {} m'.format(START_WORD, min_altitude, MIDDLE_WORD, max_altitude)
         return formula
 
     @property
     def formula_upper(self):
         f = self.formula
-        f = f.replace('from ', '')
-        f = f.replace(' to ', '-')
+        f = f.replace('{} '.format(START_WORD), '')
+        f = f.replace(' {} '.format(MIDDLE_WORD), '-')
         return f[0].upper() + f[1:]
 
 

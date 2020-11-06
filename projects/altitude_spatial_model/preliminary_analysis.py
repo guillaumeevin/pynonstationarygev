@@ -43,7 +43,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             print(param_name, np.mean([c for c in massif_name_to_linear_coef.values()]))
 
             # Display x label
-            xticks = [1000 * i for i in range(1, 5)]
+            xticks = [1000 * i for i in range(1, 4)]
             ax.set_xticks(xticks)
             fontsize_label = 15
             ax.tick_params(labelsize=fontsize_label)

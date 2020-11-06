@@ -24,16 +24,12 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 def main():
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days][:1]
-    # study_classes = [SafranDateFirstSnowfall]
-    # study_classes = [CrocusSnowLoadTotal]
-    study_classes = [SafranPrecipitation1Day, CrocusSnowLoadTotal, SafranDateFirstSnowfall][2:]
-    study_classes = [CrocusSnowLoad3Days, SafranSnowfall3Days, SafranSnowfall5Days]
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
     fast = False
     if fast is None:
         massif_names = None
-        altitudes_list = altitudes_for_groups[2:3]
+        altitudes_list = altitudes_for_groups[1:2]
     elif fast:
         massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:]
         altitudes_list = altitudes_for_groups[2:3]
@@ -63,18 +59,21 @@ def plot_visualizers(massif_names, visualizer_list):
     for relative in [True, False]:
         plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
     # plot_coherence_curves(massif_names, visualizer_list)
-    pass
+    plot_coherence_curves(['Vanoise'], visualizer_list)
 
 
 def plot_visualizer(massif_names, visualizer):
     # Plot time series
-    visualizer.studies.plot_maxima_time_series(massif_names=massif_names)
+    # visualizer.studies.plot_maxima_time_series(massif_names)
+    visualizer.studies.plot_maxima_time_series(['Vanoise'])
     # Plot moments against altitude
     # for std in [True, False][:]:
     #     for change in [True, False, None]:
     #         studies.plot_mean_maxima_against_altitude(massif_names=massif_names, std=std, change=change)
     # Plot the results for the model that minimizes the individual aic
     plot_individual_aic(visualizer)
+
+
     # Plot the results for the model that minimizes the total aic
     # plot_total_aic(model_classes, visualizer)
     pass

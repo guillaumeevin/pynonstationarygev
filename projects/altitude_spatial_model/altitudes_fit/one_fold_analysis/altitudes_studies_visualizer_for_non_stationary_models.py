@@ -65,6 +65,11 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                                           type(self.altitude_group),
                                           self.display_only_model_that_pass_anderson_test)
                 self._massif_name_to_one_fold_fit[massif_name] = old_fold_fit
+        # Print number of massif without any validated fit
+        massifs_without_any_validated_fit = [massif_name
+                                             for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
+                                             if not old_fold_fit.has_at_least_one_valid_model]
+        print('Not validated:', len(massifs_without_any_validated_fit), massifs_without_any_validated_fit)
         # Cache
         self._method_name_and_order_to_massif_name_to_value = {}
         self._method_name_and_order_to_max_abs = {}
@@ -97,7 +102,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     def massif_name_to_one_fold_fit(self) -> Dict[str, OneFoldFit]:
         return {massif_name: old_fold_fit for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
                 if not self.display_only_model_that_pass_anderson_test
-                or old_fold_fit.has_at_least_one_valid_non_stationary_model}
+                or old_fold_fit.has_at_least_one_valid_model}
 
     def plot_moments(self):
         for method_name in self.moment_names:
@@ -270,7 +275,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       label=label,
                       plot_name=label,
                       fontsize_label=15,
-                      add_x_label=True, graduation=0.1, massif_name_to_text=self.massif_name_to_best_name,
+                      add_x_label=True, graduation=0.1,
+                      massif_name_to_text=self.massif_name_to_best_name,
                       cmap=matplotlib.cm.get_cmap('BrBG_r'),
                       altitude=self.altitude_group.reference_altitude,
                       add_colorbar=self.add_colorbar,
