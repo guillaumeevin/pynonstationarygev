@@ -541,11 +541,6 @@ class StudyVisualizer(VisualizationParameters):
 
     def show_or_save_to_file(self, add_classic_title=True, no_title=False, tight_layout=False, tight_pad=None,
                              dpi=None, folder_for_variable=True):
-        if tight_layout:
-            if tight_pad is not None:
-                plt.tight_layout(**tight_pad)
-            else:
-                plt.tight_layout()
         assert self.plot_name is not None
         if add_classic_title:
             title = self.study.title
@@ -568,19 +563,36 @@ class StudyVisualizer(VisualizationParameters):
             if not self.only_one_graph:
                 filename += "{}".format('_'.join(self.plot_name.split())) + '_'
             filename += specific_title
-            self.savefig_in_results(filename, dpi=dpi)
+            # Save a first time in transparent
+            self.savefig_in_results(filename, transparent=True)
+            self.savefig_in_results(filename, transparent=False, tight_pad=tight_pad)
 
     @classmethod
-    def savefig_in_results(cls, filename, dpi=None, format='svg'):
-        assert format in ['png', 'svg']
-        filepath = op.join(AbstractStudy.result_full_path, filename + '.' + format)
+    def savefig_in_results(cls, filename, transparent=True, tight_pad=None):
+        img_format = 'svg' if transparent else 'png'
+        filepath = op.join(AbstractStudy.result_full_path, filename + '.' + img_format)
+        if transparent:
+            dir_list = filepath.split('/')
+            dir_list[-1:] = ['transparent', dir_list[-1]]
+            filepath = '/'.join(dir_list)
         dirname = op.dirname(filepath)
         if not op.exists(dirname):
             os.makedirs(dirname, exist_ok=True)
-        if dpi is not None:
-            plt.savefig(filepath, dpi=dpi)
+
+        if transparent:
+            plt.savefig(filepath, bbox_inches=0, transparent=True)
         else:
-            plt.savefig(filepath)
+            if tight_pad is not None:
+                plt.tight_layout(**tight_pad)
+            else:
+                plt.tight_layout()
+            plt.savefig(filepath, bbox_inches=0, transparent=False)
+
+            
+        # if dpi is not None:
+        #     plt.savefig(filepath, dpi=dpi)
+        # else:
+        #     plt.savefig(filepath)
 
     def visualize_independent_margin_fits(self, threshold=None, axes=None, show=True):
         # Fit either a GEV or a GPD

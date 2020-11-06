@@ -505,6 +505,8 @@ class AbstractStudy(object):
         # Lower a bit the Maurienne massif
         # df.loc['Mercantour', 'coord_x'] += 14000 # shift to the right
         df.loc['Maurienne', 'coord_y'] -= 6000 # shift down
+        df.loc['Maurienne', 'coord_y'] -= 5000 # shift down
+        df.loc['Maurienne', 'coord_x'] += 3000 # shift down
         df.loc['Vanoise', 'coord_y'] -= 4000 # shift down
         df.loc['Ubaye', 'coord_y'] -= 4000 # shift down
         # Filter, keep massifs present at the altitude of interest
@@ -566,8 +568,6 @@ class AbstractStudy(object):
                 massif_name = cls.coordinate_id_to_massif_name[coordinate_id]
                 if massif_name_to_marker_style is not None and massif_name in massif_name_to_marker_style:
                     massif_coordinate = masssif_coordinate_for_display.df_all_coordinates.loc[massif_name, :].values
-                    if massif_name in ['Maurienne', 'Mercantour']:
-                        massif_coordinate[1] -= 5000
                     ax.plot(massif_coordinate[0],
                             massif_coordinate[1], **massif_name_to_marker_style[massif_name])
 

@@ -179,4 +179,4 @@ def plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x):
     ax_twiny.tick_params(labelsize=labelsize)
     ax_twiny.set_xticklabels(nb_massifs)
     ax_twiny.set_xlim(ax.get_xlim())
-    ax_twiny.set_xlabel('Total number of massifs at each elevation (for the percentage)', fontsize=legend_fontsize)
+    ax_twiny.set_xlabel('Total number of massifs at each range (for the percentage)', fontsize=legend_fontsize)

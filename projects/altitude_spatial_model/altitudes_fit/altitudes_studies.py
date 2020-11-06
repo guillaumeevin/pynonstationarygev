@@ -129,7 +129,7 @@ class AltitudesStudies(object):
     def _plot_maxima_time_series(self, massif_name, massif_id, show=False):
         ax = plt.gca()
         x = self.study.ordered_years
-        for altitude, study in list(self.altitude_to_study.items())[::-1]:
+        for altitude, study in list(self.altitude_to_study.items()):
             if massif_name in study.massif_name_to_annual_maxima:
                 y = study.massif_name_to_annual_maxima[massif_name]
                 label = '{} m'.format(altitude)
@@ -138,11 +138,12 @@ class AltitudesStudies(object):
 
         # Plot for the paper 2
         if massif_name == "Vanoise":
-            ax.yaxis.set_ticks([25 * (j) for j in range(6)])
+            # ax.yaxis.set_ticks([25 * (j) for j in range(6)])
+            ax.yaxis.set_ticks([25 * (j) for j in range(7)])
 
         ax.tick_params(axis='both', which='major', labelsize=20)
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles[::-1], labels[::-1])
+        ax.legend(handles[::-1], labels[::-1], prop={'size': 20})
         plot_name = 'Annual maxima of {} in {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '))
         # ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)

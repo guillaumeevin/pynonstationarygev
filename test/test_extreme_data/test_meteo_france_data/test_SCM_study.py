@@ -75,12 +75,12 @@ class TestSCMAllStudy(unittest.TestCase):
         values = list(massif_to_value.values())
         vmin, vmax = min(values), max(values)
         massif_to_text = {m: round(a) for m, a in massif_to_value.items()}
-        # study.visualize_study(massif_name_to_value=massif_to_value,
-        #                       massif_name_to_text=massif_to_text,
-        #                       add_text=True,
-        #                       add_colorbar=True,
-        #                       vmin=vmin, vmax=vmax,
-        #                       show=False)
+        study.visualize_study(massif_name_to_value=massif_to_value,
+                              massif_name_to_text=massif_to_text,
+                              add_text=True,
+                              add_colorbar=True,
+                              vmin=vmin, vmax=vmax,
+                              show=False)
         self.assertTrue(True)
 
 

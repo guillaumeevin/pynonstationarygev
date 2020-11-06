@@ -14,7 +14,7 @@ def plot_coherence_curves(massif_names, visualizer_list: List[AltitudesStudiesVi
     for massif_name in all_valid_names:
 
         # For plotting the legend
-        legend = True
+        legend = False
         if legend:
             ax = plt.gca()
             axes = [ax for _ in range(4)]
@@ -82,11 +82,11 @@ def plot_coherence_curve(axes, massif_name, visualizer_list: List[AltitudesStudi
                     else:
                         ax.fill_between(x_list, lower_bound, upper_bound, color=color, alpha=0.2)
 
-            if is_altitudinal:
+            if legend and is_altitudinal:
                 min, max = ax.get_ylim()
                 ax.set_ylim([min, 2 * max])
-            size = 15 if legend_line else 11
-            ax.legend(prop={'size': size})
+                size = 15 if legend_line else 11
+                ax.legend(prop={'size': size})
         ax.set_ylabel(label)
 
 

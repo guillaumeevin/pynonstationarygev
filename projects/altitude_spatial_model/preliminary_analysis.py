@@ -25,7 +25,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
         self.altitudes_for_temporal_hypothesis = [600, 1500, 2400, 3300]
 
     def plot_gev_params_against_altitude(self):
-        legend = True
+        legend = False
         param_names = GevParams.PARAM_NAMES + [100]
         if legend:
             param_names = param_names[:1]
@@ -98,7 +98,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             visualizer = StudyVisualizer(study=self.study, show=False, save_to_file=True)
             idx = 8 if param_name == GevParams.SHAPE else 1
             the = ' the' if param_name in GevParams.PARAM_NAMES else ''
-            label = 'Elevation gradient for{} {}'.format(the, ylabel[:-idx] + '/100m)')
+            label = 'Elevation gradient for\n{} {}'.format(the, ylabel[:-idx] + '/100m)')
             gev_param_name_to_graduation = {
                 GevParams.LOC: 0.5,
                 GevParams.SCALE: 0.1,
@@ -114,7 +114,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
                                 negative_and_positive_values=param_name == GevParams.SHAPE,
                                 add_colorbar=True,
                                 massif_name_to_text=massif_name_to_r2_score,
-
+                                fontsize_label=13,
                                 )
             plt.close()
 

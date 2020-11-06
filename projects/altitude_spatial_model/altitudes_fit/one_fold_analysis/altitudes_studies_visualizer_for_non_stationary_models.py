@@ -265,14 +265,16 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     def plot_shape_map(self):
 
         label = 'Shape parameter in 2019 (no unit)'
+        max_abs_change = self._max_abs_for_shape + 0.05
         self.plot_map(massif_name_to_value=self.massif_name_to_shape,
                       label=label,
                       plot_name=label,
+                      fontsize_label=15,
                       add_x_label=True, graduation=0.1, massif_name_to_text=self.massif_name_to_best_name,
                       cmap=matplotlib.cm.get_cmap('BrBG_r'),
                       altitude=self.altitude_group.reference_altitude,
                       add_colorbar=self.add_colorbar,
-                      max_abs_change=self._max_abs_for_shape,
+                      max_abs_change=max_abs_change,
                       fit_method=self.fit_method,
                       xlabel=self.altitude_group.xlabel,
                       )
