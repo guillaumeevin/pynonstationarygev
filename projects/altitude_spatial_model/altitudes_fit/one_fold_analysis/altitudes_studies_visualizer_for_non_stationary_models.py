@@ -170,7 +170,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         negative_and_positive_values = self.moment_names.index(method_name) > 0
         # Plot the map
 
-        self.plot_map(cmap=plt.cm.coolwarm, fit_method=self.fit_method, graduation=graduation,
+        self.plot_map(cmap=plt.cm.coolwarm, graduation=graduation,
                       label=ylabel, massif_name_to_value=massif_name_to_value,
                       plot_name=plot_name, add_x_label=True,
                       negative_and_positive_values=negative_and_positive_values,

@@ -107,7 +107,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             }
             if param_name == GevParams.SHAPE:
                 print(massif_name_to_linear_coef)
-            visualizer.plot_map(cmap=plt.cm.coolwarm, fit_method=self.study.fit_method,
+            visualizer.plot_map(cmap=plt.cm.coolwarm,
                                 graduation=gev_param_name_to_graduation[param_name],
                                 label=label, massif_name_to_value=massif_name_to_linear_coef,
                                 plot_name=label.replace('/', ' every '), add_x_label=False,

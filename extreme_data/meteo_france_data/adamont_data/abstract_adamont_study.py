@@ -76,7 +76,9 @@ class AbstractAdamontStudy(AbstractStudy):
         # Load data & year list
         data_list, data_year_list = [], []
         for dataset, real_scenario in zip(self.datasets, self.adamont_real_scenarios):
-            data_list.extend(dataset.variables[self.variable_class.keyword()])
+            data = dataset.variables[self.variable_class.keyword()]
+            data = np.array(data)
+            data_list.extend(data)
             data_year_list.extend(self.winter_years_for_each_time_step(real_scenario, dataset))
             # Remark. The last winter year for the HISTO scenario correspond to 2006.
             # Thus, the last value is not taken into account
@@ -87,12 +89,16 @@ class AbstractAdamontStudy(AbstractStudy):
         for year_data, data in zip(data_year_list, data_list):
             if self.year_min <= year_data <= self.year_max:
                 year_to_data_list[year_data].append(data)
-        # Load the variable object
-        year_to_variable_object = OrderedDict()
-        for year in self.ordered_years:
-            variable_array = np.array(year_to_data_list[year])
-            year_to_variable_object[year] = self.variable_class(variable_array)
+        # Load efficiently the variable object
+        # Multiprocessing is set to False, because this is not a time consuming part
+        data_list_list = [year_to_data_list[year] for year in self.ordered_years]
+        year_to_variable_object = self.efficient_variable_loading(self.ordered_years, data_list_list, multiprocessing=False)
         return year_to_variable_object
+
+    def load_variable_object(self, data_list):
+        variable_array = np.array(data_list)
+        variable_object = self.variable_class(variable_array)
+        return variable_object
 
     @cached_property
     def flat_mask(self):

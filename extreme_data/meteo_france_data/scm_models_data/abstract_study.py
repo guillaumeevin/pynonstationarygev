@@ -369,11 +369,14 @@ class AbstractStudy(object):
     def year_to_variable_object(self) -> OrderedDict:
         # Map each year to the variable array
         path_files, ordered_years = self.ordered_years_and_path_files
-        if self.multiprocessing:
+        return self.efficient_variable_loading(ordered_years, path_files, multiprocessing=self.multiprocessing)
+
+    def efficient_variable_loading(self, ordered_years, arguments, multiprocessing):
+        if multiprocessing:
             with Pool(NB_CORES) as p:
-                variables = p.map(self.load_variable_object, path_files)
+                variables = p.map(self.load_variable_object, arguments)
         else:
-            variables = [self.load_variable_object(path_file) for path_file in path_files]
+            variables = [self.load_variable_object(argument) for argument in arguments]
         return OrderedDict(zip(ordered_years, variables))
 
     def instantiate_variable_object(self, variable_array) -> AbstractVariable:

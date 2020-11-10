@@ -8,22 +8,27 @@ from projects.projected_snowfall.comparison_with_scm.comparison_historical_visua
     ComparisonHistoricalVisualizer
 
 
-def individual_plot(v):
-    # v.adamont_studies.plot_maxima_time_series(v.massif_names, v.scm_study)
-    v.shoe_plot_bias_maxima_comparison()
+def individual_plot(visualizer: ComparisonHistoricalVisualizer):
+    # visualizer.adamont_studies.plot_maxima_time_series_adamont(visualizer.massif_names, visualizer.scm_study)
+    # visualizer.shoe_plot_bias_maxima_comparison()
+    # for relative in [True, False]:
+    #     visualizer.plot_map_with_the_bias_in_the_mean(relative)
+
+    visualizer.plot_map_with_the_rank()
     # for plot_maxima in [True, False][:1]:
-    #     v.plot_comparison(plot_maxima)
+    #     visualizer.plot_comparison(plot_maxima)
 
 
 def collective_plot(altitude_to_visualizer):
-    bias_of_the_mean_with_the_altitude(altitude_to_visualizer)
+    # bias_of_the_mean_with_the_altitude(altitude_to_visualizer)
+    pass
 
 
 def bias_of_the_mean_with_the_altitude(altitude_to_visualizer: Dict[int, ComparisonHistoricalVisualizer]):
     visualizer = list(altitude_to_visualizer.values())[0]
     altitudes = list(altitude_to_visualizer.keys())
     for couple in visualizer.adamont_studies.gcm_rcm_couples:
-        values = [v.mean_bias_maxima[couple] for v in altitude_to_visualizer.values()]
+        values = [v.gcm_rcm_couple_to_bias_list_in_the_mean_maxima[couple] for v in altitude_to_visualizer.values()]
 
         ax = plt.gca()
         width = 10

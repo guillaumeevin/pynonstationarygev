@@ -34,6 +34,10 @@ class AdamontStudies(object):
     def study(self) -> AbstractStudy:
         return self.study_list[0]
 
+    @property
+    def nb_ensemble_members(self):
+        return len(self.gcm_rcm_couples)
+
     # Some plots
 
     def show_or_save_to_file(self, plot_name, show=False, no_title=False, tight_layout=None):
@@ -42,7 +46,7 @@ class AdamontStudies(object):
         study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500, no_title=no_title,
                                               tight_layout=tight_layout)
 
-    def plot_maxima_time_series(self, massif_names=None, scm_study=None):
+    def plot_maxima_time_series_adamont(self, massif_names=None, scm_study=None):
         massif_names = massif_names if massif_names is not None else self.study.all_massif_names()
         for massif_names in massif_names:
             self._plot_maxima_time_series(massif_names, scm_study)
@@ -75,15 +79,19 @@ class AdamontStudies(object):
             except KeyError:
                 pass
 
-        ax.xaxis.set_ticks([year for year in y if year % 10 == 0])
-        ax.grid()
+        ticks = [year for year in x if year % 10 == 0]
+        ax.xaxis.set_ticks(ticks)
+        ax.yaxis.grid()
+        ax.set_xlim((min(x), max(x)))
         ax.tick_params(axis='both', which='major', labelsize=13)
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[::-1], labels[::-1], ncol=2)
-        plot_name = 'Annual maxima of {} in {}'.format(ADAMONT_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
-                                                       massif_name.replace('_', ' '))
-        ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
-        ax.set_xlabel('years', fontsize=15)
+        plot_name = 'Annual maxima of {} in {} at {} m'.format(ADAMONT_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
+                                                       massif_name.replace('_', ' '),
+                                                        self.study.altitude)
+        fontsize = 13
+        ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=fontsize)
+        ax.set_xlabel('years', fontsize=fontsize)
         plot_name = 'time series/' + plot_name
         self.show_or_save_to_file(plot_name=plot_name, show=False, no_title=True, tight_layout=True)
         ax.clear()

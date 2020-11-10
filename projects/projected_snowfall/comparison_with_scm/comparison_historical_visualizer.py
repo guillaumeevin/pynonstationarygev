@@ -30,7 +30,8 @@ class ComparisonHistoricalVisualizer(StudyVisualizer):
 
     def get_values(self, study_method, massif_name):
         """
-        Return an array of size (nb_ensembles + 1) x nb_observations
+        Return an array "values" of size (nb_ensembles + 1) x nb_observations
+        Return gcm_rcm_couples of size nb_ensembles
         :param study_method:
         :param massif_name:
         :return:
@@ -45,18 +46,49 @@ class ComparisonHistoricalVisualizer(StudyVisualizer):
                 pass
         return np.array(values), gcm_rcm_couples
 
-    @cached_property
-    def mean_bias_maxima(self):
-        return self.get_mean_bias(plot_maxima=True)
+    def compute_bias_list_in_the_mean(self, massif_name, relative, study_method):
+        values, gcm_rcm_couples = self.get_values(study_method, massif_name)
+        mean_values = np.mean(values, axis=1)
+        bias_in_the_mean = (mean_values - mean_values[0])[1:]
+        if relative:
+            bias_in_the_mean *= 100 / mean_values[0]
+        return bias_in_the_mean, gcm_rcm_couples
 
-    def get_mean_bias(self, plot_maxima=True):
-        # Return an array: nb_ensemble x nb_massif
+    # Map massif name to bias list (ordered by the gcm_rcm_couples)
+
+    def massif_name_to_bias_list_in_the_mean(self, plot_maxima=True, relative=False):
+        study_method = self.get_study_method(plot_maxima)
+        massif_name_to_bias_list = {}
+        for massif_name in self.massif_names:
+            bias_list, gcm_rcm_couples = self.compute_bias_list_in_the_mean(massif_name, relative, study_method)
+            massif_name_to_bias_list[massif_name] = bias_list
+        return massif_name_to_bias_list
+
+    @property
+    def massif_name_to_rank(self):
+        massif_name_to_rank = {}
+        for massif_name, bias_list in self.massif_name_to_bias_list_in_the_mean(plot_maxima=True).items():
+            # Count the number of bias negative
+            nb_of_negative = sum([b < 0 for b in bias_list])
+            # Rank starts to 1
+            massif_name_to_rank[massif_name] = float(1 + nb_of_negative)
+        return massif_name_to_rank
+
+    # Map gcm_rcm_couple to bias list (ordered by the massif_names)
+
+    @cached_property
+    def gcm_rcm_couple_to_bias_list_in_the_mean_maxima(self):
+        return self.gcm_rcm_couple_to_bias_list_for_the_mean(plot_maxima=True, relative=False)
+
+    @cached_property
+    def gcm_rcm_couple_to_relative_bias_list_in_the_mean_maxima(self):
+        return self.gcm_rcm_couple_to_bias_list_for_the_mean(plot_maxima=True, relative=True)
+
+    def gcm_rcm_couple_to_bias_list_for_the_mean(self, plot_maxima=True, relative=False):
         study_method = self.get_study_method(plot_maxima)
         gcm_rcm_couple_to_bias_list = {couple: [] for couple in self.adamont_studies.gcm_rcm_couples}
         for massif_name in self.massif_names:
-            values, gcm_rcm_couples = self.get_values(study_method, massif_name)
-            mean_values = np.mean(values, axis=1)
-            bias = (mean_values - mean_values[0])[1:]
+            bias, gcm_rcm_couples = self.compute_bias_list_in_the_mean(massif_name, relative, study_method)
             for b, couple in zip(bias, gcm_rcm_couples):
                 gcm_rcm_couple_to_bias_list[couple].append(b)
         return gcm_rcm_couple_to_bias_list
@@ -107,8 +139,8 @@ class ComparisonHistoricalVisualizer(StudyVisualizer):
         plt.close()
 
     def shoe_plot_bias_maxima_comparison(self):
-        couples = list(self.mean_bias_maxima.keys())
-        values = list(self.mean_bias_maxima.values())
+        couples = list(self.gcm_rcm_couple_to_bias_list_in_the_mean_maxima.keys())
+        values = list(self.gcm_rcm_couple_to_bias_list_in_the_mean_maxima.values())
         colors = [gcm_rcm_couple_to_color[couple] for couple in couples]
         labels = [gcm_rcm_couple_to_str(couple) for couple in couples]
 
@@ -128,3 +160,24 @@ class ComparisonHistoricalVisualizer(StudyVisualizer):
         self.show_or_save_to_file(add_classic_title=False, no_title=True, tight_layout=True)
         ax.clear()
         plt.close()
+
+    def plot_map_with_the_rank(self):
+        massif_name_to_value = self.massif_name_to_rank
+        max_abs_change = self.adamont_studies.nb_ensemble_members + 1
+        ylabel = 'Rank of the mean maxima\n,' \
+                 'which is between 1 (lowest) and {} (largest)'.format(max_abs_change)
+        plot_name = ylabel
+        self.plot_map(cmap=plt.cm.coolwarm, graduation=1,
+                      label=ylabel,
+                      massif_name_to_value=massif_name_to_value,
+                      plot_name=plot_name, add_x_label=True,
+                      negative_and_positive_values=False,
+                      altitude=self.altitude,
+                      add_colorbar=True,
+                      max_abs_change=max_abs_change,
+                      massif_name_to_text={m: str(v) for m, v in massif_name_to_value.items()},
+                      # xlabel=self.altitude_group.xlabel,
+                      )
+
+    def plot_map_with_the_bias_in_the_mean(self, relative=True):
+        pass
