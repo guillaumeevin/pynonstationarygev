@@ -67,7 +67,8 @@ def get_suffix_for_the_nc_file(adamont_scenario, gcm_rcm_couple):
 
 
 def scenario_to_str(adamont_scenario):
-    return str(adamont_scenario).split('.')[-1].upper()
+    return '+'.join([str(real_adamont_scenario).split('.')[-1].upper()
+                     for real_adamont_scenario in scenario_to_real_scenarios(adamont_scenario)])
 
 
 def scenario_to_real_scenarios(adamont_scenario):

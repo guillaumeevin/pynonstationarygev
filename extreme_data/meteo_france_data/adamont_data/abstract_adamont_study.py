@@ -102,22 +102,23 @@ class AbstractAdamontStudy(AbstractStudy):
 
     @cached_property
     def flat_mask(self):
-        zs_list = [int(e) for e in np.array(self.dataset.variables['ZS'])]
+        zs_list = [int(e) for e in np.array(self.datasets[0].variables['ZS'])]
+        if len(self.datasets) > 1:
+            zs_list_bis = [int(e) for e in np.array(self.datasets[1].variables['ZS'])]
+            assert all([a == b for a, b in zip(zs_list, zs_list_bis)])
         return np.array(zs_list) == self.altitude
 
     @cached_property
     def study_massif_names(self) -> List[str]:
-        massif_ids = np.array(self.dataset.variables['MASSIF_NUMBER'])[self.flat_mask]
+        massif_ids = np.array(self.datasets[0].variables['MASSIF_NUMBER'])[self.flat_mask]
+        if len(self.datasets) > 1:
+            massif_ids_bis = np.array(self.datasets[1].variables['MASSIF_NUMBER'])[self.flat_mask]
+            assert all(massif_ids == massif_ids_bis)
         return [massif_number_to_massif_name[massif_id] for massif_id in massif_ids]
 
     @cached_property
     def datasets(self):
         return [Dataset(file_path) for file_path in self.nc_file_paths]
-
-    @property
-    def dataset(self):
-        # todo: improve that
-        return self.datasets[0]
 
     # PATHS
 
@@ -150,4 +151,5 @@ class AbstractAdamontStudy(AbstractStudy):
                                                          scenario_name,
                                                          self.region_name, suffix_nc_file)
             file_paths.append(op.join(files_path, nc_file))
+        assert len(file_paths) <= 2, 'change my code to handle datasets of length larger than'
         return file_paths
