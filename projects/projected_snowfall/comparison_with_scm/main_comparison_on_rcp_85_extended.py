@@ -18,8 +18,7 @@ from projects.projected_snowfall.comparison_with_scm.comparison_historical_visua
     ComparisonHistoricalVisualizer
 
 
-def main():
-    fast = 7
+def main(fast):
     year_max = 2019
     # Set the year_min and year_max for the comparison
     if fast is 1:
@@ -40,16 +39,6 @@ def main():
         year_min = 2006
         altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][:]
     elif fast is 5:
-        year_max = 2019
-        massif_names = None
-        year_min = 2013
-        altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][:]
-    elif fast is 6:
-        year_max = 2012
-        massif_names = None
-        year_min = 2006
-        altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][:]
-    elif fast is 7:
         year_max = 2019
         massif_names = None
         year_min = 1982
@@ -97,4 +86,6 @@ def load_visualizer(altitude, massif_names, year_min, year_max) -> ComparisonHis
 
 
 if __name__ == '__main__':
-    main()
+    fast_list = [2, 4, 6][1:]
+    for fast in fast_list:
+        main(fast)
