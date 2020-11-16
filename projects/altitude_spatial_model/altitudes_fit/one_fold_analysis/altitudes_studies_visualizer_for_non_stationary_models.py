@@ -139,11 +139,13 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
         # Plot settings
         moment = ' '.join(method_name.split('_'))
-        moment = moment.replace('moment', '{} in 2019'.format(OneFoldFit.get_moment_str(order=order)))
+        str_for_last_year = ' in 2019'
+        moment = moment.replace('moment', '{}{}'.format(OneFoldFit.get_moment_str(order=order), str_for_last_year))
         plot_name = '{}{} '.format(OneFoldFit.folder_for_plots, moment)
 
         massif_name_to_text = self.massif_name_to_best_name
         if 'change' in method_name:
+            plot_name = plot_name.replace(str_for_last_year, '')
             plot_name += ' between {} and {}'.format(2019 - 50, 2019)
             if 'relative' not in method_name:
                 # Put the relative score as text on the plot for the change.
@@ -281,7 +283,6 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       altitude=self.altitude_group.reference_altitude,
                       add_colorbar=self.add_colorbar,
                       max_abs_change=max_abs_change,
-                      fit_method=self.fit_method,
                       xlabel=self.altitude_group.xlabel,
                       )
 

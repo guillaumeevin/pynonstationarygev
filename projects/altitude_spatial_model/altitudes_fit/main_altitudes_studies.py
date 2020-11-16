@@ -32,7 +32,7 @@ def main():
         altitudes_list = altitudes_for_groups[1:2]
     elif fast:
         massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:]
-        altitudes_list = altitudes_for_groups[2:3]
+        altitudes_list = altitudes_for_groups[3:]
     else:
         massif_names = None
         altitudes_list = altitudes_for_groups[:]
