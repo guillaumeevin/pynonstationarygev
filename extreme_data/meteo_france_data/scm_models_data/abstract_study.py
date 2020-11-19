@@ -459,6 +459,17 @@ class AbstractStudy(object):
         return pd.DataFrame(data=data, index=self.study_massif_names, columns=columns)
 
     @property
+    def _save_excel_with_longitutde_and_latitude(self):
+        any_ordered_dict = list(self.year_to_dataset_ordered_dict.values())[0]
+        print(any_ordered_dict.variables.keys())
+        longitude = np.array(any_ordered_dict.variables['LON'])[self.flat_mask]
+        latitude = np.array(any_ordered_dict.variables['LAT'])[self.flat_mask]
+        data = [longitude, latitude]
+        df = pd.DataFrame(data=data, index=['Longitude', 'Latitude'], columns=self.study_massif_names).transpose()
+        print(df.head())
+        df.to_csv('S2M_latitude_and_longitude_for_the_centroid_of_each_massif.csv')
+
+    @property
     def missing_massif_name(self):
         return set(self.all_massif_names(self.reanalysis_path, self.dbf_filename)) - set(
             self.altitude_to_massif_names[self.altitude])
