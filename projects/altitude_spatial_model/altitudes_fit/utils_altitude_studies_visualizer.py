@@ -5,24 +5,17 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitudes_s
     AltitudesStudiesVisualizerForNonStationaryModels
 
 
-def load_visualizer_list(season, study_class, altitudes_list, massif_names):
+def load_visualizer_list(season, study_class, altitudes_list, massif_names, **kwargs_study):
     model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
     visualizer_list = []
     # Load all studies
     for altitudes in altitudes_list:
-        # if issubclass(study_class, SimulationStudy):
-        #     for ensemble_idx in list(range(14))[:1]:
-        #         studies = AltitudesStudies(study_class, altitudes, season=season,
-        #                                    ensemble_idx=ensemble_idx)
-        #         plot_studies(massif_names, season, studies, study_class)
-        # else:
-        studies = AltitudesStudies(study_class, altitudes, season=season)
+        studies = AltitudesStudies(study_class, altitudes, season=season, **kwargs_study)
         visualizer = AltitudesStudiesVisualizerForNonStationaryModels(studies=studies,
                                                                       model_classes=model_classes,
                                                                       massif_names=massif_names,
                                                                       show=False,
                                                                       temporal_covariate_for_fit=None,
-                                                                      # temporal_covariate_for_fit=MeanAlpsTemperatureCovariate,
                                                                       )
         visualizer_list.append(visualizer)
     compute_and_assign_max_abs(visualizer_list)

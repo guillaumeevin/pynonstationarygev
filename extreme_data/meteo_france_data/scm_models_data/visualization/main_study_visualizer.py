@@ -32,6 +32,9 @@ SLEurocode = 'SL from max HS with ' + eurocode_snow_density
 SCM_STUDIES = [SafranSnowfall, CrocusSweTotal, CrocusDepth, CrocusSwe3Days]
 SCM_STUDIES_NAMES = [get_display_name_from_object_type(k) for k in SCM_STUDIES]
 SCM_STUDY_NAME_TO_SCM_STUDY = dict(zip(SCM_STUDIES_NAMES, SCM_STUDIES))
+
+
+# I keep the scm study separated from the adamont study (for the tests)
 SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
     SafranSnowfall1Day: 'daily snowfall',
@@ -62,6 +65,7 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
 ADAMONT_STUDY_CLASS_TO_ABBREVIATION = {
     AdamontSnowfall: 'daily snowfall',
 }
+STUDY_CLASS_TO_ABBREVIATION = {**ADAMONT_STUDY_CLASS_TO_ABBREVIATION, **SCM_STUDY_CLASS_TO_ABBREVIATION}
 
 altitude_massif_name_and_study_class_for_poster = [
     (900, 'Chartreuse', CrocusSweTotal),

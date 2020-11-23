@@ -21,6 +21,8 @@ from cached_property import cached_property
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.utils import Season, FrenchRegion, french_region_to_str
 
+class WrongYearMinOrYearMax(Exception):
+    pass
 
 class AbstractAdamontStudy(AbstractStudy):
     YEAR_MIN = 1950
@@ -33,8 +35,13 @@ class AbstractAdamontStudy(AbstractStudy):
                  scenario=AdamontScenario.histo, gcm_rcm_couple=('CNRM-CM5', 'ALADIN53')):
         # Load the default year_min & year_max for the scenario if not specified
         year_min_scenario, year_max_scenario = get_year_min_and_year_max_from_scenario(scenario, gcm_rcm_couple)
+        # Raise exception
         if year_min is None:
             year_min = year_min_scenario
+        else:
+            if year_min < year_min_scenario:
+                raise WrongYearMinOrYearMax('year min is {} and should be larger than {}'.format(year_min, year_min_scenario))
+
         if year_max is None:
             year_max = year_max_scenario
         super().__init__(variable_class=variable_class, altitude=altitude, year_min=year_min, year_max=year_max,

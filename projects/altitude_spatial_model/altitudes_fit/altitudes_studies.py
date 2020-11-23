@@ -6,7 +6,7 @@ from cached_property import cached_property
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
-    SCM_STUDY_CLASS_TO_ABBREVIATION
+    SCM_STUDY_CLASS_TO_ABBREVIATION, STUDY_CLASS_TO_ABBREVIATION
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -134,7 +134,8 @@ class AltitudesStudies(object):
                 y = study.massif_name_to_annual_maxima[massif_name]
                 label = '{} m'.format(altitude)
                 ax.plot(x, y, linewidth=2, label=label)
-        ax.xaxis.set_ticks(x[11::20])
+        ax.xaxis.set_ticks([e for e in x if e % 10 == 0][::2])
+        ax.set_xlim((x[0], x[-1]))
 
         # Plot for the paper 2
         if massif_name == "Vanoise":
@@ -144,10 +145,10 @@ class AltitudesStudies(object):
         ax.tick_params(axis='both', which='major', labelsize=20)
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[::-1], labels[::-1], prop={'size': 20})
-        plot_name = 'Annual maxima of {} in {}'.format(SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
+        plot_name = 'Annual maxima of {} in {}'.format(STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '))
-        # ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
-        # ax.set_xlabel('years', fontsize=15)
+        ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
+        ax.set_xlabel('years', fontsize=15)
         plot_name = 'time series/' + plot_name
         self.show_or_save_to_file(plot_name=plot_name, show=show, no_title=True, tight_layout=True)
         ax.clear()
