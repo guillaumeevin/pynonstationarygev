@@ -335,6 +335,15 @@ class AbstractStudy(object):
             year_to_annual_mean[year] = self.apply_annual_aggregation(time_serie)
         return year_to_annual_mean
 
+    @cached_property
+    def massif_name_to_annual_total(self):
+        # Map each massif to an array of size nb_years
+        massif_name_to_annual_total = OrderedDict()
+        for i, massif_name in enumerate(self.study_massif_names):
+            maxima = np.array([self.year_to_annual_total[year][i] for year in self.ordered_years])
+            massif_name_to_annual_total[massif_name] = maxima
+        return massif_name_to_annual_total
+
     def apply_annual_aggregation(self, time_serie):
         return self.annual_aggregation_function(time_serie, axis=0)
 

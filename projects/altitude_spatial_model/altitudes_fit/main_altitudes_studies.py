@@ -7,7 +7,7 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusS
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_coherence_curves import plot_coherence_curves
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_models_against_altitudes, plot_histogram_all_trends_against_altitudes, \
-    plot_shoe_plot_changes_against_altitude
+    plot_shoe_plot_changes_against_altitude, plot_shoe_plot_changes_against_altitude_for_maxima_and_total
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
@@ -32,7 +32,7 @@ def main():
         altitudes_list = altitudes_for_groups[1:2]
     elif fast:
         massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:]
-        altitudes_list = altitudes_for_groups[3:]
+        altitudes_list = altitudes_for_groups[2:]
     else:
         massif_names = None
         altitudes_list = altitudes_for_groups[:]
@@ -55,21 +55,19 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes):
 
 
 def plot_visualizers(massif_names, visualizer_list):
-    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
+    # plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
     for relative in [True, False]:
-        plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
+        # plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
+        plot_shoe_plot_changes_against_altitude_for_maxima_and_total(massif_names, visualizer_list, relative=relative)
     # plot_coherence_curves(massif_names, visualizer_list)
-    plot_coherence_curves(['Vanoise'], visualizer_list)
+    # plot_coherence_curves(['Vanoise'], visualizer_list)
 
 
 def plot_visualizer(massif_names, visualizer):
     # Plot time series
     # visualizer.studies.plot_maxima_time_series(massif_names)
     visualizer.studies.plot_maxima_time_series(['Vanoise'])
-    # Plot moments against altitude
-    # for std in [True, False][:]:
-    #     for change in [True, False, None]:
-    #         studies.plot_mean_maxima_against_altitude(massif_names=massif_names, std=std, change=change)
+
     # Plot the results for the model that minimizes the individual aic
     plot_individual_aic(visualizer)
 
