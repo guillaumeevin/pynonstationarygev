@@ -292,6 +292,15 @@ class AbstractStudy(object):
         return massif_name_to_annual_maxima_index
 
     @cached_property
+    def massif_name_to_annual_maxima_angle(self):
+        normalization_denominator = [366 if year % 4 == 0 else 365 for year in self.ordered_years]
+        massif_name_to_annual_maxima_angle = OrderedDict()
+        for massif_name, annual_maxima_index in self.massif_name_to_annual_maxima_index.items():
+            angle = 2 * np.pi * np.array(annual_maxima_index) / np.array(normalization_denominator)
+            massif_name_to_annual_maxima_angle[massif_name] = angle
+        return massif_name_to_annual_maxima_angle
+
+    @cached_property
     def massif_name_to_annual_maxima(self):
         massif_name_to_annual_maxima = OrderedDict()
         for i, massif_name in enumerate(self.study_massif_names):
@@ -469,14 +478,19 @@ class AbstractStudy(object):
 
     @property
     def _save_excel_with_longitutde_and_latitude(self):
+        df = self.df_latitude_longitude
+        print(df.head())
+        df.to_csv('S2M_latitude_and_longitude_for_the_centroid_of_each_massif.csv')
+
+    @property
+    def df_latitude_longitude(self):
         any_ordered_dict = list(self.year_to_dataset_ordered_dict.values())[0]
         print(any_ordered_dict.variables.keys())
         longitude = np.array(any_ordered_dict.variables['LON'])[self.flat_mask]
         latitude = np.array(any_ordered_dict.variables['LAT'])[self.flat_mask]
         data = [longitude, latitude]
         df = pd.DataFrame(data=data, index=['Longitude', 'Latitude'], columns=self.study_massif_names).transpose()
-        print(df.head())
-        df.to_csv('S2M_latitude_and_longitude_for_the_centroid_of_each_massif.csv')
+        return df
 
     @property
     def missing_massif_name(self):
