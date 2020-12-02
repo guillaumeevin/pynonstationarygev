@@ -64,7 +64,7 @@ def get_month_to_maxima(massif_names, studies, years):
 
 if __name__ == '__main__':
     study_class = SafranSnowfall1Day
-    'Vercors'
+    # 'Vercors'
 
     norht_massif_names = ['Oisans', 'Grandes-Rousses', 'Haute-Maurienne', 'Vanoise',
                           'Maurienne', 'Belledonne', 'Chartreuse', 'Haute-Tarentaise',
