@@ -2,6 +2,9 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
+from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitudes_studies_visualizer_for_non_stationary_models import \
+    AltitudesStudiesVisualizerForNonStationaryModels
+
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
@@ -10,17 +13,12 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fi
 from projects.exceeding_snow_loads.utils import dpi_paper1_figure
 
 
-def plots(visualizer):
-    visualizer.plot_shape_map()
+def plots(visualizer: AltitudesStudiesVisualizerForNonStationaryModels):
+    # visualizer.plot_shape_map()
     visualizer.plot_moments()
     # visualizer.plot_qqplots()
-
-
-    # for plot_mean in [True, False]:
-    #     visualizer.plot_year_for_the_peak(plot_mean=plot_mean)
-    # visualizer.plot_best_coef_maps()
-    # visualizer.plot_peak_year_against_altitude()
-    # visualizer.plot_altitude_switch_against_peak_year()
+    # for std in [True, False]:
+    #     visualizer.studies.plot_mean_maxima_against_altitude(std=std)
 
 
 def plot_individual_aic(visualizer):

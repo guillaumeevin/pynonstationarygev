@@ -25,11 +25,11 @@ def plot_coherence_curves(massif_names, visualizer_list: List[AltitudesStudiesVi
             if i % 2 == 1:
                 ax.set_yticks([])
         axes = [ax if i % 2 == 0 else ax.twinx() for i, ax in enumerate(axes)]
-        colors = ['blue', 'yellow', 'green']
-        labels = ['Elevational-temporal model in 2019', 'Elevational-temporal model in 1969', 'Pointwise distribution']
+        colors = ['tab:orange', 'blue', 'green']
+        labels = ['Elevational-temporal model in 1959', 'Elevational-temporal model in 2019', 'Pointwise distribution']
         altitudinal_model = [True, True, False]
-        years = [2019, 1969, None]
-        for color, global_label, boolean, year in list(zip(colors, labels, altitudinal_model, years))[::2]:
+        years = [1959, 2019, None]
+        for color, global_label, boolean, year in list(zip(colors, labels, altitudinal_model, years))[:]:
             plot_coherence_curve(axes, massif_name, visualizer_list, boolean, color, global_label, year, legend)
         visualizer.plot_name = '{}/{}'.format(folder, massif_name.replace('_', '-'))
         visualizer.show_or_save_to_file(add_classic_title=False, no_title=True, dpi=200)
@@ -41,7 +41,7 @@ def plot_coherence_curve(axes, massif_name, visualizer_list: List[AltitudesStudi
     x_all_list, values_all_list, labels, all_bound_list = load_all_list(massif_name, visualizer_list, is_altitudinal,
                                                                         year)
 
-    legend_line = False
+    legend_line = True
     for i, label in enumerate(labels):
         if legend and i != 3:
             continue
@@ -71,18 +71,18 @@ def plot_coherence_curve(axes, massif_name, visualizer_list: List[AltitudesStudi
             ax.plot(x_list, value_list_dotted, linestyle='dotted', color=color)
 
         # Plot confidence interval
-        if i == 3:
+        if i == 3 and year in [None, 2019]:
             for j, (x_list, bounds) in enumerate(list(zip(x_all_list, all_bound_list))):
                 if len(bounds) > 0:
                     lower_bound, upper_bound = bounds
                     if legend and not legend_line:
-                        model_name = 'elevational-temporal model' if is_altitudinal else 'pointwise distribution'
+                        model_name = 'elevational-temporal model in 2019' if is_altitudinal else 'pointwise distribution'
                         fill_label = "95\% confidence interval for the {}".format(model_name) if j == 0 else None
                         ax.fill_between(x_list, lower_bound, upper_bound, color=color, alpha=0.2, label=fill_label)
                     else:
                         ax.fill_between(x_list, lower_bound, upper_bound, color=color, alpha=0.2)
 
-            if legend and is_altitudinal:
+            if legend:
                 min, max = ax.get_ylim()
                 ax.set_ylim([min, 2 * max])
                 size = 15 if legend_line else 11

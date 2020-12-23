@@ -32,7 +32,7 @@ def compute_changes_in_total_snowfall(visualizer_list: List[
 def compute_change_in_total(study, massif_name, relative, plot=False):
     annual_total = study.massif_name_to_annual_total[massif_name]
     a, b, r2score = fit_linear_regression(study.ordered_years, annual_total)
-    years_for_change = [1969, 2019]
+    years_for_change = [1959, 2019]
     values = [a * y + b for y in years_for_change]
     change = values[1] - values[0]
     if relative:

@@ -186,8 +186,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     @property
     def add_colorbar(self):
-        return isinstance(self.altitude_group, (VeyHighAltitudeGroup))
-        # return isinstance(self.altitude_group, (VeyHighAltitudeGroup, MidAltitudeGroup))
+        # return isinstance(self.altitude_group, (VeyHighAltitudeGroup))
+        return isinstance(self.altitude_group, (VeyHighAltitudeGroup, MidAltitudeGroup))
 
     def plot_against_years(self, method_name, order):
         ax = plt.gca()
@@ -498,5 +498,5 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             ax.set_yticks(ticks)
             ax.tick_params(labelsize=15)
             plot_name = 'qqplot/{}'.format(massif_name_corrected)
-            self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
+            self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show, no_title=True)
             plt.close()

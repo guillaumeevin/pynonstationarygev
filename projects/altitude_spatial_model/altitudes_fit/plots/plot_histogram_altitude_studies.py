@@ -124,8 +124,8 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
 
     all_changes = [v.all_changes(massif_names, relative=relative) for v in visualizer_list]
     all_changes = list(zip(*all_changes))
-    labels = ['All selected models', 'Temporally non-stationary models',
-              'Temporally non-stationary models which are significant']
+    labels = ['All massifs', 'Massifs with a selected model temporally non-stationary',
+              'Massifs with a selected model temporally non-stationary and significant']
     colors = ['darkgreen', 'forestgreen', 'limegreen']
     nb_massifs = [len(v.get_valid_names(massif_names)) for v in visualizer_list]
 
@@ -137,6 +137,16 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
     labelsize = 10
     linewidth = 3
 
+    # x = np.array([4 * width * (i + 1) for i in range(len(nb_massifs))])
+    # for j, (changes, label, color) in enumerate(list(zip(all_changes, labels, colors)), -1):
+    #     positions = x + j * width
+    #     bplot = ax.boxplot(list(changes), positions=positions, widths=width, patch_artist=True, showmeans=True)
+    #     for patch in bplot['boxes']:
+    #         patch.set_facecolor(color)
+    # x = np.array([3 * width * (i + 1) for i in range(len(nb_massifs))])
+    # for j, (changes, label, color) in list(enumerate(list(zip(all_changes, labels, colors)), -1))[1:]:
+    #     positions = x + (j + 0.5) * width
+
     x = np.array([4 * width * (i + 1) for i in range(len(nb_massifs))])
     for j, (changes, label, color) in enumerate(list(zip(all_changes, labels, colors)), -1):
         positions = x + j * width
@@ -145,12 +155,12 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
             patch.set_facecolor(color)
 
     custom_lines = [Line2D([0], [0], color=color, lw=4) for color in colors]
-    loc = 'lower right' if relative else 'upper left'
+    loc = 'upper left'
     ax.legend(custom_lines, labels, loc=loc)
 
     start = 'Relative changes' if relative else 'Changes'
     unit = '\%' if relative else visualizer.study.variable_unit
-    ax.set_ylabel('{} of {}-year return levels between 1969 and 2019 ({})'.format(start, OneFoldFit.return_period,
+    ax.set_ylabel('{} of {}-year return levels between 1959 and 2019 ({})'.format(start, OneFoldFit.return_period,
                                                                                   unit),
                   fontsize=legend_fontsize)
     ax.set_xlabel('Elevation', fontsize=legend_fontsize + 5)
@@ -163,6 +173,9 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
 
     shift = 2 * width
     ax.set_xlim((min(x) - shift, max(x) + shift))
+    upper_limit_for_legend = 30 if relative else 0
+    lim_down, lim_up = ax.get_ylim()
+    ax.set_ylim(lim_down, lim_up + upper_limit_for_legend)
 
     # I could display the number of massif used to build each box plot.
     # plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x)
@@ -211,7 +224,7 @@ def plot_shoe_plot_changes_against_altitude_for_maxima_and_total(massif_names, v
 
     start = 'Relative changes' if relative else 'Changes'
     unit = '\%' if relative else visualizer.study.variable_unit
-    ax.set_ylabel('{} between 1969 and 2019 ({})'.format(start, unit),
+    ax.set_ylabel('{} between 1959 and 2019 ({})'.format(start, unit),
                   fontsize=legend_fontsize)
     ax.set_xlabel('Elevation', fontsize=legend_fontsize)
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
