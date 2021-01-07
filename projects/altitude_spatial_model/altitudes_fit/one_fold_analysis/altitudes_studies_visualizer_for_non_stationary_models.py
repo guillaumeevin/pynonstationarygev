@@ -148,7 +148,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         massif_name_to_text = self.massif_name_to_best_name
         if 'change' in method_name:
             plot_name = plot_name.replace(str_for_last_year, '')
-            plot_name += ' between {} and {}'.format(2019 - 50, 2019)
+            plot_name += ' between {} and {}'.format(2019 - OneFoldFit.nb_years, 2019)
             if 'relative' not in method_name:
                 # Put the relative score as text on the plot for the change.
                 massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in

@@ -33,6 +33,7 @@ class OneFoldFit(object):
     best_estimator_minimizes_total_aic = False
     return_period = 100
     quantile_level = 1 - (1 / return_period)
+    nb_years = 60
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
                  fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None,
@@ -100,7 +101,7 @@ class OneFoldFit(object):
     def relative_change_in_return_level_for_reference_altitude(self) -> float:
         return self.relative_changes_of_moment(altitudes=[self.altitude_plot], order=None)[0]
 
-    def changes_of_moment(self, altitudes, year=2019, nb_years=60, order=1):
+    def changes_of_moment(self, altitudes, year=2019, nb_years=nb_years, order=1):
         changes = []
         for altitude in altitudes:
             mean_after = self.get_moment(altitude, year, order)
@@ -109,7 +110,7 @@ class OneFoldFit(object):
             changes.append(change)
         return changes
 
-    def relative_changes_of_moment(self, altitudes, year=2019, nb_years=60, order=1):
+    def relative_changes_of_moment(self, altitudes, year=2019, nb_years=nb_years, order=1):
         relative_changes = []
         for altitude in altitudes:
             mean_after = self.get_moment(altitude, year, order)
@@ -293,7 +294,7 @@ class OneFoldFit(object):
 
     def sign_of_change(self, estimator):
         return_levels = []
-        for year in [2019 - 60, 2019]:
+        for year in [2019 - self.nb_years, 2019]:
             coordinate = np.array([self.altitude_plot, year])
             return_level = estimator.function_from_fit.get_params(
                 coordinate=coordinate,
