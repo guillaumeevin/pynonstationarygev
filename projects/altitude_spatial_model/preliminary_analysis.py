@@ -26,6 +26,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
 
     def plot_gev_params_against_altitude(self):
         legend = False
+        elevation_as_xaxis = False
         param_names = GevParams.PARAM_NAMES + [100]
         if legend:
             param_names = param_names[:1]
@@ -37,45 +38,74 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             massif_names = self.study.all_massif_names()[:]
             for i in range(8):
                 for massif_name in massif_names[i::8]:
-                    linear_coef, _, r2 = self._plot_gev_params_against_altitude_one_massif(ax, massif_name, param_name)
+                    linear_coef, _, r2 = self._plot_gev_params_against_altitude_one_massif(ax, massif_name, param_name,
+                                                                                           elevation_as_xaxis)
                     massif_name_to_linear_coef[massif_name] = 100 * linear_coef[0]
                     massif_name_to_r2_score[massif_name] = str(round(r2, 2))
             print(param_name, np.mean([c for c in massif_name_to_linear_coef.values()]))
 
             # Display x label
-            xticks = [1000 * i for i in range(1, 4)]
-            ax.set_xticks(xticks)
+            elevation_ticks = [1000 * i for i in range(1, 4)]
+            if elevation_as_xaxis:
+                ax.set_xticks(elevation_ticks)
+            else:
+                ax.set_yticks(elevation_ticks)
             fontsize_label = 15
             ax.tick_params(labelsize=fontsize_label)
 
             # Compute the y label
             if param_name in GevParams.PARAM_NAMES:
-                ylabel = GevParams.full_name_from_param_name(param_name) + ' parameter'
+                value_label = GevParams.full_name_from_param_name(param_name) + ' parameter'
             else:
-                ylabel = '{}-year return levels'.format(param_name)
+                value_label = '{}-year return levels'.format(param_name)
             # Add units
             if param_name == GevParams.SHAPE:
                 unit = 'no unit'
             else:
                 unit = self.study.variable_unit
-            ylabel += ' ({})'.format(unit)
+            value_label += ' ({})'.format(unit)
+            value_label = value_label.capitalize()
 
-            # Display the y label on the twin axis
-            if param_name in [100, GevParams.SCALE]:
-                ax2 = ax.twinx()
-                ax2.set_yticks(ax.get_yticks())
-                ax2.set_ylim(ax.get_ylim())
-                ax2.set_ylabel(ylabel, fontsize=fontsize_label)
-                ax2.tick_params(labelsize=fontsize_label)
-                ax.set_yticks([])
-                tight_layout = False
+            if elevation_as_xaxis:
+                # Display the y label on the twin axis
+                if param_name in [100, GevParams.SCALE]:
+                    ax2 = ax.twinx()
+                    ax2.set_yticks(ax.get_yticks())
+                    ax2.set_ylim(ax.get_ylim())
+                    ax2.set_ylabel(value_label, fontsize=fontsize_label)
+                    ax2.tick_params(labelsize=fontsize_label)
+                    ax.set_yticks([])
+                    tight_layout = False
+                else:
+                    ax.tick_params(labelsize=fontsize_label)
+                    tight_layout = True
+                    ax.set_ylabel(value_label, fontsize=fontsize_label)
+                # Make room for the ylabel
+                if param_name == 100:
+                    plt.gcf().subplots_adjust(right=0.85)
             else:
-                ax.tick_params(labelsize=fontsize_label)
-                tight_layout = True
-                ax.set_ylabel(ylabel, fontsize=fontsize_label)
-            # Make room for the ylabel
-            if param_name == 100:
-                plt.gcf().subplots_adjust(right=0.85)
+                if param_name in [GevParams.LOC, GevParams.SCALE]:
+                    ax2 = ax.twiny()
+                    ax2.set_xticks(ax.get_xticks())
+                    ax.set_xticks([])
+                else:
+                    ax2 = ax
+
+                ax2.set_xlim(ax.get_xlim())
+                ax2.set_xlabel(value_label, fontsize=fontsize_label)
+                ax2.tick_params(labelsize=fontsize_label)
+
+                if param_name in [100, GevParams.SCALE]:
+                    ax3 = ax2.twinx()
+                    ax3.set_yticks(ax2.get_yticks())
+                    ax3.set_ylim(ax2.get_ylim())
+                    ax3.tick_params(labelsize=fontsize_label)
+                    ax2.set_yticks([])
+                    ax3.set_ylabel('Elevation (m)', fontsize=fontsize_label)
+                else:
+                    ax.set_ylabel('Elevation (m)', fontsize=fontsize_label)
+
+                tight_layout = False
 
             plot_name = '{} change with altitude'.format(param_name)
 
@@ -98,7 +128,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             visualizer = StudyVisualizer(study=self.study, show=False, save_to_file=True)
             idx = 8 if param_name == GevParams.SHAPE else 1
             the = ' the' if param_name in GevParams.PARAM_NAMES else ''
-            label = 'Elevation gradient for\n{} {}'.format(the, ylabel[:-idx] + '/100m)')
+            label = 'Elevation gradient for\n{} {}'.format(the, value_label[:-idx] + '/100m)')
             gev_param_name_to_graduation = {
                 GevParams.LOC: 0.5,
                 GevParams.SCALE: 0.1,
@@ -118,7 +148,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
                                 )
             plt.close()
 
-    def _plot_gev_params_against_altitude_one_massif(self, ax, massif_name, param_name):
+    def _plot_gev_params_against_altitude_one_massif(self, ax, massif_name, param_name, elevation_as_xaxis):
         altitudes = []
         params = []
         # confidence_intervals = []
@@ -134,7 +164,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
                 params.append(param)
                 # confidence_intervals.append(gev_params.param_name_to_confidence_interval[param_name])
         massif_id = self.study.all_massif_names().index(massif_name)
-        plot_against_altitude(altitudes, ax, massif_id, massif_name, params, fill=False)
+        plot_against_altitude(altitudes, ax, massif_id, massif_name, params, fill=False, elevation_as_xaxis=elevation_as_xaxis)
 
         return fit_linear_regression(altitudes, params)
         # plot_against_altitude(altitudes, ax, massif_id, massif_name, confidence_intervals, fill=True)

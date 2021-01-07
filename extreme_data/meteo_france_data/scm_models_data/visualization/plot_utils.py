@@ -7,7 +7,8 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted
     get_half_colormap
 
 
-def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=None, fill=False, massif_name_as_labels=True):
+def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=None, fill=False, massif_name_as_labels=True,
+                          elevation_as_xaxis=True):
     if massif_name_as_labels:
         di = massif_id // 8
         if di == 0:
@@ -27,8 +28,10 @@ def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=
         linestyle = None
         label = '{} m'.format(altitude)
     if not fill:
-        ax.plot(x_ticks, values, color=color, linewidth=2, label=label, linestyle=linestyle, marker='o')
+        args = [x_ticks, values] if elevation_as_xaxis else [values, x_ticks]
+        ax.plot(*args, color=color, linewidth=2, label=label, linestyle=linestyle, marker='o')
     else:
+        assert elevation_as_xaxis, NotImplementedError('todo')
         lower_bound, upper_bound = zip(*values)
         # ax.fill_between(altitudes, lower_bound, upper_bound, color=color, alpha=0.2, label=label + '95\% confidence interval')
         ax.fill_between(x_ticks, lower_bound, upper_bound, color=color, alpha=0.2)

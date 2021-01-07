@@ -70,7 +70,7 @@ class LowAltitudeGroup(AbstractAltitudeGroup):
 
     @property
     def reference_altitude(self):
-        return 600
+        return 500
 
 
 class MidAltitudeGroup(AbstractAltitudeGroup):
@@ -108,7 +108,7 @@ class HighAltitudeGroup(AbstractAltitudeGroup):
 
     @property
     def reference_altitude(self):
-        return 2400
+        return 2500
 
 
 class VeyHighAltitudeGroup(AbstractAltitudeGroup):
@@ -127,7 +127,7 @@ class VeyHighAltitudeGroup(AbstractAltitudeGroup):
 
     @property
     def reference_altitude(self):
-        return 3300
+        return 3500
 
 
 class DefaultAltitudeGroup(AbstractAltitudeGroup):

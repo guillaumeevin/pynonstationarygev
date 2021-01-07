@@ -25,8 +25,9 @@ def plot_coherence_curves(massif_names, visualizer_list: List[AltitudesStudiesVi
             if i % 2 == 1:
                 ax.set_yticks([])
         axes = [ax if i % 2 == 0 else ax.twinx() for i, ax in enumerate(axes)]
-        colors = ['tab:orange', 'blue', 'green']
-        labels = ['Elevational-temporal model in 1959', 'Elevational-temporal model in 2019', 'Pointwise distribution']
+        colors = ['blue', 'red', 'green']
+        elevational_str = 'Piecewise elevational-temporal models in'
+        labels = ['{} 1959'.format(elevational_str), '{} 2019'.format(elevational_str), 'Pointwise distributions']
         altitudinal_model = [True, True, False]
         years = [1959, 2019, None]
         for color, global_label, boolean, year in list(zip(colors, labels, altitudinal_model, years))[:]:
@@ -76,7 +77,7 @@ def plot_coherence_curve(axes, massif_name, visualizer_list: List[AltitudesStudi
                 if len(bounds) > 0:
                     lower_bound, upper_bound = bounds
                     if legend and not legend_line:
-                        model_name = 'elevational-temporal model in 2019' if is_altitudinal else 'pointwise distribution'
+                        model_name = 'piecewise elevational-temporal models in 2019' if is_altitudinal else 'pointwise distributions'
                         fill_label = "95\% confidence interval for the {}".format(model_name) if j == 0 else None
                         ax.fill_between(x_list, lower_bound, upper_bound, color=color, alpha=0.2, label=fill_label)
                     else:

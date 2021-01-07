@@ -66,7 +66,7 @@ def plot_visualizers(massif_names, visualizer_list):
 def plot_visualizer(massif_names, visualizer):
     # Plot time series
     # visualizer.studies.plot_maxima_time_series(massif_names)
-    visualizer.studies.plot_maxima_time_series(['Vanoise'])
+    # visualizer.studies.plot_maxima_time_series(['Vanoise'])
 
     # Plot the results for the model that minimizes the individual aic
     plot_individual_aic(visualizer)

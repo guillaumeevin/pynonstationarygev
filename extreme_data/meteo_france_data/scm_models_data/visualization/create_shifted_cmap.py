@@ -4,7 +4,7 @@ import matplotlib.cm as cm
 import matplotlib.colorbar as cbar
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from extreme_fit.distribution.abstract_params import AbstractParams
@@ -24,12 +24,24 @@ def get_shifted_map(vmin, vmax, cmap=plt.cm.bwr):
     shifted_cmap = shiftedColorMap(cmap, midpoint=midpoint, name='shifted')
     return shifted_cmap
 
+def remove_the_extreme_colors(cmap, epsilon=0.05):
+    epsilon = epsilon
+    colors = cmap(np.linspace(epsilon, 1-epsilon, cmap.N))
+    return LinearSegmentedColormap.from_list('without extreme', colors)
+
+def get_inverse_colormap(cmap):
+    colors = cmap(np.linspace(1, 0, cmap.N))
+    return LinearSegmentedColormap.from_list('Inverse', colors)
+
+def get_cmap_with_inverted_blue_and_green_channels(cmap):
+    colors = cmap(np.linspace(0, 1, cmap.N))
+    colors = [[c[0], c[2], c[1], c[3]] for c in colors]
+    return LinearSegmentedColormap.from_list('Inverted channels', colors)
 
 def get_half_colormap(cmap):
     colors = cmap(np.linspace(0.5, 1, cmap.N // 2))
     # Create a new colormap from those colors
-    cmap2 = LinearSegmentedColormap.from_list('Upper Half', colors)
-    return cmap2
+    return LinearSegmentedColormap.from_list('Upper Half', colors)
 
 
 def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None, fontsize=15):
@@ -180,3 +192,10 @@ def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
     plt.register_cmap(cmap=newcmap)
 
     return newcmap
+
+
+if __name__ == '__main__':
+    cmap = plt.cm.bwr
+    cmap = get_inverse_colormap(cmap)
+    cmap = remove_the_extreme_colors(cmap)
+    cmap = get_cmap_with_inverted_blue_and_green_channels(cmap)

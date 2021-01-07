@@ -84,29 +84,33 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
 
     plt.close()
     ax = plt.gca()
-    width = 5
+    width = 6
     size = 10
     legend_fontsize = 15
     labelsize = 10
     linewidth = 3
     x = np.array([3 * width * (i + 1) for i in range(len(nb_massifs))])
 
-    colors = ['blue', 'darkblue', 'red', 'darkred']
+    # colors = ['blue', 'darkblue', 'red', 'darkred']
+    colors = ['red', 'darkred', 'limegreen', 'darkgreen']
     labels = []
-    for suffix in ['Decrease', 'Increase']:
+    for suffix in ['decrease', 'increase']:
         for prefix in ['Non significant', 'Significant']:
             labels.append('{} {}'.format(prefix, suffix))
     for l, color, label in zip(all_l, colors, labels):
-        x_shifted = x - width / 2 if 'blue' in color else x + width / 2
+        shift = 0.6 * width
+        is_a_decrease_plot = colors.index(color) in [0, 1]
+        x_shifted = x - shift if is_a_decrease_plot else x + shift
         ax.bar(x_shifted, l, width=width, color=color, edgecolor=color, label=label,
-               linewidth=linewidth)
+               linewidth=linewidth, align='center')
     ax.legend(loc='upper left', prop={'size': size})
     ax.set_ylabel('Percentage of massifs (\%) ', fontsize=legend_fontsize)
     ax.set_xlabel('Elevation range', fontsize=legend_fontsize)
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(x)
     ax.yaxis.grid()
-    ax.set_ylim(bottom=0)
+    ax.set_ylim([0, 69])
+    # ax.set_ylim(bottom=0)
     ax.set_xticklabels([v.altitude_group.formula_upper for v in visualizer_list])
 
     plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x)
@@ -126,7 +130,8 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
     all_changes = list(zip(*all_changes))
     labels = ['All massifs', 'Massifs with a selected model temporally non-stationary',
               'Massifs with a selected model temporally non-stationary and significant']
-    colors = ['darkgreen', 'forestgreen', 'limegreen']
+    # colors = ['darkmagenta', 'darkviolet', 'mediumorchid']
+    colors = ['mediumblue', 'royalblue', 'lightskyblue']
     nb_massifs = [len(v.get_valid_names(massif_names)) for v in visualizer_list]
 
     plt.close()
@@ -155,15 +160,14 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
             patch.set_facecolor(color)
 
     custom_lines = [Line2D([0], [0], color=color, lw=4) for color in colors]
-    loc = 'upper left'
-    ax.legend(custom_lines, labels, loc=loc)
+    ax.legend(custom_lines, labels, prop={'size': 8})
 
     start = 'Relative changes' if relative else 'Changes'
     unit = '\%' if relative else visualizer.study.variable_unit
     ax.set_ylabel('{} of {}-year return levels between 1959 and 2019 ({})'.format(start, OneFoldFit.return_period,
                                                                                   unit),
                   fontsize=legend_fontsize)
-    ax.set_xlabel('Elevation', fontsize=legend_fontsize + 5)
+    ax.set_xlabel('Elevation (m)', fontsize=legend_fontsize + 5)
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(x)
     ax.yaxis.grid()
@@ -173,7 +177,7 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
 
     shift = 2 * width
     ax.set_xlim((min(x) - shift, max(x) + shift))
-    upper_limit_for_legend = 30 if relative else 0
+    upper_limit_for_legend = 0 if relative else 0
     lim_down, lim_up = ax.get_ylim()
     ax.set_ylim(lim_down, lim_up + upper_limit_for_legend)
 

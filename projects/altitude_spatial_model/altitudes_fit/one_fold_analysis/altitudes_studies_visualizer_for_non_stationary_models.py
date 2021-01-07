@@ -10,7 +10,8 @@ from cached_property import cached_property
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map, \
-    get_colors, ticks_values_and_labels_for_percentages, get_half_colormap, ticks_values_and_labels_for_positive_value
+    get_colors, ticks_values_and_labels_for_percentages, get_half_colormap, ticks_values_and_labels_for_positive_value, \
+    get_inverse_colormap, get_cmap_with_inverted_blue_and_green_channels, remove_the_extreme_colors
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION, ALL_ALTITUDES_WITHOUT_NAN
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
@@ -93,10 +94,11 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         return massif_altitudes
 
     def load_condition(self, massif_altitudes):
-        # At least two altitudes for the estimated, including the reference altitude
-        reference_altitude_is_in_altitudes = (self.altitude_group.reference_altitude in massif_altitudes)
+        # At least two altitudes for the estimated
+        # reference_altitude_is_in_altitudes = (self.altitude_group.reference_altitude in massif_altitudes)
         at_least_two_altitudes = (len(massif_altitudes) >= 2)
-        return reference_altitude_is_in_altitudes and at_least_two_altitudes
+        # return reference_altitude_is_in_altitudes and at_least_two_altitudes
+        return at_least_two_altitudes
 
     @property
     def massif_name_to_one_fold_fit(self) -> Dict[str, OneFoldFit]:
@@ -160,19 +162,27 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
         is_return_level_plot = (self.moment_names.index(method_name) == 0) and (order is None)
         if is_return_level_plot:
+            cmap = plt.cm.Spectral
+            cmap = remove_the_extreme_colors(cmap, epsilon=0.25)
+            cmap = get_inverse_colormap(cmap)
             add_colorbar = True
             max_abs_change = None
             massif_name_to_text = {m: round(v) for m, v in massif_name_to_value.items()}
             graduation = self.altitude_group.graduation_for_return_level
             fontsize_label = 17
         else:
+            # cmap = plt.cm.RdYlGn
+            cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][2]
+            cmap = get_inverse_colormap(cmap)
+            cmap = get_cmap_with_inverted_blue_and_green_channels(cmap)
+            cmap = remove_the_extreme_colors(cmap)
             graduation = 10
             fontsize_label = 10
 
         negative_and_positive_values = self.moment_names.index(method_name) > 0
         # Plot the map
 
-        self.plot_map(cmap=plt.cm.coolwarm, graduation=graduation,
+        self.plot_map(cmap=cmap, graduation=graduation,
                       label=ylabel, massif_name_to_value=massif_name_to_value,
                       plot_name=plot_name, add_x_label=True,
                       negative_and_positive_values=negative_and_positive_values,
