@@ -40,14 +40,19 @@ def plot_coherence_curves(massif_names, visualizer_list: List[AltitudesStudiesVi
                                                                                     is_altitudinal,
                                                                                     year)
                 label = labels[i]
+                label = label.capitalize()
 
                 # Set labels
                 fontsize_label = 15
+
+                for a in [ax, ax2, ax3]:
+                    a.tick_params(labelsize=fontsize_label)
+
                 if elevation_as_xaxis:
                     ax3.set_xlabel('Elevation (m)', fontsize=fontsize_label)
                     ax2.set_ylabel(label, fontsize=fontsize_label)
                 else:
-                    ax2.set_ylabel('Elevation(m)', fontsize=fontsize_label)
+                    ax2.set_ylabel('Elevation (m)', fontsize=fontsize_label)
                     if i == 3:
                         ax.set_xlabel(label, fontsize=fontsize_label)
                     else:
