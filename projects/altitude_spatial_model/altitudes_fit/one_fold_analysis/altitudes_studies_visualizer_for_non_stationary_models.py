@@ -40,16 +40,18 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                  fit_method=MarginFitMethod.extremes_fevd_mle,
                  temporal_covariate_for_fit=None,
                  display_only_model_that_pass_anderson_test=True,
+                 confidence_interval_based_on_delta_method=False
                  ):
         super().__init__(studies.study, show=show, save_to_file=not show)
         self.studies = studies
         self.non_stationary_models = model_classes
         self.fit_method = fit_method
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
-        self.display_only_model_that_pass_anderson_test = display_only_model_that_pass_anderson_test
+        self.display_only_model_that_pass_test = display_only_model_that_pass_anderson_test
         self.massif_names = massif_names if massif_names is not None else self.study.all_massif_names()
         self.massif_name_to_massif_id = {m: i for i, m in enumerate(self.massif_names)}
         self.altitude_group = get_altitude_group_from_altitudes(self.studies.altitudes)
+        self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
         # Load one fold fit
         self.massif_name_to_massif_altitudes = {}
         self._massif_name_to_one_fold_fit = {}
@@ -64,7 +66,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method,
                                           self.temporal_covariate_for_fit,
                                           type(self.altitude_group),
-                                          self.display_only_model_that_pass_anderson_test)
+                                          self.display_only_model_that_pass_test,
+                                          self.confidence_interval_based_on_delta_method)
                 self._massif_name_to_one_fold_fit[massif_name] = old_fold_fit
         # Print number of massif without any validated fit
         massifs_without_any_validated_fit = [massif_name
@@ -103,7 +106,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     @property
     def massif_name_to_one_fold_fit(self) -> Dict[str, OneFoldFit]:
         return {massif_name: old_fold_fit for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
-                if not self.display_only_model_that_pass_anderson_test
+                if not self.display_only_model_that_pass_test
                 or old_fold_fit.has_at_least_one_valid_model}
 
     def plot_moments(self):

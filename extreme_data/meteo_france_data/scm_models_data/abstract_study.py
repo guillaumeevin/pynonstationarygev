@@ -100,8 +100,8 @@ class AbstractStudy(object):
         assert slope in SLOPES
         self.orientation = orientation
         self.slope = slope
-        # Add some options
-        self.fit_method = MarginFitMethod.is_mev_gev_fit
+        # Add some cache for computation
+        self._cache_for_pointwise_fit = {}
 
     """ Time """
 
@@ -878,11 +878,17 @@ class AbstractStudy(object):
         d, _ = self._massif_name_to_stationary_gev_params_and_confidence(quantile_level=None)
         return d
 
-    @cached_property
-    def massif_name_to_stationary_gev_params_and_confidence_for_return_level_100(self):
-        return self._massif_name_to_stationary_gev_params_and_confidence(quantile_level=0.99)
+    def massif_name_to_stationary_gev_params_and_confidence(self, quantile_level,
+                                                            confidence_interval_based_on_delta_method):
+        t = (quantile_level, confidence_interval_based_on_delta_method)
+        if t in self._cache_for_pointwise_fit:
+            return self._cache_for_pointwise_fit[t]
+        else:
+            res = self._massif_name_to_stationary_gev_params_and_confidence(*t)
+            self._cache_for_pointwise_fit[t] = res
+            return res
 
-    def _massif_name_to_stationary_gev_params_and_confidence(self, quantile_level=None):
+    def _massif_name_to_stationary_gev_params_and_confidence(self, quantile_level=None, confidence_interval_based_on_delta_method=True):
         """ at least 90% of values must be above zero"""
         massif_name_to_stationary_gev_params = {}
         massif_name_to_confidence = {}
@@ -891,7 +897,8 @@ class AbstractStudy(object):
             if percentage_of_non_zeros > 90:
                 gev_params, confidence = fitted_stationary_gev_with_uncertainty_interval(annual_maxima,
                                                                                          fit_method=MarginFitMethod.extremes_fevd_mle,
-                                                                                         quantile_level=quantile_level)
+                                                                                         quantile_level=quantile_level,
+                                                                                         confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method)
                 if -0.5 <= gev_params.shape <= 0.5:
                     massif_name_to_stationary_gev_params[massif_name] = gev_params
                     massif_name_to_confidence[massif_name] = confidence

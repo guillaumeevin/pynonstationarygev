@@ -126,23 +126,32 @@ def load_all_list(massif_name, visualizer_list, altitudinal_model=True, year=201
 
         if massif_name in visualizer.massif_name_to_one_fold_fit:
             if altitudinal_model:
+                # Piecewise altitudinal temporal model
                 min_altitude, *_, max_altitude = visualizer.massif_name_to_massif_altitudes[massif_name]
                 one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
-                altitudes_list = list(range(min_altitude, max_altitude, 10))
+                step = 300
+                altitudes_list = list(range(min_altitude, max_altitude + step, step))
                 gev_params_list = [one_fold_fit.get_gev_params(altitude, year) for altitude in altitudes_list]
                 confidence_interval_values = [one_fold_fit.best_confidence_interval(altitude, year) for altitude in
                                               altitudes_list]
             else:
+                # Pointwise distribution
                 assert OneFoldFit.return_period == 100, 'change the call below'
                 altitudes_list, study_list_valid = zip(*[(a, s) for a, s in visualizer.studies.altitude_to_study.items()
                                                          if massif_name in
-                                                         s.massif_name_to_stationary_gev_params_and_confidence_for_return_level_100[
+                                                         s.massif_name_to_stationary_gev_params_and_confidence
+                                                             (OneFoldFit.quantile_level,
+                                                             visualizer.confidence_interval_based_on_delta_method)[
                                                              0]])
                 gev_params_list = [
-                    study.massif_name_to_stationary_gev_params_and_confidence_for_return_level_100[0][massif_name]
+                    study.massif_name_to_stationary_gev_params_and_confidence
+                                                             (OneFoldFit.quantile_level,
+                                                             visualizer.confidence_interval_based_on_delta_method)[0][massif_name]
                     for study in study_list_valid]
                 confidence_interval_values = [
-                    study.massif_name_to_stationary_gev_params_and_confidence_for_return_level_100[1][massif_name]
+                    study.massif_name_to_stationary_gev_params_and_confidence
+                                                             (OneFoldFit.quantile_level,
+                                                             visualizer.confidence_interval_based_on_delta_method)[1][massif_name]
                     for study in study_list_valid]
 
             # Checks

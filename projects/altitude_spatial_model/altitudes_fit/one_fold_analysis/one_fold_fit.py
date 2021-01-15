@@ -1,8 +1,11 @@
+from multiprocessing import Pool
+
 import numpy.testing as npt
 import numpy as np
 import rpy2
 from cached_property import cached_property
 from scipy.stats import chi2
+from sklearn.utils import resample
 
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson
@@ -18,14 +21,18 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_m
 from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_with_linear_shape_wrt_altitude import \
     AltitudinalShapeLinearTimeStationary
 from extreme_fit.model.margin_model.utils import MarginFitMethod
+from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
+    AbstractExtractEurocodeReturnLevel
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     EurocodeConfidenceIntervalFromExtremes
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import AbstractAltitudeGroup, \
     DefaultAltitudeGroup
-from root_utils import classproperty
+from root_utils import classproperty, NB_CORES
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
+from spatio_temporal_dataset.slicer.split import Split
+from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 
 
 class OneFoldFit(object):
@@ -36,11 +43,14 @@ class OneFoldFit(object):
     nb_years = 60
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
-                 fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None,
+                 fit_method=MarginFitMethod.extremes_fevd_mle,
+                 temporal_covariate_for_fit=None,
                  altitude_class=DefaultAltitudeGroup,
-                 only_models_that_pass_anderson_test=True,
+                 only_models_that_pass_goodness_of_fit_test=True,
+                 confidence_interval_based_on_delta_method=False,
                  ):
-        self.only_models_that_pass_anderson_test = only_models_that_pass_anderson_test
+        self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
+        self.only_models_that_pass_goodness_of_fit_test = only_models_that_pass_goodness_of_fit_test
         self.altitude_group = altitude_class()
         self.massif_name = massif_name
         self.dataset = dataset
@@ -51,15 +61,18 @@ class OneFoldFit(object):
         # Fit Estimators
         self.model_class_to_estimator = {}
         for model_class in models_classes:
-            self.model_class_to_estimator[model_class] = fitted_linear_margin_estimator_short(model_class=model_class,
-                                                                                              dataset=self.dataset,
-                                                                                              fit_method=self.fit_method,
-                                                                                              temporal_covariate_for_fit=self.temporal_covariate_for_fit)
+            self.model_class_to_estimator[model_class] = self.fitted_linear_margin_estimator(model_class, self.dataset)
 
         # Best estimator definition
         self.best_estimator_class_for_total_aic = None
         # Cached object
         self._folder_to_goodness = {}
+
+    def fitted_linear_margin_estimator(self, model_class, dataset):
+        return fitted_linear_margin_estimator_short(model_class=model_class,
+                                                    dataset=dataset,
+                                                    fit_method=self.fit_method,
+                                                    temporal_covariate_for_fit=self.temporal_covariate_for_fit)
 
     @classproperty
     def folder_for_plots(cls):
@@ -129,7 +142,7 @@ class OneFoldFit(object):
 
     @cached_property
     def sorted_estimators_with_stationary(self):
-        if self.only_models_that_pass_anderson_test:
+        if self.only_models_that_pass_goodness_of_fit_test:
             return [e for e in self.sorted_estimators
                     if self.goodness_of_fit_test(e)
                     # and self.sensitivity_of_fit_test_top_maxima(e)
@@ -148,7 +161,7 @@ class OneFoldFit(object):
 
     @cached_property
     def sorted_estimators_without_stationary(self):
-        if self.only_models_that_pass_anderson_test:
+        if self.only_models_that_pass_goodness_of_fit_test:
             return [e for e in self._sorted_estimators_without_stationary if self.goodness_of_fit_test(e)]
         else:
             return self._sorted_estimators_without_stationary
@@ -240,13 +253,22 @@ class OneFoldFit(object):
 
     @property
     def is_significant(self) -> bool:
-        stationary_model_classes = [StationaryAltitudinal, StationaryGumbelAltitudinal,
-                                    AltitudinalShapeLinearTimeStationary]
-        if any([isinstance(self.best_estimator.margin_model, c)
-                for c in stationary_model_classes]):
-            return False
+        if self.confidence_interval_based_on_delta_method:
+            stationary_model_classes = [StationaryAltitudinal, StationaryGumbelAltitudinal,
+                                        AltitudinalShapeLinearTimeStationary]
+            if any([isinstance(self.best_estimator.margin_model, c)
+                    for c in stationary_model_classes]):
+                return False
+            else:
+                return self.likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=self.degree_freedom_chi2)
         else:
-            return self.likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=self.degree_freedom_chi2)
+            # Bootstrap based significance
+            print('new significance is used')
+            sign_of_changes = [self.sign_of_change(f) for f in self.bootstrap_fitted_functions_from_fit]
+            if self.sign_of_change(self.best_function_from_fit) > 0:
+                return np.quantile(sign_of_changes, self.SIGNIFICANCE_LEVEL) > 0
+            else:
+                return np.quantile(sign_of_changes, 1 - self.SIGNIFICANCE_LEVEL) < 0
 
     # @property
     # def goodness_of_fit_anderson_test(self):
@@ -272,7 +294,7 @@ class OneFoldFit(object):
                                                              fit_method=self.fit_method,
                                                              temporal_covariate_for_fit=self.temporal_covariate_for_fit)
         # Compare sign of change
-        has_not_opposite_sign = self.sign_of_change(estimator) * self.sign_of_change(new_estimator) >= 0
+        has_not_opposite_sign = self.sign_of_change(estimator.function_from_fit) * self.sign_of_change(new_estimator.function_from_fit) >= 0
         return has_not_opposite_sign
 
     def sensitivity_of_fit_test_last_years(self, estimator: LinearMarginEstimator):
@@ -287,16 +309,16 @@ class OneFoldFit(object):
                                                              fit_method=self.fit_method,
                                                              temporal_covariate_for_fit=self.temporal_covariate_for_fit)
         # Compare sign of change
-        has_not_opposite_sign = self.sign_of_change(estimator) * self.sign_of_change(new_estimator) >= 0
+        has_not_opposite_sign = self.sign_of_change(estimator.function_from_fit) * self.sign_of_change(new_estimator.function_from_fit) >= 0
         # if not has_not_opposite_sign:
         # print('Last years', self.massif_name, model_class, self.sign_of_change(estimator), self.sign_of_change(new_estimator))
         return has_not_opposite_sign
 
-    def sign_of_change(self, estimator):
+    def sign_of_change(self, function_from_fit):
         return_levels = []
         for year in [2019 - self.nb_years, 2019]:
             coordinate = np.array([self.altitude_plot, year])
-            return_level = estimator.function_from_fit.get_params(
+            return_level = function_from_fit.get_params(
                 coordinate=coordinate,
                 is_transformed=False).return_level(return_period=self.return_period)
             return_levels.append(return_level)
@@ -314,7 +336,54 @@ class OneFoldFit(object):
         return standard_gumbel_quantiles
 
     def best_confidence_interval(self, altitude, year) -> EurocodeConfidenceIntervalFromExtremes:
-        EurocodeConfidenceIntervalFromExtremes.quantile_level = self.quantile_level
-        return EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(estimator_extremes=self.best_estimator,
-                                                                              ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
-                                                                              coordinate=np.array([altitude, year]))
+        coordinate = np.array([altitude, year])
+        if self.confidence_interval_based_on_delta_method:
+            EurocodeConfidenceIntervalFromExtremes.quantile_level = self.quantile_level
+            return EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(
+                estimator_extremes=self.best_estimator,
+                ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
+                coordinate=coordinate)
+        else:
+            print('nb of bootstrap for confidence interval=', AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP)
+            mean_estimate = self.get_return_level(self.best_function_from_fit, coordinate)
+            bootstrap_return_levels = [self.get_return_level(f, coordinate) for f in self.bootstrap_fitted_functions_from_fit]
+            print(mean_estimate, bootstrap_return_levels)
+            confidence_interval = tuple([np.quantile(bootstrap_return_levels, q)
+                                         for q in AbstractExtractEurocodeReturnLevel.bottom_and_upper_quantile])
+            print(mean_estimate, confidence_interval)
+            return EurocodeConfidenceIntervalFromExtremes(mean_estimate, confidence_interval)
+
+    def get_return_level(self, function_from_fit, coordinate):
+        return function_from_fit.get_params(coordinate).return_level(self.return_period)
+
+    @property
+    def bootstrap_data(self):
+        bootstrap = []
+        for _ in range(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP):
+            residuals = self.best_estimator.sorted_empirical_standard_gumbel_quantiles(split=Split.all)
+            resample_residuals = resample(residuals)
+            coordinate_values_to_maxima = self.best_estimator. \
+                coordinate_values_to_maxima_from_standard_gumbel_quantiles(standard_gumbel_quantiles=resample_residuals)
+            bootstrap.append(coordinate_values_to_maxima)
+
+        return bootstrap
+
+    @cached_property
+    def bootstrap_fitted_functions_from_fit(self):
+        multiprocess = True
+        if multiprocess:
+            with Pool(NB_CORES) as p:
+                functions_from_fit = p.map(self.fit_one_bootstrap_estimator, self.bootstrap_data)
+        else:
+            functions_from_fit = []
+            for coordinate_values_to_maxima in self.bootstrap_data:
+                estimator = self.fit_one_bootstrap_estimator(coordinate_values_to_maxima)
+                functions_from_fit.append(estimator)
+        return functions_from_fit
+
+    def fit_one_bootstrap_estimator(self, coordinate_values_to_maxima):
+        coordinates = self.dataset.coordinates
+        observations = AnnualMaxima.from_coordinates(coordinates, coordinate_values_to_maxima)
+        dataset = AbstractDataset(observations=observations, coordinates=coordinates)
+        model_class = type(self.best_margin_model)
+        return self.fitted_linear_margin_estimator(model_class, dataset).function_from_fit

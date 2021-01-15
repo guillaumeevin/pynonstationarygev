@@ -16,6 +16,13 @@ from root_utils import classproperty
 
 class AbstractExtractEurocodeReturnLevel(object):
     ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.05
+    NB_BOOTSTRAP = 1000
+
+    @classproperty
+    def bottom_and_upper_quantile(cls):
+        bottom_quantile = cls.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY / 2
+        bottom_and_upper_quantile = (bottom_quantile, 1 - bottom_quantile)
+        return bottom_and_upper_quantile
 
     def __init__(self, estimator: LinearMarginEstimator, ci_method, temporal_covariate, quantile_level=EUROCODE_QUANTILE):
         self.ci_method = ci_method
@@ -100,7 +107,5 @@ class ExtractEurocodeReturnLevelFromMyBayesianExtremes(AbstractExtractEurocodeRe
     @property
     def confidence_interval(self):
         # Bottom and upper quantile correspond to the quantile
-        bottom_quantile = self.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY / 2
-        bottom_and_upper_quantile = (bottom_quantile, 1 - bottom_quantile)
         return [np.quantile(self.posterior_eurocode_return_level_samples_for_temporal_covariate, q=q)
-                for q in bottom_and_upper_quantile]
+                for q in self.bottom_and_upper_quantile]

@@ -4,6 +4,7 @@ from typing import List
 import matplotlib as mpl
 
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoad3Days
+from extreme_fit.model.utils import set_seed_for_test
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_coherence_curves import plot_coherence_curves
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_models_against_altitudes, plot_histogram_all_trends_against_altitudes, \
@@ -26,13 +27,15 @@ def main():
     study_classes = [SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, SafranSnowfall7Days][:1]
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
-    fast = True
+    set_seed_for_test()
+
+    fast = None
     if fast is None:
-        massif_names = None
-        altitudes_list = altitudes_for_groups[1:2]
-    elif fast:
         massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:1]
         altitudes_list = altitudes_for_groups[:]
+    elif fast:
+        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:1]
+        altitudes_list = altitudes_for_groups[3:]
     else:
         massif_names = None
         altitudes_list = altitudes_for_groups[:]
@@ -46,7 +49,8 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes):
     for season in seasons:
         for study_class in study_classes:
             print('Inner loop', season, study_class)
-            visualizer_list = load_visualizer_list(season, study_class, altitudes_list, massif_names)
+            visualizer_list = load_visualizer_list(season, study_class, altitudes_list, massif_names
+                                                   )
             plot_visualizers(massif_names, visualizer_list)
             for visualizer in visualizer_list:
                 plot_visualizer(massif_names, visualizer)

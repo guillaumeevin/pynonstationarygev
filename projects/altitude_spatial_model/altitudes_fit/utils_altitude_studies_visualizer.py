@@ -16,6 +16,7 @@ def load_visualizer_list(season, study_class, altitudes_list, massif_names, **kw
                                                                       massif_names=massif_names,
                                                                       show=False,
                                                                       temporal_covariate_for_fit=None,
+                                                                      confidence_interval_based_on_delta_method=False
                                                                       )
         visualizer_list.append(visualizer)
     compute_and_assign_max_abs(visualizer_list)

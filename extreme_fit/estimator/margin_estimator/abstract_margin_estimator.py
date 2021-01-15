@@ -88,6 +88,18 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         sorted_empirical_quantiles = sorted(sorted_empirical_quantiles)
         return sorted_empirical_quantiles
 
+    def coordinate_values_to_maxima_from_standard_gumbel_quantiles(self, standard_gumbel_quantiles, split=Split.all):
+        coordinate_values_to_maxima = {}
+        coordinate_values = self.dataset.df_coordinates(split=split).values
+        assert len(standard_gumbel_quantiles) == len(coordinate_values)
+        for quantile, coordinate in zip(standard_gumbel_quantiles, coordinate_values):
+            gev_param = self.function_from_fit.get_params(
+                coordinate=coordinate,
+                is_transformed=False)
+            maximum = gev_param.gumbel_inverse_standardization(quantile)
+            coordinate_values_to_maxima[tuple(coordinate)] = np.array([maximum])
+        return coordinate_values_to_maxima
+
     def deviance(self, split=Split.all):
         return 2 * self.nllh(split=split)
 
