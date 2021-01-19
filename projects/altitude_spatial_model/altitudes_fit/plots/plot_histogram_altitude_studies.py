@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
+from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
+    AbstractExtractEurocodeReturnLevel
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import OneFoldFit
@@ -116,6 +118,57 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
     plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x)
 
     visualizer.plot_name = 'All trends'
+    visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
+
+    plt.close()
+
+def plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list: List[
+    AltitudesStudiesVisualizerForNonStationaryModels]):
+    visualizer = visualizer_list[0]
+
+    ratio_groups = []
+    for v in visualizer_list:
+        ratio_groups.extend(v.ratio_groups())
+    print(len(ratio_groups))
+    print(ratio_groups)
+
+
+    nb_massifs = [len(l) for l in ratio_groups]
+
+    plt.close()
+    ax = plt.gca()
+    width = 5
+    size = 8
+    legend_fontsize = 10
+    labelsize = 10
+    linewidth = 3
+
+    x = np.array([2 * width * (i + 1) for i in range(len(ratio_groups))])
+    ax.boxplot(ratio_groups, positions=x, widths=width, patch_artist=True, showmeans=True)
+
+    ax.legend(prop={'size': 8})
+
+    ylabel = "Ratio for the size of {}\% confidence intervals, i.e. size for the\n" \
+    " elevational-temporal model divided by the size for the pointwise model".format(AbstractExtractEurocodeReturnLevel.percentage_confidence_interval)
+    ax.set_ylabel(ylabel,
+                  fontsize=legend_fontsize)
+    ax.set_xlabel('Elevation (m)', fontsize=legend_fontsize + 5)
+    ax.tick_params(axis='both', which='major', labelsize=labelsize)
+    ax.set_xticks(x)
+    ax.yaxis.grid()
+
+    altitudes = []
+    for v in visualizer_list:
+        altitudes.extend(v.studies.altitudes)
+    ax.set_xticklabels([str(a) for a in altitudes])
+
+    shift = 2 * width
+    ax.set_xlim((min(x) - shift, max(x) + shift))
+
+    # I could display the number of massif used to build each box plot.
+    plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x, add_for_percentage=False)
+
+    visualizer.plot_name = 'All ' + "uncertainty size comparison for bootstrap size {}".format(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP)
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
 
     plt.close()
@@ -250,7 +303,7 @@ def plot_shoe_plot_changes_against_altitude_for_maxima_and_total(massif_names, v
     plt.close()
 
 
-def plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x):
+def plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x, add_for_percentage=True):
     # Plot number of massifs on the upper axis
     ax_twiny = ax.twiny()
     ax_twiny.plot(x, [0 for _ in x], linewidth=0)
@@ -258,4 +311,7 @@ def plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x):
     ax_twiny.tick_params(labelsize=labelsize)
     ax_twiny.set_xticklabels(nb_massifs)
     ax_twiny.set_xlim(ax.get_xlim())
-    ax_twiny.set_xlabel('Total number of massifs at each range (for the percentage)', fontsize=legend_fontsize)
+    xlabel = 'Total number of massifs at each range'
+    if add_for_percentage:
+        xlabel += ' (for the percentage)'
+    ax_twiny.set_xlabel(xlabel, fontsize=legend_fontsize)

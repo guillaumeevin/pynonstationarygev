@@ -879,7 +879,7 @@ class AbstractStudy(object):
         return d
 
     def massif_name_to_stationary_gev_params_and_confidence(self, quantile_level,
-                                                            confidence_interval_based_on_delta_method):
+                                                            confidence_interval_based_on_delta_method) -> Tuple[Dict]:
         t = (quantile_level, confidence_interval_based_on_delta_method)
         if t in self._cache_for_pointwise_fit:
             return self._cache_for_pointwise_fit[t]

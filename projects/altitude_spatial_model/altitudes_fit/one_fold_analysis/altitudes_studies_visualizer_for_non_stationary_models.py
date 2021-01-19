@@ -140,6 +140,26 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             self._method_name_and_order_to_massif_name_to_value[c] = massif_name_to_value
         return self._method_name_and_order_to_massif_name_to_value[c]
 
+    def ratio_groups(self):
+        return [self.ratio_uncertainty_interval_size(altitude, 2019) for altitude in self.studies.altitudes]
+
+    def ratio_uncertainty_interval_size(self, altitude, year):
+        study = self.studies.altitude_to_study[altitude]
+        massif_name_to_interval = study.massif_name_to_stationary_gev_params_and_confidence(OneFoldFit.quantile_level,
+                                                                                            self.confidence_interval_based_on_delta_method)[
+            1]
+        massif_names_with_pointwise_interval = set(massif_name_to_interval)
+        valid_massif_names = set(self.massif_name_to_one_fold_fit.keys())
+        intersection_massif_names = valid_massif_names.intersection(massif_names_with_pointwise_interval)
+        ratios = []
+        for massif_name in intersection_massif_names:
+            one_fold_fit = self.massif_name_to_one_fold_fit[massif_name]
+            new_interval_size = one_fold_fit.best_confidence_interval(altitude, year).interval_size
+            old_interval_size = massif_name_to_interval[massif_name].interval_size
+            ratio = new_interval_size / old_interval_size
+            ratios.append(ratio)
+        return ratios
+
     def plot_map_moment(self, method_name, order):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
         # Plot settings

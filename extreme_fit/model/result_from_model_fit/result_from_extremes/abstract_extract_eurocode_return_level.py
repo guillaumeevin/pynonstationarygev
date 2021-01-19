@@ -16,7 +16,7 @@ from root_utils import classproperty
 
 class AbstractExtractEurocodeReturnLevel(object):
     ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.05
-    NB_BOOTSTRAP = 1000
+    NB_BOOTSTRAP = 100
 
     @classproperty
     def bottom_and_upper_quantile(cls):

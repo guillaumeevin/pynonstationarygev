@@ -27,6 +27,10 @@ class EurocodeConfidenceIntervalFromExtremes(object):
         self.confidence_interval = confidence_interval
 
     @property
+    def interval_size(self):
+        return self.confidence_interval[1] - self.confidence_interval[0]
+
+    @property
     def triplet(self):
         return self.confidence_interval[0], self.mean_estimate, self.confidence_interval[1]
 

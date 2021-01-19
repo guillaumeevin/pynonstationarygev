@@ -8,7 +8,8 @@ from extreme_fit.model.utils import set_seed_for_test
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_coherence_curves import plot_coherence_curves
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_models_against_altitudes, plot_histogram_all_trends_against_altitudes, \
-    plot_shoe_plot_changes_against_altitude, plot_shoe_plot_changes_against_altitude_for_maxima_and_total
+    plot_shoe_plot_changes_against_altitude, plot_shoe_plot_changes_against_altitude_for_maxima_and_total, \
+    plot_shoe_plot_ratio_interval_size_against_altitude
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
@@ -29,13 +30,13 @@ def main():
 
     set_seed_for_test()
 
-    fast = None
+    fast = False
     if fast is None:
         massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:1]
         altitudes_list = altitudes_for_groups[:]
     elif fast:
-        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:1]
-        altitudes_list = altitudes_for_groups[3:]
+        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:]
+        altitudes_list = altitudes_for_groups[:2]
     else:
         massif_names = None
         altitudes_list = altitudes_for_groups[:]
@@ -60,11 +61,12 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes):
 
 def plot_visualizers(massif_names, visualizer_list):
     # plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
+    plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
     # for relative in [True, False]:
-        # plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
+    #     plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
         # plot_shoe_plot_changes_against_altitude_for_maxima_and_total(massif_names, visualizer_list, relative=relative)
-    # plot_coherence_curves(massif_names, visualizer_list)
-    plot_coherence_curves(['Vanoise'], visualizer_list)
+    plot_coherence_curves(massif_names, visualizer_list)
+    # plot_coherence_curves(['Vanoise'], visualizer_list)
 
 
 def plot_visualizer(massif_names, visualizer):
