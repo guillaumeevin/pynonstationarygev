@@ -83,9 +83,12 @@ class AdamontStudies(object):
         ax.xaxis.set_ticks(ticks)
         ax.yaxis.grid()
         ax.set_xlim((min(x), max(x)))
+        # Augment the ylim for the legend
+        ylim_min, ylim_max = ax.get_ylim()
+        ax.set_ylim((ylim_min, ylim_max * 1.5))
         ax.tick_params(axis='both', which='major', labelsize=13)
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles[::-1], labels[::-1], ncol=2)
+        ax.legend(handles[::-1], labels[::-1], ncol=2, prop={'size': 7})
         plot_name = 'Annual maxima of {} in {} at {} m'.format(ADAMONT_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '),
                                                         self.study.altitude)
