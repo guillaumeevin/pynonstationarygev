@@ -1,3 +1,8 @@
+import datetime
+import math
+import time
+import warnings
+from itertools import chain
 from multiprocessing import Pool
 from typing import Tuple, Dict
 
@@ -14,14 +19,14 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_int
     ConfidenceIntervalMethodFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     EurocodeConfidenceIntervalFromExtremes
-from root_utils import NB_CORES
+from root_utils import NB_CORES, batch
 
 
 def fitted_stationary_gev_with_uncertainty_interval(x_gev, fit_method=MarginFitMethod.is_mev_gev_fit,
                                                     model_class=StationaryTemporalModel,
                                                     starting_year=None,
                                                     quantile_level=0.98,
-                                                    confidence_interval_based_on_delta_method=True) -> Tuple[Dict[str, GevParams], Dict[str, EurocodeConfidenceIntervalFromExtremes]]:
+                                                    confidence_interval_based_on_delta_method=True):
     estimator, gev_param = _fitted_stationary_gev(fit_method, model_class, starting_year, x_gev)
     if quantile_level is not None:
         EurocodeConfidenceIntervalFromExtremes.quantile_level = quantile_level
@@ -30,35 +35,65 @@ def fitted_stationary_gev_with_uncertainty_interval(x_gev, fit_method=MarginFitM
             confidence_interval = EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(estimator,
                                                                                                  ConfidenceIntervalMethodFromExtremes.ci_mle,
                                                                                                  coordinate)
+            mean_estimate = confidence_interval.mean_estimate
+            confidence_interval = confidence_interval.confidence_interval
         else:
             # Bootstrap method
-            nb_bootstrap = AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP
-            x_gev_list = [resample(x_gev) for _ in range(nb_bootstrap)]
-            arguments = [(fit_method, model_class, starting_year, x, quantile_level) for x in x_gev_list]
-            multiprocess = True
-            if multiprocess:
-                with Pool(NB_CORES) as p:
-                    return_level_list = p.map(_compute_return_level, arguments)
-            else:
-                return_level_list = [_compute_return_level(argument) for argument in arguments]
+            return_level_list = ReturnLevelBootstrap(fit_method, model_class, starting_year, x_gev,
+                                                     quantile_level).compute_all_return_level()
             # Remove infinite return levels and return level
             len_before_remove = len(return_level_list)
-            return_level_list = [r for r in return_level_list if not np.isinf(r)]
             threshold = 2000
-            return_level_list = [r for r in return_level_list if r < threshold]
+            return_level_list = [r for r in return_level_list if (not np.isinf(r)) and (r < threshold)]
             len_after_remove = len(return_level_list)
             if len_after_remove < len_before_remove:
                 print('Nb of fit removed (inf or > {}:'.format(threshold), len_before_remove - len_after_remove)
             confidence_interval = tuple([np.quantile(return_level_list, q)
                                          for q in AbstractExtractEurocodeReturnLevel.bottom_and_upper_quantile])
             mean_estimate = gev_param.quantile(quantile_level)
-            confidence_interval = EurocodeConfidenceIntervalFromExtremes(mean_estimate, confidence_interval)
     else:
         confidence_interval = None
-    return gev_param, confidence_interval
+        mean_estimate = None
+    return gev_param, mean_estimate, confidence_interval
+
+class ReturnLevelBootstrap(object):
+
+    def __init__(self, fit_method, model_class, starting_year, x_gev, quantile_level):
+        self.nb_bootstrap = AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP
+        self.quantile_level = quantile_level
+        self.x_gev = x_gev
+        self.starting_year = starting_year
+        self.model_class = model_class
+        self.fit_method = fit_method
+
+    def compute_all_return_level(self):
+        multiprocess = None
+        idxs = list(range(self.nb_bootstrap))
+
+        if multiprocess is None:
+            print('multiprocessing batch')
+
+            with Pool(NB_CORES) as p:
+                batchsize = math.ceil(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP / NB_CORES)
+                list_return_level = p.map(self.compute_return_level_batch, batch(idxs, batchsize=batchsize))
+                return_level_list = list(chain.from_iterable(list_return_level))
+
+        elif multiprocess:
+            with Pool(NB_CORES) as p:
+                return_level_list = p.map(self.compute_return_level, idxs)
+        else:
+            return_level_list = [self.compute_return_level(idx) for idx in idxs]
+
+        return return_level_list
+
+    def compute_return_level_batch(self, idxs):
+        return [self.compute_return_level(idx) for idx in idxs]
+
+    def compute_return_level(self, idx):
+        x = resample(self.x_gev)
+        with warnings.catch_warnings():
+            gev_params = _fitted_stationary_gev(self.fit_method, self.model_class, self.starting_year, x)[1]
+        return gev_params.quantile(self.quantile_level)
 
 
-def _compute_return_level(t):
-    fit_method, model_class, starting_year, x, quantile_level = t
-    gev_params = _fitted_stationary_gev(fit_method, model_class, starting_year, x)[1]
-    return gev_params.quantile(quantile_level)
+

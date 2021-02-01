@@ -12,6 +12,12 @@ for c in [' ', ':', '-']:
 NB_CORES = 7
 
 
+def batch(iterable, batchsize=1):
+    l = len(iterable)
+    for ndx in range(0, l, batchsize):
+        yield iterable[ndx:min(ndx + batchsize, l)]
+
+
 def terminal_command(command_str):
     return subprocess.check_output(command_str.split()).decode("utf-8").split('\n')
 

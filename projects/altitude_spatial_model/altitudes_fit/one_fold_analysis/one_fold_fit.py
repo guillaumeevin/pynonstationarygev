@@ -1,3 +1,7 @@
+import datetime
+import math
+import time
+from itertools import chain
 from multiprocessing import Pool
 
 import numpy.testing as npt
@@ -28,8 +32,8 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_int
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     EurocodeConfidenceIntervalFromExtremes
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import AbstractAltitudeGroup, \
-    DefaultAltitudeGroup
-from root_utils import classproperty, NB_CORES
+    DefaultAltitudeGroup, altitudes_for_groups
+from root_utils import classproperty, NB_CORES, batch
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.slicer.split import Split
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
@@ -251,9 +255,10 @@ class OneFoldFit(object):
     def degree_freedom_chi2(self):
         return self.best_estimator.margin_model.nb_params - self.stationary_estimator.margin_model.nb_params
 
-    @property
+    @cached_property
     def is_significant(self) -> bool:
         if self.confidence_interval_based_on_delta_method:
+            print('old significance is used')
             stationary_model_classes = [StationaryAltitudinal, StationaryGumbelAltitudinal,
                                         AltitudinalShapeLinearTimeStationary]
             if any([isinstance(self.best_estimator.margin_model, c)
@@ -264,11 +269,7 @@ class OneFoldFit(object):
         else:
             # Bootstrap based significance
             print('new significance is used')
-            sign_of_changes = [self.sign_of_change(f) for f in self.bootstrap_fitted_functions_from_fit]
-            if self.sign_of_change(self.best_function_from_fit) > 0:
-                return np.quantile(sign_of_changes, self.SIGNIFICANCE_LEVEL) > 0
-            else:
-                return np.quantile(sign_of_changes, 1 - self.SIGNIFICANCE_LEVEL) < 0
+            return self.cached_results_from_bootstrap[0]
 
     # @property
     # def goodness_of_fit_anderson_test(self):
@@ -294,7 +295,8 @@ class OneFoldFit(object):
                                                              fit_method=self.fit_method,
                                                              temporal_covariate_for_fit=self.temporal_covariate_for_fit)
         # Compare sign of change
-        has_not_opposite_sign = self.sign_of_change(estimator.function_from_fit) * self.sign_of_change(new_estimator.function_from_fit) >= 0
+        has_not_opposite_sign = self.sign_of_change(estimator.function_from_fit) * self.sign_of_change(
+            new_estimator.function_from_fit) >= 0
         return has_not_opposite_sign
 
     def sensitivity_of_fit_test_last_years(self, estimator: LinearMarginEstimator):
@@ -309,7 +311,8 @@ class OneFoldFit(object):
                                                              fit_method=self.fit_method,
                                                              temporal_covariate_for_fit=self.temporal_covariate_for_fit)
         # Compare sign of change
-        has_not_opposite_sign = self.sign_of_change(estimator.function_from_fit) * self.sign_of_change(new_estimator.function_from_fit) >= 0
+        has_not_opposite_sign = self.sign_of_change(estimator.function_from_fit) * self.sign_of_change(
+            new_estimator.function_from_fit) >= 0
         # if not has_not_opposite_sign:
         # print('Last years', self.massif_name, model_class, self.sign_of_change(estimator), self.sign_of_change(new_estimator))
         return has_not_opposite_sign
@@ -344,46 +347,129 @@ class OneFoldFit(object):
                 ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
                 coordinate=coordinate)
         else:
-            print('nb of bootstrap for confidence interval=', AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP)
-            mean_estimate = self.get_return_level(self.best_function_from_fit, coordinate)
-            bootstrap_return_levels = [self.get_return_level(f, coordinate) for f in self.bootstrap_fitted_functions_from_fit]
-            print(mean_estimate, bootstrap_return_levels)
-            confidence_interval = tuple([np.quantile(bootstrap_return_levels, q)
-                                         for q in AbstractExtractEurocodeReturnLevel.bottom_and_upper_quantile])
-            print(mean_estimate, confidence_interval)
+            key = (altitude, year)
+            mean_estimate = self.cached_results_from_bootstrap[1][key]
+            confidence_interval = self.cached_results_from_bootstrap[2][key]
             return EurocodeConfidenceIntervalFromExtremes(mean_estimate, confidence_interval)
 
     def get_return_level(self, function_from_fit, coordinate):
         return function_from_fit.get_params(coordinate).return_level(self.return_period)
 
-    @property
-    def bootstrap_data(self):
-        bootstrap = []
-        for _ in range(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP):
-            residuals = self.best_estimator.sorted_empirical_standard_gumbel_quantiles(split=Split.all)
-            resample_residuals = resample(residuals)
-            coordinate_values_to_maxima = self.best_estimator. \
-                coordinate_values_to_maxima_from_standard_gumbel_quantiles(standard_gumbel_quantiles=resample_residuals)
-            bootstrap.append(coordinate_values_to_maxima)
+    @cached_property
+    def best_residuals(self):
+        return self.best_estimator.sorted_empirical_standard_gumbel_quantiles(split=Split.all)
 
-        return bootstrap
+    # @property
+    # def bootstrap_data(self):
+    #     start = time.time()
+    #     bootstrap = []
+    #     for _ in range(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP):
+    #         residuals = self.best_estimator.sorted_empirical_standard_gumbel_quantiles(split=Split.all)
+    #
+    #         # yield coordinate_values_to_maxima
+    #         bootstrap.append(coordinate_values_to_maxima)
+    #     end1 = time.time()
+    #     duration = str(datetime.timedelta(seconds=end1 - start))
+    #     print('bootstrap loader duration', duration)
+    #     return bootstrap
+
+    # def bootstrap_batch_data(self, batchsize=20):
+    #     bootstrap_batch_data = []
+    #     batch = []
+    #     len_batch = 0
+    #     for bootstrap in self.bootstrap_data:
+    #         batch.append(bootstrap)
+    #         len_batch += 1
+    #         if len_batch == batchsize:
+    #             yield batch
+    #             batch = []
+    #             len_batch = 0
+    #     return bootstrap_batch_data
 
     @cached_property
-    def bootstrap_fitted_functions_from_fit(self):
-        multiprocess = True
-        if multiprocess:
-            with Pool(NB_CORES) as p:
-                functions_from_fit = p.map(self.fit_one_bootstrap_estimator, self.bootstrap_data)
+    def cached_results_from_bootstrap(self):
+        start = time.time()
+        bootstrap_fitted_functions = self.bootstrap_fitted_functions_from_fit
+        end1 = time.time()
+        duration = str(datetime.timedelta(seconds=end1 - start))
+        print('Fit duration', duration)
+
+        # First result - Compute the significance
+        sign_of_changes = [self.sign_of_change(f) for f in bootstrap_fitted_functions]
+        if self.sign_of_change(self.best_function_from_fit) > 0:
+            is_significant = np.quantile(sign_of_changes, self.SIGNIFICANCE_LEVEL) > 0
         else:
+            is_significant = np.quantile(sign_of_changes, 1 - self.SIGNIFICANCE_LEVEL) < 0
+
+        # Second result - Compute some dictionary for the return level
+        altitude_and_year_to_return_level_mean_estimate = {}
+        altitude_and_year_to_return_level_confidence_interval = {}
+        altitudes = altitudes_for_groups[self.altitude_group.group_id - 1]
+        years = [1959, 2019]
+        for year in years:
+            for altitude in altitudes:
+                key = (altitude, year)
+                coordinate = np.array([altitude, year])
+                mean_estimate = self.get_return_level(self.best_function_from_fit, coordinate)
+                bootstrap_return_levels = [self.get_return_level(f, coordinate) for f in
+                                           bootstrap_fitted_functions]
+                confidence_interval = tuple([np.quantile(bootstrap_return_levels, q)
+                                             for q in AbstractExtractEurocodeReturnLevel.bottom_and_upper_quantile])
+                altitude_and_year_to_return_level_mean_estimate[key] = mean_estimate
+                altitude_and_year_to_return_level_confidence_interval[key] = confidence_interval
+
+        return is_significant, altitude_and_year_to_return_level_mean_estimate, altitude_and_year_to_return_level_confidence_interval
+
+
+    @property
+    def bootstrap_fitted_functions_from_fit(self):
+        print('nb of bootstrap for confidence interval=', AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP)
+        multiprocess = None
+        idxs = list(range(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP))
+
+        if multiprocess is None:
+            print('multiprocessing batch')
+            start = time.time()
+            with Pool(NB_CORES) as p:
+                batchsize = math.ceil(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP / NB_CORES)
+                list_functions_from_fit = p.map(self.fit_batch_bootstrap_estimator, batch(idxs, batchsize=batchsize))
+                functions_from_fit = list(chain.from_iterable(list_functions_from_fit))
+
+        elif multiprocess:
+            print('multiprocessing')
+            start = time.time()
+            with Pool(NB_CORES) as p:
+                functions_from_fit = p.map(self.fit_one_bootstrap_estimator, idxs)
+
+        else:
+            start = time.time()
+
             functions_from_fit = []
-            for coordinate_values_to_maxima in self.bootstrap_data:
-                estimator = self.fit_one_bootstrap_estimator(coordinate_values_to_maxima)
+            for idx in idxs:
+                estimator = self.fit_one_bootstrap_estimator(idx)
                 functions_from_fit.append(estimator)
+
+        end1 = time.time()
+        duration = str(datetime.timedelta(seconds=end1 - start))
+        print('Multiprocessing duration', duration)
         return functions_from_fit
 
-    def fit_one_bootstrap_estimator(self, coordinate_values_to_maxima):
+    def fit_batch_bootstrap_estimator(self, idxs):
+        list_function_from_fit = []
+        for idx in idxs:
+            list_function_from_fit.append(self.fit_one_bootstrap_estimator(idx))
+        return list_function_from_fit
+
+    def fit_one_bootstrap_estimator(self, idx):
+        resample_residuals = resample(self.best_residuals)
+        coordinate_values_to_maxima = self.best_estimator. \
+            coordinate_values_to_maxima_from_standard_gumbel_quantiles(standard_gumbel_quantiles=resample_residuals)
+
         coordinates = self.dataset.coordinates
         observations = AnnualMaxima.from_coordinates(coordinates, coordinate_values_to_maxima)
         dataset = AbstractDataset(observations=observations, coordinates=coordinates)
         model_class = type(self.best_margin_model)
-        return self.fitted_linear_margin_estimator(model_class, dataset).function_from_fit
+
+        function_from_fit = self.fitted_linear_margin_estimator(model_class, dataset).function_from_fit
+
+        return function_from_fit

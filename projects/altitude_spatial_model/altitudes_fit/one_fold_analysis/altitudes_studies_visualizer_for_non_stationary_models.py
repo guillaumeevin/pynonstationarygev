@@ -506,22 +506,29 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     def plot_qqplots(self):
         for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
             ax = plt.gca()
-            standard_gumbel_quantiles = one_fold_fit.standard_gumbel_quantiles()
-            unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles()
-            all_quantiles = standard_gumbel_quantiles + unconstrained_empirical_quantiles
-            epsilon = 0.1
-            ax_lim = [min(all_quantiles) - epsilon, max(all_quantiles) + epsilon]
-
             model_name = self.massif_name_to_best_name[massif_name]
             altitudes = self.massif_name_to_massif_altitudes[massif_name]
             massif_name_corrected = massif_name.replace('_', ' ')
             label = '{} for altitudes  {}'.format(massif_name_corrected, ' & '.join([str(a) + 'm' for a in altitudes]))
+
+
+
+            all_quantiles = []
+
+            standard_gumbel_quantiles = one_fold_fit.standard_gumbel_quantiles()
+
+
+            unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles()
+            all_quantiles = standard_gumbel_quantiles + unconstrained_empirical_quantiles
             ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
                     label=label + '\n(selected model is ${}$)'.format(model_name), marker='o')
 
             size_label = 20
             ax.set_xlabel("Theoretical quantile", fontsize=size_label)
             ax.set_ylabel("Empirical quantile", fontsize=size_label)
+
+            epsilon = 0.1
+            ax_lim = [min(all_quantiles) - epsilon, max(all_quantiles) + epsilon]
             ax.set_xlim(ax_lim)
             ax.set_ylim(ax_lim)
 

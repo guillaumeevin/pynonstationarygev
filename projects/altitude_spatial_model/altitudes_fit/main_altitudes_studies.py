@@ -1,3 +1,4 @@
+import datetime
 import time
 from typing import List
 
@@ -30,18 +31,22 @@ def main():
 
     set_seed_for_test()
 
-    fast = False
+    fast = True
     if fast is None:
-        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:1]
-        altitudes_list = altitudes_for_groups[:]
+        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors']
+        altitudes_list = altitudes_for_groups[1:2]
     elif fast:
-        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:]
-        altitudes_list = altitudes_for_groups[:2]
+        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:1]
+        altitudes_list = altitudes_for_groups[3:]
     else:
         massif_names = None
         altitudes_list = altitudes_for_groups[:]
 
+    start = time.time()
     main_loop(altitudes_list, massif_names, seasons, study_classes)
+    end = time.time()
+    duration = str(datetime.timedelta(seconds=end - start))
+    print('Total duration', duration)
 
 
 def main_loop(altitudes_list, massif_names, seasons, study_classes):
@@ -61,12 +66,11 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes):
 
 def plot_visualizers(massif_names, visualizer_list):
     # plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
-    plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
+    # plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
     # for relative in [True, False]:
     #     plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
-        # plot_shoe_plot_changes_against_altitude_for_maxima_and_total(massif_names, visualizer_list, relative=relative)
-    plot_coherence_curves(massif_names, visualizer_list)
-    # plot_coherence_curves(['Vanoise'], visualizer_list)
+    # plot_coherence_curves(massif_names, visualizer_list)
+    plot_coherence_curves(['Vanoise'], visualizer_list)
 
 
 def plot_visualizer(massif_names, visualizer):

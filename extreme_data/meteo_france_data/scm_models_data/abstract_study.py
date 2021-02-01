@@ -1,4 +1,5 @@
 import datetime
+import time
 
 from matplotlib.lines import Line2D
 import io
@@ -879,7 +880,7 @@ class AbstractStudy(object):
         return d
 
     def massif_name_to_stationary_gev_params_and_confidence(self, quantile_level,
-                                                            confidence_interval_based_on_delta_method) -> Tuple[Dict]:
+                                                            confidence_interval_based_on_delta_method):
         t = (quantile_level, confidence_interval_based_on_delta_method)
         if t in self._cache_for_pointwise_fit:
             return self._cache_for_pointwise_fit[t]
@@ -890,18 +891,24 @@ class AbstractStudy(object):
 
     def _massif_name_to_stationary_gev_params_and_confidence(self, quantile_level=None, confidence_interval_based_on_delta_method=True):
         """ at least 90% of values must be above zero"""
+        print('study computation')
         massif_name_to_stationary_gev_params = {}
         massif_name_to_confidence = {}
         for massif_name, annual_maxima in self.massif_name_to_annual_maxima.items():
             percentage_of_non_zeros = 100 * np.count_nonzero(annual_maxima) / len(annual_maxima)
             if percentage_of_non_zeros > 90:
-                gev_params, confidence = fitted_stationary_gev_with_uncertainty_interval(annual_maxima,
+                start = time.time()
+                gev_params, mean_estimate, confidence = fitted_stationary_gev_with_uncertainty_interval(annual_maxima,
                                                                                          fit_method=MarginFitMethod.extremes_fevd_mle,
                                                                                          quantile_level=quantile_level,
                                                                                          confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method)
+                end = time.time()
+                duration = end - start
+                print('Multiprocessing for study duration', duration)
+
                 if -0.5 <= gev_params.shape <= 0.5:
                     massif_name_to_stationary_gev_params[massif_name] = gev_params
-                    massif_name_to_confidence[massif_name] = confidence
+                    massif_name_to_confidence[massif_name] = EurocodeConfidenceIntervalFromExtremes(mean_estimate, confidence)
         return massif_name_to_stationary_gev_params, massif_name_to_confidence
 
     def massif_name_to_gev_param_list(self, year_min_and_max_list):
