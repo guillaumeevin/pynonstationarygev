@@ -13,7 +13,7 @@ def tuples_for_examples_paper1(examples_for_the_paper=True):
 
         marker_altitude_massif_name_for_paper1 = [
             # ('magenta', 900, 'Ubaye'),
-            ('darkblue', 1800, 'Vercors'),
+            ('darkblue', 900, 'Chartreuse'),
             # ('mediumpurple', 2700, 'Beaufortain'),
         ]
     else:

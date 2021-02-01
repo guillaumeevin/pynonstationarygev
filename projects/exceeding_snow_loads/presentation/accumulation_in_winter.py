@@ -1,11 +1,13 @@
 import matplotlib.pyplot as plt
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusDepth
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 
 ax = plt.gca()
 fontsize = 20
 altitude = 1800
-studies = [CrocusSnowLoadTotal(altitude=altitude), CrocusDepth(altitude=altitude)]
+# studies = [CrocusSnowLoadTotal(altitude=altitude), CrocusDepth(altitude=altitude)]
+studies = [SafranSnowfall1Day(altitude=altitude), CrocusDepth(altitude=altitude)]
 colors = ['black', 'grey']
 for i, study in enumerate(studies):
     color = colors[i]
@@ -18,7 +20,10 @@ for i, study in enumerate(studies):
     days = [d[5:] for d in study.year_to_days[year]]
     x = list(range(len(days)))
     if i == 0:
-        ylabel = 'ground snow load ({})'.format(AbstractSnowLoadVariable.UNIT)
+        if isinstance(study, SafranSnowfall1Day):
+            ylabel = 'snowfall (mm)'
+        else:
+            ylabel = 'ground snow load ({})'.format(AbstractSnowLoadVariable.UNIT)
     else:
         ylabel = 'snow depth (m)'
     ax.set_ylabel(ylabel, fontsize=fontsize)
