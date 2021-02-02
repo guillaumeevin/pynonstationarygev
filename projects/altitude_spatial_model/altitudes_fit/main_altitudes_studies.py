@@ -2,6 +2,9 @@ import datetime
 import time
 from typing import List
 
+import matplotlib
+matplotlib.use('Agg')
+
 import matplotlib as mpl
 
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoad3Days
@@ -31,10 +34,10 @@ def main():
 
     set_seed_for_test()
 
-    fast = True
+    fast = False
     if fast is None:
-        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors']
-        altitudes_list = altitudes_for_groups[1:2]
+        massif_names = None
+        altitudes_list = altitudes_for_groups[2:3]
     elif fast:
         massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:1]
         altitudes_list = altitudes_for_groups[3:]
@@ -65,10 +68,10 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes):
 
 
 def plot_visualizers(massif_names, visualizer_list):
-    # plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
-    # plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
-    # for relative in [True, False]:
-    #     plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
+    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
+    plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
+    for relative in [True, False]:
+        plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
     # plot_coherence_curves(massif_names, visualizer_list)
     plot_coherence_curves(['Vanoise'], visualizer_list)
 
@@ -79,7 +82,7 @@ def plot_visualizer(massif_names, visualizer):
     # visualizer.studies.plot_maxima_time_series(['Vanoise'])
 
     # Plot the results for the model that minimizes the individual aic
-    # plot_individual_aic(visualizer)
+    plot_individual_aic(visualizer)
 
 
     # Plot the results for the model that minimizes the total aic

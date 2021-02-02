@@ -3,7 +3,10 @@ from typing import List
 
 import numpy as np
 
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 from matplotlib.lines import Line2D
 
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
@@ -111,8 +114,8 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(x)
     ax.yaxis.grid()
-    ax.set_ylim([0, 69])
-    # ax.set_ylim(bottom=0)
+    ax.set_ylim([0, 89])
+    ax.set_ylim(bottom=0)
     ax.set_xticklabels([v.altitude_group.formula_upper for v in visualizer_list])
 
     plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x)
