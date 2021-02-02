@@ -3,6 +3,10 @@ import time
 from typing import List
 
 import matplotlib
+
+from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
+    AbstractExtractEurocodeReturnLevel
+
 matplotlib.use('Agg')
 
 import matplotlib as mpl
@@ -34,13 +38,14 @@ def main():
 
     set_seed_for_test()
 
-    fast = False
+    fast = True
     if fast is None:
         massif_names = None
         altitudes_list = altitudes_for_groups[2:3]
     elif fast:
-        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:1]
-        altitudes_list = altitudes_for_groups[3:]
+        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
+        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][2:]
+        altitudes_list = altitudes_for_groups[:1]
     else:
         massif_names = None
         altitudes_list = altitudes_for_groups[:]
@@ -68,13 +73,13 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes):
 
 
 def plot_visualizers(massif_names, visualizer_list):
-    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
-    plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
-    for relative in [True, False]:
-        plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
+    # plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
+    # plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
+    # for relative in [True, False]:
+    #     plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
     # plot_coherence_curves(massif_names, visualizer_list)
-    plot_coherence_curves(['Vanoise'], visualizer_list)
-
+    # plot_coherence_curves(['Vanoise'], visualizer_list)
+    pass
 
 def plot_visualizer(massif_names, visualizer):
     # Plot time series
