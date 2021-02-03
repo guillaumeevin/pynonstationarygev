@@ -10,11 +10,15 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusD
     CrocusSnowLoadEurocode, CrocusSnowLoad5Days, CrocusSnowLoad7Days
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_snow_density import CrocusSnowDensity
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusDensityVariable
+from extreme_data.meteo_france_data.scm_models_data.safran.gap_between_study import GapBetweenSafranSnowfall2019And2020, \
+    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019Recentered, GapBetweenSafranSnowfall2019AndMySafranSnowfall2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranRainfall, \
     SafranTemperature, SafranPrecipitation, SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, \
     SafranSnowfall7Days, SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days, \
     SafranPrecipitation7Days, SafranDateFirstSnowfall
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
+    SafranSnowfall2019
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 from projects.exceeding_snow_loads.section_discussion.crocus_study_comparison_with_eurocode import \
@@ -38,6 +42,11 @@ SCM_STUDY_NAME_TO_SCM_STUDY = dict(zip(SCM_STUDIES_NAMES, SCM_STUDIES))
 SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
     SafranSnowfall1Day: 'daily snowfall',
+    SafranSnowfall2020: 'daily snowfall',
+    SafranSnowfall2019: 'daily snowfall',
+    GapBetweenSafranSnowfall2019And2020: 'daily snowfall\n bias = SAFRAN 2020 minus SAFRAN 2019',
+    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019Recentered: 'daily snowfall\n my SAFRAN 2019 recentered minus SAFRAN 2019',
+    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019: 'daily snowfall\n my SAFRAN 2019 minus SAFRAN 2019',
     SafranSnowfall3Days: 'SF3',
     SafranSnowfall5Days: 'SF5',
     SafranSnowfall7Days: 'SF7',

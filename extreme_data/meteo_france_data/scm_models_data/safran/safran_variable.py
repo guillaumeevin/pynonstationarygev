@@ -14,7 +14,7 @@ class SafranSnowfallVariable(AbstractVariable):
         and multiply that by 60 x 60 which corresponds to the number of seconds in one hour
 
     -How do how I define the limit of a day ?
-        From the start, i.e. in August at 4am something like that,then if I add a 24H duration, I arrive to the next day
+        From the start, i.e. in August at 6am,then if I add a 24H duration, I arrive to the next day
 
     -How do you aggregate several days ?
         We aggregate all the N consecutive days into a value x_i, then we take the max
@@ -34,21 +34,17 @@ class SafranSnowfallVariable(AbstractVariable):
         super().__init__(variable_array)
         self.nb_consecutive_days_of_snowfall = nb_consecutive_days
         # Compute the daily snowfall in kg/m2
-        snowfall_rates = variable_array
-
-        # Compute the mean snowrate, then multiply it by 60 * 60 * 24
-        # day_duration_in_seconds = 24 * 60 * 60
-        # nb_days = len(snowfall_rates) // 24
-        # print(nb_days)
-        # daily_snowrate = [np.mean(snowfall_rates[24 * i:24 * (i + 1) + 1], axis=0) for i in range(nb_days)]
-        # self.daily_snowfall = day_duration_in_seconds * np.array(daily_snowrate)
-
-        # Compute the hourly snowfall first, then aggregate
-        mean_snowfall_rates = 0.5 * (snowfall_rates[:-1] + snowfall_rates[1:])
+        mean_snowfall_rates = self.get_snowfall_rates(variable_array)
         hourly_snowfall = 60 * 60 * mean_snowfall_rates
         # Transform the snowfall amount into a dataframe
         nb_days = len(hourly_snowfall) // 24
-        self.daily_snowfall = [sum(hourly_snowfall[24 * i:24 * (i + 1)]) for i in range(nb_days)]
+        self.daily_snowfall = self.daily_snowfall(hourly_snowfall, nb_days)
+
+    def get_snowfall_rates(self, variable_array):
+        return 0.5 * (variable_array[:-1] + variable_array[1:])
+
+    def daily_snowfall(self, hourly_snowfall, nb_days):
+        return [sum(hourly_snowfall[24 * i:24 * (i + 1)]) for i in range(nb_days)]
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:
@@ -67,6 +63,20 @@ class SafranSnowfallVariable(AbstractVariable):
         return snowfall_in_consecutive_days
 
 
+class SafranSnowfallVariableCenterOnDay(SafranSnowfallVariable):
+
+    def daily_snowfall(self, hourly_snowfall, nb_days):
+        hourly_snowfall_without_first_and_last_days = hourly_snowfall[18:-6]
+        assert len(hourly_snowfall_without_first_and_last_days) % 24 == 0
+        daily_snowfall = super().daily_snowfall(hourly_snowfall[18:-5], nb_days - 2)
+        zero_array = daily_snowfall[0] * 0
+        daily_snowfall = [zero_array] + daily_snowfall + [zero_array]
+        return daily_snowfall
+
+    def get_snowfall_rates(self, variable_array):
+        return variable_array[:-1]
+
+
 class SafranDateFirstSnowfallVariable(SafranSnowfallVariable):
     NAME = 'Date First Snow'
     UNIT = 'days'
@@ -83,10 +93,11 @@ class SafranDateFirstSnowfallVariable(SafranSnowfallVariable):
                 min = np.nan
             # first_date = 1 - min / 366
             first_date = 1 - min / 366
-            first_date_repeated = np.ones(len(s))  * first_date
+            first_date_repeated = np.ones(len(s)) * first_date
             new_daily_time_series.append(first_date_repeated)
         new_daily_time_series_array = np.array(new_daily_time_series).transpose()
         return new_daily_time_series_array
+
 
 class SafranRainfallVariable(SafranSnowfallVariable):
     """Warning: this corresponds to water falling. Total precipitaiton equals Rainfall + Snowfall"""

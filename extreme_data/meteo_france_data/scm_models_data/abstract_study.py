@@ -546,18 +546,17 @@ class AbstractStudy(object):
         # extracted for a csv file, and used only for display purposes
         df = cls.load_df_centroid()
         # Lower a bit the Mercantour massif
-        df.loc['Mercantour', 'coord_x'] += 14000 # shift to the right
-        df.loc['Mercantour', 'coord_y'] -= 7000 # shift down
+        df.loc['Mercantour', 'coord_x'] += 14000  # shift to the right
+        df.loc['Mercantour', 'coord_y'] -= 7000  # shift down
         # Lower a bit the Maurienne massif
         # df.loc['Mercantour', 'coord_x'] += 14000 # shift to the right
-        df.loc['Maurienne', 'coord_y'] -= 6000 # shift down
-        df.loc['Maurienne', 'coord_y'] -= 5000 # shift down
-        df.loc['Maurienne', 'coord_x'] += 3000 # shift down
-        df.loc['Vanoise', 'coord_y'] -= 4000 # shift down
-        df.loc['Ubaye', 'coord_y'] -= 4000 # shift down
+        df.loc['Maurienne', 'coord_y'] -= 6000  # shift down
+        df.loc['Maurienne', 'coord_y'] -= 5000  # shift down
+        df.loc['Maurienne', 'coord_x'] += 3000  # shift down
+        df.loc['Vanoise', 'coord_y'] -= 4000  # shift down
+        df.loc['Ubaye', 'coord_y'] -= 4000  # shift down
         # Filter, keep massifs present at the altitude of interest
         df = df.loc[massif_names, :]
-
 
         # Build coordinate object from df_centroid
         return AbstractSpatialCoordinates.from_df(df)
@@ -889,7 +888,8 @@ class AbstractStudy(object):
             self._cache_for_pointwise_fit[t] = res
             return res
 
-    def _massif_name_to_stationary_gev_params_and_confidence(self, quantile_level=None, confidence_interval_based_on_delta_method=True):
+    def _massif_name_to_stationary_gev_params_and_confidence(self, quantile_level=None,
+                                                             confidence_interval_based_on_delta_method=True):
         """ at least 90% of values must be above zero"""
         print('study computation')
         massif_name_to_stationary_gev_params = {}
@@ -899,16 +899,17 @@ class AbstractStudy(object):
             if percentage_of_non_zeros > 90:
                 start = time.time()
                 gev_params, mean_estimate, confidence = fitted_stationary_gev_with_uncertainty_interval(annual_maxima,
-                                                                                         fit_method=MarginFitMethod.extremes_fevd_mle,
-                                                                                         quantile_level=quantile_level,
-                                                                                         confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method)
+                                                                                                        fit_method=MarginFitMethod.extremes_fevd_mle,
+                                                                                                        quantile_level=quantile_level,
+                                                                                                        confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method)
                 end = time.time()
                 duration = end - start
                 print('Multiprocessing for study duration', duration)
 
                 if -0.5 <= gev_params.shape <= 0.5:
                     massif_name_to_stationary_gev_params[massif_name] = gev_params
-                    massif_name_to_confidence[massif_name] = EurocodeConfidenceIntervalFromExtremes(mean_estimate, confidence)
+                    massif_name_to_confidence[massif_name] = EurocodeConfidenceIntervalFromExtremes(mean_estimate,
+                                                                                                    confidence)
         return massif_name_to_stationary_gev_params, massif_name_to_confidence
 
     def massif_name_to_gev_param_list(self, year_min_and_max_list):
@@ -926,3 +927,10 @@ class AbstractStudy(object):
                 gev_params_list.append(fitted_stationary_gev(annual_maxima_sliced))
             massif_name_to_stationary_gev_params[massif_name] = gev_params_list
         return massif_name_to_stationary_gev_params
+
+    @property
+    def mean_annual_maxima(self):
+        annual_maxima = []
+        for maxima in self.year_to_annual_maxima.values():
+            annual_maxima.extend(maxima)
+        return np.mean(annual_maxima)

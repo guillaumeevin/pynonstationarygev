@@ -10,7 +10,7 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusS
 from extreme_data.meteo_france_data.scm_models_data.safran.cumulated_study import NB_DAYS
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, SafranTemperature, \
     SafranPrecipitation, SafranSnowfall3Days, SafranRainfall3Days, SafranNormalizedPreciptationRateOnWetDays
-from extreme_data.meteo_france_data.scm_models_data.safran.safran_2020 import SnowfallSafran2020
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     study_iterator_global, SCM_STUDIES, ALL_ALTITUDES, SCM_STUDY_CLASS_TO_ABBREVIATION
@@ -166,7 +166,7 @@ class TestSafranTemperature(TestSCMStudy):
 class TestSafran2020(TestSCMStudy):
 
     def test_safran_2020_loader(self):
-        study = SnowfallSafran2020(altitude=1800)
+        study = SafranSnowfall2020(altitude=1800)
         annual_maxima = study.year_to_annual_maxima[1959]
         annual_maxima = study.year_to_annual_maxima[2020]
         annual_maxima = study.massif_name_to_annual_maxima['Vercors']
