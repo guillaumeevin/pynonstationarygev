@@ -29,27 +29,29 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_gr
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.plot_total_aic import plot_individual_aic
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days, \
-    SafranSnowfall5Days, SafranSnowfall7Days, SafranDateFirstSnowfall, SafranPrecipitation1Day, SafranPrecipitation3Days
+    SafranSnowfall5Days, SafranSnowfall7Days, SafranDateFirstSnowfall, SafranPrecipitation1Day, \
+    SafranPrecipitation3Days, SafranSnowfallCenterOnDay1dayMeanRate, SafranSnowfallNotCenterOnDay1day
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 
 def main():
-    study_classes = [SafranSnowfall2020, SafranSnowfall2019,
-                     SafranSnowfall1Day, SafranSnowfall3Days,
-                     SafranSnowfall5Days, SafranSnowfall7Days][:3]
+    study_classes = [SafranSnowfall1Day
+                     , SafranSnowfall3Days,
+                     SafranSnowfall5Days, SafranSnowfall7Days][:1]
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
     set_seed_for_test()
-    model_must_pass_the_test = True
+    model_must_pass_the_test = False
+    AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = None
+    fast = True
     if fast is None:
-        massif_names = None
-        altitudes_list = altitudes_for_groups[2:3]
+        massif_names = ['Vanoise']
+        altitudes_list = altitudes_for_groups[:]
     elif fast:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:2]
-        altitudes_list = altitudes_for_groups[3:]
+        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:1]
+        altitudes_list = altitudes_for_groups[1:2]
     else:
         massif_names = None
         altitudes_list = altitudes_for_groups[:]

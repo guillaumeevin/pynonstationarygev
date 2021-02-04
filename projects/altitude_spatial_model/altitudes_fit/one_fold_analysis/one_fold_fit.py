@@ -330,9 +330,10 @@ class OneFoldFit(object):
         goodness_of_fit_anderson_test = goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
         return goodness_of_fit_anderson_test
 
-    def standard_gumbel_quantiles(self):
+    def standard_gumbel_quantiles(self, n=None):
         standard_gumbel_distribution = GevParams(loc=0, scale=1, shape=0)
-        n = len(self.dataset.coordinates)
+        if n is None:
+            n = len(self.dataset.coordinates)
         standard_gumbel_quantiles = [standard_gumbel_distribution.quantile(i / (n + 1)) for i in range(1, n + 1)]
         return standard_gumbel_quantiles
 

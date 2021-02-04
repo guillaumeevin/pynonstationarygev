@@ -42,12 +42,8 @@ def fitted_stationary_gev_with_uncertainty_interval(x_gev, fit_method=MarginFitM
             return_level_list = ReturnLevelBootstrap(fit_method, model_class, starting_year, x_gev,
                                                      quantile_level).compute_all_return_level()
             # Remove infinite return levels and return level
-            len_before_remove = len(return_level_list)
-            threshold = 2000
-            return_level_list = [r for r in return_level_list if (not np.isinf(r)) and (r < threshold)]
-            len_after_remove = len(return_level_list)
-            if len_after_remove < len_before_remove:
-                print('Nb of fit removed (inf or > {}:'.format(threshold), len_before_remove - len_after_remove)
+            # percentage_of_inf = 100 * sum([np.isinf(r) for r in return_level_list]) / len(return_level_list)
+            # print('Percentage of fit with inf = {} \%'.format(percentage_of_inf))
             confidence_interval = tuple([np.quantile(return_level_list, q)
                                          for q in AbstractExtractEurocodeReturnLevel.bottom_and_upper_quantile])
             mean_estimate = gev_param.quantile(quantile_level)

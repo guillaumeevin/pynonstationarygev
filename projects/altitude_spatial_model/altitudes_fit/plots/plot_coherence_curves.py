@@ -2,6 +2,8 @@ from typing import List
 import matplotlib.pyplot as plt
 import numpy as np
 
+from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
+    AbstractExtractEurocodeReturnLevel
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import OneFoldFit
@@ -103,9 +105,9 @@ def plot_coherence_curve(ax, i, x_all_list, values_all_list, all_bound_list,
                 lower_bound, upper_bound = bounds
                 f = ax.fill_between if elevation_as_xaxis else ax.fill_betweenx
                 if legend and not legend_line:
-                    print('here2')
                     model_name = 'piecewise elevational-temporal models in 2019' if is_altitudinal else 'pointwise distributions'
-                    fill_label = "95\% confidence interval for the {}".format(model_name) if j == 0 else None
+                    percentage = AbstractExtractEurocodeReturnLevel.percentage_confidence_interval
+                    fill_label = "{}\% confidence interval for the {}".format(percentage, model_name) if j == 0 else None
                     f(x_list, lower_bound, upper_bound, color=color, alpha=0.2, label=fill_label)
                 else:
                     f(x_list, lower_bound, upper_bound, color=color, alpha=0.2)

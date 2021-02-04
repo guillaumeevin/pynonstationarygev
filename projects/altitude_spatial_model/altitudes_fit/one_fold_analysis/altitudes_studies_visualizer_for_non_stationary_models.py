@@ -508,22 +508,22 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     def plot_qqplots(self):
         for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
             ax = plt.gca()
-            model_name = self.massif_name_to_best_name[massif_name]
             altitudes = self.massif_name_to_massif_altitudes[massif_name]
             massif_name_corrected = massif_name.replace('_', ' ')
-            label = '{} for altitudes  {}'.format(massif_name_corrected, ' & '.join([str(a) + 'm' for a in altitudes]))
-
-
 
             all_quantiles = []
 
-            standard_gumbel_quantiles = one_fold_fit.standard_gumbel_quantiles()
+            for altitude in self.studies.altitudes:
+                coordinate_for_filter = (altitude, None)
+                unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles(coordinate_for_filter=coordinate_for_filter)
+                n = len(unconstrained_empirical_quantiles)
+                assert n == 61
+                standard_gumbel_quantiles = one_fold_fit.standard_gumbel_quantiles(n=n)
+                ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
+                        label='{} m'.format(altitude), marker='o')
 
-
-            unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles()
-            all_quantiles = standard_gumbel_quantiles + unconstrained_empirical_quantiles
-            ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
-                    label=label + '\n(selected model is ${}$)'.format(model_name), marker='o')
+                all_quantiles.extend(standard_gumbel_quantiles)
+                all_quantiles.extend(unconstrained_empirical_quantiles)
 
             size_label = 20
             ax.set_xlabel("Theoretical quantile", fontsize=size_label)
@@ -538,7 +538,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             ticks = [i for i in range(ceil(ax_lim[0]), floor(ax_lim[1]) + 1)]
             ax.set_xticks(ticks)
             ax.set_yticks(ticks)
-            ax.tick_params(labelsize=15)
+            labelsize = 15
+            ax.tick_params(labelsize=labelsize)
             plot_name = 'qqplot/{}'.format(massif_name_corrected)
+            handles, labels = ax.get_legend_handles_labels()
+            ax.legend(handles[::-1], labels[::-1], prop={'size': labelsize})
             self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show, no_title=True)
             plt.close()

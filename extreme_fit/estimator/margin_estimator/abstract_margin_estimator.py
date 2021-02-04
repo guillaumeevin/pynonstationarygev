@@ -75,11 +75,16 @@ class LinearMarginEstimator(AbstractMarginEstimator):
             assert not np.isinf(nllh)
         return nllh
 
-    def sorted_empirical_standard_gumbel_quantiles(self, split=Split.all):
+    def sorted_empirical_standard_gumbel_quantiles(self, split=Split.all, coordinate_for_filter=None):
         sorted_empirical_quantiles = []
         maxima_values = self.dataset.maxima_gev(split=split)
         coordinate_values = self.dataset.df_coordinates(split=split).values
         for maximum, coordinate in zip(maxima_values, coordinate_values):
+            if coordinate_for_filter is not None:
+                assert len(coordinate) == len(coordinate_for_filter)
+                keep = any([(f is not None) and (c == f) for c, f in zip(coordinate, coordinate_for_filter)])
+                if not keep:
+                    continue
             gev_param = self.function_from_fit.get_params(
                 coordinate=coordinate,
                 is_transformed=False)
