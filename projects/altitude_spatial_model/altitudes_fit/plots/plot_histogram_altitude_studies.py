@@ -237,6 +237,10 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
     lim_down, lim_up = ax.get_ylim()
     ax.set_ylim(lim_down, lim_up + upper_limit_for_legend)
 
+    # Plot a zero horizontal line
+    lim_left, lim_right = ax.get_xlim()
+    ax.hlines(0, xmin=lim_left, xmax=lim_right, linestyles='dashed')
+
     # I could display the number of massif used to build each box plot.
     # plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x)
 

@@ -5,7 +5,7 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitudes_s
     AltitudesStudiesVisualizerForNonStationaryModels
 
 
-def load_visualizer_list(season, study_class, altitudes_list, massif_names, **kwargs_study):
+def load_visualizer_list(season, study_class, altitudes_list, massif_names, model_must_pass_the_test=True, **kwargs_study):
     model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
     visualizer_list = []
     # Load all studies
@@ -17,7 +17,7 @@ def load_visualizer_list(season, study_class, altitudes_list, massif_names, **kw
                                                                       show=False,
                                                                       temporal_covariate_for_fit=None,
                                                                       confidence_interval_based_on_delta_method=False,
-                                                                      display_only_model_that_pass_anderson_test=False
+                                                                      display_only_model_that_pass_anderson_test=model_must_pass_the_test
                                                                       )
         visualizer_list.append(visualizer)
     compute_and_assign_max_abs(visualizer_list)

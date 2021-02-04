@@ -258,7 +258,6 @@ class OneFoldFit(object):
     @cached_property
     def is_significant(self) -> bool:
         if self.confidence_interval_based_on_delta_method:
-            print('old significance is used')
             stationary_model_classes = [StationaryAltitudinal, StationaryGumbelAltitudinal,
                                         AltitudinalShapeLinearTimeStationary]
             if any([isinstance(self.best_estimator.margin_model, c)
@@ -268,7 +267,6 @@ class OneFoldFit(object):
                 return self.likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=self.degree_freedom_chi2)
         else:
             # Bootstrap based significance
-            print('new significance is used')
             return self.cached_results_from_bootstrap[0]
 
     # @property

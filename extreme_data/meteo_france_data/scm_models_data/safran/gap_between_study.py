@@ -3,7 +3,7 @@ from collections import OrderedDict
 from cached_property import cached_property
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, \
-    SafranSnowfallCenterOnDay1day
+    SafranSnowfallCenterOnDay1day, SafranSnowfallNotCenterOnDay1day, SafranSnowfallCenterOnDay1dayMeanRate
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
     SafranSnowfall2019
 
@@ -39,6 +39,16 @@ class GapBetweenSafranSnowfall2019AndMySafranSnowfall2019Recentered(AbstractGapB
 
     def __init__(self, **kwargs):
         super().__init__(SafranSnowfall2019, SafranSnowfallCenterOnDay1day, **kwargs)
+
+class GapBetweenSafranSnowfall2019AndMySafranSnowfall2019NotRecentered(AbstractGapBetweenTwoStudyClass):
+
+    def __init__(self, **kwargs):
+        super().__init__(SafranSnowfall2019, SafranSnowfallNotCenterOnDay1day, **kwargs)
+
+class GapBetweenSafranSnowfall2019AndMySafranSnowfall2019RecenteredMeanRate(AbstractGapBetweenTwoStudyClass):
+
+    def __init__(self, **kwargs):
+        super().__init__(SafranSnowfall2019, SafranSnowfallCenterOnDay1dayMeanRate, **kwargs)
 
 
 class GapBetweenSafranSnowfall2019AndMySafranSnowfall2019(AbstractGapBetweenTwoStudyClass):

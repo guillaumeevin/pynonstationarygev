@@ -110,7 +110,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 or old_fold_fit.has_at_least_one_valid_model}
 
     def plot_moments(self):
-        for method_name in self.moment_names:
+        for method_name in self.moment_names[:2]:
             for order in self.orders:
                 # self.plot_against_years(method_name, order)
                 self.plot_map_moment(method_name, order)
@@ -168,7 +168,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         moment = moment.replace('moment', '{}{}'.format(OneFoldFit.get_moment_str(order=order), str_for_last_year))
         plot_name = '{}{} '.format(OneFoldFit.folder_for_plots, moment)
 
-        massif_name_to_text = self.massif_name_to_best_name
+
         if 'change' in method_name:
             plot_name = plot_name.replace(str_for_last_year, '')
             plot_name += ' between {} and {}'.format(2019 - OneFoldFit.nb_years, 2019)
@@ -185,6 +185,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
         is_return_level_plot = (self.moment_names.index(method_name) == 0) and (order is None)
         if is_return_level_plot:
+
             cmap = plt.cm.Spectral
             cmap = remove_the_extreme_colors(cmap, epsilon=0.25)
             cmap = get_inverse_colormap(cmap)
@@ -216,6 +217,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       xlabel=self.altitude_group.xlabel,
                       fontsize_label=fontsize_label,
                       )
+
 
     @property
     def add_colorbar(self):

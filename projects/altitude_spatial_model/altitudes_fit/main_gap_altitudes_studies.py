@@ -5,7 +5,8 @@ from typing import List
 import matplotlib
 
 from extreme_data.meteo_france_data.scm_models_data.safran.gap_between_study import GapBetweenSafranSnowfall2019And2020, \
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019Recentered
+    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019Recentered, \
+    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019NotRecentered
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
 
 matplotlib.use('Agg')
@@ -28,13 +29,14 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 def main():
     study_classes = [GapBetweenSafranSnowfall2019AndMySafranSnowfall2019Recentered,
+                     GapBetweenSafranSnowfall2019AndMySafranSnowfall2019NotRecentered,
                      GapBetweenSafranSnowfall2019And2020, SafranSnowfall2020, SafranSnowfall1Day, SafranSnowfall3Days,
-                     SafranSnowfall5Days, SafranSnowfall7Days][:1]
+                     SafranSnowfall5Days, SafranSnowfall7Days][1:2]
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
     set_seed_for_test()
 
-    fast = False
+    fast = True
     if fast:
         altitudes_list = altitudes_for_groups[:1]
     else:

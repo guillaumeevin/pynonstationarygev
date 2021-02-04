@@ -14,7 +14,7 @@ from projects.exceeding_snow_loads.utils import dpi_paper1_figure
 
 
 def plots(visualizer: AltitudesStudiesVisualizerForNonStationaryModels):
-    visualizer.plot_shape_map()
+    # visualizer.plot_shape_map()
     visualizer.plot_moments()
     # visualizer.plot_qqplots()
     # for std in [True, False]:

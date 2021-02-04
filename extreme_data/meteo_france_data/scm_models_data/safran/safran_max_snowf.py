@@ -33,11 +33,17 @@ class AbstractSafranSnowfallMaxFiles(SafranSnowfall1Day):
             year_to_annual_maxima[year] = a
         return year_to_annual_maxima
 
+    @property
+    def variable_name(self):
+        return self.variable_class.NAME + str(self.safran_year) + ' ({})'.format(self.variable_unit)
+
 
 class SafranSnowfall2020(AbstractSafranSnowfallMaxFiles):
 
     def __init__(self, **kwargs):
         super().__init__(2020, **kwargs)
+
+
 
 
 class SafranSnowfall2019(AbstractSafranSnowfallMaxFiles):

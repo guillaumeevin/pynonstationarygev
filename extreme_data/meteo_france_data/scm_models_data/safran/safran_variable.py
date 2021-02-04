@@ -63,6 +63,14 @@ class SafranSnowfallVariable(AbstractVariable):
         return snowfall_in_consecutive_days
 
 
+
+
+class SafranSnowfallVariableNotCenterOnDay(SafranSnowfallVariable):
+
+    def get_snowfall_rates(self, variable_array):
+        return variable_array[:-1]
+
+
 class SafranSnowfallVariableCenterOnDay(SafranSnowfallVariable):
 
     def daily_snowfall(self, hourly_snowfall, nb_days):
@@ -75,6 +83,13 @@ class SafranSnowfallVariableCenterOnDay(SafranSnowfallVariable):
 
     def get_snowfall_rates(self, variable_array):
         return variable_array[:-1]
+
+
+class SafranSnowfallVariableCenterOnDayMeanRate(SafranSnowfallVariableCenterOnDay):
+
+    def get_snowfall_rates(self, variable_array):
+        return 0.5 * (variable_array[:-1] + variable_array[1:])
+
 
 
 class SafranDateFirstSnowfallVariable(SafranSnowfallVariable):
