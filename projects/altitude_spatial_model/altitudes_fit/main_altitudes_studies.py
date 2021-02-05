@@ -10,7 +10,7 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf impo
     SafranSnowfall2020
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_histogram_altitude_studies import \
     plot_shoe_plot_changes_against_altitude, plot_histogram_all_trends_against_altitudes, \
-    plot_shoe_plot_ratio_interval_size_against_altitude
+    plot_shoe_plot_ratio_interval_size_against_altitude, plot_histogram_all_models_against_altitudes
 
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
@@ -44,10 +44,10 @@ def main():
     model_must_pass_the_test = False
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = True
+    fast = False
     if fast is None:
-        massif_names = ['Vanoise']
-        altitudes_list = altitudes_for_groups[:]
+        massif_names = None
+        altitudes_list = altitudes_for_groups[2:3]
     elif fast:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:1]
@@ -80,6 +80,7 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_p
 
 
 def plot_visualizers(massif_names, visualizer_list):
+    plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
     # plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
     # plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
     # for relative in [True, False]:
@@ -95,7 +96,7 @@ def plot_visualizer(massif_names, visualizer):
     # visualizer.studies.plot_maxima_time_series(['Vanoise'])
 
     # Plot the results for the model that minimizes the individual aic
-    plot_individual_aic(visualizer)
+    # plot_individual_aic(visualizer)
 
     # Plot the results for the model that minimizes the total aic
     # plot_total_aic(model_classes, visualizer)

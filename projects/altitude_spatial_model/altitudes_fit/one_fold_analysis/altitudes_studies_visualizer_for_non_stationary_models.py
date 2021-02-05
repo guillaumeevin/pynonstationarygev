@@ -517,13 +517,14 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 coordinate_for_filter = (altitude, None)
                 unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles(coordinate_for_filter=coordinate_for_filter)
                 n = len(unconstrained_empirical_quantiles)
-                assert n == 61
-                standard_gumbel_quantiles = one_fold_fit.standard_gumbel_quantiles(n=n)
-                ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
-                        label='{} m'.format(altitude), marker='o')
+                if n > 0:
+                    assert n == 61
+                    standard_gumbel_quantiles = one_fold_fit.standard_gumbel_quantiles(n=n)
+                    ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
+                            label='{} m'.format(altitude), marker='o')
 
-                all_quantiles.extend(standard_gumbel_quantiles)
-                all_quantiles.extend(unconstrained_empirical_quantiles)
+                    all_quantiles.extend(standard_gumbel_quantiles)
+                    all_quantiles.extend(unconstrained_empirical_quantiles)
 
             size_label = 20
             ax.set_xlabel("Theoretical quantile", fontsize=size_label)

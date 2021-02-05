@@ -40,44 +40,44 @@ def plot_histogram_all_models_against_altitudes(massif_names, visualizer_list: L
         print(model_name_to_mean_percentage[model_name], model_name_to_mean_percentage_significant[model_name],
               model_name)
 
-    # Plot part
-    ax = plt.gca()
-    width = 5
-    size = 8
-    legend_fontsize = 10
-    labelsize = 10
-    linewidth = 1
-    tick_list = np.array([((len(visualizer_list) + 2) * i + (1 + len(visualizer_list) / 2)) * width
-                          for i in range(len(sorted_model_names))])
-    for tick_middle, model_name in zip(tick_list, sorted_model_names):
-        x_shifted = [tick_middle + width * shift / 2 for shift in range(-3, 5, 2)]
-        percentages = model_name_to_percentages[model_name]
-        percentages_significant = model_name_to_percentages_significant[model_name]
-        colors = ['white', 'yellow', 'orange', 'red']
-        labels = ['{} m - {} m (\% out of {} massifs)'.format(1000 * i, 1000 * (i + 1),
-                                                              len(v.get_valid_names(massif_names))) for i, v in
-                  enumerate(visualizer_list)]
-        for x, color, percentage, label, percentage_significant in zip(x_shifted, colors, percentages, labels,
-                                                                       percentages_significant):
-            ax.bar([x], [percentage], width=width, label=label,
-                   linewidth=2 * linewidth, edgecolor='black', color=color)
-            heights = list(range(0, math.ceil(percentage_significant), 1))[::-1]
-            for height in heights:
-                ax.bar([x], [height], width=width, linewidth=linewidth, edgecolor='black', color=color)
-
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles[:len(visualizer_list)], labels[:len(visualizer_list)], prop={'size': size})
-    ax.set_xticklabels(sorted_model_names)
-    ax.set_xticks(tick_list)
-    ax.set_ylabel('Percentage of massifs (\%) ', fontsize=legend_fontsize)
-    ax.set_xlabel('Models', fontsize=legend_fontsize)
-    ax.set_ylim(bottom=0)
-    ax.yaxis.grid()
-    ax.tick_params(axis='both', which='major', labelsize=labelsize)
-
-    visualizer.plot_name = 'All models'
-    visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
-    plt.close()
+    # # Plot part
+    # ax = plt.gca()
+    # width = 5
+    # size = 8
+    # legend_fontsize = 10
+    # labelsize = 10
+    # linewidth = 1
+    # tick_list = np.array([((len(visualizer_list) + 2) * i + (1 + len(visualizer_list) / 2)) * width
+    #                       for i in range(len(sorted_model_names))])
+    # for tick_middle, model_name in zip(tick_list, sorted_model_names):
+    #     x_shifted = [tick_middle + width * shift / 2 for shift in range(-3, 5, 2)]
+    #     percentages = model_name_to_percentages[model_name]
+    #     percentages_significant = model_name_to_percentages_significant[model_name]
+    #     colors = ['white', 'yellow', 'orange', 'red']
+    #     labels = ['{} m - {} m (\% out of {} massifs)'.format(1000 * i, 1000 * (i + 1),
+    #                                                           len(v.get_valid_names(massif_names))) for i, v in
+    #               enumerate(visualizer_list)]
+    #     for x, color, percentage, label, percentage_significant in zip(x_shifted, colors, percentages, labels,
+    #                                                                    percentages_significant):
+    #         ax.bar([x], [percentage], width=width, label=label,
+    #                linewidth=2 * linewidth, edgecolor='black', color=color)
+    #         heights = list(range(0, math.ceil(percentage_significant), 1))[::-1]
+    #         for height in heights:
+    #             ax.bar([x], [height], width=width, linewidth=linewidth, edgecolor='black', color=color)
+    #
+    # handles, labels = ax.get_legend_handles_labels()
+    # ax.legend(handles[:len(visualizer_list)], labels[:len(visualizer_list)], prop={'size': size})
+    # ax.set_xticklabels(sorted_model_names)
+    # ax.set_xticks(tick_list)
+    # ax.set_ylabel('Percentage of massifs (\%) ', fontsize=legend_fontsize)
+    # ax.set_xlabel('Models', fontsize=legend_fontsize)
+    # ax.set_ylim(bottom=0)
+    # ax.yaxis.grid()
+    # ax.tick_params(axis='both', which='major', labelsize=labelsize)
+    #
+    # visualizer.plot_name = 'All models'
+    # visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
+    # plt.close()
 
 
 def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: List[
