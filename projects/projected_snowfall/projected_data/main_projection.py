@@ -18,11 +18,11 @@ from projects.projected_snowfall.comparison_with_scm.comparison_historical_visua
 
 
 def main():
-    fast = None
-    adamont_scenario = AdamontScenario.rcp85_extended
+    fast = True
+    adamont_scenario = [AdamontScenario.histo, AdamontScenario.rcp85_extended][0]
     year_min = 1982 if adamont_scenario is AdamontScenario.rcp85_extended else 2006
     # Set the year_min and year_max for the comparison
-    if fast is True:
+    if fast is None:
         year_max = [2030][0]
         massif_names = ['Vanoise']
         altitudes = [1800]
@@ -31,7 +31,7 @@ def main():
         # year_min = [1951][0]
         year_max = [2005][0]
         massif_names = ['Vercors']
-        altitudes =  [900, 1200, 1500, 1800, 2100, 2400]
+        altitudes = [900, 1200, 1500, 1800, 2100, 2400][3:4]
     else:
         year_max = [2100][0]
         massif_names = None
@@ -46,7 +46,8 @@ def main():
         adamont_studies = AdamontStudies(adamont_study_class, gcm_rcm_couples,
                                          altitude=altitude, year_min=year_min,
                                          year_max=year_max, season=season,
-                                         scenario=adamont_scenario)
+                                         scenario=adamont_scenario,
+                                         adamont_version=2)
         adamont_studies.plot_maxima_time_series_adamont(massif_names)
 
 

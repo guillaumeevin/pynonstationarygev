@@ -31,7 +31,7 @@ class AdamontStudies(object):
         return list(self.gcm_rcm_couple_to_study.values())
 
     @cached_property
-    def study(self) -> AbstractStudy:
+    def study(self) -> AbstractAdamontStudy:
         return self.study_list[0]
 
     @property
@@ -88,7 +88,8 @@ class AdamontStudies(object):
         ax.set_ylim((ylim_min, ylim_max * 1.5))
         ax.tick_params(axis='both', which='major', labelsize=13)
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles[::-1], labels[::-1], ncol=2, prop={'size': 7})
+        ncol = 2 if self.study.adamont_version == 1 else 3
+        ax.legend(handles[::-1], labels[::-1], ncol=ncol, prop={'size': 7})
         plot_name = 'Annual maxima of {} in {} at {} m'.format(ADAMONT_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '),
                                                         self.study.altitude)

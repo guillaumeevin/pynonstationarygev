@@ -75,11 +75,11 @@ s = set()
 for l in links.split('\n'):
     print(l)
     if '_' in l and 'SAFRAN' not in l:
-        gcm, rcm, _ = l.split('_')
-        s.add((gcm, rcm))
+        rcm, gcm, _ = l.split('_')
+        s.add((gcm, rcm, rcm + '_' + gcm))
 print(len(s))
-for c in s:
-    print(c)
+for t in s:
+    print("('{}', '{}'): '{}',".format(*t))
 
 """
 ('SMHI-RCA4', 'ICHEC-EC-EARTH')
@@ -106,12 +106,4 @@ for c in s:
 
 """
 
-def get_year_min_and_year_max_used_to_compute_quantile(rcm):
-    if rcm == 'MOHC-HadGEM2-ES':
-        reanalysis_years = (1988, 2011)
-        model_year = (1982, 2005)
-    else:
-        reanalysis_years = (1981, 2011)
-        model_year = (1975, 2005)
-    return reanalysis_years, model_year
 

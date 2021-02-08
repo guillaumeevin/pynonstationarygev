@@ -17,11 +17,13 @@ class AdamontSnowfall(AbstractAdamontStudy):
                  year_min=None, year_max=None,
                  multiprocessing=True, season=Season.annual,
                  french_region=FrenchRegion.alps,
-                 scenario=AdamontScenario.histo, gcm_rcm_couple=('CNRM-CM5', 'ALADIN53')):
+                 scenario=AdamontScenario.histo, gcm_rcm_couple=('CNRM-CM5', 'ALADIN53'),
+                 adamont_version=2):
         super().__init__(SafranSnowfallSimulationVariable, altitude,
                          year_min, year_max,
-                         multiprocessing, season, french_region, scenario, gcm_rcm_couple)
+                         multiprocessing, season, french_region, scenario, gcm_rcm_couple, adamont_version)
+
 
 if __name__ == '__main__':
-    study = AdamontSnowfall(altitude=1800)
+    study = AdamontSnowfall(altitude=1800, adamont_version=2)
     print(study.year_to_annual_maxima)
