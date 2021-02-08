@@ -904,7 +904,6 @@ class AbstractStudy(object):
                                                                                                         confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method)
                 end = time.time()
                 duration = end - start
-                print('Multiprocessing for study duration', duration)
 
                 if -0.5 <= gev_params.shape <= 0.5:
                     massif_name_to_stationary_gev_params[massif_name] = gev_params

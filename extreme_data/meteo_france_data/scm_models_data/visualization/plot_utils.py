@@ -8,7 +8,7 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted
 
 
 def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=None, fill=False, massif_name_as_labels=True,
-                          elevation_as_xaxis=True):
+                          elevation_as_xaxis=True, legend=False):
     if massif_name_as_labels:
         di = massif_id // 8
         if di == 0:
@@ -29,7 +29,10 @@ def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=
         label = '{} m'.format(altitude)
     if not fill:
         args = [x_ticks, values] if elevation_as_xaxis else [values, x_ticks]
-        ax.plot(*args, color=color, linewidth=2, label=label, linestyle=linestyle, marker='o')
+        if legend:
+            ax.plot(*args, color=color, linewidth=2, label=label, linestyle=linestyle)
+        else:
+            ax.plot(*args, color=color, linewidth=2, label=label, linestyle=linestyle, marker='o')
     else:
         assert elevation_as_xaxis, NotImplementedError('todo')
         lower_bound, upper_bound = zip(*values)

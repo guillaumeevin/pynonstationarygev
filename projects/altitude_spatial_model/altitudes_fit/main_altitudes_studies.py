@@ -47,6 +47,7 @@ def main():
     fast = False
     if fast is None:
         massif_names = None
+        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         altitudes_list = altitudes_for_groups[2:3]
     elif fast:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
@@ -80,11 +81,11 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_p
 
 
 def plot_visualizers(massif_names, visualizer_list):
-    plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
-    # plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
+    # plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
+    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
     # plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
-    # for relative in [True, False]:
-    #     plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
+    for relative in [True, False]:
+        plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
     # plot_coherence_curves(massif_names, visualizer_list)
     # plot_coherence_curves(['Vanoise'], visualizer_list)
     pass
@@ -96,7 +97,7 @@ def plot_visualizer(massif_names, visualizer):
     # visualizer.studies.plot_maxima_time_series(['Vanoise'])
 
     # Plot the results for the model that minimizes the individual aic
-    # plot_individual_aic(visualizer)
+    plot_individual_aic(visualizer)
 
     # Plot the results for the model that minimizes the total aic
     # plot_total_aic(model_classes, visualizer)

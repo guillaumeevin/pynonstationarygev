@@ -25,7 +25,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
         self.altitudes_for_temporal_hypothesis = [600, 1500, 2400, 3300]
 
     def plot_gev_params_against_altitude(self):
-        legend = False
+        legend = True
         elevation_as_xaxis = False
         param_names = GevParams.PARAM_NAMES + [100]
         if legend:
@@ -39,7 +39,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             for i in range(8):
                 for massif_name in massif_names[i::8]:
                     linear_coef, _, r2 = self._plot_gev_params_against_altitude_one_massif(ax, massif_name, param_name,
-                                                                                           elevation_as_xaxis)
+                                                                                           elevation_as_xaxis, legend=legend)
                     massif_name_to_linear_coef[massif_name] = 100 * linear_coef[0]
                     massif_name_to_r2_score[massif_name] = str(round(r2, 2))
             print(param_name, np.mean([c for c in massif_name_to_linear_coef.values()]))
@@ -115,8 +115,19 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             if legend:
                 # ax.legend(labelspacing=2.5, ncol=8, handlelength=12, markerscale=0.7, bbox_to_anchor=(1.05, 1), loc='upper left',
                 #           prop={'size': 2}, fontsize='x-large')
-                ax.legend(labelspacing=2.5, ncol=8, handlelength=10, markerscale=0.7, bbox_to_anchor=(1.05, 1), loc='upper left',
-                          prop={'size': 2}, fontsize='xx-large')
+                # ax.legend(labelspacing=1, ncol=8, handlelength=5, bbox_to_anchor=(1.05, 1), loc='upper left',
+                #           prop={'size': 4}, fontsize='xx-large', columnspacing=0.5)
+                ax.legend(ncol=8, bbox_to_anchor=(1.05, 1), loc='upper left',
+                          prop={'size': 3.5}, handlelength=5, fontsize='xx-large', columnspacing=0.5,
+                          handletextpad=0.5)
+
+                # handles, labels = ax.get_legend_handles_labels()
+                # print(type(handles))
+                # handles = np.array(handles).reshape((3, 8)).transpose().flatten()
+                # labels = np.array(handles).reshape((3, 8)).transpose().flatten()
+                # ax.legend(handles, labels)
+
+
                 plt.gcf().subplots_adjust(right=0.15)
                 ax.set_yticks([])
                 ax.set_ylabel('')
@@ -150,7 +161,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
                                 )
             plt.close()
 
-    def _plot_gev_params_against_altitude_one_massif(self, ax, massif_name, param_name, elevation_as_xaxis):
+    def _plot_gev_params_against_altitude_one_massif(self, ax, massif_name, param_name, elevation_as_xaxis, legend=False):
         altitudes = []
         params = []
         # confidence_intervals = []
@@ -166,7 +177,8 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
                 params.append(param)
                 # confidence_intervals.append(gev_params.param_name_to_confidence_interval[param_name])
         massif_id = self.study.all_massif_names().index(massif_name)
-        plot_against_altitude(altitudes, ax, massif_id, massif_name, params, fill=False, elevation_as_xaxis=elevation_as_xaxis)
+        plot_against_altitude(altitudes, ax, massif_id, massif_name, params, fill=False, elevation_as_xaxis=elevation_as_xaxis,
+                              legend=legend)
 
         return fit_linear_regression(altitudes, params)
         # plot_against_altitude(altitudes, ax, massif_id, massif_name, confidence_intervals, fill=True)
@@ -294,7 +306,7 @@ if __name__ == '__main__':
     altitudes = list(chain.from_iterable(altitudes_for_groups))
 
     # altitudes = paper_altitudes
-    # altitudes = [1800, 2100]
+    altitudes = [1800, 2100]
     visualizer = PointwiseGevStudyVisualizer(SafranSnowfall1Day, altitudes=altitudes)
     visualizer.plot_gev_params_against_altitude()
     # visualizer.plot_gev_params_against_time_for_all_altitudes()

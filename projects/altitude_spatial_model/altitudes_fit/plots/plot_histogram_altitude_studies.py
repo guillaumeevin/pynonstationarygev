@@ -96,8 +96,8 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
     linewidth = 3
     x = np.array([3 * width * (i + 1) for i in range(len(nb_massifs))])
 
-    # colors = ['blue', 'darkblue', 'red', 'darkred']
-    colors = ['red', 'darkred', 'limegreen', 'darkgreen']
+    colors = ['blue', 'darkblue', 'red', 'darkred']
+    # colors = ['red', 'darkred', 'limegreen', 'darkgreen']
     labels = []
     for suffix in ['decrease', 'increase']:
         for prefix in ['Non significant', 'Significant']:
@@ -184,10 +184,13 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
 
     all_changes = [v.all_changes(massif_names, relative=relative) for v in visualizer_list]
     all_changes = list(zip(*all_changes))
-    labels = ['All massifs', 'Massifs with a selected model temporally non-stationary',
-              'Massifs with a selected model temporally non-stationary and significant']
+    labels = ['All massifs', 'Massifs with a selected model\n'
+                             'temporally non-stationary',
+              'Massifs with a selected model\n'
+              'temporally non-stationary and significant']
     # colors = ['darkmagenta', 'darkviolet', 'mediumorchid']
-    colors = ['mediumblue', 'royalblue', 'lightskyblue']
+    # colors = ['mediumblue', 'royalblue', 'lightskyblue']
+    colors = ['darkgreen', 'forestgreen', 'limegreen']
     nb_massifs = [len(v.get_valid_names(massif_names)) for v in visualizer_list]
 
     plt.close()
@@ -216,7 +219,8 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
             patch.set_facecolor(color)
 
     custom_lines = [Line2D([0], [0], color=color, lw=4) for color in colors]
-    ax.legend(custom_lines, labels, prop={'size': 8})
+    loc = 'upper right' if relative else 'upper left'
+    ax.legend(custom_lines, labels, prop={'size': 12}, loc=loc)
 
     start = 'Relative changes' if relative else 'Changes'
     unit = '\%' if relative else visualizer.study.variable_unit
@@ -233,7 +237,7 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
 
     shift = 2 * width
     ax.set_xlim((min(x) - shift, max(x) + shift))
-    upper_limit_for_legend = 0 if relative else 0
+    upper_limit_for_legend = 50 if relative else 0
     lim_down, lim_up = ax.get_ylim()
     ax.set_ylim(lim_down, lim_up + upper_limit_for_legend)
 

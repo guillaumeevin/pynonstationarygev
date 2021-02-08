@@ -196,9 +196,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             fontsize_label = 17
         else:
             # cmap = plt.cm.RdYlGn
-            cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][2]
-            cmap = get_inverse_colormap(cmap)
-            cmap = get_cmap_with_inverted_blue_and_green_channels(cmap)
+            cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
+            # cmap = get_inverse_colormap(cmap)
+            # cmap = get_cmap_with_inverted_blue_and_green_channels(cmap)
             cmap = remove_the_extreme_colors(cmap)
             graduation = 10
             fontsize_label = 10
