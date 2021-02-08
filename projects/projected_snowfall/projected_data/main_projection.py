@@ -8,7 +8,7 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 from collections import OrderedDict
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_full_name, AdamontScenario, \
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, \
     load_gcm_rcm_couples_for_year_min_and_year_max
 from extreme_data.meteo_france_data.adamont_data.adamont_studies import AdamontStudies
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day

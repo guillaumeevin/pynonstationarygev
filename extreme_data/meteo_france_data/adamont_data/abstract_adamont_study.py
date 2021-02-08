@@ -12,7 +12,7 @@ from netCDF4._netCDF4 import Dataset
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_variables import AbstractAdamontVariable
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import get_gcm_rcm_couple_adamont_to_full_name
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import scenario_to_str, AdamontScenario, \
-    get_year_min_and_year_max_from_scenario, gcm_rcm_couple_to_full_name, get_suffix_for_the_nc_file, \
+    get_year_min_and_year_max_from_scenario, get_suffix_for_the_nc_file, \
     scenario_to_real_scenarios, get_year_max
 from extreme_data.meteo_france_data.adamont_data.utils.utils import massif_number_to_massif_name
 
@@ -110,6 +110,8 @@ class AbstractAdamontStudy(AbstractStudy):
         scenario_name = self._scenario_to_str_adamont_v2(scenario)
         directory = self.gcm_rcm_full_name + '_' + scenario_name
         filename = self.nc_filename_adamont_v2(scenario)
+        print(directory)
+        print(filename)
         full_path = op.join(ADAMONT_v2_WEBPATH, directory, filename)
         # Download file
         request = 'wget {} -P {}'.format(full_path, path_folder)

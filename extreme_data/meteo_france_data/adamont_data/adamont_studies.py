@@ -6,6 +6,7 @@ import numpy as np
 from cached_property import cached_property
 
 from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
+from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import get_gcm_rcm_couple_adamont_to_full_name
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_full_name, \
     gcm_rcm_couple_to_str, get_color_from_gcm_rcm_couple
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
@@ -16,14 +17,15 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualiz
 
 class AdamontStudies(object):
 
-    def __init__(self, study_class, gcm_rcm_couples=None, **kwargs_study):
+    def __init__(self, study_class, gcm_rcm_couples=None, adamont_version=2, **kwargs_study):
         self.study_class = study_class
         if gcm_rcm_couples is None:
+            gcm_rcm_couple_to_full_name = get_gcm_rcm_couple_adamont_to_full_name(adamont_version)
             gcm_rcm_couples = list(gcm_rcm_couple_to_full_name.keys())
         self.gcm_rcm_couples = gcm_rcm_couples
         self.gcm_rcm_couple_to_study = OrderedDict()  # type: OrderedDict[int, AbstractAdamontStudy]
         for gcm_rcm_couple in self.gcm_rcm_couples:
-            study = study_class(gcm_rcm_couple=gcm_rcm_couple, **kwargs_study)
+            study = study_class(gcm_rcm_couple=gcm_rcm_couple, adamont_version=adamont_version, **kwargs_study)
             self.gcm_rcm_couple_to_study[gcm_rcm_couple] = study
 
     @property
