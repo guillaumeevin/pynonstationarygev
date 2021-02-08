@@ -548,9 +548,9 @@ class StudyVisualizer(VisualizationParameters):
         else:
             title = self.plot_name
         if self.only_one_graph:
-            plt.suptitle(self.plot_name)
+            plt.suptitle(self.plot_name,  y=1.0)
         elif not no_title:
-            plt.suptitle(title)
+            plt.suptitle(title,  y=1.0)
         if self.show:
             plt.show()
         if self.save_to_file:

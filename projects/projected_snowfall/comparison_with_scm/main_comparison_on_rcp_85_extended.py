@@ -9,7 +9,7 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 from projects.projected_snowfall.comparison_with_scm.comparison_plot import individual_plot, collective_plot
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import load_gcm_rcm_couples_for_year_min_and_year_max, \
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import load_gcm_rcm_couples, \
     AdamontScenario
 from extreme_data.meteo_france_data.adamont_data.adamont_studies import AdamontStudies
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
@@ -76,8 +76,8 @@ def load_visualizer(altitude, massif_names, year_min, year_max) -> ComparisonHis
 
     # Loading part
     scm_study = scm_study_class(altitude=altitude, year_min=year_min, year_max=year_max, season=season)
-    gcm_rcm_couples = load_gcm_rcm_couples_for_year_min_and_year_max(year_min, year_max,
-                                                                     adamont_scenario=adamont_scenario)
+    gcm_rcm_couples = load_gcm_rcm_couples(year_min, year_max,
+                                           adamont_scenario=adamont_scenario)
     adamont_studies = AdamontStudies(adamont_study_class, gcm_rcm_couples,
                                      altitude=altitude, year_min=year_min, year_max=year_max, season=season,
                                      scenario=adamont_scenario)

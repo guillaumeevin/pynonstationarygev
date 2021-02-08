@@ -51,7 +51,7 @@ class AbstractAdamontStudy(AbstractStudy):
         else:
             if year_min < year_min_scenario:
                 raise WrongYearMinOrYearMax(
-                    'year min is {} and should be larger than {}'.format(year_min, year_min_scenario))
+                    'year min is {} and should be larger than {} for {}'.format(year_min, year_min_scenario, gcm_rcm_couple))
 
         if year_max is None:
             year_max = year_max_scenario

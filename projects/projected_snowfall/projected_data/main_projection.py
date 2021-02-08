@@ -2,6 +2,8 @@
 
 import matplotlib as mpl
 
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020
+
 mpl.use('Agg')
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
@@ -9,7 +11,7 @@ from collections import OrderedDict
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, \
-    load_gcm_rcm_couples_for_year_min_and_year_max
+    load_gcm_rcm_couples
 from extreme_data.meteo_france_data.adamont_data.adamont_studies import AdamontStudies
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
@@ -41,14 +43,18 @@ def main():
     for altitude in altitudes:
         adamont_study_class = AdamontSnowfall
         season = Season.annual
-        gcm_rcm_couples = load_gcm_rcm_couples_for_year_min_and_year_max(year_min, year_max,
-                                                                         adamont_scenario=adamont_scenario)
+        gcm_rcm_couples = load_gcm_rcm_couples(year_min, year_max,
+                                               adamont_scenario=adamont_scenario)
         adamont_studies = AdamontStudies(adamont_study_class, gcm_rcm_couples,
                                          altitude=altitude, year_min=year_min,
                                          year_max=year_max, season=season,
                                          scenario=adamont_scenario,
                                          adamont_version=2)
-        adamont_studies.plot_maxima_time_series_adamont(massif_names)
+        if year_max <= 2020:
+            scm_study = SafranSnowfall2020(altitude=altitude, season=season, year_min=year_min, year_max=year_max)
+        else:
+            scm_study = None
+        adamont_studies.plot_maxima_time_series_adamont(massif_names, scm_study=scm_study)
 
 
 if __name__ == '__main__':

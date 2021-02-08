@@ -52,16 +52,18 @@ def get_year_min(adamont_scenario, gcm_rcm_couple):
     return year_min
 
 
-def load_gcm_rcm_couples_for_year_min_and_year_max(year_min, year_max, adamont_scenario=AdamontScenario.histo,
-                                                   version=2):
+def load_gcm_rcm_couples(year_min=None, year_max=None,
+                         adamont_scenario=AdamontScenario.histo,
+                         adamont_version=2):
     gcm_rcm_couples = []
-    gcm_rcm_couple_to_full_name = get_gcm_rcm_couple_adamont_to_full_name(version)
+    gcm_rcm_couple_to_full_name = get_gcm_rcm_couple_adamont_to_full_name(adamont_version)
     for gcm_rcm_couple in gcm_rcm_couple_to_full_name.keys():
         year_min_couple, year_max_couple = get_year_min_and_year_max_from_scenario(
             adamont_scenario=adamont_scenario,
             gcm_rcm_couple=gcm_rcm_couple)
-        if year_min_couple <= year_min and year_max <= year_max_couple:
-            gcm_rcm_couples.append(gcm_rcm_couple)
+        if (year_min is None) or (year_min_couple <= year_min):
+            if (year_max is None) or (year_max <= year_max_couple):
+                gcm_rcm_couples.append(gcm_rcm_couple)
     return gcm_rcm_couples
 
 
