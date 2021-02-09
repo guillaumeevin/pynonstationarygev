@@ -18,9 +18,11 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranS
     SafranRainfall, \
     SafranTemperature, SafranPrecipitation, SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, \
     SafranSnowfall7Days, SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days, \
-    SafranPrecipitation7Days, SafranDateFirstSnowfall
+    SafranPrecipitation7Days, SafranDateFirstSnowfall, SafranSnowfallCenterOnDay1dayMeanRate, \
+    SafranSnowfallCenterOnDay1day
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
     SafranSnowfall2019
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariableCenterOnDay
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 from projects.exceeding_snow_loads.section_discussion.crocus_study_comparison_with_eurocode import \
@@ -39,13 +41,14 @@ SCM_STUDIES = [SafranSnowfall, CrocusSweTotal, CrocusDepth, CrocusSwe3Days]
 SCM_STUDIES_NAMES = [get_display_name_from_object_type(k) for k in SCM_STUDIES]
 SCM_STUDY_NAME_TO_SCM_STUDY = dict(zip(SCM_STUDIES_NAMES, SCM_STUDIES))
 
-
 # I keep the scm study separated from the adamont study (for the tests)
 SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
     SafranSnowfall1Day: 'daily snowfall',
     SafranSnowfall2020: 'daily snowfall',
     SafranSnowfall2019: 'daily snowfall',
+    SafranSnowfallCenterOnDay1dayMeanRate: 'daily snowfall',
+    SafranSnowfallCenterOnDay1day: 'daily snowfall',
     GapBetweenSafranSnowfall2019And2020: 'daily snowfall\n bias = SAFRAN 2020 minus SAFRAN 2019',
     GapBetweenSafranSnowfall2019AndMySafranSnowfall2019Recentered: 'daily snowfall\n my SAFRAN 2019 recentered minus SAFRAN 2019',
     GapBetweenSafranSnowfall2019AndMySafranSnowfall2019NotRecentered: 'daily snowfall\n my SAFRAN 2019 notrecentered minus SAFRAN 2019',
