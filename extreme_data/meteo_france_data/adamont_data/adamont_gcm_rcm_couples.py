@@ -52,6 +52,21 @@ def get_gcm_rcm_couple_adamont_to_full_name(version):
         return gcm_rcm_couple_adamont_v2_to_full_name
 
 
+def get_gcm_list(adamont_version):
+    s = set([gcm for gcm, _ in get_gcm_rcm_couple_adamont_to_full_name(adamont_version).keys()])
+    return list(s)
+
+
+gcm_to_rnumber = \
+    {
+        'MPI-ESM-LR': 2,
+        'CNRM-CM5': 11,
+        'IPSL-CM5A-MR': 1,
+        'EC-EARTH': 12,
+        'HadGEM2-ES': 1,
+        'NorESM1-M': 1
+    }
+
 gcm_rcm_couple_adamont_v1_to_full_name = {
     ('CNRM-CM5', 'ALADIN53'): 'CNRM-ALADIN53_CNRM-CERFACS-CNRM-CM5',
     ('CNRM-CM5', 'RCA4'): 'SMHI-RCA4_CNRM-CERFACS-CNRM-CM5',
@@ -105,3 +120,6 @@ gcm_rcm_couple_adamont_v2_to_full_name = {
     # For this member there is only the historical anyway
     # ('ERAINT', 'ALADIN62'): 'CNRM-ALADIN62_ECMWF-ERAINT',
 }
+
+if __name__ == '__main__':
+    print(get_gcm_list(adamont_version=2))
