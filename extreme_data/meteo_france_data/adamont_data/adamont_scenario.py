@@ -43,7 +43,8 @@ def get_year_min(adamont_scenario, gcm_rcm_couple):
             year_min = 1982
         elif rcm == 'RCA4':
             year_min = 1971
-        elif gcm_rcm_couple in [('NorESM1-M', 'HIRHAM5'), ('IPSL-CM5A-MR', 'WRF331F')]:
+        elif gcm_rcm_couple in [('NorESM1-M', 'HIRHAM5'), ('IPSL-CM5A-MR', 'WRF331F'), ('CNRM-CM5', 'ALADIN63'),
+                                ('IPSL-CM5A-MR', 'WRF381P')]:
             year_min = 1952
         else:
             year_min = 1951

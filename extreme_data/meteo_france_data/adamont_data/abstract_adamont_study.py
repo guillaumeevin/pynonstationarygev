@@ -13,7 +13,7 @@ from extreme_data.meteo_france_data.adamont_data.adamont.adamont_variables impor
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import get_gcm_rcm_couple_adamont_to_full_name
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import scenario_to_str, AdamontScenario, \
     get_year_min_and_year_max_from_scenario, get_suffix_for_the_nc_file, \
-    scenario_to_real_scenarios, get_year_max
+    scenario_to_real_scenarios, get_year_max, adamont_scenarios_real
 from extreme_data.meteo_france_data.adamont_data.utils.utils import massif_number_to_massif_name
 
 from extreme_data.utils import DATA_PATH
@@ -89,6 +89,12 @@ class AbstractAdamontStudy(AbstractStudy):
             year_to_annual_maxima = OrderedDict()
             year_min, year_max = get_year_min_and_year_max_from_scenario(self.scenario, self.gcm_rcm_couple)
             years = list(range(year_min, year_max + 1))
+            if self.scenario in adamont_scenarios_real:
+                time = dataset.variables['time']
+                msg = 'len_years={} while len_time={},' \
+                      'check year_min and year_max, ' \
+                      'check in debug mode the time field of the daatset to see the starting date'.format(years, time)
+                assert len(years) == len(time), msg
             for year, maxima in zip(years, annual_maxima):
                 if self.year_min <= year <= self.year_max:
                     year_to_annual_maxima[year] = maxima
@@ -110,11 +116,10 @@ class AbstractAdamontStudy(AbstractStudy):
         scenario_name = self._scenario_to_str_adamont_v2(scenario)
         directory = self.gcm_rcm_full_name + '_' + scenario_name
         filename = self.nc_filename_adamont_v2(scenario)
-        print(directory)
-        print(filename)
         full_path = op.join(ADAMONT_v2_WEBPATH, directory, filename)
         # Download file
         request = 'wget {} -P {}'.format(full_path, path_folder)
+        print(request)
         subprocess.run(request, shell=True)
 
     def nc_filename_adamont_v2(self, scenario):
