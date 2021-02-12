@@ -45,7 +45,8 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             for i in range(8):
                 for massif_name in massif_names[i::8]:
                     linear_coef, _, r2 = self._plot_gev_params_against_altitude_one_massif(ax, massif_name, param_name,
-                                                                                           elevation_as_xaxis, legend=legend)
+                                                                                           elevation_as_xaxis,
+                                                                                           legend=legend)
                     massif_name_to_linear_coef[massif_name] = 100 * linear_coef[0]
                     massif_name_to_r2_score[massif_name] = str(round(r2, 2))
             print(param_name, np.mean([c for c in massif_name_to_linear_coef.values()]))
@@ -135,7 +136,6 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
                 # labels = np.array(handles).reshape((3, 8)).transpose().flatten()
                 # ax.legend(handles, labels)
 
-
                 plt.gcf().subplots_adjust(right=0.15)
                 ax.set_yticks([])
                 ax.set_ylabel('')
@@ -173,7 +173,8 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
                                 )
             plt.close()
 
-    def _plot_gev_params_against_altitude_one_massif(self, ax, massif_name, param_name, elevation_as_xaxis, legend=False):
+    def _plot_gev_params_against_altitude_one_massif(self, ax, massif_name, param_name, elevation_as_xaxis,
+                                                     legend=False):
         altitudes = []
         params = []
         # confidence_intervals = []
@@ -189,7 +190,8 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
                 params.append(param)
                 # confidence_intervals.append(gev_params.param_name_to_confidence_interval[param_name])
         massif_id = self.study.all_massif_names().index(massif_name)
-        plot_against_altitude(altitudes, ax, massif_id, massif_name, params, fill=False, elevation_as_xaxis=elevation_as_xaxis,
+        plot_against_altitude(altitudes, ax, massif_id, massif_name, params, fill=False,
+                              elevation_as_xaxis=elevation_as_xaxis,
                               legend=legend)
 
         return fit_linear_regression(altitudes, params)
@@ -313,6 +315,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
     #         a_list.append(a)
     #     return np.mean(np.array(a_list))
 
+
 def main_paper2():
     altitudes = list(chain.from_iterable(altitudes_for_groups))
 
@@ -328,12 +331,13 @@ def main_paper2():
 
 def main_paper3():
     altitudes = list(chain.from_iterable(altitudes_for_groups))
-    altitudes = [1200, 1500, 1800]
-    for scenario in rcp_scenarios[:2]:
+    # altitudes = [1200, 1500, 1800]
+    for scenario in rcp_scenarios[:]:
         for gcm_rcm_couple in get_gcm_rcm_couple_adamont_version_2(scenario):
             visualizer = PointwiseGevStudyVisualizer(AdamontSnowfall, altitudes=altitudes, scenario=scenario,
                                                      gcm_rcm_couple=gcm_rcm_couple)
             visualizer.plot_gev_params_against_altitude()
+
 
 if __name__ == '__main__':
     main_paper3()

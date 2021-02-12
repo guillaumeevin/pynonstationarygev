@@ -73,7 +73,7 @@ def get_gcm_rcm_couple_adamont_version_2(scenario):
                                 ('CNRM-CM5', 'CCLM4-8-17'), ('IPSL-CM5A-MR', 'WRF381P'), ('NorESM1-M', 'HIRHAM5'),
                                 ('IPSL-CM5A-MR', 'WRF331F'), ('HadGEM2-ES', 'RCA4')],
         AdamontScenario.rcp45:  [('NorESM1-M', 'REMO2015'), ('HadGEM2-ES', 'RegCM4-6')],
-        AdamontScenario.rcp85: [],
+        AdamontScenario.rcp85: [('HadGEM2-ES', 'RACMO22E')],
     }
     for couple_to_remove in scenario_to_list_to_remove[scenario]:
         s.remove(couple_to_remove)

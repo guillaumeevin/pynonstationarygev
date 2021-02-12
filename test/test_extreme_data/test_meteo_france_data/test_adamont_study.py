@@ -41,7 +41,7 @@ class TestAdamontStudy(unittest.TestCase):
 
     def test_existing_gcm_rcm_couple_and_rcp(self):
         altitude = 1800
-        for scenario in rcp_scenarios[:2]:
+        for scenario in rcp_scenarios[:]:
             l = []
             for gcm_rcm_couple in get_gcm_rcm_couple_adamont_version_2(scenario):
                 adamont_study = AdamontSnowfall(altitude=altitude, adamont_version=2,
@@ -51,8 +51,6 @@ class TestAdamontStudy(unittest.TestCase):
                     _ = adamont_study.year_to_annual_maxima[2098]
                 except FileNotFoundError:
                     l.append(gcm_rcm_couple)
-            print(scenario, l)
-
 
         self.assertTrue(True)
 

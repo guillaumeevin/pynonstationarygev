@@ -90,10 +90,14 @@ class AbstractAdamontStudy(AbstractStudy):
             year_min, year_max = get_year_min_and_year_max_from_scenario(self.scenario, self.gcm_rcm_couple)
             years = list(range(year_min, year_max + 1))
             if self.scenario in adamont_scenarios_real:
-                time = dataset.variables['time']
+                time = np.array(dataset.variables['time'])
                 msg = 'len_years={} while len_time={},' \
                       'check year_min and year_max, ' \
                       'check in debug mode the time field of the daatset to see the starting date'.format(years, time)
+                # # Some print to check which year are in the data
+                # start = datetime(year=2005, month=8, day=1, hour=6, minute=0, second=0)
+                # dates = [start + timedelta(hours=int(h)) for h in time]
+                # print(["{}-{}".format(date.year-1, date.year) for date in dates])
                 assert len(years) == len(time), msg
             for year, maxima in zip(years, annual_maxima):
                 if self.year_min <= year <= self.year_max:
