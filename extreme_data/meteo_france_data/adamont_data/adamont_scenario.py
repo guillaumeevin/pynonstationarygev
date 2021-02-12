@@ -1,7 +1,6 @@
 from enum import Enum
 
-from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_to_color, \
-    get_gcm_rcm_couple_adamont_to_full_name
+from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import get_gcm_rcm_couple_adamont_to_full_name
 
 
 class AdamontScenario(Enum):
@@ -13,6 +12,7 @@ class AdamontScenario(Enum):
 
 
 adamont_scenarios_real = [AdamontScenario.histo, AdamontScenario.rcp26, AdamontScenario.rcp45, AdamontScenario.rcp85]
+rcp_scenarios = [AdamontScenario.rcp26, AdamontScenario.rcp45, AdamontScenario.rcp85]
 
 
 def get_linestyle_from_scenario(adamont_scenario):
@@ -65,6 +65,20 @@ def get_year_min(adamont_scenario, gcm_rcm_couple):
     return year_min
 
 
+def get_gcm_rcm_couple_adamont_version_2(scenario):
+    s = set(list(get_gcm_rcm_couple_adamont_to_full_name(version=2).keys()))
+    scenario_to_list_to_remove = {
+        AdamontScenario.rcp26: [('EC-EARTH', 'CCLM4-8-17'), ('CNRM-CM5', 'ALADIN53'), ('CNRM-CM5', 'RCA4'),
+                                ('MPI-ESM-LR', 'RCA4'), ('HadGEM2-ES', 'CCLM4-8-17'), ('IPSL-CM5A-MR', 'RCA4'),
+                                ('CNRM-CM5', 'CCLM4-8-17'), ('IPSL-CM5A-MR', 'WRF381P'), ('NorESM1-M', 'HIRHAM5'),
+                                ('IPSL-CM5A-MR', 'WRF331F'), ('HadGEM2-ES', 'RCA4')],
+        AdamontScenario.rcp45:  [('NorESM1-M', 'REMO2015'), ('HadGEM2-ES', 'RegCM4-6')],
+        AdamontScenario.rcp85: [],
+    }
+    for couple_to_remove in scenario_to_list_to_remove[scenario]:
+        s.remove(couple_to_remove)
+    return list(s)
+
 def load_gcm_rcm_couples(year_min=None, year_max=None,
                          adamont_scenario=AdamontScenario.histo,
                          adamont_version=2):
@@ -104,6 +118,3 @@ def scenario_to_real_scenarios(adamont_scenario):
 def gcm_rcm_couple_to_str(gcm_rcm_couple):
     return ' / '.join(gcm_rcm_couple)
 
-
-def get_color_from_gcm_rcm_couple(gcm_rcm_couple):
-    return gcm_rcm_couple_to_color[gcm_rcm_couple]

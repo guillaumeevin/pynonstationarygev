@@ -1,54 +1,3 @@
-gcm_rcm_couple_to_color = {
-    ('CNRM-CM5', 'CCLM4-8-17'): 'darkred',
-    ('CNRM-CM5', 'RCA4'): 'red',
-    ('CNRM-CM5', 'ALADIN53'): 'lightcoral',
-    # Adamont v2
-    ('CNRM-CM5', 'ALADIN63'): 'orangered',
-    ('CNRM-CM5', 'RACMO22E'): 'firebrick',
-
-    ('MPI-ESM-LR', 'CCLM4-8-17'): 'darkblue',
-    ('MPI-ESM-LR', 'RCA4'): 'blue',
-    ('MPI-ESM-LR', 'REMO2009'): 'lightblue',
-
-    ('HadGEM2-ES', 'CCLM4-8-17'): 'darkgreen',
-    ('HadGEM2-ES', 'RCA4'): 'green',
-    ('HadGEM2-ES', 'RACMO22E'): 'lightgreen',
-    # Adamont v2
-    ('HadGEM2-ES', 'RegCM4-6'): 'chartreuse',
-
-    ('EC-EARTH', 'CCLM4-8-17'): 'darkviolet',
-    ('EC-EARTH', 'RCA4'): 'violet',
-    # adamont v2
-    ('EC-EARTH', 'RACMO22E'): 'mediumorchid',
-
-    ('IPSL-CM5A-MR', 'WRF331F'): 'darkorange',
-    ('IPSL-CM5A-MR', 'RCA4'): 'orange',
-    # adamont v2
-    ('IPSL-CM5A-MR', 'WRF381P'): 'moccasin',
-
-    ('NorESM1-M', 'HIRHAM5'): 'yellow',
-    # adamont v2
-    ('NorESM1-M', 'REMO2015'): 'gold',
-
-    # adamont v2
-    ('ERAINT', 'ALADIN62'): 'deeppink'
-}
-
-gcm_to_color = {
-    'CNRM-CM5': 'red',
-
-    'MPI-ESM-LR': 'blue',
-
-    'HadGEM2-ES': 'green',
-
-    'EC-EARTH': 'violet',
-
-    'IPSL-CM5A-MR': 'orange',
-
-    'NorESM1-M': 'yellow',
-}
-
-
 
 def get_year_min_and_year_max_used_to_compute_quantile(gcm):
     if gcm == 'HadGEM2-ES':
@@ -135,6 +84,57 @@ gcm_rcm_couple_adamont_v2_to_full_name = {
     # For this member there is only the historical anyway
     # ('ERAINT', 'ALADIN62'): 'CNRM-ALADIN62_ECMWF-ERAINT',
 }
+
+gcm_rcm_couple_to_color = {
+    ('CNRM-CM5', 'CCLM4-8-17'): 'darkred',
+    ('CNRM-CM5', 'RCA4'): 'red',
+    ('CNRM-CM5', 'ALADIN53'): 'lightcoral',
+    # Adamont v2
+    ('CNRM-CM5', 'ALADIN63'): 'orangered',
+    ('CNRM-CM5', 'RACMO22E'): 'firebrick',
+
+    ('MPI-ESM-LR', 'CCLM4-8-17'): 'darkblue',
+    ('MPI-ESM-LR', 'RCA4'): 'blue',
+    ('MPI-ESM-LR', 'REMO2009'): 'lightblue',
+
+    ('HadGEM2-ES', 'CCLM4-8-17'): 'darkgreen',
+    ('HadGEM2-ES', 'RCA4'): 'green',
+    ('HadGEM2-ES', 'RACMO22E'): 'lightgreen',
+    # Adamont v2
+    ('HadGEM2-ES', 'RegCM4-6'): 'chartreuse',
+
+    ('EC-EARTH', 'CCLM4-8-17'): 'darkviolet',
+    ('EC-EARTH', 'RCA4'): 'violet',
+    # adamont v2
+    ('EC-EARTH', 'RACMO22E'): 'mediumorchid',
+
+    ('IPSL-CM5A-MR', 'WRF331F'): 'darkorange',
+    ('IPSL-CM5A-MR', 'RCA4'): 'orange',
+    # adamont v2
+    ('IPSL-CM5A-MR', 'WRF381P'): 'moccasin',
+
+    ('NorESM1-M', 'HIRHAM5'): 'yellow',
+    # adamont v2
+    ('NorESM1-M', 'REMO2015'): 'gold',
+
+    # adamont v2
+    # ('ERAINT', 'ALADIN62'): 'deeppink'
+}
+
+gcm_to_color = {
+    'CNRM-CM5': 'red',
+
+    'MPI-ESM-LR': 'blue',
+
+    'HadGEM2-ES': 'green',
+
+    'EC-EARTH': 'violet',
+
+    'IPSL-CM5A-MR': 'orange',
+
+    'NorESM1-M': 'yellow',
+}
+
 
 if __name__ == '__main__':
     print(get_gcm_list(adamont_version=2))

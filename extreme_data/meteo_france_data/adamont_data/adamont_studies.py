@@ -6,8 +6,9 @@ import numpy as np
 from cached_property import cached_property
 
 from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
-from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import get_gcm_rcm_couple_adamont_to_full_name
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str, get_color_from_gcm_rcm_couple
+from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import get_gcm_rcm_couple_adamont_to_full_name, \
+    gcm_rcm_couple_to_color
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION, ADAMONT_STUDY_CLASS_TO_ABBREVIATION
@@ -59,8 +60,8 @@ class AdamontStudies(object):
         for gcm_rcm_couple, study in list(self.gcm_rcm_couple_to_study.items())[::-1]:
             if massif_name in study.massif_name_to_annual_maxima:
                 y = study.massif_name_to_annual_maxima[massif_name]
-                label = gcm_rcm_couple_to_str(gcm_rcm_couple)
-                color = get_color_from_gcm_rcm_couple(gcm_rcm_couple)
+                label = gcm_rcm_couple_to_color[gcm_rcm_couple]
+                color = gcm_rcm_couple_to_color[gcm_rcm_couple]
                 ax.plot(x, y, linewidth=linewidth, label=label, color=color)
         if scm_study is None:
             y = np.array([study.massif_name_to_annual_maxima[massif_name] for study in self.study_list

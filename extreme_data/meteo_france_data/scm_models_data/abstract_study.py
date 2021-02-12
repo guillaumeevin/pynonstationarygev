@@ -891,7 +891,6 @@ class AbstractStudy(object):
     def _massif_name_to_stationary_gev_params_and_confidence(self, quantile_level=None,
                                                              confidence_interval_based_on_delta_method=True):
         """ at least 90% of values must be above zero"""
-        print('study computation')
         massif_name_to_stationary_gev_params = {}
         massif_name_to_confidence = {}
         for massif_name, annual_maxima in self.massif_name_to_annual_maxima.items():

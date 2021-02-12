@@ -5,8 +5,8 @@ from matplotlib.lines import Line2D
 import os.path as op
 
 from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import get_color_from_gcm_rcm_couple, \
-    gcm_rcm_couple_to_str, gcm_rcm_couple_to_color, scenario_to_str
+from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_to_color
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str, scenario_to_str
 from extreme_data.meteo_france_data.adamont_data.adamont_studies import AdamontStudies
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
@@ -139,7 +139,7 @@ class ComparisonHistoricalVisualizer(StudyVisualizer):
         width = 10
         positions = [i * width * 2 for i in range(len(values))]
         labels = ['Reanalysis'] + [gcm_rcm_couple_to_str(couple) for couple in gcm_rcm_couples]
-        colors = ['black'] + [get_color_from_gcm_rcm_couple(couple) for couple in gcm_rcm_couples]
+        colors = ['black'] + [gcm_rcm_couple_to_color[couple] for couple in gcm_rcm_couples]
         # Permute values, labels & colors, based on the mean values
         mean_values = np.mean(values, axis=1)
         index_to_sort = np.argsort(mean_values)
