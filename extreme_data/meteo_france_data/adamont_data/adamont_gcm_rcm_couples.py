@@ -59,8 +59,8 @@ def get_gcm_list(adamont_version):
 
 gcm_to_rnumber = \
     {
-        'MPI-ESM-LR': 2,
-        'CNRM-CM5': 11,
+        'MPI-ESM-LR': 1,
+        'CNRM-CM5': 1,
         'IPSL-CM5A-MR': 1,
         'EC-EARTH': 12,
         'HadGEM2-ES': 1,

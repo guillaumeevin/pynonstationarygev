@@ -927,9 +927,8 @@ class AbstractStudy(object):
             massif_name_to_stationary_gev_params[massif_name] = gev_params_list
         return massif_name_to_stationary_gev_params
 
-    @property
-    def mean_annual_maxima(self):
+    def aggregate_annual_maxima(self, f):
         annual_maxima = []
         for maxima in self.year_to_annual_maxima.values():
             annual_maxima.extend(maxima)
-        return np.mean(annual_maxima)
+        return f(annual_maxima)
