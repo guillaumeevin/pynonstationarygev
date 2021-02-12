@@ -24,7 +24,7 @@ def get_scenario_name(scenario):
         return str(scenario).split('.')[-1]
 
 
-def year_to_global_mean_temp(gcm, scenario, year_min=None, year_max=None, rolling=None):
+def year_to_global_mean_temp(gcm, scenario, year_min=None, year_max=None, rolling=30):
     d = OrderedDict()
     years, global_mean_temps = years_and_global_mean_temps(gcm, scenario, year_min, year_max, rolling=rolling)
     for year, global_mean_temp in zip(years, global_mean_temps):
@@ -32,7 +32,7 @@ def year_to_global_mean_temp(gcm, scenario, year_min=None, year_max=None, rollin
     return d
 
 
-def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, rolling=None):
+def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, rolling=30):
     # Compute everything
     ensemble_member = 'r{}i1p1'.format(gcm_to_rnumber[gcm])
     scenario_name = get_scenario_name(scenario)
@@ -68,7 +68,7 @@ def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, rol
     return years, global_mean_temp
 
 
-def dat_to_csv(csv_filepath, txt_filepath, mean_annual_column_name, rolling_mean_annual_column_name, rolling=None):
+def dat_to_csv(csv_filepath, txt_filepath, mean_annual_column_name, rolling_mean_annual_column_name, rolling=30):
     d = OrderedDict()
     with open(txt_filepath, 'r') as f:
         for i, l in enumerate(f):
