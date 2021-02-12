@@ -15,6 +15,18 @@ class AdamontScenario(Enum):
 adamont_scenarios_real = [AdamontScenario.histo, AdamontScenario.rcp26, AdamontScenario.rcp45, AdamontScenario.rcp85]
 
 
+def get_linestyle_from_scenario(adamont_scenario):
+    assert isinstance(adamont_scenario, AdamontScenario)
+    if adamont_scenario is AdamontScenario.rcp26:
+        return 'dashed'
+    elif adamont_scenario is AdamontScenario.rcp45:
+        return 'dashdot'
+    elif adamont_scenario is AdamontScenario.rcp85:
+        return 'dotted'
+    else:
+        return 'solid'
+
+
 def get_year_min_and_year_max_from_scenario(adamont_scenario, gcm_rcm_couple):
     assert isinstance(adamont_scenario, AdamontScenario)
     year_min = get_year_min(adamont_scenario, gcm_rcm_couple)

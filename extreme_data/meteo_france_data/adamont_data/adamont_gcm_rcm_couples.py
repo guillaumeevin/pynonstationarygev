@@ -34,6 +34,21 @@ gcm_rcm_couple_to_color = {
     ('ERAINT', 'ALADIN62'): 'deeppink'
 }
 
+gcm_to_color = {
+    'CNRM-CM5': 'red',
+
+    'MPI-ESM-LR': 'blue',
+
+    'HadGEM2-ES': 'green',
+
+    'EC-EARTH': 'violet',
+
+    'IPSL-CM5A-MR': 'orange',
+
+    'NorESM1-M': 'yellow',
+}
+
+
 
 def get_year_min_and_year_max_used_to_compute_quantile(gcm):
     if gcm == 'HadGEM2-ES':
