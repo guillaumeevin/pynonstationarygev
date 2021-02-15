@@ -33,25 +33,35 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 class VisualizerForProjectionEnsemble(StudyVisualizer):
 
-    def __init__(self, studies: AltitudesStudies,
+    def __init__(self, gcm_rcm_couple_to_altitude_studies: Dict[str,AltitudesStudies],
                  model_classes: List[AbstractSpatioTemporalPolynomialModel],
                  show=False,
+                 ensemble_fit_classes=None,
                  massif_names=None,
                  fit_method=MarginFitMethod.extremes_fevd_mle,
                  temporal_covariate_for_fit=None,
-                 display_only_model_that_pass_anderson_test=True,
+                 display_only_model_that_pass_gof_test=False,
                  confidence_interval_based_on_delta_method=False
                  ):
-        super().__init__(studies.study, show=show, save_to_file=not show)
-        self.studies = studies
+        studies = list(gcm_rcm_couple_to_altitude_studies.values())[0]
+        study = studies.study
+        super().__init__(study, show=show, save_to_file=not show)
+        self.ensemble_fit_classes = ensemble_fit_classes
+        self.gcm_rcm_couple_to_altitude_studies = gcm_rcm_couple_to_altitude_studies
         self.non_stationary_models = model_classes
         self.fit_method = fit_method
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
-        self.display_only_model_that_pass_test = display_only_model_that_pass_anderson_test
-        self.massif_names = massif_names if massif_names is not None else self.study.all_massif_names()
+        self.display_only_model_that_pass_test = display_only_model_that_pass_gof_test
+        self.massif_names = massif_names if massif_names is not None else study.all_massif_names()
         self.massif_name_to_massif_id = {m: i for i, m in enumerate(self.massif_names)}
-        self.altitude_group = get_altitude_group_from_altitudes(self.studies.altitudes)
+        self.altitude_group = get_altitude_group_from_altitudes(studies.altitudes)
         self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
+
+        # Load ensemble_fit mapper
+        ensemble_fit_class_to_object = {}
+        for ensemble_fit_class in ensemble_fit_classes:
+            pass
+
         # Load one fold fit
         self.massif_name_to_massif_altitudes = {}
         self._massif_name_to_one_fold_fit = {}

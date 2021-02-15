@@ -1,0 +1,4 @@
+
+
+class AbstractEnsembleFit(object):
+    pass
