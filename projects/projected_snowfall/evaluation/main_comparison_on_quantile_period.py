@@ -4,9 +4,9 @@ import matplotlib
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import \
-    get_year_min_and_year_max_used_to_compute_quantile
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, gcm_rcm_couple_to_color, \
-    gcm_rcm_couple_to_str, load_gcm_rcm_couples
+    get_year_min_and_year_max_used_to_compute_quantile, gcm_rcm_couple_to_color
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, \
+    gcm_rcm_couple_to_str, get_gcm_rcm_couples
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, \
     SafranSnowfallCenterOnDay1dayMeanRate, SafranSnowfallCenterOnDay1day
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
@@ -68,7 +68,7 @@ def main_comparaison_plot():
     for adamont_version in [1, 2][1:]:
         print('version:', adamont_version)
 
-        gcm_rcm_couples = load_gcm_rcm_couples(adamont_scenario=AdamontScenario.histo, adamont_version=adamont_version)
+        gcm_rcm_couples = get_gcm_rcm_couples(adamont_scenario=AdamontScenario.histo, adamont_version=adamont_version)
 
         study_class_for_adamont_v1 = SafranSnowfall1Day
         study_class = SafranSnowfall2020 if adamont_version == 2 else study_class_for_adamont_v1
@@ -89,9 +89,9 @@ def main_comparaison_plot():
         else:
             list_of_massis_names = [None] + [[m] for m in reanalysis_altitude_studies_1981.study.all_massif_names()]
 
-        for relative_bias in [True, False][:]:
-            for mean in [True, False][1:]:
-                for massif_names in list_of_massis_names[:]:
+        for relative_bias in [True, False][1:]:
+            for mean in [True, False][:1]:
+                for massif_names in list_of_massis_names[:1]:
                     ax = plt.gca()
                     bias_in_the_mean = []
                     list_altitudes_for_bias = []

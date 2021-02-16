@@ -1,4 +1,3 @@
-
 def get_year_min_and_year_max_used_to_compute_quantile(gcm):
     if gcm == 'HadGEM2-ES':
         reanalysis_years = (1988, 2011)
@@ -9,17 +8,15 @@ def get_year_min_and_year_max_used_to_compute_quantile(gcm):
     return reanalysis_years, model_year
 
 
-def get_gcm_rcm_couple_adamont_to_full_name(version):
-    if version == 1:
-        return gcm_rcm_couple_adamont_v1_to_full_name
+def get_rcm_gcm_couple_full_name(gcm_rcm_couple, adamont_version):
+    return get_gcm_rcm_couple_adamont_to_full_name(adamont_version)[gcm_rcm_couple]
+
+
+def get_gcm_rcm_couple_adamont_to_full_name(adamont_version):
+    if adamont_version == 1:
+        return _gcm_rcm_couple_adamont_v1_to_full_name
     else:
-        return gcm_rcm_couple_adamont_v2_to_full_name
-
-
-def get_gcm_list(adamont_version):
-    s = set([gcm for gcm, _ in get_gcm_rcm_couple_adamont_to_full_name(adamont_version).keys()])
-    return list(s)
-
+        return _gcm_rcm_couple_adamont_v2_to_full_name
 
 gcm_to_rnumber = \
     {
@@ -31,7 +28,7 @@ gcm_to_rnumber = \
         'NorESM1-M': 1
     }
 
-gcm_rcm_couple_adamont_v1_to_full_name = {
+_gcm_rcm_couple_adamont_v1_to_full_name = {
     ('CNRM-CM5', 'ALADIN53'): 'CNRM-ALADIN53_CNRM-CERFACS-CNRM-CM5',
     ('CNRM-CM5', 'RCA4'): 'SMHI-RCA4_CNRM-CERFACS-CNRM-CM5',
     ('CNRM-CM5', 'CCLM4-8-17'): 'CLMcom-CCLM4-8-17_CNRM-CERFACS-CNRM-CM5',
@@ -53,7 +50,7 @@ gcm_rcm_couple_adamont_v1_to_full_name = {
     ('IPSL-CM5A-MR', 'RCA4'): 'SMHI-RCA4_IPSL-IPSL-CM5A-MR',
 }
 
-gcm_rcm_couple_adamont_v2_to_full_name = {
+_gcm_rcm_couple_adamont_v2_to_full_name = {
     ('CNRM-CM5', 'RACMO22E'): 'KNMI-RACMO22E_CNRM-CERFACS-CNRM-CM5',
     ('CNRM-CM5', 'CCLM4-8-17'): 'CLMcom-CCLM4-8-17_CNRM-CERFACS-CNRM-CM5',
     ('CNRM-CM5', 'RCA4'): 'SMHI-RCA4_CNRM-CERFACS-CNRM-CM5',
@@ -135,6 +132,3 @@ gcm_to_color = {
     'NorESM1-M': 'yellow',
 }
 
-
-if __name__ == '__main__':
-    print(get_gcm_list(adamont_version=2))

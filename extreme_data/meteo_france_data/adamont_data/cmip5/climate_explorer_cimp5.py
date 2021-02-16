@@ -8,9 +8,9 @@ import cdsapi
 import numpy as np
 from netCDF4._netCDF4 import Dataset, OrderedDict
 
-from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_rnumber, get_gcm_list
+from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_rnumber
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import get_year_min_and_year_max_from_scenario, \
-    AdamontScenario, adamont_scenarios_real
+    AdamontScenario, adamont_scenarios_real, get_gcm_list
 from extreme_data.utils import DATA_PATH
 
 GLOBALTEMP_WEB_PATH = "https://climexp.knmi.nl/CMIP5/Tglobal/"

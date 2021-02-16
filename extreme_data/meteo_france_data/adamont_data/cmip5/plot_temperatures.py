@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import get_gcm_list, gcm_to_color
+from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_color
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import get_linestyle_from_scenario, \
-    adamont_scenarios_real, AdamontScenario, scenario_to_str
+    adamont_scenarios_real, AdamontScenario, scenario_to_str, get_gcm_list
 from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import year_to_global_mean_temp, \
     years_and_global_mean_temps
 

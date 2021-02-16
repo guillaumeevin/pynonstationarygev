@@ -7,9 +7,9 @@ from cached_property import cached_property
 
 from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
-from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_adamont_v2_to_full_name
+from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import _gcm_rcm_couple_adamont_v2_to_full_name
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import adamont_scenarios_real, \
-    get_gcm_rcm_couple_adamont_version_2, rcp_scenarios
+    get_gcm_rcm_couples, rcp_scenarios
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
@@ -118,7 +118,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
 
             plot_name = '{} change with altitude'.format(param_name)
             if isinstance(self.study, AbstractAdamontStudy):
-                plot_name = op.join(plot_name, gcm_rcm_couple_adamont_v2_to_full_name[self.study.gcm_rcm_couple])
+                plot_name = op.join(plot_name, _gcm_rcm_couple_adamont_v2_to_full_name[self.study.gcm_rcm_couple])
 
             # # Display the legend
             if legend:
@@ -152,7 +152,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             label = 'Elevation gradient for\n{} {}'.format(the, value_label[:-idx] + '/100m)')
             plot_name = label.replace('/', ' every ')
             if isinstance(self.study, AbstractAdamontStudy):
-                plot_name = op.join(plot_name, gcm_rcm_couple_adamont_v2_to_full_name[self.study.gcm_rcm_couple])
+                plot_name = op.join(plot_name, _gcm_rcm_couple_adamont_v2_to_full_name[self.study.gcm_rcm_couple])
 
             gev_param_name_to_graduation = {
                 GevParams.LOC: 0.5,
@@ -333,7 +333,7 @@ def main_paper3():
     altitudes = list(chain.from_iterable(altitudes_for_groups))
     # altitudes = [1200, 1500, 1800]
     for scenario in rcp_scenarios[:]:
-        for gcm_rcm_couple in get_gcm_rcm_couple_adamont_version_2(scenario):
+        for gcm_rcm_couple in get_gcm_rcm_couples(scenario):
             visualizer = PointwiseGevStudyVisualizer(AdamontSnowfall, altitudes=altitudes, scenario=scenario,
                                                      gcm_rcm_couple=gcm_rcm_couple)
             visualizer.plot_gev_params_against_altitude()

@@ -49,17 +49,18 @@ class AbstractAdamontStudy(AbstractStudy):
         if year_min is None:
             year_min = year_min_scenario
         else:
-            if year_min < year_min_scenario:
-                raise WrongYearMinOrYearMax(
-                    'year min is {} and should be larger than {} for {}'.format(year_min, year_min_scenario, gcm_rcm_couple))
+            year_min = max(year_min_scenario, year_min)
 
         if year_max is None:
             year_max = year_max_scenario
+        else:
+            year_max = min(year_max, year_max_scenario)
+
         super().__init__(variable_class=variable_class, altitude=altitude, year_min=year_min, year_max=year_max,
                          multiprocessing=multiprocessing, season=season, french_region=french_region)
         self.adamont_version = adamont_version
         self.gcm_rcm_couple = gcm_rcm_couple
-        self.gcm_rcm_full_name = get_gcm_rcm_couple_adamont_to_full_name(version=self.adamont_version)[gcm_rcm_couple]
+        self.gcm_rcm_full_name = get_gcm_rcm_couple_adamont_to_full_name(adamont_version=self.adamont_version)[gcm_rcm_couple]
         self.scenario = scenario
         assert issubclass(self.variable_class, AbstractAdamontVariable)
         # Assert the massif_name are in the same order
