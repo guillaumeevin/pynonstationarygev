@@ -83,23 +83,21 @@ class AbstractAdamontStudy(AbstractStudy):
 
     def load_year_to_annual_maxima_version_2(self):
         year_to_annual_maxima = OrderedDict()
-        for dataset in self.datasets:
+        for dataset, real_scenario in zip(self.datasets, self.adamont_real_scenarios):
             annual_maxima = np.array(dataset.variables[self.variable_class.indicator_name_for_maxima])
             assert annual_maxima.shape[1] == len(self.column_mask)
             annual_maxima = annual_maxima[:, self.column_mask]
-            year_to_annual_maxima = OrderedDict()
-            year_min, year_max = get_year_min_and_year_max_from_scenario(self.scenario, self.gcm_rcm_couple)
+            year_min, year_max = get_year_min_and_year_max_from_scenario(real_scenario, self.gcm_rcm_couple)
             years = list(range(year_min, year_max + 1))
-            if self.scenario in adamont_scenarios_real:
-                time = np.array(dataset.variables['time'])
-                msg = 'len_years={} while len_time={},' \
-                      'check year_min and year_max, ' \
-                      'check in debug mode the time field of the daatset to see the starting date'.format(years, time)
-                # # Some print to check which year are in the data
-                # start = datetime(year=2005, month=8, day=1, hour=6, minute=0, second=0)
-                # dates = [start + timedelta(hours=int(h)) for h in time]
-                # print(["{}-{}".format(date.year-1, date.year) for date in dates])
-                assert len(years) == len(time), msg
+            time = np.array(dataset.variables['time'])
+            msg = 'len_years={} while len_time={},' \
+                  'check year_min and year_max, ' \
+                  'check in debug mode the time field of the daatset to see the starting date'.format(years, time)
+            # # Some print to check which year are in the data
+            # start = datetime(year=2005, month=8, day=1, hour=6, minute=0, second=0)
+            # dates = [start + timedelta(hours=int(h)) for h in time]
+            # print(["{}-{}".format(date.year-1, date.year) for date in dates])
+            assert len(years) == len(time), msg
             for year, maxima in zip(years, annual_maxima):
                 if self.year_min <= year <= self.year_max:
                     year_to_annual_maxima[year] = maxima

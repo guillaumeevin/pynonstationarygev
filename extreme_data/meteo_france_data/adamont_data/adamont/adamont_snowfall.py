@@ -25,8 +25,8 @@ class AdamontSnowfall(AbstractAdamontStudy):
 
 
 if __name__ == '__main__':
-    study = AdamontSnowfall(altitude=1800, adamont_version=2, gcm_rcm_couple=('HadGEM2-ES', 'RACMO22E'),
-                            scenario=AdamontScenario.rcp85)
+    study = AdamontSnowfall(altitude=1800, adamont_version=1, gcm_rcm_couple=('HadGEM2-ES', 'RACMO22E'),
+                            scenario=AdamontScenario.rcp85_extended)
     pass
     print(study.year_to_annual_maxima)
     print(study.year_to_annual_maxima)

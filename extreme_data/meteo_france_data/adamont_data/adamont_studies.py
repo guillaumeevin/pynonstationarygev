@@ -107,6 +107,7 @@ class AdamontStudies(object):
                                                        massif_name.replace('_', ' '),
                                                         self.study.altitude)
         fontsize = 13
+        ax.tick_params(axis='both', which='major', labelsize=fontsize)
         if legend_and_labels:
             ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=fontsize)
             ax.set_xlabel('years', fontsize=fontsize)

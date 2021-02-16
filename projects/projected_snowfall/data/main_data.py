@@ -6,11 +6,12 @@ mpl.use('Agg')
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
+import matplotlib.pyplot as plt
 from projects.projected_snowfall.evaluation.comparison_plot import individual_plot
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples, \
-    scenario_to_real_scenarios, rcp_scenarios
+    scenario_to_real_scenarios, rcp_scenarios, rcm_scenarios_extended
 from extreme_data.meteo_france_data.adamont_data.adamont_studies import AdamontStudies
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
@@ -23,10 +24,11 @@ def main():
     year_max = 2100
     massif_names = ['Vanoise']
     season = Season.annual
-    scenarios = [AdamontScenario.rcp26_extended, AdamontScenario.rcp45_extended, AdamontScenario.rcp85_extended]
+    scenarios = rcm_scenarios_extended
     # scenarios = rcp_scenarios
     altitudes = [600, 2100, 3600]
-    for altitude, adamont_scenario in list(zip(altitudes, scenarios))[-1:]:
+    for altitude, adamont_scenario in list(zip(altitudes, scenarios))[:]:
+        plt.figure(figsize=(20, 5))
         # Loading part
         scm_study = scm_study_class(altitude=altitude)
         real_adamont_scenario = scenario_to_real_scenarios(adamont_scenario=adamont_scenario)[-1]
@@ -35,10 +37,9 @@ def main():
                                          altitude=altitude, year_min_studies=year_min, year_max_studies=year_max,
                                          season=season, scenario=adamont_scenario)
         print(altitude, adamont_scenario)
-        adamont_studies.plot_maxima_time_series_adamont(massif_names=massif_names, scm_study=scm_study, legend_and_labels=False)
+        adamont_studies.plot_maxima_time_series_adamont(massif_names=massif_names,
+                                                        scm_study=scm_study, legend_and_labels=False)
 
 
 if __name__ == '__main__':
-    fast_list = [1, 2, 4, 6][:1]
-    for fast in fast_list:
-        main()
+    main()

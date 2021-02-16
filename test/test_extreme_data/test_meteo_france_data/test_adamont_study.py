@@ -40,6 +40,14 @@ class TestAdamontStudy(unittest.TestCase):
                                                 year_min=year_min, gcm_rcm_couple=gcm_rcm_couple)
                 assert set(adamont_study.study_massif_names) == set(reanalysis_study.study_massif_names)
 
+    def test_rcp_extended(self):
+        for version in [1, 2]:
+            study = AdamontSnowfall(altitude=1800, adamont_version=version, gcm_rcm_couple=('HadGEM2-ES', 'RACMO22E'),
+                                    scenario=AdamontScenario.rcp85_extended)
+            self.assertEqual(len(study.ordered_years), len(study.massif_name_to_annual_maxima["Vanoise"]))
+        self.assertTrue(True)
+
+
     def test_existing_gcm_rcm_couple_and_rcp(self):
         altitude = 1800
         for scenario in rcp_scenarios[:]:
@@ -54,6 +62,7 @@ class TestAdamontStudy(unittest.TestCase):
                     l.append(gcm_rcm_couple)
 
         self.assertTrue(True)
+
 
 if __name__ == '__main__':
     unittest.main()
