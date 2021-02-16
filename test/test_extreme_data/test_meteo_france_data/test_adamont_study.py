@@ -10,15 +10,17 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranS
 class TestAdamontStudy(unittest.TestCase):
 
     def test_load_adamont_snowfall(self):
-        for version in [1, 2][1:]:
+        for version in [1, 2][:]:
             study_list = [
                 AdamontSnowfall(altitude=900, adamont_version=version),
                 AdamontSnowfall(altitude=1800, adamont_version=version)
             ]
             for scenario in rcp_scenarios + rcm_scenarios_extended:
-                first_gcm_rcm_couple = get_gcm_rcm_couples(scenario, version)[0]
-                study_list.append(AdamontSnowfall(altitude=900, scenario=scenario, adamont_version=version,
-                                                  gcm_rcm_couple=first_gcm_rcm_couple))
+                gcm_rcm_couples = get_gcm_rcm_couples(scenario, version)
+                if len(gcm_rcm_couples) > 0:
+                    first_gcm_rcm_couple = gcm_rcm_couples[0]
+                    study_list.append(AdamontSnowfall(altitude=900, scenario=scenario, adamont_version=version,
+                                                      gcm_rcm_couple=first_gcm_rcm_couple))
 
             study_list.extend([AdamontSnowfall(altitude=900, gcm_rcm_couple=gcm_rcm_couple, adamont_version=version)
                                for gcm_rcm_couple in get_gcm_rcm_couples(adamont_version=version)])
