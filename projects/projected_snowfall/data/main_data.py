@@ -20,15 +20,15 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 def main():
     scm_study_class = SafranSnowfall1Day
     adamont_study_class = AdamontSnowfall
-    year_min = 1950
+    year_min = 2006
     year_max = 2100
     massif_names = ['Vanoise']
     season = Season.annual
     scenarios = rcm_scenarios_extended
-    # scenarios = rcp_scenarios
+    scenarios = rcp_scenarios
     altitudes = [600, 2100, 3600]
     for altitude, adamont_scenario in list(zip(altitudes, scenarios))[:]:
-        plt.figure(figsize=(20, 5))
+        plt.figure(figsize=(10, 5))
         # Loading part
         scm_study = scm_study_class(altitude=altitude)
         real_adamont_scenario = scenario_to_real_scenarios(adamont_scenario=adamont_scenario)[-1]
@@ -38,7 +38,7 @@ def main():
                                          season=season, scenario=adamont_scenario)
         print(altitude, adamont_scenario)
         adamont_studies.plot_maxima_time_series_adamont(massif_names=massif_names,
-                                                        scm_study=scm_study, legend_and_labels=False)
+                                                        scm_study=scm_study, legend_and_labels=True)
 
 
 if __name__ == '__main__':
