@@ -85,13 +85,15 @@ class TestSpatioTemporalDatasetForClimateModels(unittest.TestCase):
         super().setUp()
         altitudes = [900, 1200]
         study_class = AdamontSnowfall
+        self.scenario = AdamontScenario.rcp85
         self.studies = AltitudesStudies(study_class, altitudes,
                                         year_min=2009, year_max=2012,
-                                        scenario=AdamontScenario.rcp85)
+                                        scenario=self.scenario)
         self.massif_name = "Vercors"
 
     def test_dataset(self):
         dataset = self.studies.spatio_temporal_dataset(self.massif_name)
+        self.assertEqual(self.studies.study.scenario, AdamontScenario.rcp85)
         self.assertEqual(len(dataset.coordinates.df_coordinate_climate_model.columns), 3)
 
 if __name__ == '__main__':

@@ -24,22 +24,24 @@ def get_scenario_name(scenario):
         return str(scenario).split('.')[-1]
 
 
-def year_to_global_mean_temp(gcm, scenario, year_min=None, year_max=None, rolling=30):
+def year_to_global_mean_temp(gcm, scenario, year_min=None, year_max=None, rolling=30, anomaly=False):
     d = OrderedDict()
-    years, global_mean_temps = years_and_global_mean_temps(gcm, scenario, year_min, year_max, rolling=rolling)
+    years, global_mean_temps = years_and_global_mean_temps(gcm, scenario, year_min, year_max, rolling=rolling, anomaly=anomaly)
     for year, global_mean_temp in zip(years, global_mean_temps):
         d[year] = global_mean_temp
     return d
 
 
-def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, rolling=30):
+def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, rolling=30, anomaly=False):
     # Compute everything
     ensemble_member = 'r{}i1p1'.format(gcm_to_rnumber[gcm])
     scenario_name = get_scenario_name(scenario)
 
     # Standards
     mean_annual_column_name = 'Annual mean'
+    anomaly_annual_column_name = 'Annual anomaly'
     rolling_mean_annual_column_name = 'Rolling annual mean for window={}'.format(rolling)
+    rolling_anomaly_annual_column_name = 'Rolling annual anomaly for window={}'.format(rolling)
     filename = 'global_tas_Amon_{}_{}_{}'.format(gcm, scenario_name, ensemble_member)
     dat_filepath = op.join(GLOBALTEMP_DATA_PATH, filename + '.dat')
     txt_filepath = op.join(GLOBALTEMP_DATA_PATH, filename + '.txt')
@@ -50,6 +52,7 @@ def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, rol
     # Transform nc file into csv file
     if not op.exists(csv_filepath):
         dat_to_csv(csv_filepath, txt_filepath, mean_annual_column_name, rolling_mean_annual_column_name,
+                   anomaly_annual_column_name,  rolling_anomaly_annual_column_name,
                    rolling=rolling)
 
     # Load csv file
@@ -63,13 +66,20 @@ def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, rol
     assert years[0] >= year_min
     assert years[-1] <= year_max
     if rolling:
-        global_mean_temp = list(df[rolling_mean_annual_column_name])
+        if anomaly:
+            global_mean_temp = list(df[rolling_anomaly_annual_column_name])
+        else:
+            global_mean_temp = list(df[rolling_mean_annual_column_name])
     else:
-        global_mean_temp = list(df[mean_annual_column_name])
+        if anomaly:
+            global_mean_temp = list(df[anomaly_annual_column_name])
+        else:
+            global_mean_temp = list(df[mean_annual_column_name])
     return years, global_mean_temp
 
 
-def dat_to_csv(csv_filepath, txt_filepath, mean_annual_column_name, rolling_mean_annual_column_name, rolling=30):
+def dat_to_csv(csv_filepath, txt_filepath, mean_annual_column_name, rolling_mean_annual_column_name,
+               anomaly_annual_column_name,  rolling_anomaly_annual_column_name, rolling=30):
     d = OrderedDict()
     with open(txt_filepath, 'r') as f:
         for i, l in enumerate(f):
@@ -89,9 +99,12 @@ def dat_to_csv(csv_filepath, txt_filepath, mean_annual_column_name, rolling_mean
     l = [np.nan] + list(l)
     assert len(l) == len(df.index)
     df[mean_annual_column_name] = l
+    mean_for_reference_period_1850_to_1900 = df.loc[1850:1900, mean_annual_column_name].mean()
+    df[anomaly_annual_column_name] = df[mean_annual_column_name] - mean_for_reference_period_1850_to_1900
     # Computing the rolling
     if rolling is not None:
         df[rolling_mean_annual_column_name] = df[mean_annual_column_name].rolling(window=rolling).mean()
+        df[rolling_anomaly_annual_column_name] = df[anomaly_annual_column_name].rolling(window=rolling).mean()
     df.to_csv(csv_filepath)
 
 

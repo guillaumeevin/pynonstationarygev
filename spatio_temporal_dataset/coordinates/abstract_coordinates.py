@@ -284,7 +284,9 @@ class AbstractCoordinates(object):
             df = temporal_transformation.transform_df(df_temporal_coordinates)
         # Potentially transform the time covariate into another covariate
         if temporal_covariate_for_fit is not None:
-            df.loc[:, self.COORDINATE_T] = df.apply(temporal_covariate_for_fit.get_temporal_covariate, axis=1)
+            df_climate_model = df_sliced(df=self.df_coordinate_climate_model, split=split, slicer=self.slicer)
+            df_input = pd.concat([df, df_climate_model], axis=1)
+            df.loc[:, self.COORDINATE_T] = df_input.apply(temporal_covariate_for_fit.get_temporal_covariate, axis=1)
         return df
 
     @property

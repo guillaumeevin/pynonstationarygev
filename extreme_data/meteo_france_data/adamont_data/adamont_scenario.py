@@ -15,7 +15,8 @@ class AdamontScenario(Enum):
 
 adamont_scenarios_real = [AdamontScenario.histo, AdamontScenario.rcp26, AdamontScenario.rcp45, AdamontScenario.rcp85]
 rcp_scenarios = [AdamontScenario.rcp26, AdamontScenario.rcp45, AdamontScenario.rcp85]
-rcm_scenarios_extended = [AdamontScenario.rcp26_extended, AdamontScenario.rcp45_extended, AdamontScenario.rcp85_extended]
+rcm_scenarios_extended = [AdamontScenario.rcp26_extended, AdamontScenario.rcp45_extended,
+                          AdamontScenario.rcp85_extended]
 
 
 def get_linestyle_from_scenario(adamont_scenario):
@@ -90,9 +91,11 @@ def get_gcm_rcm_couples(adamont_scenario=AdamontScenario.histo, adamont_version=
             gcm_rcm_couples.remove(couple_to_remove)
     return list(gcm_rcm_couples)
 
+
 def get_gcm_list(adamont_version):
     s = set([gcm for gcm, _ in get_gcm_rcm_couples(adamont_version=adamont_version)])
     return list(s)
+
 
 def get_suffix_for_the_nc_file(adamont_scenario, gcm_rcm_couple):
     assert isinstance(adamont_scenario, AdamontScenario)
@@ -103,6 +106,19 @@ def get_suffix_for_the_nc_file(adamont_scenario, gcm_rcm_couple):
 def scenario_to_str(adamont_scenario):
     return '+'.join([str(real_adamont_scenario).split('.')[-1].upper()
                      for real_adamont_scenario in scenario_to_real_scenarios(adamont_scenario)])
+
+
+def str_to_scenario(str_scenario):
+    if '26' in str_scenario:
+        return AdamontScenario.rcp26
+    elif '45' in str_scenario:
+        return AdamontScenario.rcp45
+    elif '85' in str_scenario:
+        return AdamontScenario.rcp85
+    elif 'HISTO' in str_scenario:
+        raise NotImplementedError('No global temperatures defined for histo')
+    else:
+        raise NotImplementedError(str_scenario)
 
 
 def scenario_to_real_scenarios(adamont_scenario):
