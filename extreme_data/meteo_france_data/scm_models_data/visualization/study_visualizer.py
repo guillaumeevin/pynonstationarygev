@@ -545,6 +545,7 @@ class StudyVisualizer(VisualizationParameters):
                              dpi=None, folder_for_variable=True):
         if isinstance(self.study, AbstractAdamontStudy):
             prefix = gcm_rcm_couple_to_str(self.study.gcm_rcm_couple)
+            prefix = prefix.replace('/', '-')
             self.plot_name = prefix + ' ' + self.plot_name
 
         assert self.plot_name is not None

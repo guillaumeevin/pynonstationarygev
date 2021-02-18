@@ -27,15 +27,18 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_gr
     get_altitude_group_from_altitudes, HighAltitudeGroup, VeyHighAltitudeGroup, MidAltitudeGroup
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import \
     OneFoldFit
+from projects.altitude_spatial_model.altitudes_fit.plots.plot_histogram_altitude_studies import \
+    plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
+from projects.projected_snowfall.elevation_temporal_model_for_projections.ensemble_fit.independent_ensemble_fit import \
+    IndependentEnsembleFit
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
-class VisualizerForProjectionEnsemble(StudyVisualizer):
+class MetaVisualizerForProjectionEnsemble(object):
 
-    def __init__(self, gcm_rcm_couple_to_altitude_studies: Dict[str, AltitudesStudies],
+    def __init__(self, altitudes_list, gcm_rcm_couples, study_class, season, scenario,
                  model_classes: List[AbstractSpatioTemporalPolynomialModel],
-                 show=False,
                  ensemble_fit_classes=None,
                  massif_names=None,
                  fit_method=MarginFitMethod.extremes_fevd_mle,
@@ -43,26 +46,56 @@ class VisualizerForProjectionEnsemble(StudyVisualizer):
                  display_only_model_that_pass_gof_test=False,
                  confidence_interval_based_on_delta_method=False
                  ):
-        studies = list(gcm_rcm_couple_to_altitude_studies.values())[0]
-        study = studies.study
-        super().__init__(study, show=show, save_to_file=not show)
-        # Load one fold fit
-        self.massif_name_to_massif_altitudes = {}
-        self.ensemble_class_to_ensemble_fit = {}
-        for ensemble_fit_class in ensemble_fit_classes:
-            ensemble_fit = ensemble_fit_class(massif_names, gcm_rcm_couple_to_altitude_studies, model_classes,
-                                              fit_method, temporal_covariate_for_fit,
-                                              display_only_model_that_pass_gof_test,
-                                              confidence_interval_based_on_delta_method)
-            self.ensemble_class_to_ensemble_fit[ensemble_fit_class] = ensemble_fit
+        self.gcm_rcm_couples = gcm_rcm_couples
+        self.massif_names = massif_names
+        self.ensemble_fit_classes = ensemble_fit_classes
+
+        # Load all studies
+        altitude_group_to_gcm_couple_to_studies = {}
+        for altitudes in altitudes_list:
+            altitude_group = get_altitude_group_from_altitudes(altitudes)
+            gcm_rcm_couple_to_studies = {}
+            for gcm_rcm_couple in gcm_rcm_couples:
+                studies = AltitudesStudies(study_class, altitudes, season=season,
+                                           scenario=scenario, gcm_rcm_couple=gcm_rcm_couple)
+                gcm_rcm_couple_to_studies[gcm_rcm_couple] = studies
+            altitude_group_to_gcm_couple_to_studies[altitude_group] = gcm_rcm_couple_to_studies
+
+        # Load ensemble fit
+        self.altitude_group_to_ensemble_class_to_ensemble_fit = {}
+        for altitude_group, gcm_rcm_couple_to_studies in altitude_group_to_gcm_couple_to_studies.items():
+            ensemble_class_to_ensemble_fit = {}
+            for ensemble_fit_class in ensemble_fit_classes:
+                ensemble_fit = ensemble_fit_class(massif_names, gcm_rcm_couple_to_studies, model_classes,
+                                                  fit_method, temporal_covariate_for_fit,
+                                                  display_only_model_that_pass_gof_test,
+                                                  confidence_interval_based_on_delta_method)
+                ensemble_class_to_ensemble_fit[ensemble_fit_class] = ensemble_fit
+            self.altitude_group_to_ensemble_class_to_ensemble_fit[altitude_group] = ensemble_class_to_ensemble_fit
 
     def plot(self):
-        self.plot_independent()
-        self.plot_dependent()
-
-    def plot_dependent(self):
-        pass
+        if IndependentEnsembleFit in self.ensemble_fit_classes:
+            self.plot_independent()
 
     def plot_independent(self):
-        for ensemble_fit in self.ensemble_class_to_ensemble_fit.values():
-            ensemble_fit.plot()
+        with_significance = False
+        # Individual plots
+        for independent_ensemble_fit in self.ensemble_fits(IndependentEnsembleFit):
+            for v in independent_ensemble_fit.gcm_rcm_couple_to_visualizer.values():
+                v.plot_moments()
+        # Aggregated at gcm_rcm_level plots
+        for gcm_rcm_couple in self.gcm_rcm_couples:
+            visualizer_list = [independent_ensemble_fit.gcm_rcm_couple_to_visualizer[gcm_rcm_couple]
+                               for independent_ensemble_fit in self.ensemble_fits(IndependentEnsembleFit)
+                               ]
+            plot_histogram_all_trends_against_altitudes(self.massif_names, visualizer_list, with_significance=with_significance)
+            # for relative in [True, False]:
+            #     plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative)
+
+    def ensemble_fits(self, ensemble_class):
+        return [ensemble_class_to_ensemble_fit[ensemble_class]
+                for ensemble_class_to_ensemble_fit
+                in self.altitude_group_to_ensemble_class_to_ensemble_fit.values()]
+
+    def plot_together(self):
+        pass

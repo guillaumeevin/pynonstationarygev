@@ -86,7 +86,7 @@ def plot_visualizers(massif_names, visualizer_list):
     # plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
     for relative in [True, False]:
         plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
-    # plot_coherence_curves(massif_names, visualizer_list)
+    plot_coherence_curves(massif_names, visualizer_list)
     # plot_coherence_curves(['Vanoise'], visualizer_list)
     pass
 

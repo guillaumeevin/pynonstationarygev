@@ -20,6 +20,9 @@ class IndependentEnsembleFit(AbstractEnsembleFit):
         super().__init__(massif_names, gcm_rcm_couple_to_altitude_studies, models_classes, fit_method, temporal_covariate_for_fit, only_models_that_pass_goodness_of_fit_test,
                          confidence_interval_based_on_delta_method)
 
+        # Set appropriate setting
+        OneFoldFit.last_year = 2100
+        OneFoldFit.nb_years = 95
         # Load a classical visualizer
         self.gcm_rcm_couple_to_visualizer = {}
         for gcm_rcm_couple, studies in gcm_rcm_couple_to_altitude_studies.items():
@@ -34,15 +37,4 @@ class IndependentEnsembleFit(AbstractEnsembleFit):
         # Assign max
         visualizer_list = list(self.gcm_rcm_couple_to_visualizer.values())
         compute_and_assign_max_abs(visualizer_list)
-
-    def plot(self):
-        for v in self.gcm_rcm_couple_to_visualizer.values():
-            self.plot_one_visualizer(v)
-
-    @staticmethod
-    def plot_one_visualizer(visualizer):
-        # visualizer.studies.plot_maxima_time_series(['Vanoise'])
-        visualizer.plot_shape_map()
-        visualizer.plot_moments()
-        # visualizer.plot_qqplots()
 

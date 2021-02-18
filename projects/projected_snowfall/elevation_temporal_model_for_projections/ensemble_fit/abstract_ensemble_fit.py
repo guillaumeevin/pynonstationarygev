@@ -22,6 +22,3 @@ class AbstractEnsembleFit(object):
         self.only_models_that_pass_goodness_of_fit_test = only_models_that_pass_goodness_of_fit_test
         self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
 
-
-    def plot(self):
-        raise NotImplementedError

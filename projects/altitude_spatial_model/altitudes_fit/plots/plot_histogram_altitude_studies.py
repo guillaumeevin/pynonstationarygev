@@ -81,10 +81,10 @@ def plot_histogram_all_models_against_altitudes(massif_names, visualizer_list: L
 
 
 def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: List[
-    AltitudesStudiesVisualizerForNonStationaryModels]):
+    AltitudesStudiesVisualizerForNonStationaryModels], with_significance=True):
     visualizer = visualizer_list[0]
 
-    all_trends = [v.all_trends(massif_names) for v in visualizer_list]
+    all_trends = [v.all_trends(massif_names, with_significance=with_significance) for v in visualizer_list]
     nb_massifs, *all_l = zip(*all_trends)
 
     plt.close()
@@ -106,8 +106,9 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
         shift = 0.6 * width
         is_a_decrease_plot = colors.index(color) in [0, 1]
         x_shifted = x - shift if is_a_decrease_plot else x + shift
-        ax.bar(x_shifted, l, width=width, color=color, edgecolor=color, label=label,
-               linewidth=linewidth, align='center')
+        if with_significance or (not label.startswith("S")):
+            ax.bar(x_shifted, l, width=width, color=color, edgecolor=color, label=label,
+                   linewidth=linewidth, align='center')
     ax.legend(loc='upper left', prop={'size': size})
     ax.set_ylabel('Percentage of massifs (\%) ', fontsize=legend_fontsize)
     ax.set_xlabel('Elevation range', fontsize=legend_fontsize)

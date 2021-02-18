@@ -141,7 +141,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         return self._method_name_and_order_to_massif_name_to_value[c]
 
     def ratio_groups(self):
-        return [self.ratio_uncertainty_interval_size(altitude, 2019) for altitude in self.studies.altitudes]
+        return [self.ratio_uncertainty_interval_size(altitude, OneFoldFit.last_year) for altitude in
+                self.studies.altitudes]
 
     def ratio_uncertainty_interval_size(self, altitude, year):
         study = self.studies.altitude_to_study[altitude]
@@ -164,14 +165,13 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
         # Plot settings
         moment = ' '.join(method_name.split('_'))
-        str_for_last_year = ' in 2019'
+        str_for_last_year = ' in {}'.format(OneFoldFit.last_year)
         moment = moment.replace('moment', '{}{}'.format(OneFoldFit.get_moment_str(order=order), str_for_last_year))
         plot_name = '{}{} '.format(OneFoldFit.folder_for_plots, moment)
 
-
         if 'change' in method_name:
             plot_name = plot_name.replace(str_for_last_year, '')
-            plot_name += ' between {} and {}'.format(2019 - OneFoldFit.nb_years, 2019)
+            plot_name += ' between {} and {}'.format(OneFoldFit.last_year - OneFoldFit.nb_years, OneFoldFit.last_year)
             if 'relative' not in method_name:
                 # Put the relative score as text on the plot for the change.
                 massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
@@ -218,11 +218,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       fontsize_label=fontsize_label,
                       )
 
-
     @property
     def add_colorbar(self):
-        # return isinstance(self.altitude_group, (VeyHighAltitudeGroup))
-        return isinstance(self.altitude_group, (VeyHighAltitudeGroup, MidAltitudeGroup))
+        return True
+        # return isinstance(self.altitude_group, (VeyHighAltitudeGroup, MidAltitudeGroup))
 
     def plot_against_years(self, method_name, order):
         ax = plt.gca()
@@ -238,7 +237,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         # Plot settings
         ax.legend(prop={'size': 7}, ncol=3)
         moment = ' '.join(method_name.split('_'))
-        moment = moment.replace('moment', '{} in 2019'.format(OneFoldFit.get_moment_str(order=order)))
+        moment = moment.replace('moment',
+                                '{} in {}'.format(OneFoldFit.get_moment_str(order=order), OneFoldFit.last_year))
         plot_name = '{}Model {} annual maxima of {}'.format(OneFoldFit.folder_for_plots, moment,
                                                             SCM_STUDY_CLASS_TO_ABBREVIATION[self.studies.study_class])
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
@@ -286,7 +286,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                                     if AbstractCoordinates.COORDINATE_X in coordinate_name:
                                         massif_name_to_best_coef[massif_name] *= np.power(1000, degree)
                                     if AbstractCoordinates.COORDINATE_T in coordinate_name:
-                                        massif_name_to_best_coef[massif_name] *= np.power(2019, degree)
+                                        massif_name_to_best_coef[massif_name] *= np.power(OneFoldFit.last_year, degree)
                             self.plot_best_coef_map(coef_name.replace('_', ''), massif_name_to_best_coef)
 
     def plot_best_coef_map(self, coef_name, massif_name_to_best_coef):
@@ -306,7 +306,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     def plot_shape_map(self):
 
-        label = 'Shape parameter in 2019 (no unit)'
+        label = 'Shape parameter in {} (no unit)'.format(OneFoldFit.last_year)
         max_abs_change = self._max_abs_for_shape + 0.05
         self.plot_map(massif_name_to_value=self.massif_name_to_shape,
                       label=label,
@@ -437,7 +437,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
         plt.close()
 
-    def all_trends(self, massif_names):
+    def all_trends(self, massif_names, with_significance=True):
         """return percents which contain decrease, significant decrease, increase, significant increase percentages"""
         valid_massif_names = self.get_valid_names(massif_names)
 
@@ -451,8 +451,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             # Compute nbs
             idx = 0 if one_fold.change_in_return_level_for_reference_altitude < 0 else 2
             nbs[idx] += 1
-            if one_fold.is_significant:
-                nbs[idx + 1] += 1
+            if with_significance and one_fold.is_significant:
+                    nbs[idx + 1] += 1
 
         percents = 100 * nbs / nb_valid_massif_names
         return [nb_valid_massif_names] + list(percents)
@@ -515,7 +515,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
             for altitude in self.studies.altitudes:
                 coordinate_for_filter = (altitude, None)
-                unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles(coordinate_for_filter=coordinate_for_filter)
+                unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles(
+                    coordinate_for_filter=coordinate_for_filter)
                 n = len(unconstrained_empirical_quantiles)
                 if n > 0:
                     assert n == 61

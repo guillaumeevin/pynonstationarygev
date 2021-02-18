@@ -45,6 +45,7 @@ class OneFoldFit(object):
     return_period = 100
     quantile_level = 1 - (1 / return_period)
     nb_years = 60
+    last_year = 2019
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
                  fit_method=MarginFitMethod.extremes_fevd_mle,
@@ -107,8 +108,8 @@ class OneFoldFit(object):
         gev_params = self.best_function_from_fit.get_params(coordinate, is_transformed=False)
         return gev_params
 
-    def moment(self, altitudes, year=2019, order=1):
-        return [self.get_moment(altitude, year, order) for altitude in altitudes]
+    def moment(self, altitudes, order=1):
+        return [self.get_moment(altitude, self.last_year, order) for altitude in altitudes]
 
     @property
     def change_in_return_level_for_reference_altitude(self) -> float:
@@ -118,20 +119,20 @@ class OneFoldFit(object):
     def relative_change_in_return_level_for_reference_altitude(self) -> float:
         return self.relative_changes_of_moment(altitudes=[self.altitude_plot], order=None)[0]
 
-    def changes_of_moment(self, altitudes, year=2019, nb_years=nb_years, order=1):
+    def changes_of_moment(self, altitudes, nb_years=nb_years, order=1):
         changes = []
         for altitude in altitudes:
-            mean_after = self.get_moment(altitude, year, order)
-            mean_before = self.get_moment(altitude, year - nb_years, order)
+            mean_after = self.get_moment(altitude, self.last_year, order)
+            mean_before = self.get_moment(altitude, self.last_year - nb_years, order)
             change = mean_after - mean_before
             changes.append(change)
         return changes
 
-    def relative_changes_of_moment(self, altitudes, year=2019, nb_years=nb_years, order=1):
+    def relative_changes_of_moment(self, altitudes, nb_years=nb_years, order=1):
         relative_changes = []
         for altitude in altitudes:
-            mean_after = self.get_moment(altitude, year, order)
-            mean_before = self.get_moment(altitude, year - nb_years, order)
+            mean_after = self.get_moment(altitude, self.last_year, order)
+            mean_before = self.get_moment(altitude, self.last_year - nb_years, order)
             relative_change = 100 * (mean_after - mean_before) / mean_before
             relative_changes.append(relative_change)
         return relative_changes
@@ -204,7 +205,7 @@ class OneFoldFit(object):
 
     @property
     def best_shape(self):
-        return self.get_gev_params(altitude=self.altitude_plot, year=2019).shape
+        return self.get_gev_params(altitude=self.altitude_plot, year=self.last_year).shape
 
     @property
     def altitude_plot(self):
@@ -317,7 +318,7 @@ class OneFoldFit(object):
 
     def sign_of_change(self, function_from_fit):
         return_levels = []
-        for year in [2019 - self.nb_years, 2019]:
+        for year in [self.last_year - self.nb_years, self.last_year]:
             coordinate = np.array([self.altitude_plot, year])
             return_level = function_from_fit.get_params(
                 coordinate=coordinate,
