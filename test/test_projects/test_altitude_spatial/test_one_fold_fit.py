@@ -9,7 +9,7 @@ from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pari
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import OneFoldFit
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
-    TimeTemporalCovariate
+    TimeTemporalCovariate, TemperatureTemporalCovariate
 
 
 class TestOneFoldFit(unittest.TestCase):
@@ -35,7 +35,7 @@ class TestOneFoldFit(unittest.TestCase):
             dataset = self.load_dataset(study_class)
             one_fold_fit = OneFoldFit(self.massif_name, dataset,
                                       models_classes=self.model_classes, temporal_covariate_for_fit=None)
-            print(type(one_fold_fit.best_estimator.margin_model))
+            _ = one_fold_fit.best_estimator.margin_model
         self.assertTrue(True)
 
     def test_with_temporal_covariate_for_time(self):
@@ -44,8 +44,17 @@ class TestOneFoldFit(unittest.TestCase):
             one_fold_fit = OneFoldFit(self.massif_name, dataset,
                                       models_classes=self.model_classes,
                                       temporal_covariate_for_fit=TimeTemporalCovariate)
-            print(type(one_fold_fit.best_estimator.margin_model))
+            _ = one_fold_fit.best_estimator.margin_model
         self.assertTrue(True)
+
+    # def test_with_temporal_covariate_for_temperature(self):
+    #     for study_class in [AdamontSnowfall][:]:
+    #         dataset = self.load_dataset(study_class)
+    #         one_fold_fit = OneFoldFit(self.massif_name, dataset,
+    #                                   models_classes=self.model_classes,
+    #                                   temporal_covariate_for_fit=TemperatureTemporalCovariate)
+    #         print(type(one_fold_fit.best_estimator.margin_model))
+    #     self.assertTrue(True)
 
 
 if __name__ == '__main__':

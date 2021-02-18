@@ -4,6 +4,8 @@ from collections import OrderedDict
 
 from cached_property import cached_property
 
+from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import scenario_to_str
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION, STUDY_CLASS_TO_ABBREVIATION
@@ -14,6 +16,8 @@ from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_co
     AbstractSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
     AbstractSpatioTemporalCoordinates
+from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.spatio_temporal_coordinates_for_climate_models import \
+    SpatioTemporalCoordinatesForClimateModels
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
@@ -78,12 +82,23 @@ class AltitudesStudies(object):
             assert len(massif_altitudes) > 0
             spatial_coordinates = self.spatial_coordinates_for_altitudes(massif_altitudes)
         slicer_class = get_slicer_class_from_s_splits(s_split_spatial, s_split_temporal)
-        return AbstractSpatioTemporalCoordinates(slicer_class=slicer_class,
-                                                 s_split_spatial=s_split_spatial,
-                                                 s_split_temporal=s_split_temporal,
-                                                 transformation_class=self.spatial_transformation_class,
-                                                 spatial_coordinates=spatial_coordinates,
-                                                 temporal_coordinates=self.temporal_coordinates)
+        if isinstance(self.study, AbstractAdamontStudy):
+            return SpatioTemporalCoordinatesForClimateModels(slicer_class=slicer_class,
+                                                             s_split_spatial=s_split_spatial,
+                                                             s_split_temporal=s_split_temporal,
+                                                             transformation_class=self.spatial_transformation_class,
+                                                             spatial_coordinates=spatial_coordinates,
+                                                             temporal_coordinates=self.temporal_coordinates,
+                                                             gcm_rcm_couple=self.study.gcm_rcm_couple,
+                                                             scenario_str=scenario_to_str(self.study.scenario),
+                                                             )
+        else:
+            return AbstractSpatioTemporalCoordinates(slicer_class=slicer_class,
+                                                     s_split_spatial=s_split_spatial,
+                                                     s_split_temporal=s_split_temporal,
+                                                     transformation_class=self.spatial_transformation_class,
+                                                     spatial_coordinates=spatial_coordinates,
+                                                     temporal_coordinates=self.temporal_coordinates)
 
     @cached_property
     def temporal_coordinates(self):
@@ -115,7 +130,8 @@ class AltitudesStudies(object):
     def show_or_save_to_file(self, plot_name, show=False, no_title=False, tight_layout=None):
         study_visualizer = StudyVisualizer(study=self.study, show=show, save_to_file=not show)
         study_visualizer.plot_name = plot_name
-        study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500, no_title=no_title, tight_layout=tight_layout)
+        study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500, no_title=no_title,
+                                              tight_layout=tight_layout)
 
     def run_for_each_massif(self, function, massif_names, **kwargs):
         massif_names = massif_names if massif_names is not None else self.study.all_massif_names()
@@ -165,7 +181,7 @@ class AltitudesStudies(object):
             moment += ' change (between two block of 30 years) for'
         moment += 'mean' if not std else 'std'
         # if change is False:
-            # moment += ' (for the 60 years of data)'
+        # moment += ' (for the 60 years of data)'
         plot_name = '{} of {} maxima of {}'.format(moment, self.study.season_name,
                                                    SCM_STUDY_CLASS_TO_ABBREVIATION[self.study_class])
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)

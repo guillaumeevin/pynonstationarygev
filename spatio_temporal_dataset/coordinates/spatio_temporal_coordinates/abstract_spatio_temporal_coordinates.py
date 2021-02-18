@@ -19,9 +19,7 @@ class AbstractSpatioTemporalCoordinates(AbstractCoordinates):
                  transformation_class: type = None,
                  spatial_coordinates: AbstractSpatialCoordinates = None,
                  temporal_coordinates: AbstractTemporalCoordinates = None):
-        if df is None:
-            assert spatial_coordinates is not None and temporal_coordinates is not None
-            df = self.get_df_from_spatial_and_temporal_coordinates(spatial_coordinates, temporal_coordinates)
+        df = self.load_df_is_needed(df, spatial_coordinates, temporal_coordinates)
         super().__init__(df, slicer_class, s_split_spatial, s_split_temporal, None)
         # Spatial coordinates'
         if spatial_coordinates is None:
@@ -41,6 +39,12 @@ class AbstractSpatioTemporalCoordinates(AbstractCoordinates):
         self.transformation_class = None
         self.transformation = MultipleTransformation(transformation_1=self.spatial_coordinates.transformation,
                                                      transformation_2=self.temporal_coordinates.transformation)
+
+    def load_df_is_needed(self, df, spatial_coordinates, temporal_coordinates):
+        if df is None:
+            assert spatial_coordinates is not None and temporal_coordinates is not None
+            df = self.get_df_from_spatial_and_temporal_coordinates(spatial_coordinates, temporal_coordinates)
+        return df
 
     @property
     def spatial_coordinates(self):

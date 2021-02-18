@@ -49,7 +49,8 @@ def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, rol
         download_dat(dat_filepath, txt_filepath)
     # Transform nc file into csv file
     if not op.exists(csv_filepath):
-        dat_to_csv(csv_filepath, txt_filepath, mean_annual_column_name, rolling_mean_annual_column_name, rolling=rolling)
+        dat_to_csv(csv_filepath, txt_filepath, mean_annual_column_name, rolling_mean_annual_column_name,
+                   rolling=rolling)
 
     # Load csv file
     df = pd.read_csv(csv_filepath, index_col=0)
@@ -119,11 +120,13 @@ def main_test_cmip5_loader():
             print(years)
             print(temps)
 
+
 def test_rolling():
     df = pd.DataFrame([1, 2, 3, 4, 5])
     print(df)
     df2 = df.rolling(window=3).mean()
     print(df2)
+
 
 if __name__ == '__main__':
     # main_example()

@@ -6,8 +6,6 @@ import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
-    AbstractTemporalCovariateForFit
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
     AbstractTransformation, IdentityTransformation
 from spatio_temporal_dataset.coordinates.utils import get_index_without_spatio_temporal_index_suffix
@@ -35,8 +33,13 @@ class AbstractCoordinates(object):
     # Temporal columns
     COORDINATE_T = 'coord_t'
     TEMPORAL_SPLIT = 'temporal_split'
+    # Climate model columns
+    COORDINATE_RCP = 'coord_rcp'
+    COORDINATE_GCM = 'coord_gcm'
+    COORDINATE_RCM = 'coord_rcm'
+    COORDINATE_CLIMATE_MODEL_NAMES = [COORDINATE_RCP, COORDINATE_GCM, COORDINATE_RCM]
     # Coordinates columns
-    COORDINATES_NAMES = COORDINATE_SPATIAL_NAMES + [COORDINATE_T]
+    COORDINATES_NAMES = COORDINATE_SPATIAL_NAMES + [COORDINATE_T] + COORDINATE_CLIMATE_MODEL_NAMES
     # Coordinate type
     ALL_COORDINATES_ACCEPTED_TYPES = ['int64', 'float64']
     COORDINATE_TYPE = 'float64'
@@ -50,7 +53,10 @@ class AbstractCoordinates(object):
         sorted_coordinates_columns = [c for c in self.COORDINATES_NAMES if c in coordinate_columns]
         self.df_all_coordinates = df.loc[:, sorted_coordinates_columns].copy()  # type: pd.DataFrame
         # Cast coordinates
-        self.df_all_coordinates = self.df_all_coordinates.astype(self.COORDINATE_TYPE)  # type: pd.DataFrame
+        ind = self.df_all_coordinates.columns.isin(self.COORDINATE_CLIMATE_MODEL_NAMES)
+        self.df_coordinate_climate_model = self.df_all_coordinates.loc[:, ind].copy()
+        self.df_all_coordinates = self.df_all_coordinates.loc[:, ~ind] # type: pd.DataFrame
+        self.df_all_coordinates = self.df_all_coordinates.astype(self.COORDINATE_TYPE)
 
         # Slicing attributes
         self.s_split_spatial = s_split_spatial  # type: pd.Series
@@ -64,7 +70,7 @@ class AbstractCoordinates(object):
         # Transformation only works for float coordinates
         accepted_dtypes = [self.COORDINATE_TYPE]
         assert len(self.df_all_coordinates.select_dtypes(include=accepted_dtypes).columns) \
-               == len(coordinate_columns), 'coordinates columns dtypes should belong to {}'.format(accepted_dtypes)
+               == len(coordinate_columns) - sum(ind), 'coordinates columns dtypes should belong to {}'.format(accepted_dtypes)
         # Transformation class is instantiated with all coordinates
         self.transformation = transformation_class(self.df_all_coordinates)  # type: AbstractTransformation
         assert isinstance(self.transformation, AbstractTransformation)
@@ -278,8 +284,7 @@ class AbstractCoordinates(object):
             df = temporal_transformation.transform_df(df_temporal_coordinates)
         # Potentially transform the time covariate into another covariate
         if temporal_covariate_for_fit is not None:
-            assert issubclass(temporal_covariate_for_fit, AbstractTemporalCovariateForFit)
-            df.iloc[:, 0] = df.iloc[:, 0].apply(temporal_covariate_for_fit.get_temporal_covariate)
+            df.loc[:, self.COORDINATE_T] = df.apply(temporal_covariate_for_fit.get_temporal_covariate, axis=1)
         return df
 
     @property
@@ -382,4 +387,4 @@ class AbstractCoordinates(object):
         return self.df_merged.equals(other.df_merged)
 
     def __str__(self):
-        return self.df_coordinates().__str__()
+        return pd.concat([self.df_coordinates(), self.df_coordinate_climate_model], axis=1).__str__()

@@ -1,5 +1,7 @@
 import unittest
 
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
 from spatio_temporal_dataset.slicer.split import Split
@@ -76,6 +78,21 @@ class TestSpatioTemporalDataset(TestAltitudesStudies):
         self.assertEqual(len(dataset.maxima_gev(split=Split.test_spatiotemporal_temporal)), 1)
         self.assertEqual(len(dataset.maxima_gev(split=Split.test_spatiotemporal_spatial)), 3)
 
+
+class TestSpatioTemporalDatasetForClimateModels(unittest.TestCase):
+
+    def setUp(self) -> None:
+        super().setUp()
+        altitudes = [900, 1200]
+        study_class = AdamontSnowfall
+        self.studies = AltitudesStudies(study_class, altitudes,
+                                        year_min=2009, year_max=2012,
+                                        scenario=AdamontScenario.rcp85)
+        self.massif_name = "Vercors"
+
+    def test_dataset(self):
+        dataset = self.studies.spatio_temporal_dataset(self.massif_name)
+        self.assertEqual(len(dataset.coordinates.df_coordinate_climate_model.columns), 3)
 
 if __name__ == '__main__':
     unittest.main()
