@@ -13,6 +13,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import load_plot
 from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
 from extreme_fit.model.margin_model.utils import fitmethod_to_str
@@ -541,6 +543,10 @@ class StudyVisualizer(VisualizationParameters):
 
     def show_or_save_to_file(self, add_classic_title=True, no_title=False, tight_layout=False, tight_pad=None,
                              dpi=None, folder_for_variable=True):
+        if isinstance(self.study, AbstractAdamontStudy):
+            prefix = gcm_rcm_couple_to_str(self.study.gcm_rcm_couple)
+            self.plot_name = prefix + ' ' + self.plot_name
+
         assert self.plot_name is not None
         if add_classic_title:
             title = self.study.title

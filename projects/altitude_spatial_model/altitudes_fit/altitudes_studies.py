@@ -5,7 +5,7 @@ from collections import OrderedDict
 from cached_property import cached_property
 
 from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import scenario_to_str
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import scenario_to_str, gcm_rcm_couple_to_str
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION, STUDY_CLASS_TO_ABBREVIATION
