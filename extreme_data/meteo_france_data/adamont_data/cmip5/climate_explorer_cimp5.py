@@ -99,7 +99,11 @@ def dat_to_csv(csv_filepath, txt_filepath, mean_annual_column_name, rolling_mean
     l = [np.nan] + list(l)
     assert len(l) == len(df.index)
     df[mean_annual_column_name] = l
-    mean_for_reference_period_1850_to_1900 = df.loc[1850:1900, mean_annual_column_name].mean()
+    s_mean_for_reference_period_1850_to_1900 = df.loc[1850:1900, mean_annual_column_name]
+    # Sometimes some initial global mean temperatures are negative for the first years,
+    # we remove them for the computation of the mean
+    ind = s_mean_for_reference_period_1850_to_1900 > 0
+    mean_for_reference_period_1850_to_1900 = s_mean_for_reference_period_1850_to_1900.loc[ind].mean()
     df[anomaly_annual_column_name] = df[mean_annual_column_name] - mean_for_reference_period_1850_to_1900
     # Computing the rolling
     if rolling is not None:

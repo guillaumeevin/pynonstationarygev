@@ -3,21 +3,21 @@ from matplotlib.lines import Line2D
 
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_color
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import get_linestyle_from_scenario, \
-    adamont_scenarios_real, AdamontScenario, scenario_to_str, get_gcm_list
+    adamont_scenarios_real, AdamontScenario, scenario_to_str, get_gcm_list, rcp_scenarios
 from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import year_to_global_mean_temp, \
     years_and_global_mean_temps
 
 
-def main_plot_temperature():
+def main_plot_temperature(anomaly=False):
     rolling = 30
     ax = plt.gca()
     for gcm in get_gcm_list(adamont_version=2)[:]:
         # Plot the historical part in solid line (this part is the same between the different scenarios)
         linestyle = get_linestyle_from_scenario(AdamontScenario.histo)
         plot_temperature_for_rcp_gcm(ax, gcm, AdamontScenario.rcp45, year_min=1951, year_max=2005, linestyle=linestyle,
-                                     label=gcm, rolling=rolling)
-        for scenario in adamont_scenarios_real[1:]:
-            plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min=2005, year_max=2100, rolling=rolling)
+                                     label=gcm, rolling=rolling, anomaly=anomaly)
+        for scenario in rcp_scenarios:
+            plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min=2005, year_max=2100, rolling=rolling, anomaly=anomaly)
 
     ax2 = ax.twinx()
     legend_elements = [
@@ -31,13 +31,14 @@ def main_plot_temperature():
     ax.legend(loc='upper left')
     ax.set_xlabel('Years')
     add_str = ' averaged on the last {} years'.format(rolling) if rolling is not None else ''
-    ax.set_ylabel('Global mean Temperature{} (K)\n'
-                  'mean is taken on the year centered on the winter'.format(add_str))
+    add_str1 = 'anomaly of temperature' if anomaly else 'mean Temperature'
+    ax.set_ylabel('Global {}{} (K)\n'
+                  'mean temperature is taken on the year centered on the winter'.format(add_str1, add_str))
     plt.show()
 
 
-def plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min, year_max, linestyle=None, label=None, rolling=None):
-    years, global_mean_temp = years_and_global_mean_temps(gcm, scenario, year_min=year_min, year_max=year_max, rolling=rolling)
+def plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min, year_max, linestyle=None, label=None, rolling=None, anomaly=False):
+    years, global_mean_temp = years_and_global_mean_temps(gcm, scenario, year_min=year_min, year_max=year_max, rolling=rolling, anomaly=anomaly)
     color = gcm_to_color[gcm]
     if linestyle is None:
         linestyle = get_linestyle_from_scenario(scenario)
@@ -45,4 +46,4 @@ def plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min, year_max, linestyl
 
 
 if __name__ == '__main__':
-    main_plot_temperature()
+    main_plot_temperature(anomaly=True)
