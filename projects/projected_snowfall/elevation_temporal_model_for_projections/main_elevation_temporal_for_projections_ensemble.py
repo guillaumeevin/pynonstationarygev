@@ -44,17 +44,17 @@ def main():
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = True
+    fast = False
     if fast is None:
         massif_names = None
-        gcm_rcm_couples = gcm_rcm_couples[:2]
+        gcm_rcm_couples = gcm_rcm_couples[1:2]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = altitudes_for_groups[2:3]
+        altitudes_list = altitudes_for_groups[:2]
     elif fast:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:]
-        gcm_rcm_couples = gcm_rcm_couples[:2]
-        altitudes_list = altitudes_for_groups[1:2]
+        massif_names = None
+        gcm_rcm_couples = ('CNRM-CM5', 'CCLM4-8-17')
+        altitudes_list = altitudes_for_groups[:1]
     else:
         massif_names = None
         altitudes_list = altitudes_for_groups[:]
@@ -83,7 +83,8 @@ def main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_classes, ense
             massif_names=massif_names,
             temporal_covariate_for_fit=temporal_covariate_for_fit,
             confidence_interval_based_on_delta_method=False,
-            display_only_model_that_pass_gof_test=False
+            display_only_model_that_pass_gof_test=False,
+            remove_physically_implausible_models=True,
         )
         visualizer.plot()
         del visualizer
