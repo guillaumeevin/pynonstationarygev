@@ -46,7 +46,7 @@ class TestTwoFoldFit(unittest.TestCase):
         massif_fit = two_fold_fit.massif_name_to_massif_fit['Vercors']
         model_fit = massif_fit.sample_id_to_sample_fit[0].model_class_to_model_fit[
             ConstantMarginModel]  # type: TwoFoldModelFit
-        self.assertEqual(461.6710428902022, model_fit.score(score=Score.NLLH_TEST))
+        self.assertEqual(232.1804953450304, model_fit.score(score=Score.NLLH_TEST))
 
 
 if __name__ == '__main__':

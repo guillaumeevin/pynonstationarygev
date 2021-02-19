@@ -32,5 +32,5 @@ class AnomalyTemperatureTemporalCovariate(AbstractTemporalCovariateForFit):
             d = year_to_global_mean_temp(gcm, scenario, anomaly=True)
             cls.gcm_and_scenario_to_d[(gcm, scenario)] = d
         d = cls.gcm_and_scenario_to_d[(gcm, scenario)]
-        global_mean_temp = d[year] * 1000
+        global_mean_temp = d[year]
         return global_mean_temp

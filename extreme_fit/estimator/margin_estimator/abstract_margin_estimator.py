@@ -64,7 +64,8 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     def nllh(self, split=Split.all):
         nllh = 0
         maxima_values = self.dataset.maxima_gev(split=split)
-        coordinate_values = self.dataset.df_coordinates(split=split).values
+        df = pd.concat([self.df_coordinates_spat(split=split), self.df_coordinates_temp(split=split)], axis=1)
+        coordinate_values = df.values
         for maximum, coordinate in zip(maxima_values, coordinate_values):
             assert len(maximum) == 1, \
                 'So far, only one observation for each coordinate, but code would be easy to change'

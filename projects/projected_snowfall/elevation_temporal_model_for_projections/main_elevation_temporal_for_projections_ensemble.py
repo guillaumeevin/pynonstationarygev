@@ -44,12 +44,12 @@ def main():
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = False
+    fast = None
     if fast is None:
         massif_names = None
-        gcm_rcm_couples = gcm_rcm_couples[1:2]
+        gcm_rcm_couples = gcm_rcm_couples[:5]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = altitudes_for_groups[:2]
+        altitudes_list = altitudes_for_groups[:]
     elif fast:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         massif_names = None
@@ -71,6 +71,9 @@ def main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_classes, ense
               temporal_covariate_for_fit):
     assert isinstance(altitudes_list, List)
     assert isinstance(altitudes_list[0], List)
+    gof_test = True
+    print('Goodness of fit test ?', gof_test)
+    print('Covariate is {}'.format(temporal_covariate_for_fit))
     for study_class in study_classes:
         print('Inner loop', study_class)
         model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
@@ -83,7 +86,7 @@ def main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_classes, ense
             massif_names=massif_names,
             temporal_covariate_for_fit=temporal_covariate_for_fit,
             confidence_interval_based_on_delta_method=False,
-            display_only_model_that_pass_gof_test=False,
+            display_only_model_that_pass_gof_test=gof_test,
             remove_physically_implausible_models=True,
         )
         visualizer.plot()

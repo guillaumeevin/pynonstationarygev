@@ -144,7 +144,6 @@ class OneFoldFit(object):
     @cached_property
     def sorted_estimators(self):
         estimators = list(self.model_class_to_estimator.values())
-        print(self.massif_name, self.altitude_group)
         if self.remove_physically_implausible_models:
             estimators = [e for e in estimators if -0.5 < self._compute_shape_for_reference_altitude(e) < 0.5]
             if len(estimators) == 0:
