@@ -67,7 +67,6 @@ class ReturnLevelBootstrap(object):
         idxs = list(range(self.nb_bootstrap))
 
         if multiprocess is None:
-            print('multiprocessing batch')
 
             with Pool(NB_CORES) as p:
                 batchsize = math.ceil(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP / NB_CORES)

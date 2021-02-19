@@ -66,8 +66,8 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         maxima_values = self.dataset.maxima_gev(split=split)
         coordinate_values = self.dataset.df_coordinates(split=split).values
         for maximum, coordinate in zip(maxima_values, coordinate_values):
-            assert len(
-                maximum) == 1, 'So far, only one observation for each coordinate, but code would be easy to change'
+            assert len(maximum) == 1, \
+                'So far, only one observation for each coordinate, but code would be easy to change'
             maximum = maximum[0]
             gev_params = self.function_from_fit.get_params(coordinate, is_transformed=True)
             p = gev_params.density(maximum)

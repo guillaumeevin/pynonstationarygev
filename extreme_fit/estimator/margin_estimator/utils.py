@@ -53,5 +53,6 @@ def _fitted_stationary_gev(fit_method, model_class, starting_year, x_gev):
         gev_param.param_name_to_confidence_interval = param_name_to_confidence_interval
     # Warning
     if not -0.5 < gev_param.shape < 0.5:
-        warnings.warn('fitted shape parameter is outside physical bounds {}'.format(gev_param.shape))
+        pass
+        # warnings.warn('fitted shape parameter is outside physical bounds {}'.format(gev_param.shape))
     return estimator, gev_param

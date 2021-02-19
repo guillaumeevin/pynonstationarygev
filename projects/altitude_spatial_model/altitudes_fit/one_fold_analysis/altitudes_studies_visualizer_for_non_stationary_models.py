@@ -220,8 +220,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     @property
     def add_colorbar(self):
-        return True
-        # return isinstance(self.altitude_group, (VeyHighAltitudeGroup, MidAltitudeGroup))
+        # return True
+        return isinstance(self.altitude_group, (VeyHighAltitudeGroup, MidAltitudeGroup))
 
     def plot_against_years(self, method_name, order):
         ax = plt.gca()

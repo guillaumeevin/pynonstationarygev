@@ -115,7 +115,7 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(x)
     ax.yaxis.grid()
-    ax.set_ylim([0, 89])
+    ax.set_ylim([0, 79])
     ax.set_ylim(bottom=0)
     ax.set_xticklabels([v.altitude_group.formula_upper for v in visualizer_list])
 

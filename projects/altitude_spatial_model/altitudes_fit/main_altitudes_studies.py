@@ -52,7 +52,7 @@ def main():
     elif fast:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:1]
-        altitudes_list = altitudes_for_groups[1:2]
+        altitudes_list = altitudes_for_groups[2:3]
     else:
         massif_names = None
         altitudes_list = altitudes_for_groups[:]
@@ -81,13 +81,13 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_p
 
 
 def plot_visualizers(massif_names, visualizer_list):
-    # plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
-    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list)
+    plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
+    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list, with_significance=True)
     # plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
     for relative in [True, False]:
         plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
-    plot_coherence_curves(massif_names, visualizer_list)
-    # plot_coherence_curves(['Vanoise'], visualizer_list)
+    # plot_coherence_curves(massif_names, visualizer_list)
+    plot_coherence_curves(['Vanoise'], visualizer_list)
     pass
 
 

@@ -142,6 +142,11 @@ class OneFoldFit(object):
     @cached_property
     def sorted_estimators(self):
         estimators = list(self.model_class_to_estimator.values())
+        # print(self.massif_name)
+        # print(self.altitude_group)
+        # for estimator in estimators:
+        #     print(estimator.margin_model)
+        #     print(estimator.aic())
         sorted_estimators = sorted([estimator for estimator in estimators], key=lambda e: e.aic())
         return sorted_estimators
 
@@ -154,26 +159,12 @@ class OneFoldFit(object):
                     # and self.sensitivity_of_fit_test_last_years(e)
                     ]
         else:
-            return self._sorted_estimators_without_stationary
+            assert len(self.sorted_estimators) == len(self.models_classes)
+            return self.sorted_estimators
 
     @property
     def has_at_least_one_valid_model(self):
         return len(self.sorted_estimators_with_stationary) > 0
-
-    @cached_property
-    def _sorted_estimators_without_stationary(self):
-        return [e for e in self.sorted_estimators if not isinstance(e.margin_model, StationaryAltitudinal)]
-
-    @cached_property
-    def sorted_estimators_without_stationary(self):
-        if self.only_models_that_pass_goodness_of_fit_test:
-            return [e for e in self._sorted_estimators_without_stationary if self.goodness_of_fit_test(e)]
-        else:
-            return self._sorted_estimators_without_stationary
-
-    @property
-    def has_at_least_one_valid_non_stationary_model(self):
-        return len(self.sorted_estimators_without_stationary) > 0
 
     @property
     def model_class_to_estimator_with_finite_aic(self):
@@ -184,10 +175,6 @@ class OneFoldFit(object):
         if self.best_estimator_minimizes_total_aic and self.best_estimator_class_for_total_aic is not None:
             return self.model_class_to_estimator[self.best_estimator_class_for_total_aic]
         else:
-            # Without stationary
-            # if self.has_at_least_one_valid_non_stationary_model:
-            #     best_estimator = self.sorted_estimators_without_stationary[0]
-            #     return best_estimator
             # With stationary
             if self.has_at_least_one_valid_model:
                 best_estimator = self.sorted_estimators_with_stationary[0]
@@ -428,7 +415,6 @@ class OneFoldFit(object):
         idxs = list(range(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP))
 
         if multiprocess is None:
-            print('multiprocessing batch')
             start = time.time()
             with Pool(NB_CORES) as p:
                 batchsize = math.ceil(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP / NB_CORES)
