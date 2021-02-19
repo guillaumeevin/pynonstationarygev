@@ -44,7 +44,8 @@ class MetaVisualizerForProjectionEnsemble(object):
                  fit_method=MarginFitMethod.extremes_fevd_mle,
                  temporal_covariate_for_fit=None,
                  display_only_model_that_pass_gof_test=False,
-                 confidence_interval_based_on_delta_method=False
+                 confidence_interval_based_on_delta_method=False,
+                 remove_physically_implausible_models=False,
                  ):
         self.gcm_rcm_couples = gcm_rcm_couples
         self.massif_names = massif_names
@@ -69,7 +70,8 @@ class MetaVisualizerForProjectionEnsemble(object):
                 ensemble_fit = ensemble_fit_class(massif_names, gcm_rcm_couple_to_studies, model_classes,
                                                   fit_method, temporal_covariate_for_fit,
                                                   display_only_model_that_pass_gof_test,
-                                                  confidence_interval_based_on_delta_method)
+                                                  confidence_interval_based_on_delta_method,
+                                                  remove_physically_implausible_models)
                 ensemble_class_to_ensemble_fit[ensemble_fit_class] = ensemble_fit
             self.altitude_group_to_ensemble_class_to_ensemble_fit[altitude_group] = ensemble_class_to_ensemble_fit
 

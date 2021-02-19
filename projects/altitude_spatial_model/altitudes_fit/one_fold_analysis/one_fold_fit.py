@@ -53,7 +53,9 @@ class OneFoldFit(object):
                  altitude_class=DefaultAltitudeGroup,
                  only_models_that_pass_goodness_of_fit_test=True,
                  confidence_interval_based_on_delta_method=False,
+                 remove_physically_implausible_models=False,
                  ):
+        self.remove_physically_implausible_models = remove_physically_implausible_models
         self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
         self.only_models_that_pass_goodness_of_fit_test = only_models_that_pass_goodness_of_fit_test
         self.altitude_group = altitude_class()
@@ -142,13 +144,20 @@ class OneFoldFit(object):
     @cached_property
     def sorted_estimators(self):
         estimators = list(self.model_class_to_estimator.values())
-        # print(self.massif_name)
-        # print(self.altitude_group)
-        # for estimator in estimators:
-        #     print(estimator.margin_model)
-        #     print(estimator.aic())
+        print(self.massif_name, self.altitude_group)
+        if self.remove_physically_implausible_models:
+            estimators = [e for e in estimators if -0.5 < self._compute_shape_for_reference_altitude(e) < 0.5]
+            if len(estimators) == 0:
+                print(self.massif_name, " has only implausible models")
+
         sorted_estimators = sorted([estimator for estimator in estimators], key=lambda e: e.aic())
         return sorted_estimators
+
+    def _compute_shape_for_reference_altitude(self, estimator):
+        coordinate = np.array([self.altitude_plot, self.last_year])
+        gev_params = estimator.function_from_fit.get_params(coordinate, is_transformed=False)
+        shape = gev_params.shape
+        return shape
 
     @cached_property
     def sorted_estimators_with_stationary(self):
@@ -159,7 +168,8 @@ class OneFoldFit(object):
                     # and self.sensitivity_of_fit_test_last_years(e)
                     ]
         else:
-            assert len(self.sorted_estimators) == len(self.models_classes)
+            if not self.remove_physically_implausible_models:
+                assert len(self.sorted_estimators) == len(self.models_classes)
             return self.sorted_estimators
 
     @property
@@ -180,7 +190,8 @@ class OneFoldFit(object):
                 best_estimator = self.sorted_estimators_with_stationary[0]
                 return best_estimator
             else:
-                raise ValueError('This should not happen')
+                raise ValueError('This object should not have been called because '
+                                 'has_at_least_one_valid_model={}'.format(self.has_at_least_one_valid_model))
 
     @property
     def best_margin_model(self):

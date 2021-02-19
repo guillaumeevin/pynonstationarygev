@@ -1,5 +1,6 @@
 from collections import Counter
 from math import ceil, floor
+from multiprocessing import Pool
 from typing import List, Dict
 
 import matplotlib
@@ -27,6 +28,7 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_gr
     get_altitude_group_from_altitudes, HighAltitudeGroup, VeyHighAltitudeGroup, MidAltitudeGroup
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import \
     OneFoldFit
+from root_utils import NB_CORES
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
@@ -40,11 +42,12 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                  fit_method=MarginFitMethod.extremes_fevd_mle,
                  temporal_covariate_for_fit=None,
                  display_only_model_that_pass_anderson_test=True,
-                 confidence_interval_based_on_delta_method=False
+                 confidence_interval_based_on_delta_method=False,
+                 remove_physically_implausible_models=False,
                  ):
         super().__init__(studies.study, show=show, save_to_file=not show)
         self.studies = studies
-        self.non_stationary_models = model_classes
+        self.model_classes = model_classes
         self.fit_method = fit_method
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.display_only_model_that_pass_test = display_only_model_that_pass_anderson_test
@@ -52,23 +55,20 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self.massif_name_to_massif_id = {m: i for i, m in enumerate(self.massif_names)}
         self.altitude_group = get_altitude_group_from_altitudes(self.studies.altitudes)
         self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
+        self.remove_physically_implausible_models = remove_physically_implausible_models
         # Load one fold fit
         self.massif_name_to_massif_altitudes = {}
-        self._massif_name_to_one_fold_fit = {}
-        for massif_name in self.massif_names:
-            # Load valid massif altitudes
-            massif_altitudes = self.get_massif_altitudes(massif_name)
-            if self.load_condition(massif_altitudes):
-                # Save the massif altitudes only for those who pass the condition
-                self.massif_name_to_massif_altitudes[massif_name] = massif_altitudes
-                # Load dataset
-                dataset = studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes)
-                old_fold_fit = OneFoldFit(massif_name, dataset, model_classes, self.fit_method,
-                                          self.temporal_covariate_for_fit,
-                                          type(self.altitude_group),
-                                          self.display_only_model_that_pass_test,
-                                          self.confidence_interval_based_on_delta_method)
-                self._massif_name_to_one_fold_fit[massif_name] = old_fold_fit
+
+        # Multiprocess
+        multiprocessing = False
+        if multiprocessing:
+            with Pool(NB_CORES) as p:
+                one_fold_fit_list = p.map(self.fit_one_fold, self.massif_names)
+        else:
+            one_fold_fit_list = [self.fit_one_fold(massif_name) for massif_name in self.massif_names]
+        self._massif_name_to_one_fold_fit = {m: o for m, o in zip(self.massif_names, one_fold_fit_list) if
+                                             o is not None}
+
         # Print number of massif without any validated fit
         massifs_without_any_validated_fit = [massif_name
                                              for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
@@ -78,6 +78,24 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self._method_name_and_order_to_massif_name_to_value = {}
         self._method_name_and_order_to_max_abs = {}
         self._max_abs_for_shape = None
+
+    def fit_one_fold(self, massif_name):
+        # Load valid massif altitudes
+        massif_altitudes = self.get_massif_altitudes(massif_name)
+        if self.load_condition(massif_altitudes):
+            # Save the massif altitudes only for those who pass the condition
+            self.massif_name_to_massif_altitudes[massif_name] = massif_altitudes
+            # Load dataset
+            dataset = self.studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes)
+            old_fold_fit = OneFoldFit(massif_name, dataset, self.model_classes, self.fit_method,
+                                      self.temporal_covariate_for_fit,
+                                      type(self.altitude_group),
+                                      self.display_only_model_that_pass_test,
+                                      self.confidence_interval_based_on_delta_method,
+                                      self.remove_physically_implausible_models)
+            return old_fold_fit
+        else:
+            return None
 
     moment_names = ['moment', 'changes_of_moment', 'relative_changes_of_moment'][:]
     orders = [1, 2, None][2:]
@@ -106,8 +124,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     @property
     def massif_name_to_one_fold_fit(self) -> Dict[str, OneFoldFit]:
         return {massif_name: old_fold_fit for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
-                if not self.display_only_model_that_pass_test
-                or old_fold_fit.has_at_least_one_valid_model}
+                if old_fold_fit.has_at_least_one_valid_model}
 
     def plot_moments(self):
         for method_name in self.moment_names[:2]:
@@ -452,7 +469,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             idx = 0 if one_fold.change_in_return_level_for_reference_altitude < 0 else 2
             nbs[idx] += 1
             if with_significance and one_fold.is_significant:
-                    nbs[idx + 1] += 1
+                nbs[idx + 1] += 1
 
         percents = 100 * nbs / nb_valid_massif_names
         return [nb_valid_massif_names] + list(percents)

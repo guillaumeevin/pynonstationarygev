@@ -27,8 +27,6 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
                  **kwargs_study):
         super().__init__(study_class, altitudes, spatial_transformation_class, temporal_transformation_class,
                          **kwargs_study)
-        # self.altitudes_for_temporal_hypothesis = [min(self.altitudes), 2100, max(self.altitudes)]
-        self.altitudes_for_temporal_hypothesis = [600, 1500, 2400, 3300]
 
     def plot_gev_params_against_altitude(self):
         legend = False
@@ -332,8 +330,10 @@ def main_paper2():
 def main_paper3():
     altitudes = list(chain.from_iterable(altitudes_for_groups))
     # altitudes = [1200, 1500, 1800]
-    for scenario in rcp_scenarios[:]:
-        for gcm_rcm_couple in get_gcm_rcm_couples(scenario):
+    for scenario in rcp_scenarios[2:]:
+        gcm_rcm_couples = get_gcm_rcm_couples(scenario)
+        gcm_rcm_couples =[('CNRM-CM5', 'CCLM4-8-17')]
+        for gcm_rcm_couple in gcm_rcm_couples:
             visualizer = PointwiseGevStudyVisualizer(AdamontSnowfall, altitudes=altitudes, scenario=scenario,
                                                      gcm_rcm_couple=gcm_rcm_couple)
             visualizer.plot_gev_params_against_altitude()

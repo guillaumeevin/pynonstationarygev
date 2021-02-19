@@ -13,7 +13,9 @@ class AbstractEnsembleFit(object):
                  temporal_covariate_for_fit=None,
                  only_models_that_pass_goodness_of_fit_test=True,
                  confidence_interval_based_on_delta_method=False,
+                 remove_physically_implausible_models=False,
                  ):
+        self.remove_physically_implausible_models = remove_physically_implausible_models
         self.massif_names = massif_names
         self.models_classes = models_classes
         self.gcm_rcm_couple_to_altitude_studies = gcm_rcm_couple_to_altitude_studies
