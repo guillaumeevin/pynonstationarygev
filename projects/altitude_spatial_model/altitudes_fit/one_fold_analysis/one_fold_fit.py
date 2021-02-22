@@ -69,6 +69,8 @@ class OneFoldFit(object):
         self.model_class_to_estimator = {}
         for model_class in models_classes:
             self.model_class_to_estimator[model_class] = self.fitted_linear_margin_estimator(model_class, self.dataset)
+        # Compute sorted estimators indirectly
+        _ = self.has_at_least_one_valid_model
 
         # Best estimator definition
         self.best_estimator_class_for_total_aic = None
@@ -145,7 +147,11 @@ class OneFoldFit(object):
     def sorted_estimators(self):
         estimators = list(self.model_class_to_estimator.values())
         if self.remove_physically_implausible_models:
+            # Remove wrong shape
             estimators = [e for e in estimators if -0.5 < self._compute_shape_for_reference_altitude(e) < 0.5]
+            # Remove models with undefined parameters for the coordinate of interest
+            coordinate = np.array([self.altitude_group.reference_altitude, self.last_year])
+            estimators = [e for e in estimators if not e.function_from_fit.get_params(coordinate).has_undefined_parameters]
             if len(estimators) == 0:
                 print(self.massif_name, " has only implausible models")
 

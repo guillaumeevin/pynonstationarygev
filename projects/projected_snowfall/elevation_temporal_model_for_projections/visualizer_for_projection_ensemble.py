@@ -83,8 +83,9 @@ class MetaVisualizerForProjectionEnsemble(object):
         with_significance = False
         # Individual plots
         for independent_ensemble_fit in self.ensemble_fits(IndependentEnsembleFit):
+            print(independent_ensemble_fit)
             for c, v in independent_ensemble_fit.gcm_rcm_couple_to_visualizer.items():
-                print(c)
+                print(c, v.altitude_group)
                 v.plot_moments()
         # Aggregated at gcm_rcm_level plots
         for gcm_rcm_couple in self.gcm_rcm_couples:

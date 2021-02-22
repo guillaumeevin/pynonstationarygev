@@ -59,13 +59,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         # Load one fold fit
         self.massif_name_to_massif_altitudes = {}
 
-        # Multiprocess
-        multiprocessing = False
-        if multiprocessing:
-            with Pool(NB_CORES) as p:
-                one_fold_fit_list = p.map(self.fit_one_fold, self.massif_names)
-        else:
-            one_fold_fit_list = [self.fit_one_fold(massif_name) for massif_name in self.massif_names]
+        one_fold_fit_list = [self.fit_one_fold(massif_name) for massif_name in self.massif_names]
         self._massif_name_to_one_fold_fit = {m: o for m, o in zip(self.massif_names, one_fold_fit_list) if
                                              o is not None}
 
@@ -153,6 +147,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 print("shape to large > 0.5, thus removing std that are infinite")
             massif_name_to_value = {m: v for m, v in massif_name_to_value.items()
                                     if not np.isinf(v)}
+            # todo: i could remove here potential undefined parameters
             # Store it
             self._method_name_and_order_to_massif_name_to_value[c] = massif_name_to_value
         return self._method_name_and_order_to_massif_name_to_value[c]

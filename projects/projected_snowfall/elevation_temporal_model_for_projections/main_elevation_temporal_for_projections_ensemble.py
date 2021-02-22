@@ -44,21 +44,22 @@ def main():
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = None
+    fast = False
     if fast is None:
         massif_names = None
         gcm_rcm_couples = gcm_rcm_couples[:5]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = altitudes_for_groups[:]
+        altitudes_list = altitudes_for_groups[:1]
     elif fast:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         massif_names = None
-        gcm_rcm_couples = ('CNRM-CM5', 'CCLM4-8-17')
+        gcm_rcm_couples = [('EC-EARTH', 'RACMO22E')]
         altitudes_list = altitudes_for_groups[:1]
     else:
         massif_names = None
         altitudes_list = altitudes_for_groups[:]
 
+    assert isinstance(gcm_rcm_couples, list)
     start = time.time()
     main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_classes, ensemble_fit_class, scenario,
               temporal_covariate_for_fit)
@@ -71,7 +72,7 @@ def main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_classes, ense
               temporal_covariate_for_fit):
     assert isinstance(altitudes_list, List)
     assert isinstance(altitudes_list[0], List)
-    gof_test = True
+    gof_test = False
     print('Goodness of fit test ?', gof_test)
     print('Covariate is {}'.format(temporal_covariate_for_fit))
     for study_class in study_classes:
