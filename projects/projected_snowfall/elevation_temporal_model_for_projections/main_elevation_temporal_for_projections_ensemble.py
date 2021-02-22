@@ -20,7 +20,7 @@ from extreme_data.meteo_france_data.adamont_data.adamont_scenario import Adamont
 from projects.projected_snowfall.elevation_temporal_model_for_projections.ensemble_fit.independent_ensemble_fit import \
     IndependentEnsembleFit
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
-    AnomalyTemperatureTemporalCovariate
+    AnomalyTemperatureTemporalCovariate, TimeTemporalCovariate
 
 matplotlib.use('Agg')
 
@@ -40,16 +40,16 @@ def main():
     scenario = AdamontScenario.rcp85
     gcm_rcm_couples = get_gcm_rcm_couples(scenario)
     ensemble_fit_class = [IndependentEnsembleFit]
-    temporal_covariate_for_fit = [None, AnomalyTemperatureTemporalCovariate][0]
+    temporal_covariate_for_fit = [TimeTemporalCovariate, AnomalyTemperatureTemporalCovariate][1]
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
     fast = False
     if fast is None:
         massif_names = None
-        gcm_rcm_couples = gcm_rcm_couples[:5]
+        gcm_rcm_couples = gcm_rcm_couples[:1]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = altitudes_for_groups[:1]
+        altitudes_list = altitudes_for_groups[1:2]
     elif fast:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         massif_names = None

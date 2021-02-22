@@ -33,7 +33,3 @@ class IndependentEnsembleFit(AbstractEnsembleFit):
                                                                           self.remove_physically_implausible_models)
             self.gcm_rcm_couple_to_visualizer[gcm_rcm_couple] = visualizer
 
-        # Assign max
-        visualizer_list = list(self.gcm_rcm_couple_to_visualizer.values())
-        compute_and_assign_max_abs(visualizer_list)
-

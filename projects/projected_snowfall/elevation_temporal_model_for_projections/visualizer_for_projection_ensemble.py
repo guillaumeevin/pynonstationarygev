@@ -29,6 +29,7 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fi
     OneFoldFit
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
+from projects.altitude_spatial_model.altitudes_fit.utils_altitude_studies_visualizer import compute_and_assign_max_abs
 from projects.projected_snowfall.elevation_temporal_model_for_projections.ensemble_fit.independent_ensemble_fit import \
     IndependentEnsembleFit
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -77,6 +78,13 @@ class MetaVisualizerForProjectionEnsemble(object):
 
     def plot(self):
         if IndependentEnsembleFit in self.ensemble_fit_classes:
+            # Set max abs
+            visualizer_list = []
+            for ensemble_fit in self.ensemble_fits(IndependentEnsembleFit):
+                visualizer_list.extend(list(ensemble_fit.gcm_rcm_couple_to_visualizer.values()))
+            # Potentially I could add more visualizer here...
+            compute_and_assign_max_abs(visualizer_list)
+            # Plot
             self.plot_independent()
 
     def plot_independent(self):

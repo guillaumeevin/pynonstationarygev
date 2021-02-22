@@ -34,6 +34,8 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_retur
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import AbstractAltitudeGroup, \
     DefaultAltitudeGroup, altitudes_for_groups
 from root_utils import classproperty, NB_CORES, batch
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
+    AnomalyTemperatureTemporalCovariate, TimeTemporalCovariate
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.slicer.split import Split
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
@@ -46,6 +48,7 @@ class OneFoldFit(object):
     quantile_level = 1 - (1 / return_period)
     nb_years = 60
     last_year = 2019
+    last_anomaly = 2
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
                  fit_method=MarginFitMethod.extremes_fevd_mle,
@@ -96,8 +99,8 @@ class OneFoldFit(object):
         elif order is None:
             return '{}-year return levels'.format(cls.return_period)
 
-    def get_moment(self, altitude, year, order=1):
-        gev_params = self.get_gev_params(altitude, year)
+    def get_moment(self, altitude, temporal_covariate, order=1):
+        gev_params = self.get_gev_params(altitude, temporal_covariate)
         if order == 1:
             return gev_params.mean
         elif order == 2:
@@ -113,7 +116,7 @@ class OneFoldFit(object):
         return gev_params
 
     def moment(self, altitudes, order=1):
-        return [self.get_moment(altitude, self.last_year, order) for altitude in altitudes]
+        return [self.get_moment(altitude, self.covariate_after, order) for altitude in altitudes]
 
     @property
     def change_in_return_level_for_reference_altitude(self) -> float:
@@ -123,20 +126,38 @@ class OneFoldFit(object):
     def relative_change_in_return_level_for_reference_altitude(self) -> float:
         return self.relative_changes_of_moment(altitudes=[self.altitude_plot], order=None)[0]
 
-    def changes_of_moment(self, altitudes, nb_years=nb_years, order=1):
+    def changes_of_moment(self, altitudes, order=1):
         changes = []
         for altitude in altitudes:
-            mean_after = self.get_moment(altitude, self.last_year, order)
-            mean_before = self.get_moment(altitude, self.last_year - nb_years, order)
+            mean_after = self.get_moment(altitude, self.covariate_after, order)
+            mean_before = self.get_moment(altitude, self.covariate_before, order)
             change = mean_after - mean_before
             changes.append(change)
         return changes
 
-    def relative_changes_of_moment(self, altitudes, nb_years=nb_years, order=1):
+    @property
+    def covariate_before(self):
+        return self._covariate_before_and_after[0]
+
+    @property
+    def covariate_after(self):
+        return self._covariate_before_and_after[1]
+
+    @property
+    def _covariate_before_and_after(self):
+        if self.temporal_covariate_for_fit in [None, TimeTemporalCovariate]:
+            return self.last_year - self.nb_years, self.last_year
+        elif self.temporal_covariate_for_fit is AnomalyTemperatureTemporalCovariate:
+            # In 2020, we are roughly at 1 degree. Thus it natural to see the augmentation from 1 to 2 degree.
+            return 1, self.last_anomaly
+        else:
+            raise NotImplementedError
+
+    def relative_changes_of_moment(self, altitudes, order=1):
         relative_changes = []
         for altitude in altitudes:
-            mean_after = self.get_moment(altitude, self.last_year, order)
-            mean_before = self.get_moment(altitude, self.last_year - nb_years, order)
+            mean_after = self.get_moment(altitude, self.covariate_after, order)
+            mean_before = self.get_moment(altitude, self.covariate_before, order)
             relative_change = 100 * (mean_after - mean_before) / mean_before
             relative_changes.append(relative_change)
         return relative_changes
@@ -321,8 +342,8 @@ class OneFoldFit(object):
 
     def sign_of_change(self, function_from_fit):
         return_levels = []
-        for year in [self.last_year - self.nb_years, self.last_year]:
-            coordinate = np.array([self.altitude_plot, year])
+        for temporal_covariate in self._covariate_before_and_after:
+            coordinate = np.array([self.altitude_plot, temporal_covariate])
             return_level = function_from_fit.get_params(
                 coordinate=coordinate,
                 is_transformed=False).return_level(return_period=self.return_period)

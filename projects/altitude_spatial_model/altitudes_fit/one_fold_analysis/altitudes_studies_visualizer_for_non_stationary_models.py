@@ -30,6 +30,8 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fi
     OneFoldFit
 from root_utils import NB_CORES
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
+    AnomalyTemperatureTemporalCovariate
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
@@ -120,6 +122,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         return {massif_name: old_fold_fit for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
                 if old_fold_fit.has_at_least_one_valid_model}
 
+    @property
+    def first_one_fold_fit(self):
+        return list(self.massif_name_to_one_fold_fit.values())[0]
+
     def plot_moments(self):
         for method_name in self.moment_names[:2]:
             for order in self.orders:
@@ -177,13 +183,19 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
         # Plot settings
         moment = ' '.join(method_name.split('_'))
-        str_for_last_year = ' in {}'.format(OneFoldFit.last_year)
+        d_temperature = {'C': '{C}'}
+        str_for_last_year = ' at +${}^o\mathrm{C}$' \
+            if self.temporal_covariate_for_fit is AnomalyTemperatureTemporalCovariate else ' in {}'
+        str_for_last_year = str_for_last_year.format(self.first_one_fold_fit.covariate_after, **d_temperature)
         moment = moment.replace('moment', '{}{}'.format(OneFoldFit.get_moment_str(order=order), str_for_last_year))
         plot_name = '{}{} '.format(OneFoldFit.folder_for_plots, moment)
 
         if 'change' in method_name:
             plot_name = plot_name.replace(str_for_last_year, '')
-            plot_name += ' between {} and {}'.format(OneFoldFit.last_year - OneFoldFit.nb_years, OneFoldFit.last_year)
+            add_str = ' between +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$' if self.temporal_covariate_for_fit is AnomalyTemperatureTemporalCovariate \
+                else ' between {} and {}'
+            plot_name += add_str.format(self.first_one_fold_fit.covariate_before, self.first_one_fold_fit.covariate_after,  **d_temperature)
+
             if 'relative' not in method_name:
                 # Put the relative score as text on the plot for the change.
                 massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in

@@ -154,16 +154,21 @@ class AltitudesStudies(object):
         ax.set_xlim((x[0], x[-1]))
 
         # Plot for the paper 2
-        if massif_name == "Vanoise":
+        if massif_name == "Vanoise" and (not issubclass(self.study_class, AbstractAdamontStudy)):
             # ax.yaxis.set_ticks([25 * (j) for j in range(6)])
             ax.yaxis.set_ticks([25 * (j) for j in range(7)])
+            labelsize = 20
+            fontsize = 15
+        else:
+            fontsize = 10
+            labelsize = 10
 
-        ax.tick_params(axis='both', which='major', labelsize=20)
+        ax.tick_params(axis='both', which='major', labelsize=labelsize)
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles[::-1], labels[::-1], prop={'size': 20})
+        ax.legend(handles[::-1], labels[::-1], prop={'size': labelsize})
         plot_name = 'Annual maxima of {} in {}'.format(STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '))
-        ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
+        ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=fontsize)
         # ax.set_xlabel('years', fontsize=15)
         plot_name = 'time series/' + plot_name
         self.show_or_save_to_file(plot_name=plot_name, show=show, no_title=True, tight_layout=True)
