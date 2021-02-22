@@ -192,9 +192,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
         if 'change' in method_name:
             plot_name = plot_name.replace(str_for_last_year, '')
-            add_str = ' between +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$' if self.temporal_covariate_for_fit is AnomalyTemperatureTemporalCovariate \
-                else ' between {} and {}'
-            plot_name += add_str.format(self.first_one_fold_fit.covariate_before, self.first_one_fold_fit.covariate_after,  **d_temperature)
+            plot_name += self.first_one_fold_fit.between_covariate_str
 
             if 'relative' not in method_name:
                 # Put the relative score as text on the plot for the change.
@@ -481,7 +479,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         percents = 100 * nbs / nb_valid_massif_names
         return [nb_valid_massif_names] + list(percents)
 
-    def all_changes(self, massif_names, relative=False):
+    def all_changes(self, massif_names, relative=False, with_significance=True):
         """return percents which contain decrease, significant decrease, increase, significant increase percentages"""
         valid_massif_names = self.get_valid_names(massif_names)
         changes = []
@@ -497,12 +495,16 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             changes.append(change)
             if change != 0:
                 non_stationary_changes.append(change)
-                if one_fold.is_significant:
-                    non_stationary_significant_changes.append(change)
+                if with_significance:
+                    if one_fold.is_significant:
+                        non_stationary_significant_changes.append(change)
 
         moment = 'relative mean' if relative else 'Mean'
         print('{} for {}m'.format(moment, self.altitude_group.reference_altitude), np.mean(changes))
-        return changes, non_stationary_changes, non_stationary_significant_changes
+        if with_significance:
+            return changes, non_stationary_changes, non_stationary_significant_changes
+        else:
+            return changes, non_stationary_changes
 
     def get_valid_names(self, massif_names):
         valid_massif_names = set(self.massif_name_to_one_fold_fit.keys())

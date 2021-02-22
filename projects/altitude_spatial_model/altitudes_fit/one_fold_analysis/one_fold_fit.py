@@ -153,6 +153,15 @@ class OneFoldFit(object):
         else:
             raise NotImplementedError
 
+    @property
+    def between_covariate_str(self):
+        d_temperature = {'C': '{C}'}
+        s = ' between +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$' if self.temporal_covariate_for_fit is AnomalyTemperatureTemporalCovariate \
+            else ' between {} and {}'
+        s = s.format(self.covariate_before, self.covariate_after,
+                                 **d_temperature)
+        return s
+
     def relative_changes_of_moment(self, altitudes, order=1):
         relative_changes = []
         for altitude in altitudes:

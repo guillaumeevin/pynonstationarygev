@@ -101,8 +101,8 @@ class MetaVisualizerForProjectionEnsemble(object):
                                for independent_ensemble_fit in self.ensemble_fits(IndependentEnsembleFit)
                                ]
             plot_histogram_all_trends_against_altitudes(self.massif_names, visualizer_list, with_significance=with_significance)
-            # for relative in [True, False]:
-            #     plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative)
+            for relative in [True, False]:
+                plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative, with_significance=with_significance)
 
     def ensemble_fits(self, ensemble_class):
         return [ensemble_class_to_ensemble_fit[ensemble_class]

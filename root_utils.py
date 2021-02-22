@@ -1,4 +1,5 @@
 import datetime
+import math
 import os.path as op
 import subprocess
 
@@ -10,6 +11,11 @@ for c in [' ', ':', '-']:
     VERSION_TIME = VERSION_TIME.replace(c, '_')
 
 NB_CORES = 7
+
+
+def batch_nb_cores(iterable, nb_cores):
+    batchsize = math.ceil(len(iterable) / nb_cores)
+    return batch(iterable, batchsize)
 
 
 def batch(iterable, batchsize=1):

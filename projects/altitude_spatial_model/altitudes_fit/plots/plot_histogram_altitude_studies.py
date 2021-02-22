@@ -4,6 +4,9 @@ from typing import List
 import numpy as np
 
 import matplotlib
+
+from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -180,18 +183,19 @@ def plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer
 
 def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
     AltitudesStudiesVisualizerForNonStationaryModels],
-                                            relative=False):
+                                            relative=False, with_significance=True):
     visualizer = visualizer_list[0]
 
-    all_changes = [v.all_changes(massif_names, relative=relative) for v in visualizer_list]
+    all_changes = [v.all_changes(massif_names, relative=relative, with_significance=with_significance) for v in visualizer_list]
     all_changes = list(zip(*all_changes))
     labels = ['All massifs', 'Massifs with a selected model\n'
                              'temporally non-stationary',
               'Massifs with a selected model\n'
               'temporally non-stationary and significant']
-    # colors = ['darkmagenta', 'darkviolet', 'mediumorchid']
-    # colors = ['mediumblue', 'royalblue', 'lightskyblue']
     colors = ['darkgreen', 'forestgreen', 'limegreen']
+    if not with_significance:
+        labels = labels[:-1]
+        colors = colors[:-1]
     nb_massifs = [len(v.get_valid_names(massif_names)) for v in visualizer_list]
 
     plt.close()
@@ -200,17 +204,6 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
     size = 8
     legend_fontsize = 10
     labelsize = 10
-    linewidth = 3
-
-    # x = np.array([4 * width * (i + 1) for i in range(len(nb_massifs))])
-    # for j, (changes, label, color) in enumerate(list(zip(all_changes, labels, colors)), -1):
-    #     positions = x + j * width
-    #     bplot = ax.boxplot(list(changes), positions=positions, widths=width, patch_artist=True, showmeans=True)
-    #     for patch in bplot['boxes']:
-    #         patch.set_facecolor(color)
-    # x = np.array([3 * width * (i + 1) for i in range(len(nb_massifs))])
-    # for j, (changes, label, color) in list(enumerate(list(zip(all_changes, labels, colors)), -1))[1:]:
-    #     positions = x + (j + 0.5) * width
 
     x = np.array([4 * width * (i + 1) for i in range(len(nb_massifs))])
     for j, (changes, label, color) in enumerate(list(zip(all_changes, labels, colors)), -1):
@@ -225,7 +218,8 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
 
     start = 'Relative changes' if relative else 'Changes'
     unit = '\%' if relative else visualizer.study.variable_unit
-    ax.set_ylabel('{} of {}-year return levels between 1959 and 2019 ({})'.format(start, OneFoldFit.return_period,
+    ax.set_ylabel('{} of {}-year return levels {} ({})'.format(start, OneFoldFit.return_period,
+                                                               visualizer.first_one_fold_fit.between_covariate_str,
                                                                                   unit),
                   fontsize=legend_fontsize)
     ax.set_xlabel('Elevation (m)', fontsize=legend_fontsize + 5)
@@ -238,9 +232,11 @@ def plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list: List[
 
     shift = 2 * width
     ax.set_xlim((min(x) - shift, max(x) + shift))
-    upper_limit_for_legend = 50 if relative else 0
-    lim_down, lim_up = ax.get_ylim()
-    ax.set_ylim(lim_down, lim_up + upper_limit_for_legend)
+
+    if not isinstance(visualizer.study, AbstractAdamontStudy):
+        upper_limit_for_legend = 50 if relative else 0
+        lim_down, lim_up = ax.get_ylim()
+        ax.set_ylim(lim_down, lim_up + upper_limit_for_legend)
 
     # Plot a zero horizontal line
     lim_left, lim_right = ax.get_xlim()

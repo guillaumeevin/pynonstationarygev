@@ -37,24 +37,24 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 def main():
     study_classes = [AdamontSnowfall][:1]
-    scenario = AdamontScenario.rcp85
+    scenario = AdamontScenario.rcp45
     gcm_rcm_couples = get_gcm_rcm_couples(scenario)
     ensemble_fit_class = [IndependentEnsembleFit]
     temporal_covariate_for_fit = [TimeTemporalCovariate, AnomalyTemperatureTemporalCovariate][1]
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = False
+    fast = True
     if fast is None:
         massif_names = None
-        gcm_rcm_couples = gcm_rcm_couples[:1]
+        gcm_rcm_couples = gcm_rcm_couples[:2]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = altitudes_for_groups[1:2]
+        altitudes_list = altitudes_for_groups[:2]
     elif fast:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         massif_names = None
         gcm_rcm_couples = [('EC-EARTH', 'RACMO22E')]
-        altitudes_list = altitudes_for_groups[:1]
+        altitudes_list = altitudes_for_groups[1:2]
     else:
         massif_names = None
         altitudes_list = altitudes_for_groups[:]
@@ -72,8 +72,6 @@ def main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_classes, ense
               temporal_covariate_for_fit):
     assert isinstance(altitudes_list, List)
     assert isinstance(altitudes_list[0], List)
-    gof_test = False
-    print('Goodness of fit test ?', gof_test)
     print('Covariate is {}'.format(temporal_covariate_for_fit))
     for study_class in study_classes:
         print('Inner loop', study_class)
@@ -86,8 +84,6 @@ def main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_classes, ense
             ensemble_fit_classes=ensemble_fit_classes,
             massif_names=massif_names,
             temporal_covariate_for_fit=temporal_covariate_for_fit,
-            confidence_interval_based_on_delta_method=False,
-            display_only_model_that_pass_gof_test=gof_test,
             remove_physically_implausible_models=True,
         )
         visualizer.plot()
