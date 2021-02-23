@@ -1,39 +1,16 @@
-from collections import Counter
-from math import ceil, floor
-from typing import List, Dict
+from typing import List
 
-import matplotlib
-import matplotlib.pyplot as plt
-
-import numpy as np
-from cached_property import cached_property
-
-from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map, \
-    get_colors, ticks_values_and_labels_for_percentages, get_half_colormap, ticks_values_and_labels_for_positive_value, \
-    get_inverse_colormap, get_cmap_with_inverted_blue_and_green_channels, remove_the_extreme_colors
-from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
-    SCM_STUDY_CLASS_TO_ABBREVIATION, ALL_ALTITUDES_WITHOUT_NAN
-from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
-from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
-from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.function.margin_function.abstract_margin_function import AbstractMarginFunction
-from extreme_fit.function.param_function.linear_coef import LinearCoef
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import \
-    get_altitude_group_from_altitudes, HighAltitudeGroup, VeyHighAltitudeGroup, MidAltitudeGroup
-from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import \
-    OneFoldFit
+    get_altitude_group_from_altitudes
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
 from projects.altitude_spatial_model.altitudes_fit.utils_altitude_studies_visualizer import compute_and_assign_max_abs
-from projects.projected_snowfall.elevation_temporal_model_for_projections.ensemble_fit.independent_ensemble_fit import \
+from projects.projected_snowfall.elevation_temporal_model_for_projections.independent_ensemble_fit.independent_ensemble_fit import \
     IndependentEnsembleFit
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
 class MetaVisualizerForProjectionEnsemble(object):
@@ -89,17 +66,20 @@ class MetaVisualizerForProjectionEnsemble(object):
 
     def plot_independent(self):
         with_significance = False
-        # Individual plots
-        for independent_ensemble_fit in self.ensemble_fits(IndependentEnsembleFit):
-            print(independent_ensemble_fit)
-            for c, v in independent_ensemble_fit.gcm_rcm_couple_to_visualizer.items():
-                print(c, v.altitude_group)
-                v.plot_moments()
         # Aggregated at gcm_rcm_level plots
-        for gcm_rcm_couple in self.gcm_rcm_couples:
+        gcm_rcm_couples = self.gcm_rcm_couples + [None]
+        if None in gcm_rcm_couples:
+            assert gcm_rcm_couples[-1] is None
+        for gcm_rcm_couple in gcm_rcm_couples:
             visualizer_list = [independent_ensemble_fit.gcm_rcm_couple_to_visualizer[gcm_rcm_couple]
+                               if gcm_rcm_couple is not None else independent_ensemble_fit.median_visualizer
                                for independent_ensemble_fit in self.ensemble_fits(IndependentEnsembleFit)
                                ]
+            if gcm_rcm_couple is None:
+                for v in visualizer_list:
+                    v.studies.study.gcm_rcm_couple = ("Median", "merge")
+            for v in visualizer_list:
+                v.plot_moments()
             plot_histogram_all_trends_against_altitudes(self.massif_names, visualizer_list, with_significance=with_significance)
             for relative in [True, False]:
                 plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative, with_significance=with_significance)

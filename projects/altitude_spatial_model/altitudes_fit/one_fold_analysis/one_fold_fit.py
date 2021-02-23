@@ -392,33 +392,6 @@ class OneFoldFit(object):
     def best_residuals(self):
         return self.best_estimator.sorted_empirical_standard_gumbel_quantiles(split=Split.all)
 
-    # @property
-    # def bootstrap_data(self):
-    #     start = time.time()
-    #     bootstrap = []
-    #     for _ in range(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP):
-    #         residuals = self.best_estimator.sorted_empirical_standard_gumbel_quantiles(split=Split.all)
-    #
-    #         # yield coordinate_values_to_maxima
-    #         bootstrap.append(coordinate_values_to_maxima)
-    #     end1 = time.time()
-    #     duration = str(datetime.timedelta(seconds=end1 - start))
-    #     print('bootstrap loader duration', duration)
-    #     return bootstrap
-
-    # def bootstrap_batch_data(self, batchsize=20):
-    #     bootstrap_batch_data = []
-    #     batch = []
-    #     len_batch = 0
-    #     for bootstrap in self.bootstrap_data:
-    #         batch.append(bootstrap)
-    #         len_batch += 1
-    #         if len_batch == batchsize:
-    #             yield batch
-    #             batch = []
-    #             len_batch = 0
-    #     return bootstrap_batch_data
-
     @cached_property
     def cached_results_from_bootstrap(self):
         start = time.time()

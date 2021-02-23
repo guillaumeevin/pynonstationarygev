@@ -17,15 +17,12 @@ from extreme_fit.model.utils import set_seed_for_test
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples, \
     rcp_scenarios
-from projects.projected_snowfall.elevation_temporal_model_for_projections.ensemble_fit.independent_ensemble_fit import \
+from projects.projected_snowfall.elevation_temporal_model_for_projections.independent_ensemble_fit.independent_ensemble_fit import \
     IndependentEnsembleFit
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     AnomalyTemperatureTemporalCovariate, TimeTemporalCovariate
 
 matplotlib.use('Agg')
-
-from projects.altitude_spatial_model.altitudes_fit.plots.plot_histogram_altitude_studies import \
-    plot_shoe_plot_changes_against_altitude, plot_histogram_all_trends_against_altitudes
 
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
@@ -36,33 +33,37 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 
 def main():
+    start = time.time()
     study_classes = [AdamontSnowfall][:1]
-    scenario = AdamontScenario.rcp45
-    gcm_rcm_couples = get_gcm_rcm_couples(scenario)
     ensemble_fit_class = [IndependentEnsembleFit]
     temporal_covariate_for_fit = [TimeTemporalCovariate, AnomalyTemperatureTemporalCovariate][1]
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = True
-    if fast is None:
-        massif_names = None
-        gcm_rcm_couples = gcm_rcm_couples[:2]
-        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = altitudes_for_groups[:2]
-    elif fast:
-        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        massif_names = None
-        gcm_rcm_couples = [('EC-EARTH', 'RACMO22E')]
-        altitudes_list = altitudes_for_groups[1:2]
-    else:
-        massif_names = None
-        altitudes_list = altitudes_for_groups[:]
+    fast = False
+    scenarios = rcp_scenarios[:1] if fast is None else [AdamontScenario.rcp45]
 
-    assert isinstance(gcm_rcm_couples, list)
-    start = time.time()
-    main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_classes, ensemble_fit_class, scenario,
-              temporal_covariate_for_fit)
+    for scenario in scenarios:
+        gcm_rcm_couples = get_gcm_rcm_couples(scenario)
+        if fast is None:
+            massif_names = ['Vanoise', 'Vercors']
+            gcm_rcm_couples = gcm_rcm_couples[:]
+            AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
+            altitudes_list = altitudes_for_groups[1:2]
+        elif fast:
+            AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
+            massif_names = None
+            gcm_rcm_couples = [('EC-EARTH', 'RACMO22E')]
+            altitudes_list = altitudes_for_groups[1:2]
+        else:
+            massif_names = None
+            altitudes_list = altitudes_for_groups[:]
+
+        assert isinstance(gcm_rcm_couples, list)
+
+        main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_classes, ensemble_fit_class, scenario,
+                  temporal_covariate_for_fit)
+
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))
     print('Total duration', duration)

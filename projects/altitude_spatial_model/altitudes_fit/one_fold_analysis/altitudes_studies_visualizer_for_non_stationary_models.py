@@ -58,22 +58,25 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self.altitude_group = get_altitude_group_from_altitudes(self.studies.altitudes)
         self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
         self.remove_physically_implausible_models = remove_physically_implausible_models
-        # Load one fold fit
-        self.massif_name_to_massif_altitudes = {}
 
+        self.massif_name_to_massif_altitudes = {}
+        # Load one fold fit
+        self.load_one_fold_fit()
+
+        # Cache
+        self._method_name_and_order_to_massif_name_to_value = {}
+        self._method_name_and_order_to_max_abs = {}
+        self._max_abs_for_shape = None
+
+    def load_one_fold_fit(self):
         one_fold_fit_list = [self.fit_one_fold(massif_name) for massif_name in self.massif_names]
         self._massif_name_to_one_fold_fit = {m: o for m, o in zip(self.massif_names, one_fold_fit_list) if
                                              o is not None}
-
         # Print number of massif without any validated fit
         massifs_without_any_validated_fit = [massif_name
                                              for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
                                              if not old_fold_fit.has_at_least_one_valid_model]
         print('Not validated:', len(massifs_without_any_validated_fit), massifs_without_any_validated_fit)
-        # Cache
-        self._method_name_and_order_to_massif_name_to_value = {}
-        self._method_name_and_order_to_max_abs = {}
-        self._max_abs_for_shape = None
 
     def fit_one_fold(self, massif_name):
         # Load valid massif altitudes
