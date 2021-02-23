@@ -60,24 +60,29 @@ class MetaVisualizerForProjectionEnsemble(object):
             for ensemble_fit in self.ensemble_fits(IndependentEnsembleFit):
                 visualizer_list.extend(list(ensemble_fit.gcm_rcm_couple_to_visualizer.values()))
             # Potentially I could add more visualizer here...
-            compute_and_assign_max_abs(visualizer_list)
+            method_name_and_order_to_max_abs, max_abs_for_shape = compute_and_assign_max_abs(visualizer_list)
+            # Assign the same max abs for the 
+            for ensemble_fit in self.ensemble_fits(IndependentEnsembleFit):
+                for v in ensemble_fit.merge_function_name_to_visualizer.values():
+                    v._max_abs_for_shape = max_abs_for_shape
+                    v._method_name_and_order_to_max_abs = method_name_and_order_to_max_abs
             # Plot
             self.plot_independent()
 
     def plot_independent(self):
         with_significance = False
         # Aggregated at gcm_rcm_level plots
-        gcm_rcm_couples = self.gcm_rcm_couples + [None]
-        if None in gcm_rcm_couples:
-            assert gcm_rcm_couples[-1] is None
-        for gcm_rcm_couple in gcm_rcm_couples:
-            visualizer_list = [independent_ensemble_fit.gcm_rcm_couple_to_visualizer[gcm_rcm_couple]
-                               if gcm_rcm_couple is not None else independent_ensemble_fit.median_visualizer
+        merge_keys = [IndependentEnsembleFit.Median_merge, IndependentEnsembleFit.Mean_merge]
+        keys = self.gcm_rcm_couples + merge_keys
+        for key in keys:
+            visualizer_list = [independent_ensemble_fit.gcm_rcm_couple_to_visualizer[key]
+                               if key in self.gcm_rcm_couples
+                               else independent_ensemble_fit.merge_function_name_to_visualizer[key]
                                for independent_ensemble_fit in self.ensemble_fits(IndependentEnsembleFit)
                                ]
-            if gcm_rcm_couple is None:
+            if key in merge_keys:
                 for v in visualizer_list:
-                    v.studies.study.gcm_rcm_couple = ("Median", "merge")
+                    v.studies.study.gcm_rcm_couple = (key, "merge")
             for v in visualizer_list:
                 v.plot_moments()
             plot_histogram_all_trends_against_altitudes(self.massif_names, visualizer_list, with_significance=with_significance)

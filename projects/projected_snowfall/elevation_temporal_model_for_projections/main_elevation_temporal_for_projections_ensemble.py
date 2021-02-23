@@ -40,16 +40,16 @@ def main():
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = False
-    scenarios = rcp_scenarios[:1] if fast is None else [AdamontScenario.rcp45]
+    fast = None
+    scenarios = rcp_scenarios[:1] if fast is False else [AdamontScenario.rcp26]
 
     for scenario in scenarios:
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
         if fast is None:
-            massif_names = ['Vanoise', 'Vercors']
+            massif_names = None
             gcm_rcm_couples = gcm_rcm_couples[:]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = altitudes_for_groups[1:2]
+            altitudes_list = altitudes_for_groups[:1]
         elif fast:
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
             massif_names = None

@@ -27,18 +27,19 @@ def load_visualizer_list(season, study_class, altitudes_list, massif_names, mode
 
 def compute_and_assign_max_abs(visualizer_list):
     # Compute the max abs for all metrics
-    d = {}
+    method_name_and_order_to_max_abs = {}
     for method_name in AltitudesStudiesVisualizerForNonStationaryModels.moment_names:
         for order in AltitudesStudiesVisualizerForNonStationaryModels.orders:
             c = (method_name, order)
             max_abs = max([
                 max([abs(e) for e in v.method_name_and_order_to_d(method_name, order).values()
                      ]) for v in visualizer_list])
-            d[c] = max_abs
+            method_name_and_order_to_max_abs[c] = max_abs
     # Assign the max abs dictionary
     for v in visualizer_list:
-        v._method_name_and_order_to_max_abs = d
+        v._method_name_and_order_to_max_abs = method_name_and_order_to_max_abs
     # Compute the max abs for the shape parameter
     max_abs_for_shape = max([max([abs(e) for e in v.massif_name_to_shape.values()]) for v in visualizer_list])
     for v in visualizer_list:
         v._max_abs_for_shape = max_abs_for_shape
+    return method_name_and_order_to_max_abs, max_abs_for_shape
