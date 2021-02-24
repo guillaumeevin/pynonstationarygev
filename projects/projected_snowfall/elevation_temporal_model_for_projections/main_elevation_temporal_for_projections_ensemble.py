@@ -43,9 +43,9 @@ def main():
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = None
+    fast = False
     sensitivity_plot = True
-    scenarios = rcp_scenarios if fast is False else [AdamontScenario.rcp85]
+    scenarios = rcp_scenarios[::-1] if fast is False else [AdamontScenario.rcp85]
 
     for scenario in scenarios:
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
@@ -58,7 +58,7 @@ def main():
             massif_names = ['Vanoise', 'Haute-Maurienne']
             gcm_rcm_couples = gcm_rcm_couples[4:6]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = altitudes_for_groups[2:]
+            altitudes_list = altitudes_for_groups[:]
         else:
             massif_names = None
             altitudes_list = altitudes_for_groups[:]
@@ -77,6 +77,7 @@ def main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_class, ensemb
               temporal_covariate_for_fit, sensitivity_plot=False):
     assert isinstance(altitudes_list, List)
     assert isinstance(altitudes_list[0], List)
+    print('Scenario is', scenario)
     print('Covariate is {}'.format(temporal_covariate_for_fit))
 
     model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS

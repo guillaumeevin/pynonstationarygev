@@ -19,7 +19,7 @@ class AbstractAltitudeGroup(object):
 
     @property
     def altitudes(self):
-        return altitudes_for_groups[self.group_id-1]
+        return altitudes_for_groups[self.group_id - 1]
 
     @property
     def reference_altitude(self):
@@ -161,3 +161,17 @@ def get_altitude_group_from_altitudes(altitudes):
         return VeyHighAltitudeGroup()
     else:
         return DefaultAltitudeGroup()
+
+
+def get_linestyle_for_altitude_class(altitude_class):
+    assert issubclass(altitude_class, AbstractAltitudeGroup)
+    if altitude_class is LowAltitudeGroup:
+        return 'solid'
+    elif altitude_class is MidAltitudeGroup:
+        return 'dashed'
+    elif altitude_class is HighAltitudeGroup:
+        return 'dashdot'
+    elif altitude_class is VeyHighAltitudeGroup:
+        return 'dotted'
+    else:
+        raise NotImplementedError

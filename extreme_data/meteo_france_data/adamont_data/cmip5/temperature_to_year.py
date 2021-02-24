@@ -36,7 +36,7 @@ def get_nb_data(gcm, scenario, temperature_min, temperature_max):
         return year_max - year_min + 1
 
 
-def plot_nb_data_one_line(ax, gcm, scenario, temp_min, temp_max):
+def plot_nb_data_one_line(ax, gcm, scenario, temp_min, temp_max, first_scenario):
 
     nb_data = [get_nb_data(gcm, scenario, mi, ma) for mi, ma in zip(temp_min, temp_max)]
     color = gcm_to_color[gcm]
@@ -48,26 +48,26 @@ def plot_nb_data_one_line(ax, gcm, scenario, temp_min, temp_max):
     nb_data, temp_min = nb_data[ind], temp_min[ind]
 
     # For the legend
-    if scenario is AdamontScenario.rcp26:
+    if (len(nb_data) > 0) and first_scenario:
         ax.plot(temp_min[0], nb_data[0], color=color, linestyle='solid', label=gcm)
 
-    ax.plot(temp_min, nb_data, linestyle=linestyle, color=color)
+    ax.plot(temp_min, nb_data, linestyle=linestyle, color=color, marker='o')
 
 
 def plot_nb_data():
-    temp_max, temp_min = get_temp_min_and_temp_max()
+    temp_min, temp_max = get_temp_min_and_temp_max()
 
     ax = plt.gca()
     for gcm in get_gcm_list(adamont_version=2)[:]:
-        for scenario in rcp_scenarios[:]:
-            plot_nb_data_one_line(ax, gcm, scenario, temp_min, temp_max)
+        for i, scenario in enumerate(rcp_scenarios[:2]):
+            plot_nb_data_one_line(ax, gcm, scenario, temp_min, temp_max, first_scenario=i == 0)
 
     ax.legend()
-    ticks_labels = ['{}-{}'.format(mi, ma) for mi, ma in zip(temp_min, temp_max)]
+    ticks_labels = get_ticks_labels_for_temp_min_and_temp_max()
     ax.set_xticks(temp_min)
     ax.set_xticklabels(ticks_labels)
     ax.set_xlabel('Temperature interval')
-    ax.set_ylabel('Nb of Data')
+    ax.set_ylabel('Nb of Maxima')
     ax2 = ax.twinx()
     legend_elements = [
         Line2D([0], [0], color='k', lw=1, label=scenario_to_str(s),
@@ -79,10 +79,15 @@ def plot_nb_data():
 
 
 def get_temp_min_and_temp_max():
-    temp_min = np.arange(0.5, 2.5, 0.5)
-    temp_max = temp_min + 1.5
+    temp_min = np.arange(0, 3, 1)
+    temp_max = temp_min + 2
     return temp_min, temp_max
 
+def get_ticks_labels_for_temp_min_and_temp_max():
+    temp_min, temp_max = get_temp_min_and_temp_max()
+    return ['Maxima occured between \n' \
+            ' +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$'.format(mi, ma, **{'C': '{C}'})
+     for mi, ma in zip(temp_min, temp_max)]
 
 if __name__ == '__main__':
     plot_nb_data()
