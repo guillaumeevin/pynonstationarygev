@@ -2,6 +2,7 @@ import unittest
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario
+from extreme_data.meteo_france_data.adamont_data.cmip5.temperature_to_year import temperature_minmax_to_year_minmax
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
@@ -11,6 +12,7 @@ from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pari
 from extreme_fit.model.margin_model.polynomial_margin_model.utils import \
     ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
 from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
+from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import VeyHighAltitudeGroup
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import OneFoldFit
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate, AnomalyTemperatureTemporalCovariate
@@ -75,6 +77,24 @@ class TestOneFoldFit(unittest.TestCase):
                                   remove_physically_implausible_models=True)
         self.assertFalse(one_fold_fit.has_at_least_one_valid_model)
 
+    def test_assertion_error_for_a_specific_case(self):
+        self.massif_name = "Thabor"
+        self.model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS[:]
+        self.altitudes = [3000, 3300, 3600]
+        gcm_rcm_couple = ('HadGEM2-ES', 'RegCM4-6')
+        scenario = AdamontScenario.rcp85
+        year_min, year_max = temperature_minmax_to_year_minmax(gcm_rcm_couple[0], scenario, temperature_min=1.0,
+                                                               temperature_max=2.5)
+        dataset = self.load_dataset(AdamontSnowfall,
+                                    scenario=scenario, gcm_rcm_couple=gcm_rcm_couple,
+                                    year_min=year_min, year_max=year_max)
+        one_fold_fit = OneFoldFit(self.massif_name, dataset,
+                                  models_classes=self.model_classes,
+                                  temporal_covariate_for_fit=AnomalyTemperatureTemporalCovariate,
+                                  altitude_class=VeyHighAltitudeGroup,
+                                  only_models_that_pass_goodness_of_fit_test=False,
+                                  remove_physically_implausible_models=True)
+        self.assertTrue(one_fold_fit.has_at_least_one_valid_model)
 
 if __name__ == '__main__':
     unittest.main()

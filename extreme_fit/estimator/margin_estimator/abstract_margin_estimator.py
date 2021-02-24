@@ -61,11 +61,13 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     def function_from_fit(self) -> LinearMarginFunction:
         return load_margin_function(self, self.margin_model)
 
+    def coordinates_for_nllh(self, split=Split.all):
+        return pd.concat([self.df_coordinates_spat(split=split), self.df_coordinates_temp(split=split)], axis=1).values
+
     def nllh(self, split=Split.all):
         nllh = 0
         maxima_values = self.dataset.maxima_gev(split=split)
-        df = pd.concat([self.df_coordinates_spat(split=split), self.df_coordinates_temp(split=split)], axis=1)
-        coordinate_values = df.values
+        coordinate_values = self.coordinates_for_nllh(split=split)
         for maximum, coordinate in zip(maxima_values, coordinate_values):
             assert len(maximum) == 1, \
                 'So far, only one observation for each coordinate, but code would be easy to change'

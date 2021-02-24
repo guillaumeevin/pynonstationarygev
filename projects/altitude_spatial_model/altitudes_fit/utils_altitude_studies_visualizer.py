@@ -34,6 +34,9 @@ def compute_and_assign_max_abs(visualizer_list):
             max_abs = max([
                 max([abs(e) for e in v.method_name_and_order_to_d(method_name, order).values()
                      ]) for v in visualizer_list])
+            if max_abs == 0:
+                epsilon = 0.1
+                max_abs = epsilon
             method_name_and_order_to_max_abs[c] = max_abs
     # Assign the max abs dictionary
     for v in visualizer_list:

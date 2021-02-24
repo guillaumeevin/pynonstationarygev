@@ -180,12 +180,31 @@ class OneFoldFit(object):
             # Remove wrong shape
             estimators = [e for e in estimators if -0.5 < self._compute_shape_for_reference_altitude(e) < 0.5]
             # Remove models with undefined parameters for the coordinate of interest
-            coordinate = np.array([self.altitude_group.reference_altitude, self.last_year])
-            estimators = [e for e in estimators if not e.function_from_fit.get_params(coordinate).has_undefined_parameters]
+            well_defined_estimators = []
+            for e in estimators:
+                coordinate_values_for_the_fit = e.coordinates_for_nllh(Split.all)
+                coordinate_values_for_the_result = [np.array([self.altitude_group.reference_altitude, c])
+                                                             for c in self._covariate_before_and_after]
+                coordinate_values_to_check = list(coordinate_values_for_the_fit) + coordinate_values_for_the_result
+                has_undefined_parameters = False
+                for coordinate in coordinate_values_to_check:
+                    gev_params = e.function_from_fit.get_params(coordinate)
+                    if gev_params.has_undefined_parameters:
+                        has_undefined_parameters = True
+                        break
+                if not has_undefined_parameters:
+                    well_defined_estimators.append(e)
+            estimators = well_defined_estimators
+
             if len(estimators) == 0:
                 print(self.massif_name, " has only implausible models")
 
-        sorted_estimators = sorted([estimator for estimator in estimators], key=lambda e: e.aic())
+        try:
+            sorted_estimators = sorted([estimator for estimator in estimators], key=lambda e: e.aic())
+        except AssertionError as e:
+            print('Error for')
+            print(self.massif_name, self.altitude_group)
+            raise
         return sorted_estimators
 
     def _compute_shape_for_reference_altitude(self, estimator):

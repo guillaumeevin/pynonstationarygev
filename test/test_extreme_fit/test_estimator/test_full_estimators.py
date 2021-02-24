@@ -1,6 +1,7 @@
 import unittest
 from itertools import product
 
+from extreme_fit.distribution.abstract_extreme_params import AbstractExtremeParams
 from spatio_temporal_dataset.dataset.simulation_dataset import FullSimulatedDataset
 from test.test_utils import load_test_max_stable_models, load_smooth_margin_models, load_test_1D_and_2D_spatial_coordinates, \
     load_test_full_estimators
@@ -17,6 +18,7 @@ class TestFullEstimators(unittest.TestCase):
         self.max_stable_models = load_test_max_stable_models()
 
     def test_full_estimators(self):
+        AbstractExtremeParams.SMALL_SCALE_PARAMETERS_ARE_UNDEFINED = False
         for coordinates in self.spatial_coordinates:
             smooth_margin_models = load_smooth_margin_models(coordinates=coordinates)
             for margin_model, max_stable_model in product(smooth_margin_models, self.max_stable_models):

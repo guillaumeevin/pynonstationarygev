@@ -18,6 +18,10 @@ class AbstractAltitudeGroup(object):
         raise NotImplementedError
 
     @property
+    def altitudes(self):
+        return altitudes_for_groups[self.group_id-1]
+
+    @property
     def reference_altitude(self):
         raise NotImplementedError
 
@@ -139,6 +143,10 @@ class DefaultAltitudeGroup(AbstractAltitudeGroup):
     @property
     def reference_altitude(self):
         return 500
+
+
+def get_altitude_class_from_altitudes(altitudes):
+    return type(get_altitude_group_from_altitudes(altitudes))
 
 
 def get_altitude_group_from_altitudes(altitudes):
