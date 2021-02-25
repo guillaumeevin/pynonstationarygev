@@ -20,10 +20,8 @@ class GevParams(AbstractExtremeParams):
     SUMMARY_NAMES = PARAM_NAMES + AbstractParams.QUANTILE_NAMES
     NB_SUMMARY_NAMES = len(SUMMARY_NAMES)
 
-    def __init__(self, loc: float, scale: float, shape: float, block_size: int = None):
+    def __init__(self, loc: float, scale: float, shape: float):
         super().__init__(loc, scale, shape)
-        self.block_size = block_size
-        self.param_name_to_confidence_interval = None
 
     @nan_if_undefined_wrapper
     def sample(self, n) -> np.ndarray:
@@ -158,8 +156,6 @@ class GevParams(AbstractExtremeParams):
         x *= self.scale
         x += self.location
         return x
-
-
 
     @property
     def bound(self):

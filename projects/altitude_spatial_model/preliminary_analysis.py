@@ -182,7 +182,6 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
                     assert isinstance(param_name, int)
                     param = gev_params.return_level(return_period=param_name)
                 params.append(param)
-                # confidence_intervals.append(gev_params.param_name_to_confidence_interval[param_name])
         massif_id = self.study.all_massif_names().index(massif_name)
         plot_against_altitude(altitudes, ax, massif_id, massif_name, params, fill=False,
                               elevation_as_xaxis=elevation_as_xaxis,

@@ -20,10 +20,6 @@ class AbstractResultFromModelFit(object):
         """ See Coles 2001 page 41, for an example"""
         return np.sqrt(np.diagonal(self.variance_covariance_matrix))
 
-    @property
-    def confidence_interval_half_sizes(self):
-        return [1.96 * s for s in self.standard_errors_for_mle]
-
     @staticmethod
     def get_python_dictionary(r_dictionary):
         return {name: r_dictionary.rx2(name) for name in r_dictionary.names}
