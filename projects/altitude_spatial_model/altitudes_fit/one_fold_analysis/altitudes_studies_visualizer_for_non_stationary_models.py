@@ -191,7 +191,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             if self.temporal_covariate_for_fit is AnomalyTemperatureTemporalCovariate else ' in {}'
         str_for_last_year = str_for_last_year.format(self.first_one_fold_fit.covariate_after, **d_temperature)
         moment = moment.replace('moment', '{}{}'.format(OneFoldFit.get_moment_str(order=order), str_for_last_year))
-        plot_name = '{}{} '.format(OneFoldFit.folder_for_plots, moment)
+        plot_name = '{} '.format(moment)
 
         if 'change' in method_name:
             plot_name = plot_name.replace(str_for_last_year, '')
@@ -264,7 +264,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         moment = ' '.join(method_name.split('_'))
         moment = moment.replace('moment',
                                 '{} in {}'.format(OneFoldFit.get_moment_str(order=order), OneFoldFit.last_year))
-        plot_name = '{}Model {} annual maxima of {}'.format(OneFoldFit.folder_for_plots, moment,
+        plot_name = 'Model {} annual maxima of {}'.format(moment,
                                                             SCM_STUDY_CLASS_TO_ABBREVIATION[self.studies.study_class])
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('altitudes', fontsize=15)
@@ -321,8 +321,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         negative_and_positive_values = (max(values) > 0) and (min(values) < 0)
         raise NotImplementedError
         self.plot_map(massif_name_to_value=massif_name_to_best_coef,
-                      label='{}Coef/{} plot for {} {}'.format(OneFoldFit.folder_for_plots,
-                                                              coef_name,
+                      label='Coef/{} plot for {} {}'.format(coef_name,
                                                               SCM_STUDY_CLASS_TO_ABBREVIATION[
                                                                   type(self.study)],
                                                               self.study.variable_unit),
@@ -387,7 +386,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             ax.set_ylabel('{} of {} in {} ({})'.format(ylabel, SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)],
                                                        massif_name.replace('_', ' '), self.study.variable_unit))
             peak_year_folder = 'Peak year ' + ylabel
-            plot_name = '{}{}/Peak year for {}'.format(OneFoldFit.folder_for_plots, peak_year_folder,
+            plot_name = '{}/Peak year for {}'.format(peak_year_folder,
                                                        massif_name.replace('_', ''))
             self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show, no_title=True, tight_layout=True)
             plt.close()

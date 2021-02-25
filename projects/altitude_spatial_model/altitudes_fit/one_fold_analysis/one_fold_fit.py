@@ -43,7 +43,6 @@ from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observat
 
 class OneFoldFit(object):
     SIGNIFICANCE_LEVEL = 0.05
-    best_estimator_minimizes_total_aic = False
     return_period = 100
     quantile_level = 1 - (1 / return_period)
     nb_years = 60
@@ -75,20 +74,11 @@ class OneFoldFit(object):
         # Compute sorted estimators indirectly
         _ = self.has_at_least_one_valid_model
 
-        # Best estimator definition
-        self.best_estimator_class_for_total_aic = None
-        # Cached object
-        self._folder_to_goodness = {}
-
     def fitted_linear_margin_estimator(self, model_class, dataset):
         return fitted_linear_margin_estimator_short(model_class=model_class,
                                                     dataset=dataset,
                                                     fit_method=self.fit_method,
                                                     temporal_covariate_for_fit=self.temporal_covariate_for_fit)
-
-    @classproperty
-    def folder_for_plots(cls):
-        return 'Total aic/' if cls.best_estimator_minimizes_total_aic else ''
 
     @classmethod
     def get_moment_str(cls, order):
@@ -159,7 +149,7 @@ class OneFoldFit(object):
         s = ' between +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$' if self.temporal_covariate_for_fit is AnomalyTemperatureTemporalCovariate \
             else ' between {} and {}'
         s = s.format(self.covariate_before, self.covariate_after,
-                                 **d_temperature)
+                     **d_temperature)
         return s
 
     def relative_changes_of_moment(self, altitudes, order=1):
@@ -184,7 +174,7 @@ class OneFoldFit(object):
             for e in estimators:
                 coordinate_values_for_the_fit = e.coordinates_for_nllh(Split.all)
                 coordinate_values_for_the_result = [np.array([self.altitude_group.reference_altitude, c])
-                                                             for c in self._covariate_before_and_after]
+                                                    for c in self._covariate_before_and_after]
                 coordinate_values_to_check = list(coordinate_values_for_the_fit) + coordinate_values_for_the_result
                 has_undefined_parameters = False
                 for coordinate in coordinate_values_to_check:
@@ -218,8 +208,6 @@ class OneFoldFit(object):
         if self.only_models_that_pass_goodness_of_fit_test:
             return [e for e in self.sorted_estimators
                     if self.goodness_of_fit_test(e)
-                    # and self.sensitivity_of_fit_test_top_maxima(e)
-                    # and self.sensitivity_of_fit_test_last_years(e)
                     ]
         else:
             if not self.remove_physically_implausible_models:
@@ -236,16 +224,12 @@ class OneFoldFit(object):
 
     @property
     def best_estimator(self):
-        if self.best_estimator_minimizes_total_aic and self.best_estimator_class_for_total_aic is not None:
-            return self.model_class_to_estimator[self.best_estimator_class_for_total_aic]
+        if self.has_at_least_one_valid_model:
+            best_estimator = self.sorted_estimators_with_stationary[0]
+            return best_estimator
         else:
-            # With stationary
-            if self.has_at_least_one_valid_model:
-                best_estimator = self.sorted_estimators_with_stationary[0]
-                return best_estimator
-            else:
-                raise ValueError('This object should not have been called because '
-                                 'has_at_least_one_valid_model={}'.format(self.has_at_least_one_valid_model))
+            raise ValueError('This object should not have been called because '
+                             'has_at_least_one_valid_model={}'.format(self.has_at_least_one_valid_model))
 
     @property
     def best_margin_model(self):
@@ -321,52 +305,6 @@ class OneFoldFit(object):
         else:
             # Bootstrap based significance
             return self.cached_results_from_bootstrap[0]
-
-    # @property
-    # def goodness_of_fit_anderson_test(self):
-    #     if self.folder_for_plots in self._folder_to_goodness:
-    #         return self._folder_to_goodness[self.folder_for_plots]
-    #     else:
-    #         estimator = self.best_estimator
-    #         goodness_of_fit_anderson_test = self.goodness_of_fit_test(estimator)
-    #         if not goodness_of_fit_anderson_test:
-    #             print('{} with {} does not pass the anderson test for model {}'.format(self.massif_name,
-    #                                                                                    self.folder_for_plots,
-    #                                                                                    type(self.best_margin_model)))
-    #         self._folder_to_goodness[self.folder_for_plots] = goodness_of_fit_anderson_test
-    #         return goodness_of_fit_anderson_test
-
-    def sensitivity_of_fit_test_top_maxima(self, estimator: LinearMarginEstimator):
-        # Build the dataset without the maxima for each altitude
-        new_dataset = AbstractDataset.remove_top_maxima(self.dataset.observations,
-                                                        self.dataset.coordinates)
-        # Fit the new estimator
-        new_estimator = fitted_linear_margin_estimator_short(model_class=type(estimator.margin_model),
-                                                             dataset=new_dataset,
-                                                             fit_method=self.fit_method,
-                                                             temporal_covariate_for_fit=self.temporal_covariate_for_fit)
-        # Compare sign of change
-        has_not_opposite_sign = self.sign_of_change(estimator.function_from_fit) * self.sign_of_change(
-            new_estimator.function_from_fit) >= 0
-        return has_not_opposite_sign
-
-    def sensitivity_of_fit_test_last_years(self, estimator: LinearMarginEstimator):
-        # Build the dataset without the maxima for each altitude
-        new_dataset = AbstractDataset.remove_last_maxima(self.dataset.observations,
-                                                         self.dataset.coordinates,
-                                                         nb_years=10)
-        # Fit the new estimator
-        model_class = type(estimator.margin_model)
-        new_estimator = fitted_linear_margin_estimator_short(model_class=model_class,
-                                                             dataset=new_dataset,
-                                                             fit_method=self.fit_method,
-                                                             temporal_covariate_for_fit=self.temporal_covariate_for_fit)
-        # Compare sign of change
-        has_not_opposite_sign = self.sign_of_change(estimator.function_from_fit) * self.sign_of_change(
-            new_estimator.function_from_fit) >= 0
-        # if not has_not_opposite_sign:
-        # print('Last years', self.massif_name, model_class, self.sign_of_change(estimator), self.sign_of_change(new_estimator))
-        return has_not_opposite_sign
 
     def sign_of_change(self, function_from_fit):
         return_levels = []
@@ -444,7 +382,6 @@ class OneFoldFit(object):
                 altitude_and_year_to_return_level_confidence_interval[key] = confidence_interval
 
         return is_significant, altitude_and_year_to_return_level_mean_estimate, altitude_and_year_to_return_level_confidence_interval
-
 
     @property
     def bootstrap_fitted_functions_from_fit(self):

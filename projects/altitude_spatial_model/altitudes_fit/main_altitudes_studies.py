@@ -2,35 +2,34 @@ import datetime
 import time
 from typing import List
 
-import matplotlib
 
+import matplotlib as mpl
+mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+
+import matplotlib
 matplotlib.use('Agg')
 
-from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019, \
-    SafranSnowfall2020
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_histogram_altitude_studies import \
     plot_shoe_plot_changes_against_altitude, plot_histogram_all_trends_against_altitudes, \
-    plot_shoe_plot_ratio_interval_size_against_altitude, plot_histogram_all_models_against_altitudes
+    plot_histogram_all_models_against_altitudes
 
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
 
-import matplotlib as mpl
+
 
 from extreme_fit.model.utils import set_seed_for_test
 from projects.altitude_spatial_model.altitudes_fit.plots.plot_coherence_curves import plot_coherence_curves
 
-mpl.rcParams['text.usetex'] = True
-mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+
 
 from projects.altitude_spatial_model.altitudes_fit.utils_altitude_studies_visualizer import load_visualizer_list
 
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import altitudes_for_groups
-from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.plot_total_aic import plot_individual_aic
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days, \
-    SafranSnowfall5Days, SafranSnowfall7Days, SafranDateFirstSnowfall, SafranPrecipitation1Day, \
-    SafranPrecipitation3Days, SafranSnowfallCenterOnDay1dayMeanRate, SafranSnowfallNotCenterOnDay1day
+    SafranSnowfall5Days, SafranSnowfall7Days
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 
@@ -96,13 +95,11 @@ def plot_visualizer(massif_names, visualizer):
     # visualizer.studies.plot_maxima_time_series(massif_names)
     # visualizer.studies.plot_maxima_time_series(['Vanoise'])
 
-    # Plot the results for the model that minimizes the individual aic
-    plot_individual_aic(visualizer)
-
-    # Plot the results for the model that minimizes the total aic
-    # plot_total_aic(model_classes, visualizer)
-    pass
-
+    visualizer.plot_shape_map()
+    visualizer.plot_moments()
+    visualizer.plot_qqplots()
+    # for std in [True, False]:
+    #     visualizer.studies.plot_mean_maxima_against_altitude(std=std)
 
 if __name__ == '__main__':
     main()
