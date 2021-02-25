@@ -8,7 +8,7 @@ from extreme_fit.model.margin_model.utils import \
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_exp_models import \
     NonStationaryRateTemporalModel
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
-from projects.quantile_regression_vs_evt.annual_maxima_simulation.abstract_annual_maxima_simulation import \
+from projects.archive.quantile_regression_vs_evt.annual_maxima_simulation.abstract_annual_maxima_simulation import \
     AnnualMaximaSimulation
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
     CenteredScaledNormalization

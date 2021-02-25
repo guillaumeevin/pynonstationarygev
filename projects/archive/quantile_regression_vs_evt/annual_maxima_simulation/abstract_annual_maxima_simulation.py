@@ -6,7 +6,7 @@ from cached_property import cached_property
 
 from extreme_fit.estimator.quantile_estimator.abstract_quantile_estimator import AbstractQuantileEstimator
 from extreme_fit.model.margin_model.abstract_margin_model import AbstractMarginModel
-from projects.quantile_regression_vs_evt.AbstractSimulation import AbstractSimulation
+from projects.archive.quantile_regression_vs_evt.AbstractSimulation import AbstractSimulation
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
 

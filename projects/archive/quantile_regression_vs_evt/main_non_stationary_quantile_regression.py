@@ -2,9 +2,9 @@ from extreme_fit.model.daily_data_model import TemporalCoordinatesQuantileRegres
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationTemporalModel, NonStationaryLocationGumbelModel
 from extreme_fit.model.quantile_model.quantile_regression_model import TemporalCoordinatesQuantileRegressionModel
-from projects.quantile_regression_vs_evt.annual_maxima_simulation.daily_exp_simulation import \
-    NonStationaryExpSimulation, StationaryExpSimulation
-from projects.quantile_regression_vs_evt.annual_maxima_simulation.gev_simulation import \
+from projects.archive.quantile_regression_vs_evt.annual_maxima_simulation.daily_exp_simulation import \
+    NonStationaryExpSimulation
+from projects.archive.quantile_regression_vs_evt.annual_maxima_simulation.gev_simulation import \
     NonStationaryLocationGumbelSimulation, NonStationaryLocationGevSimulation
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
     CenteredScaledNormalization, IdentityTransformation
