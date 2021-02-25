@@ -2,7 +2,7 @@ import unittest
 
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_trend.trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import GumbelVersusGumbel
-from projects.exceeding_snow_loads.utils import NON_STATIONARY_TREND_TEST_PAPER_1
+from projects.past_extreme_ground_snow_loads.utils import NON_STATIONARY_TREND_TEST_PAPER_1
 
 
 class TestTrendAnalysis(unittest.TestCase):

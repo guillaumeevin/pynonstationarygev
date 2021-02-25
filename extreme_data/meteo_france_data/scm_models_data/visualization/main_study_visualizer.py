@@ -25,7 +25,7 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf impo
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariableCenterOnDay
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
-from projects.exceeding_snow_loads.section_discussion.crocus_study_comparison_with_eurocode import \
+from projects.past_extreme_ground_snow_loads.section_discussion.crocus_study_comparison_with_eurocode import \
     CrocusDifferenceSnowLoad, \
     CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization, \
     CrocusSnowDepthDifference, CrocusSnowDepthAtMaxofSwe

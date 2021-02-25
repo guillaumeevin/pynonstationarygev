@@ -5,7 +5,7 @@ import numpy as np
 from extreme_data.eurocode_data.utils import EUROCODE_ALTITUDES
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
-from projects.exceeding_snow_loads.utils import dpi_paper1_figure
+from projects.past_extreme_ground_snow_loads.utils import dpi_paper1_figure
 from extreme_trend.trend_test.visualizers import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import ci_method_to_color, \

@@ -2,7 +2,7 @@ from typing import Dict
 import matplotlib.pyplot as plt
 
 from extreme_data.meteo_france_data.scm_models_data.visualization.utils import create_adjusted_axes
-from projects.exceeding_snow_loads.utils import dpi_paper1_figure, get_trend_test_name
+from projects.past_extreme_ground_snow_loads.utils import dpi_paper1_figure, get_trend_test_name
 from extreme_trend.trend_test.visualizers import StudyVisualizerForNonStationaryTrends
 
 

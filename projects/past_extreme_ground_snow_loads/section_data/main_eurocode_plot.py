@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
-from copy import deepcopy, copy
 import numpy as np
 
-from extreme_data.eurocode_data.eurocode_region import C2, E, C1, C
+from extreme_data.eurocode_data.eurocode_region import E, C
 from extreme_data.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
 from extreme_data.eurocode_data.utils import EUROCODE_RETURN_LEVEL_STR
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy

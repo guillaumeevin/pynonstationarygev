@@ -14,7 +14,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
 from extreme_trend.trend_test.visualizers import \
     StudyVisualizerForNonStationaryTrends
 from extreme_fit.distribution.gev.gev_params import GevParams
-from projects.exceeding_snow_loads.section_data.main_example_swe_total_plot import tuples_for_examples_paper1
+from projects.past_extreme_ground_snow_loads.section_data.main_example_swe_total_plot import tuples_for_examples_paper1
 
 
 def extract_time_serimes_with_worst_number_of_zeros(altitude_to_visualizer, nb_worst_examples):

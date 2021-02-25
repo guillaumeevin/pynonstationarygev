@@ -17,7 +17,7 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_extended_study impo
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
-from projects.exceeding_snow_loads.utils import NON_STATIONARY_TREND_TEST_PAPER_1, ALTITUDE_TO_GREY_MASSIF
+from projects.past_extreme_ground_snow_loads.utils import NON_STATIONARY_TREND_TEST_PAPER_1, ALTITUDE_TO_GREY_MASSIF
 from extreme_trend.trend_test.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
