@@ -4,13 +4,16 @@ from typing import List
 
 
 import matplotlib as mpl
+
+from extreme_trend.one_fold_analysis.utils_altitude_studies_visualizer import load_visualizer_list
+
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 import matplotlib
 matplotlib.use('Agg')
 
-from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.plots.plot_histogram_altitude_studies import \
+from extreme_trend.one_fold_analysis.plots.plot_histogram_altitude_studies import \
     plot_shoe_plot_changes_against_altitude, plot_histogram_all_trends_against_altitudes, \
     plot_histogram_all_models_against_altitudes
 
@@ -20,13 +23,10 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
 
 
 from extreme_fit.model.utils import set_seed_for_test
-from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.plots.plot_coherence_curves import plot_coherence_curves
+from extreme_trend.one_fold_analysis.plots.plot_coherence_curves import plot_coherence_curves
 
 
-
-from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.utils_altitude_studies_visualizer import load_visualizer_list
-
-from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import altitudes_for_groups
+from extreme_trend.one_fold_analysis.altitude_group import altitudes_for_groups
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days, \
     SafranSnowfall5Days, SafranSnowfall7Days

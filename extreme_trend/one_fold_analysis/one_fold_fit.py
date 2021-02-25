@@ -4,17 +4,13 @@ import time
 from itertools import chain
 from multiprocessing import Pool
 
-import numpy.testing as npt
 import numpy as np
-import rpy2
 from cached_property import cached_property
 from scipy.stats import chi2
 from sklearn.utils import resample
 
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson
-from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import AbstractMarginEstimator, \
-    LinearMarginEstimator
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
 from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoef, PolynomialCoef
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
@@ -31,9 +27,8 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_int
     ConfidenceIntervalMethodFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     EurocodeConfidenceIntervalFromExtremes
-from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import AbstractAltitudeGroup, \
-    DefaultAltitudeGroup, altitudes_for_groups
-from root_utils import classproperty, NB_CORES, batch
+from extreme_trend.one_fold_analysis.altitude_group import DefaultAltitudeGroup, altitudes_for_groups
+from root_utils import NB_CORES, batch
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     AnomalyTemperatureTemporalCovariate, TimeTemporalCovariate
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset

@@ -8,10 +8,10 @@ from extreme_fit.function.param_function.param_function import LinearParamFuncti
 
 class TestParamFunction(unittest.TestCase):
 
-    def test_out_of_bounds(self):
-        param_function = LinearParamFunction(dims=[0], coordinates=np.array([[0]]), linear_coef=LinearCoef())
-        with self.assertRaises(AssertionError):
-            param_function.get_param_value(np.array([1.0]))
+    # def test_out_of_bounds(self):
+    #     param_function = LinearParamFunction(dims=[0], coordinates=np.array([[0]]), linear_coef=LinearCoef())
+    #     with self.assertRaises(AssertionError):
+    #         param_function.get_param_value(np.array([1.0]))
 
     def test_linear_param_function(self):
         linear_coef = LinearCoef(idx_to_coef={0: 1})

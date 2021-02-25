@@ -8,12 +8,12 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
-from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import \
-    get_altitude_class_from_altitudes, get_linestyle_for_altitude_class
-from projects.projected_snowfall.elevation_temporal_model_for_projections.independent_ensemble_fit.independent_ensemble_fit import \
+from extreme_trend.elevation_temporal_model_for_projections.independent_ensemble_fit.independent_ensemble_fit import \
     IndependentEnsembleFit
-from projects.projected_snowfall.elevation_temporal_model_for_projections.visualizer_for_projection_ensemble import \
+from extreme_trend.elevation_temporal_model_for_projections.visualizer_for_projection_ensemble import \
     VisualizerForProjectionEnsemble
+from extreme_trend.one_fold_analysis.altitude_group import get_altitude_class_from_altitudes, \
+    get_linestyle_for_altitude_class
 
 
 class VisualizerForSensivity(object):

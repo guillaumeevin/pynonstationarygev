@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np
 
-from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import OneFoldFit
+from extreme_trend.one_fold_analysis.one_fold_fit import OneFoldFit
 
 
 class OneFoldFitMerge(OneFoldFit):

@@ -9,7 +9,7 @@ from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_gr
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.utils_altitude_studies_visualizer import compute_and_assign_max_abs
-from projects.projected_snowfall.elevation_temporal_model_for_projections.independent_ensemble_fit.independent_ensemble_fit import \
+from extreme_trend.elevation_temporal_model_for_projections.independent_ensemble_fit import \
     IndependentEnsembleFit
 
 
