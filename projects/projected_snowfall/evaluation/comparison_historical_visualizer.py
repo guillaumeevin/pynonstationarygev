@@ -10,9 +10,8 @@ from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm
 from extreme_data.meteo_france_data.adamont_data.adamont_studies import AdamontStudies
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
-    SCM_STUDY_CLASS_TO_ABBREVIATION, ADAMONT_STUDY_CLASS_TO_ABBREVIATION
+    ADAMONT_STUDY_CLASS_TO_ABBREVIATION
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
-from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
 
 
 class ComparisonHistoricalVisualizer(StudyVisualizer):

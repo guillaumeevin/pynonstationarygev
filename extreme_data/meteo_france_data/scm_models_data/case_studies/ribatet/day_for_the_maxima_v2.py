@@ -1,16 +1,10 @@
 import pandas as pd
 import numpy as np
-import xlsxwriter
 
-
-from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSwe3Days
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days
-from extreme_data.meteo_france_data.scm_models_data.utils import FrenchRegion
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION
-from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
-from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
+from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 
 
 def generate_excel_with_annual_maxima(fast=True, maxima_dates=False):

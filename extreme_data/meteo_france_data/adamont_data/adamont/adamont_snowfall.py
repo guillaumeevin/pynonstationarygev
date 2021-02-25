@@ -1,13 +1,7 @@
-import numpy as np
-
 from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_variables import \
     SafranSnowfallSimulationVariable
-from extreme_data.meteo_france_data.scm_models_data.abstract_study import YEAR_MIN, YEAR_MAX
-from extreme_data.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
-from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariable
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario
 from extreme_data.meteo_france_data.scm_models_data.utils import Season, FrenchRegion
 
 

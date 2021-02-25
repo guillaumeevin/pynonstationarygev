@@ -10,7 +10,7 @@ from extreme_data.meteo_france_data.scm_models_data.safran.gap_between_study imp
     GapBetweenSafranSnowfall2019AndMySafranSnowfall2019RecenteredMeanRate
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     STUDY_CLASS_TO_ABBREVIATION
-from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
+from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 
 
 def comparison_plot(altitude_studies: AltitudesStudies, massif_name):

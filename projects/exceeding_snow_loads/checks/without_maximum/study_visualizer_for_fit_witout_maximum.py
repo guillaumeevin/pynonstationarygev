@@ -4,7 +4,7 @@ import numpy as np
 from cached_property import cached_property
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import \
+from extreme_trend.trend_test.visualizers import \
     StudyVisualizerForNonStationaryTrends
 
 

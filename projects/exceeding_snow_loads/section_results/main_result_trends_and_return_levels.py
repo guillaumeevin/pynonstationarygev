@@ -2,9 +2,6 @@ from multiprocessing.pool import Pool
 
 import matplotlib as mpl
 
-from projects.exceeding_snow_loads.checks.qqplot.plot_qqplot import \
-    plot_intensity_against_gumbel_quantile_for_3_examples, plot_full_diagnostic
-from projects.exceeding_snow_loads.section_results.plot_selection_curves import plot_selection_curves
 from projects.exceeding_snow_loads.section_results.plot_trend_curves import plot_trend_map, plot_trend_curves
 from projects.exceeding_snow_loads.section_results.plot_uncertainty_histogram import plot_uncertainty_histogram
 
@@ -14,10 +11,9 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoadEurocode
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
-from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import \
+from extreme_trend.trend_test.visualizers import \
     StudyVisualizerForNonStationaryTrends, ModelSubsetForUncertainty
-from extreme_trend.visualizers.utils import load_altitude_to_visualizer
-from projects.exceeding_snow_loads.section_results.plot_uncertainty_curves import plot_uncertainty_massifs
+from extreme_trend.trend_test.visualizers import load_altitude_to_visualizer
 from projects.exceeding_snow_loads.utils import paper_study_classes, paper_altitudes
 from root_utils import NB_CORES
 

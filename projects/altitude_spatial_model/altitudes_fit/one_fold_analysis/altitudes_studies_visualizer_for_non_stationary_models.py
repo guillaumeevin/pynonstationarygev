@@ -1,20 +1,16 @@
 from collections import Counter
 from math import ceil, floor
-from multiprocessing import Pool
 from typing import List, Dict
 
 import matplotlib
 import matplotlib.pyplot as plt
 
 import numpy as np
-from cached_property import cached_property
 
-from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map, \
-    get_colors, ticks_values_and_labels_for_percentages, get_half_colormap, ticks_values_and_labels_for_positive_value, \
-    get_inverse_colormap, get_cmap_with_inverted_blue_and_green_channels, remove_the_extreme_colors
+from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_inverse_colormap, \
+    remove_the_extreme_colors
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
-    SCM_STUDY_CLASS_TO_ABBREVIATION, ALL_ALTITUDES_WITHOUT_NAN
+    SCM_STUDY_CLASS_TO_ABBREVIATION
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -23,16 +19,14 @@ from extreme_fit.function.param_function.linear_coef import LinearCoef
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
-from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
+from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import \
-    get_altitude_group_from_altitudes, HighAltitudeGroup, VeyHighAltitudeGroup, MidAltitudeGroup
+    get_altitude_group_from_altitudes, VeyHighAltitudeGroup, MidAltitudeGroup
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.one_fold_fit import \
     OneFoldFit
-from root_utils import NB_CORES
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     AnomalyTemperatureTemporalCovariate
-from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
 
 class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):

@@ -7,18 +7,15 @@ from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import 
     get_year_min_and_year_max_used_to_compute_quantile, gcm_rcm_couple_to_color
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, \
     gcm_rcm_couple_to_str, get_gcm_rcm_couples
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, \
-    SafranSnowfallCenterOnDay1dayMeanRate, SafranSnowfallCenterOnDay1day
-from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
-    SafranSnowfall2019
-from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariableCenterOnDay
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020
 
 matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     STUDY_CLASS_TO_ABBREVIATION
-from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
+from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 
 
 def compute_bias_and_display_it(ax,

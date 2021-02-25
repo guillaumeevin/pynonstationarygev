@@ -3,7 +3,7 @@ from typing import Dict
 import pandas as pd
 
 from extreme_data.eurocode_data.utils import EUROCODE_ALTITUDES
-from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import \
+from extreme_trend.trend_test.visualizers import \
     StudyVisualizerForNonStationaryTrends, ModelSubsetForUncertainty
 
 

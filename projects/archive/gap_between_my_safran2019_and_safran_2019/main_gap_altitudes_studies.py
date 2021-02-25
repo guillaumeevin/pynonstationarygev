@@ -7,7 +7,7 @@ import matplotlib
 from extreme_data.meteo_france_data.scm_models_data.safran.gap_between_study import GapBetweenSafranSnowfall2019And2020, \
     GapBetweenSafranSnowfall2019AndMySafranSnowfall2019Recentered, \
     GapBetweenSafranSnowfall2019AndMySafranSnowfall2019NotRecentered
-from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
+from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 
 matplotlib.use('Agg')
 

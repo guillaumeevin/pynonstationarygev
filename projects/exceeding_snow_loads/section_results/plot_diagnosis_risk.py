@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
-from extreme_trend.visualizers.study_visualizer_for_non_stationary_trends import ModelSubsetForUncertainty
+from extreme_trend.trend_test.visualizers import ModelSubsetForUncertainty
 
 
 def plot_diagnosis_risk(altitude_to_visualizer):

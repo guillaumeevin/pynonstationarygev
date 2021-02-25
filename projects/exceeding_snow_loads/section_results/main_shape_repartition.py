@@ -1,7 +1,7 @@
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
-from extreme_trend.visualizers.study_visualizer_for_shape_repartition import \
+from extreme_trend.trend_test.visualizers import \
     StudyVisualizerForShape
-from extreme_trend.visualizers.utils import load_altitude_to_visualizer
+from extreme_trend.trend_test.visualizers import load_altitude_to_visualizer
 
 
 def main_shape_repartition(altitudes, massif_names=None,

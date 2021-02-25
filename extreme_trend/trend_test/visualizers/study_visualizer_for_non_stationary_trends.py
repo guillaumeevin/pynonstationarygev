@@ -1,7 +1,7 @@
 from collections import OrderedDict, Counter
 from enum import Enum
 from multiprocessing.pool import Pool
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,15 +18,10 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_study import Abstra
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
 from projects.exceeding_snow_loads.utils import NON_STATIONARY_TREND_TEST_PAPER_1, ALTITUDE_TO_GREY_MASSIF
-from extreme_trend.abstract_gev_trend_test import AbstractGevTrendTest
-from extreme_trend.trend_test_one_parameter.gumbel_trend_test_one_parameter import \
-    GumbelLocationTrendTest, GevStationaryVersusGumbel, GumbelScaleTrendTest, GumbelVersusGumbel
-from extreme_trend.trend_test_two_parameters.gumbel_test_two_parameters import \
-    GumbelLocationAndScaleTrendTest
+from extreme_trend.trend_test.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import GumbelTemporalModel, \
-    StationaryTemporalModel
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import GumbelTemporalModel
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \

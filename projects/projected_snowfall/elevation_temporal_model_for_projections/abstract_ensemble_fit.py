@@ -1,8 +1,7 @@
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple
 
 from extreme_fit.model.margin_model.utils import MarginFitMethod
-from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
-from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitude_group import DefaultAltitudeGroup
+from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 
 
 class AbstractEnsembleFit(object):

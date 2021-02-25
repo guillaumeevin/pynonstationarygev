@@ -6,7 +6,7 @@ import pandas as pd
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.polynomial_margin_model.polynomial_margin_model import NonStationaryQuadraticLocationModel, \
     NonStationaryQuadraticScaleModel, NonStationaryQuadraticLocationGumbelModel, NonStationaryQuadraticScaleGumbelModel
-from extreme_trend.abstract_gev_trend_test import fitted_linear_margin_estimator
+from extreme_trend.trend_test.abstract_gev_trend_test import fitted_linear_margin_estimator
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from extreme_fit.model.utils import r, set_seed_r

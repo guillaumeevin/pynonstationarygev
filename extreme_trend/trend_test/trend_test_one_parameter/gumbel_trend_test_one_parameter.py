@@ -1,6 +1,6 @@
 # Comparison with the Gumbel model
 from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE
-from extreme_trend.trend_test_one_parameter.gev_trend_test_one_parameter import \
+from extreme_trend.trend_test.trend_test_one_parameter.gev_trend_test_one_parameter import \
     GevTrendTestOneParameter, GevTrendTestOneParameterAgainstStationary
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.utils import \

@@ -1,16 +1,9 @@
 import unittest
-from random import sample
 
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranPrecipitation1Day
-from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import \
-    NonStationaryAltitudinalLocationQuadraticScaleLinearCrossTermForLocation, \
-    NonStationaryAltitudinalLocationQuadraticCrossTermForLocation, NonStationaryAltitudinalLocationLinear, \
-    NonStationaryAltitudinalLocationLinearCrossTermForLocation
-from extreme_fit.model.margin_model.polynomial_margin_model.utils import ALTITUDINAL_GEV_MODELS, \
-    MODELS_THAT_SHOULD_RAISE_AN_ASSERTION_ERROR, VARIOUS_SPATIO_TEMPORAL_MODELS, ALTITUDINAL_GUMBEL_MODELS
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
-from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
+from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.two_fold_datasets_generator import \
     TwoFoldDatasetsGenerator
 from projects.altitude_spatial_model.altitudes_fit.two_fold_analysis.two_fold_fit import TwoFoldFit

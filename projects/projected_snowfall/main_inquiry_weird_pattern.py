@@ -1,6 +1,6 @@
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario
-from projects.altitude_spatial_model.altitudes_fit.altitudes_studies import AltitudesStudies
+from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 
 def main_rcm():
     for rcm in ['CCLM4-8-17', 'RACMO22E', 'RCA4', 'ALADIN63', 'ALADIN53']:

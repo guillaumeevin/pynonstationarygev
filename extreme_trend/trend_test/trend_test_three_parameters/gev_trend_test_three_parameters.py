@@ -3,7 +3,7 @@ from extreme_fit.model.margin_model.polynomial_margin_model.polynomial_margin_mo
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE
-from extreme_trend.abstract_gev_trend_test import AbstractGevTrendTest
+from extreme_trend.trend_test.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationAndScaleTemporalModel, GumbelTemporalModel, StationaryTemporalModel, \
     NonStationaryLocationAndScaleAndShapeTemporalModel
