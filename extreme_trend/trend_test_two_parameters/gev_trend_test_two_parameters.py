@@ -91,13 +91,6 @@ class GevLocationAndScaleTrendTest(GevTrendTestTwoParametersAgainstGev):
         return self.unconstrained_estimator_gev_params_last_year.time_derivative_of_return_level(p=self.quantile_level,
                                                                                                  mu1=self.mu1,
                                                                                                  sigma1=self.sigma1)
-
-    @property
-    def mean_difference_same_sign_as_slope_strenght(self) -> bool:
-        zeta0 = self.unconstrained_estimator_gev_params_last_year.shape
-        mean_difference = self.mean_difference(zeta0=zeta0, mu1=self.mu1, sigma1=self.sigma1)
-        return self.same_sign(mean_difference, self._slope_strength())
-
     @property
     def variance_difference_same_sign_as_slope_strenght(self) -> bool:
         return self.same_sign(self.sigma1, self._slope_strength())

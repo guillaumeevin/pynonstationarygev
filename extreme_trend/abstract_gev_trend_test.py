@@ -164,15 +164,8 @@ class AbstractGevTrendTest(object):
         return (a > 0 and b > 0) or (a < 0 and b < 0)
 
     @property
-    def mean_difference_same_sign_as_slope_strenght(self) -> bool:
-        return False
-
-    @property
     def variance_difference_same_sign_as_slope_strenght(self) -> bool:
         return False
-
-    def mean_difference(self, zeta0: float, mu1: float = 0.0, sigma1: float = 0.0) -> float:
-        return GevParams(loc=mu1, scale=sigma1, shape=zeta0, accept_zero_scale_parameter=True).mean
 
     @property
     def test_trend_constant_quantile(self):

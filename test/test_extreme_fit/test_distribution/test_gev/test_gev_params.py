@@ -27,9 +27,9 @@ class TestGevParams(unittest.TestCase):
     def test_time_derivative_return_level(self):
         p = 0.99
         for mu1 in [-1, 0, 1]:
-            for sigma1 in [0, 1, 10]:
+            for sigma1 in [1, 10]:
                 for shape in [-1, 0, 1]:
-                    params = GevParams(loc=mu1, scale=sigma1, shape=shape, accept_zero_scale_parameter=True)
+                    params = GevParams(loc=mu1, scale=sigma1, shape=shape)
                     quantile = params.quantile(p)
                     time_derivative = params.time_derivative_of_return_level(p, mu1, sigma1)
                     self.assertEqual(quantile, time_derivative)

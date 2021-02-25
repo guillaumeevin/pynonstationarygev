@@ -20,11 +20,9 @@ class GevParams(AbstractExtremeParams):
     SUMMARY_NAMES = PARAM_NAMES + AbstractParams.QUANTILE_NAMES
     NB_SUMMARY_NAMES = len(SUMMARY_NAMES)
 
-    def __init__(self, loc: float, scale: float, shape: float, block_size: int = None, accept_zero_scale_parameter=False):
+    def __init__(self, loc: float, scale: float, shape: float, block_size: int = None):
         super().__init__(loc, scale, shape)
         self.block_size = block_size
-        if accept_zero_scale_parameter and scale == 0.0:
-            self.has_undefined_parameters = False
         self.param_name_to_confidence_interval = None
 
     @nan_if_undefined_wrapper
