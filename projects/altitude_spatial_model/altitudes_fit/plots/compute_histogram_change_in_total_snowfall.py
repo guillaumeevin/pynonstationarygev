@@ -3,10 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall
+from extreme_fit.utils import fit_linear_regression
 from projects.altitude_spatial_model.altitudes_fit.one_fold_analysis.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
-from projects.contrasting_trends_in_snow_loads.article2_snowfall_versus_time_and_altitude.snowfall_plot import \
-    fit_linear_regression
 
 
 def compute_changes_in_total_snowfall(visualizer_list: List[

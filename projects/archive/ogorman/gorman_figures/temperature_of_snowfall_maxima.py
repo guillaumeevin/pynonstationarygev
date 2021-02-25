@@ -11,7 +11,7 @@ import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranTemperature, \
     SafranPrecipitation1Day
-from projects.ogorman.gorman_figures.daily_snowfall_fraction import \
+from projects.archive.ogorman.gorman_figures import \
     compute_daily_snowfall_fraction
 
 

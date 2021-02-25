@@ -5,10 +5,10 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranS
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import ALL_ALTITUDES_WITHOUT_NAN
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
-from projects.ogorman.gorman_figures.figure1 import \
+from projects.archive.ogorman.gorman_figures import \
     ComparativeCurveWrtAltitude
 
-from projects.ogorman.gorman_figures.figure1.study_visualizer_for_double_stationary_fit import \
+from projects.archive.ogorman.gorman_figures import \
     StudyVisualizerForReturnLevelChange
 
 

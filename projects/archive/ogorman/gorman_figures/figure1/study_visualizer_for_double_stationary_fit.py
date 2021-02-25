@@ -1,15 +1,12 @@
 import matplotlib
 
-from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map, \
-    get_colors, ticks_values_and_labels_for_percentages
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.model.margin_model.utils import \
-    MarginFitMethod, fitmethod_to_str
+    MarginFitMethod
 
 import matplotlib.pyplot as plt
 
-from projects.ogorman.gorman_figures.figure1.result_from_stationary_fit import ResultFromDoubleStationaryFit
+from projects.archive.ogorman.gorman_figures.figure1.result_from_stationary_fit import ResultFromDoubleStationaryFit
 
 
 class StudyVisualizerForReturnLevelChange(StudyVisualizer):

@@ -6,7 +6,7 @@ import numpy as np
 
 from cached_property import cached_property
 
-from projects.ogorman.gorman_figures.figure1.study_visualizer_for_double_stationary_fit import \
+from projects.archive.ogorman.gorman_figures import \
     StudyVisualizerForReturnLevelChange
 
 
