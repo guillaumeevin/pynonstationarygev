@@ -17,6 +17,13 @@ class TestGevParams(unittest.TestCase):
         for quantile_name, p in gev_params.quantile_name_to_p.items():
             self.assertAlmostEqual(- 1 / np.log(p), quantile_dict[quantile_name])
 
+    def test_wrapper(self):
+        gev_params = GevParams(loc=1.0, shape=1.0, scale=-1.0)
+        self.assertTrue(np.isnan(gev_params.quantile(p=0.5)))
+        self.assertTrue(np.isnan(gev_params.sample(n=10)))
+        self.assertTrue(np.isnan(gev_params.param_values))
+        self.assertTrue(np.isnan(gev_params.density(x=1.5)))
+
     def test_time_derivative_return_level(self):
         p = 0.99
         for mu1 in [-1, 0, 1]:
