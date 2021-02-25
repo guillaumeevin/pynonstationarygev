@@ -20,7 +20,7 @@ from extreme_fit.model.utils import set_seed_for_test
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
-from extreme_trend.one_fold_analysis.altitude_group import altitudes_for_groups
+from extreme_trend.one_fold_fit.altitude_group import altitudes_for_groups
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days, \
     SafranSnowfall5Days, SafranSnowfall7Days

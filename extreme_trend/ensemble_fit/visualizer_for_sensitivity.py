@@ -12,7 +12,7 @@ from extreme_trend.elevation_temporal_model_for_projections.independent_ensemble
     IndependentEnsembleFit
 from extreme_trend.elevation_temporal_model_for_projections.visualizer_for_projection_ensemble import \
     VisualizerForProjectionEnsemble
-from extreme_trend.one_fold_analysis.altitude_group import get_altitude_class_from_altitudes, \
+from extreme_trend.one_fold_fit.altitude_group import get_altitude_class_from_altitudes, \
     get_linestyle_for_altitude_class
 
 

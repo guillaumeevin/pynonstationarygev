@@ -20,12 +20,12 @@ from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_poly
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_trend.one_fold_analysis.altitude_group import \
+from extreme_trend.one_fold_fit.altitude_group import \
     get_altitude_group_from_altitudes, VeyHighAltitudeGroup, MidAltitudeGroup
-from extreme_trend.one_fold_analysis.one_fold_fit import \
+from extreme_trend.one_fold_fit.one_fold_fit import \
     OneFoldFit
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
+from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureTemporalCovariate
 
 

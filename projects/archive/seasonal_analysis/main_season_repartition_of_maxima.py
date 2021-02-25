@@ -6,7 +6,7 @@ import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_trend.one_fold_analysis.altitude_group import altitudes_for_groups, \
+from extreme_trend.one_fold_fit.altitude_group import altitudes_for_groups, \
     get_altitude_group_from_altitudes
 
 

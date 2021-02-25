@@ -7,6 +7,10 @@ import matplotlib as mpl
 from extreme_trend.elevation_temporal_model_for_projections.visualizer_for_sensitivity import \
     VisualizerForSensivity
 
+from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
+from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
+    AnomalyTemperatureTemporalCovariate
+
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
@@ -20,17 +24,14 @@ from extreme_fit.model.utils import set_seed_for_test
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples, \
     rcp_scenarios
-from extreme_trend.elevation_temporal_model_for_projections.independent_ensemble_fit import \
-    IndependentEnsembleFit
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
-    AnomalyTemperatureTemporalCovariate, TimeTemporalCovariate
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import TimeTemporalCovariate
 
 matplotlib.use('Agg')
 
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
 
-from extreme_trend.one_fold_analysis.altitude_group import altitudes_for_groups
+from extreme_trend.one_fold_fit.altitude_group import altitudes_for_groups
 
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 

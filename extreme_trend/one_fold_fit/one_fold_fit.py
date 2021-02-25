@@ -27,10 +27,11 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_int
     ConfidenceIntervalMethodFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     EurocodeConfidenceIntervalFromExtremes
-from extreme_trend.one_fold_analysis.altitude_group import DefaultAltitudeGroup, altitudes_for_groups
+from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup, altitudes_for_groups
 from root_utils import NB_CORES, batch
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
-    AnomalyTemperatureTemporalCovariate, TimeTemporalCovariate
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import TimeTemporalCovariate
+from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
+    AnomalyTemperatureTemporalCovariate
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.slicer.split import Split
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima

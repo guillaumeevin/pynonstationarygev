@@ -4,7 +4,7 @@ import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall
 from extreme_fit.utils import fit_linear_regression
-from extreme_trend.one_fold_analysis.altitudes_studies_visualizer_for_non_stationary_models import \
+from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
 
 

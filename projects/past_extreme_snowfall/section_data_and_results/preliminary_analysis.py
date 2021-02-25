@@ -14,7 +14,7 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualiz
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.utils import fit_linear_regression
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_trend.one_fold_analysis.altitude_group import altitudes_for_groups
+from extreme_trend.one_fold_fit.altitude_group import altitudes_for_groups
 
 
 class PointwiseGevStudyVisualizer(AltitudesStudies):

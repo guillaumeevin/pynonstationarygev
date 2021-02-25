@@ -13,10 +13,10 @@ from matplotlib.lines import Line2D
 
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
-from extreme_trend.one_fold_analysis.altitudes_studies_visualizer_for_non_stationary_models import \
+from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
-from extreme_trend.one_fold_analysis.one_fold_fit import OneFoldFit
-from extreme_trend.one_fold_analysis.plots.compute_histogram_change_in_total_snowfall import \
+from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
+from extreme_trend.one_fold_fit.plots.compute_histogram_change_in_total_snowfall import \
     compute_changes_in_total_snowfall
 
 

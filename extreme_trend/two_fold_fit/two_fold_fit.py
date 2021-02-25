@@ -4,9 +4,9 @@ from cached_property import cached_property
 
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
-from extreme_trend.two_fold_analysis.two_fold_datasets_generator import TwoFoldDatasetsGenerator
-from extreme_trend.two_fold_analysis.two_fold_detail_fit import TwoFoldMassifFit
-from extreme_trend.two_fold_analysis.utils import Score, Grouping
+from extreme_trend.two_fold_fit.two_fold_datasets_generator import TwoFoldDatasetsGenerator
+from extreme_trend.two_fold_fit.two_fold_detail_fit import TwoFoldMassifFit
+from extreme_trend.two_fold_fit.utils import Score, Grouping
 
 
 class TwoFoldFit(object):

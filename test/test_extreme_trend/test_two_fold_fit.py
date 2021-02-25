@@ -7,11 +7,11 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranS
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import ConstantMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.utils import set_seed_for_test
-from extreme_trend.two_fold_analysis.two_fold_datasets_generator import \
+from extreme_trend.two_fold_fit.two_fold_datasets_generator import \
     TwoFoldDatasetsGenerator
-from extreme_trend.two_fold_analysis.two_fold_detail_fit import TwoFoldModelFit
-from extreme_trend.two_fold_analysis.two_fold_fit import TwoFoldFit
-from extreme_trend.two_fold_analysis.utils import Score
+from extreme_trend.two_fold_fit.two_fold_detail_fit import TwoFoldModelFit
+from extreme_trend.two_fold_fit.two_fold_fit import TwoFoldFit
+from extreme_trend.two_fold_fit.utils import Score
 from spatio_temporal_dataset.slicer.split import Split
 
 

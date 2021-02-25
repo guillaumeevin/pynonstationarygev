@@ -1,8 +1,8 @@
 import numpy as np
 
-from extreme_trend.one_fold_analysis.altitudes_studies_visualizer_for_non_stationary_models import \
+from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
-from extreme_trend.one_fold_analysis.one_fold_fit import OneFoldFit
+from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from extreme_trend.elevation_temporal_model_for_projections.abstract_ensemble_fit import \
     AbstractEnsembleFit
 from extreme_trend.elevation_temporal_model_for_projections.independent_ensemble_fit import \

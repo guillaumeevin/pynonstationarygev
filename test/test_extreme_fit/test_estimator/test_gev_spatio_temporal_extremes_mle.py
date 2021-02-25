@@ -4,9 +4,9 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranS
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_trend.two_fold_analysis.two_fold_datasets_generator import \
+from extreme_trend.two_fold_fit.two_fold_datasets_generator import \
     TwoFoldDatasetsGenerator
-from extreme_trend.two_fold_analysis.two_fold_fit import TwoFoldFit
+from extreme_trend.two_fold_fit.two_fold_fit import TwoFoldFit
 
 
 class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
