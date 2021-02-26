@@ -32,8 +32,11 @@ class AbstractAdamontVariable(AbstractVariable):
         return indicator_name.replace('-', '_').capitalize()
 
     @classmethod
-    def transform_annual_maxima(cls, annual_maxima):
-        return annual_maxima
+    def transform_annual_maxima(cls, annual_maxima_data, maxima_date):
+        if maxima_date:
+            return annual_maxima_data.astype(int)
+        else:
+            return annual_maxima_data
 
 
 class SafranSnowfallSimulationVariable(AbstractAdamontVariable):
@@ -85,5 +88,9 @@ class CrocusTotalSnowLoadVariable(CrocusSweSimulationVariable):
     UNIT = TotalSnowLoadVariable.UNIT
 
     @classmethod
-    def transform_annual_maxima(cls, annual_maxima):
-        return AbstractSnowLoadVariable.transform_swe_into_snow_load(annual_maxima)
+    def transform_annual_maxima(cls, annual_maxima_data, maxima_date):
+        annual_maxima_data = super().transform_annual_maxima(annual_maxima_data, maxima_date)
+        if maxima_date:
+            return annual_maxima_data
+        else:
+            return AbstractSnowLoadVariable.transform_swe_into_snow_load(annual_maxima_data)

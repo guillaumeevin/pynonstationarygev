@@ -98,9 +98,7 @@ class AbstractAdamontStudy(AbstractStudy):
         datasets = self.datasets_for_dates if maxima_date else self.datasets
         for dataset, real_scenario in zip(datasets, self.adamont_real_scenarios):
             annual_maxima_data = np.array(dataset.variables[self.indicator_name(maxima_date)])
-            # Add potential transformation for the maxima
-            if not maxima_date:
-                annual_maxima_data = self.variable_class.transform_annual_maxima(annual_maxima_data)
+            annual_maxima_data = self.variable_class.transform_annual_maxima(annual_maxima_data, maxima_date)
             assert annual_maxima_data.shape[1] == len(self.column_mask)
             annual_maxima_data = annual_maxima_data[:, self.column_mask]
             year_min, year_max = get_year_min_and_year_max_from_scenario(real_scenario, self.gcm_rcm_couple)
