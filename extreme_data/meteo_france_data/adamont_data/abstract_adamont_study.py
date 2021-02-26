@@ -60,7 +60,8 @@ class AbstractAdamontStudy(AbstractStudy):
                          multiprocessing=multiprocessing, season=season, french_region=french_region)
         self.adamont_version = adamont_version
         self.gcm_rcm_couple = gcm_rcm_couple
-        self.gcm_rcm_full_name = get_gcm_rcm_couple_adamont_to_full_name(adamont_version=self.adamont_version)[gcm_rcm_couple]
+        self.gcm_rcm_full_name = get_gcm_rcm_couple_adamont_to_full_name(adamont_version=self.adamont_version)[
+            gcm_rcm_couple]
         self.scenario = scenario
         assert issubclass(self.variable_class, AbstractAdamontVariable)
         # Assert the massif_name are in the same order
@@ -77,17 +78,31 @@ class AbstractAdamontStudy(AbstractStudy):
         if self.adamont_version == 1:
             return super().year_to_annual_maxima
         else:
-            return self.load_year_to_annual_maxima_version_2()
+            return self.load_year_to_annual_maxima_data_version_2(maxima_date=False)
+
+    @cached_property
+    def year_to_annual_maxima_index(self) -> OrderedDict:
+        if self.adamont_version == 1:
+            return super().year_to_annual_maxima_index
+        else:
+            return self.load_year_to_annual_maxima_data_version_2(maxima_date=True)
 
     # Loading part for adamont v2
 
-    def load_year_to_annual_maxima_version_2(self):
-        year_to_annual_maxima = OrderedDict()
-        for dataset, real_scenario in zip(self.datasets, self.adamont_real_scenarios):
-            annual_maxima = np.array(dataset.variables[self.variable_class.indicator_name_for_maxima])
-            annual_maxima = self.variable_class.transform_annual_maxima(annual_maxima)
-            assert annual_maxima.shape[1] == len(self.column_mask)
-            annual_maxima = annual_maxima[:, self.column_mask]
+    @cached_property
+    def datasets_for_dates(self):
+        return [self._load_dataset(scenario, maxima_date=True) for scenario in self.adamont_real_scenarios]
+
+    def load_year_to_annual_maxima_data_version_2(self, maxima_date):
+        year_to_annual_maxima_data = OrderedDict()
+        datasets = self.datasets_for_dates if maxima_date else self.datasets
+        for dataset, real_scenario in zip(datasets, self.adamont_real_scenarios):
+            annual_maxima_data = np.array(dataset.variables[self.indicator_name(maxima_date)])
+            # Add potential transformation for the maxima
+            if not maxima_date:
+                annual_maxima_data = self.variable_class.transform_annual_maxima(annual_maxima_data)
+            assert annual_maxima_data.shape[1] == len(self.column_mask)
+            annual_maxima_data = annual_maxima_data[:, self.column_mask]
             year_min, year_max = get_year_min_and_year_max_from_scenario(real_scenario, self.gcm_rcm_couple)
             years = list(range(year_min, year_max + 1))
             time = np.array(dataset.variables['time'])
@@ -99,36 +114,43 @@ class AbstractAdamontStudy(AbstractStudy):
             # dates = [start + timedelta(hours=int(h)) for h in time]
             # print(["{}-{}".format(date.year-1, date.year) for date in dates])
             assert len(years) == len(time), msg
-            for year, maxima in zip(years, annual_maxima):
+            for year, maxima in zip(years, annual_maxima_data):
                 if self.year_min <= year <= self.year_max:
-                    year_to_annual_maxima[year] = maxima
-        return year_to_annual_maxima
+                    year_to_annual_maxima_data[year] = maxima
+        return year_to_annual_maxima_data
 
-    def _load_dataset(self, scenario):
+    def _load_dataset(self, scenario, maxima_date):
         scenario_name = scenario_to_str(scenario)
-        nc_filename = self.nc_filename_adamont_v2(scenario)
-        nc_folder = op.join(ADAMONT_v2_PATH, self.variable_folder_name, scenario_name)
+        nc_filename = self.nc_filename_adamont_v2(scenario, maxima_date)
+        nc_folder = op.join(ADAMONT_v2_PATH, self.variable_folder_name(maxima_date), scenario_name)
         nc_filepath = op.join(nc_folder, nc_filename)
         # Assert that the file is present, otherwise download it
         if not op.exists(nc_filepath):
-            self._download_year_to_annual_maxima_version_2(scenario, nc_folder)
+            self._download_year_to_annual_maxima_version_2(scenario, nc_folder, maxima_date)
         # Load the file
         dataset = Dataset(filename=nc_filepath)
         return dataset
 
-    def _download_year_to_annual_maxima_version_2(self, scenario, path_folder):
+    def _download_year_to_annual_maxima_version_2(self, scenario, path_folder, maxima_date):
         scenario_name = self._scenario_to_str_adamont_v2(scenario)
         directory = self.gcm_rcm_full_name + '_' + scenario_name
-        filename = self.nc_filename_adamont_v2(scenario)
+        filename = self.nc_filename_adamont_v2(scenario, maxima_date)
         full_path = op.join(ADAMONT_v2_WEBPATH, directory, filename)
         # Download file
         request = 'wget {} -P {}'.format(full_path, path_folder)
         print(request)
         subprocess.run(request, shell=True)
 
-    def nc_filename_adamont_v2(self, scenario):
+    def nc_filename_adamont_v2(self, scenario, maxima_date):
         scenario_name = self._scenario_to_str_adamont_v2(scenario)
-        return '_'.join([self.variable_class.indicator_name_for_maxima, self.gcm_rcm_full_name, scenario_name]) + '.nc'
+        indicator_name = self.indicator_name(maxima_date)
+        return '_'.join([indicator_name, self.gcm_rcm_full_name, scenario_name]) + '.nc'
+
+    def indicator_name(self, maxima_date) -> str:
+        if maxima_date:
+            return self.variable_class.indicator_name_for_maxima_date
+        else:
+            return self.variable_class.indicator_name_for_maxima
 
     def _scenario_to_str_adamont_v2(self, scenario):
         scenario_name = scenario_to_str(scenario)
@@ -210,13 +232,12 @@ class AbstractAdamontStudy(AbstractStudy):
         if self.adamont_version == 1:
             return [Dataset(file_path) for file_path in self.nc_file_paths]
         else:
-            return [self._load_dataset(scenario) for scenario in self.adamont_real_scenarios]
+            return [self._load_dataset(scenario, maxima_date=False) for scenario in self.adamont_real_scenarios]
 
     # PATHS
 
-    @property
-    def variable_folder_name(self):
-        return self.variable_class.variable_name_for_folder_and_nc_file()
+    def variable_folder_name(self, annual_maxima_date=False):
+        return self.variable_class.variable_folder_name(annual_maxima_date)
 
     @property
     def region_name(self):
@@ -232,7 +253,7 @@ class AbstractAdamontStudy(AbstractStudy):
 
     @property
     def nc_files_paths(self):
-        return [op.join(ADAMONT_PATH, self.variable_folder_name, name) for name in self.scenario_names]
+        return [op.join(ADAMONT_PATH, self.variable_folder_name(), name) for name in self.scenario_names]
 
     @property
     def nc_file_paths(self):
@@ -240,7 +261,7 @@ class AbstractAdamontStudy(AbstractStudy):
         for scenario, scenario_name, files_path in zip(self.adamont_real_scenarios, self.scenario_names,
                                                        self.nc_files_paths):
             suffix_nc_file = get_suffix_for_the_nc_file(scenario, self.gcm_rcm_couple)
-            nc_file = '{}_FORCING_{}_{}_{}_{}.nc'.format(self.variable_folder_name, self.gcm_rcm_full_name,
+            nc_file = '{}_FORCING_{}_{}_{}_{}.nc'.format(self.variable_folder_name(), self.gcm_rcm_full_name,
                                                          scenario_name,
                                                          self.region_name, suffix_nc_file)
             file_paths.append(op.join(files_path, nc_file))

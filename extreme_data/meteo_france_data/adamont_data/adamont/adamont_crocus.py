@@ -26,3 +26,4 @@ if __name__ == '__main__':
         study = study_class(altitude=1800, adamont_version=2, gcm_rcm_couple=('HadGEM2-ES', 'RACMO22E'),
                                 scenario=AdamontScenario.rcp85_extended)
         print(study.year_to_annual_maxima[2000])
+        print(study.year_to_annual_maxima_index[2000])

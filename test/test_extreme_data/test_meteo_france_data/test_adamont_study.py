@@ -17,10 +17,10 @@ class TestAdamontStudy(unittest.TestCase):
         self.assertTrue(True)
 
     def test_load_adamont_swe(self):
-        self.load_many_study(AdamontSwe, version=2)
+        self.load_many_study(AdamontSwe, version=2, load_index=True)
         self.assertTrue(True)
 
-    def test_load_adamont_swe(self):
+    def test_load_adamont_snow_load(self):
         maxima = [study_class(altitude=1800, adamont_version=2, gcm_rcm_couple=('HadGEM2-ES', 'RACMO22E'),
                               scenario=AdamontScenario.rcp85_extended).year_to_annual_maxima[2000][0]
                   for study_class in [AdamontSwe, AdamontSnowLoad]]
@@ -28,7 +28,7 @@ class TestAdamontStudy(unittest.TestCase):
         snow_load_from_swe = swe * CrocusVariable.snow_load_multiplication_factor
         self.assertEqual(snow_load_from_swe, snow_load)
 
-    def load_many_study(self, adamont_study_class, version):
+    def load_many_study(self, adamont_study_class, version, load_index=False):
         study_list = [
             adamont_study_class(altitude=900, adamont_version=version),
             adamont_study_class(altitude=1800, adamont_version=version)
@@ -42,7 +42,9 @@ class TestAdamontStudy(unittest.TestCase):
         study_list.extend([adamont_study_class(altitude=900, gcm_rcm_couple=gcm_rcm_couple, adamont_version=version)
                            for gcm_rcm_couple in get_gcm_rcm_couples(adamont_version=version)])
         for study in study_list:
-            annual_maxima_for_year_min = study.year_to_annual_maxima[study.year_min]
+            _ = study.year_to_annual_maxima[study.year_min]
+            if load_index:
+                _ = study.year_to_annual_maxima_index[study.year_min]
 
     def test_massifs_names_adamont_v2(self):
         year_min = 2004
