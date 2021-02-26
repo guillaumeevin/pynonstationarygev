@@ -57,8 +57,11 @@ class AbstractSnowLoadVariable(CrocusVariable):
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:
-        snow_pressure = self.snow_load_multiplication_factor * super().daily_time_serie_array
-        return snow_pressure
+        return self.transform_swe_into_snow_load(super().daily_time_serie_array)
+
+    @classmethod
+    def transform_swe_into_snow_load(cls, swe):
+        return cls.snow_load_multiplication_factor * swe
 
 
 class RecentSnowLoadVariableOneDay(AbstractSnowLoadVariable, CrocusRecentSweVariableOneDay):

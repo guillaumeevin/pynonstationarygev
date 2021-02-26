@@ -1,6 +1,6 @@
 import unittest
 
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario
 from extreme_data.meteo_france_data.adamont_data.cmip5.temperature_to_year import temperature_minmax_to_year_minmax
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day

@@ -2,7 +2,7 @@ import time
 from collections import OrderedDict
 from typing import List
 
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, \
     ExtendedCrocusDepth, \

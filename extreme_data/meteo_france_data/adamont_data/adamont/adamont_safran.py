@@ -7,15 +7,8 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season, FrenchR
 
 class AdamontSnowfall(AbstractAdamontStudy):
 
-    def __init__(self, altitude: int = 1800,
-                 year_min=None, year_max=None,
-                 multiprocessing=True, season=Season.annual,
-                 french_region=FrenchRegion.alps,
-                 scenario=AdamontScenario.histo, gcm_rcm_couple=('CNRM-CM5', 'ALADIN53'),
-                 adamont_version=2):
-        super().__init__(SafranSnowfallSimulationVariable, altitude,
-                         year_min, year_max,
-                         multiprocessing, season, french_region, scenario, gcm_rcm_couple, adamont_version)
+    def __init__(self, *args, **kwargs):
+        super().__init__(SafranSnowfallSimulationVariable, *args, **kwargs)
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@ import numpy as np
 import os.path as op
 import matplotlib
 
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import \
     get_year_min_and_year_max_used_to_compute_quantile, gcm_rcm_couple_to_color
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, \

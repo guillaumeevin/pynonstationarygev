@@ -85,6 +85,7 @@ class AbstractAdamontStudy(AbstractStudy):
         year_to_annual_maxima = OrderedDict()
         for dataset, real_scenario in zip(self.datasets, self.adamont_real_scenarios):
             annual_maxima = np.array(dataset.variables[self.variable_class.indicator_name_for_maxima])
+            annual_maxima = self.variable_class.transform_annual_maxima(annual_maxima)
             assert annual_maxima.shape[1] == len(self.column_mask)
             annual_maxima = annual_maxima[:, self.column_mask]
             year_min, year_max = get_year_min_and_year_max_from_scenario(real_scenario, self.gcm_rcm_couple)

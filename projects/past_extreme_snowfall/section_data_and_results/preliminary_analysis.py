@@ -5,7 +5,7 @@ from itertools import chain
 import numpy as np
 
 from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import _gcm_rcm_couple_adamont_v2_to_full_name
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import get_gcm_rcm_couples, rcp_scenarios
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day

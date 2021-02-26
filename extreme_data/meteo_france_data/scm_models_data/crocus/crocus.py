@@ -134,7 +134,7 @@ class CrocusDaysWithSnowOnGround(Crocus):
 
 
 if __name__ == '__main__':
-    for study in [CrocusSwe3Days(altitude=900, orientation=90.0)]:
+    for study in [CrocusSnowLoadTotal(altitude=900, orientation=90.0)]:
         d = study.year_to_dataset_ordered_dict[1959]
         print(d)
         print(study.reanalysis_path)

@@ -9,7 +9,7 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 import matplotlib.pyplot as plt
 from projects.projected_extreme_snowfall.evaluation.comparison_plot import individual_plot
 
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples, \
     scenario_to_real_scenarios, rcp_scenarios, rcm_scenarios_extended
 from extreme_data.meteo_france_data.adamont_data.adamont_studies import AdamontStudies

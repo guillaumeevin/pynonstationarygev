@@ -21,7 +21,7 @@ from extreme_trend.elevation_temporal_model_for_projections.visualizer_for_proje
 import matplotlib
 from extreme_fit.model.utils import set_seed_for_test
 
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_snowfall import AdamontSnowfall
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples, \
     rcp_scenarios
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import TimeTemporalCovariate
