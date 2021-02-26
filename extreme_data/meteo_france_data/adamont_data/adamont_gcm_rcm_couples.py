@@ -121,7 +121,7 @@ gcm_rcm_couple_to_color = {
 gcm_to_color = {
     'CNRM-CM5': 'red',
 
-    'MPI-ESM-LR': 'blue',
+    'MPI-ESM-LR': 'tab:blue',
 
     'HadGEM2-ES': 'green',
 
@@ -129,6 +129,6 @@ gcm_to_color = {
 
     'IPSL-CM5A-MR': 'orange',
 
-    'NorESM1-M': 'yellow',
+    'NorESM1-M': 'y',
 }
 

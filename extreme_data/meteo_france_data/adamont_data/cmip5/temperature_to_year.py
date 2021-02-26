@@ -9,8 +9,8 @@ from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 im
 
 
 def temperature_minmax_to_year_minmax(gcm, scenario, temperature_min, temperature_max):
-    years, global_mean_temps = years_and_global_mean_temps(gcm, scenario, year_min=2005, year_max=2100,
-                                                           rolling=30, anomaly=True)
+    years, global_mean_temps = years_and_global_mean_temps(gcm, scenario, year_min=2005, year_max=2100, anomaly=True,
+                                                           spline=True)
     years, global_mean_temps = np.array(years), np.array(global_mean_temps)
     ind = temperature_min < global_mean_temps
     ind &= global_mean_temps < temperature_max
