@@ -26,7 +26,7 @@ def get_scenario_name(scenario):
         return str(scenario).split('.')[-1]
 
 
-def year_to_global_mean_temp(gcm, scenario, year_min=None, year_max=None, spline=False, anomaly=False):
+def year_to_global_mean_temp(gcm, scenario, year_min=None, year_max=None, spline=True, anomaly=True):
     d = OrderedDict()
     years, global_mean_temps = years_and_global_mean_temps(gcm, scenario, year_min, year_max, spline=spline,
                                                            anomaly=anomaly)
@@ -43,7 +43,7 @@ def get_column_name(anomaly, spline):
         return basic_column_name
 
 
-def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, anomaly=False, spline=True):
+def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, anomaly=True, spline=True):
     # Compute everything
     ensemble_member = 'r{}i1p1'.format(gcm_to_rnumber[gcm])
     scenario_name = get_scenario_name(scenario)
@@ -75,7 +75,7 @@ def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, ano
     return years, global_mean_temp
 
 
-def dat_to_csv(csv_filepath, txt_filepath, spline):
+def dat_to_csv(csv_filepath, txt_filepath):
     d = OrderedDict()
     with open(txt_filepath, 'r') as f:
         for i, l in enumerate(f):

@@ -8,16 +8,15 @@ from extreme_trend.elevation_temporal_model_for_projections.visualizer_for_sensi
     VisualizerForSensivity
 
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
+from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
-    AnomalyTemperatureTemporalCovariate
+    AnomalyTemperatureWithSplineTemporalCovariate
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 from extreme_fit.model.margin_model.polynomial_margin_model.utils import \
     ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
-from extreme_trend.elevation_temporal_model_for_projections.visualizer_for_projection_ensemble import \
-    VisualizerForProjectionEnsemble
 import matplotlib
 from extreme_fit.model.utils import set_seed_for_test
 
@@ -40,7 +39,7 @@ def main():
     start = time.time()
     study_class = AdamontSnowfall
     ensemble_fit_class = [IndependentEnsembleFit]
-    temporal_covariate_for_fit = [TimeTemporalCovariate, AnomalyTemperatureTemporalCovariate][1]
+    temporal_covariate_for_fit = [TimeTemporalCovariate, AnomalyTemperatureWithSplineTemporalCovariate][1]
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 

@@ -26,7 +26,7 @@ from extreme_trend.one_fold_fit.one_fold_fit import \
     OneFoldFit
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
-    AnomalyTemperatureTemporalCovariate
+    AnomalyTemperatureWithSplineTemporalCovariate
 
 
 class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
@@ -182,7 +182,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         moment = ' '.join(method_name.split('_'))
         d_temperature = {'C': '{C}'}
         str_for_last_year = ' at +${}^o\mathrm{C}$' \
-            if self.temporal_covariate_for_fit is AnomalyTemperatureTemporalCovariate else ' in {}'
+            if self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate else ' in {}'
         str_for_last_year = str_for_last_year.format(self.first_one_fold_fit.covariate_after, **d_temperature)
         moment = moment.replace('moment', '{}{}'.format(OneFoldFit.get_moment_str(order=order), str_for_last_year))
         plot_name = '{} '.format(moment)

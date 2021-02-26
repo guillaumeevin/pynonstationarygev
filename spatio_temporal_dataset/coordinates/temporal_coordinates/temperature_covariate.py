@@ -44,7 +44,7 @@ class MeanAlpsTemperatureCovariate(AbstractTemperatureCovariate):
     def load_year_to_temperature_covariate(cls):
         return load_year_to_mean_alps_temperatures()
 
-class AnomalyTemperatureTemporalCovariate(AbstractTemporalCovariateForFit):
+class AnomalyTemperatureWithSplineTemporalCovariate(AbstractTemporalCovariateForFit):
     gcm_and_scenario_to_d = {}
 
     @classmethod
@@ -54,7 +54,7 @@ class AnomalyTemperatureTemporalCovariate(AbstractTemporalCovariateForFit):
         scenario_str = row[AbstractCoordinates.COORDINATE_RCP]
         scenario = str_to_scenario(scenario_str)
         if (gcm, scenario) not in cls.gcm_and_scenario_to_d:
-            d = year_to_global_mean_temp(gcm, scenario, anomaly=True)
+            d = year_to_global_mean_temp(gcm, scenario, anomaly=True, spline=True)
             cls.gcm_and_scenario_to_d[(gcm, scenario)] = d
         d = cls.gcm_and_scenario_to_d[(gcm, scenario)]
         global_mean_temp = d[year]

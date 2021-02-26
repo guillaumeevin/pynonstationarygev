@@ -31,7 +31,7 @@ from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup, alti
 from root_utils import NB_CORES, batch
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import TimeTemporalCovariate
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
-    AnomalyTemperatureTemporalCovariate
+    AnomalyTemperatureWithSplineTemporalCovariate
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.slicer.split import Split
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
@@ -133,7 +133,7 @@ class OneFoldFit(object):
     def _covariate_before_and_after(self):
         if self.temporal_covariate_for_fit in [None, TimeTemporalCovariate]:
             return self.last_year - self.nb_years, self.last_year
-        elif self.temporal_covariate_for_fit is AnomalyTemperatureTemporalCovariate:
+        elif self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate:
             # In 2020, we are roughly at 1 degree. Thus it natural to see the augmentation from 1 to 2 degree.
             return 1, self.last_anomaly
         else:
@@ -142,7 +142,7 @@ class OneFoldFit(object):
     @property
     def between_covariate_str(self):
         d_temperature = {'C': '{C}'}
-        s = ' between +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$' if self.temporal_covariate_for_fit is AnomalyTemperatureTemporalCovariate \
+        s = ' between +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$' if self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate \
             else ' between {} and {}'
         s = s.format(self.covariate_before, self.covariate_after,
                      **d_temperature)

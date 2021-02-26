@@ -16,7 +16,7 @@ from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
-    AnomalyTemperatureTemporalCovariate
+    AnomalyTemperatureWithSplineTemporalCovariate
 
 
 class TestOneFoldFit(unittest.TestCase):
@@ -60,7 +60,7 @@ class TestOneFoldFit(unittest.TestCase):
             dataset = self.load_dataset(study_class, scenario=AdamontScenario.rcp85)
             one_fold_fit = OneFoldFit(self.massif_name, dataset,
                                       models_classes=self.model_classes,
-                                      temporal_covariate_for_fit=AnomalyTemperatureTemporalCovariate,
+                                      temporal_covariate_for_fit=AnomalyTemperatureWithSplineTemporalCovariate,
                                       only_models_that_pass_goodness_of_fit_test=False)
             _ = one_fold_fit.best_estimator.margin_model
         self.assertTrue(True)
@@ -91,7 +91,7 @@ class TestOneFoldFit(unittest.TestCase):
                                     year_min=year_min, year_max=year_max)
         one_fold_fit = OneFoldFit(self.massif_name, dataset,
                                   models_classes=self.model_classes,
-                                  temporal_covariate_for_fit=AnomalyTemperatureTemporalCovariate,
+                                  temporal_covariate_for_fit=AnomalyTemperatureWithSplineTemporalCovariate,
                                   altitude_class=VeyHighAltitudeGroup,
                                   only_models_that_pass_goodness_of_fit_test=False,
                                   remove_physically_implausible_models=True)

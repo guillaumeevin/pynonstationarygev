@@ -13,7 +13,7 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualiz
 from root_utils import VERSION_TIME
 
 
-def main_plot_temperature_all(anomaly=False, spline=False):
+def main_plot_temperature_all(anomaly=True, spline=True):
     ax = plt.gca()
     for gcm in get_gcm_list(adamont_version=2)[:]:
         for scenario in rcp_scenarios[:]:
@@ -23,7 +23,7 @@ def main_plot_temperature_all(anomaly=False, spline=False):
     end_plot(anomaly, ax, spline)
 
 
-def main_plot_temperature_with_spline_on_top(anomaly=False):
+def main_plot_temperature_with_spline_on_top(anomaly=True):
     spline = None
     for gcm in get_gcm_list(adamont_version=2)[:]:
         ax = plt.gca()
@@ -67,7 +67,7 @@ def end_plot(anomaly, ax, spline, title=None):
 
 
 def plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min, year_max, linestyle=None,
-                                 label=None, spline: Union[None, bool] = False, anomaly=False):
+                                 label=None, spline: Union[None, bool] = True, anomaly=True):
     splines = [spline] if spline is not None else [True, False]
     for spline in splines:
         years, global_mean_temp = years_and_global_mean_temps(gcm, scenario, year_min=year_min, year_max=year_max, spline=spline, anomaly=anomaly)
@@ -87,5 +87,5 @@ def plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min, year_max, linestyl
 
 
 if __name__ == '__main__':
-    main_plot_temperature_with_spline_on_top(anomaly=True)
-    # main_plot_temperature_all(anomaly=True, spline=False)
+    # main_plot_temperature_with_spline_on_top(anomaly=True)
+    main_plot_temperature_all(anomaly=True, spline=True)
