@@ -1,12 +1,10 @@
 import numpy as np
 
+from extreme_trend.ensemble_fit.abstract_ensemble_fit import AbstractEnsembleFit
+from extreme_trend.ensemble_fit.independent_ensemble_fit.visualizer_merge import VisualizerMerge
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
-from extreme_trend.elevation_temporal_model_for_projections.abstract_ensemble_fit import \
-    AbstractEnsembleFit
-from extreme_trend.elevation_temporal_model_for_projections.independent_ensemble_fit import \
-    VisualizerMerge
 
 
 class IndependentEnsembleFit(AbstractEnsembleFit):

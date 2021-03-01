@@ -4,11 +4,10 @@ from typing import List
 
 import matplotlib as mpl
 
-from extreme_trend.elevation_temporal_model_for_projections.visualizer_for_sensitivity import \
-    VisualizerForSensivity
 
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
+from extreme_trend.ensemble_fit.visualizer_for_sensitivity import VisualizerForSensivity
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureWithSplineTemporalCovariate
 

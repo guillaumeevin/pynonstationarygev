@@ -3,11 +3,10 @@ from typing import Dict, List
 import numpy as np
 
 from extreme_fit.model.margin_model.utils import MarginFitMethod
+from extreme_trend.ensemble_fit.independent_ensemble_fit.one_fold_fit_merge import OneFoldFitMerge
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
-from extreme_trend.elevation_temporal_model_for_projections.independent_ensemble_fit import \
-    OneFoldFitMerge
 
 
 class VisualizerMerge(AltitudesStudiesVisualizerForNonStationaryModels):
