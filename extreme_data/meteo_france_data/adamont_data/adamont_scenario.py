@@ -2,6 +2,8 @@ from enum import Enum
 
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import get_gcm_rcm_couple_adamont_to_full_name
 
+SEPARATOR_STR = ' / '
+
 
 class AdamontScenario(Enum):
     histo = 0
@@ -136,4 +138,4 @@ def scenario_to_real_scenarios(adamont_scenario):
 
 
 def gcm_rcm_couple_to_str(gcm_rcm_couple):
-    return ' / '.join(gcm_rcm_couple)
+    return SEPARATOR_STR.join(gcm_rcm_couple)

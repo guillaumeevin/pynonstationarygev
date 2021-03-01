@@ -65,18 +65,9 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         return pd.concat([self.df_coordinates_spat(split=split), self.df_coordinates_temp(split=split)], axis=1).values
 
     def nllh(self, split=Split.all):
-        nllh = 0
         maxima_values = self.dataset.maxima_gev(split=split)
         coordinate_values = self.coordinates_for_nllh(split=split)
-        for maximum, coordinate in zip(maxima_values, coordinate_values):
-            assert len(maximum) == 1, \
-                'So far, only one observation for each coordinate, but code would be easy to change'
-            maximum = maximum[0]
-            gev_params = self.function_from_fit.get_params(coordinate, is_transformed=True)
-            p = gev_params.density(maximum)
-            nllh -= np.log(p)
-            assert not np.isinf(nllh)
-        return nllh
+        return compute_nllh(coordinate_values, maxima_values, self.function_from_fit)
 
     def sorted_empirical_standard_gumbel_quantiles(self, split=Split.all, coordinate_for_filter=None):
         sorted_empirical_quantiles = []
@@ -121,3 +112,18 @@ class LinearMarginEstimator(AbstractMarginEstimator):
 
     def bic(self, split=Split.all):
         return np.log(self.n(split=split)) * self.margin_model.nb_params + 2 * self.nllh(split=split)
+
+
+def compute_nllh(coordinate_values, maxima_values, function_from_fit, maximum_from_obs=True, assertion_for_inf=True):
+    nllh = 0
+    for maximum, coordinate in zip(maxima_values, coordinate_values):
+        if maximum_from_obs:
+            assert len(maximum) == 1, \
+                'So far, only one observation for each coordinate, but code would be easy to change'
+            maximum = maximum[0]
+        gev_params = function_from_fit.get_params(coordinate, is_transformed=True)
+        p = gev_params.density(maximum)
+        nllh -= np.log(p)
+        if assertion_for_inf:
+            assert not np.isinf(nllh), '{} {}'.format(gev_params, coordinate, maximum)
+    return nllh

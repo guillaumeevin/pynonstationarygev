@@ -35,7 +35,7 @@ class VisualizerForSensivity(object):
         self.temp_min_to_visualizer = {} # type: Dict[float, VisualizerForProjectionEnsemble]
 
         for temp_min, temp_max in zip(self.temp_min, self.temp_max):
-            print(temp_min, temp_max)
+            print("temp min and temp max", temp_min, temp_max)
             # Build 
             gcm_to_year_min_and_year_max = {}
             gcm_list = list(set([g for g, r in gcm_rcm_couples]))
@@ -60,7 +60,7 @@ class VisualizerForSensivity(object):
 
     def plot(self):
         # todo: before reactivating the subplot, i should ensure that we can modify the prefix
-        # so that we can have all the subplot for the merge visualizer
+        # todo: so that we can have all the subplot for the merge visualizer
         # , and not just the plots for the last t_min
         # for visualizer in self.temp_min_to_visualizer.values():
         #     visualizer.plot()

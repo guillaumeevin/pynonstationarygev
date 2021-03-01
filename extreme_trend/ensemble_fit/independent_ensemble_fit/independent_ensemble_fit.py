@@ -37,12 +37,19 @@ class IndependentEnsembleFit(AbstractEnsembleFit):
             self.Mean_merge: np.mean
         }
         self.merge_function_name_to_visualizer = {
-        name: VisualizerMerge(visualizers, self.models_classes, False, self.massif_names,
-                                               self.fit_method, self.temporal_covariate_for_fit,
-                                               self.only_models_that_pass_goodness_of_fit_test,
-                                               self.confidence_interval_based_on_delta_method,
-                                               self.remove_physically_implausible_models,
-                                               merge_function=merge_function)
+            name: VisualizerMerge(visualizers, self.models_classes, False, self.massif_names,
+                                  self.fit_method, self.temporal_covariate_for_fit,
+                                  self.only_models_that_pass_goodness_of_fit_test,
+                                  self.confidence_interval_based_on_delta_method,
+                                  self.remove_physically_implausible_models,
+                                  merge_function=merge_function)
             for name, merge_function in merge_function_name_to_merge_function.items()
         }
 
+    @property
+    def visualizer(self):
+        return list(self.gcm_rcm_couple_to_visualizer.values())[0]
+
+    @property
+    def altitudes(self):
+        return self.visualizer.studies.altitudes

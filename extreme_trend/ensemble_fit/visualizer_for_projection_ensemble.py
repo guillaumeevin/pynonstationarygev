@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from typing import List
 
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
@@ -24,12 +25,13 @@ class VisualizerForProjectionEnsemble(object):
                  remove_physically_implausible_models=False,
                  gcm_to_year_min_and_year_max=None,
                  ):
+        self.altitudes_list = altitudes_list
         self.gcm_rcm_couples = gcm_rcm_couples
         self.massif_names = massif_names
         self.ensemble_fit_classes = ensemble_fit_classes
 
         # Load all studies
-        altitude_class_to_gcm_couple_to_studies = {}
+        altitude_class_to_gcm_couple_to_studies = OrderedDict()
         for altitudes in altitudes_list:
             altitude_class = get_altitude_class_from_altitudes(altitudes)
             gcm_rcm_couple_to_studies = {}
@@ -53,7 +55,7 @@ class VisualizerForProjectionEnsemble(object):
             altitude_class_to_gcm_couple_to_studies[altitude_class] = gcm_rcm_couple_to_studies
 
         # Load ensemble fit
-        self.altitude_class_to_ensemble_class_to_ensemble_fit = {}
+        self.altitude_class_to_ensemble_class_to_ensemble_fit = OrderedDict()
         for altitude_class, gcm_rcm_couple_to_studies in altitude_class_to_gcm_couple_to_studies.items():
             ensemble_class_to_ensemble_fit = {}
             for ensemble_fit_class in ensemble_fit_classes:
@@ -104,6 +106,7 @@ class VisualizerForProjectionEnsemble(object):
                 plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative, with_significance=with_significance)
 
     def ensemble_fits(self, ensemble_class):
+        """Return the ordered ensemble fit for a given ensemble class (in the order of the altitudes)"""
         return [ensemble_class_to_ensemble_fit[ensemble_class]
                 for ensemble_class_to_ensemble_fit
                 in self.altitude_class_to_ensemble_class_to_ensemble_fit.values()]
