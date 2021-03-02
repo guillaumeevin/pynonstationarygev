@@ -139,3 +139,7 @@ def scenario_to_real_scenarios(adamont_scenario):
 
 def gcm_rcm_couple_to_str(gcm_rcm_couple):
     return SEPARATOR_STR.join(gcm_rcm_couple)
+
+
+def str_to_gcm_rcm_couple(str):
+    return tuple(str.split(SEPARATOR_STR))

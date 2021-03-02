@@ -26,9 +26,16 @@ class VisualizerForProjectionEnsemble(object):
                  gcm_to_year_min_and_year_max=None,
                  ):
         self.altitudes_list = altitudes_list
+        self.scenario = scenario
         self.gcm_rcm_couples = gcm_rcm_couples
         self.massif_names = massif_names
         self.ensemble_fit_classes = ensemble_fit_classes
+
+        # Some checks
+        if gcm_to_year_min_and_year_max is not None:
+            for gcm, years in gcm_to_year_min_and_year_max.items():
+                assert isinstance(gcm, str), gcm
+                assert len(years) == 2, years
 
         # Load all studies
         altitude_class_to_gcm_couple_to_studies = OrderedDict()
