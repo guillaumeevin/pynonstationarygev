@@ -79,7 +79,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             # Save the massif altitudes only for those who pass the condition
             self.massif_name_to_massif_altitudes[massif_name] = massif_altitudes
             # Load dataset
-            dataset = self.studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes)
+            dataset = self.get_dataset(massif_altitudes, massif_name)
             old_fold_fit = OneFoldFit(massif_name, dataset, self.model_classes, self.fit_method,
                                       self.temporal_covariate_for_fit,
                                       type(self.altitude_group),
@@ -90,15 +90,22 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         else:
             return None
 
+    def get_dataset(self, massif_altitudes, massif_name):
+        dataset = self.studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes)
+        return dataset
+
     moment_names = ['moment', 'changes_of_moment', 'relative_changes_of_moment'][:]
     orders = [1, 2, None][2:]
 
     def get_massif_altitudes(self, massif_name):
-        valid_altitudes = [altitude for altitude, study in self.studies.altitude_to_study.items()
+        return self._get_massif_altitudes(massif_name, self.studies)
+
+    def _get_massif_altitudes(self, massif_name, studies):
+        valid_altitudes = [altitude for altitude, study in studies.altitude_to_study.items()
                            if massif_name in study.study_massif_names]
         massif_altitudes = []
         for altitude in valid_altitudes:
-            study = self.studies.altitude_to_study[altitude]
+            study = studies.altitude_to_study[altitude]
             annual_maxima = study.massif_name_to_annual_maxima[massif_name]
             percentage_of_non_zeros = 100 * np.count_nonzero(annual_maxima) / len(annual_maxima)
             if percentage_of_non_zeros > 90:

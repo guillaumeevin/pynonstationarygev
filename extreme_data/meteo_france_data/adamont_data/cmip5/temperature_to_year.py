@@ -86,7 +86,7 @@ def plot_nb_data(is_temperature_interval, is_shift_interval):
     ]
     ax2.legend(handles=legend_elements, loc='upper center')
     ax2.set_yticks([])
-    # plt.show()
+    plt.show()
 
 
 def get_interval_limits(is_temperature_interval, is_shift_interval):
@@ -111,13 +111,13 @@ def get_ticks_labels_for_interval(is_temperature_interval, is_shift_interval):
     ticks_labels = [' +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$'.format(left_limit, right_limit, **{'C': '{C}'})
                     if is_temperature_interval else '{} and {}'.format(left_limit, right_limit)
                     for left_limit, right_limit in zip(left_limits, right_limits)]
-    prefix = 'Maxima occured between \n'
+    prefix = 'Maxima between \n'
     ticks_labels = [prefix + l for l in ticks_labels]
     return ticks_labels
 
 
 if __name__ == '__main__':
     for shift_interval in [False, True]:
-        for temp_interval in [True, False]:
+        for temp_interval in [False, True]:
             print("shift = {}, temp_inteval = {}".format(shift_interval, temp_interval))
             plot_nb_data(is_temperature_interval=temp_interval, is_shift_interval=shift_interval)

@@ -5,7 +5,9 @@ from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_poly
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
+from extreme_trend.ensemble_fit.abstract_ensemble_fit import AbstractEnsembleFit
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
+from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.one_fold_fit.altitude_group import get_altitude_class_from_altitudes
 from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
@@ -75,29 +77,35 @@ class VisualizerForProjectionEnsemble(object):
                 ensemble_class_to_ensemble_fit[ensemble_fit_class] = ensemble_fit
             self.altitude_class_to_ensemble_class_to_ensemble_fit[altitude_class] = ensemble_class_to_ensemble_fit
 
+    def plot_for_visualizer_list(self, visualizer_list):
+        with_significance = False
+        for v in visualizer_list:
+            v.plot_moments()
+        plot_histogram_all_trends_against_altitudes(self.massif_names, visualizer_list,
+                                                    with_significance=with_significance)
+        for relative in [True, False]:
+            plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative,
+                                                    with_significance=with_significance)
+
     def plot(self):
+        # Set limit for the plot
+        visualizer_list = []
+        for ensemble_fit_class in self.ensemble_fit_classes:
+            for ensemble_fit in self.ensemble_fits(ensemble_fit_class):
+                visualizer_list.extend(ensemble_fit.visualizer_list)
+        compute_and_assign_max_abs(visualizer_list)
+        # Plot
         if IndependentEnsembleFit in self.ensemble_fit_classes:
-            # Set max abs
-            visualizer_list = []
-            for ensemble_fit in self.ensemble_fits(IndependentEnsembleFit):
-                visualizer_list.extend(list(ensemble_fit.gcm_rcm_couple_to_visualizer.values()))
-            # Potentially I could add more visualizer here...
-            method_name_and_order_to_max_abs, max_abs_for_shape = compute_and_assign_max_abs(visualizer_list)
-            # Assign the same max abs for the 
-            for ensemble_fit in self.ensemble_fits(IndependentEnsembleFit):
-                for v in ensemble_fit.merge_function_name_to_visualizer.values():
-                    v._max_abs_for_shape = max_abs_for_shape
-                    v._method_name_and_order_to_max_abs = method_name_and_order_to_max_abs
-            # Plot
             self.plot_independent()
+        if TogetherEnsembleFit in self.ensemble_fit_classes:
+            self.plot_together()
 
     def plot_independent(self):
-        with_significance = False
         # Aggregated at gcm_rcm_level plots
-        merge_keys = [IndependentEnsembleFit.Median_merge, IndependentEnsembleFit.Mean_merge]
+        merge_keys = [AbstractEnsembleFit.Median_merge, AbstractEnsembleFit.Mean_merge]
         keys = self.gcm_rcm_couples + merge_keys
         # Only plot Mean for speed
-        keys = [IndependentEnsembleFit.Mean_merge]
+        keys = [AbstractEnsembleFit.Mean_merge]
         for key in keys:
             visualizer_list = [independent_ensemble_fit.gcm_rcm_couple_to_visualizer[key]
                                if key in self.gcm_rcm_couples
@@ -107,17 +115,15 @@ class VisualizerForProjectionEnsemble(object):
             if key in merge_keys:
                 for v in visualizer_list:
                     v.studies.study.gcm_rcm_couple = (key, "merge")
-            for v in visualizer_list:
-                v.plot_moments()
-            plot_histogram_all_trends_against_altitudes(self.massif_names, visualizer_list, with_significance=with_significance)
-            for relative in [True, False]:
-                plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative, with_significance=with_significance)
+            self.plot_for_visualizer_list(visualizer_list)
+
+    def plot_together(self):
+        visualizer_list = [together_ensemble_fit.visualizer
+                           for together_ensemble_fit in self.ensemble_fits(TogetherEnsembleFit)]
+        self.plot_for_visualizer_list(visualizer_list)
 
     def ensemble_fits(self, ensemble_class):
         """Return the ordered ensemble fit for a given ensemble class (in the order of the altitudes)"""
         return [ensemble_class_to_ensemble_fit[ensemble_class]
                 for ensemble_class_to_ensemble_fit
                 in self.altitude_class_to_ensemble_class_to_ensemble_fit.values()]
-
-    def plot_together(self):
-        pass

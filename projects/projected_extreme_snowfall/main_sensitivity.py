@@ -1,8 +1,14 @@
 import datetime
 import time
 from typing import List
+import matplotlib
 
+from extreme_trend.ensemble_fit.abstract_ensemble_fit import AbstractEnsembleFit
+
+matplotlib.use('Agg')
 import matplotlib as mpl
+mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
@@ -11,12 +17,10 @@ from extreme_trend.ensemble_fit.visualizer_for_sensitivity import VisualizerForS
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureWithSplineTemporalCovariate
 
-mpl.rcParams['text.usetex'] = True
-mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 from extreme_fit.model.margin_model.polynomial_margin_model.utils import \
     ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
-import matplotlib
+
 from extreme_fit.model.utils import set_seed_for_test
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
@@ -24,7 +28,6 @@ from extreme_data.meteo_france_data.adamont_data.adamont_scenario import Adamont
     rcp_scenarios
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import TimeTemporalCovariate
 
-matplotlib.use('Agg')
 
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
@@ -37,23 +40,22 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 def main():
     start = time.time()
     study_class = AdamontSnowfall
-    ensemble_fit_class = [IndependentEnsembleFit]
+    ensemble_fit_classes = [IndependentEnsembleFit]
     temporal_covariate_for_fit = [TimeTemporalCovariate,
                                   AnomalyTemperatureWithSplineTemporalCovariate][0]
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = True
-    sensitivity_plot = True
-    scenarios = rcp_scenarios[::-1] if fast is False else [AdamontScenario.rcp85]
+    fast = False
+    scenarios = rcp_scenarios[-1:] if fast is False else [AdamontScenario.rcp85]
 
     for scenario in scenarios:
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
         if fast is None:
             massif_names = None
-            gcm_rcm_couples = None
+            gcm_rcm_couples = gcm_rcm_couples
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = altitudes_for_groups[3:]
+            altitudes_list = altitudes_for_groups[1:2]
         elif fast:
             massif_names = ['Vanoise', 'Haute-Maurienne']
             gcm_rcm_couples = gcm_rcm_couples[4:6]
@@ -65,26 +67,15 @@ def main():
 
         assert isinstance(gcm_rcm_couples, list)
 
-        main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_class, ensemble_fit_class, scenario,
-                  temporal_covariate_for_fit, sensitivity_plot=sensitivity_plot)
+        assert isinstance(altitudes_list, List)
+        assert isinstance(altitudes_list[0], List)
+        print('Scenario is', scenario)
+        print('Covariate is {}'.format(temporal_covariate_for_fit))
 
-    end = time.time()
-    duration = str(datetime.timedelta(seconds=end - start))
-    print('Total duration', duration)
+        model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
+        assert scenario in rcp_scenarios
+        remove_physically_implausible_models = True
 
-
-def main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_class, ensemble_fit_classes, scenario,
-              temporal_covariate_for_fit, sensitivity_plot=False):
-    assert isinstance(altitudes_list, List)
-    assert isinstance(altitudes_list[0], List)
-    print('Scenario is', scenario)
-    print('Covariate is {}'.format(temporal_covariate_for_fit))
-
-    model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
-    assert scenario in rcp_scenarios
-    remove_physically_implausible_models = True
-
-    if sensitivity_plot:
         visualizer = VisualizerForSensivity(
             altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
             model_classes=model_classes,
@@ -92,18 +83,16 @@ def main_loop(gcm_rcm_couples, altitudes_list, massif_names, study_class, ensemb
             massif_names=massif_names,
             temporal_covariate_for_fit=temporal_covariate_for_fit,
             remove_physically_implausible_models=remove_physically_implausible_models,
+            merge_visualizer_str=AbstractEnsembleFit.Median_merge,
+            is_temperature_interval=False,
+            is_shift_interval=True,
         )
-    else:
-        visualizer = VisualizerForProjectionEnsemble(
-            altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
-            model_classes=model_classes,
-            ensemble_fit_classes=ensemble_fit_classes,
-            massif_names=massif_names,
-            temporal_covariate_for_fit=temporal_covariate_for_fit,
-            remove_physically_implausible_models=remove_physically_implausible_models,
-            gcm_to_year_min_and_year_max=None,
-        )
-    visualizer.plot()
+        visualizer.plot()
+
+    end = time.time()
+    duration = str(datetime.timedelta(seconds=end - start))
+    print('Total duration', duration)
+
 
 
 if __name__ == '__main__':

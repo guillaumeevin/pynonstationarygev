@@ -9,15 +9,10 @@ from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 
 class IndependentEnsembleFit(AbstractEnsembleFit):
     """For each gcm_rcm_couple, we create a OneFoldFit"""
-    Median_merge = 'Median'
-    Mean_merge = 'Mean'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Set appropriate setting
-        OneFoldFit.last_year = 2100
-        OneFoldFit.nb_years = 95
         # Load a classical visualizer
         self.gcm_rcm_couple_to_visualizer = {}
         for gcm_rcm_couple, studies in self.gcm_rcm_couple_to_altitude_studies.items():
@@ -47,9 +42,7 @@ class IndependentEnsembleFit(AbstractEnsembleFit):
         }
 
     @property
-    def visualizer(self):
-        return list(self.gcm_rcm_couple_to_visualizer.values())[0]
+    def visualizer_list(self):
+        return list(self.gcm_rcm_couple_to_visualizer.values()) \
+               + list(self.merge_function_name_to_visualizer.values())
 
-    @property
-    def altitudes(self):
-        return self.visualizer.studies.altitudes

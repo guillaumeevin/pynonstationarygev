@@ -2,9 +2,12 @@ from typing import Dict, Tuple
 
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
+from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 
 
 class AbstractEnsembleFit(object):
+    Median_merge = 'Median'
+    Mean_merge = 'Mean'
 
     def __init__(self, massif_names, gcm_rcm_couple_to_altitude_studies: Dict[Tuple[str, str], AltitudesStudies],
                  models_classes,
@@ -23,6 +26,14 @@ class AbstractEnsembleFit(object):
         self.only_models_that_pass_goodness_of_fit_test = only_models_that_pass_goodness_of_fit_test
         self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
 
+        # Set appropriate setting
+        OneFoldFit.last_year = 2100
+        OneFoldFit.nb_years = 95
+
     @property
     def altitudes(self):
+        raise self.visualizer_list.studies.altitudes
+
+    @property
+    def visualizer_list(self):
         raise NotImplementedError

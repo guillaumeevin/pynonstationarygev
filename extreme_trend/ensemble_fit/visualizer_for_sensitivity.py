@@ -8,6 +8,7 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
+from extreme_trend.ensemble_fit.abstract_ensemble_fit import AbstractEnsembleFit
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 from extreme_trend.one_fold_fit.altitude_group import get_altitude_class_from_altitudes, \
@@ -25,7 +26,7 @@ class VisualizerForSensivity(object):
                  display_only_model_that_pass_gof_test=False,
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
-                 merge_visualizer_str=IndependentEnsembleFit.Median_merge,  # if we choose the Mean merge, then it is almost impossible to obtain stationary trends
+                 merge_visualizer_str=AbstractEnsembleFit.Median_merge,  # if we choose the Mean merge, then it is almost impossible to obtain stationary trends
                  is_temperature_interval=False,
                  is_shift_interval=False,
                  ):

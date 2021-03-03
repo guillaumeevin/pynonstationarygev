@@ -135,7 +135,7 @@ def main_comparaison_plot():
                     ax.set_ylabel('Altitude (m)', fontsize=10)
                     massif_str = 'all massifs' if massif_names is None else 'the {} massif'.format(massif_names[0])
                     unit = '%' if relative_bias else study.variable_unit
-                    bias_name = 'Relative bias' if relative_bias else 'Bias'
+                    bias_name = 'Relative difference' if relative_bias else 'Difference'
                     mean_str = 'mean' if mean else 'std'
                     title = '{} in the {} annual maxima of {} of {}\n' \
                                      'for ADAMONT v{}' \
@@ -144,7 +144,7 @@ def main_comparaison_plot():
                                                                                               adamont_version,
                                                                                               comparaison_study_class,
                                                                                               unit)
-                    folder = 'relative bias' if relative_bias else 'absolute bias'
+                    folder = 'relative difference' if relative_bias else 'difference'
                     plot_name = op.join(folder, title)
                     ax.set_xlabel(title, fontsize=10)
                     reanalysis_altitude_studies.show_or_save_to_file(plot_name=plot_name, no_title=True)
