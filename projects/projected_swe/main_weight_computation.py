@@ -26,6 +26,7 @@ from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fi
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 from extreme_trend.one_fold_fit.altitude_group import altitudes_for_groups
 from projects.projected_swe.abstract_weight_computer import AbstractWeightComputer
+from projects.projected_swe.knutti_weight_computer import KnuttiWeightComputer
 from projects.projected_swe.non_stationary_weight_computer import NllhWeightComputer
 from projects.projected_swe.utils import load_gcm_rcm_couple_to_weight
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
@@ -49,7 +50,7 @@ def main_weight_computation():
     gcm_rcm_couples = get_gcm_rcm_couples(scenario)
     year_min = 1982
     year_max = 2019
-    weight_computer_class = NllhWeightComputer
+    weight_computer_class = [NllhWeightComputer, KnuttiWeightComputer][1]
 
     fast = True
     if fast is None:
@@ -74,7 +75,9 @@ def main_weight_computation():
         gcm_to_year_min_and_year_max={c[0]: (year_min, year_max) for c in gcm_rcm_couples},
     )
 
-    weight_computer = weight_computer_class(visualizer, scm_study_class, year_min, year_max) # type:AbstractWeightComputer
+
+    weight_computer = weight_computer_class(visualizer, scm_study_class, year_min, year_max,
+                                            sigma_D=10) # type:AbstractWeightComputer
     weight_computer.compute_weights_and_save_them()
 
     end = time.time()
@@ -84,5 +87,6 @@ def main_weight_computation():
 
 if __name__ == '__main__':
     main_weight_computation()
-    d = load_gcm_rcm_couple_to_weight(['sd', 'sdf'], [23], 1982, 2019, AdamontScenario.rcp85_extended)
-    print(d)
+    # d = load_gcm_rcm_couple_to_weight(['sd', 'sdf'], [23], 1982, 2019, AdamontScenario.rcp85_extended,
+    #                                   weight_class=NllhWeightComputer, gcm_rcm_couple_missing=None)
+    # print(d)

@@ -26,6 +26,7 @@ class VisualizerForProjectionEnsemble(object):
                  gcm_to_year_min_and_year_max=None,
                  ):
         self.altitudes_list = altitudes_list
+        self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.scenario = scenario
         self.gcm_rcm_couples = gcm_rcm_couples
         self.massif_names = massif_names
