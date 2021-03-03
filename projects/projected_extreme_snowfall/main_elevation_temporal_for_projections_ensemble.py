@@ -38,11 +38,12 @@ def main():
     start = time.time()
     study_class = AdamontSnowfall
     ensemble_fit_class = [IndependentEnsembleFit]
-    temporal_covariate_for_fit = [TimeTemporalCovariate, AnomalyTemperatureWithSplineTemporalCovariate][1]
+    temporal_covariate_for_fit = [TimeTemporalCovariate,
+                                  AnomalyTemperatureWithSplineTemporalCovariate][0]
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = False
+    fast = True
     sensitivity_plot = True
     scenarios = rcp_scenarios[::-1] if fast is False else [AdamontScenario.rcp85]
 
@@ -57,7 +58,7 @@ def main():
             massif_names = ['Vanoise', 'Haute-Maurienne']
             gcm_rcm_couples = gcm_rcm_couples[4:6]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = altitudes_for_groups[:]
+            altitudes_list = altitudes_for_groups[:1]
         else:
             massif_names = None
             altitudes_list = altitudes_for_groups[:]

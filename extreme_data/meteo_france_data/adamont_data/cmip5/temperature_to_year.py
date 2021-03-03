@@ -8,65 +8,76 @@ from extreme_data.meteo_france_data.adamont_data.adamont_scenario import Adamont
 from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import years_and_global_mean_temps
 
 
-def temperature_minmax_to_year_minmax(gcm, scenario, temperature_min, temperature_max):
-    years, global_mean_temps = years_and_global_mean_temps(gcm, scenario, year_min=2005, year_max=2100, anomaly=True,
-                                                           spline=True)
-    years, global_mean_temps = np.array(years), np.array(global_mean_temps)
-    ind = temperature_min < global_mean_temps
-    ind &= global_mean_temps < temperature_max
-    years_to_select = years[ind]
-    ind2 = years_to_select[:-1] == years_to_select[1:] - 1
-    if not all(ind2):
-        i = list(ind2).index(False)
-        years_to_select = years_to_select[:i + 1]
-    # A minimum of 30 years of data is needed to find a trend
-    if len(years_to_select) >= 30:
+def get_year_min_and_year_max(gcm, scenario, left_limit, right_limit, is_temperature_interval):
+    if is_temperature_interval:
+        years_to_select = _get_year_min_and_year_max_for_temperature_interval(gcm, left_limit,
+                                                                              right_limit, scenario)
+        if len(years_to_select) == 0:
+            return None, None
         year_min, year_max = years_to_select[0], years_to_select[-1]
-        assert (year_max - year_min + 1) == len(years_to_select)
+    else:
+        year_min, year_max = left_limit, right_limit
+
+    # A minimum of 30 years of data is needed to find a trend
+    if year_max - year_min + 1 >= 30:
         return year_min, year_max
     else:
         return None, None
 
 
-def get_nb_data(gcm, scenario, temperature_min, temperature_max):
-    year_min, year_max = temperature_minmax_to_year_minmax(gcm, scenario, temperature_min, temperature_max)
+def _get_year_min_and_year_max_for_temperature_interval(gcm, left_limits, right_limits, scenario):
+    years, global_mean_temps = years_and_global_mean_temps(gcm, scenario, year_min=2006, year_max=2100, anomaly=True,
+                                                           spline=True)
+    years, global_mean_temps = np.array(years), np.array(global_mean_temps)
+    ind = left_limits < global_mean_temps
+    ind &= global_mean_temps < right_limits
+    years_to_select = years[ind]
+    ind2 = years_to_select[:-1] == years_to_select[1:] - 1
+    if not all(ind2):
+        i = list(ind2).index(False)
+        years_to_select = years_to_select[:i + 1]
+    return years_to_select
+
+
+def get_nb_data(gcm, scenario, temperature_min, temperature_max, is_temperature_interval):
+    year_min, year_max = get_year_min_and_year_max(gcm, scenario, temperature_min, temperature_max, is_temperature_interval)
     if year_min is None:
         return 0
     else:
         return year_max - year_min + 1
 
 
-def plot_nb_data_one_line(ax, gcm, scenario, temp_min, temp_max, first_scenario):
-
-    nb_data = [get_nb_data(gcm, scenario, mi, ma) for mi, ma in zip(temp_min, temp_max)]
+def plot_nb_data_one_line(ax, gcm, scenario, left_limits, right_limits, first_scenario, is_temperature_interval):
+    nb_data = [get_nb_data(gcm, scenario, left, right, is_temperature_interval) for left, right in zip(left_limits, right_limits)]
     color = gcm_to_color[gcm]
     linestyle = get_linestyle_from_scenario(scenario)
 
     # Filter out the zero value
-    nb_data, temp_min = np.array(nb_data), np.array(temp_min)
+    nb_data, left_limits = np.array(nb_data), np.array(left_limits)
     ind = np.array(nb_data) > 0
-    nb_data, temp_min = nb_data[ind], temp_min[ind]
+    nb_data, left_limits = nb_data[ind], left_limits[ind]
 
     # For the legend
     if (len(nb_data) > 0) and first_scenario:
-        ax.plot(temp_min[0], nb_data[0], color=color, linestyle='solid', label=gcm)
+        ax.plot(left_limits[0], nb_data[0], color=color, linestyle='solid', label=gcm)
 
-    ax.plot(temp_min, nb_data, linestyle=linestyle, color=color, marker='o')
+    ax.plot(left_limits, nb_data, linestyle=linestyle, color=color, marker='o')
 
 
-def plot_nb_data():
-    temp_min, temp_max = get_temp_min_and_temp_max()
+def plot_nb_data(is_temperature_interval, is_shift_interval):
+    left_limit, right_limit = get_interval_limits(is_temperature_interval, is_shift_interval)
 
     ax = plt.gca()
     for gcm in get_gcm_list(adamont_version=2)[:]:
         for i, scenario in enumerate(rcp_scenarios[:2]):
-            plot_nb_data_one_line(ax, gcm, scenario, temp_min, temp_max, first_scenario=i == 0)
+            plot_nb_data_one_line(ax, gcm, scenario, left_limit, right_limit,
+                                  i == 0, is_temperature_interval)
 
     ax.legend()
-    ticks_labels = get_ticks_labels_for_temp_min_and_temp_max()
-    ax.set_xticks(temp_min)
+    ticks_labels = get_ticks_labels_for_interval(is_temperature_interval, is_shift_interval)
+    ax.set_xticks(left_limit)
     ax.set_xticklabels(ticks_labels)
-    ax.set_xlabel('Temperature interval')
+    # ax.set_xlabel('Interval')
     ax.set_ylabel('Nb of Maxima')
     ax2 = ax.twinx()
     legend_elements = [
@@ -75,19 +86,38 @@ def plot_nb_data():
     ]
     ax2.legend(handles=legend_elements, loc='upper center')
     ax2.set_yticks([])
-    plt.show()
+    # plt.show()
 
 
-def get_temp_min_and_temp_max():
-    temp_min = np.arange(0, 3, 1)
-    temp_max = temp_min + 2
-    return temp_min, temp_max
+def get_interval_limits(is_temperature_interval, is_shift_interval):
+    if is_temperature_interval:
+        temp_min = np.arange(0, 3, 1)
+        temp_max = temp_min + 2
+        left_limit, right_limit = temp_min, temp_max
+    else:
+        shift = 25
+        nb = 3
+        year_min = [2006 + shift * i for i in range(nb)]
+        year_max = [2050 + shift * i for i in range(nb)]
+        left_limit, right_limit = year_min, year_max
+    if not is_shift_interval:
+        max_interval_right = max(right_limit)
+        right_limit = [max_interval_right for _ in left_limit]
+    return left_limit, right_limit
 
-def get_ticks_labels_for_temp_min_and_temp_max():
-    temp_min, temp_max = get_temp_min_and_temp_max()
-    return ['Maxima occured between \n' \
-            ' +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$'.format(mi, ma, **{'C': '{C}'})
-     for mi, ma in zip(temp_min, temp_max)]
+
+def get_ticks_labels_for_interval(is_temperature_interval, is_shift_interval):
+    left_limits, right_limits = get_interval_limits(is_temperature_interval, is_shift_interval)
+    ticks_labels = [' +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$'.format(left_limit, right_limit, **{'C': '{C}'})
+                    if is_temperature_interval else '{} and {}'.format(left_limit, right_limit)
+                    for left_limit, right_limit in zip(left_limits, right_limits)]
+    prefix = 'Maxima occured between \n'
+    ticks_labels = [prefix + l for l in ticks_labels]
+    return ticks_labels
+
 
 if __name__ == '__main__':
-    plot_nb_data()
+    for shift_interval in [False, True]:
+        for temp_interval in [True, False]:
+            print("shift = {}, temp_inteval = {}".format(shift_interval, temp_interval))
+            plot_nb_data(is_temperature_interval=temp_interval, is_shift_interval=shift_interval)

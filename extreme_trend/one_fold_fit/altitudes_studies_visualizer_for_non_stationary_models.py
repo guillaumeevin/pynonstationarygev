@@ -455,7 +455,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
         plt.close()
 
-    def all_trends(self, massif_names, with_significance=True):
+    def all_trends(self, massif_names, with_significance=True, with_relative_change=False):
         """return percents which contain decrease, significant decrease, increase, significant increase percentages"""
         valid_massif_names = self.get_valid_names(massif_names)
 
@@ -464,10 +464,14 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         for one_fold in [one_fold for m, one_fold in self.massif_name_to_one_fold_fit.items()
                          if m in valid_massif_names]:
             # Compute nb of non stationary models
-            if one_fold.change_in_return_level_for_reference_altitude == 0:
+            if with_relative_change:
+                change_value = one_fold.relative_change_in_return_level_for_reference_altitude
+            else:
+                change_value = one_fold.change_in_return_level_for_reference_altitude
+            if change_value == 0:
                 continue
             # Compute nbs
-            idx = 0 if one_fold.change_in_return_level_for_reference_altitude < 0 else 2
+            idx = 0 if change_value < 0 else 2
             nbs[idx] += 1
             if with_significance and one_fold.is_significant:
                 nbs[idx + 1] += 1

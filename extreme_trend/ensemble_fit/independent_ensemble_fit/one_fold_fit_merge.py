@@ -19,5 +19,14 @@ class OneFoldFitMerge(OneFoldFit):
     def get_moment(self, altitude, temporal_covariate, order=1):
         return self.merge_function([o.get_moment(altitude, temporal_covariate, order) for o in self.one_fold_fit_list])
 
+    def changes_of_moment(self, altitudes, order=1):
+        all_changes = [o.changes_of_moment(altitudes, order) for o in self.one_fold_fit_list]
+        merged_changes = list(self.merge_function(np.array(all_changes), axis=0))
+        assert len(all_changes[0]) == len(merged_changes)
+        return merged_changes
 
-
+    def relative_changes_of_moment(self, altitudes, order=1):
+        all_relative_changes = [o.relative_changes_of_moment(altitudes, order) for o in self.one_fold_fit_list]
+        merged_relative_changes = list(self.merge_function(np.array(all_relative_changes), axis=0))
+        assert len(all_relative_changes[0]) == len(merged_relative_changes)
+        return merged_relative_changes
