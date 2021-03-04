@@ -44,6 +44,7 @@ class MeanAlpsTemperatureCovariate(AbstractTemperatureCovariate):
     def load_year_to_temperature_covariate(cls):
         return load_year_to_mean_alps_temperatures()
 
+
 class AnomalyTemperatureWithSplineTemporalCovariate(AbstractTemporalCovariateForFit):
     gcm_and_scenario_to_d = {}
 

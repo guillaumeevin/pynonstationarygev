@@ -53,15 +53,15 @@ def plot_nb_data_one_line(ax, gcm, scenario, left_limits, right_limits, first_sc
     linestyle = get_linestyle_from_scenario(scenario)
 
     # Filter out the zero value
-    nb_data, left_limits = np.array(nb_data), np.array(left_limits)
+    nb_data, right_limits = np.array(nb_data), np.array(right_limits)
     ind = np.array(nb_data) > 0
-    nb_data, left_limits = nb_data[ind], left_limits[ind]
+    nb_data, right_limits = nb_data[ind], right_limits[ind]
 
     # For the legend
     if (len(nb_data) > 0) and first_scenario:
-        ax.plot(left_limits[0], nb_data[0], color=color, linestyle='solid', label=gcm)
+        ax.plot(right_limits[0], nb_data[0], color=color, linestyle='solid', label=gcm)
 
-    ax.plot(left_limits, nb_data, linestyle=linestyle, color=color, marker='o')
+    ax.plot(right_limits, nb_data, linestyle=linestyle, color=color, marker='o')
 
 
 def plot_nb_data(is_temperature_interval, is_shift_interval):
@@ -75,7 +75,7 @@ def plot_nb_data(is_temperature_interval, is_shift_interval):
 
     ax.legend()
     ticks_labels = get_ticks_labels_for_interval(is_temperature_interval, is_shift_interval)
-    ax.set_xticks(left_limit)
+    ax.set_xticks(right_limit)
     ax.set_xticklabels(ticks_labels)
     # ax.set_xlabel('Interval')
     ax.set_ylabel('Nb of Maxima')
@@ -101,8 +101,8 @@ def get_interval_limits(is_temperature_interval, is_shift_interval):
         year_max = [2050 + shift * i for i in range(nb)]
         left_limit, right_limit = year_min, year_max
     if not is_shift_interval:
-        max_interval_right = max(right_limit)
-        right_limit = [max_interval_right for _ in left_limit]
+        min_interval_left = min(left_limit)
+        left_limit = [min_interval_left for _ in right_limit]
     return left_limit, right_limit
 
 

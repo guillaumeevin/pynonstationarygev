@@ -23,6 +23,7 @@ class VisualizerMerge(AltitudesStudiesVisualizerForNonStationaryModels):
                  merge_function=np.median):
         self.merge_function = merge_function
         self.visualizers = visualizers
+        assert len(visualizers) > 0
         super().__init__(studies=visualizers[0].studies, model_classes=model_classes, show=show, massif_names=massif_names,
                          fit_method=fit_method, temporal_covariate_for_fit=temporal_covariate_for_fit,
                          display_only_model_that_pass_anderson_test=display_only_model_that_pass_anderson_test,

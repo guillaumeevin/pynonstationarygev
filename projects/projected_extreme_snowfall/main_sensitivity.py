@@ -83,9 +83,8 @@ def main():
             massif_names=massif_names,
             temporal_covariate_for_fit=temporal_covariate_for_fit,
             remove_physically_implausible_models=remove_physically_implausible_models,
-            merge_visualizer_str=AbstractEnsembleFit.Median_merge,
             is_temperature_interval=False,
-            is_shift_interval=True,
+            is_shift_interval=False,
         )
         visualizer.plot()
 
