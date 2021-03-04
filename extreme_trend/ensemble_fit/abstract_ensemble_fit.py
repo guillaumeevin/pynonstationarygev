@@ -8,6 +8,7 @@ from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 class AbstractEnsembleFit(object):
     Median_merge = 'Median'
     Mean_merge = 'Mean'
+    Together_merge = 'Together'
 
     def __init__(self, massif_names, gcm_rcm_couple_to_altitude_studies: Dict[Tuple[str, str], AltitudesStudies],
                  models_classes,

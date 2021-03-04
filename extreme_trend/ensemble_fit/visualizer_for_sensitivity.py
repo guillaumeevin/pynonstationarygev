@@ -10,6 +10,7 @@ from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_poly
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_trend.ensemble_fit.abstract_ensemble_fit import AbstractEnsembleFit
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
+from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 from extreme_trend.one_fold_fit.altitude_group import get_altitude_class_from_altitudes, \
     get_linestyle_for_altitude_class
@@ -31,16 +32,16 @@ class VisualizerForSensivity(object):
                  is_temperature_interval=False,
                  is_shift_interval=False,
                  ):
+        self.ensemble_fit_classes = ensemble_fit_classes
         self.is_shift_interval = is_shift_interval
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.is_temperature_interval = is_temperature_interval
-        self.merge_visualizer_str_list = (AbstractEnsembleFit.Median_merge, AbstractEnsembleFit.Mean_merge)
         self.altitudes_list = altitudes_list
         self.massif_names = massif_names
         self.left_limits, self.right_limits = get_interval_limits(self.is_temperature_interval,
-                                                                   self.is_shift_interval)
+                                                                  self.is_shift_interval)
         self.left_limit_to_right_limit = OrderedDict(zip(self.left_limits, self.right_limits))
-        self.right_limit_to_visualizer = {} # type: Dict[float, VisualizerForProjectionEnsemble]
+        self.right_limit_to_visualizer = {}  # type: Dict[float, VisualizerForProjectionEnsemble]
 
         for left_limit, right_limit in zip(self.left_limits, self.right_limits):
             print("Interval is", left_limit, right_limit)
@@ -52,9 +53,9 @@ class VisualizerForSensivity(object):
                                                                   self.is_temperature_interval)
                 if year_min_and_year_max[0] is not None:
                     gcm_to_year_min_and_year_max[gcm] = year_min_and_year_max
-                
+
             visualizer = VisualizerForProjectionEnsemble(
-                altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
+                altitudes_list, gcm_rcm_couples, study_class, season, scenario,
                 model_classes=model_classes,
                 fit_method=fit_method,
                 ensemble_fit_classes=ensemble_fit_classes,
@@ -73,7 +74,12 @@ class VisualizerForSensivity(object):
         # , and not just the plots for the last t_min
         # for visualizer in self.temp_min_to_visualizer.values():
         #     visualizer.plot()
-        for merge_visualizer_str in self.merge_visualizer_str_list:
+        merge_visualizer_str_list = []
+        if IndependentEnsembleFit in self.ensemble_fit_classes:
+            merge_visualizer_str_list.extend([AbstractEnsembleFit.Median_merge, AbstractEnsembleFit.Mean_merge])
+        if TogetherEnsembleFit in self.ensemble_fit_classes:
+            merge_visualizer_str_list.append(AbstractEnsembleFit.Together_merge)
+        for merge_visualizer_str in merge_visualizer_str_list:
             self.sensitivity_plot(merge_visualizer_str)
 
     def sensitivity_plot(self, merge_visualizer_str):
@@ -89,7 +95,7 @@ class VisualizerForSensivity(object):
         ax.set_xticklabels(ticks_labels)
         ax.legend(prop={'size': 7}, loc='upper center', ncol=2)
         ax.set_ylim((0, 122))
-        ax.set_yticks([i*10 for i in range(11)])
+        ax.set_yticks([i * 10 for i in range(11)])
         merge_visualizer = self.first_merge_visualizer(merge_visualizer_str)
         temp_cov = self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate
         merge_visualizer.plot_name = 'Sensitivity plot with ' \
@@ -98,19 +104,6 @@ class VisualizerForSensivity(object):
                                                                                      temp_cov)
         merge_visualizer.show_or_save_to_file(no_title=True)
         plt.close()
-
-    def first_merge_visualizer(self, merge_visualizer_str):
-        altitude_class = get_altitude_class_from_altitudes(self.altitudes_list[0])
-        visualizer_projection = list(self.right_limit_to_visualizer.values())[0]
-        return self.get_merge_visualizer(altitude_class, visualizer_projection, merge_visualizer_str)
-
-    def get_merge_visualizer(self, altitude_class, visualizer_projection: VisualizerForProjectionEnsemble,
-                             merge_visualizer_str):
-        independent_ensemble_fit = visualizer_projection.altitude_class_to_ensemble_class_to_ensemble_fit[altitude_class][
-            IndependentEnsembleFit]
-        merge_visualizer = independent_ensemble_fit.merge_function_name_to_visualizer[merge_visualizer_str]
-        merge_visualizer.studies.study.gcm_rcm_couple = (merge_visualizer_str, "merge")
-        return merge_visualizer
 
     def interval_plot(self, ax, altitude_class, merge_visualizer_str):
         linestyle = get_linestyle_for_altitude_class(altitude_class)
@@ -137,3 +130,21 @@ class VisualizerForSensivity(object):
             color = label_to_color[label]
             ax.plot(self.right_limits, l, label=label_improved, color=color, linestyle=linestyle)
 
+    def get_merge_visualizer(self, altitude_class, visualizer_projection: VisualizerForProjectionEnsemble,
+                             merge_visualizer_str):
+        if merge_visualizer_str in [AbstractEnsembleFit.Median_merge, AbstractEnsembleFit.Mean_merge]:
+            independent_ensemble_fit = \
+            visualizer_projection.altitude_class_to_ensemble_class_to_ensemble_fit[altitude_class][
+                IndependentEnsembleFit]
+            merge_visualizer = independent_ensemble_fit.merge_function_name_to_visualizer[merge_visualizer_str]
+        else:
+            together_ensemble_fit = \
+            visualizer_projection.altitude_class_to_ensemble_class_to_ensemble_fit[altitude_class][TogetherEnsembleFit]
+            merge_visualizer = together_ensemble_fit.visualizer
+        merge_visualizer.studies.study.gcm_rcm_couple = (merge_visualizer_str, "merge")
+        return merge_visualizer
+
+    def first_merge_visualizer(self, merge_visualizer_str):
+        altitude_class = get_altitude_class_from_altitudes(self.altitudes_list[0])
+        visualizer_projection = list(self.right_limit_to_visualizer.values())[0]
+        return self.get_merge_visualizer(altitude_class, visualizer_projection, merge_visualizer_str)

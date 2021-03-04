@@ -154,11 +154,14 @@ class AbstractCoordinates(object):
 
     # Split
 
-    def df_coordinates(self, split: Split = Split.all, transformed=True) -> pd.DataFrame:
+    def df_coordinates(self, split: Split = Split.all, transformed=True, add_climate_informations=False) -> pd.DataFrame:
         if transformed:
             df_transformed_coordinates = self.transformation.transform_df(self.df_all_coordinates)
         else:
             df_transformed_coordinates = self.df_all_coordinates
+        if add_climate_informations:
+            df_transformed_coordinates = pd.concat([df_transformed_coordinates,
+                                                    self.df_coordinate_climate_model], axis=1)
         return df_sliced(df=df_transformed_coordinates, split=split, slicer=self.slicer)
 
     def coordinates_values(self, split: Split = Split.all, transformed=True) -> np.ndarray:

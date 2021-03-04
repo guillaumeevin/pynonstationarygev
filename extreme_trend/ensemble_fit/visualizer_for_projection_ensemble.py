@@ -120,6 +120,8 @@ class VisualizerForProjectionEnsemble(object):
     def plot_together(self):
         visualizer_list = [together_ensemble_fit.visualizer
                            for together_ensemble_fit in self.ensemble_fits(TogetherEnsembleFit)]
+        for v in visualizer_list:
+            v.studies.study.gcm_rcm_couple = ("together", "merge")
         self.plot_for_visualizer_list(visualizer_list)
 
     def ensemble_fits(self, ensemble_class):

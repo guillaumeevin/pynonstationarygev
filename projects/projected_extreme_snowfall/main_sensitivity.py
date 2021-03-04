@@ -4,6 +4,7 @@ from typing import List
 import matplotlib
 
 from extreme_trend.ensemble_fit.abstract_ensemble_fit import AbstractEnsembleFit
+from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 
 matplotlib.use('Agg')
 import matplotlib as mpl
@@ -40,7 +41,7 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 def main():
     start = time.time()
     study_class = AdamontSnowfall
-    ensemble_fit_classes = [IndependentEnsembleFit]
+    ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     temporal_covariate_for_fit = [TimeTemporalCovariate,
                                   AnomalyTemperatureWithSplineTemporalCovariate][0]
     set_seed_for_test()
@@ -53,9 +54,9 @@ def main():
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
         if fast is None:
             massif_names = None
-            gcm_rcm_couples = gcm_rcm_couples
+            gcm_rcm_couples = gcm_rcm_couples[4:6]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = altitudes_for_groups[1:2]
+            altitudes_list = altitudes_for_groups[3:]
         elif fast:
             massif_names = ['Vanoise', 'Haute-Maurienne']
             gcm_rcm_couples = gcm_rcm_couples[4:6]

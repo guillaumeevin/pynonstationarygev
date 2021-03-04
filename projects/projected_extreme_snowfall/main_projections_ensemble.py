@@ -45,7 +45,7 @@ def main():
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = True
+    fast = False
     scenarios = rcp_scenarios[::-1] if fast is False else [AdamontScenario.rcp85]
 
     for scenario in scenarios:
@@ -57,7 +57,7 @@ def main():
             altitudes_list = altitudes_for_groups[3:]
         elif fast:
             massif_names = ['Vanoise', 'Haute-Maurienne']
-            gcm_rcm_couples = gcm_rcm_couples[4:6]
+            gcm_rcm_couples = gcm_rcm_couples[:]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
             altitudes_list = altitudes_for_groups[:1]
         else:
@@ -73,7 +73,6 @@ def main():
 
         model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
         assert scenario in rcp_scenarios
-        remove_physically_implausible_models = True
 
         visualizer = VisualizerForProjectionEnsemble(
             altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
@@ -81,7 +80,7 @@ def main():
             ensemble_fit_classes=ensemble_fit_classes,
             massif_names=massif_names,
             temporal_covariate_for_fit=temporal_covariate_for_fit,
-            remove_physically_implausible_models=remove_physically_implausible_models,
+            remove_physically_implausible_models=True,
             gcm_to_year_min_and_year_max=None,
         )
         visualizer.plot()
