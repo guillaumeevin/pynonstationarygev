@@ -246,8 +246,11 @@ class OneFoldFit(object):
     def best_coef(self, param_name, dim, degree):
         try:
             coef = self.best_function_from_fit.param_name_to_coef[param_name]  # type: PolynomialAllCoef
-            coef = coef.dim_to_polynomial_coef[dim]  # type: PolynomialCoef
-            coef = coef.idx_to_coef[degree]
+            if coef.dim_to_polynomial_coef is None:
+                return coef.intercept
+            else:
+                coef = coef.dim_to_polynomial_coef[dim]  # type: PolynomialCoef
+                coef = coef.idx_to_coef[degree]
             return coef
         except (TypeError, KeyError):
             return None

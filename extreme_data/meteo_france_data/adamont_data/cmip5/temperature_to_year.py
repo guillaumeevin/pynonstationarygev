@@ -69,7 +69,7 @@ def plot_nb_data(is_temperature_interval, is_shift_interval):
 
     ax = plt.gca()
     for gcm in get_gcm_list(adamont_version=2)[:]:
-        for i, scenario in enumerate(rcp_scenarios[:2]):
+        for i, scenario in enumerate(rcp_scenarios[2:]):
             plot_nb_data_one_line(ax, gcm, scenario, left_limit, right_limit,
                                   i == 0, is_temperature_interval)
 
@@ -118,6 +118,6 @@ def get_ticks_labels_for_interval(is_temperature_interval, is_shift_interval):
 
 if __name__ == '__main__':
     for shift_interval in [False, True]:
-        for temp_interval in [False, True]:
+        for temp_interval in [False, True][1:]:
             print("shift = {}, temp_inteval = {}".format(shift_interval, temp_interval))
             plot_nb_data(is_temperature_interval=temp_interval, is_shift_interval=shift_interval)

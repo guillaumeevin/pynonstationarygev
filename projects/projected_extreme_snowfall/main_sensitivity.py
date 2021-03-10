@@ -8,16 +8,15 @@ from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit impo
 
 matplotlib.use('Agg')
 import matplotlib as mpl
+
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
-
 
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 from extreme_trend.ensemble_fit.visualizer_for_sensitivity import VisualizerForSensivity
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureWithSplineTemporalCovariate
-
 
 from extreme_fit.model.margin_model.polynomial_margin_model.utils import \
     ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
@@ -27,8 +26,8 @@ from extreme_fit.model.utils import set_seed_for_test
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples, \
     rcp_scenarios
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import TimeTemporalCovariate
-
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
+    TimeTemporalCovariate
 
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
@@ -42,8 +41,6 @@ def main():
     start = time.time()
     study_class = AdamontSnowfall
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
-    temporal_covariate_for_fit = [TimeTemporalCovariate,
-                                  AnomalyTemperatureWithSplineTemporalCovariate][0]
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
@@ -71,28 +68,31 @@ def main():
         assert isinstance(altitudes_list, List)
         assert isinstance(altitudes_list[0], List)
         print('Scenario is', scenario)
-        print('Covariate is {}'.format(temporal_covariate_for_fit))
 
         model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
         assert scenario in rcp_scenarios
         remove_physically_implausible_models = True
+        temp_cov = False
+        temporal_covariate_for_fit = AnomalyTemperatureWithSplineTemporalCovariate if temp_cov else TimeTemporalCovariate
+        print('Covariate is {}'.format(temporal_covariate_for_fit))
 
-        visualizer = VisualizerForSensivity(
-            altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
-            model_classes=model_classes,
-            ensemble_fit_classes=ensemble_fit_classes,
-            massif_names=massif_names,
-            temporal_covariate_for_fit=temporal_covariate_for_fit,
-            remove_physically_implausible_models=remove_physically_implausible_models,
-            is_temperature_interval=False,
-            is_shift_interval=False,
-        )
-        visualizer.plot()
+        for is_temperature_interval in [True, False][1:]:
+            for is_shift_interval in [True, False][1:]:
+                visualizer = VisualizerForSensivity(
+                    altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
+                    model_classes=model_classes,
+                    ensemble_fit_classes=ensemble_fit_classes,
+                    massif_names=massif_names,
+                    temporal_covariate_for_fit=temporal_covariate_for_fit,
+                    remove_physically_implausible_models=remove_physically_implausible_models,
+                    is_temperature_interval=is_temperature_interval,
+                    is_shift_interval=is_shift_interval,
+                )
+                visualizer.plot()
 
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))
     print('Total duration', duration)
-
 
 
 if __name__ == '__main__':

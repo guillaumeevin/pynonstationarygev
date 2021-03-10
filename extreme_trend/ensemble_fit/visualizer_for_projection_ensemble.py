@@ -1,6 +1,11 @@
+import matplotlib.pyplot as plt
 from collections import OrderedDict
 from typing import List
 
+from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_to_color
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str
+from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -129,3 +134,40 @@ class VisualizerForProjectionEnsemble(object):
         return [ensemble_class_to_ensemble_fit[ensemble_class]
                 for ensemble_class_to_ensemble_fit
                 in self.altitude_class_to_ensemble_class_to_ensemble_fit.values()]
+
+    def plot_preliminary_first_part(self):
+        if self.massif_names is None:
+            massif_names = AbstractStudy.all_massif_names()
+        else:
+            massif_names = self.massif_names
+        assert isinstance(massif_names, list)
+        # Plot for all parameters
+        for param_name in GevParams.PARAM_NAMES:
+            for degree in [0, 1]:
+                for massif_name in massif_names:
+                    self.plot_preliminary_first_part_for_one_massif(massif_name, param_name, degree)
+
+    def plot_preliminary_first_part_for_one_massif(self, massif_name, param_name, degree):
+        # Retrieve the data
+        ensemble_fit: IndependentEnsembleFit
+        gcm_rcm_couple_to_data = {
+            c: [] for c in self.gcm_rcm_couples
+        }
+        for ensemble_fit in self.ensemble_fits(IndependentEnsembleFit):
+            for gcm_rcm_couple in self.gcm_rcm_couples:
+                visualizer = ensemble_fit.gcm_rcm_couple_to_visualizer[gcm_rcm_couple]
+                one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
+                coef = one_fold_fit.best_coef(param_name, 0, degree)
+                altitude = visualizer.altitude_group.reference_altitude
+                gcm_rcm_couple_to_data[gcm_rcm_couple].append((altitude, coef))
+        # Plot
+        ax = plt.gca()
+        for gcm_rcm_couple, data in gcm_rcm_couple_to_data.items():
+            altitudes, coefs = list(zip(*data))
+            color = gcm_rcm_couple_to_color[gcm_rcm_couple]
+            label = gcm_rcm_couple_to_str(gcm_rcm_couple)
+            ax.plot(coefs, altitudes, color=color, label=label, marker='o')
+        ax.legend()
+        visualizer.plot_name = '{}/{}_{}'.format(param_name, degree, massif_name)
+        visualizer.show_or_save_to_file(no_title=True)
+        plt.close()
