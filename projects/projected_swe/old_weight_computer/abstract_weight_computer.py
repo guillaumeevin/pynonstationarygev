@@ -1,28 +1,14 @@
-from collections import OrderedDict
 import pandas as pd
 
-import numpy as np
-from scipy.special import softmax
-
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str
-from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import compute_nllh
-from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
-from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
-from projects.projected_swe.utils import WEIGHT_COLUMN_NAME, get_csv_filepath, save_to_filepath
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
-    TimeTemporalCovariate
+from projects.projected_swe.weight_computer.utils import WEIGHT_COLUMN_NAME, save_to_filepath
 from collections import OrderedDict
 
 import numpy as np
 from scipy.special import softmax
 
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import compute_nllh
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
-    TimeTemporalCovariate
 
 
 class AbstractWeightComputer(object):

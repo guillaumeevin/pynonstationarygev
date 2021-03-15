@@ -1,38 +1,21 @@
-import os
-
-from collections import OrderedDict
-
-import pandas as pd
-import os.path as op
 import datetime
 import time
-import numpy as np
-from scipy.special import softmax
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples, \
-    gcm_rcm_couple_to_str, SEPARATOR_STR, scenario_to_str
-from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
-from extreme_data.utils import DATA_PATH
-from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import compute_nllh
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
 from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_with_linear_shape_wrt_altitude import \
     AltitudinalShapeLinearTimeStationary
-from extreme_fit.model.margin_model.polynomial_margin_model.utils import \
-    ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 from extreme_trend.one_fold_fit.altitude_group import altitudes_for_groups
-from projects.projected_swe.abstract_weight_computer import AbstractWeightComputer
-from projects.projected_swe.knutti_weight_computer import KnuttiWeightComputer
-from projects.projected_swe.non_stationary_weight_computer import NllhWeightComputer
-from projects.projected_swe.utils import load_gcm_rcm_couple_to_weight
+from projects.projected_swe.weight_computer.abstract_weight_computer import AbstractWeightComputer
+from projects.projected_swe.weight_computer.knutti_weight_computer import KnuttiWeightComputer
+from projects.projected_swe.weight_computer.non_stationary_weight_computer import NllhWeightComputer
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate
-from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
-    AnomalyTemperatureWithSplineTemporalCovariate
 
 
 def main_weight_computation():

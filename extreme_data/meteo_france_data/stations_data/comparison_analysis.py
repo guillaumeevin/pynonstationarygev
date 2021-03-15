@@ -213,7 +213,7 @@ class ComparisonAnalysis(object):
         # Mean number of non-Nan values
         d['% of Nan'] = df_values_from_1958.isna().mean().mean()
         # Number of lines with only Nan
-        d['Lines w Nan'] = df_values_from_1958.isna().all(axis=1).sum()
+        d['Lines w Nan'] = df_values_from_1958.isna().all(axis=1).sum_of_differences()
         return pd.Series(d)
 
     def altitude_short_analysis(self):
