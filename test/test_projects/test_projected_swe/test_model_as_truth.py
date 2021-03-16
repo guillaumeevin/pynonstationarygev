@@ -8,7 +8,8 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf impo
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
 from projects.projected_swe.weight_solver.indicator import AnnualMaximaMeanIndicator, ReturnLevel30YearsIndicator
-from projects.projected_swe.weight_solver.knutti_weight_solver import KnuttiWeightSolver, \
+from projects.projected_swe.weight_solver.knutti_weight_solver import KnuttiWeightSolver
+from projects.projected_swe.weight_solver.knutti_weight_solver_with_bootstrap import \
     KnuttiWeightSolverWithBootstrapVersion1, KnuttiWeightSolverWithBootstrapVersion2
 
 
@@ -37,11 +38,11 @@ class TestModelAsTruth(unittest.TestCase):
                     knutti_weight = knutti_weight_solver_class(sigma_skill=100.0, sigma_interdependence=100.0,
                                                                massif_names=massif_names,
                                                                observation_study=observation_study,
-                                                               couple_to_study=couple_to_study,
+                                                               couple_to_historical_study=couple_to_study,
                                                                indicator_class=indicator_class,
                                                                add_interdependence_weight=add_interdependence_weight
                                                                )
-                    print(knutti_weight.couple_to_weight)
+                    # print(knutti_weight.couple_to_weight)
                     weight = knutti_weight.couple_to_weight[('CNRM-CM5', 'CCLM4-8-17')]
                     self.assertFalse(np.isnan(weight))
 

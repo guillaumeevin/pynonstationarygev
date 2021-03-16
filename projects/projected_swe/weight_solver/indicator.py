@@ -34,10 +34,10 @@ class ReturnLevel30YearsIndicator(AbstractIndicator):
 
     @classmethod
     def get_indicator(cls, study: AbstractStudy, massif_name, bootstrap=False):
-        if bootstrap:
-            return study.massif_name_to_return_level_list_from_bootstrap(return_period=30)[massif_name]
-        else:
-            try:
+        try:
+            if bootstrap:
+                return study.massif_name_to_return_level_list_from_bootstrap(return_period=30)[massif_name]
+            else:
                 return study.massif_name_to_return_level(return_period=30)[massif_name]
-            except KeyError:
-                raise ReturnLevelComputationException
+        except KeyError:
+            raise ReturnLevelComputationException

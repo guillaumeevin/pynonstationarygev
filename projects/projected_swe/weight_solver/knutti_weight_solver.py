@@ -13,18 +13,22 @@ class KnuttiWeightSolver(AbstractWeightSolver):
         super().__init__(*args, **kwargs)
         self.sigma_skill = sigma_skill
         self.sigma_interdependence = sigma_interdependence
+        if self.add_interdependence_weight:
+            assert self.sigma_interdependence is not None
         # Set some parameters for the bootstrap
         ReturnLevelBootstrap.only_physically_plausible_fits = True
         # Set some parameters to speed up results (by caching some results)
-        self.observation_study._massif_names_for_cache = self.massif_names
-        for study in self.couple_to_study.values():
-            study._massif_names_for_cache = self.massif_names
+        study_list = [self.observation_study] + list(self.couple_to_historical_study.values())
+        for study in study_list:
+            if study._massif_names_for_cache is None:
+                study._massif_names_for_cache = self.massif_names
         # Compute the subset of massif_names used for the computation
         self.massif_names_for_computation = []
         for massif_name in self.massif_names:
             try:
                 [self.compute_skill_one_massif(couple_study, massif_name) for couple_study in self.study_list]
-                [self.compute_interdependence_nllh_one_massif(couple_study, massif_name) for couple_study in self.study_list]
+                if self.add_interdependence_weight:
+                    [self.compute_interdependence_nllh_one_massif(couple_study, massif_name) for couple_study in self.study_list]
             except WeightComputationException:
                 continue
             self.massif_names_for_computation.append(massif_name)
@@ -47,7 +51,7 @@ class KnuttiWeightSolver(AbstractWeightSolver):
 
     def compute_interdependence_nllh_one_massif(self, couple_study, massif_name):
         sum_proba = 0
-        for other_couple_study in self.couple_to_study.values():
+        for other_couple_study in self.couple_to_historical_study.values():
             if other_couple_study is not couple_study:
                 nllh = self.compute_nllh_from_two_study(couple_study, other_couple_study,
                                                         self.sigma_interdependence, massif_name)
@@ -72,23 +76,11 @@ class KnuttiWeightSolver(AbstractWeightSolver):
         assert issubclass(self.indicator_class, AbstractIndicator)
         return np.array([self.indicator_class.get_indicator(study_1, massif_name)
                          - self.indicator_class.get_indicator(study_2, massif_name)])
+    
 
 
-class KnuttiWeightSolverWithBootstrapVersion1(KnuttiWeightSolver):
-
-    def differences(self, study_1, study_2, massif_name):
-        assert issubclass(self.indicator_class, AbstractIndicator)
-        bootstrap_study_1 = self.indicator_class.get_indicator(study_1, massif_name, bootstrap=True)
-        bootstrap_study_2 = self.indicator_class.get_indicator(study_2, massif_name, bootstrap=True)
-        differences = bootstrap_study_1 - bootstrap_study_2
-        return differences
 
 
-class KnuttiWeightSolverWithBootstrapVersion2(KnuttiWeightSolver):
 
-    def differences(self, study_1, study_2, massif_name):
-        assert issubclass(self.indicator_class, AbstractIndicator)
-        bootstrap_study_1 = self.indicator_class.get_indicator(study_1, massif_name, bootstrap=True)
-        bootstrap_study_2 = self.indicator_class.get_indicator(study_2, massif_name, bootstrap=True)
-        differences = np.subtract.outer(bootstrap_study_1, bootstrap_study_2)
-        return differences
+
+
