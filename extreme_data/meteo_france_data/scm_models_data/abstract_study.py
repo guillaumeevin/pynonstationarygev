@@ -873,6 +873,10 @@ class AbstractStudy(object):
             mask_french_alps += mask_massif
         return ~np.array(mask_french_alps, dtype=bool)
 
+    def massif_name_to_return_level(self, return_period):
+        return {massif_name: gev_params.return_level(return_period=return_period)
+                for massif_name, gev_params in self.massif_name_to_stationary_gev_params.items()}
+
     @cached_property
     def massif_name_to_stationary_gev_params(self):
         d, _ = self._massif_name_to_stationary_gev_params_and_confidence(quantile_level=None)

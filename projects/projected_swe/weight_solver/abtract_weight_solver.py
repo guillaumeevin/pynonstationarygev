@@ -1,20 +1,39 @@
+from typing import Dict, Tuple
+
 from scipy.special import softmax
 import numpy as np
 
+from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from projects.projected_swe.weight_solver.indicator import AbstractIndicator
 
 
 class AbstractWeightSolver(object):
 
-    def __init__(self, observation_study, couple_to_study, indicator_class: type, add_interdependence_weight=False):
+    def __init__(self, observation_study: AbstractStudy,
+                 couple_to_study: Dict[Tuple[str, str], AbstractStudy],
+                 indicator_class: type,
+                 massif_names=None,
+                 add_interdependence_weight=False):
         self.observation_study = observation_study
         self.couple_to_study = couple_to_study
         self.indicator_class = indicator_class
         self.add_interdependence_weight = add_interdependence_weight
+        # Compute intersection massif names
+        sets = [set(study.study_massif_names) for study in self.study_list]
+        intersection_massif_names = sets[0].intersection(*sets[1:])
+        if massif_names is None:
+            self.massif_names = list(intersection_massif_names)
+        else:
+            assert set(massif_names).issubset(intersection_massif_names)
+            self.massif_names = massif_names
+
+    @property
+    def study_list(self):
+        return [self.observation_study] + list(self.couple_to_study.values())
 
     @property
     def couple_to_weight(self):
-        nllh_list, couple_list = zip(*list(self.couple_to_nllh.items()))
+        couple_list, nllh_list = zip(*list(self.couple_to_nllh.items()))
         weights = softmax(-np.array(nllh_list))
         return dict(zip(couple_list, weights))
 
@@ -28,24 +47,16 @@ class AbstractWeightSolver(object):
 
     @property
     def couple_to_nllh_skill(self):
-        couple_to_nllh_skill = {}
-        for couple, couple_study in self.couple_to_study.items():
-            skill = self.compute_skill(couple_study=couple_study)
-            nllh_skill = -np.log(skill)
-            couple_to_nllh_skill[couple] = nllh_skill
-        return couple_to_nllh_skill
+        return {couple: self.compute_skill_nllh(couple_study=couple_study)
+                for couple, couple_study in self.couple_to_study.items()}
 
-    def compute_skill(self, couple_study):
+    def compute_skill_nllh(self, couple_study):
         raise NotImplementedError
 
     @property
     def couple_to_nllh_interdependence(self):
-        couple_to_nllh_interdependence = {}
-        for couple, couple_study in self.couple_to_study.items():
-            interdependence = self.compute_interdependence(couple_study=couple_study)
-            nllh_interdependence = -np.log(interdependence)
-            couple_to_nllh_interdependence[couple] = nllh_interdependence
-        return couple_to_nllh_interdependence
+        return {couple: self.compute_interdependence_nllh(couple_study=couple_study)
+                for couple, couple_study in self.couple_to_study.items()}
 
-    def compute_interdependence(self, couple_study):
+    def compute_interdependence_nllh(self, couple_study):
         raise NotImplementedError
