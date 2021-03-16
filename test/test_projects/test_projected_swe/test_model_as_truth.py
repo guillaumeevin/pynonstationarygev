@@ -23,21 +23,25 @@ class TestModelAsTruth(unittest.TestCase):
         couple_to_study = {c: AdamontSnowfall(altitude=altitude, scenario=scenario,
                                               year_min=year_min, year_max=year_max,
                                               gcm_rcm_couple=c) for c in get_gcm_rcm_couples(adamont_scenario=scenario)}
-        massif_names = None
+        massif_names = ['Vercors']
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         for knutti_weight_solver_class in [KnuttiWeightSolver,
                                            KnuttiWeightSolverWithBootstrapVersion1,
-                                           KnuttiWeightSolverWithBootstrapVersion2][:1]:
-            for indicator_class in [AnnualMaximaMeanIndicator, ReturnLevel30YearsIndicator][:1]:
+                                           KnuttiWeightSolverWithBootstrapVersion2][:]:
+            if knutti_weight_solver_class in [KnuttiWeightSolverWithBootstrapVersion1, KnuttiWeightSolverWithBootstrapVersion2]:
+                idx = 1
+            else:
+                idx = 0
+            for indicator_class in [AnnualMaximaMeanIndicator, ReturnLevel30YearsIndicator][idx:]:
                 for add_interdependence_weight in [False, True]:
-                    knutti_weight = knutti_weight_solver_class(sigma_skill=10.0, sigma_interdependence=10.0,
+                    knutti_weight = knutti_weight_solver_class(sigma_skill=100.0, sigma_interdependence=100.0,
                                                                massif_names=massif_names,
                                                                observation_study=observation_study,
                                                                couple_to_study=couple_to_study,
                                                                indicator_class=indicator_class,
                                                                add_interdependence_weight=add_interdependence_weight
                                                                )
-                    # print(knutti_weight.couple_to_weight)
+                    print(knutti_weight.couple_to_weight)
                     weight = knutti_weight.couple_to_weight[('CNRM-CM5', 'CCLM4-8-17')]
                     self.assertFalse(np.isnan(weight))
 

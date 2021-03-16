@@ -35,8 +35,7 @@ class ReturnLevel30YearsIndicator(AbstractIndicator):
     @classmethod
     def get_indicator(cls, study: AbstractStudy, massif_name, bootstrap=False):
         if bootstrap:
-            print(study.massif_name_to_return_level_list(return_period=30)[massif_name])
-            raise NotImplementedError
+            return study.massif_name_to_return_level_list_from_bootstrap(return_period=30)[massif_name]
         else:
             try:
                 return study.massif_name_to_return_level(return_period=30)[massif_name]

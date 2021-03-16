@@ -103,6 +103,7 @@ class AbstractStudy(object):
         self.slope = slope
         # Add some cache for computation
         self._cache_for_pointwise_fit = {}
+        self._massif_names_for_cache = None
 
     """ Time """
 
@@ -873,46 +874,54 @@ class AbstractStudy(object):
             mask_french_alps += mask_massif
         return ~np.array(mask_french_alps, dtype=bool)
 
+    def massif_name_to_return_level_list_from_bootstrap(self, return_period):
+        quantile_level = 1 - 1 / return_period
+        _, _, d = self.massif_name_to_stationary_gev_params_and_confidence(quantile_level=quantile_level,
+                                                                           confidence_interval_based_on_delta_method=False)
+        return d
+
     def massif_name_to_return_level(self, return_period):
         return {massif_name: gev_params.return_level(return_period=return_period)
                 for massif_name, gev_params in self.massif_name_to_stationary_gev_params.items()}
 
-    @cached_property
+    @property
     def massif_name_to_stationary_gev_params(self):
-        d, _ = self._massif_name_to_stationary_gev_params_and_confidence(quantile_level=None)
+        d, _, _ = self.massif_name_to_stationary_gev_params_and_confidence(quantile_level=None)
         return d
 
     def massif_name_to_stationary_gev_params_and_confidence(self, quantile_level,
-                                                            confidence_interval_based_on_delta_method):
+                                                            confidence_interval_based_on_delta_method=True):
         t = (quantile_level, confidence_interval_based_on_delta_method)
         if t in self._cache_for_pointwise_fit:
             return self._cache_for_pointwise_fit[t]
         else:
-            res = self._massif_name_to_stationary_gev_params_and_confidence(*t)
+            res = self._massif_name_to_stationary_gev_params_and_confidence(*t, self._massif_names_for_cache)
             self._cache_for_pointwise_fit[t] = res
             return res
 
     def _massif_name_to_stationary_gev_params_and_confidence(self, quantile_level=None,
-                                                             confidence_interval_based_on_delta_method=True):
+                                                             confidence_interval_based_on_delta_method=True,
+                                                             massif_names=None):
         """ at least 90% of values must be above zero"""
         massif_name_to_stationary_gev_params = {}
         massif_name_to_confidence = {}
+        massif_name_to_return_level_list = {}
         for massif_name, annual_maxima in self.massif_name_to_annual_maxima.items():
-            percentage_of_non_zeros = 100 * np.count_nonzero(annual_maxima) / len(annual_maxima)
-            if percentage_of_non_zeros > 90:
-                start = time.time()
-                gev_params, mean_estimate, confidence = fitted_stationary_gev_with_uncertainty_interval(annual_maxima,
-                                                                                                        fit_method=MarginFitMethod.extremes_fevd_mle,
-                                                                                                        quantile_level=quantile_level,
-                                                                                                        confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method)
-                end = time.time()
-                duration = end - start
+            if (massif_names is None) or (massif_name in massif_names):
+                percentage_of_non_zeros = 100 * np.count_nonzero(annual_maxima) / len(annual_maxima)
+                if percentage_of_non_zeros > 90:
+                    gev_params, mean_estimate, confidence, return_level_list = fitted_stationary_gev_with_uncertainty_interval(
+                        annual_maxima,
+                        fit_method=MarginFitMethod.extremes_fevd_mle,
+                        quantile_level=quantile_level,
+                        confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method)
 
-                if -0.5 <= gev_params.shape <= 0.5:
-                    massif_name_to_stationary_gev_params[massif_name] = gev_params
-                    massif_name_to_confidence[massif_name] = EurocodeConfidenceIntervalFromExtremes(mean_estimate,
-                                                                                                    confidence)
-        return massif_name_to_stationary_gev_params, massif_name_to_confidence
+                    if -0.5 <= gev_params.shape <= 0.5:
+                        massif_name_to_stationary_gev_params[massif_name] = gev_params
+                        massif_name_to_confidence[massif_name] = EurocodeConfidenceIntervalFromExtremes(mean_estimate,
+                                                                                                        confidence)
+                        massif_name_to_return_level_list[massif_name] = return_level_list
+        return massif_name_to_stationary_gev_params, massif_name_to_confidence, massif_name_to_return_level_list
 
     def massif_name_to_gev_param_list(self, year_min_and_max_list):
         year_to_index = {y: i for i, y in enumerate(self.ordered_years)}

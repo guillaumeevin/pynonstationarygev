@@ -90,7 +90,7 @@ def dat_to_csv(csv_filepath, txt_filepath):
     assert len(df_temp_until_july.columns) == 7
     df_temp_after_august = df.iloc[:-1, 7:]
     assert len(df_temp_after_august.columns) == 5
-    l = df_temp_until_july.sum_of_differences(axis=1).values + df_temp_after_august.sum_of_differences(axis=1).values
+    l = df_temp_until_july.sum(axis=1).values + df_temp_after_august.sum(axis=1).values
     l /= 12
     l = [np.nan] + list(l)
     assert len(l) == len(df.index)

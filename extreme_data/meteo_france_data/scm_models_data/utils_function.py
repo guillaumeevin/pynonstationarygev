@@ -37,10 +37,12 @@ def fitted_stationary_gev_with_uncertainty_interval(x_gev, fit_method=MarginFitM
                                                                                                  coordinate)
             mean_estimate = confidence_interval.mean_estimate
             confidence_interval = confidence_interval.confidence_interval
+            return_level_list = None
         else:
             # Bootstrap method
             return_level_list = ReturnLevelBootstrap(fit_method, model_class, starting_year, x_gev,
                                                      quantile_level).compute_all_return_level()
+            return_level_list = np.array(return_level_list)
             # Remove infinite return levels and return level
             # percentage_of_inf = 100 * sum([np.isinf(r) for r in return_level_list]) / len(return_level_list)
             # print('Percentage of fit with inf = {} \%'.format(percentage_of_inf))
@@ -50,9 +52,13 @@ def fitted_stationary_gev_with_uncertainty_interval(x_gev, fit_method=MarginFitM
     else:
         confidence_interval = None
         mean_estimate = None
-    return gev_param, mean_estimate, confidence_interval
+        return_level_list = None
+    return gev_param, mean_estimate, confidence_interval, return_level_list
+
 
 class ReturnLevelBootstrap(object):
+    only_physically_plausible_fits = False
+    multiprocess = None
 
     def __init__(self, fit_method, model_class, starting_year, x_gev, quantile_level):
         self.nb_bootstrap = AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP
@@ -63,17 +69,16 @@ class ReturnLevelBootstrap(object):
         self.fit_method = fit_method
 
     def compute_all_return_level(self):
-        multiprocess = None
         idxs = list(range(self.nb_bootstrap))
 
-        if multiprocess is None:
+        if self.multiprocess is None:
 
             with Pool(NB_CORES) as p:
                 batchsize = math.ceil(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP / NB_CORES)
                 list_return_level = p.map(self.compute_return_level_batch, batch(idxs, batchsize=batchsize))
                 return_level_list = list(chain.from_iterable(list_return_level))
 
-        elif multiprocess:
+        elif self.multiprocess:
             with Pool(NB_CORES) as p:
                 return_level_list = p.map(self.compute_return_level, idxs)
         else:
@@ -82,7 +87,10 @@ class ReturnLevelBootstrap(object):
         return return_level_list
 
     def compute_return_level_batch(self, idxs):
-        return [self.compute_return_level(idx) for idx in idxs]
+        if self.only_physically_plausible_fits:
+            return [self.compute_return_level_physically_plausible(idx) for idx in idxs]
+        else:
+            return [self.compute_return_level(idx) for idx in idxs]
 
     def compute_return_level(self, idx):
         x = resample(self.x_gev)
@@ -90,5 +98,10 @@ class ReturnLevelBootstrap(object):
             gev_params = _fitted_stationary_gev(self.fit_method, self.model_class, self.starting_year, x)[1]
         return gev_params.quantile(self.quantile_level)
 
-
-
+    def compute_return_level_physically_plausible(self, idx):
+        gev_params = GevParams(0, 1, 0.6)
+        while not (-0.5 <= gev_params.shape < 0.5):
+            x = resample(self.x_gev)
+            with warnings.catch_warnings():
+                gev_params = _fitted_stationary_gev(self.fit_method, self.model_class, self.starting_year, x)[1]
+        return gev_params.quantile(self.quantile_level)

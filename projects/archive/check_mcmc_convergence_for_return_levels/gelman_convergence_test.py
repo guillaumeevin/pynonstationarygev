@@ -13,7 +13,7 @@ def compute_gelman_score(means, variances, N, M):
     assert isinstance(means, pd.Series)
     assert isinstance(variances, pd.Series)
     mean = means.mean()
-    B = N * (means - mean).pow(2).sum_of_differences() / (M - 1)
+    B = N * (means - mean).pow(2).sum() / (M - 1)
     W = variances.mean()
     V_hat = (N - 1) * W / N
     V_hat += (M + 1) * B / (M * N)
