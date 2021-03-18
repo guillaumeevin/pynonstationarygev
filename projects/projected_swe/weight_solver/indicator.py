@@ -19,6 +19,10 @@ class AbstractIndicator(object):
     def get_indicator(cls, study: AbstractStudy, massif_name, bootstrap=False):
         raise NotImplementedError
 
+    @classmethod
+    def str_indicator(cls):
+        raise NotImplementedError
+
 
 class AnnualMaximaMeanIndicator(AbstractIndicator):
 
@@ -28,6 +32,10 @@ class AnnualMaximaMeanIndicator(AbstractIndicator):
             raise NotImplementedError
         else:
             return study.massif_name_to_annual_maxima[massif_name].mean()
+
+    @classmethod
+    def str_indicator(cls):
+        return 'Mean annual maxima'
 
 
 class ReturnLevel30YearsIndicator(AbstractIndicator):
@@ -41,3 +49,7 @@ class ReturnLevel30YearsIndicator(AbstractIndicator):
                 return study.massif_name_to_return_level(return_period=30)[massif_name]
         except KeyError:
             raise ReturnLevelComputationException
+
+    @classmethod
+    def str_indicator(cls, bootstrap):
+        return '30-year return level'

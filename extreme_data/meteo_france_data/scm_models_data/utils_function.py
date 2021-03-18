@@ -70,19 +70,24 @@ class ReturnLevelBootstrap(object):
 
     def compute_all_return_level(self):
         idxs = list(range(self.nb_bootstrap))
+        multiprocess = self.multiprocess
+        if AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP <= 10:
+            multiprocess = False
 
-        if self.multiprocess is None:
+        if multiprocess is None:
 
             with Pool(NB_CORES) as p:
                 batchsize = math.ceil(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP / NB_CORES)
                 list_return_level = p.map(self.compute_return_level_batch, batch(idxs, batchsize=batchsize))
                 return_level_list = list(chain.from_iterable(list_return_level))
 
-        elif self.multiprocess:
+        elif multiprocess:
+            f = self.compute_return_level_physically_plausible if self.only_physically_plausible_fits else self.compute_return_level
             with Pool(NB_CORES) as p:
-                return_level_list = p.map(self.compute_return_level, idxs)
+                return_level_list = p.map(f, idxs)
         else:
-            return_level_list = [self.compute_return_level(idx) for idx in idxs]
+            f = self.compute_return_level_physically_plausible if self.only_physically_plausible_fits else self.compute_return_level
+            return_level_list = [f(idx) for idx in idxs]
 
         return return_level_list
 

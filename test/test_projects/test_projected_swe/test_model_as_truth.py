@@ -5,8 +5,10 @@ from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import A
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020
+from extreme_data.meteo_france_data.scm_models_data.utils_function import ReturnLevelBootstrap
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
+from extreme_fit.model.utils import set_seed_for_test
 from projects.projected_swe.weight_solver.indicator import AnnualMaximaMeanIndicator, ReturnLevel30YearsIndicator
 from projects.projected_swe.weight_solver.knutti_weight_solver import KnuttiWeightSolver
 from projects.projected_swe.weight_solver.knutti_weight_solver_with_bootstrap import \
@@ -16,6 +18,8 @@ from projects.projected_swe.weight_solver.knutti_weight_solver_with_bootstrap im
 class TestModelAsTruth(unittest.TestCase):
 
     def test_knutti_weight_solver(self):
+        set_seed_for_test()
+        ReturnLevelBootstrap.only_physically_plausible_fits = True
         altitude = 900
         year_min = 1982
         year_max = 2011
@@ -31,11 +35,13 @@ class TestModelAsTruth(unittest.TestCase):
                                            KnuttiWeightSolverWithBootstrapVersion2][:]:
             if knutti_weight_solver_class in [KnuttiWeightSolverWithBootstrapVersion1, KnuttiWeightSolverWithBootstrapVersion2]:
                 idx = 1
+                sigma = 1000
             else:
+                sigma = 10
                 idx = 0
             for indicator_class in [AnnualMaximaMeanIndicator, ReturnLevel30YearsIndicator][idx:]:
                 for add_interdependence_weight in [False, True]:
-                    knutti_weight = knutti_weight_solver_class(sigma_skill=100.0, sigma_interdependence=100.0,
+                    knutti_weight = knutti_weight_solver_class(sigma_skill=sigma, sigma_interdependence=sigma,
                                                                massif_names=massif_names,
                                                                observation_study=observation_study,
                                                                couple_to_historical_study=couple_to_study,

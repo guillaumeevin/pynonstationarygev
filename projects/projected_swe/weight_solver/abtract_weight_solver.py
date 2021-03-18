@@ -5,7 +5,8 @@ from scipy.special import softmax
 import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from projects.projected_swe.weight_solver.indicator import AbstractIndicator, ReturnLevelComputationException
+from projects.projected_swe.weight_solver.indicator import AbstractIndicator, ReturnLevelComputationException, \
+    ReturnLevel30YearsIndicator
 
 
 class AbstractWeightSolver(object):
@@ -47,7 +48,12 @@ class AbstractWeightSolver(object):
             couples, ensemble = zip(*list(couple_to_projected_indicator.items()))
             couple_to_weight = self.couple_to_weight
             weights = [couple_to_weight[c] for c in couples]
-            return ps.crps_ensemble(target, ensemble, weights=weights)
+            crps_weighted = ps.crps_ensemble(target, ensemble, weights=weights)
+            nb_weights = len(weights)
+            weights_unweighted = [1 / nb_weights for _ in range(nb_weights)]
+            crps_unweighted = ps.crps_ensemble(target, ensemble, weights=weights_unweighted)
+            crpss = 100 * (crps_weighted - crps_unweighted) / crps_unweighted
+            return crpss
         except ReturnLevelComputationException:
             return np.nan
 
@@ -56,14 +62,14 @@ class AbstractWeightSolver(object):
                   massif_name in massif_names]
         scores_filtered = [s for s in scores if not np.isnan(s)]
         assert len(scores_filtered) > 0
-        nb_massif_names_removed = len(scores) - len(scores_filtered)
-        if nb_massif_names_removed > 0:
-            print('{} massifs removed'.format(nb_massif_names_removed))
         return np.mean(scores_filtered)
 
     def target(self, massif_name, projected_observation_study):
         assert issubclass(self.indicator_class, AbstractIndicator)
-        return self.indicator_class.get_indicator(projected_observation_study, massif_name, bootstrap=True).mean()
+        if self.indicator_class is ReturnLevel30YearsIndicator:
+            return self.indicator_class.get_indicator(projected_observation_study, massif_name, bootstrap=True).mean()
+        else:
+            return self.indicator_class.get_indicator(projected_observation_study, massif_name)
 
     # Weight computation on the historical period
 

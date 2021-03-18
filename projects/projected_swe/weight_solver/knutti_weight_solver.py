@@ -15,8 +15,6 @@ class KnuttiWeightSolver(AbstractWeightSolver):
         self.sigma_interdependence = sigma_interdependence
         if self.add_interdependence_weight:
             assert self.sigma_interdependence is not None
-        # Set some parameters for the bootstrap
-        ReturnLevelBootstrap.only_physically_plausible_fits = True
         # Set some parameters to speed up results (by caching some results)
         study_list = [self.observation_study] + list(self.couple_to_historical_study.values())
         for study in study_list:
@@ -29,10 +27,12 @@ class KnuttiWeightSolver(AbstractWeightSolver):
                 [self.compute_skill_one_massif(couple_study, massif_name) for couple_study in self.study_list]
                 if self.add_interdependence_weight:
                     [self.compute_interdependence_nllh_one_massif(couple_study, massif_name) for couple_study in self.study_list]
-            except WeightComputationException:
+            except WeightComputationException as e:
                 continue
             self.massif_names_for_computation.append(massif_name)
-        assert len(self.massif_names_for_computation) > 0, 'Sigma values should be increased'
+        if len(self.massif_names_for_computation) == 0:
+            print('Sigma values should be increased')
+            raise WeightComputationException
 
     @property
     def nb_massifs_for_computation(self):
@@ -64,7 +64,7 @@ class KnuttiWeightSolver(AbstractWeightSolver):
     def compute_nllh_from_two_study(self, study_1, study_2, sigma, massif_name):
         differences = self.differences(study_1, study_2, massif_name)
         scale = np.sqrt(np.power(sigma, 2) * self.nb_massifs_for_computation / 2)
-        proba = norm.pdf(differences, 0, scale)
+        proba = norm.pdf(x=differences, loc=0, scale=scale)
         proba_positive = (proba > 0).all()
         proba_lower_than_one = (proba <= 1).all()
         if not (proba_positive and proba_lower_than_one):

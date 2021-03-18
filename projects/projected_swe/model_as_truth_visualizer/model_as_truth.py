@@ -5,10 +5,13 @@ from matplotlib.lines import Line2D
 from scipy.special import softmax
 import numpy as np
 
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import scenario_to_str
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
+from projects.projected_swe.old_weight_computer.utils import save_to_filepath
 from projects.projected_swe.weight_solver.abtract_weight_solver import AbstractWeightSolver
 from projects.projected_swe.weight_solver.default_weight_solver import EqualWeight
-from projects.projected_swe.weight_solver.indicator import AbstractIndicator
+from projects.projected_swe.weight_solver.indicator import AbstractIndicator, WeightComputationException
 from projects.projected_swe.weight_solver.knutti_weight_solver import KnuttiWeightSolver
 from projects.projected_swe.weight_solver.knutti_weight_solver_with_bootstrap import \
     KnuttiWeightSolverWithBootstrapVersion2, KnuttiWeightSolverWithBootstrapVersion1
@@ -61,6 +64,7 @@ class ModelAsTruth(object):
             assert len(x_list) == len(sigma_list)
             label = get_display_name_from_object_type(solver_class)
             color = self.solver_class_to_color[solver_class]
+            print(solver_class, score_list, np.array(score_list).mean(axis=1), np.median(np.array(score_list), axis=1))
             bplot = ax.boxplot(score_list, positions=x_list, widths=self.width, patch_artist=True, showmeans=True,
                                labels=[str(sigma) for sigma in sigma_list])
             for patch in bplot['boxes']:
@@ -71,10 +75,27 @@ class ModelAsTruth(object):
         custom_lines = [Line2D([0], [0], color=color, lw=4) for color in colors]
         ax.legend(custom_lines, labels, prop={'size': 8}, loc='upper left')
         ax.set_xlim(min(all_x) - self.width, max(all_x) + self.width)
-        _, max_y = ax.get_ylim()
-        ax.set_ylim((0, max_y * 1.1))
+        study_projected = list(self.couple_to_study_projected.values())[0]
+        title = 'crpss between a weighted forecast and an unweighted forecast \n' \
+                      'at {} m for {} of snowfall for {}-{} (%)'.format(self.observation_study.altitude,
+                                                                        self.indicator_class.str_indicator(),
+                                                                        study_projected.year_min,
+                                                                        study_projected.year_max)
+        ax2 = ax.twiny()
+        ax2.set_xlabel('{} for {} GCM/RCM couples'.format(scenario_to_str(study_projected.scenario), len(self.couple_to_study_projected)))
+        ax.set_xlabel('sigma skill parameter')
+        ax.set_ylabel(title)
 
-        plt.show()
+        # Plot a zero horizontal line
+        lim_left, lim_right = ax.get_xlim()
+        ax.hlines(0, xmin=lim_left, xmax=lim_right, linestyles='dashed')
+
+        # Save or show file
+        visualizer = StudyVisualizer(self.observation_study, show=False, save_to_file=True)
+        visualizer.plot_name = title.split('\n')[1]
+        visualizer.show_or_save_to_file(no_title=True)
+
+        plt.close()
 
     def get_x_list(self, j, sigma_list):
         shift = len(self.knutti_weight_solver_classes) + 1
@@ -95,19 +116,25 @@ class ModelAsTruth(object):
                                           c != gcm_rcm_couple}
             couple_to_study_projected = {c: s for c, s in self.couple_to_study_projected.items() if c != gcm_rcm_couple}
 
-            if issubclass(solver_class, KnuttiWeightSolver):
-                weight_solver = solver_class(sigma, None, historical_observation_study, couple_to_study_historical,
-                                             self.indicator_class, self.massif_names, self.add_interdependence_weight,
-                                             )  # type: AbstractWeightSolver
-            else:
-                weight_solver = solver_class(historical_observation_study, couple_to_study_historical,
-                                             self.indicator_class, self.massif_names, self.add_interdependence_weight,
-                                             )  # type: AbstractWeightSolver
+            try:
+                if issubclass(solver_class, KnuttiWeightSolver):
+                    weight_solver = solver_class(sigma, None, historical_observation_study, couple_to_study_historical,
+                                                 self.indicator_class, self.massif_names, self.add_interdependence_weight,
+                                                 )  # type: AbstractWeightSolver
+                else:
+                    weight_solver = solver_class(historical_observation_study, couple_to_study_historical,
+                                                 self.indicator_class, self.massif_names, self.add_interdependence_weight,
+                                                 )  # type: AbstractWeightSolver
 
-            print(solver_class, sigma, weight_solver.couple_to_weight.values())
-            mean_score = weight_solver.mean_prediction_score(self.massif_names, couple_to_study_projected,
-                                                             projected_observation_study)
-            score_list.append(mean_score)
+                print(solver_class, sigma, weight_solver.couple_to_weight.values())
+                mean_score = weight_solver.mean_prediction_score(self.massif_names, couple_to_study_projected,
+                                                                 projected_observation_study)
+                print(mean_score)
+                if mean_score < 1e4:
+                    score_list.append(mean_score)
+            except WeightComputationException:
+                pass
+        # print(solver_class, sigma, score_list)
         return np.array(score_list)
 
     def get_massif_names_subset_from_study_list(self, study_list: List[AbstractStudy]):
