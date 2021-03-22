@@ -1,7 +1,7 @@
 import numpy as np
 
-from projects.projected_swe.weight_solver.indicator import AbstractIndicator
-from projects.projected_swe.weight_solver.knutti_weight_solver import KnuttiWeightSolver
+from projects.archive.projected_swe.weight_solver.indicator import AbstractIndicator
+from projects.archive.projected_swe.weight_solver.knutti_weight_solver import KnuttiWeightSolver
 
 
 class KnuttiWeightSolverWithBootstrap(KnuttiWeightSolver):

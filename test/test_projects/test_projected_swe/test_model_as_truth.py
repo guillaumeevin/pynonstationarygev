@@ -3,15 +3,14 @@ import numpy as np
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020
 from extreme_data.meteo_france_data.scm_models_data.utils_function import ReturnLevelBootstrap
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
 from extreme_fit.model.utils import set_seed_for_test
-from projects.projected_swe.weight_solver.indicator import AnnualMaximaMeanIndicator, ReturnLevel30YearsIndicator
-from projects.projected_swe.weight_solver.knutti_weight_solver import KnuttiWeightSolver
-from projects.projected_swe.weight_solver.knutti_weight_solver_with_bootstrap import \
+from projects.archive.projected_swe.weight_solver.indicator import AnnualMaximaMeanIndicator, ReturnLevel30YearsIndicator
+from projects.archive.projected_swe.weight_solver.knutti_weight_solver import KnuttiWeightSolver
+from projects.archive.projected_swe.weight_solver.knutti_weight_solver_with_bootstrap import \
     KnuttiWeightSolverWithBootstrapVersion1, KnuttiWeightSolverWithBootstrapVersion2
 
 

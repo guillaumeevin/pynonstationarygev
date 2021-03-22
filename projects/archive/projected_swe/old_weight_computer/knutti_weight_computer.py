@@ -1,7 +1,7 @@
 import numpy as np
 
-from projects.projected_swe.weight_computer.abstract_weight_computer import AbstractWeightComputer
-from projects.projected_swe.weight_computer.non_stationary_weight_computer import NllhWeightComputer
+from projects.archive.projected_swe import AbstractWeightComputer
+from projects.archive.projected_swe import NllhWeightComputer
 
 
 class KnuttiWeightComputer(AbstractWeightComputer):

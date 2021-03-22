@@ -1,7 +1,4 @@
-from typing import Dict, Tuple
-
-from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from projects.projected_swe.weight_solver.abtract_weight_solver import AbstractWeightSolver
+from projects.archive.projected_swe.weight_solver.abtract_weight_solver import AbstractWeightSolver
 
 
 class EqualWeight(AbstractWeightSolver):

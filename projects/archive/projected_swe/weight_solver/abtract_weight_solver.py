@@ -5,7 +5,7 @@ from scipy.special import softmax
 import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from projects.projected_swe.weight_solver.indicator import AbstractIndicator, ReturnLevelComputationException, \
+from projects.archive.projected_swe.weight_solver.indicator import AbstractIndicator, ReturnLevelComputationException, \
     ReturnLevel30YearsIndicator
 
 

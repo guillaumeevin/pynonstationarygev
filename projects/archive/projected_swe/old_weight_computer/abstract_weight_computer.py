@@ -1,6 +1,6 @@
 import pandas as pd
 
-from projects.projected_swe.weight_computer.utils import WEIGHT_COLUMN_NAME, save_to_filepath
+from projects.archive.projected_swe import WEIGHT_COLUMN_NAME, save_to_filepath
 from collections import OrderedDict
 
 import numpy as np

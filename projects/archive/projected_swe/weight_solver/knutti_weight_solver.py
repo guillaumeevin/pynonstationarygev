@@ -1,9 +1,8 @@
 import numpy as np
 from scipy.stats import norm
 
-from extreme_data.meteo_france_data.scm_models_data.utils_function import ReturnLevelBootstrap
-from projects.projected_swe.weight_solver.abtract_weight_solver import AbstractWeightSolver
-from projects.projected_swe.weight_solver.indicator import AbstractIndicator, NllhComputationException, \
+from projects.archive.projected_swe.weight_solver.abtract_weight_solver import AbstractWeightSolver
+from projects.archive.projected_swe.weight_solver.indicator import AbstractIndicator, NllhComputationException, \
     WeightComputationException
 
 

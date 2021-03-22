@@ -1,7 +1,7 @@
 import numpy as np
 
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import compute_nllh
-from projects.projected_swe.weight_computer.abstract_weight_computer import AbstractWeightComputer
+from projects.archive.projected_swe import AbstractWeightComputer
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate
 
