@@ -58,7 +58,10 @@ def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, ano
         download_dat(dat_filepath, txt_filepath)
     # Transform nc file into csv file
     if not op.exists(csv_filepath):
-        dat_to_csv(csv_filepath, txt_filepath, spline)
+        print('compute csv')
+        dat_to_csv(csv_filepath, txt_filepath, gcm)
+    else:
+        print('read from existing csv')
 
     # Load csv file
     df = pd.read_csv(csv_filepath, index_col=0)
@@ -75,7 +78,7 @@ def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, ano
     return years, global_mean_temp
 
 
-def dat_to_csv(csv_filepath, txt_filepath):
+def dat_to_csv(csv_filepath, txt_filepath, gcm):
     d = OrderedDict()
     with open(txt_filepath, 'r') as f:
         for i, l in enumerate(f):
@@ -96,29 +99,33 @@ def dat_to_csv(csv_filepath, txt_filepath):
     assert len(l) == len(df.index)
 
     # First we compute the standard column
-    mean_annual_column_name, anomaly_annual_column_name = [get_column_name(anomaly=anomaly, spline=False)
-                                                           for anomaly in [False, True]]
-    df[mean_annual_column_name] = l
-    s_mean_for_reference_period_1850_to_1900 = df.loc[1850:1900, mean_annual_column_name]
-    # Sometimes some initial global mean temperatures are negative for the first years,
-    # we remove them for the computation of the mean
-    ind = s_mean_for_reference_period_1850_to_1900 > 0
-    mean_for_reference_period_1850_to_1900 = s_mean_for_reference_period_1850_to_1900.loc[ind].mean()
-    df[anomaly_annual_column_name] = df[mean_annual_column_name] - mean_for_reference_period_1850_to_1900
+    df = set_anomaly(df, mean_data=l, spline=False)
 
-    # Then we regress some cubic spline on these columns
-    for anomaly in [True, False]:
-        noisy_data = df[get_column_name(anomaly, spline=False)]
-        ind = noisy_data > -50
-        spline_data = noisy_data.copy()
-        spline_data.loc[ind] = apply_cubic_spline(noisy_data.loc[ind].index.values,
-                                                                       noisy_data.loc[ind].values)
-        df[get_column_name(anomaly, spline=True)] = spline_data
+    # Then we regress some cubic spline on the temperature columns
+    noisy_data = df[get_column_name(anomaly=False, spline=False)]
+    ind = noisy_data > -50
+    spline_data = noisy_data.copy()
+    spline_data.loc[ind] = apply_cubic_spline(noisy_data.loc[ind].index.values, noisy_data.loc[ind].values, gcm)
+    df = set_anomaly(df, mean_data=spline_data, spline=True)
 
     df.to_csv(csv_filepath)
 
 
-def apply_cubic_spline(x, y):
+def set_anomaly(df, mean_data, spline):
+    mean_annual_column_name, anomaly_annual_column_name = [get_column_name(anomaly=anomaly, spline=spline)
+                                                           for anomaly in [False, True]]
+    df[get_column_name(anomaly=False, spline=spline)] = mean_data
+
+    # Sometimes some initial global mean temperatures are negative for the first years,
+    # we remove them for the computation of the mean
+    s_mean_for_reference_period_1850_to_1900 = df.loc[1850:1900, mean_annual_column_name]
+    ind = s_mean_for_reference_period_1850_to_1900 > 0
+    mean_for_reference_period_1850_to_1900 = s_mean_for_reference_period_1850_to_1900.loc[ind].mean()
+    df[anomaly_annual_column_name] = df[mean_annual_column_name] - mean_for_reference_period_1850_to_1900
+    return df
+
+
+def apply_cubic_spline(x, y, gcm):
     """
     s is THE important parameter, that controls as how far the points of the spline are from the original points.
     w[i] corresponds to constant weight in our case.
@@ -126,11 +133,22 @@ def apply_cubic_spline(x, y):
     sum((w[i] * (y[i]-spl(x[i])))**2, axis=0) <= s
 
     """
-    # s = 3 # it was working well except for the blue one.
-    s = 5
+    gcm_to_s_parameter_for_univariate_spline = \
+        {
+            'MPI-ESM-LR': 8,
+            'CNRM-CM5': 3,
+            'IPSL-CM5A-MR': 3,
+            'EC-EARTH': 2,
+            'HadGEM2-ES': 5,
+            'NorESM1-M': 2.5
+        }
+    s = gcm_to_s_parameter_for_univariate_spline[gcm]
     f = UnivariateSpline(x, y, s=s, w=None)
     new_y = f(x)
     return new_y
+
+
+
 
 
 def download_dat(dat_filepath, txt_filepath):

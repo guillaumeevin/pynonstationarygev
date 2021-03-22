@@ -36,7 +36,8 @@ def main_plot_temperature_with_spline_on_top(anomaly=True):
                                          label=label, spline=spline, anomaly=anomaly)
             plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min=2005, year_max=2100, spline=spline, anomaly=anomaly)
 
-        end_plot(anomaly, ax, spline, gcm)
+        title = '{} {} of temperatures'.format(gcm, 'anomaly' if anomaly else 'mean')
+        end_plot(anomaly, ax, spline, title)
 
 
 def end_plot(anomaly, ax, spline, title=None):
@@ -87,5 +88,6 @@ def plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min, year_max, linestyl
 
 
 if __name__ == '__main__':
-    # main_plot_temperature_with_spline_on_top(anomaly=True)
-    main_plot_temperature_all(anomaly=True, spline=True)
+    for anomaly in [True, False][:]:
+        main_plot_temperature_with_spline_on_top(anomaly=anomaly)
+        # main_plot_temperature_all(anomaly=True, spline=True)
