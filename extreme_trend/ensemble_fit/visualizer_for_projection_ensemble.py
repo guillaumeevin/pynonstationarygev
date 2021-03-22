@@ -156,10 +156,11 @@ class VisualizerForProjectionEnsemble(object):
         for ensemble_fit in self.ensemble_fits(IndependentEnsembleFit):
             for gcm_rcm_couple in self.gcm_rcm_couples:
                 visualizer = ensemble_fit.gcm_rcm_couple_to_visualizer[gcm_rcm_couple]
-                one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
-                coef = one_fold_fit.best_coef(param_name, 0, degree)
-                altitude = visualizer.altitude_group.reference_altitude
-                gcm_rcm_couple_to_data[gcm_rcm_couple].append((altitude, coef))
+                if massif_name in visualizer.massif_name_to_one_fold_fit:
+                    one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
+                    coef = one_fold_fit.best_coef(param_name, 0, degree)
+                    altitude = visualizer.altitude_group.reference_altitude
+                    gcm_rcm_couple_to_data[gcm_rcm_couple].append((altitude, coef))
         # Plot
         ax = plt.gca()
         for gcm_rcm_couple, data in gcm_rcm_couple_to_data.items():

@@ -56,26 +56,7 @@ class AbstractAltitudinalModel(AbstractSpatioTemporalPolynomialModel):
             s = '0'
         else:
             s = ','.join(l)
-        # return '$ \\boldsymbol{ \\mathcal{M}_{%s} }$' % s
         return '$ \\boldsymbol{%s}$' % s
-
-
-    # @property
-    # def name_str(self):
-    #     name = ''
-    #     for coordinate_name, idx in zip(['s', 't'], [self.coordinates.idx_x_coordinates, self.coordinates.idx_temporal_coordinates]):
-    #         name += coordinate_name
-    #         for param_name in GevParams.PARAM_NAMES:
-    #             name += self.dim_to_str_number(param_name, idx)
-    #     if isinstance(self, AbstractAddCrossTerm):
-    #         name += 'sxt'
-    #         for c in [AbstractAddCrossTermForLocation, AbstractAddCrossTermForScale, AbstractAddCrossTermForShape]:
-    #             if isinstance(self, c):
-    #                 name += '1'
-    #             else:
-    #                 name += '0'
-    #     return name
-
 
 class StationaryAltitudinal(AbstractAltitudinalModel):
 

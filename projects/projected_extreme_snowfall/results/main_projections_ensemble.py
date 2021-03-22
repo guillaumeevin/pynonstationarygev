@@ -41,7 +41,7 @@ def main():
     study_class = AdamontSnowfall
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     temporal_covariate_for_fit = [TimeTemporalCovariate,
-                                  AnomalyTemperatureWithSplineTemporalCovariate][0]
+                                  AnomalyTemperatureWithSplineTemporalCovariate][1]
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
@@ -61,8 +61,8 @@ def main():
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
             altitudes_list = altitudes_for_groups[:1]
         else:
-            massif_names = None
-            altitudes_list = altitudes_for_groups[:]
+            massif_names = ['Vanoise']
+            altitudes_list = altitudes_for_groups[3:]
 
         assert isinstance(gcm_rcm_couples, list)
 
