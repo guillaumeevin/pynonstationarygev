@@ -133,14 +133,16 @@ def apply_cubic_spline(x, y, gcm):
     sum((w[i] * (y[i]-spl(x[i])))**2, axis=0) <= s
 
     """
+    # high s parameter will underfit the curve, i.e. we accept high distance of the curve with the data
+    # low s parameter will overfit the curve, i.e. we do not accept high distance of the curve with the data
     gcm_to_s_parameter_for_univariate_spline = \
         {
-            'MPI-ESM-LR': 8,
+            'MPI-ESM-LR': 9,
             'CNRM-CM5': 3,
-            'IPSL-CM5A-MR': 3,
+            'IPSL-CM5A-MR': 4,
             'EC-EARTH': 2,
             'HadGEM2-ES': 5,
-            'NorESM1-M': 2.5
+            'NorESM1-M': 4.5
         }
     s = gcm_to_s_parameter_for_univariate_spline[gcm]
     f = UnivariateSpline(x, y, s=s, w=None)

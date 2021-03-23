@@ -4,7 +4,7 @@ from matplotlib.lines import Line2D
 
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_color
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, rcp_scenarios, get_gcm_list, \
-    get_linestyle_from_scenario, scenario_to_str, adamont_scenarios_real
+    get_linestyle_from_scenario, scenario_to_str, adamont_scenarios_real, scenario_to_real_scenarios
 from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import years_and_global_mean_temps
 
 
@@ -17,20 +17,19 @@ def get_year_min_and_year_max(gcm, scenario, left_limit, right_limit, is_tempera
         year_min, year_max = years_to_select[0], years_to_select[-1]
     else:
         year_min, year_max = left_limit, right_limit
+    #
+    return year_min, year_max
 
-    # A minimum of 10 years of data is needed for each GCM/RCM
-    if year_max - year_min + 1 >= 10:
-        return year_min, year_max
-    else:
-        return None, None
-
-
-def _get_year_min_and_year_max_for_temperature_interval(gcm, left_limits, right_limits, scenario):
-    years, global_mean_temps = years_and_global_mean_temps(gcm, scenario, year_min=2006, year_max=2100, anomaly=True,
+def _get_year_min_and_year_max_for_temperature_interval(gcm, left_limit, right_limit, scenario):
+    scenario = scenario_to_real_scenarios(scenario)[-1]
+    years, global_mean_temps = years_and_global_mean_temps(gcm, scenario, year_min=1950, year_max=2100, anomaly=True,
                                                            spline=True)
     years, global_mean_temps = np.array(years), np.array(global_mean_temps)
-    ind = left_limits < global_mean_temps
-    ind &= global_mean_temps < right_limits
+    if left_limit > 0:
+        ind = left_limit < global_mean_temps
+        ind &= global_mean_temps < right_limit
+    else:
+        ind = global_mean_temps < right_limit
     years_to_select = years[ind]
     ind2 = years_to_select[:-1] == years_to_select[1:] - 1
     if not all(ind2):
@@ -93,7 +92,7 @@ def plot_nb_data(is_temperature_interval, is_shift_interval):
 def get_interval_limits(is_temperature_interval, is_shift_interval):
     if is_temperature_interval:
         temp_min = np.arange(0, 2, 0.5)
-        temp_max = temp_min + 2
+        temp_max = temp_min + 1
         left_limit, right_limit = temp_min, temp_max
     else:
         shift = 25
@@ -104,7 +103,7 @@ def get_interval_limits(is_temperature_interval, is_shift_interval):
     if not is_shift_interval:
         min_interval_left = min(left_limit)
         left_limit = [min_interval_left for _ in right_limit]
-    return left_limit[:2], right_limit[:2]
+    return left_limit[:3], right_limit[:3]
 
 
 def get_ticks_labels_for_interval(is_temperature_interval, is_shift_interval):

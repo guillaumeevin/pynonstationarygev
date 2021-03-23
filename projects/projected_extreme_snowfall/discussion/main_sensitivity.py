@@ -3,14 +3,15 @@ import time
 from typing import List
 import matplotlib
 
-from extreme_trend.ensemble_fit.abstract_ensemble_fit import AbstractEnsembleFit
-from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 
 matplotlib.use('Agg')
 import matplotlib as mpl
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+
+from extreme_trend.ensemble_fit.abstract_ensemble_fit import AbstractEnsembleFit
+from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
@@ -44,10 +45,10 @@ def main():
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = True
+    fast = False
     scenarios = [AdamontScenario.rcp85]
-    scenarios = rcm_scenarios_extended[1:]
     scenarios = rcp_scenarios[1:]
+    scenarios = rcm_scenarios_extended[1:]
 
     if fast in [None, True]:
         scenarios = scenarios[:1]
