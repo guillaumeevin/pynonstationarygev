@@ -45,7 +45,7 @@ def main():
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = False
+    fast = True
     scenarios = rcp_scenarios[::-1] if fast is False else [AdamontScenario.rcp85]
 
     for scenario in scenarios:

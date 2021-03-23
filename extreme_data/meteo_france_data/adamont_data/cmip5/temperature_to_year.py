@@ -18,8 +18,8 @@ def get_year_min_and_year_max(gcm, scenario, left_limit, right_limit, is_tempera
     else:
         year_min, year_max = left_limit, right_limit
 
-    # A minimum of 30 years of data is needed to find a trend
-    if year_max - year_min + 1 >= 30:
+    # A minimum of 10 years of data is needed for each GCM/RCM
+    if year_max - year_min + 1 >= 10:
         return year_min, year_max
     else:
         return None, None
@@ -70,10 +70,11 @@ def plot_nb_data(is_temperature_interval, is_shift_interval):
     ax = plt.gca()
     for gcm in get_gcm_list(adamont_version=2)[:]:
         for i, scenario in enumerate(rcp_scenarios[2:]):
+            first_scenario = i == 0
             plot_nb_data_one_line(ax, gcm, scenario, left_limit, right_limit,
-                                  i == 0, is_temperature_interval)
+                                  first_scenario, is_temperature_interval)
 
-    ax.legend()
+    ax.legend(loc='upper left')
     ticks_labels = get_ticks_labels_for_interval(is_temperature_interval, is_shift_interval)
     ax.set_xticks(right_limit)
     ax.set_xticklabels(ticks_labels)
@@ -84,15 +85,15 @@ def plot_nb_data(is_temperature_interval, is_shift_interval):
         Line2D([0], [0], color='k', lw=1, label=scenario_to_str(s),
                linestyle=get_linestyle_from_scenario(s)) for s in adamont_scenarios_real
     ]
-    ax2.legend(handles=legend_elements, loc='upper center')
+    ax2.legend(handles=legend_elements, loc='lower right')
     ax2.set_yticks([])
     plt.show()
 
 
 def get_interval_limits(is_temperature_interval, is_shift_interval):
     if is_temperature_interval:
-        temp_min = np.arange(0, 3, 1)
-        temp_max = temp_min + 2
+        temp_min = np.arange(0, 2, 0.5)
+        temp_max = temp_min + 1.5
         left_limit, right_limit = temp_min, temp_max
     else:
         shift = 25
@@ -103,7 +104,7 @@ def get_interval_limits(is_temperature_interval, is_shift_interval):
     if not is_shift_interval:
         min_interval_left = min(left_limit)
         left_limit = [min_interval_left for _ in right_limit]
-    return left_limit, right_limit
+    return left_limit[:2], right_limit[:2]
 
 
 def get_ticks_labels_for_interval(is_temperature_interval, is_shift_interval):
@@ -117,7 +118,7 @@ def get_ticks_labels_for_interval(is_temperature_interval, is_shift_interval):
 
 
 if __name__ == '__main__':
-    for shift_interval in [False, True]:
+    for shift_interval in [False, True][:1]:
         for temp_interval in [False, True][1:]:
             print("shift = {}, temp_inteval = {}".format(shift_interval, temp_interval))
             plot_nb_data(is_temperature_interval=temp_interval, is_shift_interval=shift_interval)

@@ -44,21 +44,24 @@ def main():
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = False
-    scenarios = rcp_scenarios[-1:] if fast is False else [AdamontScenario.rcp85]
+    fast = None
+    scenarios = [AdamontScenario.rcp85]
+    scenarios = rcp_scenarios[1:]
 
     for scenario in scenarios:
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
         if fast is None:
+            scenarios = scenarios[:1]
             massif_names = None
             gcm_rcm_couples = gcm_rcm_couples[4:6]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = altitudes_for_groups[3:]
+            altitudes_list = altitudes_for_groups[1:3]
         elif fast:
+            scenarios = scenarios[:1]
             massif_names = ['Vanoise', 'Haute-Maurienne']
             gcm_rcm_couples = gcm_rcm_couples[4:6]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = altitudes_for_groups[:1]
+            altitudes_list = altitudes_for_groups[1:3]
         else:
             massif_names = None
             altitudes_list = altitudes_for_groups[:]
@@ -72,11 +75,11 @@ def main():
         model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
         assert scenario in rcp_scenarios
         remove_physically_implausible_models = True
-        temp_cov = False
+        temp_cov = True
         temporal_covariate_for_fit = AnomalyTemperatureWithSplineTemporalCovariate if temp_cov else TimeTemporalCovariate
         print('Covariate is {}'.format(temporal_covariate_for_fit))
 
-        for is_temperature_interval in [True, False][1:]:
+        for is_temperature_interval in [True, False][:1]:
             for is_shift_interval in [True, False][1:]:
                 visualizer = VisualizerForSensivity(
                     altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,

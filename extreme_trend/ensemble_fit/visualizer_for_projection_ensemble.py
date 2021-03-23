@@ -31,7 +31,9 @@ class VisualizerForProjectionEnsemble(object):
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
                  gcm_to_year_min_and_year_max=None,
+                 interval_str_prefix='',
                  ):
+        self.interval_str_prefix = interval_str_prefix
         self.altitudes_list = altitudes_list
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.scenario = scenario
@@ -119,14 +121,14 @@ class VisualizerForProjectionEnsemble(object):
                                ]
             if key in merge_keys:
                 for v in visualizer_list:
-                    v.studies.study.gcm_rcm_couple = (key, "merge")
+                    v.studies.study.gcm_rcm_couple = ("{} {}".format(key, "merge"), self.interval_str_prefix)
             self.plot_for_visualizer_list(visualizer_list)
 
     def plot_together(self):
         visualizer_list = [together_ensemble_fit.visualizer
                            for together_ensemble_fit in self.ensemble_fits(TogetherEnsembleFit)]
         for v in visualizer_list:
-            v.studies.study.gcm_rcm_couple = ("together", "merge")
+            v.studies.study.gcm_rcm_couple = ("together merge", self.interval_str_prefix)
         self.plot_for_visualizer_list(visualizer_list)
 
     def ensemble_fits(self, ensemble_class):

@@ -29,7 +29,7 @@ class AbstractEnsembleFit(object):
 
         # Set appropriate setting
         OneFoldFit.last_year = 2100
-        OneFoldFit.nb_years = 95
+        OneFoldFit.nb_years = OneFoldFit.last_year - 2005
 
     @property
     def altitudes(self):

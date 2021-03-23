@@ -88,6 +88,6 @@ def plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min, year_max, linestyl
 
 
 if __name__ == '__main__':
-    for anomaly in [True, False][:]:
+    for anomaly in [True, False][:1]:
         main_plot_temperature_with_spline_on_top(anomaly=anomaly)
         # main_plot_temperature_all(anomaly=True, spline=True)
