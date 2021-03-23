@@ -59,6 +59,7 @@ class VisualizerForSensivity(object):
                 if year_min_and_year_max[0] is not None:
                     gcm_to_year_min_and_year_max[gcm] = year_min_and_year_max
 
+            print(gcm_to_year_min_and_year_max)
             visualizer = VisualizerForProjectionEnsemble(
                 altitudes_list, gcm_rcm_couples, study_class, season, scenario,
                 model_classes=model_classes,
@@ -84,8 +85,53 @@ class VisualizerForSensivity(object):
             merge_visualizer_str_list.append(AbstractEnsembleFit.Together_merge)
         for merge_visualizer_str in merge_visualizer_str_list:
             self.sensitivity_plot_percentages(merge_visualizer_str)
+            self.sensitivity_plot_return_levels(merge_visualizer_str)
             for relative in [True, False]:
                 self.sensitivity_plot_changes(merge_visualizer_str, relative)
+
+    def sensitivity_plot_return_levels(self, merge_visualizer_str):
+        ax = plt.gca()
+        for altitudes in self.altitudes_list:
+            altitude_class = get_altitude_class_from_altitudes(altitudes)
+            self.interval_plot_return_levels(ax, altitude_class, merge_visualizer_str)
+
+        ticks_labels = get_ticks_labels_for_interval(self.is_temperature_interval, self.is_shift_interval)
+        name = 'Return levels at the end of the interval'
+        ax.set_ylabel(name)
+        ax.set_xlabel('Interval used to compute the trends ')
+        ax.set_xticks(self.right_limits)
+        ax.set_xticklabels(ticks_labels)
+        lim_left, lim_right = ax.get_xlim()
+        ax.hlines(0, xmin=lim_left, xmax=lim_right, linestyles='dashed')
+        ax.legend(prop={'size': 7}, loc='upper center', ncol=2)
+        # ax.set_ylim((0, 122))
+        # ax.set_yticks([i * 10 for i in range(11)])
+        self.save_plot(merge_visualizer_str, name)
+
+    def interval_plot_return_levels(self, ax, altitude_class, merge_visualizer_str):
+        linestyle = get_linestyle_for_altitude_class(altitude_class)
+
+        mean_return_levels = []
+        for v in self.right_limit_to_visualizer.values():
+            merge_visualizer = self.get_merge_visualizer(altitude_class, v, merge_visualizer_str)
+            mean_return_level = merge_visualizer.mean_return_level(self.massif_names)
+            mean_return_levels.append(mean_return_level)
+
+        label = altitude_class().formula
+        ax.plot(self.right_limits, mean_return_levels, linestyle=linestyle, label=label, color='orange')
+
+    def interval_plot_changes(self, ax, altitude_class, merge_visualizer_str, relative):
+        linestyle = get_linestyle_for_altitude_class(altitude_class)
+
+        mean_changes = []
+        for v in self.right_limit_to_visualizer.values():
+            merge_visualizer = self.get_merge_visualizer(altitude_class, v, merge_visualizer_str)
+            changes, non_stationary_changes = merge_visualizer.all_changes(self.massif_names, relative=relative,
+                                                                           with_significance=False)
+            mean_changes.append(np.mean(changes))
+
+        label = altitude_class().formula
+        ax.plot(self.right_limits, mean_changes, linestyle=linestyle, label=label, color='darkgreen')
 
     def sensitivity_plot_changes(self, merge_visualizer_str, relative):
         ax = plt.gca()

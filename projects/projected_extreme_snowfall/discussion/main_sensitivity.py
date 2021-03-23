@@ -25,7 +25,7 @@ from extreme_fit.model.utils import set_seed_for_test
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples, \
-    rcp_scenarios
+    rcp_scenarios, rcm_scenarios_extended
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate
 
@@ -44,24 +44,26 @@ def main():
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = None
+    fast = True
     scenarios = [AdamontScenario.rcp85]
+    scenarios = rcm_scenarios_extended[1:]
     scenarios = rcp_scenarios[1:]
+
+    if fast in [None, True]:
+        scenarios = scenarios[:1]
 
     for scenario in scenarios:
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
         if fast is None:
-            scenarios = scenarios[:1]
             massif_names = None
             gcm_rcm_couples = gcm_rcm_couples[4:6]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
             altitudes_list = altitudes_for_groups[1:3]
         elif fast:
-            scenarios = scenarios[:1]
             massif_names = ['Vanoise', 'Haute-Maurienne']
             gcm_rcm_couples = gcm_rcm_couples[4:6]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = altitudes_for_groups[1:3]
+            altitudes_list = altitudes_for_groups[2:3]
         else:
             massif_names = None
             altitudes_list = altitudes_for_groups[:]
@@ -73,7 +75,7 @@ def main():
         print('Scenario is', scenario)
 
         model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
-        assert scenario in rcp_scenarios
+        assert scenario is not AdamontScenario.histo
         remove_physically_implausible_models = True
         temp_cov = True
         temporal_covariate_for_fit = AnomalyTemperatureWithSplineTemporalCovariate if temp_cov else TimeTemporalCovariate

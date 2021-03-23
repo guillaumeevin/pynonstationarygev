@@ -266,7 +266,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         moment = moment.replace('moment',
                                 '{} in {}'.format(OneFoldFit.get_moment_str(order=order), OneFoldFit.last_year))
         plot_name = 'Model {} annual maxima of {}'.format(moment,
-                                                            SCM_STUDY_CLASS_TO_ABBREVIATION[self.studies.study_class])
+                                                          SCM_STUDY_CLASS_TO_ABBREVIATION[self.studies.study_class])
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
         ax.set_xlabel('altitudes', fontsize=15)
         ax.tick_params(axis='both', which='major', labelsize=13)
@@ -323,9 +323,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         raise NotImplementedError
         self.plot_map(massif_name_to_value=massif_name_to_best_coef,
                       label='Coef/{} plot for {} {}'.format(coef_name,
-                                                              SCM_STUDY_CLASS_TO_ABBREVIATION[
-                                                                  type(self.study)],
-                                                              self.study.variable_unit),
+                                                            SCM_STUDY_CLASS_TO_ABBREVIATION[
+                                                                type(self.study)],
+                                                            self.study.variable_unit),
                       add_x_label=False, graduation=graduation, massif_name_to_text=self.massif_name_to_best_name,
                       negative_and_positive_values=negative_and_positive_values)
 
@@ -388,7 +388,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                                                        massif_name.replace('_', ' '), self.study.variable_unit))
             peak_year_folder = 'Peak year ' + ylabel
             plot_name = '{}/Peak year for {}'.format(peak_year_folder,
-                                                       massif_name.replace('_', ''))
+                                                     massif_name.replace('_', ''))
             self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show, no_title=True, tight_layout=True)
             plt.close()
 
@@ -461,6 +461,14 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         plot_name = 'Switch altitude'
         self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
         plt.close()
+
+    def mean_return_level(self, massif_names):
+        valid_massif_names = self.get_valid_names(massif_names)
+        return_levels = []
+        for one_fold in [one_fold for m, one_fold in self.massif_name_to_one_fold_fit.items()
+                         if m in valid_massif_names]:
+            return_levels.append(one_fold.return_level_last_temporal_coordinate)
+        return np.mean(return_levels)
 
     def all_trends(self, massif_names, with_significance=True, with_relative_change=False):
         """return percents which contain decrease, significant decrease, increase, significant increase percentages"""

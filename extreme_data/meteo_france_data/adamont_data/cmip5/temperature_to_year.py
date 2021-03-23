@@ -69,7 +69,7 @@ def plot_nb_data(is_temperature_interval, is_shift_interval):
 
     ax = plt.gca()
     for gcm in get_gcm_list(adamont_version=2)[:]:
-        for i, scenario in enumerate(rcp_scenarios[2:]):
+        for i, scenario in enumerate(rcp_scenarios[1:]):
             first_scenario = i == 0
             plot_nb_data_one_line(ax, gcm, scenario, left_limit, right_limit,
                                   first_scenario, is_temperature_interval)
@@ -93,7 +93,7 @@ def plot_nb_data(is_temperature_interval, is_shift_interval):
 def get_interval_limits(is_temperature_interval, is_shift_interval):
     if is_temperature_interval:
         temp_min = np.arange(0, 2, 0.5)
-        temp_max = temp_min + 1.5
+        temp_max = temp_min + 2
         left_limit, right_limit = temp_min, temp_max
     else:
         shift = 25

@@ -29,6 +29,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_retur
     EurocodeConfidenceIntervalFromExtremes
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup, altitudes_for_groups
 from root_utils import NB_CORES, batch
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import TimeTemporalCovariate
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureWithSplineTemporalCovariate
@@ -381,6 +382,16 @@ class OneFoldFit(object):
                 altitude_and_year_to_return_level_confidence_interval[key] = confidence_interval
 
         return is_significant, altitude_and_year_to_return_level_mean_estimate, altitude_and_year_to_return_level_confidence_interval
+
+    @property
+    def return_level_last_temporal_coordinate(self):
+        df_temporal_covariate = self.dataset.coordinates.df_temporal_coordinates_for_fit(temporal_covariate_for_fit=self.temporal_covariate_for_fit,
+                                                                                         drop_duplicates=False)
+        last_temporal_coordinate = df_temporal_covariate.loc[:, AbstractCoordinates.COORDINATE_T].max()
+        print('last temporal coordinate', last_temporal_coordinate)
+        altitude = self.altitude_group.reference_altitude
+        coordinate = np.array([altitude, last_temporal_coordinate])
+        return self.get_return_level(self.best_function_from_fit, coordinate)
 
     @property
     def bootstrap_fitted_functions_from_fit(self):
