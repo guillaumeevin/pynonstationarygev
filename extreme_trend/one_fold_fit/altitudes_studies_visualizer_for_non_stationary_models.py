@@ -462,13 +462,13 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
         plt.close()
 
-    def mean_return_level(self, massif_names):
+    def massif_name_to_return_level(self, massif_names):
         valid_massif_names = self.get_valid_names(massif_names)
-        return_levels = []
-        for one_fold in [one_fold for m, one_fold in self.massif_name_to_one_fold_fit.items()
-                         if m in valid_massif_names]:
-            return_levels.append(one_fold.return_level_last_temporal_coordinate)
-        return np.mean(return_levels)
+        massif_name_to_return_level = {}
+        for m, one_fold in self.massif_name_to_one_fold_fit.items():
+            if m in valid_massif_names:
+                massif_name_to_return_level[m] = one_fold.return_level_last_temporal_coordinate
+        return massif_name_to_return_level
 
     def all_trends(self, massif_names, with_significance=True, with_relative_change=False):
         """return percents which contain decrease, significant decrease, increase, significant increase percentages"""

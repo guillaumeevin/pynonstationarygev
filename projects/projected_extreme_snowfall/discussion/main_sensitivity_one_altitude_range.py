@@ -45,10 +45,10 @@ def main():
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = None
+    fast = False
     scenarios = [AdamontScenario.rcp85]
     scenarios = rcp_scenarios[1:]
-    scenarios = rcm_scenarios_extended[2:][::-1]
+    scenarios = rcm_scenarios_extended[:][::-1]
 
     if fast in [None, True]:
         scenarios = scenarios[:1]
@@ -57,14 +57,14 @@ def main():
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
         if fast is None:
             massif_names = None
+            gcm_rcm_couples = gcm_rcm_couples[:2]
+            AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
+            altitudes_list = altitudes_for_groups[:1]
+        elif fast:
+            massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors', 'Ubaye']
             gcm_rcm_couples = gcm_rcm_couples[4:6]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
             altitudes_list = altitudes_for_groups[1:3]
-        elif fast:
-            massif_names = ['Vanoise', 'Haute-Maurienne']
-            gcm_rcm_couples = gcm_rcm_couples[4:6]
-            AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = altitudes_for_groups[2:3]
         else:
             massif_names = None
             altitudes_list = altitudes_for_groups[:]
@@ -82,19 +82,22 @@ def main():
         temporal_covariate_for_fit = AnomalyTemperatureWithSplineTemporalCovariate if temp_cov else TimeTemporalCovariate
         print('Covariate is {}'.format(temporal_covariate_for_fit))
 
-        for is_temperature_interval in [True, False][:1]:
-            for is_shift_interval in [True, False][1:]:
-                visualizer = VisualizerForSensivity(
-                    altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
-                    model_classes=model_classes,
-                    ensemble_fit_classes=ensemble_fit_classes,
-                    massif_names=massif_names,
-                    temporal_covariate_for_fit=temporal_covariate_for_fit,
-                    remove_physically_implausible_models=remove_physically_implausible_models,
-                    is_temperature_interval=is_temperature_interval,
-                    is_shift_interval=is_shift_interval,
-                )
-                visualizer.plot()
+        for altitudes in altitudes_list:
+            sub_altitudes_list = [altitudes]
+            print(sub_altitudes_list)
+            for is_temperature_interval in [True, False][:1]:
+                for is_shift_interval in [True, False][1:]:
+                    visualizer = VisualizerForSensivity(
+                        sub_altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
+                        model_classes=model_classes,
+                        ensemble_fit_classes=ensemble_fit_classes,
+                        massif_names=massif_names,
+                        temporal_covariate_for_fit=temporal_covariate_for_fit,
+                        remove_physically_implausible_models=remove_physically_implausible_models,
+                        is_temperature_interval=is_temperature_interval,
+                        is_shift_interval=is_shift_interval,
+                    )
+                    visualizer.plot()
 
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))

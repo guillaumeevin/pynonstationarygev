@@ -6,7 +6,10 @@ import numpy as np
 
 from extreme_data.meteo_france_data.adamont_data.cmip5.temperature_to_year import get_interval_limits, \
     get_year_min_and_year_max, get_ticks_labels_for_interval
+from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
+from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import \
+    get_color_and_linestyle_from_massif_id
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -15,7 +18,7 @@ from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fi
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 from extreme_trend.one_fold_fit.altitude_group import get_altitude_class_from_altitudes, \
-    get_linestyle_for_altitude_class
+    get_linestyle_for_altitude_class, get_altitude_group_from_altitudes
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureWithSplineTemporalCovariate
 
@@ -92,32 +95,44 @@ class VisualizerForSensivity(object):
     def sensitivity_plot_return_levels(self, merge_visualizer_str):
         ax = plt.gca()
         for altitudes in self.altitudes_list:
-            altitude_class = get_altitude_class_from_altitudes(altitudes)
-            self.interval_plot_return_levels(ax, altitude_class, merge_visualizer_str)
+            altitude_group = get_altitude_class_from_altitudes(altitudes)
+            self.interval_plot_return_levels(ax, altitude_group, merge_visualizer_str)
 
         ticks_labels = get_ticks_labels_for_interval(self.is_temperature_interval, self.is_shift_interval)
         name = 'Return levels at the end of the interval'
+        if len(self.altitudes_list) == 1:
+            altitude_group = get_altitude_group_from_altitudes(self.altitudes_list[0])
+            name += ' at {} m'.format(altitude_group.reference_altitude)
         ax.set_ylabel(name)
-        ax.set_xlabel('Interval used to compute the trends ')
+        ax.set_xlabel('Interval for the maxima used to compute the trends ')
         ax.set_xticks(self.right_limits)
         ax.set_xticklabels(ticks_labels)
-        lim_left, lim_right = ax.get_xlim()
-        ax.legend(prop={'size': 7}, loc='upper center', ncol=2)
-        # ax.set_ylim((0, 122))
-        # ax.set_yticks([i * 10 for i in range(11)])
         self.save_plot(merge_visualizer_str, name)
 
     def interval_plot_return_levels(self, ax, altitude_class, merge_visualizer_str):
-        linestyle = get_linestyle_for_altitude_class(altitude_class)
 
         mean_return_levels = []
-        for v in self.right_limit_to_visualizer.values():
+        massif_names = AbstractStudy.all_massif_names() if self.massif_names is None else self.massif_names
+        massif_name_to_tuple_list = {m: [] for m in massif_names}
+        for r, v in self.right_limit_to_visualizer.items():
             merge_visualizer = self.get_merge_visualizer(altitude_class, v, merge_visualizer_str)
-            mean_return_level = merge_visualizer.mean_return_level(self.massif_names)
-            mean_return_levels.append(mean_return_level)
+            massif_name_to_return_level = merge_visualizer.massif_name_to_return_level(massif_names)
+            for massif_name, return_level in massif_name_to_return_level.items():
+                massif_name_to_tuple_list[massif_name].append((r, return_level))
+            mean_return_levels.append(np.mean(list(massif_name_to_return_level.values())))
 
-        label = altitude_class().formula
-        ax.plot(self.right_limits, mean_return_levels, linestyle=linestyle, label=label, color='orange')
+        for massif_id, massif_name in enumerate(AbstractStudy.all_massif_names()):
+            if len(massif_name_to_tuple_list[massif_name]) > 0:
+                x, y = zip(*massif_name_to_tuple_list[massif_name])
+            else:
+                x, y = [], []
+            color, linestyle, label = get_color_and_linestyle_from_massif_id(massif_id, massif_name)
+            ax.plot(x, y, color=color, linestyle=linestyle, label=label)
+
+        ax.plot(self.right_limits, mean_return_levels, label="Mean", color='k', linewidth=4)
+        down, up = ax.get_ylim()
+        ax.set_ylim((down, up * 1.3))
+        ax.legend(prop={'size': 7}, ncol=3, loc="upper center")
 
     def interval_plot_changes(self, ax, altitude_class, merge_visualizer_str, relative):
         linestyle = get_linestyle_for_altitude_class(altitude_class)
@@ -141,7 +156,7 @@ class VisualizerForSensivity(object):
         ticks_labels = get_ticks_labels_for_interval(self.is_temperature_interval, self.is_shift_interval)
         name = 'relative changes' if relative else "changes"
         ax.set_ylabel(name)
-        ax.set_xlabel('Interval used to compute the trends ')
+        ax.set_xlabel('Interval for the maxima used to compute the trends ')
         ax.set_xticks(self.right_limits)
         ax.set_xticklabels(ticks_labels)
         lim_left, lim_right = ax.get_xlim()
@@ -172,7 +187,7 @@ class VisualizerForSensivity(object):
 
         ticks_labels = get_ticks_labels_for_interval(self.is_temperature_interval, self.is_shift_interval)
         ax.set_ylabel('Percentages of massifs (\%)')
-        ax.set_xlabel('Interval used to compute the trends ')
+        ax.set_xlabel('Interval used for the maxima to compute the trends ')
         ax.set_xticks(self.right_limits)
         ax.set_xticklabels(ticks_labels)
         ax.legend(prop={'size': 7}, loc='upper center', ncol=2)

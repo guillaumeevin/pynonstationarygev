@@ -1,17 +1,19 @@
 import datetime
 import time
 from typing import List
-
-
 import matplotlib as mpl
-
-from extreme_trend.one_fold_fit.utils_altitude_studies_visualizer import load_visualizer_list
-
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 import matplotlib
 matplotlib.use('Agg')
+
+
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
+    SafranSnowfall2019
+from extreme_trend.one_fold_fit.utils_altitude_studies_visualizer import load_visualizer_list
+
+
 
 from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import \
     plot_shoe_plot_changes_against_altitude, plot_histogram_all_trends_against_altitudes, \
@@ -29,14 +31,19 @@ from extreme_trend.one_fold_fit.plots.plot_coherence_curves import plot_coherenc
 from extreme_trend.one_fold_fit.altitude_group import altitudes_for_groups
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days, \
-    SafranSnowfall5Days, SafranSnowfall7Days
+    SafranSnowfall5Days, SafranSnowfall7Days, SafranSnowfallCenterOnDay1day, SafranSnowfallNotCenterOnDay1day, \
+    SafranSnowfallCenterOnDay1dayMeanRate
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 
 def main():
+
     study_classes = [SafranSnowfall1Day
                      , SafranSnowfall3Days,
                      SafranSnowfall5Days, SafranSnowfall7Days][:1]
+    study_classes = [SafranSnowfall2019, SafranSnowfall2020, SafranSnowfallCenterOnDay1day,
+                     SafranSnowfallNotCenterOnDay1day,
+                     SafranSnowfallCenterOnDay1dayMeanRate, SafranSnowfall1Day][1:2]
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
     set_seed_for_test()
@@ -70,8 +77,8 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_p
         for study_class in study_classes:
             print('Inner loop', season, study_class)
             visualizer_list = load_visualizer_list(season, study_class, altitudes_list, massif_names,
-                                                   model_must_pass_the_test
-                                                )
+                                                   model_must_pass_the_test,
+                                                year_max=2019)
             plot_visualizers(massif_names, visualizer_list)
             for visualizer in visualizer_list:
                 plot_visualizer(massif_names, visualizer)
@@ -80,12 +87,12 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_p
 
 
 def plot_visualizers(massif_names, visualizer_list):
-    plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
-    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list, with_significance=True)
+    # plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
+    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list, with_significance=False)
     # plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
     for relative in [True, False]:
-        plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative)
-    plot_coherence_curves(['Vanoise'], visualizer_list)
+        plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative, with_significance=False)
+    # plot_coherence_curves(['Vanoise'], visualizer_list)
     pass
 
 
@@ -94,11 +101,13 @@ def plot_visualizer(massif_names, visualizer):
     # visualizer.studies.plot_maxima_time_series(massif_names)
     # visualizer.studies.plot_maxima_time_series(['Vanoise'])
 
-    visualizer.plot_shape_map()
+    # visualizer.plot_shape_map()
     visualizer.plot_moments()
-    visualizer.plot_qqplots()
+    # visualizer.plot_qqplots()
+
     # for std in [True, False]:
     #     visualizer.studies.plot_mean_maxima_against_altitude(std=std)
+    pass
 
 if __name__ == '__main__':
     main()

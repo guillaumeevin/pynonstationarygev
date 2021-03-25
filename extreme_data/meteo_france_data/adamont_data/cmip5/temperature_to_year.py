@@ -91,28 +91,34 @@ def plot_nb_data(is_temperature_interval, is_shift_interval):
 
 def get_interval_limits(is_temperature_interval, is_shift_interval):
     if is_temperature_interval:
-        temp_min = np.arange(0, 2, 0.5)
-        temp_max = temp_min + 1
+        temp_min = np.arange(0, 4, 0.5)
+        temp_max = temp_min + 1.0
         left_limit, right_limit = temp_min, temp_max
     else:
         shift = 25
         nb = 3
-        year_min = [2006 + shift * i for i in range(nb)]
-        year_max = [2050 + shift * i for i in range(nb)]
+        year_min = [1959 + shift * i for i in range(nb)]
+        year_max = [2020 + shift * i for i in range(nb)]
         left_limit, right_limit = year_min, year_max
     if not is_shift_interval:
         min_interval_left = min(left_limit)
         left_limit = [min_interval_left for _ in right_limit]
-    return left_limit[:3], right_limit[:3]
+    idx = None
+    if idx is None:
+        return left_limit, right_limit
+    else:
+        return left_limit[:idx], right_limit[:idx]
 
 
 def get_ticks_labels_for_interval(is_temperature_interval, is_shift_interval):
     left_limits, right_limits = get_interval_limits(is_temperature_interval, is_shift_interval)
-    ticks_labels = [' +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$'.format(left_limit, right_limit, **{'C': '{C}'})
+    left_limits = [int(l) if int(l) == l else l for l in left_limits]
+    right_limits = [int(l) if int(l) == l else l for l in right_limits]
+    ticks_labels = [' ${}$-${}^o\mathrm{C}$'.format(left_limit, right_limit, **{'C': '{C}'})
                     if is_temperature_interval else '{} and {}'.format(left_limit, right_limit)
                     for left_limit, right_limit in zip(left_limits, right_limits)]
-    prefix = 'Maxima between \n'
-    ticks_labels = [prefix + l for l in ticks_labels]
+    # prefix = 'Maxima between \n'
+    ticks_labels = [l for l in ticks_labels]
     return ticks_labels
 
 

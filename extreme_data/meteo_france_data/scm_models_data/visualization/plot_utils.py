@@ -10,19 +10,7 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted
 def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=None, fill=False, massif_name_as_labels=True,
                           elevation_as_xaxis=True, legend=False):
     if massif_name_as_labels:
-        di = massif_id // 8
-        if di == 0:
-            linestyle = '-.'
-        elif di == 1:
-            linestyle = 'dotted'
-        else:
-            linestyle = '--'
-        colors = list(mcolors.TABLEAU_COLORS)
-        colors[-3:-1] = []  # remove gray and olive
-        color = colors[massif_id % 8]
-        # Label
-        massif_name_str = ' '.join(massif_name.split('_'))
-        label = massif_name_str
+        color, linestyle, label = get_color_and_linestyle_from_massif_id(massif_id, massif_name)
     else:
         color = None
         linestyle = None
@@ -38,6 +26,23 @@ def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=
         lower_bound, upper_bound = zip(*values)
         # ax.fill_between(altitudes, lower_bound, upper_bound, color=color, alpha=0.2, label=label + '95\% confidence interval')
         ax.fill_between(x_ticks, lower_bound, upper_bound, color=color, alpha=0.2)
+
+
+def get_color_and_linestyle_from_massif_id(massif_id, massif_name):
+    di = massif_id // 8
+    if di == 0:
+        linestyle = '-.'
+    elif di == 1:
+        linestyle = 'dotted'
+    else:
+        linestyle = '--'
+    colors = list(mcolors.TABLEAU_COLORS)
+    colors[-3:-1] = []  # remove gray and olive
+    color = colors[massif_id % 8]
+    # Label
+    massif_name_str = ' '.join(massif_name.split('_'))
+    label = massif_name_str
+    return color, linestyle, label
 
 
 def load_plot(cmap, graduation, label, massif_name_to_value, altitude, add_x_label=True,

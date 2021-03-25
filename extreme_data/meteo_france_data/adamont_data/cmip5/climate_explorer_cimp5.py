@@ -58,10 +58,7 @@ def years_and_global_mean_temps(gcm, scenario, year_min=None, year_max=None, ano
         download_dat(dat_filepath, txt_filepath)
     # Transform nc file into csv file
     if not op.exists(csv_filepath):
-        print('compute csv')
         dat_to_csv(csv_filepath, txt_filepath, gcm)
-    else:
-        print('read from existing csv')
 
     # Load csv file
     df = pd.read_csv(csv_filepath, index_col=0)
