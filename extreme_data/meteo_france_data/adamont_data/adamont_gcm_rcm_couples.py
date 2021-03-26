@@ -1,4 +1,12 @@
 def get_year_min_and_year_max_used_to_compute_quantile(gcm):
+    """pour les périodes de calcul de quantiles/quantiles, voici le recap :
+    1980-2011 pour la réanalyse
+    1974-2005 pour le modèle
+
+    sauf GCM=MOHC-HadGEM2-ES
+    1987-2011 pour la réanalyse
+    1981-2005 pour le modèle
+    """
     if gcm == 'HadGEM2-ES':
         reanalysis_years = (1988, 2011)
         model_year = (1982, 2005)

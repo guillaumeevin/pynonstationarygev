@@ -48,7 +48,7 @@ def main():
     fast = False
     scenarios = [AdamontScenario.rcp85]
     scenarios = rcp_scenarios[1:]
-    scenarios = rcm_scenarios_extended[:][::-1]
+    scenarios = rcm_scenarios_extended[2:][::-1]
 
     if fast in [None, True]:
         scenarios = scenarios[:1]
@@ -64,10 +64,10 @@ def main():
             massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors', 'Ubaye']
             gcm_rcm_couples = gcm_rcm_couples[4:6]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = altitudes_for_groups[1:3]
+            altitudes_list = altitudes_for_groups[1:2]
         else:
             massif_names = None
-            altitudes_list = altitudes_for_groups[:]
+            altitudes_list = altitudes_for_groups[2:3]
 
         assert isinstance(gcm_rcm_couples, list)
 

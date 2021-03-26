@@ -96,9 +96,9 @@ def get_interval_limits(is_temperature_interval, is_shift_interval):
         left_limit, right_limit = temp_min, temp_max
     else:
         shift = 25
-        nb = 3
-        year_min = [1959 + shift * i for i in range(nb)]
-        year_max = [2020 + shift * i for i in range(nb)]
+        nb = 1
+        year_min = [1950 + shift * i for i in range(nb)]
+        year_max = [2100 + shift * i for i in range(nb)]
         left_limit, right_limit = year_min, year_max
     if not is_shift_interval:
         min_interval_left = min(left_limit)
@@ -122,8 +122,52 @@ def get_ticks_labels_for_interval(is_temperature_interval, is_shift_interval):
     return ticks_labels
 
 
-if __name__ == '__main__':
+def plot_nb_of_data():
     for shift_interval in [False, True][:1]:
         for temp_interval in [False, True][1:]:
             print("shift = {}, temp_inteval = {}".format(shift_interval, temp_interval))
             plot_nb_data(is_temperature_interval=temp_interval, is_shift_interval=shift_interval)
+
+
+def plot_year_for_temperature_interval():
+    left_limit, right_limit = get_interval_limits(True, False)
+
+    ax = plt.gca()
+    for gcm in get_gcm_list(adamont_version=2)[:]:
+        for i, scenario in enumerate(rcp_scenarios[2:]):
+            first_scenario = i == 0
+            plot_year_for_temperature_interval_one_line(ax, gcm, scenario, left_limit, right_limit, first_scenario)
+
+    ax.legend(loc='upper left')
+    ticks_labels = get_ticks_labels_for_interval(True, False)
+    ax.set_yticks(right_limit)
+    ax.set_yticklabels(ticks_labels)
+    ax.set_xlabel('Last year considered')
+    ax2 = ax.twinx()
+    legend_elements = [
+        Line2D([0], [0], color='k', lw=1, label=scenario_to_str(s),
+               linestyle=get_linestyle_from_scenario(s)) for s in adamont_scenarios_real
+    ]
+    ax2.legend(handles=legend_elements, loc='lower right')
+    ax2.set_yticks([])
+    plt.show()
+
+
+def plot_year_for_temperature_interval_one_line(ax, gcm, scenario, left_limits, right_limits, first_scenario):
+    year_max_list = [get_year_min_and_year_max(gcm, scenario, left_limit, right_limit,
+                              True)[1] for left_limit, right_limit in zip(left_limits, right_limits)]
+
+    color = gcm_to_color[gcm]
+    linestyle = get_linestyle_from_scenario(scenario)
+
+    # For the legend
+    if (len(year_max_list) > 0) and first_scenario:
+        ax.plot(year_max_list[0], right_limits[0], linestyle='solid', color=color, label=gcm)
+
+    ax.plot(year_max_list, right_limits, linestyle=linestyle, color=color, marker='o')
+
+
+if __name__ == '__main__':
+    # plot_nb_of_data()
+    plot_year_for_temperature_interval()
+

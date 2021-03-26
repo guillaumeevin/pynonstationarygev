@@ -48,7 +48,7 @@ class VisualizerForSensivity(object):
 
         self.left_limit_to_right_limit = OrderedDict(zip(self.left_limits, self.right_limits))
         self.right_limit_to_visualizer = {}  # type: Dict[float, VisualizerForProjectionEnsemble]
-
+        print(self.right_limits)
         for left_limit, right_limit in zip(self.left_limits, self.right_limits):
             interval_str_prefix = "{}-{}".format(left_limit, right_limit)
             interval_str_prefix = interval_str_prefix.replace('.', ',')
@@ -88,18 +88,24 @@ class VisualizerForSensivity(object):
             merge_visualizer_str_list.append(AbstractEnsembleFit.Together_merge)
         for merge_visualizer_str in merge_visualizer_str_list:
             self.sensitivity_plot_percentages(merge_visualizer_str)
-            self.sensitivity_plot_return_levels(merge_visualizer_str)
+            for only_mean in [True, False]:
+                self.sensitivity_plot_return_levels(merge_visualizer_str, only_mean)
             for relative in [True, False]:
                 self.sensitivity_plot_changes(merge_visualizer_str, relative)
 
-    def sensitivity_plot_return_levels(self, merge_visualizer_str):
+    def sensitivity_plot_return_levels(self, merge_visualizer_str, only_mean):
         ax = plt.gca()
         for altitudes in self.altitudes_list:
             altitude_group = get_altitude_class_from_altitudes(altitudes)
-            self.interval_plot_return_levels(ax, altitude_group, merge_visualizer_str)
+            self.interval_plot_return_levels(ax, altitude_group, merge_visualizer_str, only_mean)
+        # todo: dans la fonction return level de sensitivity visualizer faire en sorte de ne pas tracer que le retour de niveau 100,
+        #  mais en tracer d autres pour voir comment ils évoluent.
 
         ticks_labels = get_ticks_labels_for_interval(self.is_temperature_interval, self.is_shift_interval)
-        name = 'Return levels at the end of the interval'
+        if only_mean:
+            name = 'Mean return levels at the end of the interval'
+        else:
+            name = 'Return levels at the end of the interval'
         if len(self.altitudes_list) == 1:
             altitude_group = get_altitude_group_from_altitudes(self.altitudes_list[0])
             name += ' at {} m'.format(altitude_group.reference_altitude)
@@ -109,7 +115,7 @@ class VisualizerForSensivity(object):
         ax.set_xticklabels(ticks_labels)
         self.save_plot(merge_visualizer_str, name)
 
-    def interval_plot_return_levels(self, ax, altitude_class, merge_visualizer_str):
+    def interval_plot_return_levels(self, ax, altitude_class, merge_visualizer_str, only_mean):
 
         mean_return_levels = []
         massif_names = AbstractStudy.all_massif_names() if self.massif_names is None else self.massif_names
@@ -121,18 +127,21 @@ class VisualizerForSensivity(object):
                 massif_name_to_tuple_list[massif_name].append((r, return_level))
             mean_return_levels.append(np.mean(list(massif_name_to_return_level.values())))
 
-        for massif_id, massif_name in enumerate(AbstractStudy.all_massif_names()):
-            if len(massif_name_to_tuple_list[massif_name]) > 0:
-                x, y = zip(*massif_name_to_tuple_list[massif_name])
-            else:
-                x, y = [], []
-            color, linestyle, label = get_color_and_linestyle_from_massif_id(massif_id, massif_name)
-            ax.plot(x, y, color=color, linestyle=linestyle, label=label)
+        if not only_mean:
+            for massif_id, massif_name in enumerate(AbstractStudy.all_massif_names()):
+                if (massif_name in massif_name_to_tuple_list) and (len(massif_name_to_tuple_list[massif_name]) > 0):
+                    x, y = zip(*massif_name_to_tuple_list[massif_name])
+                else:
+                    x, y = [], []
+                color, linestyle, label = get_color_and_linestyle_from_massif_id(massif_id, massif_name)
+                ax.plot(x, y, color=color, linestyle=linestyle, label=label)
 
         ax.plot(self.right_limits, mean_return_levels, label="Mean", color='k', linewidth=4)
-        down, up = ax.get_ylim()
-        ax.set_ylim((down, up * 1.3))
-        ax.legend(prop={'size': 7}, ncol=3, loc="upper center")
+
+        if not only_mean:
+            down, up = ax.get_ylim()
+            ax.set_ylim((down, up * 1.3))
+            ax.legend(prop={'size': 7}, ncol=3, loc="upper center")
 
     def interval_plot_changes(self, ax, altitude_class, merge_visualizer_str, relative):
         linestyle = get_linestyle_for_altitude_class(altitude_class)

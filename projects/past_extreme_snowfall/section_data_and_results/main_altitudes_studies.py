@@ -41,9 +41,10 @@ def main():
     study_classes = [SafranSnowfall1Day
                      , SafranSnowfall3Days,
                      SafranSnowfall5Days, SafranSnowfall7Days][:1]
-    study_classes = [SafranSnowfall2019, SafranSnowfall2020, SafranSnowfallCenterOnDay1day,
+    study_classes = [SafranSnowfall2020, SafranSnowfall2019, SafranSnowfallCenterOnDay1day,
                      SafranSnowfallNotCenterOnDay1day,
-                     SafranSnowfallCenterOnDay1dayMeanRate, SafranSnowfall1Day][1:2]
+                     SafranSnowfallCenterOnDay1dayMeanRate, SafranSnowfall1Day][1:3]
+    study_classes = [SafranSnowfallNotCenterOnDay1day, SafranSnowfall2019]
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
     set_seed_for_test()
@@ -88,10 +89,10 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_p
 
 def plot_visualizers(massif_names, visualizer_list):
     # plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
-    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list, with_significance=False)
+    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list, with_significance=True)
     # plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
     for relative in [True, False]:
-        plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative, with_significance=False)
+        plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative, with_significance=True)
     # plot_coherence_curves(['Vanoise'], visualizer_list)
     pass
 

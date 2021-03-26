@@ -24,7 +24,7 @@ from extreme_fit.model.utils import set_seed_for_test
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples, \
-    rcp_scenarios
+    rcp_scenarios, rcm_scenarios_extended
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate
 
@@ -47,6 +47,7 @@ def main():
 
     fast = True
     scenarios = rcp_scenarios[::-1] if fast is False else [AdamontScenario.rcp85]
+    scenarios = rcm_scenarios_extended[::-1]
 
     for scenario in scenarios:
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
@@ -72,7 +73,7 @@ def main():
         print('Covariate is {}'.format(temporal_covariate_for_fit))
 
         model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
-        assert scenario in rcp_scenarios
+        assert scenario is not AdamontScenario.histo
 
         visualizer = VisualizerForProjectionEnsemble(
             altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,

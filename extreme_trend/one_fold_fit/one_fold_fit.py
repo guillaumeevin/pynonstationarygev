@@ -388,6 +388,7 @@ class OneFoldFit(object):
         df_temporal_covariate = self.dataset.coordinates.df_temporal_coordinates_for_fit(temporal_covariate_for_fit=self.temporal_covariate_for_fit,
                                                                                          drop_duplicates=False)
         last_temporal_coordinate = df_temporal_covariate.loc[:, AbstractCoordinates.COORDINATE_T].max()
+        # todo: améliorer the last temporal coordinate. on recupère la liste des rights_limits, puis on prend la valeur juste au dessus ou égale."""
         print('last temporal coordinate', last_temporal_coordinate)
         altitude = self.altitude_group.reference_altitude
         coordinate = np.array([altitude, last_temporal_coordinate])
