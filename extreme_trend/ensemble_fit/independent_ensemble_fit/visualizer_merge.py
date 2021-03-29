@@ -37,7 +37,9 @@ class VisualizerMerge(AltitudesStudiesVisualizerForNonStationaryModels):
                                  if massif_name in v.massif_name_to_one_fold_fit]
             if len(one_fold_fit_list) > 0:
                 one_fold_fit_merge = OneFoldFitMerge(one_fold_fit_list, massif_name,
-                                                     type(self.altitude_group), self.temporal_covariate_for_fit)
+                                                     type(self.altitude_group), self.temporal_covariate_for_fit,
+                                                     first_year=self.study.year_min, last_year=self.study.year_max,
+                                                     merge_function=self.merge_function)
                 self._massif_name_to_one_fold_fit[massif_name] = one_fold_fit_merge
 
     @property

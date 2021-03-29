@@ -42,11 +42,9 @@ class OneFoldFit(object):
     SIGNIFICANCE_LEVEL = 0.05
     return_period = 100
     quantile_level = 1 - (1 / return_period)
-    nb_years = 60
-    last_year = 2019
-    last_anomaly = 2
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
+                 first_year, last_year,
                  fit_method=MarginFitMethod.extremes_fevd_mle,
                  temporal_covariate_for_fit=None,
                  altitude_class=DefaultAltitudeGroup,
@@ -54,6 +52,9 @@ class OneFoldFit(object):
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
                  ):
+        self.first_year = first_year
+        self.last_year = last_year
+        self.years_of_difference = last_year - first_year
         self.remove_physically_implausible_models = remove_physically_implausible_models
         self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
         self.only_models_that_pass_goodness_of_fit_test = only_models_that_pass_goodness_of_fit_test
@@ -63,6 +64,7 @@ class OneFoldFit(object):
         self.models_classes = models_classes
         self.fit_method = fit_method
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
+
 
         # Fit Estimators
         self.model_class_to_estimator = {}
@@ -133,10 +135,10 @@ class OneFoldFit(object):
     @property
     def _covariate_before_and_after(self):
         if self.temporal_covariate_for_fit in [None, TimeTemporalCovariate]:
-            return self.last_year - self.nb_years, self.last_year
+            return self.first_year, self.last_year
         elif self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate:
             # In 2020, we are roughly at 1 degree. Thus it natural to see the augmentation from 1 to 2 degree.
-            return 1, self.last_anomaly
+            return 1, 2
         else:
             raise NotImplementedError
 

@@ -24,7 +24,7 @@ from extreme_fit.model.utils import set_seed_for_test
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples, \
-    rcp_scenarios, rcm_scenarios_extended
+    rcp_scenarios, rcm_scenarios_extended, get_gcm_list
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate
 
@@ -41,13 +41,18 @@ def main():
     study_class = AdamontSnowfall
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     temporal_covariate_for_fit = [TimeTemporalCovariate,
-                                  AnomalyTemperatureWithSplineTemporalCovariate][1]
+                                  AnomalyTemperatureWithSplineTemporalCovariate][0]
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = True
+    fast = False
     scenarios = rcp_scenarios[::-1] if fast is False else [AdamontScenario.rcp85]
     scenarios = rcm_scenarios_extended[::-1]
+
+    scenarios = [AdamontScenario.histo]
+    gcm_to_year_min_and_year_max = {
+        gcm: (1959, 2005) for gcm in get_gcm_list(adamont_version=2)
+    }
 
     for scenario in scenarios:
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
@@ -62,8 +67,8 @@ def main():
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
             altitudes_list = altitudes_for_groups[:1]
         else:
-            massif_names = ['Vanoise']
-            altitudes_list = altitudes_for_groups[3:]
+            massif_names = None
+            altitudes_list = altitudes_for_groups[:]
 
         assert isinstance(gcm_rcm_couples, list)
 
@@ -73,7 +78,6 @@ def main():
         print('Covariate is {}'.format(temporal_covariate_for_fit))
 
         model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
-        assert scenario is not AdamontScenario.histo
 
         visualizer = VisualizerForProjectionEnsemble(
             altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
@@ -82,7 +86,7 @@ def main():
             massif_names=massif_names,
             temporal_covariate_for_fit=temporal_covariate_for_fit,
             remove_physically_implausible_models=True,
-            gcm_to_year_min_and_year_max=None,
+            gcm_to_year_min_and_year_max=gcm_to_year_min_and_year_max,
         )
         visualizer.plot()
 

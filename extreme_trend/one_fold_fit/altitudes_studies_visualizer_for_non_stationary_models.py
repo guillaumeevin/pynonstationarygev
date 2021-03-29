@@ -80,7 +80,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             self.massif_name_to_massif_altitudes[massif_name] = massif_altitudes
             # Load dataset
             dataset = self.get_dataset(massif_altitudes, massif_name)
-            old_fold_fit = OneFoldFit(massif_name, dataset, self.model_classes, self.fit_method,
+            old_fold_fit = OneFoldFit(massif_name, dataset, self.model_classes,
+                                      self.study.year_min,
+                                      self.study.year_max,
+                                      self.fit_method,
                                       self.temporal_covariate_for_fit,
                                       type(self.altitude_group),
                                       self.display_only_model_that_pass_test,
@@ -163,7 +166,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         return self._method_name_and_order_to_massif_name_to_value[c]
 
     def ratio_groups(self):
-        return [self.ratio_uncertainty_interval_size(altitude, OneFoldFit.last_year) for altitude in
+        return [self.ratio_uncertainty_interval_size(altitude, self.first_one_fold_fit.last_year) for altitude in
                 self.studies.altitudes]
 
     def ratio_uncertainty_interval_size(self, altitude, year):
@@ -264,7 +267,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         ax.legend(prop={'size': 7}, ncol=3)
         moment = ' '.join(method_name.split('_'))
         moment = moment.replace('moment',
-                                '{} in {}'.format(OneFoldFit.get_moment_str(order=order), OneFoldFit.last_year))
+                                '{} in {}'.format(OneFoldFit.get_moment_str(order=order), self.first_one_fold_fit.last_year))
         plot_name = 'Model {} annual maxima of {}'.format(moment,
                                                           SCM_STUDY_CLASS_TO_ABBREVIATION[self.studies.study_class])
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
@@ -272,13 +275,6 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         ax.tick_params(axis='both', which='major', labelsize=13)
         self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show, no_title=True)
         ax.clear()
-
-    # def plot_abstract_fast(self, massif_name_to_value, label, graduation=10.0, cmap=plt.cm.coolwarm, add_x_label=True,
-    #                        negative_and_positive_values=True, massif_name_to_text=None):
-    #     plot_name = '{}{}'.format(OneFoldFit.folder_for_plots, label)
-    #     self.plot_map(cmap, self.fit_method, graduation, label, massif_name_to_value, plot_name, add_x_label,
-    #                   negative_and_positive_values,
-    #                   massif_name_to_text)
 
     @property
     def massif_name_to_shape(self):
@@ -290,48 +286,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         return {massif_name: one_fold_fit.best_name
                 for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()}
 
-    def plot_best_coef_maps(self):
-        for param_name in GevParams.PARAM_NAMES:
-            coordinate_names = [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_T]
-            dim_to_coordinate_name = dict(zip([0, 1], coordinate_names))
-            for dim in [0, 1, (0, 1)]:
-                coordinate_name = LinearCoef.coefficient_name(dim, dim_to_coordinate_name)
-                for degree in range(4):
-                    coef_name = ' '.join([param_name + coordinate_name + str(degree)])
-                    massif_name_to_best_coef = {}
-                    for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
-                        best_coef = one_fold_fit.best_coef(param_name, dim, degree)
-                        if best_coef is not None:
-                            massif_name_to_best_coef[massif_name] = best_coef
-
-                    if len(massif_name_to_best_coef) > 0:
-                        for evaluate_coordinate in [False, True][:1]:
-                            if evaluate_coordinate:
-                                coef_name += 'evaluated at coordinates'
-                                for massif_name in massif_name_to_best_coef.keys():
-                                    if AbstractCoordinates.COORDINATE_X in coordinate_name:
-                                        massif_name_to_best_coef[massif_name] *= np.power(1000, degree)
-                                    if AbstractCoordinates.COORDINATE_T in coordinate_name:
-                                        massif_name_to_best_coef[massif_name] *= np.power(OneFoldFit.last_year, degree)
-                            self.plot_best_coef_map(coef_name.replace('_', ''), massif_name_to_best_coef)
-
-    def plot_best_coef_map(self, coef_name, massif_name_to_best_coef):
-        values = list(massif_name_to_best_coef.values())
-        graduation = (max(values) - min(values)) / 6
-        print(coef_name, graduation, max(values), min(values))
-        negative_and_positive_values = (max(values) > 0) and (min(values) < 0)
-        raise NotImplementedError
-        self.plot_map(massif_name_to_value=massif_name_to_best_coef,
-                      label='Coef/{} plot for {} {}'.format(coef_name,
-                                                            SCM_STUDY_CLASS_TO_ABBREVIATION[
-                                                                type(self.study)],
-                                                            self.study.variable_unit),
-                      add_x_label=False, graduation=graduation, massif_name_to_text=self.massif_name_to_best_name,
-                      negative_and_positive_values=negative_and_positive_values)
-
     def plot_shape_map(self):
 
-        label = 'Shape parameter in {} (no unit)'.format(OneFoldFit.last_year)
+        label = 'Shape parameter in {} (no unit)'.format(self.first_one_fold_fit.last_year)
         max_abs_change = self._max_abs_for_shape + 0.05
         self.plot_map(massif_name_to_value=self.massif_name_to_shape,
                       label=label,

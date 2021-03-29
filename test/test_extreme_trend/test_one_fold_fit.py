@@ -41,7 +41,10 @@ class TestOneFoldFit(unittest.TestCase):
             dataset = self.load_dataset(study_class)
             one_fold_fit = OneFoldFit(self.massif_name, dataset,
                                       models_classes=self.model_classes, temporal_covariate_for_fit=None,
-                                      only_models_that_pass_goodness_of_fit_test=False)
+                                      only_models_that_pass_goodness_of_fit_test=False,
+                                      first_year=1959,
+                                      last_year=2019
+                                      )
             _ = one_fold_fit.best_estimator.margin_model
         self.assertTrue(True)
 
@@ -51,7 +54,10 @@ class TestOneFoldFit(unittest.TestCase):
             one_fold_fit = OneFoldFit(self.massif_name, dataset,
                                       models_classes=self.model_classes,
                                       temporal_covariate_for_fit=TimeTemporalCovariate,
-                                      only_models_that_pass_goodness_of_fit_test=False)
+                                      only_models_that_pass_goodness_of_fit_test=False,
+                                      first_year=1959,
+                                      last_year=2019
+                                      )
             _ = one_fold_fit.best_estimator.margin_model
         self.assertTrue(True)
 
@@ -61,7 +67,10 @@ class TestOneFoldFit(unittest.TestCase):
             one_fold_fit = OneFoldFit(self.massif_name, dataset,
                                       models_classes=self.model_classes,
                                       temporal_covariate_for_fit=AnomalyTemperatureWithSplineTemporalCovariate,
-                                      only_models_that_pass_goodness_of_fit_test=False)
+                                      only_models_that_pass_goodness_of_fit_test=False,
+                                      first_year=1959,
+                                      last_year=2019
+                                      )
             _ = one_fold_fit.best_estimator.margin_model
         self.assertTrue(True)
 
@@ -75,7 +84,10 @@ class TestOneFoldFit(unittest.TestCase):
                                   models_classes=self.model_classes,
                                   temporal_covariate_for_fit=None,
                                   only_models_that_pass_goodness_of_fit_test=False,
-                                  remove_physically_implausible_models=True)
+                                  remove_physically_implausible_models=True,
+                                  first_year=1959,
+                                  last_year=2019
+                                  )
         self.assertFalse(one_fold_fit.has_at_least_one_valid_model)
 
     def test_assertion_error_for_a_specific_case(self):
@@ -94,7 +106,9 @@ class TestOneFoldFit(unittest.TestCase):
                                   temporal_covariate_for_fit=AnomalyTemperatureWithSplineTemporalCovariate,
                                   altitude_class=VeyHighAltitudeGroup,
                                   only_models_that_pass_goodness_of_fit_test=False,
-                                  remove_physically_implausible_models=True)
+                                  remove_physically_implausible_models=True,
+                                  first_year=1959,
+                                  last_year=2019)
         self.assertTrue(one_fold_fit.has_at_least_one_valid_model)
 
 if __name__ == '__main__':
