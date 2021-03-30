@@ -3,10 +3,8 @@
 # Created by: erwan
 # Created on: 30/03/2021
 
-library(mgcv)
-# library(evgam)
+library(evgam)
 library(SpatialExtremes)
-library(ismev)
 # Sample from a GEV
 set.seed(42)
 N <- 50
@@ -22,6 +20,8 @@ colnames(coord) = c("T")
 print(coord)
 coord = data.frame(coord, stringsAsFactors = TRUE)
 # res = fevd_fixed(x_gev, data=coord, method='MLE', verbose=TRUE, use.phi=FALSE)
-res = fevd_fixed(x_gev, data=coord, location.fun= ~T, scale.fun= ~T, method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
+# fmla = list(miaxi)
+evgam()
+# res = evgam(x_gev, data=coord, location.fun= ~T, scale.fun= ~T, method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
 # res = fevd_fixed(x_gev, data=coord, shape.fun= ~T, method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
 print(res)
