@@ -32,7 +32,7 @@ def main_plot_temperature_with_spline_on_top(anomaly=True):
         scenarios = rcp_scenarios
         for scenario in scenarios:
             label = gcm if scenario == scenarios[0] else None
-            plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min=1951, year_max=2005, linestyle=linestyle,
+            plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min=1850, year_max=2005, linestyle=linestyle,
                                          label=label, spline=spline, anomaly=anomaly)
             plot_temperature_for_rcp_gcm(ax, gcm, scenario, year_min=2005, year_max=2100, spline=spline, anomaly=anomaly)
 

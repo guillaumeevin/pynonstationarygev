@@ -93,14 +93,16 @@ def dat_to_csv(csv_filepath, txt_filepath, gcm):
     l = df_temp_until_july.sum(axis=1).values + df_temp_after_august.sum(axis=1).values
     l /= 12
     l = [np.nan] + list(l)
+    l = np.array(l)
     assert len(l) == len(df.index)
+    l[l < 280] = np.nan
 
     # First we compute the standard column
     df = set_anomaly(df, mean_data=l, spline=False)
 
     # Then we regress some cubic spline on the temperature columns
     noisy_data = df[get_column_name(anomaly=False, spline=False)]
-    ind = noisy_data > -50
+    ind = ~noisy_data.isna()
     spline_data = noisy_data.copy()
     spline_data.loc[ind] = apply_cubic_spline(noisy_data.loc[ind].index.values, noisy_data.loc[ind].values, gcm)
     df = set_anomaly(df, mean_data=spline_data, spline=True)

@@ -112,7 +112,7 @@ class VisualizerForProjectionEnsemble(object):
         merge_keys = [AbstractEnsembleFit.Median_merge, AbstractEnsembleFit.Mean_merge]
         keys = self.gcm_rcm_couples + merge_keys
         # Only plot Mean for speed
-        keys = [AbstractEnsembleFit.Mean_merge]
+        # keys = [AbstractEnsembleFit.Mean_merge]
         for key in keys:
             visualizer_list = [independent_ensemble_fit.gcm_rcm_couple_to_visualizer[key]
                                if key in self.gcm_rcm_couples

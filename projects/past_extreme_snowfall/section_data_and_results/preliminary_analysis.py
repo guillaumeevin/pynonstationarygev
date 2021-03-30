@@ -206,9 +206,9 @@ def main_paper2():
 def main_paper3():
     altitudes = list(chain.from_iterable(altitudes_for_groups))
     # altitudes = [1200, 1500, 1800]
-    for scenario in rcp_scenarios[2:]:
+    for scenario in rcp_scenarios[:]:
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
-        gcm_rcm_couples =[('CNRM-CM5', 'CCLM4-8-17')]
+        # gcm_rcm_couples =[('CNRM-CM5', 'CCLM4-8-17')]
         for gcm_rcm_couple in gcm_rcm_couples:
             visualizer = PointwiseGevStudyVisualizer(AdamontSnowfall, altitudes=altitudes, scenario=scenario,
                                                      gcm_rcm_couple=gcm_rcm_couple)

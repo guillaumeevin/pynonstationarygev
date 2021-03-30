@@ -32,3 +32,7 @@ class OneFoldFitMerge(OneFoldFit):
         merged_relative_changes = list(self.merge_function(np.array(all_relative_changes), axis=0))
         assert len(all_relative_changes[0]) == len(merged_relative_changes)
         return merged_relative_changes
+
+    @property
+    def best_shape(self):
+        return self.merge_function([o.best_shape for o in self.one_fold_fit_list])
