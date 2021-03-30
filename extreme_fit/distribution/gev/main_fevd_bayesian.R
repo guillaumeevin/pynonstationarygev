@@ -3,8 +3,9 @@
 # Created by: erwan
 # Created on: 04/10/2019
 library(extRemes)
-# library(data.table)
-# library(stats4)
+library(data.table)
+library(stats4)
+library(quantreg)
 library(SpatialExtremes)
 source('fevd_fixed.R')
 # Sample from a GEV

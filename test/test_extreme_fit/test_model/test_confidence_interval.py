@@ -64,15 +64,15 @@ class TestConfidenceInterval(unittest.TestCase):
             NonStationaryLocationAndScaleTemporalModel:(7.461627064650193, 9.0830495118253, 10.111709666579216),
         }
 
-    def test_my_bayes(self):
-        self.fit_method = MarginFitMethod.extremes_fevd_bayesian
-        self.ci_method = ConfidenceIntervalMethodFromExtremes.my_bayes
-        self.model_class_to_triplet = self.bayesian_ci
+    # def test_my_bayes(self):
+    #     self.fit_method = MarginFitMethod.extremes_fevd_bayesian
+    #     self.ci_method = ConfidenceIntervalMethodFromExtremes.my_bayes
+    #     self.model_class_to_triplet = self.bayesian_ci
 
-    def test_ci_bayes(self):
-        self.fit_method = MarginFitMethod.extremes_fevd_bayesian
-        self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_bayes
-        self.model_class_to_triplet = self.bayesian_ci
+    # def test_ci_bayes(self):
+    #     self.fit_method = MarginFitMethod.extremes_fevd_bayesian
+    #     self.ci_method = ConfidenceIntervalMethodFromExtremes.ci_bayes
+    #     self.model_class_to_triplet = self.bayesian_ci
 
     def test_ci_normal_mle(self):
         self.fit_method = MarginFitMethod.extremes_fevd_mle
@@ -137,11 +137,11 @@ class TestConfidenceIntervalModifiedCoordinates(TestConfidenceInterval):
             NonStationaryLocationAndScaleTemporalModel: (11.744572233784234, 15.89417144494369, 23.522431032480416),
         }
 
-    def test_my_bayes(self):
-        super().test_my_bayes()
+    # def test_my_bayes(self):
+    #     super().test_my_bayes()
 
-    def test_ci_bayes(self):
-        super().test_ci_bayes()
+    # def test_ci_bayes(self):
+    #     super().test_ci_bayes()
 
     def test_ci_normal_mle(self):
         self.model_class_to_triplet = {}
