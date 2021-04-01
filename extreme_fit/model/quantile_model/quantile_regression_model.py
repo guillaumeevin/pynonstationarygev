@@ -3,7 +3,7 @@ from rpy2 import robjects
 
 from extreme_fit.model.abstract_model import AbstractModel
 from extreme_fit.model.result_from_model_fit.result_from_quantilreg import ResultFromQuantreg
-from extreme_fit.model.utils import r, safe_run_r_estimator, get_coord_df
+from extreme_fit.model.utils import r, safe_run_r_estimator, get_r_dataframe_from_python_dataframe
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 
@@ -16,7 +16,7 @@ class AbstractQuantileRegressionModel(AbstractModel):
 
     @property
     def data(self):
-        return get_coord_df(self.dataset.df_dataset)
+        return get_r_dataframe_from_python_dataframe(self.dataset.df_dataset)
 
     @property
     def first_column_of_observation(self):

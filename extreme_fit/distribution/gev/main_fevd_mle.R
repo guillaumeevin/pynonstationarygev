@@ -17,16 +17,16 @@ x_gev <- rgev(N, loc = loc, scale = scale, shape = shape)
 # N <- 50
 # loc = 0; scale = 1; shape <- 0.1
 # x_gev <- rgev(N, loc = loc, scale = scale, shape = shape)
-coord <- matrix(ncol=3, nrow = N)
+coord <- matrix(ncol=1, nrow = N)
 coord[,1]=seq(0,N-1,1)
-coord[,2]=c(rep(0, N/2), rep(1, N/2))
-coord[,3]=c(rep(1, N/2), rep(0, N/2))
-colnames(coord) = c("T", "G1", "G2")
+# coord[,2]=c(rep(0, N/2), rep(1, N/2))
+# coord[,3]=c(rep(1, N/2), rep(0, N/2))
+colnames(coord) = c("T")
 print(coord)
 coord = data.frame(coord, stringsAsFactors = TRUE)
 # res = fevd_fixed(x_gev, data=coord, method='MLE', verbose=TRUE, use.phi=FALSE)
-# res = fevd_fixed(x_gev, data=coord, location.fun= ~T, scale.fun= ~T, method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
-res = fevd_fixed(x_gev, data=coord, shape.fun= ~1 + (G1-G2) + I(G2), method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
+res = fevd_fixed(x_gev, data=coord, location.fun= ~T, scale.fun= ~T, method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
+# res = fevd_fixed(x_gev, data=coord, shape.fun= ~1 + (G1-G2) + I(G2), method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
 print(res)
 
 # Some display for the results

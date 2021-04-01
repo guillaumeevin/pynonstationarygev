@@ -20,8 +20,9 @@ class AbstractMarginFunction(AbstractFunction):
     VISUALIZATION_RESOLUTION = 100
     VISUALIZATION_TEMPORAL_STEPS = 2
 
-    def __init__(self, coordinates: AbstractCoordinates, params_class: type = GevParams):
+    def __init__(self, coordinates: AbstractCoordinates, params_class: type = GevParams, log_scale=None):
         super().__init__(coordinates)
+        self.log_scale = log_scale
         self.params_class = params_class
         self.mask_2D = None
 

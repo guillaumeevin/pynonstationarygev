@@ -32,10 +32,11 @@ class ParametricMarginFunction(IndependentMarginFunction):
 
     def __init__(self, coordinates: AbstractCoordinates, param_name_to_dims: Dict[str, List[int]],
                  param_name_to_coef: Dict[str, AbstractCoef], starting_point: Union[None, int] = None,
-                 params_class: type = GevParams):
+                 params_class: type = GevParams,
+                 log_scale=None):
         # Starting point for the trend is the same for all the parameters
         self.starting_point = starting_point
-        super().__init__(coordinates, params_class)
+        super().__init__(coordinates, params_class, log_scale=log_scale)
         self.param_name_to_dims = param_name_to_dims  # type: Dict[str, List[int]]
 
         # Check the dimension are well-defined with respect to the coordinates
@@ -89,7 +90,8 @@ class ParametricMarginFunction(IndependentMarginFunction):
 
     @classmethod
     def from_coef_dict(cls, coordinates: AbstractCoordinates, param_name_to_dims: Dict[str, List[int]],
-                       coef_dict: Dict[str, float], starting_point: Union[None, int] = None):
+                       coef_dict: Dict[str, float], starting_point: Union[None, int] = None,
+                       log_scale=None):
         assert cls.COEF_CLASS is not None, 'a COEF_CLASS class attributes needs to be defined'
         param_name_to_coef = {}
         for param_name in GevParams.PARAM_NAMES:
@@ -97,7 +99,7 @@ class ParametricMarginFunction(IndependentMarginFunction):
             coef = cls.COEF_CLASS.from_coef_dict(coef_dict=coef_dict, param_name=param_name, dims=dims,
                                                  coordinates=coordinates)
             param_name_to_coef[param_name] = coef
-        return cls(coordinates, param_name_to_dims, param_name_to_coef, starting_point)
+        return cls(coordinates, param_name_to_dims, param_name_to_coef, starting_point=starting_point, log_scale=log_scale)
 
     @property
     def form_dict(self) -> Dict[str, str]:

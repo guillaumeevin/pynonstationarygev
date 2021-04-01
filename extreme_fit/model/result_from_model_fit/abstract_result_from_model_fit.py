@@ -33,6 +33,11 @@ class AbstractResultFromModelFit(object):
         raise NotImplementedError
 
     @property
+    def log_scale(self):
+        # todo: refactor, put raise NotImplementError, and fix the subfunctions for the other Result objects
+        return None
+
+    @property
     def margin_coef_ordered_dict(self):
         raise NotImplementedError
 

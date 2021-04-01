@@ -4,6 +4,7 @@ import io
 import os.path as op
 import random
 import warnings
+from collections import OrderedDict
 from contextlib import redirect_stdout
 from typing import Dict
 
@@ -25,6 +26,7 @@ pandas2ri.activate()
 r.library('SpatialExtremes')
 r.library('data.table')
 r.library('quantreg')
+r.library('evgam')
 # Desactivate temporarily warnings
 default_filters = warnings.filters.copy()
 warnings.filterwarnings("ignore")
@@ -151,10 +153,9 @@ def get_coord(df_coordinates: pd.DataFrame):
     return coord
 
 
-def get_coord_df(df_coordinates: pd.DataFrame):
-    coord = pandas2ri.py2ri_pandasdataframe(df_coordinates)
-    # coord = r.transpose(coord)
-    colname = df_coordinates.columns
+def get_r_dataframe_from_python_dataframe(df: pd.DataFrame):
+    coord = pandas2ri.py2ri_pandasdataframe(df)
+    colname = df.columns
     coord.colnames = r.c(colname)
     coord = r('data.frame')(coord, stringsAsFactors=True)
     return coord
@@ -179,14 +180,18 @@ def new_coef_name_to_old_coef_names():
     }
 
 
-def get_margin_formula_extremes(fit_marge_form_dict) -> Dict:
+def get_margin_formula_extremes(fit_marge_form_dict, transformed_as_formula=True) -> Dict:
     v_to_str = lambda v: ' '.join(v.split()[2:]) if v != 'NULL' else ' 1'
     form_dict = {
         k: '~ ' + ' + '.join(
             [v_to_str(fit_marge_form_dict[e]) for e in l if e in fit_marge_form_dict])
         for k, l in new_coef_name_to_old_coef_names().items()
     }
-    return {k: robjects.Formula(v) for k, v in form_dict.items()}
+    res = OrderedDict()
+    ordered_keys = ['location.fun', 'scale.fun', 'shape.fun']
+    for k in ordered_keys:
+        res[k] = robjects.Formula(form_dict[k]) if transformed_as_formula else form_dict[k]
+    return res
 
 # def conversion_to_FloatVector(data):
 #     """Convert DataFrame or numpy array into FloatVector for r"""

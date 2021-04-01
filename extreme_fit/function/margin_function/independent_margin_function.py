@@ -14,9 +14,9 @@ class IndependentMarginFunction(AbstractMarginFunction):
         IndependentMarginFunction: each parameter of the GEV are modeled independently
     """
 
-    def __init__(self, coordinates: AbstractCoordinates, params_class: type = GevParams):
+    def __init__(self, coordinates: AbstractCoordinates, params_class: type = GevParams, log_scale=None):
         """Attribute 'param_name_to_param_function' maps each GEV parameter to its corresponding function"""
-        super().__init__(coordinates, params_class)
+        super().__init__(coordinates, params_class, log_scale)
         self.param_name_to_param_function = None  # type: Union[None, Dict[str, AbstractParamFunction]]
 
     def get_params(self, coordinate: np.ndarray, is_transformed: bool = True) -> GevParams:
@@ -28,6 +28,8 @@ class IndependentMarginFunction(AbstractMarginFunction):
         transformed_coordinate = coordinate if is_transformed else self.transform(coordinate)
         params = {param_name: param_function.get_param_value(transformed_coordinate)
                   for param_name, param_function in self.param_name_to_param_function.items()}
+        if self.log_scale:
+            params[GevParams.SCALE] = np.exp(params[GevParams.SCALE])
         return self.params_class.from_dict(params)
 
     def get_first_derivative_param(self, coordinate: np.ndarray, is_transformed: bool, dim: int = 0):

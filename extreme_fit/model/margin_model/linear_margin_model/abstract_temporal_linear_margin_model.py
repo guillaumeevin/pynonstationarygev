@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from rpy2 import robjects
 
 from extreme_fit.distribution.exp_params import ExpParams
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -9,9 +10,10 @@ from extreme_fit.model.margin_model.utils import MarginFitMethod, fitmethod_to_s
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_bayesian_extremes import \
     AbstractResultFromExtremes, ResultFromBayesianExtremes
+from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_evgam import ResultFromEvgam
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_mle_extremes import ResultFromMleExtremes
 from extreme_fit.model.result_from_model_fit.result_from_ismev import ResultFromIsmev
-from extreme_fit.model.utils import r, ro, get_null, get_margin_formula_extremes, get_coord_df
+from extreme_fit.model.utils import r, ro, get_null, get_margin_formula_extremes, get_r_dataframe_from_python_dataframe
 from extreme_fit.model.utils import safe_run_r_estimator
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
@@ -46,6 +48,8 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                 return self.ismev_gev_fit(x, df_coordinates_temp)
             elif self.fit_method in FEVD_MARGIN_FIT_METHODS:
                 return self.extremes_fevd_fit(x, df_coordinates_temp, df_coordinates_spat)
+            elif self.fit_method is MarginFitMethod.evgam:
+                return self.extremes_evgam_fit(x, df_coordinates_temp, df_coordinates_spat)
             else:
                 raise NotImplementedError
         elif self.params_class is ExpParams:
@@ -61,6 +65,26 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                    xdat=x, y=y, mul=self.mul,
                                    sigl=self.sigl, shl=self.shl)
         return ResultFromIsmev(res, self.param_name_to_list_for_result)
+
+    # Gev fit with evgam
+
+    def extremes_evgam_fit(self, x, df_coordinates_temp, df_coordinates_spat) -> AbstractResultFromExtremes:
+        margin_formula = get_margin_formula_extremes(self.margin_function.form_dict, transformed_as_formula=False)
+        maxima_column_name = 'Maxima'
+        formula_list = [maxima_column_name + " " + v if i == 0 else v for i, v in enumerate(margin_formula.values())]
+        formula = r.list(*[robjects.Formula(f) for f in formula_list])
+        df = pd.DataFrame({maxima_column_name: np.array(x)})
+        df = pd.concat([df, df_coordinates_spat, df_coordinates_temp], axis=1)
+        data = get_r_dataframe_from_python_dataframe(df)
+        res = safe_run_r_estimator(function=r('evgam'),
+                                   formula=formula,
+                                   data=data,
+                                   family=self.type_for_mle.lower(),
+                                   maxdata=1e10,
+                                   )
+        return ResultFromEvgam(res, self.param_name_to_list_for_result,
+                                     self.coordinates.dim_to_coordinate,
+                                     type_for_mle=self.type_for_mle)
 
     # Gev fit with extRemes package
 
@@ -118,7 +142,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
             df = df_coordinates_temp
         else:
             df = pd.concat([df_coordinates_spat, df_coordinates_temp], axis=1)
-        y = get_coord_df(df)
+        y = get_r_dataframe_from_python_dataframe(df)
 
         # Disable the use of log sigma parametrization
         r_type_argument_kwargs = {'use.phi': False,

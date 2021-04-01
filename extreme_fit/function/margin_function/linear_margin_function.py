@@ -28,11 +28,9 @@ class LinearMarginFunction(ParametricMarginFunction):
 
     COEF_CLASS = LinearCoef
 
-    def __init__(self, coordinates: AbstractCoordinates, param_name_to_dims: Dict[str, List[int]],
-                 param_name_to_coef: Dict[str, AbstractCoef], starting_point: Union[None, int] = None,
-                 params_class: type = GevParams):
+    def __init__(self, *args, **kwargs):
         self.param_name_to_coef = None  # type: Union[None, Dict[str, LinearCoef]]
-        super().__init__(coordinates, param_name_to_dims, param_name_to_coef, starting_point, params_class)
+        super().__init__(*args, **kwargs)
 
     def load_specific_param_function(self, param_name) -> AbstractParamFunction:
         return LinearParamFunction(dims=self.param_name_to_dims[param_name],
