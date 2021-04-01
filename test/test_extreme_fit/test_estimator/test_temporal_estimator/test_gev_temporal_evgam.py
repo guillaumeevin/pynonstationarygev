@@ -49,44 +49,44 @@ class TestGevTemporalEvGam(unittest.TestCase):
             for key in ref.keys():
                 self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
 
-    # def test_gev_temporal_margin_fit_nonstationary(self):
-    #     # Create estimator
-    #     margin_models = load_non_stationary_temporal_margin_models(self.coordinates)
-    #     for margin_model in margin_models:
-    #         estimator = LinearMarginEstimator(self.dataset, margin_model)
-    #         estimator.fit()
-    #         # Checks that parameters returned are indeed different
-    #         mle_params_estimated_year1 = estimator.function_from_fit.get_params(np.array([1])).to_dict()
-    #         mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([3])).to_dict()
-    #         self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
-    #
-    # def test_gev_temporal_margin_fit_nonstationary_with_start_point(self):
-    #     # Create estimator
-    #     estimator = self.fit_non_stationary_estimator(starting_point=3)
-    #     self.assertNotEqual(estimator.function_from_fit.mu1_temporal_trend, 0.0)
-    #     # Checks starting point parameter are well passed
-    #     self.assertEqual(3, estimator.function_from_fit.starting_point)
-    #     # Checks that parameters returned are indeed different
-    #     mle_params_estimated_year1 = estimator.function_from_fit.get_params(np.array([1])).to_dict()
-    #     mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([3])).to_dict()
-    #     self.assertEqual(mle_params_estimated_year1, mle_params_estimated_year3)
-    #     mle_params_estimated_year5 = estimator.function_from_fit.get_params(np.array([5])).to_dict()
-    #     self.assertNotEqual(mle_params_estimated_year5, mle_params_estimated_year3)
-    #
-    # def fit_non_stationary_estimator(self, starting_point):
-    #     margin_model = NonStationaryLocationTemporalModel(self.coordinates,
-    #                                                       starting_point=starting_point + self.start_year)
-    #     estimator = LinearMarginEstimator(self.dataset, margin_model)
-    #     estimator.fit()
-    #     return estimator
-    #
-    # def test_two_different_starting_points(self):
-    #     # Create two different estimators
-    #     estimator1 = self.fit_non_stationary_estimator(starting_point=3)
-    #     estimator2 = self.fit_non_stationary_estimator(starting_point=28)
-    #     mu1_estimator1 = estimator1.function_from_fit.mu1_temporal_trend
-    #     mu1_estimator2 = estimator2.function_from_fit.mu1_temporal_trend
-    #     self.assertNotEqual(mu1_estimator1, mu1_estimator2)
+    def test_gev_temporal_margin_fit_nonstationary(self):
+        # Create estimator
+        margin_models = load_non_stationary_temporal_margin_models(self.coordinates)
+        for margin_model in margin_models:
+            estimator = LinearMarginEstimator(self.dataset, margin_model)
+            estimator.fit()
+            # Checks that parameters returned are indeed different
+            mle_params_estimated_year1 = estimator.function_from_fit.get_params(np.array([1])).to_dict()
+            mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([3])).to_dict()
+            self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
+
+    def test_gev_temporal_margin_fit_nonstationary_with_start_point(self):
+        # Create estimator
+        estimator = self.fit_non_stationary_estimator(starting_point=3)
+        self.assertNotEqual(estimator.function_from_fit.mu1_temporal_trend, 0.0)
+        # Checks starting point parameter are well passed
+        self.assertEqual(3, estimator.function_from_fit.starting_point)
+        # Checks that parameters returned are indeed different
+        mle_params_estimated_year1 = estimator.function_from_fit.get_params(np.array([1])).to_dict()
+        mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([3])).to_dict()
+        self.assertEqual(mle_params_estimated_year1, mle_params_estimated_year3)
+        mle_params_estimated_year5 = estimator.function_from_fit.get_params(np.array([5])).to_dict()
+        self.assertNotEqual(mle_params_estimated_year5, mle_params_estimated_year3)
+
+    def fit_non_stationary_estimator(self, starting_point):
+        margin_model = NonStationaryLocationTemporalModel(self.coordinates,
+                                                          starting_point=starting_point + self.start_year)
+        estimator = LinearMarginEstimator(self.dataset, margin_model)
+        estimator.fit()
+        return estimator
+
+    def test_two_different_starting_points(self):
+        # Create two different estimators
+        estimator1 = self.fit_non_stationary_estimator(starting_point=3)
+        estimator2 = self.fit_non_stationary_estimator(starting_point=28)
+        mu1_estimator1 = estimator1.function_from_fit.mu1_temporal_trend
+        mu1_estimator2 = estimator2.function_from_fit.mu1_temporal_trend
+        self.assertNotEqual(mu1_estimator1, mu1_estimator2)
 
 
 if __name__ == '__main__':
