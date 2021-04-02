@@ -1,6 +1,8 @@
 import numpy as np
 from rpy2 import robjects
+from rpy2.robjects.pandas2ri import ri2py_dataframe
 
+from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_result_from_extremes import \
     AbstractResultFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
@@ -18,16 +20,39 @@ class ResultFromEvgam(AbstractResultFromExtremes):
         self.type_for_mle = type_for_mle
 
     @property
-    def aic(self):
-        """Compute the aic from the list of parameters in the results,
+    def nllh(self):
+        """Compute the nllh from the list of parameters in the results,
          find a way to comptue it directly from the result to compare"""
-        location = self.name_to_value['location']
-        a = np.array(location)
-        print(a)
-        print(len(a))
-        print('here2')
-        # 'location', 'logscale', 'shape'
-        raise NotImplementedError
+        param_names = ['location', 'logscale', 'shape']
+        parameters = [np.array(self.get_python_dictionary(self.name_to_value[param_name])['fitted'])
+                      for param_name in param_names]
+        # Add maxima
+        parameters.append(self.maxima)
+        for p in parameters:
+            assert len(p) == len(self.maxima)
+        # Compute nllh
+        nllh = 0
+        for loc, log_scale, shape, maximum in zip(*parameters):
+            gev_params = GevParams(loc, np.exp(log_scale), shape)
+            p = gev_params.density(maximum)
+            nllh += -np.log(p)
+        return nllh
+
+    @property
+    def maxima(self):
+        return np.array(self.get_python_dictionary(self.name_to_value['location'])['model'][0])
+
+    @property
+    def nb_parameters(self):
+        return len(np.array(self.name_to_value['coefficients']))
+
+    @property
+    def aic(self):
+        return 2 * self.nllh + 2 * self.nb_parameters
+
+    @property
+    def bic(self):
+        return 2 * self.nllh + np.log(len(self.maxima)) * self.nb_parameters
 
     @property
     def log_scale(self):

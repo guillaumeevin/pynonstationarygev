@@ -76,6 +76,8 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         df = pd.DataFrame({maxima_column_name: np.array(x)})
         df = pd.concat([df, df_coordinates_spat, df_coordinates_temp], axis=1)
         data = get_r_dataframe_from_python_dataframe(df)
+        if self.type_for_mle is not "GEV":
+            raise NotImplementedError
         res = safe_run_r_estimator(function=r('evgam'),
                                    formula=formula,
                                    data=data,
