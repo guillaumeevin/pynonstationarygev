@@ -2,10 +2,12 @@ import operator
 from functools import reduce
 from typing import List
 import numpy as np
+from scipy.interpolate import BSpline
+
 from extreme_fit.function.param_function.linear_coef import LinearCoef
 from extreme_fit.function.param_function.one_axis_param_function import LinearOneAxisParamFunction
 from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoef, PolynomialCoef
-from extreme_fit.function.param_function.spline_coef import SplineCoef
+from extreme_fit.function.param_function.spline_coef import PolynomialCoef, SplineAllCoef
 
 
 class AbstractParamFunction(object):
@@ -78,25 +80,15 @@ class PolynomialParamFunction(AbstractParamFunction):
 
 class SplineParamFunction(AbstractParamFunction):
 
-    def __init__(self, dims, degree, spline_coef: SplineCoef, knots: np.ndarray) -> None:
-        self.spline_coef = spline_coef
-        self.degree = degree
-        self.dims = dims
-        self.knots = knots
-
-    @property
-    def m(self) -> int:
-        return int((self.degree + 1) / 2)
+    def __init__(self, dim_and_degree, coef: SplineAllCoef) -> None:
+        self.coef = coef
+        self.dim_and_degree = dim_and_degree
 
     def get_param_value(self, coordinate: np.ndarray) -> float:
-        gev_param_value = self.spline_coef.intercept
-        # Polynomial part
-        for dim in self.dims:
-            polynomial_coef = self.spline_coef.dim_to_polynomial_coef[dim]
-            for degree in range(1, self.m):
-                gev_param_value += polynomial_coef.get_coef(degree) * coordinate[dim]
-        # Knot part
-        for idx, knot in enumerate(self.knots):
-            distance = np.power(np.linalg.norm(coordinate - knot), self.degree)
-            gev_param_value += self.spline_coef.knot_coef.get_coef(idx) * distance
+        gev_param_value = 0
+        for i, (dim, max_degree) in enumerate(self.dim_and_degree):
+            assert isinstance(dim, int)
+            spline_coef = self.coef.dim_to_spline_coef[dim]
+            spl = BSpline(t=spline_coef.knots, c=spline_coef.coefficients, k=max_degree)
+            gev_param_value += spl(coordinate)[0]
         return gev_param_value

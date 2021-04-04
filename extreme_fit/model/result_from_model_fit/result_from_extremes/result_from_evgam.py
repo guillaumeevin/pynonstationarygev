@@ -60,8 +60,40 @@ class ResultFromEvgam(AbstractResultFromExtremes):
 
     @property
     def margin_coef_ordered_dict(self):
-        # print(self.name_to_value.keys())
-        # raise NotImplementedError
-        values = np.array(self.name_to_value['coefficients'])
-        return get_margin_coef_ordered_dict(self.param_name_to_dim, values, self.type_for_mle,
-                                            dim_to_coordinate_name=self.dim_to_coordinate)
+        coefficients = np.array(self.name_to_value['coefficients'])
+        param_name_to_str_formula = {k: str(v) for k, v in self.get_python_dictionary(self.name_to_value['formula']).items()}
+        r_param_names_with_spline = [k for k, v in param_name_to_str_formula.items() if "s(" in v]
+        if len(r_param_names_with_spline) == 0:
+            return get_margin_coef_ordered_dict(self.param_name_to_dim, coefficients, self.type_for_mle,
+                                                dim_to_coordinate_name=self.dim_to_coordinate)
+        else:
+            # todo we might need to delete some coefficient for the spline param so that it does not create some assertion error
+            coef_dict = get_margin_coef_ordered_dict(self.param_name_to_dim, coefficients, self.type_for_mle,
+                                                dim_to_coordinate_name=self.dim_to_coordinate)
+            spline_param_name_to_dim_knots_and_coefficient = {}
+            for r_param_name in r_param_names_with_spline:
+                print('here')
+                param_name = self.r_param_name_to_param_name[r_param_name]
+                dim_knots_and_coefficient = {}
+                dims = self.param_name_to_dim[param_name]
+                if len(dims) > 1:
+                    raise NotImplementedError
+                else:
+                    dim, max_degree = dims[0]
+                    d = self.get_python_dictionary(self.name_to_value[r_param_name])
+                    coefficients = np.array(d["coefficients"])
+                    smooth = list(d['smooth'])[0]
+                    knots = np.array(self.get_python_dictionary(smooth)['knots'])
+                    assert len(knots) == len(coefficients) + 1 + max_degree
+                    dim_knots_and_coefficient[dim] = (knots, coefficients)
+                spline_param_name_to_dim_knots_and_coefficient[param_name] = dim_knots_and_coefficient
+
+            return coef_dict, spline_param_name_to_dim_knots_and_coefficient
+
+    @property
+    def r_param_name_to_param_name(self):
+        return {
+            'location': GevParams.LOC,
+            'scale': GevParams.SCALE,
+            'shape': GevParams.SHAPE,
+        }

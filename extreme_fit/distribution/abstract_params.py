@@ -39,6 +39,7 @@ class AbstractParams(object):
         raise NotImplementedError
 
     def to_dict(self) -> dict:
+        assert isinstance(self.param_values, List), self.param_values
         assert len(self.PARAM_NAMES) == len(self.param_values)
         return dict(zip(self.PARAM_NAMES, self.param_values))
 

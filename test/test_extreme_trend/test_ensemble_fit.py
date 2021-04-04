@@ -3,8 +3,6 @@ import unittest
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_fit.model.margin_model.linear_margin_model.margin_model_with_effect.margin_model_with_gcm_effect import \
-    StationaryAltitudinalWithGCMEffect
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
 from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_with_constant_shape_wrt_altitude import \
     AltitudinalShapeConstantTimeLocationLinear, AltitudinalShapeConstantTimeScaleLinear, \
@@ -49,8 +47,7 @@ class TestEnsembleFit(unittest.TestCase):
         self.assertTrue(True)
 
     def test_ensembe_fit_with_effect(self):
-        model_classes = [StationaryAltitudinal,
-                         StationaryAltitudinalWithGCMEffect][:1]
+        model_classes = [StationaryAltitudinal][:]
 
         for temporal_covariate in [TimeTemporalCovariate,
                                    AnomalyTemperatureWithSplineTemporalCovariate]:
@@ -63,7 +60,6 @@ class TestEnsembleFit(unittest.TestCase):
             model_class_to_estimator = ensemble_fit.visualizer.massif_name_to_one_fold_fit[self.massif_names[0]].model_class_to_estimator
             model_class_to_expected_number_params = {
                 StationaryAltitudinal: 5,
-                StationaryAltitudinalWithGCMEffect: 6,
             }
             for model_class in model_classes:
                 expected = model_class_to_expected_number_params[model_class]

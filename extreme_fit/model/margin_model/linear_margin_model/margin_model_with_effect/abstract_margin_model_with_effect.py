@@ -1,5 +1,0 @@
-
-
-class AbstractMarginModelWithEffect(object):
-    pass
-
