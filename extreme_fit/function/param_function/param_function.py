@@ -89,6 +89,6 @@ class SplineParamFunction(AbstractParamFunction):
         for i, (dim, max_degree) in enumerate(self.dim_and_degree):
             assert isinstance(dim, int)
             spline_coef = self.coef.dim_to_spline_coef[dim]
-            spl = BSpline(t=spline_coef.knots, c=spline_coef.coefficients, k=max_degree)
-            gev_param_value += spl(coordinate)[0]
+            spl = BSpline(t=spline_coef.knots, c=spline_coef.coefficients, k=max_degree, extrapolate=False)
+            gev_param_value += spl(coordinate[dim])
         return gev_param_value

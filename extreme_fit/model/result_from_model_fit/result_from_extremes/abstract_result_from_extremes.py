@@ -15,9 +15,9 @@ from extreme_fit.model.utils import r
 
 class AbstractResultFromExtremes(AbstractResultFromModelFit):
 
-    def __init__(self, result_from_fit: robjects.ListVector, param_name_to_dim=None, dim_to_coordinate=None) -> None:
+    def __init__(self, result_from_fit: robjects.ListVector, param_name_to_dims=None, dim_to_coordinate=None) -> None:
         super().__init__(result_from_fit)
-        self.param_name_to_dim = param_name_to_dim
+        self.param_name_to_dims = param_name_to_dims
         self.dim_to_coordinate = dim_to_coordinate
 
     @property
@@ -46,7 +46,7 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
 
     @property
     def is_non_stationary(self):
-        return len(self.param_name_to_dim) > 0
+        return len(self.param_name_to_dims) > 0
 
     def load_dataframe_from_r_matrix(self, name):
         r_matrix = self.name_to_value[name]
@@ -61,21 +61,21 @@ class AbstractResultFromExtremes(AbstractResultFromModelFit):
             'tscale': False,
             'type': r.c("return.level") if return_level_interval else r.c("parameter")
         }
-        if self.param_name_to_dim:
+        if self.param_name_to_dims:
             if isinstance(transformed_temporal_covariate, (int, float, np.int, np.float, np.int64)):
                 d = {GevParams.greek_letter_from_param_name_confidence_interval(param_name) + '1': r.c(transformed_temporal_covariate) for
-                     param_name in self.param_name_to_dim.keys()}
+                     param_name in self.param_name_to_dims.keys()}
             elif isinstance(transformed_temporal_covariate, np.ndarray):
                 d = OrderedDict()
-                linearity_in_shape = GevParams.SHAPE in self.param_name_to_dim
+                linearity_in_shape = GevParams.SHAPE in self.param_name_to_dims
                 nb_calls = 4  # or 4 (1 and 3 did not work for the test)
                 for param_name in GevParams.PARAM_NAMES:
-                    suffix = '0' if param_name in self.param_name_to_dim else ''
+                    suffix = '0' if param_name in self.param_name_to_dims else ''
                     covariate = np.array([1] * nb_calls)
                     d2 = {GevParams.greek_letter_from_param_name_confidence_interval(param_name, linearity_in_shape) + suffix: r.c(covariate)}
                     d.update(d2)
-                    if param_name in self.param_name_to_dim:
-                        for coordinate_idx, _ in self.param_name_to_dim[param_name]:
+                    if param_name in self.param_name_to_dims:
+                        for coordinate_idx, _ in self.param_name_to_dims[param_name]:
                             idx_str = str(coordinate_idx + 1)
                             covariate = float(transformed_temporal_covariate.copy()[coordinate_idx])
                             covariate = np.array([covariate] * nb_calls)

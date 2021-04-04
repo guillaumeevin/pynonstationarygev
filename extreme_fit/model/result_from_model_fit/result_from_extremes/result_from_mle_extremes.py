@@ -25,7 +25,7 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
             values = {i: param for i, param in enumerate(np.array(d['par']))}
         else:
             values = {i: np.array(v)[0] for i, v in enumerate(d.values())}
-        return get_margin_coef_ordered_dict(self.param_name_to_dim, values, self.type_for_mle,
+        return get_margin_coef_ordered_dict(self.param_name_to_dims, values, self.type_for_mle,
                                             dim_to_coordinate_name=self.dim_to_coordinate)
 
     def _confidence_interval_method(self, common_kwargs, ci_method, return_period):

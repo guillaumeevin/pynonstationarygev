@@ -51,7 +51,7 @@ class ResultFromBayesianExtremes(AbstractResultFromExtremes):
     def get_coef_dict_from_posterior_sample(self, s: pd.Series):
         assert len(s) >= 3
         values = {i: v for i, v in enumerate(s)}
-        return get_margin_coef_ordered_dict(self.param_name_to_dim, values)
+        return get_margin_coef_ordered_dict(self.param_name_to_dims, values)
 
     @property
     def margin_coef_ordered_dict(self):
@@ -65,7 +65,7 @@ class ResultFromBayesianExtremes(AbstractResultFromExtremes):
                 'FUN': "mean",
         }
         res = r.ci(self.result_from_fit, **bayesian_ci_parameters, **common_kwargs)
-        if self.param_name_to_dim:
+        if self.param_name_to_dims:
             a = np.array(res)[0]
             lower, mean_estimate, upper = a
         else:

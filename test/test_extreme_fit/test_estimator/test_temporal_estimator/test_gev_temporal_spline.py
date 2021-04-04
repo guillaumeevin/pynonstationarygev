@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 
 from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.model.margin_model.polynomial_margin_model.polynomial_margin_model import NonStationaryQuadraticLocationModel, \
+from extreme_fit.model.margin_model.polynomial_margin_model.polynomial_margin_model import \
+    NonStationaryQuadraticLocationModel, \
     NonStationaryQuadraticScaleModel, NonStationaryQuadraticLocationGumbelModel, NonStationaryQuadraticScaleGumbelModel
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
     NonStationaryTwoLinearLocationModel, NonStationaryTwoLinearScaleModel
@@ -48,8 +49,7 @@ class TestGevTemporalSpline(unittest.TestCase):
                                                    starting_year=0,
                                                    fit_method=self.fit_method)
         # Checks that parameters returned are indeed different
-        mle_params_estimated_year1 = estimator.function_from_fit.get_params(np.array([1])).to_dict()
-        print(mle_params_estimated_year1, type(mle_params_estimated_year1))
+        mle_params_estimated_year1 = estimator.function_from_fit.get_params(np.array([0])).to_dict()
         mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([21])).to_dict()
         mle_params_estimated_year5 = estimator.function_from_fit.get_params(np.array([self.last_year])).to_dict()
         self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
@@ -58,18 +58,26 @@ class TestGevTemporalSpline(unittest.TestCase):
         diff1 = mle_params_estimated_year1[param_to_test] - mle_params_estimated_year3[param_to_test]
         diff2 = mle_params_estimated_year3[param_to_test] - mle_params_estimated_year5[param_to_test]
         self.assertNotAlmostEqual(diff1, diff2)
+        # Assert that the computed parameters are the same
+        # for year in range(self.start_year, self.start_year+5):
+        #     gev_params_from_result = estimator.result_from_model_fit.get_gev_params(year).to_dict()
+        #     my_gev_params = estimator.function_from_fit.get_params(np.array([year])).to_dict()
+        #     for param_name in GevParams.PARAM_NAMES:
+        #         self.assertAlmostEqual(gev_params_from_result[param_name], my_gev_params[param_name],
+        #                                msg='for the {} parameter at year={}'.format(param_name, year))
         # Assert that indicators are correctly computed
-        self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh())
+        self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh(), places=0)
         # self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
         # self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
 
-    # def test_gev_temporal_margin_fit_spline_two_linear_location(self):
-    #     self.function_test_gev_temporal_margin_fit_non_stationary_spline(NonStationaryTwoLinearLocationModel,
-    #                                                                      param_to_test=GevParams.LOC)
+    def test_gev_temporal_margin_fit_spline_two_linear_location(self):
+        self.function_test_gev_temporal_margin_fit_non_stationary_spline(NonStationaryTwoLinearLocationModel,
+                                                                         param_to_test=GevParams.LOC)
+
     #
-    # def test_gev_temporal_margin_fit_spline_two_linear_scale(self):
-    #     self.function_test_gev_temporal_margin_fit_non_stationary_spline(NonStationaryTwoLinearScaleModel,
-    #                                                                      param_to_test=GevParams.SCALE)
+    def test_gev_temporal_margin_fit_spline_two_linear_scale(self):
+        self.function_test_gev_temporal_margin_fit_non_stationary_spline(NonStationaryTwoLinearScaleModel,
+                                                                         param_to_test=GevParams.SCALE)
 
 
 if __name__ == '__main__':
