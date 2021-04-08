@@ -1,6 +1,8 @@
 import numpy as np
 from rpy2 import robjects
 from rpy2.robjects.pandas2ri import ri2py_dataframe
+from scipy.interpolate import make_interp_spline
+
 
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_result_from_extremes import \
@@ -39,7 +41,7 @@ class ResultFromEvgam(AbstractResultFromExtremes):
             nllh += -np.log(p)
         return nllh
 
-    def get_gev_params(self, idx):
+    def get_gev_params_from_result(self, idx):
         param_names = ['location', 'logscale', 'shape']
         loc, log_scale, shape = [np.array(self.get_python_dictionary(self.name_to_value[param_name])['fitted'])[idx]
                                  for param_name in param_names]
@@ -106,9 +108,17 @@ class ResultFromEvgam(AbstractResultFromExtremes):
         else:
             dim, max_degree = dims[0]
             d = self.get_python_dictionary(self.name_to_value[r_param_name])
-            coefficients = np.array(d["coefficients"])
             smooth = list(d['smooth'])[0]
             knots = np.array(self.get_python_dictionary(smooth)['knots'])
+            x = np.array(self.name_to_value["data"])[1]
+            y = np.array(self.get_python_dictionary(self.name_to_value[r_param_name])['fitted'])
+            assert len(knots) == 5
+            x_for_interpolation = [int(knots[1]+1), int((knots[1] + knots[3])/2), int(knots[3]-1)]
+            index = [i for i, e in enumerate(x) if e in x_for_interpolation][:len(x_for_interpolation)]
+            x = [x[i] for i in index]
+            y = [y[i] for i in index]
+            spline = make_interp_spline(x, y, k=1, t=knots)
+            coefficients = spline.c
             assert len(knots) == len(coefficients) + 1 + max_degree
             dim_knots_and_coefficient[dim] = (knots, coefficients)
         return dim_knots_and_coefficient
