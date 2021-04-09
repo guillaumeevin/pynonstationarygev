@@ -136,13 +136,17 @@ class VeyHighAltitudeGroup(AbstractAltitudeGroup):
 
 class DefaultAltitudeGroup(AbstractAltitudeGroup):
 
+    def __init__(self, altitudes):
+        assert len(altitudes) == 1
+        self.altitude = list(altitudes)[0]
+
     @property
     def name(self):
-        return 'default'
+        return str(self.altitude)
 
     @property
     def reference_altitude(self):
-        return 500
+        return self.altitude
 
 
 def get_altitude_class_from_altitudes(altitudes):
@@ -160,7 +164,7 @@ def get_altitude_group_from_altitudes(altitudes):
     elif s == set(altitudes_for_groups[3]):
         return VeyHighAltitudeGroup()
     else:
-        return DefaultAltitudeGroup()
+        return DefaultAltitudeGroup(altitudes)
 
 
 def get_linestyle_for_altitude_class(altitude_class):

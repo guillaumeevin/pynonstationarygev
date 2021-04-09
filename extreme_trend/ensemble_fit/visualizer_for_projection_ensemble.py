@@ -100,7 +100,7 @@ class VisualizerForProjectionEnsemble(object):
         for ensemble_fit_class in self.ensemble_fit_classes:
             for ensemble_fit in self.ensemble_fits(ensemble_fit_class):
                 visualizer_list.extend(ensemble_fit.visualizer_list)
-        compute_and_assign_max_abs(visualizer_list)
+        # compute_and_assign_max_abs(visualizer_list)
         # Plot
         if IndependentEnsembleFit in self.ensemble_fit_classes:
             self.plot_independent()

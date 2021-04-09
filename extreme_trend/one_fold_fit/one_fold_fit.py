@@ -47,7 +47,7 @@ class OneFoldFit(object):
                  first_year, last_year,
                  fit_method=MarginFitMethod.extremes_fevd_mle,
                  temporal_covariate_for_fit=None,
-                 altitude_class=DefaultAltitudeGroup,
+                 altitude_group=None,
                  only_models_that_pass_goodness_of_fit_test=True,
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
@@ -58,7 +58,7 @@ class OneFoldFit(object):
         self.remove_physically_implausible_models = remove_physically_implausible_models
         self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
         self.only_models_that_pass_goodness_of_fit_test = only_models_that_pass_goodness_of_fit_test
-        self.altitude_group = altitude_class()
+        self.altitude_group = altitude_group
         self.massif_name = massif_name
         self.dataset = dataset
         self.models_classes = models_classes
@@ -197,7 +197,11 @@ class OneFoldFit(object):
         return sorted_estimators
 
     def _compute_shape_for_reference_altitude(self, estimator):
-        coordinate = np.array([self.altitude_plot, self.last_year])
+        if isinstance(self.altitude_group, DefaultAltitudeGroup):
+            coordinate = np.array([self.last_year])
+        else:
+            coordinate = np.array([self.altitude_plot, self.last_year])
+        print(coordinate)
         gev_params = estimator.function_from_fit.get_params(coordinate, is_transformed=False)
         shape = gev_params.shape
         return shape

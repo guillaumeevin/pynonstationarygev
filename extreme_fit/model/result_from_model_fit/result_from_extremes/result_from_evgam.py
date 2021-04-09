@@ -53,7 +53,7 @@ class ResultFromEvgam(AbstractResultFromExtremes):
 
     @property
     def nb_parameters(self):
-        return len(np.array(self.name_to_value['coefficients']))
+        return len(np.array(self.name_to_value['coefficients']))  + self.nb_knots
 
     @property
     def aic(self):
@@ -107,14 +107,20 @@ class ResultFromEvgam(AbstractResultFromExtremes):
             raise NotImplementedError
         else:
             dim, max_degree = dims[0]
-            d = self.get_python_dictionary(self.name_to_value[r_param_name])
-            smooth = list(d['smooth'])[0]
-            knots = np.array(self.get_python_dictionary(smooth)['knots'])
+            knots = self.load_knots(r_param_name)
             x = np.array(self.name_to_value["data"])[1]
             y = np.array(self.get_python_dictionary(self.name_to_value[r_param_name])['fitted'])
             assert len(knots) == 5
             x_for_interpolation = [int(knots[1]+1), int((knots[1] + knots[3])/2), int(knots[3]-1)]
-            index = [i for i, e in enumerate(x) if e in x_for_interpolation][:len(x_for_interpolation)]
+
+            # For the time covariate, the distance will be zero for the closer year
+            # For the temperature covariate, the distance will be minimal for the closer covariate
+            index = []
+            for x_to_find in x_for_interpolation:
+                distances = np.power(x - x_to_find, 2)
+                closer_index = np.argmin(distances)
+                index.append(closer_index)
+
             x = [x[i] for i in index]
             y = [y[i] for i in index]
             spline = make_interp_spline(x, y, k=1, t=knots)
@@ -122,6 +128,19 @@ class ResultFromEvgam(AbstractResultFromExtremes):
             assert len(knots) == len(coefficients) + 1 + max_degree
             dim_knots_and_coefficient[dim] = (knots, coefficients)
         return dim_knots_and_coefficient
+
+    def load_knots(self, r_param_name):
+        try:
+            d = self.get_python_dictionary(self.name_to_value[r_param_name])
+            smooth = list(d['smooth'])[0]
+            knots = np.array(self.get_python_dictionary(smooth)['knots'])
+        except (IndexError, KeyError):
+            knots = []
+        return knots
+
+    @property
+    def nb_knots(self):
+        return sum([len(self.load_knots(r_param_name)) for r_param_name in self.r_param_name_to_param_name.keys()])
 
     @property
     def r_param_name_to_param_name(self):

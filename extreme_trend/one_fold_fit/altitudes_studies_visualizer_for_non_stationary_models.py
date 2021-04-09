@@ -30,6 +30,7 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covari
 
 
 class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
+    consider_at_least_two_altitudes = True
 
     def __init__(self, studies: AltitudesStudies,
                  model_classes: List[AbstractSpatioTemporalPolynomialModel],
@@ -85,7 +86,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                                       self.study.year_max,
                                       self.fit_method,
                                       self.temporal_covariate_for_fit,
-                                      type(self.altitude_group),
+                                      self.altitude_group,
                                       self.display_only_model_that_pass_test,
                                       self.confidence_interval_based_on_delta_method,
                                       self.remove_physically_implausible_models)
@@ -120,9 +121,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     def load_condition(self, massif_altitudes):
         # At least two altitudes for the estimated
         # reference_altitude_is_in_altitudes = (self.altitude_group.reference_altitude in massif_altitudes)
-        at_least_two_altitudes = (len(massif_altitudes) >= 2)
-        # return reference_altitude_is_in_altitudes and at_least_two_altitudes
-        return at_least_two_altitudes
+        if self.consider_at_least_two_altitudes:
+            return len(massif_altitudes) >= 2
+        else:
+            return True
 
     @property
     def massif_name_to_one_fold_fit(self) -> Dict[str, OneFoldFit]:

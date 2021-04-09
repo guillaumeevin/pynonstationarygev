@@ -11,7 +11,7 @@ from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pari
 from extreme_fit.model.margin_model.polynomial_margin_model.utils import \
     ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_trend.one_fold_fit.altitude_group import VeyHighAltitudeGroup
+from extreme_trend.one_fold_fit.altitude_group import VeyHighAltitudeGroup, LowAltitudeGroup
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate
@@ -85,6 +85,7 @@ class TestOneFoldFit(unittest.TestCase):
                                   temporal_covariate_for_fit=None,
                                   only_models_that_pass_goodness_of_fit_test=False,
                                   remove_physically_implausible_models=True,
+                                  altitude_group=LowAltitudeGroup(),
                                   first_year=1959,
                                   last_year=2019
                                   )
@@ -104,7 +105,7 @@ class TestOneFoldFit(unittest.TestCase):
         one_fold_fit = OneFoldFit(self.massif_name, dataset,
                                   models_classes=self.model_classes,
                                   temporal_covariate_for_fit=AnomalyTemperatureWithSplineTemporalCovariate,
-                                  altitude_class=VeyHighAltitudeGroup,
+                                  altitude_group=VeyHighAltitudeGroup(),
                                   only_models_that_pass_goodness_of_fit_test=False,
                                   remove_physically_implausible_models=True,
                                   first_year=1959,

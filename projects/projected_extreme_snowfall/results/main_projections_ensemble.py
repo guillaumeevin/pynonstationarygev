@@ -3,7 +3,11 @@ import time
 from typing import List
 import matplotlib
 
+from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
+from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
+    AltitudesStudiesVisualizerForNonStationaryModels
+from projects.projected_extreme_snowfall.results.utils import SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
 
 matplotlib.use('Agg')
 import matplotlib as mpl
@@ -41,49 +45,49 @@ def main():
     study_class = AdamontSnowfall
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][:1]
     temporal_covariate_for_fit = [TimeTemporalCovariate,
-                                  AnomalyTemperatureWithSplineTemporalCovariate][0]
+                                  AnomalyTemperatureWithSplineTemporalCovariate][1]
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
+    scenarios = [AdamontScenario.rcp85_extended]
 
-    fast = False
-    scenarios = rcp_scenarios[::-1] if fast is False else [AdamontScenario.rcp85]
-    scenarios = rcm_scenarios_extended[::-1]
-
-    scenarios = [AdamontScenario.histo]
-    gcm_to_year_min_and_year_max = {
-        gcm: (1959, 2005) for gcm in get_gcm_list(adamont_version=2)
-    }
-
+    fast = True
     for scenario in scenarios:
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
         if fast is None:
-            massif_names = None
             gcm_rcm_couples = gcm_rcm_couples[:2]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = altitudes_for_groups[3:]
+            altitudes_list = [1800, 2100]
         elif fast:
-            massif_names = ['Vanoise', 'Haute-Maurienne']
             gcm_rcm_couples = gcm_rcm_couples[:2]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = altitudes_for_groups[:1]
+            altitudes_list = [2400]
         else:
-            massif_names = None
-            altitudes_list = altitudes_for_groups[:]
+            altitudes_list = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
 
         assert isinstance(gcm_rcm_couples, list)
 
+        altitudes_list = [[a] for a in altitudes_list]
         assert isinstance(altitudes_list, List)
         assert isinstance(altitudes_list[0], List)
+        for altitudes in altitudes_list:
+            assert len(altitudes) == 1
+        AltitudesStudiesVisualizerForNonStationaryModels.consider_at_least_two_altitudes = False
+
         print('Scenario is', scenario)
         print('Covariate is {}'.format(temporal_covariate_for_fit))
 
-        model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
+        # Default parameters
+        gcm_to_year_min_and_year_max = None
+        massif_names = ['Vanoise']
+        model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
+
 
         visualizer = VisualizerForProjectionEnsemble(
             altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
             model_classes=model_classes,
             ensemble_fit_classes=ensemble_fit_classes,
             massif_names=massif_names,
+            fit_method=MarginFitMethod.evgam,
             temporal_covariate_for_fit=temporal_covariate_for_fit,
             remove_physically_implausible_models=True,
             gcm_to_year_min_and_year_max=gcm_to_year_min_and_year_max,

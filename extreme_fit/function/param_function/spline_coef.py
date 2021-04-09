@@ -27,6 +27,9 @@ class SplineCoef(AbstractCoef):
     def nb_coefficients(self):
         return len(self.coefficients)
 
+    @property
+    def nb_params(self):
+        return self.nb_knots + self.nb_coefficients
 
 class SplineAllCoef(LinearCoef):
 
@@ -45,3 +48,7 @@ class SplineAllCoef(LinearCoef):
                                                                         spline_coef.nb_coefficients))
             formula_str = ' '.join(formula_list)
         return {self.param_name + '.form': self.param_name + ' ~ ' + formula_str}
+
+    @property
+    def nb_params(self):
+        return sum([spline_coef.nb_params for spline_coef in self.dim_to_spline_coef.values()])

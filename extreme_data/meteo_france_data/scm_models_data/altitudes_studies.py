@@ -18,6 +18,8 @@ from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_sp
     AbstractSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.spatio_temporal_coordinates_for_climate_models import \
     SpatioTemporalCoordinatesForClimateModels
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
+    AbstractTemporalCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
@@ -57,8 +59,17 @@ class AltitudesStudies(object):
         for altitude in massif_altitudes:
             study = self.altitude_to_study[altitude]
             for year, maxima in zip(study.ordered_years, study.massif_name_to_annual_maxima[massif_name]):
-                coordinate_values_to_maxima[(altitude, year)] = [maxima]
+                if len(massif_altitudes) == 1:
+                    coordinate_values_to_maxima[year] = [maxima]
+                else:
+                    coordinate_values_to_maxima[(altitude, year)] = [maxima]
+
         coordinates = self.spatio_temporal_coordinates(s_split_spatial, s_split_temporal, massif_altitudes)
+        # Remove the spatial coordinate if we only have one altitude
+        if len(massif_altitudes) == 1:
+            df = pd.concat([coordinates.df_temporal_coordinates(), coordinates.df_coordinate_climate_model], axis=1)
+            coordinates = AbstractTemporalCoordinates.from_df(df)
+
         observations = AnnualMaxima.from_coordinates(coordinates, coordinate_values_to_maxima)
         return AbstractDataset(observations=observations, coordinates=coordinates)
 
