@@ -37,7 +37,7 @@ class LinearMarginModel(ParametricMarginModel):
 
     @property
     def nb_params(self):
-        return len(self.margin_function.coef_dict)
+        return self.margin_function.nb_params
 
     def param_name_to_linear_coef(self, param_name_and_dim_to_coef):
         param_name_to_linear_coef = {}

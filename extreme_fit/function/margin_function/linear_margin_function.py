@@ -50,6 +50,10 @@ class LinearMarginFunction(ParametricMarginFunction):
         return {v: k for k, v in cls.idx_to_coefficient_name(coordinates).items()}
 
     @property
+    def nb_params(self):
+        return len(self.coef_dict)
+
+    @property
     def coef_dict(self) -> Dict[str, float]:
         coef_dict = {}
         for param_name in self.params_class.PARAM_NAMES:

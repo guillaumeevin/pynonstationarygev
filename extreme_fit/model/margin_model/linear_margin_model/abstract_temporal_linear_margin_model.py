@@ -169,3 +169,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
     @property
     def siglink(self):
         return r('identity')
+
+    @property
+    def is_gumbel_model(self):
+        return self.type_for_mle == "Gumbel"

@@ -58,6 +58,10 @@ class AbstractMarginFunction(AbstractFunction):
         raise NotImplementedError
 
     @property
+    def nb_params(self):
+        raise NotImplementedError
+
+    @property
     def gev_value_name_to_serie(self) -> Dict[str, pd.Series]:
         # Load the gev_params
         gev_params = [self.get_params(coordinate) for coordinate in self.coordinates.coordinates_values()]

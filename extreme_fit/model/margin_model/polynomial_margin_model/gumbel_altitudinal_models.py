@@ -24,11 +24,6 @@ class AbstractGumbelAltitudinalModel(AbstractAltitudinalModel):
         super().__init__(coordinates, params_user, starting_point, fit_method, nb_iterations_for_bayesian_fit,
                          params_initial_fit_bayesian, "Gumbel", params_class, max_degree)
 
-    @property
-    def nb_params(self):
-        return super().nb_params - 1
-
-
 class StationaryGumbelAltitudinal(AbstractGumbelAltitudinalModel, StationaryAltitudinal):
     pass
 

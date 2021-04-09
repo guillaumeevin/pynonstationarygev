@@ -23,10 +23,6 @@ class SplineMarginModel(AbstractTemporalLinearMarginModel):
                          params_initial_fit_bayesian, type_for_MLE, params_class, temporal_covariate_for_fit)
         self.max_degree = max_degree
 
-    @property
-    def nb_params(self):
-        return sum([c.nb_params for c in self.margin_function.param_name_to_coef.values()])
-
     @cached_property
     def margin_function(self) -> SplineMarginFunction:
         return super().margin_function

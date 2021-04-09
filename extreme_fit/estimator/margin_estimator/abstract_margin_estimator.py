@@ -7,6 +7,8 @@ from cached_property import cached_property
 
 from extreme_fit.estimator.abstract_estimator import AbstractEstimator
 from extreme_fit.estimator.utils import load_margin_function
+from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
+    AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
 from extreme_fit.function.margin_function.linear_margin_function import LinearMarginFunction
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -103,15 +105,22 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         return 2 * self.nllh(split=split)
 
     def aic(self, split=Split.all):
-        aic = 2 * self.margin_model.nb_params + 2 * self.nllh(split=split)
+        aic = 2 * self.nb_params + 2 * self.nllh(split=split)
         npt.assert_almost_equal(self.result_from_model_fit.aic, aic, decimal=0)
         return aic
 
     def n(self, split=Split.all):
         return len(self.dataset.maxima_gev(split=split))
 
+    @property
+    def nb_params(self):
+        nb_params = self.function_from_fit.nb_params
+        if isinstance(self.margin_model, AbstractTemporalLinearMarginModel) and self.margin_model.is_gumbel_model:
+            nb_params -= 1
+        return nb_params
+
     def bic(self, split=Split.all):
-        return np.log(self.n(split=split)) * self.margin_model.nb_params + 2 * self.nllh(split=split)
+        return np.log(self.n(split=split)) * self.nb_params + 2 * self.nllh(split=split)
 
 
 def compute_nllh(coordinate_values, maxima_values, function_from_fit, maximum_from_obs=True, assertion_for_inf=True):

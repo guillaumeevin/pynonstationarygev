@@ -39,6 +39,10 @@ class SplineMarginFunction(LinearMarginFunction):
     def get_params(self, coordinate: np.ndarray, is_transformed: bool = True) -> GevParams:
         return super().get_params(coordinate, is_transformed)
 
+    @property
+    def nb_params(self):
+        return sum([c.nb_params for c in self.param_name_to_coef.values()])
+
     @classmethod
     def from_coef_dict(cls, coordinates: AbstractCoordinates, param_name_to_dims: Dict[str, List[Tuple[int, int]]],
                        coef_dict: Dict[str, float], starting_point: Union[None, int] = None, log_scale=None):
