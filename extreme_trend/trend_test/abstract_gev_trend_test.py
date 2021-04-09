@@ -101,7 +101,7 @@ class AbstractGevTrendTest(object):
     @property
     def aic(self):
         aic = 2 * self.total_number_of_parameters_for_unconstrained_model + self.unconstrained_model_deviance
-        assert np.equal(self.total_number_of_parameters_for_unconstrained_model, self.unconstrained_estimator.margin_model.nb_params)
+        assert np.equal(self.total_number_of_parameters_for_unconstrained_model, self.unconstrained_estimator.nb_params)
         npt.assert_almost_equal(self.unconstrained_estimator.result_from_model_fit.aic, aic, decimal=5)
         npt.assert_almost_equal(self.unconstrained_estimator.aic(), aic, decimal=5)
         return aic

@@ -63,7 +63,7 @@ class TestEnsembleFit(unittest.TestCase):
             }
             for model_class in model_classes:
                 expected = model_class_to_expected_number_params[model_class]
-                found = model_class_to_estimator[model_class].margin_model.nb_params
+                found = model_class_to_estimator[model_class].nb_params
                 self.assertEqual(expected, found)
 
             # _ = ensemble_fit.visualizer.massif_name_to_one_fold_fit[self.massif_names[0]].best_function_from_fit

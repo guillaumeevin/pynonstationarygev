@@ -296,7 +296,7 @@ class OneFoldFit(object):
 
     @property
     def degree_freedom_chi2(self):
-        return self.best_estimator.margin_model.nb_params - self.stationary_estimator.margin_model.nb_params
+        return self.best_estimator.nb_params - self.stationary_estimator.nb_params
 
     @cached_property
     def is_significant(self) -> bool:
