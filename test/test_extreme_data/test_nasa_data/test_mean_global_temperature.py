@@ -1,13 +1,13 @@
 import unittest
 
 from extreme_data.meteo_france_data.mean_alps_temperature import load_year_to_mean_alps_temperatures
-from extreme_data.nasa_data.global_mean_temperature import load_year_to_mean_global_temperature
+from extreme_data.nasa_data.global_mean_temperature_until_2016 import load_year_to_mean_global_temperature_until_2016
 
 
 class TestMeanGlobalTemperatures(unittest.TestCase):
 
     def test_year_to_mean_global_temperature(self):
-        d = load_year_to_mean_global_temperature()
+        d = load_year_to_mean_global_temperature_until_2016()
         self.assertNotIn(2019, d)
         self.assertIn(2009, d)
         key = list(d.keys())[0]
