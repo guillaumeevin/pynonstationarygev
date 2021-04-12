@@ -39,8 +39,14 @@ class VisualizerNonStationaryEnsemble(AltitudesStudiesVisualizerForNonStationary
             dataset = studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes)
             df_coordinates_list.append(dataset.coordinates.df_coordinates(add_climate_informations=True))
             df_maxima_gev_list.append(dataset.observations.df_maxima_gev)
-        observations = AbstractSpatioTemporalObservations(df_maxima_gev=pd.concat(df_maxima_gev_list, axis=0))
-        coordinates = AbstractCoordinates(df=pd.concat(df_coordinates_list, axis=0),
+
+        index = pd.RangeIndex(0, sum([len(df) for df in df_maxima_gev_list]))
+        df_maxima_gev = pd.concat(df_maxima_gev_list, axis=0)
+        df_maxima_gev.index = index
+        observations = AbstractSpatioTemporalObservations(df_maxima_gev=df_maxima_gev)
+        df = pd.concat(df_coordinates_list, axis=0)
+        df.index = index
+        coordinates = AbstractCoordinates(df=df,
                                           slicer_class=type(dataset.slicer))
         dataset = AbstractDataset(observations=observations, coordinates=coordinates)
         return dataset

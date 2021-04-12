@@ -43,7 +43,7 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 def main():
     start = time.time()
     study_class = AdamontSnowfall
-    ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][:1]
+    ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     temporal_covariate_for_fit = [TimeTemporalCovariate,
                                   AnomalyTemperatureWithSplineTemporalCovariate][1]
     set_seed_for_test()

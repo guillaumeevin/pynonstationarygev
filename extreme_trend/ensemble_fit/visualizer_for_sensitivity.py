@@ -235,12 +235,12 @@ class VisualizerForSensivity(object):
                              merge_visualizer_str):
         if merge_visualizer_str in [AbstractEnsembleFit.Median_merge, AbstractEnsembleFit.Mean_merge]:
             independent_ensemble_fit = \
-                visualizer_projection.altitude_class_to_ensemble_class_to_ensemble_fit[altitude_class][
+                visualizer_projection.altitude_group_to_ensemble_class_to_ensemble_fit[altitude_class][
                     IndependentEnsembleFit]
             merge_visualizer = independent_ensemble_fit.merge_function_name_to_visualizer[merge_visualizer_str]
         else:
             together_ensemble_fit = \
-                visualizer_projection.altitude_class_to_ensemble_class_to_ensemble_fit[altitude_class][
+                visualizer_projection.altitude_group_to_ensemble_class_to_ensemble_fit[altitude_class][
                     TogetherEnsembleFit]
             merge_visualizer = together_ensemble_fit.visualizer
         merge_visualizer.studies.study.gcm_rcm_couple = (merge_visualizer_str, "merge")

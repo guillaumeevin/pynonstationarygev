@@ -77,7 +77,8 @@ class OneFoldFit(object):
         return fitted_linear_margin_estimator_short(model_class=model_class,
                                                     dataset=dataset,
                                                     fit_method=self.fit_method,
-                                                    temporal_covariate_for_fit=self.temporal_covariate_for_fit)
+                                                    temporal_covariate_for_fit=self.temporal_covariate_for_fit,
+                                                    drop_duplicates=False)
 
     @classmethod
     def get_moment_str(cls, order):
@@ -115,11 +116,15 @@ class OneFoldFit(object):
     def relative_change_in_return_level_for_reference_altitude(self) -> float:
         return self.relative_changes_of_moment(altitudes=[self.altitude_plot], order=None)[0]
 
-    def changes_of_moment(self, altitudes, order=1):
+    def changes_of_moment(self, altitudes, order=1, covariate_before=None, covariate_after=None):
+        if covariate_before is None:
+            covariate_before = self.covariate_before
+        if covariate_after is None:
+            covariate_after = self.covariate_after
         changes = []
         for altitude in altitudes:
-            mean_after = self.get_moment(altitude, self.covariate_after, order)
-            mean_before = self.get_moment(altitude, self.covariate_before, order)
+            mean_after = self.get_moment(altitude, covariate_after, order)
+            mean_before = self.get_moment(altitude, covariate_before, order)
             change = mean_after - mean_before
             changes.append(change)
         return changes
@@ -151,11 +156,11 @@ class OneFoldFit(object):
                      **d_temperature)
         return s
 
-    def relative_changes_of_moment(self, altitudes, order=1):
+    def relative_changes_of_moment(self, altitudes, order=1, covariate_before=None, covariate_after=None):
         relative_changes = []
         for altitude in altitudes:
-            mean_after = self.get_moment(altitude, self.covariate_after, order)
-            mean_before = self.get_moment(altitude, self.covariate_before, order)
+            mean_after = self.get_moment(altitude, covariate_after, order)
+            mean_before = self.get_moment(altitude, covariate_before, order)
             relative_change = 100 * (mean_after - mean_before) / mean_before
             relative_changes.append(relative_change)
         return relative_changes

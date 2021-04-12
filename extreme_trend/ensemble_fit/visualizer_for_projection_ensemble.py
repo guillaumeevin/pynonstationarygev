@@ -13,10 +13,13 @@ from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import Alt
 from extreme_trend.ensemble_fit.abstract_ensemble_fit import AbstractEnsembleFit
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
-from extreme_trend.one_fold_fit.altitude_group import get_altitude_class_from_altitudes
+from extreme_trend.one_fold_fit.altitude_group import get_altitude_class_from_altitudes, \
+    get_altitude_group_from_altitudes
 from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
 from extreme_trend.one_fold_fit.utils_altitude_studies_visualizer import compute_and_assign_max_abs
+from projects.projected_extreme_snowfall.results.plot_relative_change_in_return_level import \
+    plot_relative_dynamic_in_return_level
 
 
 class VisualizerForProjectionEnsemble(object):
@@ -48,9 +51,9 @@ class VisualizerForProjectionEnsemble(object):
                 assert len(years) == 2, years
 
         # Load all studies
-        altitude_class_to_gcm_couple_to_studies = OrderedDict()
+        altitude_group_to_gcm_couple_to_studies = OrderedDict()
         for altitudes in altitudes_list:
-            altitude_class = get_altitude_class_from_altitudes(altitudes)
+            altitude_group = get_altitude_group_from_altitudes(altitudes)
             gcm_rcm_couple_to_studies = {}
             for gcm_rcm_couple in gcm_rcm_couples:
                 if gcm_to_year_min_and_year_max is None:
@@ -69,11 +72,11 @@ class VisualizerForProjectionEnsemble(object):
                 gcm_rcm_couple_to_studies[gcm_rcm_couple] = studies
             if len(gcm_rcm_couple_to_studies) == 0:
                 print('No valid studies for the following couples:', self.gcm_rcm_couples)
-            altitude_class_to_gcm_couple_to_studies[altitude_class] = gcm_rcm_couple_to_studies
+            altitude_group_to_gcm_couple_to_studies[altitude_group] = gcm_rcm_couple_to_studies
 
         # Load ensemble fit
-        self.altitude_class_to_ensemble_class_to_ensemble_fit = OrderedDict()
-        for altitude_class, gcm_rcm_couple_to_studies in altitude_class_to_gcm_couple_to_studies.items():
+        self.altitude_group_to_ensemble_class_to_ensemble_fit = OrderedDict()
+        for altitude_group, gcm_rcm_couple_to_studies in altitude_group_to_gcm_couple_to_studies.items():
             ensemble_class_to_ensemble_fit = {}
             for ensemble_fit_class in ensemble_fit_classes:
                 ensemble_fit = ensemble_fit_class(massif_names, gcm_rcm_couple_to_studies, model_classes,
@@ -82,7 +85,7 @@ class VisualizerForProjectionEnsemble(object):
                                                   confidence_interval_based_on_delta_method,
                                                   remove_physically_implausible_models)
                 ensemble_class_to_ensemble_fit[ensemble_fit_class] = ensemble_fit
-            self.altitude_class_to_ensemble_class_to_ensemble_fit[altitude_class] = ensemble_class_to_ensemble_fit
+            self.altitude_group_to_ensemble_class_to_ensemble_fit[altitude_group] = ensemble_class_to_ensemble_fit
 
     @property
     def has_elevation_non_stationarity(self):
@@ -99,7 +102,7 @@ class VisualizerForProjectionEnsemble(object):
                 plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative,
                                                         with_significance=with_significance)
         else:
-            print('here plot for one altitude visualizer')
+            plot_relative_dynamic_in_return_level(self.massif_names, visualizer_list)
 
     def plot(self):
         # Set limit for the plot
@@ -142,7 +145,7 @@ class VisualizerForProjectionEnsemble(object):
         """Return the ordered ensemble fit for a given ensemble class (in the order of the altitudes)"""
         return [ensemble_class_to_ensemble_fit[ensemble_class]
                 for ensemble_class_to_ensemble_fit
-                in self.altitude_class_to_ensemble_class_to_ensemble_fit.values()]
+                in self.altitude_group_to_ensemble_class_to_ensemble_fit.values()]
 
     def plot_preliminary_first_part(self):
         if self.massif_names is None:

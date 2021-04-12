@@ -14,12 +14,14 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 
 
-def fitted_linear_margin_estimator_short(model_class, dataset, fit_method, **model_kwargs) -> LinearMarginEstimator:
-    return fitted_linear_margin_estimator(model_class, dataset.coordinates, dataset, None, fit_method, **model_kwargs)
+def fitted_linear_margin_estimator_short(model_class, dataset, fit_method, drop_duplicates=None, **model_kwargs) -> LinearMarginEstimator:
+    return fitted_linear_margin_estimator(model_class, dataset.coordinates, dataset, None, fit_method, drop_duplicates, **model_kwargs)
 
 
-def fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year, fit_method, **model_kwargs):
+def fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year, fit_method, drop_duplicates=None, **model_kwargs):
     model = model_class(coordinates, starting_point=starting_year, fit_method=fit_method, **model_kwargs)
+    if drop_duplicates is not None:
+        model.drop_duplicates = drop_duplicates
     estimator = LinearMarginEstimator(dataset, model)
     estimator.fit()
     return estimator
