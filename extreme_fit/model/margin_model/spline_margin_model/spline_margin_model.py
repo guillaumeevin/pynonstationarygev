@@ -32,7 +32,7 @@ class SplineMarginModel(AbstractTemporalLinearMarginModel):
         # Assert the order of list of dim and degree, to match the order of the form dict,
         # i.e. 1) spatial individual terms 2) combined terms 3) temporal individual terms
         for param_name, list_dim_and_degree_and_nb_intervals in param_name_to_list_dim_and_degree_and_nb_intervals.items():
-            dims = [d for d, m, nb in list_dim_and_degree_and_nb_intervals]
+            dims = [d for d, *_ in list_dim_and_degree_and_nb_intervals]
             assert all([isinstance(d, int) or isinstance(d, tuple) for d in dims])
             if self.coordinates.has_spatial_coordinates and self.coordinates.idx_x_coordinates in dims:
                 assert dims.index(self.coordinates.idx_x_coordinates) == 0
@@ -40,7 +40,8 @@ class SplineMarginModel(AbstractTemporalLinearMarginModel):
                 assert dims.index(self.coordinates.idx_temporal_coordinates) == len(dims) - 1
         # Assert that the degree are inferior to the max degree
         for list_dim_and_degree_and_nb_intervals in param_name_to_list_dim_and_degree_and_nb_intervals.values():
-            for _, max_degree, _ in list_dim_and_degree_and_nb_intervals:
+            for _, *max_degree in list_dim_and_degree_and_nb_intervals:
+                max_degree = max_degree if isinstance(max_degree, float) else max_degree[0]
                 assert max_degree <= self.max_degree, 'Max degree (={}) specified is too high'.format(max_degree)
         # Load param_name_to_spline_all_coef
         param_name_to_spline_all_coef = load_param_name_to_spline_all_coef(

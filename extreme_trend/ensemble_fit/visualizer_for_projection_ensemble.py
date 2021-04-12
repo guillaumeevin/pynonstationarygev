@@ -84,15 +84,22 @@ class VisualizerForProjectionEnsemble(object):
                 ensemble_class_to_ensemble_fit[ensemble_fit_class] = ensemble_fit
             self.altitude_class_to_ensemble_class_to_ensemble_fit[altitude_class] = ensemble_class_to_ensemble_fit
 
+    @property
+    def has_elevation_non_stationarity(self):
+        return all([len(a) > 1 for a in self.altitudes_list])
+
     def plot_for_visualizer_list(self, visualizer_list):
-        with_significance = False
-        for v in visualizer_list:
-            v.plot_moments()
-        # plot_histogram_all_trends_against_altitudes(self.massif_names, visualizer_list,
-        #                                             with_significance=with_significance)
-        # for relative in [True, False]:
-        #     plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative,
-        #                                             with_significance=with_significance)
+        if self.has_elevation_non_stationarity:
+            with_significance = False
+            for v in visualizer_list:
+                v.plot_moments()
+            plot_histogram_all_trends_against_altitudes(self.massif_names, visualizer_list,
+                                                        with_significance=with_significance)
+            for relative in [True, False]:
+                plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative,
+                                                        with_significance=with_significance)
+        else:
+            print('here plot for one altitude visualizer')
 
     def plot(self):
         # Set limit for the plot
