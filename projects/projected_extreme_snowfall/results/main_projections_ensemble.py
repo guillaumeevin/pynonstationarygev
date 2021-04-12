@@ -50,13 +50,13 @@ def main():
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
     scenarios = [AdamontScenario.rcp85_extended]
 
-    fast = True
+    fast = None
     for scenario in scenarios:
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
         if fast is None:
-            gcm_rcm_couples = gcm_rcm_couples[:2]
+            gcm_rcm_couples = gcm_rcm_couples[:]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = [1800, 2100]
+            altitudes_list = [900, 1800, 2700, 3600]
         elif fast:
             gcm_rcm_couples = gcm_rcm_couples[:2]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
@@ -80,7 +80,6 @@ def main():
         gcm_to_year_min_and_year_max = None
         massif_names = ['Vanoise']
         model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
-
 
         visualizer = VisualizerForProjectionEnsemble(
             altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,

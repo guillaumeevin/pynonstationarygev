@@ -52,7 +52,6 @@ class TestGevTemporalSpline(unittest.TestCase):
                                                    starting_year=None,
                                                    fit_method=self.fit_method)
         # Checks that parameters returned are indeed different
-        print(self.start_year, self.middle_year, self.last_year)
         mle_params_estimated_year_first = estimator.function_from_fit.get_params(np.array([self.start_year])).to_dict()
         mle_params_estimated_year_middle = estimator.function_from_fit.get_params(np.array([self.middle_year])).to_dict()
         mle_params_estimated_year_last = estimator.function_from_fit.get_params(np.array([self.last_year])).to_dict()

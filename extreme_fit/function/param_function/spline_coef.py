@@ -29,7 +29,8 @@ class SplineCoef(AbstractCoef):
 
     @property
     def nb_params(self):
-        return self.nb_knots + self.nb_coefficients
+        # return self.nb_knots + self.nb_coefficients
+        return self.nb_coefficients
 
 class SplineAllCoef(LinearCoef):
 

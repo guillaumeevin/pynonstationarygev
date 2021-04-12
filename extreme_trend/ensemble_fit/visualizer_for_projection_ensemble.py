@@ -6,6 +6,8 @@ from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import 
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
+    AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -25,7 +27,7 @@ from projects.projected_extreme_snowfall.results.plot_relative_change_in_return_
 class VisualizerForProjectionEnsemble(object):
 
     def __init__(self, altitudes_list, gcm_rcm_couples, study_class, season, scenario,
-                 model_classes: List[AbstractSpatioTemporalPolynomialModel],
+                 model_classes: List[AbstractTemporalLinearMarginModel],
                  ensemble_fit_classes=None,
                  massif_names=None,
                  fit_method=MarginFitMethod.extremes_fevd_mle,

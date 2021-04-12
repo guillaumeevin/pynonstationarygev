@@ -13,6 +13,7 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
 from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoef, PolynomialCoef
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models_only_altitude_and_scale import \
     AltitudinalOnlyScale, StationaryAltitudinalOnlyScale
@@ -209,7 +210,7 @@ class OneFoldFit(object):
         return coordinate
 
     def _compute_shape_for_reference_altitude(self, estimator):
-        coordinate = self.get_coordinate(self.altitude_plot, self.last_year)
+        coordinate = self.get_coordinate(self.altitude_plot, self.covariate_after)
         gev_params = estimator.function_from_fit.get_params(coordinate, is_transformed=False)
         shape = gev_params.shape
         return shape
@@ -296,7 +297,10 @@ class OneFoldFit(object):
         elif isinstance(self.best_estimator.margin_model, AltitudinalShapeLinearTimeStationary):
             return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
         else:
-            return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinal]
+            if isinstance(self.altitude_group, DefaultAltitudeGroup):
+                return self.model_class_to_estimator_with_finite_aic[StationaryTemporalModel]
+            else:
+                return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinal]
 
     @property
     def likelihood_ratio(self):

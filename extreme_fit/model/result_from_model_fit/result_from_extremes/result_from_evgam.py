@@ -53,7 +53,8 @@ class ResultFromEvgam(AbstractResultFromExtremes):
 
     @property
     def nb_parameters(self):
-        return len(np.array(self.name_to_value['coefficients']))  + self.nb_knots
+        # return len(np.array(self.name_to_value['coefficients']))  + self.nb_knots
+        return len(np.array(self.name_to_value['coefficients']))
 
     @property
     def aic(self):
