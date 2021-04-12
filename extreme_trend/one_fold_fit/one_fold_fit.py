@@ -30,7 +30,8 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_retur
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup, altitudes_for_groups
 from root_utils import NB_CORES, batch
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import TimeTemporalCovariate
+from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
+    TimeTemporalCovariate
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureWithSplineTemporalCovariate
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
@@ -64,7 +65,6 @@ class OneFoldFit(object):
         self.models_classes = models_classes
         self.fit_method = fit_method
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
-
 
         # Fit Estimators
         self.model_class_to_estimator = {}
@@ -100,7 +100,7 @@ class OneFoldFit(object):
             raise NotImplementedError
 
     def get_gev_params(self, altitude, year):
-        coordinate = np.array([altitude, year])
+        coordinate = self.get_coordinate(altitude, year)
         gev_params = self.best_function_from_fit.get_params(coordinate, is_transformed=False)
         return gev_params
 
@@ -196,12 +196,15 @@ class OneFoldFit(object):
             raise
         return sorted_estimators
 
-    def _compute_shape_for_reference_altitude(self, estimator):
+    def get_coordinate(self, altitude, year):
         if isinstance(self.altitude_group, DefaultAltitudeGroup):
-            coordinate = np.array([self.last_year])
+            coordinate = np.array([year])
         else:
-            coordinate = np.array([self.altitude_plot, self.last_year])
-        print(coordinate)
+            coordinate = np.array([altitude, year])
+        return coordinate
+
+    def _compute_shape_for_reference_altitude(self, estimator):
+        coordinate = self.get_coordinate(self.altitude_plot, self.last_year)
         gev_params = estimator.function_from_fit.get_params(coordinate, is_transformed=False)
         shape = gev_params.shape
         return shape
@@ -300,7 +303,9 @@ class OneFoldFit(object):
 
     @cached_property
     def is_significant(self) -> bool:
-        if self.confidence_interval_based_on_delta_method:
+        if isinstance(self.altitude_group, DefaultAltitudeGroup):
+            # Likelihood ratio based significance
+            print("likelihood ratio based significance")
             stationary_model_classes = [StationaryAltitudinal, StationaryGumbelAltitudinal,
                                         AltitudinalShapeLinearTimeStationary]
             if any([isinstance(self.best_estimator.margin_model, c)
@@ -335,7 +340,7 @@ class OneFoldFit(object):
         return standard_gumbel_quantiles
 
     def best_confidence_interval(self, altitude, year) -> EurocodeConfidenceIntervalFromExtremes:
-        coordinate = np.array([altitude, year])
+        coordinate = self.get_coordinate(altitude, year)
         if self.confidence_interval_based_on_delta_method:
             EurocodeConfidenceIntervalFromExtremes.quantile_level = self.quantile_level
             return EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(
@@ -378,7 +383,7 @@ class OneFoldFit(object):
         for year in years:
             for altitude in altitudes:
                 key = (altitude, year)
-                coordinate = np.array([altitude, year])
+                coordinate = self.get_coordinate(altitude, year)
                 mean_estimate = self.get_return_level(self.best_function_from_fit, coordinate)
                 bootstrap_return_levels = [self.get_return_level(f, coordinate) for f in
                                            bootstrap_fitted_functions]
@@ -391,13 +396,14 @@ class OneFoldFit(object):
 
     @property
     def return_level_last_temporal_coordinate(self):
-        df_temporal_covariate = self.dataset.coordinates.df_temporal_coordinates_for_fit(temporal_covariate_for_fit=self.temporal_covariate_for_fit,
-                                                                                         drop_duplicates=False)
+        df_temporal_covariate = self.dataset.coordinates.df_temporal_coordinates_for_fit(
+            temporal_covariate_for_fit=self.temporal_covariate_for_fit,
+            drop_duplicates=False)
         last_temporal_coordinate = df_temporal_covariate.loc[:, AbstractCoordinates.COORDINATE_T].max()
         # todo: améliorer the last temporal coordinate. on recupère la liste des rights_limits, puis on prend la valeur juste au dessus ou égale."""
         print('last temporal coordinate', last_temporal_coordinate)
         altitude = self.altitude_group.reference_altitude
-        coordinate = np.array([altitude, last_temporal_coordinate])
+        coordinate = self.get_coordinate(altitude, last_temporal_coordinate)
         return self.get_return_level(self.best_function_from_fit, coordinate)
 
     @property

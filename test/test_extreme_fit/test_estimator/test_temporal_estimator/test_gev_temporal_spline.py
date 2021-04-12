@@ -8,7 +8,8 @@ from extreme_fit.model.margin_model.polynomial_margin_model.polynomial_margin_mo
     NonStationaryQuadraticLocationModel, \
     NonStationaryQuadraticScaleModel, NonStationaryQuadraticLocationGumbelModel, NonStationaryQuadraticScaleGumbelModel
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
-    NonStationaryTwoLinearLocationModel, NonStationaryTwoLinearScaleModel
+    NonStationaryTwoLinearLocationModel, NonStationaryTwoLinearShapeModel, \
+    NonStationaryTwoLinearLocationOneLinearScaleModel
 from extreme_trend.trend_test.abstract_gev_trend_test import fitted_linear_margin_estimator
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
@@ -78,9 +79,12 @@ class TestGevTemporalSpline(unittest.TestCase):
                                                                          param_to_test=GevParams.LOC)
 
     def test_gev_temporal_margin_fit_spline_two_linear_scale(self):
-        self.function_test_gev_temporal_margin_fit_non_stationary_spline(NonStationaryTwoLinearScaleModel,
+        self.function_test_gev_temporal_margin_fit_non_stationary_spline(NonStationaryTwoLinearShapeModel,
                                                                          param_to_test=GevParams.SCALE)
 
+    # def test_gev_temporal_margin_fit_spline_two_linear_location_with_added_linearity_in_scale(self):
+    #     self.function_test_gev_temporal_margin_fit_non_stationary_spline(NonStationaryTwoLinearLocationOneLinearScaleModel,
+    #                                                                      param_to_test=GevParams.SCALE)
 
 if __name__ == '__main__':
     unittest.main()

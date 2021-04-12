@@ -1,6 +1,8 @@
 from enum import Enum
 
 # The order is important
+import numpy as np
+
 MIDDLE_WORD = 'and'
 START_WORD = 'between'
 altitudes_for_groups = [
@@ -139,6 +141,14 @@ class DefaultAltitudeGroup(AbstractAltitudeGroup):
     def __init__(self, altitudes):
         assert len(altitudes) == 1
         self.altitude = list(altitudes)[0]
+
+    @property
+    def graduation_for_return_level(self):
+        return 10 * np.power(2, self.altitude // 1000)
+
+    @property
+    def group_id(self):
+        return self.altitude
 
     @property
     def name(self):

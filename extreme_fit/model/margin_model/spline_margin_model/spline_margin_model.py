@@ -9,6 +9,7 @@ from extreme_fit.function.param_function.polynomial_coef import PolynomialCoef
 from extreme_fit.function.param_function.spline_coef import SplineAllCoef, SplineCoef
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
+from extreme_fit.model.margin_model.polynomial_margin_model.functions_utils import load_param_name_to_spline_all_coef
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
@@ -42,10 +43,11 @@ class SplineMarginModel(AbstractTemporalLinearMarginModel):
             for _, max_degree, _ in list_dim_and_degree_and_nb_intervals:
                 assert max_degree <= self.max_degree, 'Max degree (={}) specified is too high'.format(max_degree)
         # Load param_name_to_spline_all_coef
-        param_name_to_spline_all_coef = self.param_name_to_spline_all_coef(
+        param_name_to_spline_all_coef = load_param_name_to_spline_all_coef(
             param_name_to_list_dim_and_degree_and_nb_intervals=param_name_to_list_dim_and_degree_and_nb_intervals,
             param_name_and_dim_and_degree_to_default_coef=self.default_params)
-        param_name_to_dim_and_max_degree = {p: [t[:2] for t in l] for p, l in param_name_to_list_dim_and_degree_and_nb_intervals.items()}
+        param_name_to_dim_and_max_degree = {p: [t[:2] for t in l] for p, l in
+                                            param_name_to_list_dim_and_degree_and_nb_intervals.items()}
         return SplineMarginFunction(coordinates=self.coordinates,
                                     param_name_to_coef=param_name_to_spline_all_coef,
                                     param_name_to_dim_and_max_degree=param_name_to_dim_and_max_degree,
@@ -64,24 +66,6 @@ class SplineMarginModel(AbstractTemporalLinearMarginModel):
                 for degree in range(self.max_degree + 1):
                     param_name_and_dim_and_degree_to_coef[(param_name, dim, degree)] = default_slope
         return param_name_and_dim_and_degree_to_coef
-
-    def param_name_to_spline_all_coef(self, param_name_to_list_dim_and_degree_and_nb_intervals,
-                                      param_name_and_dim_and_degree_to_default_coef):
-        param_name_to_spline_all_coef = {}
-        param_names = list(set([e[0] for e in param_name_and_dim_and_degree_to_default_coef.keys()]))
-        for param_name in param_names:
-            dim_to_spline_coef = {}
-            for dim, max_degree, nb_intervals in param_name_to_list_dim_and_degree_and_nb_intervals.get(param_name, []):
-                nb_coefficients = nb_intervals + 1
-                coefficients = np.arange(nb_coefficients)
-                knots = np.arange(nb_coefficients + max_degree + 1)
-                dim_to_spline_coef[dim] = SplineCoef(param_name, knots=knots, coefficients=coefficients)
-            if len(dim_to_spline_coef) == 0:
-                dim_to_spline_coef = None
-            spline_all_coef = SplineAllCoef(param_name=param_name,
-                                            dim_to_spline_coef=dim_to_spline_coef)
-            param_name_to_spline_all_coef[param_name] = spline_all_coef
-        return param_name_to_spline_all_coef
 
     @property
     def param_name_to_list_for_result(self):

@@ -1,7 +1,6 @@
 import itertools
 
 from cached_property import cached_property
-
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.function.margin_function.parametric_margin_function import ParametricMarginFunction
 from extreme_fit.function.margin_function.polynomial_margin_function import PolynomialMarginFunction
@@ -9,6 +8,8 @@ from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoe
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import GumbelTemporalModel
+from extreme_fit.model.margin_model.polynomial_margin_model.functions_utils import \
+    load_param_name_to_polynomial_all_coef
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
@@ -42,7 +43,7 @@ class PolynomialMarginModel(AbstractTemporalLinearMarginModel):
             for _, max_degree in list_dim_and_degree:
                 assert max_degree <= self.max_degree, 'Max degree (={}) specified is too high'.format(max_degree)
         # Load param_name_to_polynomial_all_coef
-        param_name_to_polynomial_all_coef = self.param_name_to_polynomial_all_coef(
+        param_name_to_polynomial_all_coef = load_param_name_to_polynomial_all_coef(
             param_name_to_list_dim_and_degree=param_name_to_list_dim_and_degree,
             param_name_and_dim_and_degree_to_default_coef=self.default_params)
         return PolynomialMarginFunction(coordinates=self.coordinates,
@@ -63,30 +64,6 @@ class PolynomialMarginModel(AbstractTemporalLinearMarginModel):
                 for degree in range(self.max_degree + 1):
                     param_name_and_dim_and_degree_to_coef[(param_name, dim, degree)] = default_slope
         return param_name_and_dim_and_degree_to_coef
-
-    def param_name_to_polynomial_all_coef(self, param_name_to_list_dim_and_degree,
-                                          param_name_and_dim_and_degree_to_default_coef):
-        param_name_to_polynomial_all_coef = {}
-        param_names = list(set([e[0] for e in param_name_and_dim_and_degree_to_default_coef.keys()]))
-        for param_name in param_names:
-            dim_to_polynomial_coef = {}
-            for dim, max_degree in param_name_to_list_dim_and_degree.get(param_name, []):
-                degree_to_coef = {}
-                for (param_name_loop, dim_loop, degree), coef in param_name_and_dim_and_degree_to_default_coef.items():
-                    if param_name == param_name_loop and dim == dim_loop and degree <= max_degree:
-                        degree_to_coef[degree] = coef
-                polynomial_coef = PolynomialCoef(param_name, degree_to_coef=degree_to_coef)
-                dim_to_polynomial_coef[dim] = polynomial_coef
-            if len(dim_to_polynomial_coef) == 0:
-                intercept = param_name_and_dim_and_degree_to_default_coef[(param_name, 0, 0)]
-                dim_to_polynomial_coef = None
-            else:
-                intercept = None
-            polynomial_all_coef = PolynomialAllCoef(param_name=param_name,
-                                                    dim_to_polynomial_coef=dim_to_polynomial_coef,
-                                                    intercept=intercept)
-            param_name_to_polynomial_all_coef[param_name] = polynomial_all_coef
-        return param_name_to_polynomial_all_coef
 
     @property
     def param_name_to_list_for_result(self):
