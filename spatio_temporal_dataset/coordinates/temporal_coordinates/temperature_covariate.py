@@ -1,5 +1,6 @@
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import str_to_scenario
-from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import year_to_global_mean_temp
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import str_to_scenario, get_gcm_list, AdamontScenario
+from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import year_to_global_mean_temp, \
+    year_to_averaged_global_mean_temp
 from extreme_data.meteo_france_data.mean_alps_temperature import load_year_to_mean_alps_temperatures
 from extreme_data.nasa_data.global_mean_temperature_until_2016 import load_year_to_mean_global_temperature_until_2016
 from root_utils import classproperty
@@ -53,9 +54,14 @@ class AnomalyTemperatureWithSplineTemporalCovariate(AbstractTemporalCovariateFor
         year = row[AbstractCoordinates.COORDINATE_T]
         gcm = row[AbstractCoordinates.COORDINATE_GCM]
         scenario_str = row[AbstractCoordinates.COORDINATE_RCP]
-        scenario = str_to_scenario(scenario_str)
+        scenario = str_to_scenario(scenario_str) if isinstance(scenario_str, str) else None
+        is_observations = isinstance(gcm, float) and isinstance(scenario_str, float)
         if (gcm, scenario) not in cls.gcm_and_scenario_to_d:
-            d = year_to_global_mean_temp(gcm, scenario, anomaly=True, spline=True)
+            if is_observations:
+                print('Loading average rcp 8.5  temeprature for the obs covariate')
+                d = year_to_averaged_global_mean_temp(AdamontScenario.rcp85, anomaly=True, spline=True)
+            else:
+                d = year_to_global_mean_temp(gcm, scenario, anomaly=True, spline=True)
             cls.gcm_and_scenario_to_d[(gcm, scenario)] = d
         d = cls.gcm_and_scenario_to_d[(gcm, scenario)]
         global_mean_temp = d[year]

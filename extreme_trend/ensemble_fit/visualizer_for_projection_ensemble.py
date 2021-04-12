@@ -37,7 +37,9 @@ class VisualizerForProjectionEnsemble(object):
                  remove_physically_implausible_models=False,
                  gcm_to_year_min_and_year_max=None,
                  interval_str_prefix='',
+                 safran_study_class=None,
                  ):
+        self.safran_study_class = safran_study_class
         self.interval_str_prefix = interval_str_prefix
         self.altitudes_list = altitudes_list
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
@@ -72,6 +74,10 @@ class VisualizerForProjectionEnsemble(object):
                                            scenario=scenario, gcm_rcm_couple=gcm_rcm_couple,
                                            **kwargs_study)
                 gcm_rcm_couple_to_studies[gcm_rcm_couple] = studies
+            # Potentially add the observations
+            if self.safran_study_class is not None:
+                studies = AltitudesStudies(self.safran_study_class, altitudes, season=season)
+                gcm_rcm_couple_to_studies[(None, None)] = studies
             if len(gcm_rcm_couple_to_studies) == 0:
                 print('No valid studies for the following couples:', self.gcm_rcm_couples)
             altitude_group_to_gcm_couple_to_studies[altitude_group] = gcm_rcm_couple_to_studies

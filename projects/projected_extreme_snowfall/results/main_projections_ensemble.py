@@ -3,6 +3,8 @@ import time
 from typing import List
 import matplotlib
 
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
@@ -43,6 +45,7 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 def main():
     start = time.time()
     study_class = AdamontSnowfall
+    safran_study_class = [None, SafranSnowfall2019][1] # None means we do not account for the observations
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     temporal_covariate_for_fit = [TimeTemporalCovariate,
                                   AnomalyTemperatureWithSplineTemporalCovariate][1]
@@ -60,7 +63,7 @@ def main():
         elif fast:
             gcm_rcm_couples = gcm_rcm_couples[:2]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = [2400]
+            altitudes_list = [2700]
         else:
             altitudes_list = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
 
@@ -75,6 +78,8 @@ def main():
 
         print('Scenario is', scenario)
         print('Covariate is {}'.format(temporal_covariate_for_fit))
+        print('Take into account the observations: {}'.format(safran_study_class is not None))
+        print('observation class:', safran_study_class)
 
         # Default parameters
         gcm_to_year_min_and_year_max = None
@@ -90,6 +95,7 @@ def main():
             temporal_covariate_for_fit=temporal_covariate_for_fit,
             remove_physically_implausible_models=True,
             gcm_to_year_min_and_year_max=gcm_to_year_min_and_year_max,
+            safran_study_class=safran_study_class,
         )
         visualizer.plot()
 

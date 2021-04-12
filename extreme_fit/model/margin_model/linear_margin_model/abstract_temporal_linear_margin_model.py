@@ -75,6 +75,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         formula = r.list(*[robjects.Formula(f) for f in formula_list])
         df = pd.DataFrame({maxima_column_name: np.array(x)})
         df = pd.concat([df, df_coordinates_spat, df_coordinates_temp], axis=1)
+        assert not df.isnull().any(axis=1).any(), "Some Nan values in df:\n {}".format(df)
         data = get_r_dataframe_from_python_dataframe(df)
         if self.type_for_mle is not "GEV":
             raise NotImplementedError

@@ -35,6 +35,19 @@ def year_to_global_mean_temp(gcm, scenario, year_min=None, year_max=None, spline
     return d
 
 
+def year_to_averaged_global_mean_temp(scenario, year_min=None, year_max=None, spline=True, anomaly=True):
+    d = OrderedDict()
+    gcm_list = get_gcm_list(adamont_version=2)
+    d_list = [year_to_global_mean_temp(gcm, scenario) for gcm in gcm_list]
+    l = [list(d.keys()) for d in d_list]
+    min_year = min([years[0] for years in l])
+    max_year = max([years[-1] for years in l])
+    for year in list(range(min_year, max_year + 1)):
+        global_temp_list = [d[year] for d in d_list if year in d]
+        d[year] = np.mean(global_temp_list)
+    return d
+
+
 def get_column_name(anomaly, spline):
     basic_column_name = 'Annual anomaly' if anomaly else 'Annual mean'
     if spline:
