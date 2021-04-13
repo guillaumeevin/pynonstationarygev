@@ -57,7 +57,8 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         return self.dataset.coordinates.df_temporal_coordinates_for_fit(split=split,
                                                                         temporal_covariate_for_fit=self.margin_model.temporal_covariate_for_fit,
                                                                         starting_point=self.margin_model.starting_point,
-                                                                        drop_duplicates=self.margin_model.drop_duplicates)
+                                                                        drop_duplicates=self.margin_model.drop_duplicates,
+                                                                        climate_coordinates_with_effects=self.margin_model.climate_coordinates_with_effects)
 
     @cached_property
     def function_from_fit(self) -> LinearMarginFunction:

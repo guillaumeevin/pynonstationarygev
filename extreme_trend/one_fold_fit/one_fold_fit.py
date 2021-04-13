@@ -53,6 +53,7 @@ class OneFoldFit(object):
                  only_models_that_pass_goodness_of_fit_test=True,
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
+                 climate_coordinates_with_effects=None
                  ):
         self.first_year = first_year
         self.last_year = last_year
@@ -66,6 +67,7 @@ class OneFoldFit(object):
         self.models_classes = models_classes
         self.fit_method = fit_method
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
+        self.climate_coordinates_with_effects = climate_coordinates_with_effects
 
         # Fit Estimators
         self.model_class_to_estimator = {}
@@ -79,7 +81,8 @@ class OneFoldFit(object):
                                                     dataset=dataset,
                                                     fit_method=self.fit_method,
                                                     temporal_covariate_for_fit=self.temporal_covariate_for_fit,
-                                                    drop_duplicates=False)
+                                                    drop_duplicates=False,
+                                                    climate_coordinates_with_effects=self.climate_coordinates_with_effects)
 
     @classmethod
     def get_moment_str(cls, order):

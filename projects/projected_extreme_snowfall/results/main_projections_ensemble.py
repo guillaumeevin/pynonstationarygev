@@ -10,6 +10,8 @@ from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit impo
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
 from projects.projected_extreme_snowfall.results.utils import SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
+from root_utils import get_display_name_from_object_type
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 matplotlib.use('Agg')
 import matplotlib as mpl
@@ -45,7 +47,8 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 def main():
     start = time.time()
     study_class = AdamontSnowfall
-    safran_study_class = [None, SafranSnowfall2019][1] # None means we do not account for the observations
+    safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
+    climate_coordinates_with_effects = [None, [AbstractCoordinates.COORDINATE_GCM]][1]  # None means we do not create any effect
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     temporal_covariate_for_fit = [TimeTemporalCovariate,
                                   AnomalyTemperatureWithSplineTemporalCovariate][1]
@@ -53,7 +56,7 @@ def main():
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
     scenarios = [AdamontScenario.rcp85_extended]
 
-    fast = None
+    fast = True
     for scenario in scenarios:
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
         if fast is None:
@@ -79,12 +82,14 @@ def main():
         print('Scenario is', scenario)
         print('Covariate is {}'.format(temporal_covariate_for_fit))
         print('Take into account the observations: {}'.format(safran_study_class is not None))
-        print('observation class:', safran_study_class)
+        print('observation class:', get_display_name_from_object_type(safran_study_class))
+        print('climate coordinates with effects ', climate_coordinates_with_effects)
 
         # Default parameters
         gcm_to_year_min_and_year_max = None
         massif_names = ['Vanoise']
         model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
+        assert len(set(model_classes)) == 27
 
         visualizer = VisualizerForProjectionEnsemble(
             altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
@@ -96,6 +101,7 @@ def main():
             remove_physically_implausible_models=True,
             gcm_to_year_min_and_year_max=gcm_to_year_min_and_year_max,
             safran_study_class=safran_study_class,
+            climate_coordinates_with_effects=climate_coordinates_with_effects
         )
         visualizer.plot()
 

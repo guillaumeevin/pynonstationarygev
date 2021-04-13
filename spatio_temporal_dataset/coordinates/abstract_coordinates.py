@@ -264,7 +264,7 @@ class AbstractCoordinates(object):
 
     def df_temporal_coordinates_for_fit(self, split=Split.all, starting_point=None,
                                         temporal_covariate_for_fit: Union[None, type] = None,
-                                        drop_duplicates=True) -> pd.DataFrame:
+                                        drop_duplicates=True, climate_coordinates_with_effects=None) -> pd.DataFrame:
         # Load time covariate
         if starting_point is None:
             df = self.df_temporal_coordinates(split=split, transformed=True, drop_duplicates=drop_duplicates)
@@ -285,11 +285,15 @@ class AbstractCoordinates(object):
             temporal_transformation = self.temporal_coordinates.transformation_class(df_temporal_coordinates)  # type: AbstractTransformation
             # Return the result of the temporal transformation
             df = temporal_transformation.transform_df(df_temporal_coordinates)
+
+        df_climate_model = df_sliced(df=self.df_coordinate_climate_model, split=split, slicer=self.slicer)
         # Potentially transform the time covariate into another covariate
         if temporal_covariate_for_fit is not None:
-            df_climate_model = df_sliced(df=self.df_coordinate_climate_model, split=split, slicer=self.slicer)
             df_input = pd.concat([df, df_climate_model], axis=1)
             df.loc[:, self.COORDINATE_T] = df_input.apply(temporal_covariate_for_fit.get_temporal_covariate, axis=1)
+        # if climate_coordinates_with_effects is not None:
+        #     assert all([c in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES for c in climate_coordinates_with_effects])
+        #     df = pd.concat([df, df_climate_model.loc[:, climate_coordinates_with_effects]], axis=1)
         return df
 
     @property

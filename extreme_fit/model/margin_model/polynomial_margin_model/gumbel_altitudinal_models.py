@@ -18,11 +18,8 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 class AbstractGumbelAltitudinalModel(AbstractAltitudinalModel):
     DISTRIBUTION_STR = 'Gum'
 
-    def __init__(self, coordinates: AbstractCoordinates, params_user=None, starting_point=None,
-                 fit_method=MarginFitMethod.extremes_fevd_mle, nb_iterations_for_bayesian_fit=5000,
-                 params_initial_fit_bayesian=None, params_class=GevParams, max_degree=4):
-        super().__init__(coordinates, params_user, starting_point, fit_method, nb_iterations_for_bayesian_fit,
-                         params_initial_fit_bayesian, "Gumbel", params_class, max_degree)
+    def __init__(self, *args, max_degree=4, **kwargs):
+        super().__init__(*args, max_degree=4, **kwargs, type_for_MLE="Gumbel")
 
 class StationaryGumbelAltitudinal(AbstractGumbelAltitudinalModel, StationaryAltitudinal):
     pass

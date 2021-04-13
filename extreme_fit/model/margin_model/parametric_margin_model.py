@@ -21,7 +21,9 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
     def __init__(self, coordinates: AbstractCoordinates,
                  params_user=None, starting_point=None, params_class=GevParams,
                  fit_method=MarginFitMethod.spatial_extremes_mle,
-                 temporal_covariate_for_fit=None):
+                 temporal_covariate_for_fit=None,
+                 climate_coordinates_with_effects=None,
+                 ):
         """
         :param starting_point: starting coordinate for the temporal trend
         """
@@ -30,6 +32,8 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         self.starting_point = starting_point
         self.drop_duplicates = True
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
+        self.climate_coordinates_with_effects = climate_coordinates_with_effects
+
 
     @cached_property
     def margin_function(self) -> ParametricMarginFunction:

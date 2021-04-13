@@ -41,6 +41,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                  display_only_model_that_pass_anderson_test=True,
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
+                 climate_coordinates_with_effects=None
                  ):
         super().__init__(studies.study, show=show, save_to_file=not show)
         self.studies = studies
@@ -53,6 +54,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self.altitude_group = get_altitude_group_from_altitudes(self.studies.altitudes)
         self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
         self.remove_physically_implausible_models = remove_physically_implausible_models
+        self.climate_coordinates_with_effects = climate_coordinates_with_effects
 
         self.massif_name_to_massif_altitudes = {}
         # Load one fold fit
@@ -89,7 +91,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                                       self.altitude_group,
                                       self.display_only_model_that_pass_test,
                                       self.confidence_interval_based_on_delta_method,
-                                      self.remove_physically_implausible_models)
+                                      self.remove_physically_implausible_models,
+                                      self.climate_coordinates_with_effects)
             return old_fold_fit
         else:
             return None

@@ -38,7 +38,9 @@ class VisualizerForProjectionEnsemble(object):
                  gcm_to_year_min_and_year_max=None,
                  interval_str_prefix='',
                  safran_study_class=None,
+                 climate_coordinates_with_effects=None,
                  ):
+        self.climate_coordinates_with_effects = climate_coordinates_with_effects
         self.safran_study_class = safran_study_class
         self.interval_str_prefix = interval_str_prefix
         self.altitudes_list = altitudes_list
@@ -91,7 +93,8 @@ class VisualizerForProjectionEnsemble(object):
                                                   fit_method, temporal_covariate_for_fit,
                                                   display_only_model_that_pass_gof_test,
                                                   confidence_interval_based_on_delta_method,
-                                                  remove_physically_implausible_models)
+                                                  remove_physically_implausible_models,
+                                                  climate_coordinates_with_effects)
                 ensemble_class_to_ensemble_fit[ensemble_fit_class] = ensemble_fit
             self.altitude_group_to_ensemble_class_to_ensemble_fit[altitude_group] = ensemble_class_to_ensemble_fit
 
