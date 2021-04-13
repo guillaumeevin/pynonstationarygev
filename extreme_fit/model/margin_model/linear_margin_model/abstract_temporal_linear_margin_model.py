@@ -75,6 +75,13 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         margin_formula = get_margin_formula_extremes(self.margin_function.form_dict, transformed_as_formula=False)
         maxima_column_name = 'Maxima'
         formula_list = [maxima_column_name + " " + v if i == 0 else v for i, v in enumerate(margin_formula.values())]
+        # Add potential climate effects
+        name_of_the_climatic_effects = [c for c in df_coordinates_temp.columns if
+                                        c not in AbstractCoordinates.COORDINATES_NAMES]
+        name_of_the_climatic_effects_for_formula = [" + {}".format(c) for c in name_of_the_climatic_effects]
+        formula_effect_str = ' '.join(name_of_the_climatic_effects_for_formula)
+        # We apply the effect on all the parameters
+        formula_list = [f + ' ' + formula_effect_str for f in formula_list]
         formula = r.list(*[robjects.Formula(f) for f in formula_list])
         df = pd.DataFrame({maxima_column_name: np.array(x)})
         df = pd.concat([df, df_coordinates_spat, df_coordinates_temp], axis=1)
@@ -89,8 +96,9 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                    maxdata=1e10,
                                    )
         return ResultFromEvgam(res, self.param_name_to_list_for_result,
-                                     self.coordinates.dim_to_coordinate,
-                                     type_for_mle=self.type_for_mle)
+                               self.coordinates.dim_to_coordinate,
+                               type_for_mle=self.type_for_mle,
+                               name_of_the_climatic_effects=name_of_the_climatic_effects)
 
     # Gev fit with extRemes package
 

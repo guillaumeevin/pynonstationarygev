@@ -38,6 +38,11 @@ class AbstractResultFromModelFit(object):
         return None
 
     @property
+    def name_of_the_climatic_effects_to_load_margin_function(self):
+        # todo: refactor, put raise NotImplementError, and fix the subfunctions for the other Result objects
+        return None
+
+    @property
     def margin_coef_ordered_dict(self):
         raise NotImplementedError
 

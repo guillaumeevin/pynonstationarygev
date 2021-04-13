@@ -33,10 +33,12 @@ class ParametricMarginFunction(IndependentMarginFunction):
     def __init__(self, coordinates: AbstractCoordinates, param_name_to_dims: Dict[str, List[int]],
                  param_name_to_coef: Dict[str, AbstractCoef], starting_point: Union[None, int] = None,
                  params_class: type = GevParams,
-                 log_scale=None):
+                 log_scale=None,
+                 param_name_to_ordered_climate_effects=None):
         # Starting point for the trend is the same for all the parameters
         self.starting_point = starting_point
-        super().__init__(coordinates, params_class, log_scale=log_scale)
+        super().__init__(coordinates, params_class, log_scale=log_scale,
+                         param_name_to_ordered_climate_effects=param_name_to_ordered_climate_effects)
         self.param_name_to_dims = param_name_to_dims  # type: Dict[str, List[int]]
 
         # Check the dimension are well-defined with respect to the coordinates
@@ -91,15 +93,26 @@ class ParametricMarginFunction(IndependentMarginFunction):
     @classmethod
     def from_coef_dict(cls, coordinates: AbstractCoordinates, param_name_to_dims: Dict[str, List[int]],
                        coef_dict: Dict[str, float], starting_point: Union[None, int] = None,
-                       log_scale=None):
+                       log_scale=None, name_of_the_climatic_effects=None):
         assert cls.COEF_CLASS is not None, 'a COEF_CLASS class attributes needs to be defined'
+        # Load param_name_to_coef
         param_name_to_coef = {}
         for param_name in GevParams.PARAM_NAMES:
             dims = param_name_to_dims.get(param_name, [])
             coef = cls.COEF_CLASS.from_coef_dict(coef_dict=coef_dict, param_name=param_name, dims=dims,
                                                  coordinates=coordinates)
             param_name_to_coef[param_name] = coef
-        return cls(coordinates, param_name_to_dims, param_name_to_coef, starting_point=starting_point, log_scale=log_scale)
+        # Load param_name_to_ordered_climate_effects
+        if name_of_the_climatic_effects is None:
+            param_name_to_ordered_climate_effects = None
+        else:
+            param_name_to_ordered_climate_effects = {}
+            for param_name in GevParams.PARAM_NAMES:
+                ordered_climate_effects = [coef_dict[param_name + name] for name in name_of_the_climatic_effects]
+                param_name_to_ordered_climate_effects[param_name] = ordered_climate_effects
+        return cls(coordinates, param_name_to_dims, param_name_to_coef,
+                   starting_point=starting_point, log_scale=log_scale,
+                   param_name_to_ordered_climate_effects=param_name_to_ordered_climate_effects)
 
     @property
     def form_dict(self) -> Dict[str, str]:

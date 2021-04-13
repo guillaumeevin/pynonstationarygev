@@ -116,6 +116,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     @property
     def nb_params(self):
         nb_params = self.function_from_fit.nb_params
+        nb_params += self.function_from_fit.nb_params_for_climate_effects
         if isinstance(self.margin_model, AbstractTemporalLinearMarginModel) and self.margin_model.is_gumbel_model:
             nb_params -= 1
         return nb_params

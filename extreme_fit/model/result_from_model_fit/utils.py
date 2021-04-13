@@ -11,7 +11,8 @@ def convertFloatVector_to_float(f):
     return np.array(f)[0]
 
 
-def get_margin_coef_ordered_dict(param_name_to_dims, mle_values, type_for_mle="GEV", dim_to_coordinate_name=None):
+def get_margin_coef_ordered_dict(param_name_to_dims, mle_values, type_for_mle="GEV", dim_to_coordinate_name=None,
+                                 name_of_the_climatic_effects=None):
     assert param_name_to_dims is not None
     # Build the Coeff dict from param_name_to_dim
     coef_dict = OrderedDict()
@@ -41,4 +42,10 @@ def get_margin_coef_ordered_dict(param_name_to_dims, mle_values, type_for_mle="G
                         coef_name = coef_template.format(k + offset)
                         coef_dict[coef_name] = mle_values[i]
                         i += 1
+        # Add potential climatic effects
+        if name_of_the_climatic_effects is not None:
+            for name in name_of_the_climatic_effects:
+                coef_name = param_name + name
+                coef_dict[coef_name] = mle_values[i]
+                i += 1
     return coef_dict

@@ -17,9 +17,15 @@ class ResultFromEvgam(AbstractResultFromExtremes):
 
     def __init__(self, result_from_fit: robjects.ListVector, param_name_to_dim=None,
                  dim_to_coordinate=None,
-                 type_for_mle="GEV") -> None:
+                 type_for_mle="GEV",
+                 name_of_the_climatic_effects=None) -> None:
         super().__init__(result_from_fit, param_name_to_dim, dim_to_coordinate)
+        self.name_of_the_climatic_effects = name_of_the_climatic_effects
         self.type_for_mle = type_for_mle
+
+    @property
+    def name_of_the_climatic_effects_to_load_margin_function(self):
+        return self.name_of_the_climatic_effects
 
     @property
     def nllh(self):
@@ -71,13 +77,15 @@ class ResultFromEvgam(AbstractResultFromExtremes):
     @property
     def margin_coef_ordered_dict(self):
         coefficients = np.array(self.name_to_value['coefficients'])
+        print(self.name_of_the_climatic_effects)
         param_name_to_str_formula = {k: str(v) for k, v in
                                      self.get_python_dictionary(self.name_to_value['formula']).items()}
         r_param_names_with_spline = [k for k, v in param_name_to_str_formula.items() if "s(" in v]
         r_param_names_with_spline = [k if k != "scale" else "logscale" for k in r_param_names_with_spline]
         if len(r_param_names_with_spline) == 0:
             return get_margin_coef_ordered_dict(self.param_name_to_dims, coefficients, self.type_for_mle,
-                                                dim_to_coordinate_name=self.dim_to_coordinate)
+                                                dim_to_coordinate_name=self.dim_to_coordinate,
+                                                name_of_the_climatic_effects=self.name_of_the_climatic_effects)
         else:
             # Compute spline param_name to dim_to_knots_and_coefficients
             spline_param_name_to_dim_knots_and_coefficient = {}
@@ -98,7 +106,8 @@ class ResultFromEvgam(AbstractResultFromExtremes):
                 param_name_to_dims[param_name] = new_dims
             # Extract the coef list
             coef_dict = get_margin_coef_ordered_dict(param_name_to_dims, coefficients, self.type_for_mle,
-                                                     dim_to_coordinate_name=self.dim_to_coordinate)
+                                                     dim_to_coordinate_name=self.dim_to_coordinate,
+                                                     name_of_the_climatic_effects=self.name_of_the_climatic_effects)
             return coef_dict, spline_param_name_to_dim_knots_and_coefficient
 
     def compute_dim_to_knots_and_coefficient(self, param_name, r_param_name):

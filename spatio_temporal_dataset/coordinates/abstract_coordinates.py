@@ -291,10 +291,36 @@ class AbstractCoordinates(object):
         if temporal_covariate_for_fit is not None:
             df_input = pd.concat([df, df_climate_model], axis=1)
             df.loc[:, self.COORDINATE_T] = df_input.apply(temporal_covariate_for_fit.get_temporal_covariate, axis=1)
-        # if climate_coordinates_with_effects is not None:
-        #     assert all([c in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES for c in climate_coordinates_with_effects])
-        #     df = pd.concat([df, df_climate_model.loc[:, climate_coordinates_with_effects]], axis=1)
+        if climate_coordinates_with_effects is not None:
+            assert all([c in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES for c in climate_coordinates_with_effects])
+            for c in climate_coordinates_with_effects:
+                assert c in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES
+                s = df_climate_model[c]
+                for c in self.character_to_remove_from_climate_model_coordinate_name():
+                    s = s.str.replace(c, "")
+                unique_values = s.unique()
+                unique_values_without_nan = [v for v in unique_values if isinstance(v, str)]
+                has_observations = len(unique_values) == len(unique_values_without_nan) + 1
+                if has_observations:
+                    for v in unique_values_without_nan:
+                        sv = (s == v) * 1
+                        df[v] = sv
+                else:
+                    raise NotImplementedError
+                    # todo: the coordinate for three gcm should be 1, 0 then 0, 1 finally -1 -1
+                    # maybe it not exactly that, but in this case (without observaitons),
+                    # i need to ensure a constraint that the sum of coef is zero
+
         return df
+
+    @classmethod
+    def character_to_remove_from_climate_model_coordinate_name(cls):
+        return ['-']
+
+    @classmethod
+    def climate_model_coordinate_name_to_name_for_fit(cls, name):
+        for c in cls.character_to_remove_from_climate_model_coordinate_name():
+            return name.replace(c, "")
 
     @property
     def temporal_coordinates(self):
