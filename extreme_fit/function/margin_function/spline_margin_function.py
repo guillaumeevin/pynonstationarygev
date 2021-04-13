@@ -18,13 +18,15 @@ class SplineMarginFunction(LinearMarginFunction):
     def __init__(self, coordinates: AbstractCoordinates,
                  param_name_to_dim_and_max_degree: Dict[str, List[Tuple[int, int]]],
                  param_name_to_coef: Dict[str, SplineAllCoef], starting_point: Union[None, int] = None,
-                 params_class: type = GevParams, log_scale=None):
+                 params_class: type = GevParams, log_scale=None,
+                 param_name_to_ordered_climate_effects=None):
         param_name_to_dims = {}
         for param_name in param_name_to_dim_and_max_degree.keys():
             dims = [c[0] for c in param_name_to_dim_and_max_degree[param_name]]
             param_name_to_dims[param_name] = dims
         self.param_name_to_dim_and_max_degree = param_name_to_dim_and_max_degree
-        super().__init__(coordinates, param_name_to_dims, param_name_to_coef, starting_point, params_class, log_scale)
+        super().__init__(coordinates, param_name_to_dims, param_name_to_coef, starting_point, params_class, log_scale,
+                         param_name_to_ordered_climate_effects)
 
     COEF_CLASS = SplineAllCoef
 
@@ -50,7 +52,9 @@ class SplineMarginFunction(LinearMarginFunction):
 
         coef_dict, spline_param_name_to_dim_to_knots_and_coefficient = coef_dict
         # Load polynomial coefficient
-        polynomial_margin_function = PolynomialMarginFunction.from_coef_dict(coordinates, param_name_to_dims, coef_dict, starting_point, log_scale)
+        polynomial_margin_function = PolynomialMarginFunction.from_coef_dict(coordinates, param_name_to_dims, coef_dict,
+                                                                             starting_point, log_scale,
+                                                                             name_of_the_climatic_effects)
         param_name_to_coef = polynomial_margin_function.param_name_to_coef
         param_name_to_dim_and_max_degree = param_name_to_dims
         # Load the remaining spline coefficient
@@ -60,4 +64,6 @@ class SplineMarginFunction(LinearMarginFunction):
             for dim, (knots, coefficients) in dim_to_knots_and_coefficients.items():
                 dim_to_spline_coef[dim] = SplineCoef(param_name, coefficients, knots)
             param_name_to_coef[param_name] = SplineAllCoef(param_name, dim_to_spline_coef)
-        return cls(coordinates, param_name_to_dim_and_max_degree, param_name_to_coef, starting_point, log_scale=log_scale)
+
+        return cls(coordinates, param_name_to_dim_and_max_degree, param_name_to_coef, starting_point, log_scale=log_scale,
+                   param_name_to_ordered_climate_effects=polynomial_margin_function.param_name_to_ordered_climate_effects)

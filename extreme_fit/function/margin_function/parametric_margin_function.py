@@ -103,6 +103,14 @@ class ParametricMarginFunction(IndependentMarginFunction):
                                                  coordinates=coordinates)
             param_name_to_coef[param_name] = coef
         # Load param_name_to_ordered_climate_effects
+        param_name_to_ordered_climate_effects = cls.load_param_name_to_ordered_climate_effects(coef_dict,
+                                                                                               name_of_the_climatic_effects)
+        return cls(coordinates, param_name_to_dims, param_name_to_coef,
+                   starting_point=starting_point, log_scale=log_scale,
+                   param_name_to_ordered_climate_effects=param_name_to_ordered_climate_effects)
+
+    @classmethod
+    def load_param_name_to_ordered_climate_effects(cls, coef_dict, name_of_the_climatic_effects):
         if name_of_the_climatic_effects is None:
             param_name_to_ordered_climate_effects = None
         else:
@@ -110,9 +118,7 @@ class ParametricMarginFunction(IndependentMarginFunction):
             for param_name in GevParams.PARAM_NAMES:
                 ordered_climate_effects = [coef_dict[param_name + name] for name in name_of_the_climatic_effects]
                 param_name_to_ordered_climate_effects[param_name] = ordered_climate_effects
-        return cls(coordinates, param_name_to_dims, param_name_to_coef,
-                   starting_point=starting_point, log_scale=log_scale,
-                   param_name_to_ordered_climate_effects=param_name_to_ordered_climate_effects)
+        return param_name_to_ordered_climate_effects
 
     @property
     def form_dict(self) -> Dict[str, str]:

@@ -78,10 +78,13 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         # Add potential climate effects
         name_of_the_climatic_effects = [c for c in df_coordinates_temp.columns if
                                         c not in AbstractCoordinates.COORDINATES_NAMES]
-        name_of_the_climatic_effects_for_formula = [" + {}".format(c) for c in name_of_the_climatic_effects]
-        formula_effect_str = ' '.join(name_of_the_climatic_effects_for_formula)
+        name_of_the_climatic_effects_for_formula = ["{}".format(c) for c in name_of_the_climatic_effects]
+        formula_effect_str = ' + '.join(name_of_the_climatic_effects_for_formula)
         # We apply the effect on all the parameters
-        formula_list = [f + ' ' + formula_effect_str for f in formula_list]
+        if len(name_of_the_climatic_effects) > 0:
+            formula_list = [f.replace(' 1', '') for f in formula_list]
+            formula_list = [f + ' + ' if f[-2:] != '~ ' else f for f in formula_list]
+            formula_list = [f + formula_effect_str for f in formula_list]
         formula = r.list(*[robjects.Formula(f) for f in formula_list])
         df = pd.DataFrame({maxima_column_name: np.array(x)})
         df = pd.concat([df, df_coordinates_spat, df_coordinates_temp], axis=1)

@@ -48,4 +48,9 @@ def get_margin_coef_ordered_dict(param_name_to_dims, mle_values, type_for_mle="G
                 coef_name = param_name + name
                 coef_dict[coef_name] = mle_values[i]
                 i += 1
+
+    if type_for_mle == "Gumbel":
+        assert len(coef_dict) == len(mle_values) + 1
+    else:
+        assert len(coef_dict) == len(mle_values)
     return coef_dict
