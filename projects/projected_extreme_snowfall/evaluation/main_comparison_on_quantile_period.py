@@ -8,7 +8,8 @@ from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import 
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, \
     gcm_rcm_couple_to_str, get_gcm_rcm_couples
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
-from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
+    SafranSnowfall2019
 
 matplotlib.use('Agg')
 
@@ -62,14 +63,13 @@ def compute_bias_and_display_it(ax,
 def main_comparaison_plot():
     altitudes = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][:]
 
-    for adamont_version in [1, 2][1:]:
+    for adamont_version in [2][:]:
         print('version:', adamont_version)
 
         gcm_rcm_couples = get_gcm_rcm_couples(adamont_scenario=AdamontScenario.histo, adamont_version=adamont_version)
 
-        study_class_for_adamont_v1 = SafranSnowfall1Day
-        study_class = SafranSnowfall2020 if adamont_version == 2 else study_class_for_adamont_v1
-        comparaison_study_class = 'SAFRAN 2020' if adamont_version == 2 else 'SAFRAN 2019'
+        study_class = SafranSnowfall2019 if adamont_version == 2 else SafranSnowfall1Day
+        comparaison_study_class = 'SAFRAN'
 
         # Faster to load once the two cases
         reanalysis_altitude_studies_1981 = AltitudesStudies(study_class=study_class,
@@ -81,14 +81,12 @@ def main_comparaison_plot():
                                                             year_min=1988,
                                                             year_max=2011)
 
-        if adamont_version == 1:
-            list_of_massis_names = [None]
-        else:
-            list_of_massis_names = [None] + [[m] for m in reanalysis_altitude_studies_1981.study.all_massif_names()]
+        # list_of_massis_names = [None]
+        list_of_massis_names = [['Vanoise']]
 
-        for relative_bias in [True, False][1:]:
+        for relative_bias in [True, False][:]:
             for mean in [True, False][:1]:
-                for massif_names in list_of_massis_names[:1]:
+                for massif_names in list_of_massis_names:
                     ax = plt.gca()
                     bias_in_the_mean = []
                     list_altitudes_for_bias = []
@@ -120,12 +118,13 @@ def main_comparaison_plot():
                         assert alti == altitudes_for_bias
 
                     bias_in_the_mean = np.array(bias_in_the_mean)
-                    min_bias, median_bias, max_bias = [f(bias_in_the_mean, axis=0) for f in [np.min, np.median, np.max]]
+                    min_bias, median_bias, mean_bias, max_bias = [f(bias_in_the_mean, axis=0) for f in [np.min, np.median, np.mean, np.max]]
 
                     # Plot the range for the bias, and the median
                     ax.yaxis.set_ticks(altitudes)
                     color = 'k'
-                    ax.plot(median_bias, altitudes_for_bias, label='Median bias', color=color, linewidth=4)
+                    # ax.plot(median_bias, altitudes_for_bias, label='Median bias', color=color, linewidth=4)
+                    ax.plot(mean_bias, altitudes_for_bias, label='Mean bias', color=color, linewidth=4)
                     # ax.fill_betweenx(altitudes, min_bias, max_bias, label='Range for the bias', alpha=0.2, color='whitesmoke')
                     ax.vlines(0, ymin=altitudes[0], ymax=altitudes[-1], color='k', linestyles='dashed')
                     study_str = STUDY_CLASS_TO_ABBREVIATION[type(reanalysis_altitude_studies.study)]
@@ -133,16 +132,14 @@ def main_comparaison_plot():
                     study = adamont_altitude_studies.study
                     ax.legend(ncol=3, prop={'size': 7})
                     ax.set_ylabel('Altitude (m)', fontsize=10)
-                    massif_str = 'all massifs' if massif_names is None else 'the {} massif'.format(massif_names[0])
+                    massif_str = 'all massifs' if massif_names is None else 'the {} massif '.format(massif_names[0])
                     unit = '%' if relative_bias else study.variable_unit
-                    bias_name = 'Relative difference' if relative_bias else 'Difference'
+                    # bias_name = 'Relative differences' if relative_bias else 'Differences'
+                    bias_name = 'Relative biases' if relative_bias else 'Biases'
                     mean_str = 'mean' if mean else 'std'
-                    title = '{} in the {} annual maxima of {} of {}\n' \
-                                     'for ADAMONT v{}' \
-                                     ' against {} on the quantile mapping period ({})'.format(bias_name, mean_str,
+                    title = '{} in the {} annual maxima of {}\nfor {}' \
+                            'on the quantile mapping period ({})'.format(bias_name, mean_str,
                                                                                               study_str, massif_str,
-                                                                                              adamont_version,
-                                                                                              comparaison_study_class,
                                                                                               unit)
                     folder = 'relative difference' if relative_bias else 'difference'
                     plot_name = op.join(folder, title)

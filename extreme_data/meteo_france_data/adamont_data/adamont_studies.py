@@ -82,14 +82,14 @@ class AdamontStudies(object):
             #     ax.plot(x, y, linewidth=linewidth * 2, label=label, color=color)
         # else:
             # todo: otherwise display the mean in strong black
-            # try:
-            #     x = scm_study.ordered_years
-            #     y = scm_study.massif_name_to_annual_maxima[massif_name]
-            #     label = 'Reanalysis'
-            #     color = 'black'
-            #     ax.plot(x, y, linewidth=linewidth * 2, label=label, color=color)
-            # except KeyError:
-            #     pass
+        try:
+            x = scm_study.ordered_years
+            y = scm_study.massif_name_to_annual_maxima[massif_name]
+            label = 'SAFRAN reanalysis'
+            color = 'black'
+            ax.plot(x, y, linewidth=linewidth * 2, label=label, color=color)
+        except KeyError:
+            pass
 
         ticks = [year for year in range(self.year_min_studies, self.year_max_studies+1) if year % 10 == 0]
         ax.xaxis.set_ticks(ticks)
