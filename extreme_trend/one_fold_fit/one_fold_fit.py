@@ -181,8 +181,12 @@ class OneFoldFit(object):
             well_defined_estimators = []
             for e in estimators:
                 coordinate_values_for_the_fit = e.coordinates_for_nllh(Split.all)
-                coordinate_values_for_the_result = [np.array([self.altitude_group.reference_altitude, c])
-                                                    for c in self._covariate_before_and_after]
+
+                if isinstance(self.altitude_group, DefaultAltitudeGroup):
+                    coordinate_values_for_the_result = []
+                else:
+                    coordinate_values_for_the_result = [np.array([self.altitude_group.reference_altitude, c])
+                                                        for c in self._covariate_before_and_after]
                 coordinate_values_to_check = list(coordinate_values_for_the_fit) + coordinate_values_for_the_result
                 has_undefined_parameters = False
                 for coordinate in coordinate_values_to_check:
@@ -192,6 +196,8 @@ class OneFoldFit(object):
                         break
                 if not has_undefined_parameters:
                     well_defined_estimators.append(e)
+                else:
+                    print('undefined', e)
             estimators = well_defined_estimators
 
             if len(estimators) == 0:
@@ -291,19 +297,22 @@ class OneFoldFit(object):
 
     @property
     def stationary_estimator(self):
-        if isinstance(self.best_estimator.margin_model, AbstractGumbelAltitudinalModel):
-            return self.model_class_to_estimator_with_finite_aic[StationaryGumbelAltitudinal]
-        elif isinstance(self.best_estimator.margin_model, AltitudinalOnlyScale):
-            return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinalOnlyScale]
-        elif isinstance(self.best_estimator.margin_model, AltitudinalShapeLinearTimeStationary):
-            return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
-        elif isinstance(self.best_estimator.margin_model, AltitudinalShapeLinearTimeStationary):
-            return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
-        else:
-            if isinstance(self.altitude_group, DefaultAltitudeGroup):
-                return self.model_class_to_estimator_with_finite_aic[StationaryTemporalModel]
+        try:
+            if isinstance(self.best_estimator.margin_model, AbstractGumbelAltitudinalModel):
+                return self.model_class_to_estimator_with_finite_aic[StationaryGumbelAltitudinal]
+            elif isinstance(self.best_estimator.margin_model, AltitudinalOnlyScale):
+                return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinalOnlyScale]
+            elif isinstance(self.best_estimator.margin_model, AltitudinalShapeLinearTimeStationary):
+                return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
+            elif isinstance(self.best_estimator.margin_model, AltitudinalShapeLinearTimeStationary):
+                return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
             else:
-                return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinal]
+                if isinstance(self.altitude_group, DefaultAltitudeGroup):
+                    return self.model_class_to_estimator_with_finite_aic[StationaryTemporalModel]
+                else:
+                    return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinal]
+        except KeyError:
+            raise KeyError('A stationary model must be added either in the list of models, or here in the method')
 
     @property
     def likelihood_ratio(self):

@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from rpy2 import robjects
 from rpy2.robjects.pandas2ri import ri2py_dataframe
 from scipy.interpolate import make_interp_spline
@@ -77,7 +78,6 @@ class ResultFromEvgam(AbstractResultFromExtremes):
     @property
     def margin_coef_ordered_dict(self):
         coefficients = np.array(self.name_to_value['coefficients'])
-        print(self.name_of_the_climatic_effects)
         param_name_to_str_formula = {k: str(v) for k, v in
                                      self.get_python_dictionary(self.name_to_value['formula']).items()}
         r_param_names_with_spline = [k for k, v in param_name_to_str_formula.items() if "s(" in v]
@@ -105,6 +105,9 @@ class ResultFromEvgam(AbstractResultFromExtremes):
                     new_dims.append(new_dim)
                 param_name_to_dims[param_name] = new_dims
             # Extract the coef list
+            coefficients = [self.load_coefficients(r_param_name) for r_param_name in self.r_param_names]
+            coefficients = np.concatenate(coefficients)
+            assert len(coefficients) == len(np.array(self.name_to_value['coefficients']))
             coef_dict = get_margin_coef_ordered_dict(param_name_to_dims, coefficients, self.type_for_mle,
                                                      dim_to_coordinate_name=self.dim_to_coordinate,
                                                      name_of_the_climatic_effects=self.name_of_the_climatic_effects)
@@ -118,26 +121,47 @@ class ResultFromEvgam(AbstractResultFromExtremes):
         else:
             dim, max_degree = dims[0]
             knots = self.load_knots(r_param_name)
-            x = np.array(self.name_to_value["data"])[1]
+            # Load the coordinates
+            data = np.array(self.name_to_value["data"])
+            x = data[1]
             y = np.array(self.get_python_dictionary(self.name_to_value[r_param_name])['fitted'])
+            if len(data) > 2:
+                x_climatic = data[2:]
+                y = self.remove_effects_from_y_from_all_climate_model(x_climatic, y, r_param_name)
             assert len(knots) == 5
-            x_for_interpolation = [int(knots[1]+1), int((knots[1] + knots[3])/2), int(knots[3]-1)]
+            a, b = 0.5, 0.5
+            x_for_interpolation = [a * knots[1] + b * knots[2], (knots[1] + knots[3])/2, b * knots[2] + a * knots[3]]
 
             # For the time covariate, the distance will be zero for the closer year
             # For the temperature covariate, the distance will be minimal for the closer covariate
             index = []
             for x_to_find in x_for_interpolation:
-                distances = np.power(x - x_to_find, 2)
+                distances = np.abs(x - x_to_find)
                 closer_index = np.argmin(distances)
                 index.append(closer_index)
 
-            x = [x[i] for i in index]
-            y = [y[i] for i in index]
+            x = np.array([x[i] for i in index])
+            y = np.array([y[i] for i in index])
             spline = make_interp_spline(x, y, k=1, t=knots)
             coefficients = spline.c
             assert len(knots) == len(coefficients) + 1 + max_degree
             dim_knots_and_coefficient[dim] = (knots, coefficients)
         return dim_knots_and_coefficient
+
+    def remove_effects_from_y_from_all_climate_model(self, x_climatic, y, r_param_name):
+        y = y.copy()
+        assert self.name_of_the_climatic_effects is not None
+        # Load the coefficient correspond to the effect from the last climate model
+        coefficients = self.load_coefficients(r_param_name)
+        effects_coefficients = coefficients[-len(self.name_of_the_climatic_effects):]
+        assert len(effects_coefficients) == len(self.name_of_the_climatic_effects) == len(x_climatic)
+        df_coordinates = pd.DataFrame(x_climatic.transpose(), columns=self.name_of_the_climatic_effects)
+        for j, effect_coef in enumerate(effects_coefficients):
+            ind = df_coordinates.iloc[:, j] == 1.0
+            assert len(ind) == len(y)
+            y[ind.values] -= effect_coef
+        return y
+
 
     def load_knots(self, r_param_name):
         try:
@@ -148,9 +172,27 @@ class ResultFromEvgam(AbstractResultFromExtremes):
             knots = []
         return knots
 
+    def load_coefficients(self, r_param_name):
+        try:
+            d = self.get_python_dictionary(self.name_to_value[r_param_name])
+            coefficients = np.array(d['coefficients'])
+            if len(self.load_knots(r_param_name)) > 0:
+                # the coefficients are not in the expected order, so we reorder them.
+                coefficients = list(coefficients)
+                new_coefficients = coefficients[:1] + coefficients[-2:] + coefficients[1:-2]
+                assert len(new_coefficients) == len(coefficients)
+                coefficients = np.array(new_coefficients)
+        except (IndexError, KeyError):
+            coefficients = []
+        return coefficients
+
     @property
     def nb_knots(self):
         return sum([len(self.load_knots(r_param_name)) for r_param_name in self.r_param_name_to_param_name.keys()])
+
+    @property
+    def r_param_names(self):
+        return ['location', 'logscale', 'shape']
 
     @property
     def r_param_name_to_param_name(self):

@@ -82,7 +82,8 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         formula_effect_str = ' + '.join(name_of_the_climatic_effects_for_formula)
         # We apply the effect on all the parameters
         if len(name_of_the_climatic_effects) > 0:
-            formula_list = [f.replace(' 1', '') for f in formula_list]
+            formula_list = [f.replace(' 1', '') if (('poly(' not in f) and ('s(' not in f)) else f
+                            for f in formula_list]
             formula_list = [f + ' + ' if f[-2:] != '~ ' else f for f in formula_list]
             formula_list = [f + formula_effect_str for f in formula_list]
         formula = r.list(*[robjects.Formula(f) for f in formula_list])

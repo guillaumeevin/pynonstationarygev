@@ -13,7 +13,6 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covari
 def plot_relative_dynamic_in_return_level(massif_names, visualizer_list: List[
     AltitudesStudiesVisualizerForNonStationaryModels]):
     ax = plt.gca()
-    print(len(visualizer_list))
     visualizer = visualizer_list[0]
     assert len(massif_names) == 1
     assert visualizer.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate
@@ -32,7 +31,7 @@ def plot_relative_dynamic_in_return_level(massif_names, visualizer_list: List[
 
 
 def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStationaryModels):
-    temperatures_list = np.linspace(1, 5, num=400)
+    temperatures_list = np.linspace(1, 4.5, num=400)
     one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
     print(get_display_name_from_object_type(type(one_fold_fit.best_margin_model)),
           "significant={}".format(one_fold_fit.is_significant))

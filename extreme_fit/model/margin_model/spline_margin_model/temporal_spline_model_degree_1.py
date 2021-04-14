@@ -20,7 +20,7 @@ class NonStationaryTwoLinearShapeModel(SplineMarginModel):
 
     def load_margin_function(self, param_name_to_dims=None):
         # Degree 1, Two Linear sections for the shape parameters
-        return super().load_margin_function({GevParams.SCALE: [(self.coordinates.idx_temporal_coordinates, 1, 2)]})
+        return super().load_margin_function({GevParams.SHAPE: [(self.coordinates.idx_temporal_coordinates, 1, 2)]})
 
 
 # Two Linearity with one linearity

@@ -5,6 +5,9 @@ import matplotlib
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
+from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
+    NonStationaryTwoLinearShapeModel, NonStationaryTwoLinearShapeOneLinearScaleModel, NonStationaryTwoLinearScaleModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
@@ -48,7 +51,8 @@ def main():
     start = time.time()
     study_class = AdamontSnowfall
     safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
-    climate_coordinates_with_effects = [None, [AbstractCoordinates.COORDINATE_GCM]][1]  # None means we do not create any effect
+    climate_coordinates_with_effects = [None, [AbstractCoordinates.COORDINATE_GCM],[AbstractCoordinates.COORDINATE_RCM],
+                                        [AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM]][1]  # None means we do not create any effect
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     temporal_covariate_for_fit = [TimeTemporalCovariate,
                                   AnomalyTemperatureWithSplineTemporalCovariate][1]
