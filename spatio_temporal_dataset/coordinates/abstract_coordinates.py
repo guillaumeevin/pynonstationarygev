@@ -286,20 +286,15 @@ class AbstractCoordinates(object):
             # Return the result of the temporal transformation
             df = temporal_transformation.transform_df(df_temporal_coordinates)
 
-        df_climate_model = df_sliced(df=self.df_coordinate_climate_model, split=split, slicer=self.slicer)
         # Potentially transform the time covariate into another covariate
         if temporal_covariate_for_fit is not None:
-            df_input = pd.concat([df, df_climate_model], axis=1)
+            df_input = pd.concat([df, self.df_climate_models(split)], axis=1)
             df.loc[:, self.COORDINATE_T] = df_input.apply(temporal_covariate_for_fit.get_temporal_covariate, axis=1)
         if climate_coordinates_with_effects is not None:
             assert all([c in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES for c in climate_coordinates_with_effects])
-            for c in climate_coordinates_with_effects:
-                assert c in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES
-                s = df_climate_model[c]
-                for c in self.character_to_remove_from_climate_model_coordinate_name():
-                    s = s.str.replace(c, "")
-                unique_values = s.unique()
-                unique_values_without_nan = [v for v in unique_values if isinstance(v, str)]
+            for climate_coordinate in climate_coordinates_with_effects:
+                assert climate_coordinate in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES
+                s, unique_values, unique_values_without_nan = self.load_unique_values(climate_coordinate, split)
                 has_observations = len(unique_values) == len(unique_values_without_nan) + 1
                 if has_observations:
                     for v in unique_values_without_nan:
@@ -312,6 +307,33 @@ class AbstractCoordinates(object):
                     # i need to ensure a constraint that the sum of coef is zero
 
         return df
+
+    def load_unique_values(self, climate_coordinate, split=Split.all):
+        s = self.df_climate_models(split)[climate_coordinate]
+        for character in self.character_to_remove_from_climate_model_coordinate_name():
+            s = s.str.replace(character, "")
+        unique_values = s.unique()
+        unique_values_without_nan = [v for v in unique_values if isinstance(v, str)]
+        return s, unique_values, unique_values_without_nan
+
+    def load_ordered_columns_names(self, climate_coordinates, split=Split.all):
+        column_names = []
+        for climate_coordinate in climate_coordinates:
+            _, _, names = self.load_unique_values(climate_coordinate, split)
+            column_names.extend(names)
+        return column_names
+
+    def get_indices_for_effects(self, climate_coordinates, gcm_rcm_couple):
+        indices = []
+        columns_names = self.load_ordered_columns_names(climate_coordinates)
+        for name in gcm_rcm_couple:
+            name_for_fit = self.climate_model_coordinate_name_to_name_for_fit(name)
+            index = columns_names.index(name_for_fit)
+            indices.append(index)
+        return indices
+
+    def df_climate_models(self, split=Split.all):
+        return df_sliced(df=self.df_coordinate_climate_model, split=split, slicer=self.slicer)
 
     @classmethod
     def character_to_remove_from_climate_model_coordinate_name(cls):

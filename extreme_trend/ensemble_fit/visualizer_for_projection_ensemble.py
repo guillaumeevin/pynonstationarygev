@@ -20,8 +20,10 @@ from extreme_trend.one_fold_fit.altitude_group import get_altitude_class_from_al
 from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
 from extreme_trend.one_fold_fit.utils_altitude_studies_visualizer import compute_and_assign_max_abs
+from projects.projected_extreme_snowfall.results.plot_gcm_rcm_effects import plot_gcm_rcm_effects
 from projects.projected_extreme_snowfall.results.plot_relative_change_in_return_level import \
     plot_relative_dynamic_in_return_level
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 class VisualizerForProjectionEnsemble(object):
@@ -113,7 +115,27 @@ class VisualizerForProjectionEnsemble(object):
                 plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative,
                                                         with_significance=with_significance)
         else:
-            plot_relative_dynamic_in_return_level(self.massif_names, visualizer_list)
+            for relative in [True, False]:
+                plot_relative_dynamic_in_return_level(self.massif_names, visualizer_list,
+                                                      self.climate_coordinates_with_effects,
+                                                      self.safran_study_class,
+                                                      relative)
+            if self.climate_coordinates_with_effects is not None:
+                climate_coordinate_with_effects_to_list = {
+                    (AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM): self.gcm_rcm_couples,
+                    AbstractCoordinates.COORDINATE_GCM: [[e] for e in set([g for g, r in self.gcm_rcm_couples])],
+                    AbstractCoordinates.COORDINATE_RCM: [[e] for e in set([r for g, r in self.gcm_rcm_couples])]
+                }
+                for c, gcm_rcm_couples in climate_coordinate_with_effects_to_list.items():
+                    for param_name in GevParams.PARAM_NAMES[:]:
+                        plot_gcm_rcm_effects(self.massif_names, visualizer_list,
+                                             list(c) if isinstance(c, tuple) else [c],
+                                             self.climate_coordinates_with_effects,
+                                             self.safran_study_class,
+                                             gcm_rcm_couples,
+                                             param_name)
+
+
 
     def plot(self):
         # Set limit for the plot
