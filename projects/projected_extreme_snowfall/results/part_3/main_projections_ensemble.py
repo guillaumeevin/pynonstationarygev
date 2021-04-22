@@ -55,15 +55,16 @@ def main():
                                              [AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM],
                                              [AbstractCoordinates.COORDINATE_GCM],
                                              [AbstractCoordinates.COORDINATE_RCM],
-                                        ][:1]  # None means we do not create any effect
+                                        ][1:2]  # None means we do not create any effect
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     temporal_covariate_for_fit = [TimeTemporalCovariate,
                                   AnomalyTemperatureWithSplineTemporalCovariate][1]
     set_seed_for_test()
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
     scenarios = [AdamontScenario.rcp85_extended]
+    model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
 
-    fast = True
+    fast = None
     for scenario in scenarios:
         gcm_rcm_couples = get_gcm_rcm_couples(scenario)
         if fast is None:
@@ -71,9 +72,10 @@ def main():
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
             altitudes_list = [600, 2100, 3600]
         elif fast:
-            gcm_rcm_couples = gcm_rcm_couples[:2]
+            gcm_rcm_couples = gcm_rcm_couples[:3]
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
             altitudes_list = [2700, 3000]
+            model_classes = model_classes[:4]
         else:
             altitudes_list = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
 
@@ -94,8 +96,8 @@ def main():
         # Default parameters
         gcm_to_year_min_and_year_max = None
         massif_names = ['Vanoise']
-        model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
-        assert len(set(model_classes)) == 27
+        if fast in [None, False]:
+            assert len(set(model_classes)) == 27
         print('number of models', len(model_classes))
 
         for climate_coordinates_with_effects in climate_coordinates_with_effects_list:
@@ -111,7 +113,8 @@ def main():
                 remove_physically_implausible_models=True,
                 gcm_to_year_min_and_year_max=gcm_to_year_min_and_year_max,
                 safran_study_class=safran_study_class,
-                climate_coordinates_with_effects=climate_coordinates_with_effects
+                display_only_model_that_pass_gof_test=True,
+                climate_coordinates_with_effects=climate_coordinates_with_effects,
             )
             visualizer.plot()
 

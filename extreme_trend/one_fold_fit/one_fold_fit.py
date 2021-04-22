@@ -93,6 +93,9 @@ class OneFoldFit(object):
         elif order is None:
             return '{}-year return levels'.format(cls.return_period)
 
+    def get_moment_for_plots(self, altitudes, order=1, covariate_before=None, covariate_after=None):
+        return [self.get_moment(altitudes[0], covariate_after, order)]
+
     def get_moment(self, altitude, temporal_covariate, order=1):
         gev_params = self.get_gev_params(altitude, temporal_covariate)
         if order == 1:
@@ -101,6 +104,8 @@ class OneFoldFit(object):
             return gev_params.std
         elif order is None:
             return gev_params.return_level(return_period=self.return_period)
+        elif order in GevParams.PARAM_NAMES:
+            return gev_params.to_dict()[order]
         else:
             raise NotImplementedError
 
@@ -165,7 +170,7 @@ class OneFoldFit(object):
         for altitude in altitudes:
             mean_after = self.get_moment(altitude, covariate_after, order)
             mean_before = self.get_moment(altitude, covariate_before, order)
-            relative_change = 100 * (mean_after - mean_before) / mean_before
+            relative_change = 100 * (mean_after - mean_before) / np.abs(mean_before)
             relative_changes.append(relative_change)
         return relative_changes
 
@@ -213,7 +218,10 @@ class OneFoldFit(object):
 
     def get_coordinate(self, altitude, year):
         if isinstance(self.altitude_group, DefaultAltitudeGroup):
-            coordinate = np.array([year])
+            if not isinstance(altitude, list):
+                coordinate = np.array([year])
+            else:
+                coordinate = [year] + altitude
         else:
             coordinate = np.array([altitude, year])
         return coordinate

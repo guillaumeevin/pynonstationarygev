@@ -8,21 +8,17 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_study import Abstra
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
-from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
-    AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from extreme_trend.ensemble_fit.abstract_ensemble_fit import AbstractEnsembleFit
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
-from extreme_trend.one_fold_fit.altitude_group import get_altitude_class_from_altitudes, \
-    get_altitude_group_from_altitudes
+from extreme_trend.one_fold_fit.altitude_group import get_altitude_group_from_altitudes
 from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
-from extreme_trend.one_fold_fit.utils_altitude_studies_visualizer import compute_and_assign_max_abs
-from projects.projected_extreme_snowfall.results.plot_gcm_rcm_effects import plot_gcm_rcm_effects
-from projects.projected_extreme_snowfall.results.plot_relative_change_in_return_level import \
-    plot_relative_dynamic_in_return_level
+from projects.projected_extreme_snowfall.results.part_3.plot_gcm_rcm_effects import plot_gcm_rcm_effects
+from projects.projected_extreme_snowfall.results.part_3.plot_relative_change_in_return_level import \
+    plot_relative_dynamic
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
@@ -115,11 +111,14 @@ class VisualizerForProjectionEnsemble(object):
                 plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative,
                                                         with_significance=with_significance)
         else:
-            for relative in [True, False]:
-                plot_relative_dynamic_in_return_level(self.massif_names, visualizer_list,
-                                                      self.climate_coordinates_with_effects,
-                                                      self.safran_study_class,
-                                                      relative)
+            for relative in [None, True, False]:
+                for order in [None] + GevParams.PARAM_NAMES:
+                    plot_relative_dynamic(self.massif_names, visualizer_list,
+                                          self.climate_coordinates_with_effects,
+                                          self.safran_study_class,
+                                          relative,
+                                          order,
+                                          self.gcm_rcm_couples)
             if self.climate_coordinates_with_effects is not None:
                 climate_coordinate_with_effects_to_list = {
                     (AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM): self.gcm_rcm_couples,

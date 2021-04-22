@@ -36,14 +36,21 @@ class IndependentMarginFunction(AbstractMarginFunction):
         assert len(self.param_name_to_param_function) == len(self.params_class.PARAM_NAMES)
 
         # Potentially separate the coordinate into two groups: the spatio temporal coordnate & the climatic coordinate
+        # The climatic coordinate can be of two types either 1 and 0 vectors,
+        # or a vector with several information such as the GCM str, RCM str and the climate coordinates with effects
         if len(coordinate) > self.coordinates.nb_coordinates:
             assert self.param_name_to_ordered_climate_effects is not None
             assert AbstractCoordinates.COORDINATE_X not in self.coordinates.coordinates_names, \
                 'check the order of coordinates that everything is ok'
             climate_coordinate = coordinate[self.coordinates.nb_coordinates:].copy()
+            # Transform the climate coordinate if they are represent with strings
+            if not isinstance(climate_coordinate[0], float):
+                climate_coordinates_with_effects, gcm_rcm_couple = climate_coordinate
+                climate_coordinate = self.coordinates.get_climate_coordinate(climate_coordinates_with_effects, gcm_rcm_couple)
+            # Then build the param_name_to_total_effect dictionary
             param_name_to_total_effect = {param_name: np.dot(effects, climate_coordinate)
                                           for param_name, effects in self.param_name_to_ordered_climate_effects.items()}
-            coordinate = coordinate[:self.coordinates.nb_coordinates]
+            coordinate = np.array(coordinate[:self.coordinates.nb_coordinates])
         else:
             param_name_to_total_effect = None
 
@@ -58,18 +65,6 @@ class IndependentMarginFunction(AbstractMarginFunction):
         if self.log_scale:
             params[GevParams.SCALE] = np.exp(params[GevParams.SCALE])
         return self.params_class.from_dict(params)
-
-    def get_params_from_climate_model(self, coordinate: np.ndarray, climate_coordinate) -> GevParams:
-        """Main method to retrieve the additional parameters that take into account the effect of
-        a given rcp/gcm/rcm triplet"""
-        assert self.param_name_to_ordered_climate_effects is not None
-        assert all([c in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES for c in climate_coordinate])
-        # the method should transform the rcp/gcm/rcm triplet into the appropriate coordinates then call get_params
-        # todo: or we could integrate this mode, into gev_params, so that we can call gev_params with three manners:
-        # with just spatio temporal corodinate
-        # spatio temporal coordinate +  the extended climate coordinate with 0 and 1
-        # spatio temproal coordinates + the climate corodinates with three columns
-        raise NotImplementedError
 
     def get_first_derivative_param(self, coordinate: np.ndarray, is_transformed: bool, dim: int = 0):
         transformed_coordinate = coordinate if is_transformed else self.transform(coordinate)

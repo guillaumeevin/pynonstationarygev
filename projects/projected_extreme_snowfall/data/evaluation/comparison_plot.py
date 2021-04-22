@@ -4,12 +4,10 @@ import matplotlib.pyplot as plt
 from typing import Dict
 
 import numpy as np
-from matplotlib.lines import Line2D
 
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_to_color
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str, \
-    scenario_to_str
-from projects.projected_extreme_snowfall.evaluation.comparison_historical_visualizer import \
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import scenario_to_str
+from projects.projected_extreme_snowfall.data.evaluation.comparison_historical_visualizer import \
     ComparisonHistoricalVisualizer
 
 
