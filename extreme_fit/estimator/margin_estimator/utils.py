@@ -1,5 +1,6 @@
 import warnings
 
+import numpy as np
 import pandas as pd
 
 from extreme_fit.distribution.gev.gev_params import GevParams

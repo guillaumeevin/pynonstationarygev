@@ -6,6 +6,7 @@ import pandas as pd
 from cached_property import cached_property
 
 from extreme_fit.estimator.abstract_estimator import AbstractEstimator
+from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh
 from extreme_fit.estimator.utils import load_margin_function
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
@@ -47,6 +48,10 @@ class LinearMarginEstimator(AbstractMarginEstimator):
             return self.dataset.maxima_gev
 
     @property
+    def nb_data(self):
+        return len(self.data)
+
+    @property
     def df_coordinates_spat(self):
         return self.dataset.coordinates.df_spatial_coordinates(drop_duplicates=self.margin_model.drop_duplicates)
 
@@ -71,6 +76,34 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         maxima_values = self.dataset.maxima_gev
         coordinate_values = self.coordinates_for_nllh
         return compute_nllh(coordinate_values, maxima_values, self.margin_function_from_fit)
+
+    @property
+    def deviance(self):
+        return 2 * self.nllh
+
+    @property
+    def aic(self):
+        aic = 2 * self.nb_params + 2 * self.nllh
+        npt.assert_almost_equal(self.result_from_model_fit.aic, aic, decimal=0)
+        return aic
+
+    @property
+    def nb_params(self):
+        nb_params = self.margin_function_from_fit.nb_params_for_margin_function
+        nb_params += self.margin_function_from_fit.nb_params_for_climate_effects
+        if isinstance(self.margin_model, AbstractTemporalLinearMarginModel) and self.margin_model.is_gumbel_model:
+            nb_params -= 1
+        return nb_params
+
+    @property
+    def bic(self):
+        return np.log(self.nb_data) * self.nb_params + 2 * self.nllh
+
+    @property
+    def aicc(self):
+        additional_term = 2 * self.nb_params * (self.nb_params + 1) / (self.nb_data - self.nb_params - 1)
+        return self.aic + additional_term
+
 
     def sorted_empirical_standard_gumbel_quantiles(self, coordinate_for_filter=None):
         sorted_empirical_quantiles = []
@@ -101,49 +134,3 @@ class LinearMarginEstimator(AbstractMarginEstimator):
             maximum = gev_param.gumbel_inverse_standardization(quantile)
             coordinate_values_to_maxima[tuple(coordinate)] = np.array([maximum])
         return coordinate_values_to_maxima
-
-    @property
-    def deviance(self):
-        return 2 * self.nllh
-
-    @property
-    def aic(self):
-        aic = 2 * self.nb_params + 2 * self.nllh
-        npt.assert_almost_equal(self.result_from_model_fit.aic, aic, decimal=0)
-        return aic
-
-    @property
-    def n(self):
-        return len(self.dataset.maxima_gev)
-
-    @property
-    def nb_params(self):
-        nb_params = self.margin_function_from_fit.nb_params_for_margin_function
-        nb_params += self.margin_function_from_fit.nb_params_for_climate_effects
-        if isinstance(self.margin_model, AbstractTemporalLinearMarginModel) and self.margin_model.is_gumbel_model:
-            nb_params -= 1
-        return nb_params
-
-    @property
-    def bic(self):
-        return np.log(self.n) * self.nb_params + 2 * self.nllh
-
-    @property
-    def aicc(self):
-        additional_term = 2 * self.nb_params * (self.nb_params + 1) / (self.n - self.nb_params - 1)
-        return self.aic + additional_term
-
-
-def compute_nllh(coordinate_values, maxima_values, function_from_fit, maximum_from_obs=True, assertion_for_inf=True):
-    nllh = 0
-    for maximum, coordinate in zip(maxima_values, coordinate_values):
-        if maximum_from_obs:
-            assert len(maximum) == 1, \
-                'So far, only one observation for each coordinate, but code would be easy to change'
-            maximum = maximum[0]
-        gev_params = function_from_fit.get_params(coordinate, is_transformed=True)
-        p = gev_params.density(maximum)
-        nllh -= np.log(p)
-        if assertion_for_inf:
-            assert not np.isinf(nllh), '{} {}'.format(gev_params, coordinate, maximum)
-    return nllh

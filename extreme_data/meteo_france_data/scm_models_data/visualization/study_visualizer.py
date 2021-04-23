@@ -76,7 +76,7 @@ class StudyVisualizer(VisualizationParameters):
     def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False,
                  vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False,
                  temporal_non_stationarity=False, transformation_class=None, verbose=False, multiprocessing=False,
-                 complete_non_stationary_trend_analysis=False, normalization_under_one_observations=True):
+                 complete_non_stationary_trend_analysis=False):
         super().__init__(save_to_file, only_one_graph, only_first_row, show)
         self.nb_cores = 7
         self.massif_id_to_smooth_maxima = {}
@@ -87,7 +87,6 @@ class StudyVisualizer(VisualizationParameters):
         self.study = study
         self.plot_name = None
 
-        self.normalization_under_one_observations = normalization_under_one_observations
         self.multiprocessing = multiprocessing
         self.verbose = verbose
         self.complete_non_stationary_trend_analysis = complete_non_stationary_trend_analysis
@@ -162,8 +161,6 @@ class StudyVisualizer(VisualizationParameters):
             self._observations = self.study.observations_annual_maxima
             if self.temporal_non_stationarity:
                 self._observations.convert_to_spatio_temporal_index(self.coordinates)
-                if self.normalization_under_one_observations:
-                    self._observations.normalize()
                 if self.verbose:
                     self._observations.print_summary()
         return self._observations
@@ -172,8 +169,6 @@ class StudyVisualizer(VisualizationParameters):
         annual_maxima = [data[massif_id] for data in self.study.year_to_annual_maxima.values()]
         df_annual_maxima = pd.DataFrame(annual_maxima, index=self.temporal_coordinates.index)
         observation_massif_id = AnnualMaxima(df_maxima_gev=df_annual_maxima)
-        if self.normalization_under_one_observations:
-            observation_massif_id.normalize()
         if self.verbose:
             observation_massif_id.print_summary()
         return observation_massif_id

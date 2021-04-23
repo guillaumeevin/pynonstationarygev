@@ -1,33 +1,12 @@
 import os
-
-from collections import OrderedDict
+import os.path as op
 
 import pandas as pd
-import os.path as op
-import datetime
-import time
-import numpy as np
-from scipy.special import softmax
 
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples, \
-    gcm_rcm_couple_to_str, SEPARATOR_STR, scenario_to_str, str_to_gcm_rcm_couple
-from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
-from extreme_data.meteo_france_data.scm_models_data.utils import Season
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str, scenario_to_str, \
+    str_to_gcm_rcm_couple
 from extreme_data.utils import DATA_PATH
-from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import compute_nllh
-from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
-from extreme_fit.model.margin_model.polynomial_margin_model.utils import \
-    ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
-from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
-from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
-from extreme_trend.one_fold_fit.altitude_group import altitudes_for_groups
 from root_utils import get_display_name_from_object_type
-from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
-    TimeTemporalCovariate
-from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
-    AnomalyTemperatureWithSplineTemporalCovariate
 
 WEIGHT_COLUMN_NAME = "all weights"
 
