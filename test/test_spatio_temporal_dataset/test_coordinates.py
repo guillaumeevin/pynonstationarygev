@@ -1,24 +1,25 @@
 import unittest
+from collections import OrderedDict
+
 import numpy as np
 import pandas as pd
-from collections import Counter, OrderedDict
 
 from extreme_fit.model.utils import set_seed_for_test
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
-    AbstractSpatioTemporalCoordinates
-from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
-    UniformSpatioTemporalCoordinates, GeneratedSpatioTemporalCoordinates
-from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import UniformSpatialCoordinates, \
-    LinSpaceSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_2D_coordinates import \
     AlpsStation2DCoordinatesBetweenZeroAndOne
 from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
     AlpsStation3DCoordinatesWithAnisotropy
+from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import UniformSpatialCoordinates, \
+    LinSpaceSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
     CircleSpatialCoordinates
+from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
+    AbstractSpatioTemporalCoordinates
+from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
+    GeneratedSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
-    AbstractTemporalCovariateForFit, TimeTemporalCovariate
+    TimeTemporalCovariate
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
@@ -28,9 +29,8 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization
 from spatio_temporal_dataset.coordinates.utils import get_index_with_spatio_temporal_index_suffix
-from spatio_temporal_dataset.slicer.spatio_temporal_slicer import SpatioTemporalSlicer
-from test.test_utils import load_test_spatiotemporal_coordinates, load_test_spatial_coordinates, \
-    load_test_temporal_coordinates, load_test_1D_and_2D_spatial_coordinates
+from test.test_utils import load_test_spatiotemporal_coordinates, load_test_temporal_coordinates, \
+    load_test_1D_and_2D_spatial_coordinates
 
 
 class TestCoordinatesUtils(unittest.TestCase):
@@ -69,14 +69,6 @@ class SpatioTemporalCoordinates(unittest.TestCase):
     nb_points = 4
     nb_steps = 2
 
-    def test_temporal_circle(self):
-        self.coordinates = UniformSpatioTemporalCoordinates.from_nb_points_and_nb_steps(nb_points=self.nb_points,
-                                                                                        nb_steps=self.nb_steps,
-                                                                                        train_split_ratio=0.5)
-        c = Counter([len(self.coordinates.df_coordinates(split)) for split in SpatioTemporalSlicer.SPLITS])
-        good_count = c == Counter([2, 2, 2, 2]) or c == Counter([0, 0, 4, 4])
-        self.assertTrue(good_count)
-
     def test_unique_spatio_temporal_index_and_matching_spatial_index(self):
         spatial_coordinates = LinSpaceSpatialCoordinates.from_nb_points(self.nb_points)
         spatial_indexes = [[10, 11, 12, 13], ['a', 'b', 'c', 'd']]
@@ -88,8 +80,8 @@ class SpatioTemporalCoordinates(unittest.TestCase):
 
             # the uniqueness of each spatio temporal index is not garanteed by the current algo
             # it will work in classical cases, and raise an assert when uniqueness is needed (when using a slicer)
-            index1 = pd.Series(spatial_coordinates.spatial_index())
-            index2 = pd.Series(coordinates.spatial_index())
+            index1 = pd.Series(spatial_coordinates.spatial_index)
+            index2 = pd.Series(coordinates.spatial_index)
             ind = index1 != index2  # type: pd.Series
             self.assertEqual(sum(ind), 0, msg="spatial_coordinates:\n{} \n!= spatio_temporal_coordinates \n{}".
                              format(index1.loc[ind], index2.loc[ind]))
@@ -111,7 +103,7 @@ class SpatioTemporalCoordinates(unittest.TestCase):
         d[AbstractCoordinates.COORDINATE_Y] = [1]
         df = pd.DataFrame.from_dict(d)
         for df2 in [df, df.loc[:, ::-1]][-1:]:
-            coordinates = AbstractCoordinates(df=df2, slicer_class=SpatioTemporalSlicer)
+            coordinates = AbstractCoordinates(df=df2)
             self.assertEqual(list(coordinates.df_all_coordinates.columns),
                              [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_Y,
                               AbstractCoordinates.COORDINATE_Z])
@@ -121,7 +113,7 @@ class SpatioTemporalCoordinates(unittest.TestCase):
         d[AbstractCoordinates.COORDINATE_X] = [1]
         df = pd.DataFrame.from_dict(d)
         for df2 in [df, df.loc[:, ::-1]][-1:]:
-            coordinates = AbstractCoordinates(df=df2, slicer_class=SpatioTemporalSlicer)
+            coordinates = AbstractCoordinates(df=df2)
             self.assertEqual(list(coordinates.df_all_coordinates.columns),
                              [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_T])
 
@@ -137,8 +129,10 @@ class TestCoordinatesWithTransformedStartingPoint(unittest.TestCase):
     def test_starting_point_with_zero_one_normalization(self):
         # Load some 2D spatial coordinates
         coordinates = load_test_spatiotemporal_coordinates(nb_steps=self.nb_steps, nb_points=self.nb_points,
-                                                           transformation_class=BetweenZeroAndOneNormalization)[
-            1]  # type: AbstractSpatioTemporalCoordinates
+                                                           transformation_class=BetweenZeroAndOneNormalization)[1]  # type: AbstractSpatioTemporalCoordinates
+        self.assertEqual(None, coordinates.transformation_class)
+        self.assertEqual(BetweenZeroAndOneNormalization, coordinates.spatial_coordinates.transformation_class)
+        self.assertEqual(BetweenZeroAndOneNormalization, coordinates.temporal_coordinates.transformation_class)
         df = coordinates.df_temporal_coordinates_for_fit(starting_point=2)
         start_coordinates = df.iloc[2, 0]
         self.assertEqual(start_coordinates, 0.0)

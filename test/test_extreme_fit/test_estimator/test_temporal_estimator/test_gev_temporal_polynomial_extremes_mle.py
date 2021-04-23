@@ -54,9 +54,9 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
         diff2 = mle_params_estimated_year3[quadratic_param] - mle_params_estimated_year5[quadratic_param]
         self.assertNotAlmostEqual(diff1, diff2)
         # Assert that indicators are correctly computed
-        self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh())
-        self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
-        self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
+        self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh)
+        self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic)
+        self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic)
 
     def test_gev_temporal_margin_fit_non_stationary_quadratic_location(self):
         self.function_test_gev_temporal_margin_fit_non_stationary_quadratic(NonStationaryQuadraticLocationModel,

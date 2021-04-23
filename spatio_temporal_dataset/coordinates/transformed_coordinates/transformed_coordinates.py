@@ -11,7 +11,6 @@ class TransformedCoordinates(AbstractCoordinates):
         df_coordinates = coordinates.df_all_coordinates.copy()
         transformation = transformation_class(df_coordinates)  # type: AbstractTransformation
         df_coordinates_transformed = transformation.transform_df(df_coordinates)
-        return cls(df=df_coordinates_transformed, slicer_class=type(coordinates.slicer),
-                   s_split_spatial=coordinates.s_split_spatial, s_split_temporal=coordinates.s_split_temporal)
+        return cls(df=df_coordinates_transformed)
 
 

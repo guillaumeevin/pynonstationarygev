@@ -46,7 +46,6 @@ class VisualizerNonStationaryEnsemble(AltitudesStudiesVisualizerForNonStationary
         observations = AbstractSpatioTemporalObservations(df_maxima_gev=df_maxima_gev)
         df = pd.concat(df_coordinates_list, axis=0)
         df.index = index
-        coordinates = AbstractCoordinates(df=df,
-                                          slicer_class=type(dataset.slicer))
+        coordinates = AbstractCoordinates(df=df)
         dataset = AbstractDataset(observations=observations, coordinates=coordinates)
         return dataset

@@ -39,12 +39,6 @@ class AbstractEstimator(object):
     def function_from_fit(self) -> AbstractFunction:
         raise NotImplementedError
 
-    # Short cut properties
-
-    @property
-    def train_split(self):
-        return self.dataset.slicer.train_split
-
 
 
 

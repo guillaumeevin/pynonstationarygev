@@ -28,7 +28,7 @@ class TestSpatioTemporalObservations(unittest.TestCase):
         temporal_observation = AbstractSpatioTemporalObservations(df_maxima_frech=df)
         example = np.array([[3], [6]])
         temporal_observation.set_maxima_frech(maxima_frech_values=example)
-        maxima_frech = temporal_observation.maxima_frech()
+        maxima_frech = temporal_observation.maxima_frech
         self.assertTrue(np.equal(example, maxima_frech).all(), msg="{} {}".format(example, maxima_frech))
 
 

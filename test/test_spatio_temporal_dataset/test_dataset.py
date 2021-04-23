@@ -17,7 +17,6 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
     BetweenZeroAndOneNormalization
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset, MarginDataset
-from spatio_temporal_dataset.slicer.split import Split
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 from test.test_utils import load_test_max_stable_models, load_test_3D_spatial_coordinates, \
     load_test_1D_and_2D_spatial_coordinates, load_test_spatiotemporal_coordinates
@@ -128,7 +127,7 @@ class TestSpatioTemporalDataset(unittest.TestCase):
         observation_at_time_0_v1 = self.dataset.observations.df_maxima_gev.loc[ind_time_0].values.flatten()
 
         # Load observation correspond to time 0
-        maxima_gev = self.dataset.maxima_gev_for_spatial_extremes_package()
+        maxima_gev = self.dataset.maxima_gev_for_spatial_extremes_package
         maxima_gev = np.transpose(maxima_gev)
         self.assertEqual(maxima_gev.shape, (3, 2))
         observation_at_time_0_v2 = maxima_gev[:, 0]
@@ -147,7 +146,7 @@ class TestSpatioTemporalDataset(unittest.TestCase):
         observation_at_station_0_v1 = self.dataset.observations.df_maxima_gev.loc[ind_station_0].values.flatten()
 
         # Load observation correspond to time 0
-        maxima_gev = self.dataset.maxima_gev_for_spatial_extremes_package()
+        maxima_gev = self.dataset.maxima_gev_for_spatial_extremes_package
         maxima_gev = np.transpose(maxima_gev)
         self.assertEqual(maxima_gev.shape, (3, 2))
         observation_at_time_0_v2 = maxima_gev[0, :]
@@ -165,7 +164,7 @@ class TestSpatioTemporalDataset(unittest.TestCase):
             value=-1)
         observation_at_station_0_v1 = self.dataset.observations.df_maxima_gev.loc[ind_station_0].values.flatten()
         # Load observation correspond to time 0
-        maxima_gev = self.dataset.maxima_gev_for_spatial_extremes_package()
+        maxima_gev = self.dataset.maxima_gev_for_spatial_extremes_package
         maxima_gev = np.transpose(maxima_gev)
         self.assertEqual(maxima_gev.shape, (3, 2 * 2))
         observation_at_station_0_v2 = maxima_gev[0, :]

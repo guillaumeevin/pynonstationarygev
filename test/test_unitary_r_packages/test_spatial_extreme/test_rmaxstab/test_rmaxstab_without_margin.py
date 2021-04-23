@@ -39,7 +39,7 @@ class TestRMaxStab(TestUnitaryAbstract):
         coordinates, max_stable_model = self.python_code()
         m = MaxStableAnnualMaxima.from_sampling(nb_obs=40, max_stable_model=max_stable_model, coordinates=coordinates)
         # TODO: understand why the array are not in the same order
-        return np.sum(m.maxima_frech())
+        return np.sum(m.maxima_frech)
 
     def test_rmaxstab(self):
         self.compare()

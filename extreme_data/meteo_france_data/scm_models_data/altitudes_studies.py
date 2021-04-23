@@ -23,7 +23,6 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
-from spatio_temporal_dataset.slicer.utils import get_slicer_class_from_s_splits
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 import matplotlib.pyplot as plt
 
@@ -92,22 +91,15 @@ class AltitudesStudies(object):
         else:
             assert len(massif_altitudes) > 0
             spatial_coordinates = self.spatial_coordinates_for_altitudes(massif_altitudes)
-        slicer_class = get_slicer_class_from_s_splits(s_split_spatial, s_split_temporal)
         if isinstance(self.study, AbstractAdamontStudy):
-            return SpatioTemporalCoordinatesForClimateModels(slicer_class=slicer_class,
-                                                             s_split_spatial=s_split_spatial,
-                                                             s_split_temporal=s_split_temporal,
-                                                             transformation_class=self.spatial_transformation_class,
+            return SpatioTemporalCoordinatesForClimateModels(transformation_class=self.spatial_transformation_class,
                                                              spatial_coordinates=spatial_coordinates,
                                                              temporal_coordinates=self.temporal_coordinates,
                                                              gcm_rcm_couple=self.study.gcm_rcm_couple,
                                                              scenario_str=scenario_to_str(self.study.scenario),
                                                              )
         else:
-            return AbstractSpatioTemporalCoordinates(slicer_class=slicer_class,
-                                                     s_split_spatial=s_split_spatial,
-                                                     s_split_temporal=s_split_temporal,
-                                                     transformation_class=self.spatial_transformation_class,
+            return AbstractSpatioTemporalCoordinates(transformation_class=self.spatial_transformation_class,
                                                      spatial_coordinates=spatial_coordinates,
                                                      temporal_coordinates=self.temporal_coordinates)
 
@@ -129,12 +121,6 @@ class AltitudesStudies(object):
     def _df_coordinates(self):
         return AbstractSpatioTemporalCoordinates.get_df_from_spatial_and_temporal_coordinates(self.spatial_coordinates,
                                                                                               self.temporal_coordinates)
-
-    def random_s_split_spatial(self, train_split_ratio):
-        return AbstractCoordinates.spatial_s_split_from_df(self._df_coordinates, train_split_ratio)
-
-    def random_s_split_temporal(self, train_split_ratio):
-        return AbstractCoordinates.temporal_s_split_from_df(self._df_coordinates, train_split_ratio)
 
     # Some visualization
 

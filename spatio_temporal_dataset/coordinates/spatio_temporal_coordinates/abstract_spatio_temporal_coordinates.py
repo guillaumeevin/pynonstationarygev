@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -9,18 +8,16 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.multiple_transformation import \
     MultipleTransformation
 from spatio_temporal_dataset.coordinates.utils import get_index_with_spatio_temporal_index_suffix
-from spatio_temporal_dataset.slicer.spatio_temporal_slicer import SpatioTemporalSlicer
 
 
 class AbstractSpatioTemporalCoordinates(AbstractCoordinates):
 
-    def __init__(self, df: pd.DataFrame = None, slicer_class: type = SpatioTemporalSlicer,
-                 s_split_spatial: pd.Series = None, s_split_temporal: pd.Series = None,
+    def __init__(self, df: pd.DataFrame = None,
                  transformation_class: type = None,
                  spatial_coordinates: AbstractSpatialCoordinates = None,
                  temporal_coordinates: AbstractTemporalCoordinates = None):
         df = self.load_df_is_needed(df, spatial_coordinates, temporal_coordinates)
-        super().__init__(df, slicer_class, s_split_spatial, s_split_temporal, None)
+        super().__init__(df, None)
         # Spatial coordinates'
         if spatial_coordinates is None:
             self._spatial_coordinates = AbstractSpatialCoordinates.from_df(
@@ -58,15 +55,7 @@ class AbstractSpatioTemporalCoordinates(AbstractCoordinates):
     def from_spatial_coordinates_and_temporal_coordinates(cls, spatial_coordinates: AbstractSpatialCoordinates,
                                                           temporal_coordinates: AbstractTemporalCoordinates):
         df = cls.get_df_from_spatial_and_temporal_coordinates(spatial_coordinates, temporal_coordinates)
-        return cls(df=df, slicer_class=SpatioTemporalSlicer,
-                   spatial_coordinates=spatial_coordinates, temporal_coordinates=temporal_coordinates)
-
-    @classmethod
-    def get_random_s_split_temporal(cls, spatial_coordinates: AbstractSpatialCoordinates,
-                                    temporal_coordinates: AbstractTemporalCoordinates,
-                                    train_split_ratio):
-        df = cls.get_df_from_spatial_and_temporal_coordinates(spatial_coordinates, temporal_coordinates)
-        return cls.temporal_s_split_from_df(df, train_split_ratio)
+        return cls(df=df, spatial_coordinates=spatial_coordinates, temporal_coordinates=temporal_coordinates)
 
     @classmethod
     def get_df_from_df_spatial_and_coordinate_t_values(cls, coordinate_t_values, df_spatial):
@@ -89,33 +78,29 @@ class AbstractSpatioTemporalCoordinates(AbstractCoordinates):
         return df
 
     @classmethod
-    def from_df(cls, df: pd.DataFrame, train_split_ratio: float = None, transformation_class: type = None):
+    def from_df(cls, df: pd.DataFrame, transformation_class: type = None):
         assert cls.COORDINATE_T in df.columns
         assert cls.COORDINATE_X in df.columns
         # Assert that the time steps are in the good order with respect to the coordinates
         nb_points = len(set(df[cls.COORDINATE_X]))
         first_time_step_for_all_points = df.iloc[:nb_points][cls.COORDINATE_T]
         assert len(set(first_time_step_for_all_points)) == 1
-        return super().from_df_and_slicer(df, SpatioTemporalSlicer, train_split_ratio, transformation_class)
+        return super().from_df_and_transformation_class(df, transformation_class)
 
     @classmethod
-    def from_df_spatial_and_coordinate_t_values(cls, df_spatial, coordinate_t_values, train_split_ratio: float = None,
+    def from_df_spatial_and_coordinate_t_values(cls, df_spatial, coordinate_t_values,
                                                 transformation_class: type = None):
         df_time_steps = cls.get_df_from_df_spatial_and_coordinate_t_values(coordinate_t_values, df_spatial)
-        return cls.from_df(df=df_time_steps, train_split_ratio=train_split_ratio,
-                           transformation_class=transformation_class)
+        return cls.from_df(df=df_time_steps, transformation_class=transformation_class)
 
     @classmethod
-    def from_df_spatial_and_nb_steps(cls, df_spatial, nb_steps, train_split_ratio: float = None, start=0,
+    def from_df_spatial_and_nb_steps(cls, df_spatial, nb_steps, start=0,
                                      transformation_class: type = None):
         coordinate_t_values = [start + t for t in range(nb_steps)]
-        return cls.from_df_spatial_and_coordinate_t_values(df_spatial, coordinate_t_values, train_split_ratio,
-                                                           transformation_class)
+        return cls.from_df_spatial_and_coordinate_t_values(df_spatial, coordinate_t_values, transformation_class)
 
     @classmethod
-    def from_df_spatial_and_df_temporal(cls, df_spatial, df_temporal, train_split_ratio: float = None,
-                                        transformation_class: type = None):
+    def from_df_spatial_and_df_temporal(cls, df_spatial, df_temporal, transformation_class: type = None):
         nb_steps = len(df_temporal)
         coordinate_t_values = [df_temporal.iloc[t].values[0] for t in range(nb_steps)]
-        return cls.from_df_spatial_and_coordinate_t_values(df_spatial, coordinate_t_values, train_split_ratio,
-                                                           transformation_class)
+        return cls.from_df_spatial_and_coordinate_t_values(df_spatial, coordinate_t_values, transformation_class)

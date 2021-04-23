@@ -9,7 +9,6 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import imshow_shifted
 from extreme_fit.function.abstract_function import AbstractFunction
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.slicer.split import Split
 from root_utils import cached_property
 
 
@@ -29,7 +28,6 @@ class AbstractMarginFunction(AbstractFunction):
         # Visualization parameters
         self.visualization_axes = None
         self.datapoint_display = False
-        self.spatio_temporal_split = Split.all
         self.datapoint_marker = 'o'
         self.color = 'skyblue'
         self.filter = None
@@ -75,11 +73,10 @@ class AbstractMarginFunction(AbstractFunction):
 
     # Visualization function
 
-    def set_datapoint_display_parameters(self, spatio_temporal_split=Split.all, datapoint_marker=None, filter=None,
+    def set_datapoint_display_parameters(self, datapoint_marker=None, filter=None,
                                          color=None,
                                          linewidth=1, datapoint_display=False):
         self.datapoint_display = datapoint_display
-        self.spatio_temporal_split = spatio_temporal_split
         self.datapoint_marker = datapoint_marker
         self.linewidth = linewidth
         self.filter = filter
@@ -143,13 +140,13 @@ class AbstractMarginFunction(AbstractFunction):
         # if self._grid_1D is None:
         #     self._grid_1D = self.get_grid_values_1D(x)
         # return self._grid_1D
-        return self.get_grid_values_1D(x, self.spatio_temporal_split)
+        return self.get_grid_values_1D(x)
 
-    def get_grid_values_1D(self, x, spatio_temporal_split):
+    def get_grid_values_1D(self, x):
         # TODO: to avoid getting the value several times, I could cache the results
         if self.datapoint_display:
             # todo: keep only the index of interest here
-            linspace = self.coordinates.coordinates_values(spatio_temporal_split)[:, 0]
+            linspace = self.coordinates.coordinates_values()[:, 0]
             if self.filter is not None:
                 linspace = linspace[self.filter]
             resolution = len(linspace)

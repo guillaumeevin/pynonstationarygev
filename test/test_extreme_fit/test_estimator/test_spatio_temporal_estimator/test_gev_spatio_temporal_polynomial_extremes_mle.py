@@ -60,9 +60,9 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
                                                          fit_method=self.fit_method)
 
         # Assert that indicators are correctly computed
-        self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh())
-        self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
-        self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
+        self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh)
+        self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic)
+        self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic)
         # Assert we can compute the return level
         covariate1_for_return_level = np.array([500, 0])
         covariate2_for_return_level = np.array([500, 50])

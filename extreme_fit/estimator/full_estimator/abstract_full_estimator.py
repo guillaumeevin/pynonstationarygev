@@ -30,13 +30,12 @@ class SmoothMarginalsThenUnitaryMsp(AbstractFullEstimator):
         # Estimate the margin parameters
         self.margin_estimator.fit()
         # Compute the maxima_frech
-        maxima_gev_train = self.dataset.maxima_gev(split=self.train_split)
+        maxima_gev_train = self.dataset.maxima_gev
         maxima_frech = AbstractMarginModel.gev2frech(maxima_gev=maxima_gev_train,
-                                                     coordinates_values=self.dataset.coordinates_values(
-                                                         self.train_split),
+                                                     coordinates_values=self.dataset.coordinates_values(),
                                                      margin_function=self.margin_estimator.function_from_fit)
         # Update maxima frech field through the dataset object
-        self.dataset.set_maxima_frech(maxima_frech, split=self.train_split)
+        self.dataset.set_maxima_frech(maxima_frech)
         # Estimate the max stable parameters
         self.max_stable_estimator.fit()
 
@@ -67,17 +66,16 @@ class FullEstimatorInASingleStepWithSmoothMargin(AbstractFullEstimator):
 
     @property
     def df_coordinates_spat(self):
-        return self.dataset.coordinates.df_spatial_coordinates(self.train_split)
+        return self.dataset.coordinates.df_spatial_coordinates()
 
     @property
     def df_coordinates_temp(self):
-        return self.dataset.coordinates.df_temporal_coordinates_for_fit(split=self.train_split,
-                                                                        starting_point=self.linear_margin_model.starting_point)
+        return self.dataset.coordinates.df_temporal_coordinates_for_fit(starting_point=self.linear_margin_model.starting_point)
 
     def _fit(self):
         # Estimate both the margin and the max-stable structure
         return self.max_stable_model.fitmaxstab(
-            data_gev=self.dataset.maxima_gev_for_spatial_extremes_package(self.train_split),
+            data_gev=self.dataset.maxima_gev_for_spatial_extremes_package,
             df_coordinates_spat=self.df_coordinates_spat,
             df_coordinates_temp=self.df_coordinates_temp,
             fit_marge=True,

@@ -36,7 +36,6 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureWithSplineTemporalCovariate
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
-from spatio_temporal_dataset.slicer.split import Split
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 
 
@@ -190,7 +189,7 @@ class OneFoldFit(object):
             # Remove models with undefined parameters for the coordinate of interest
             well_defined_estimators = []
             for e in estimators:
-                coordinate_values_for_the_fit = e.coordinates_for_nllh(Split.all)
+                coordinate_values_for_the_fit = e.coordinates_for_nllh
 
                 if isinstance(self.altitude_group, DefaultAltitudeGroup):
                     coordinate_values_for_the_result = []
@@ -214,7 +213,7 @@ class OneFoldFit(object):
                 print(self.massif_name, " has only implausible models")
 
         try:
-            sorted_estimators = sorted([estimator for estimator in estimators], key=lambda e: e.aic())
+            sorted_estimators = sorted([estimator for estimator in estimators], key=lambda e: e.aic)
         except AssertionError as e:
             print('Error for')
             print(self.massif_name, self.altitude_group)
@@ -329,7 +328,7 @@ class OneFoldFit(object):
 
     @property
     def likelihood_ratio(self):
-        return self.stationary_estimator.deviance() - self.best_estimator.deviance()
+        return self.stationary_estimator.deviance - self.best_estimator.deviance
 
     @property
     def degree_freedom_chi2(self):
@@ -392,7 +391,7 @@ class OneFoldFit(object):
 
     @cached_property
     def best_residuals(self):
-        return self.best_estimator.sorted_empirical_standard_gumbel_quantiles(split=Split.all)
+        return self.best_estimator.sorted_empirical_standard_gumbel_quantiles()
 
     @cached_property
     def cached_results_from_bootstrap(self):

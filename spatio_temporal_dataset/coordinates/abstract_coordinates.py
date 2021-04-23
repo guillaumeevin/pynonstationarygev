@@ -9,11 +9,6 @@ from mpl_toolkits.mplot3d import Axes3D
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
     AbstractTransformation, IdentityTransformation
 from spatio_temporal_dataset.coordinates.utils import get_index_without_spatio_temporal_index_suffix
-from spatio_temporal_dataset.slicer.abstract_slicer import AbstractSlicer, df_sliced
-from spatio_temporal_dataset.slicer.spatial_slicer import SpatialSlicer
-from spatio_temporal_dataset.slicer.spatio_temporal_slicer import SpatioTemporalSlicer
-from spatio_temporal_dataset.slicer.split import s_split_from_df, ind_train_from_s_split, Split
-from spatio_temporal_dataset.slicer.temporal_slicer import TemporalSlicer
 
 
 class AbstractCoordinates(object):
@@ -22,7 +17,6 @@ class AbstractCoordinates(object):
     Index are coordinates index
     Columns are the value of each coordinates
 
-    So far, the train_split_ratio is the same between the spatial part of the data, and the temporal part
     """
     # Spatial columns
     COORDINATE_X = 'coord_x'
@@ -32,7 +26,6 @@ class AbstractCoordinates(object):
     SPATIAL_SPLIT = 'spatial_split'
     # Temporal columns
     COORDINATE_T = 'coord_t'
-    TEMPORAL_SPLIT = 'temporal_split'
     # Climate model columns
     COORDINATE_RCP = 'coord_rcp'
     COORDINATE_GCM = 'coord_gcm'
@@ -44,8 +37,7 @@ class AbstractCoordinates(object):
     ALL_COORDINATES_ACCEPTED_TYPES = ['int64', 'float64']
     COORDINATE_TYPE = 'float64'
 
-    def __init__(self, df: pd.DataFrame, slicer_class: type, s_split_spatial: pd.Series = None,
-                 s_split_temporal: pd.Series = None, transformation_class: type = None):
+    def __init__(self, df: pd.DataFrame, transformation_class: type = None):
         # Extract df_all_coordinates from df
         coordinate_columns = [c for c in df.columns if c in self.COORDINATES_NAMES]
         assert len(coordinate_columns) > 0
@@ -56,12 +48,7 @@ class AbstractCoordinates(object):
         ind = self.df_all_coordinates.columns.isin(self.COORDINATE_CLIMATE_MODEL_NAMES)
         self.df_coordinate_climate_model = self.df_all_coordinates.loc[:, ind].copy()
         self.df_all_coordinates = self.df_all_coordinates.loc[:, ~ind] # type: pd.DataFrame
-        self.df_all_coordinates = self.df_all_coordinates.astype(self.COORDINATE_TYPE)
-
-        # Slicing attributes
-        self.s_split_spatial = s_split_spatial  # type: pd.Series
-        self.s_split_temporal = s_split_temporal  # type: pd.Series
-        self.slicer = None  # type: Union[None, AbstractSlicer]
+        self.df_all_coordinates = self.df_all_coordinates.astype(self.COORDINATE_TYPE)  # type: pd.DataFrame
 
         # Transformation attribute
         if transformation_class is None:
@@ -75,62 +62,17 @@ class AbstractCoordinates(object):
         self.transformation = transformation_class(self.df_all_coordinates)  # type: AbstractTransformation
         assert isinstance(self.transformation, AbstractTransformation)
 
-        # Load the slicer
-        if slicer_class is TemporalSlicer:
-            self.slicer = TemporalSlicer(self.ind_train_temporal)
-        elif slicer_class is SpatialSlicer:
-            self.slicer = SpatialSlicer(self.ind_train_spatial)
-        elif slicer_class is SpatioTemporalSlicer:
-            self.slicer = SpatioTemporalSlicer(self.ind_train_spatial, self.ind_train_temporal)
-        else:
-            raise ValueError("Unknown slicer_class: {}".format(slicer_class))
-
     # ClassMethod constructor
 
     @classmethod
     def from_df(cls, df: pd.DataFrame):
-        # Extract the split if they are specified
-        s_split_spatial = df[cls.SPATIAL_SPLIT].copy() if cls.SPATIAL_SPLIT in df.columns else None
-        s_split_temporal = df[cls.TEMPORAL_SPLIT].copy() if cls.TEMPORAL_SPLIT in df.columns else None
-
-        slicer_class = cls.slicer_class_from_s_splits(s_split_spatial, s_split_temporal)
-
-        return cls(df=df, slicer_class=slicer_class, s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal)
+        return cls(df=df)
 
     @classmethod
-    def slicer_class_from_s_splits(cls, s_split_spatial, s_split_temporal):
-        # Infer the slicer class
-        if s_split_temporal is None and s_split_spatial is None:
-            raise ValueError('Both split are unspecified')
-        elif s_split_temporal is not None and s_split_spatial is None:
-            slicer_class = TemporalSlicer
-        elif s_split_temporal is None and s_split_spatial is not None:
-            slicer_class = SpatialSlicer
-        else:
-            slicer_class = SpatioTemporalSlicer
-        return slicer_class
-
-    @classmethod
-    def from_df_and_slicer(cls, df: pd.DataFrame, slicer_class: type, train_split_ratio: float = None,
-                           transformation_class: type = None):
+    def from_df_and_transformation_class(cls, df: pd.DataFrame, transformation_class: type = None):
         # All the index should be unique
         assert len(set(df.index)) == len(df), 'df indices are not unique'
-
-        # Create a spatial split
-        s_split_spatial = cls.spatial_s_split_from_df(df, train_split_ratio)
-        # Create a temporal split
-        s_split_temporal = cls.temporal_s_split_from_df(df, train_split_ratio)
-
-        return cls(df=df, slicer_class=slicer_class, s_split_spatial=s_split_spatial, s_split_temporal=s_split_temporal,
-                   transformation_class=transformation_class)
-
-    @classmethod
-    def spatial_s_split_from_df(cls, df, train_split_ratio):
-        return s_split_from_df(df, cls.COORDINATE_X, cls.SPATIAL_SPLIT, train_split_ratio, True)
-
-    @classmethod
-    def temporal_s_split_from_df(cls, df, train_split_ratio):
-        return s_split_from_df(df, cls.COORDINATE_T, cls.TEMPORAL_SPLIT, train_split_ratio, False)
+        return cls(df=df, transformation_class=transformation_class)
 
     @classmethod
     def from_csv(cls, csv_path: str = None):
@@ -147,14 +89,9 @@ class AbstractCoordinates(object):
     def index(self) -> pd.Index:
         return self.df_all_coordinates.index
 
-    @property
-    def df_merged(self) -> pd.DataFrame:
-        # Merged DataFrame of df_coord with s_split
-        return self.df_coordinates().join(self.df_split)
-
     # Split
 
-    def df_coordinates(self, split: Split = Split.all, transformed=True, add_climate_informations=False) -> pd.DataFrame:
+    def df_coordinates(self, transformed=True, add_climate_informations=False) -> pd.DataFrame:
         if transformed:
             df_transformed_coordinates = self.transformation.transform_df(self.df_all_coordinates)
         else:
@@ -162,32 +99,10 @@ class AbstractCoordinates(object):
         if add_climate_informations:
             df_transformed_coordinates = pd.concat([df_transformed_coordinates,
                                                     self.df_coordinate_climate_model], axis=1)
-        return df_sliced(df=df_transformed_coordinates, split=split, slicer=self.slicer)
+        return df_transformed_coordinates
 
-    def coordinates_values(self, split: Split = Split.all, transformed=True) -> np.ndarray:
-        return self.df_coordinates(split, transformed=transformed).values
-
-    def coordinates_index(self, split: Split = Split.all) -> pd.Index:
-        return self.df_coordinates(split).index
-
-    @property
-    def ind_train_spatial(self) -> pd.Series:
-        return ind_train_from_s_split(s_split=self.s_split_spatial)
-
-    @property
-    def ind_train_temporal(self) -> pd.Series:
-        return ind_train_from_s_split(s_split=self.s_split_temporal)
-
-    @property
-    def df_split(self) -> pd.DataFrame:
-        split_name_to_s_split = {
-            self.SPATIAL_SPLIT: self.s_split_spatial,
-            self.TEMPORAL_SPLIT: self.s_split_temporal,
-        }
-        # Delete None s_split from the dictionary
-        split_name_to_s_split = {k: v for k, v in split_name_to_s_split.items() if v is not None}
-        # Create df_split from dict
-        return pd.DataFrame.from_dict(split_name_to_s_split)
+    def coordinates_values(self, transformed=True) -> np.ndarray:
+        return self.df_coordinates(transformed=transformed).values
 
     @property
     def coordinates_names(self) -> List[str]:
@@ -219,18 +134,20 @@ class AbstractCoordinates(object):
     def has_spatial_coordinates(self) -> bool:
         return self.nb_spatial_coordinates > 0
 
-    def df_spatial_coordinates(self, split: Split = Split.all, transformed=True, drop_duplicates=True) -> pd.DataFrame:
+    def df_spatial_coordinates(self, transformed=True, drop_duplicates=True) -> pd.DataFrame:
         if self.nb_spatial_coordinates == 0:
             return pd.DataFrame()
         else:
-            df = self.df_coordinates(split, transformed).loc[:, self.spatial_coordinates_names]
+            df = self.df_coordinates(transformed).loc[:, self.spatial_coordinates_names]
             return df.drop_duplicates() if drop_duplicates else df
 
-    def nb_stations(self, split: Split = Split.all) -> int:
-        return len(self.df_spatial_coordinates(split))
+    @property
+    def nb_stations(self) -> int:
+        return len(self.df_spatial_coordinates())
 
-    def spatial_index(self, split: Split = Split.all) -> pd.Index:
-        df_spatial = self.df_spatial_coordinates(split)
+    @property
+    def spatial_index(self) -> pd.Index:
+        df_spatial = self.df_spatial_coordinates()
         if self.has_spatio_temporal_coordinates:
             # Remove the spatio temporal index suffix
             return get_index_without_spatio_temporal_index_suffix(df_spatial)
@@ -251,26 +168,25 @@ class AbstractCoordinates(object):
     def has_temporal_coordinates(self) -> bool:
         return self.nb_temporal_coordinates > 0
 
-    def df_temporal_coordinates(self, split: Split = Split.all, transformed=True,
-                                drop_duplicates=True) -> pd.DataFrame:
+    def df_temporal_coordinates(self, transformed=True, drop_duplicates=True) -> pd.DataFrame:
         if self.nb_temporal_coordinates == 0:
             return pd.DataFrame()
         else:
-            df = self.df_coordinates(split, transformed=transformed).loc[:, self.temporal_coordinates_names]
+            df = self.df_coordinates(transformed=transformed).loc[:, self.temporal_coordinates_names]
             if drop_duplicates:
                 return df.drop_duplicates()
             else:
                 return df
 
-    def df_temporal_coordinates_for_fit(self, split=Split.all, starting_point=None,
+    def df_temporal_coordinates_for_fit(self, starting_point=None,
                                         temporal_covariate_for_fit: Union[None, type] = None,
                                         drop_duplicates=True, climate_coordinates_with_effects=None) -> pd.DataFrame:
         # Load time covariate
         if starting_point is None:
-            df = self.df_temporal_coordinates(split=split, transformed=True, drop_duplicates=drop_duplicates)
+            df = self.df_temporal_coordinates(transformed=True, drop_duplicates=drop_duplicates)
         else:
             # Load the un transformed coordinates
-            df_temporal_coordinates = self.df_temporal_coordinates(split=split, transformed=False)
+            df_temporal_coordinates = self.df_temporal_coordinates(transformed=False)
             # If starting point is not None, the transformation has not yet been applied
             # thus we need to modify the coordinate with the starting point, and then to apply the transformation
             # Compute the indices to modify
@@ -288,13 +204,13 @@ class AbstractCoordinates(object):
 
         # Potentially transform the time covariate into another covariate
         if temporal_covariate_for_fit is not None:
-            df_input = pd.concat([df, self.df_climate_models(split)], axis=1)
+            df_input = pd.concat([df, self.df_coordinate_climate_model], axis=1)
             df.loc[:, self.COORDINATE_T] = df_input.apply(temporal_covariate_for_fit.get_temporal_covariate, axis=1)
         if climate_coordinates_with_effects is not None:
             assert all([c in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES for c in climate_coordinates_with_effects])
             for climate_coordinate in climate_coordinates_with_effects:
                 assert climate_coordinate in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES
-                s, unique_values, unique_values_without_nan = self.load_unique_values(climate_coordinate, split)
+                s, unique_values, unique_values_without_nan = self.load_unique_values(climate_coordinate)
                 has_observations = len(unique_values) == len(unique_values_without_nan) + 1
                 if has_observations:
                     for v in unique_values_without_nan:
@@ -308,18 +224,18 @@ class AbstractCoordinates(object):
 
         return df
 
-    def load_unique_values(self, climate_coordinate, split=Split.all):
-        s = self.df_climate_models(split)[climate_coordinate]
+    def load_unique_values(self, climate_coordinate):
+        s = self.df_coordinate_climate_model[climate_coordinate]
         for character in self.character_to_remove_from_climate_model_coordinate_name():
             s = s.str.replace(character, "")
         unique_values = s.unique()
         unique_values_without_nan = [v for v in unique_values if isinstance(v, str)]
         return s, unique_values, unique_values_without_nan
 
-    def load_ordered_columns_names(self, climate_coordinates_names_with_effects, split=Split.all):
+    def load_ordered_columns_names(self, climate_coordinates_names_with_effects):
         column_names = []
         for climate_coordinate in climate_coordinates_names_with_effects:
-            _, _, names = self.load_unique_values(climate_coordinate, split)
+            _, _, names = self.load_unique_values(climate_coordinate)
             column_names.extend(names)
         return column_names
 
@@ -339,8 +255,8 @@ class AbstractCoordinates(object):
             climate_coordinates[indice] = 1
         return climate_coordinates
 
-    def df_climate_models(self, split=Split.all):
-        return df_sliced(df=self.df_coordinate_climate_model, split=split, slicer=self.slicer)
+    def df_climate_models(self):
+        return self.df_coordinate_climate_model
 
     @classmethod
     def character_to_remove_from_climate_model_coordinate_name(cls):
@@ -355,11 +271,12 @@ class AbstractCoordinates(object):
     def temporal_coordinates(self):
         raise NotImplementedError
 
-    def nb_steps(self, split: Split = Split.all) -> int:
-        return len(self.df_temporal_coordinates(split))
+    @property
+    def nb_steps(self) -> int:
+        return len(self.df_temporal_coordinates())
 
-    def df_temporal_range(self, split: Split = Split.all) -> Tuple[int, int]:
-        df_temporal_coordinates = self.df_temporal_coordinates(split)
+    def df_temporal_range(self) -> Tuple[int, int]:
+        df_temporal_coordinates = self.df_temporal_coordinates()
         return int(df_temporal_coordinates.min()), int(df_temporal_coordinates.max()),
 
     @property
@@ -376,8 +293,8 @@ class AbstractCoordinates(object):
     def has_spatio_temporal_coordinates(self) -> bool:
         return self.has_spatial_coordinates and self.has_temporal_coordinates
 
-    def spatio_temporal_shape(self, split: Split.all) -> Tuple[int, int]:
-        return len(self.df_spatial_coordinates(split)), len(self.df_temporal_coordinates(split))
+    def spatio_temporal_shape(self) -> Tuple[int, int]:
+        return len(self.df_spatial_coordinates()), len(self.df_temporal_coordinates())
 
     def ind_of_df_all_coordinates(self, coordinate_name, value):
         return self.df_all_coordinates.loc[:, coordinate_name] == value
@@ -446,9 +363,6 @@ class AbstractCoordinates(object):
 
     def __rmul__(self, other):
         return self * other
-
-    def __eq__(self, other):
-        return self.df_merged.equals(other.df_merged)
 
     def __str__(self):
         return pd.concat([self.df_coordinates(), self.df_coordinate_climate_model], axis=1).__str__()

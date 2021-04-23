@@ -77,9 +77,9 @@ class TestGevTemporalSpline(unittest.TestCase):
                                        msg='for the {} parameter at year={}'.format(param_name, year),
                                        places=2)
         # Assert that indicators are correctly computed
-        self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh())
-        self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic())
-        self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic())
+        self.assertAlmostEqual(estimator.result_from_model_fit.nllh, estimator.nllh)
+        self.assertAlmostEqual(estimator.result_from_model_fit.aic, estimator.aic)
+        self.assertAlmostEqual(estimator.result_from_model_fit.bic, estimator.bic)
 
     def test_gev_temporal_margin_fit_spline_two_linear_location(self):
         self.function_test_gev_temporal_margin_fit_non_stationary_spline(NonStationaryTwoLinearLocationModel,

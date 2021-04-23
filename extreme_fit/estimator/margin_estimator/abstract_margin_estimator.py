@@ -14,14 +14,12 @@ from extreme_fit.function.margin_function.linear_margin_function import LinearMa
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
-from spatio_temporal_dataset.slicer.split import Split
-
 
 class AbstractMarginEstimator(AbstractEstimator, ABC):
 
     def __init__(self, dataset: AbstractDataset, **kwargs):
         super().__init__(dataset, **kwargs)
-        assert self.dataset.maxima_gev() is not None
+        assert self.dataset.maxima_gev is not None
 
 
 class LinearMarginEstimator(AbstractMarginEstimator):
@@ -33,49 +31,51 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         self.margin_model = margin_model
 
     def _fit(self) -> AbstractResultFromModelFit:
-        data = self.data(self.train_split)
-        df_coordinate_temp = self.df_coordinates_temp(self.train_split)
-        df_coordinate_spat = self.df_coordinates_spat(self.train_split)
-        return self.margin_model.fitmargin_from_maxima_gev(data=data,
-                                                           df_coordinates_spat=df_coordinate_spat,
-                                                           df_coordinates_temp=df_coordinate_temp)
+        return self.margin_model.fitmargin_from_maxima_gev(data=self.data,
+                                                           df_coordinates_spat=self.df_coordinates_spat,
+                                                           df_coordinates_temp=self.df_coordinates_temp)
 
-    def data(self, split):
-        return self._maxima_gev(split)
+    @property
+    def data(self):
+        return self._maxima_gev
 
-    def _maxima_gev(self, split):
+    @property
+    def _maxima_gev(self):
         if self.margin_model.fit_method == MarginFitMethod.spatial_extremes_mle:
-            return self.dataset.maxima_gev_for_spatial_extremes_package(split)
+            return self.dataset.maxima_gev_for_spatial_extremes_package
         else:
-            return self.dataset.maxima_gev(split)
+            return self.dataset.maxima_gev
 
-    def df_coordinates_spat(self, split):
-        return self.dataset.coordinates.df_spatial_coordinates(split=split,
-                                                               drop_duplicates=self.margin_model.drop_duplicates)
+    @property
+    def df_coordinates_spat(self):
+        return self.dataset.coordinates.df_spatial_coordinates(drop_duplicates=self.margin_model.drop_duplicates)
 
-    def df_coordinates_temp(self, split):
-        return self.dataset.coordinates.df_temporal_coordinates_for_fit(split=split,
-                                                                        temporal_covariate_for_fit=self.margin_model.temporal_covariate_for_fit,
-                                                                        starting_point=self.margin_model.starting_point,
-                                                                        drop_duplicates=self.margin_model.drop_duplicates,
-                                                                        climate_coordinates_with_effects=self.margin_model.climate_coordinates_with_effects)
+    @property
+    def df_coordinates_temp(self):
+        return self.dataset.coordinates.df_temporal_coordinates_for_fit(
+            temporal_covariate_for_fit=self.margin_model.temporal_covariate_for_fit,
+            starting_point=self.margin_model.starting_point,
+            drop_duplicates=self.margin_model.drop_duplicates,
+            climate_coordinates_with_effects=self.margin_model.climate_coordinates_with_effects)
 
     @cached_property
     def function_from_fit(self) -> LinearMarginFunction:
         return load_margin_function(self, self.margin_model)
 
-    def coordinates_for_nllh(self, split=Split.all):
-        return pd.concat([self.df_coordinates_spat(split=split), self.df_coordinates_temp(split=split)], axis=1).values
+    @property
+    def coordinates_for_nllh(self):
+        return pd.concat([self.df_coordinates_spat, self.df_coordinates_temp], axis=1).values
 
-    def nllh(self, split=Split.all):
-        maxima_values = self.dataset.maxima_gev(split=split)
-        coordinate_values = self.coordinates_for_nllh(split=split)
+    @property
+    def nllh(self):
+        maxima_values = self.dataset.maxima_gev
+        coordinate_values = self.coordinates_for_nllh
         return compute_nllh(coordinate_values, maxima_values, self.function_from_fit)
 
-    def sorted_empirical_standard_gumbel_quantiles(self, split=Split.all, coordinate_for_filter=None):
+    def sorted_empirical_standard_gumbel_quantiles(self, coordinate_for_filter=None):
         sorted_empirical_quantiles = []
-        maxima_values = self.dataset.maxima_gev(split=split)
-        coordinate_values = self.dataset.df_coordinates(split=split).values
+        maxima_values = self.dataset.maxima_gev
+        coordinate_values = self.dataset.df_coordinates.values
         for maximum, coordinate in zip(maxima_values, coordinate_values):
             if coordinate_for_filter is not None:
                 assert len(coordinate) == len(coordinate_for_filter)
@@ -90,9 +90,9 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         sorted_empirical_quantiles = sorted(sorted_empirical_quantiles)
         return sorted_empirical_quantiles
 
-    def coordinate_values_to_maxima_from_standard_gumbel_quantiles(self, standard_gumbel_quantiles, split=Split.all):
+    def coordinate_values_to_maxima_from_standard_gumbel_quantiles(self, standard_gumbel_quantiles):
         coordinate_values_to_maxima = {}
-        coordinate_values = self.dataset.df_coordinates(split=split).values
+        coordinate_values = self.dataset.df_coordinates.values
         assert len(standard_gumbel_quantiles) == len(coordinate_values)
         for quantile, coordinate in zip(standard_gumbel_quantiles, coordinate_values):
             gev_param = self.function_from_fit.get_params(
@@ -102,16 +102,19 @@ class LinearMarginEstimator(AbstractMarginEstimator):
             coordinate_values_to_maxima[tuple(coordinate)] = np.array([maximum])
         return coordinate_values_to_maxima
 
-    def deviance(self, split=Split.all):
-        return 2 * self.nllh(split=split)
+    @property
+    def deviance(self):
+        return 2 * self.nllh
 
-    def aic(self, split=Split.all):
-        aic = 2 * self.nb_params + 2 * self.nllh(split=split)
+    @property
+    def aic(self):
+        aic = 2 * self.nb_params + 2 * self.nllh
         npt.assert_almost_equal(self.result_from_model_fit.aic, aic, decimal=0)
         return aic
 
-    def n(self, split=Split.all):
-        return len(self.dataset.maxima_gev(split=split))
+    @property
+    def n(self):
+        return len(self.dataset.maxima_gev)
 
     @property
     def nb_params(self):
@@ -121,12 +124,15 @@ class LinearMarginEstimator(AbstractMarginEstimator):
             nb_params -= 1
         return nb_params
 
-    def bic(self, split=Split.all):
-        return np.log(self.n(split=split)) * self.nb_params + 2 * self.nllh(split=split)
+    @property
+    def bic(self):
+        return np.log(self.n) * self.nb_params + 2 * self.nllh
 
-    def aicc(self, split=Split.all):
-        additional_term = 2 * self.nb_params * (self.nb_params + 1) / (self.n() - self.nb_params - 1)
-        return self.aic(split) + additional_term
+    @property
+    def aicc(self):
+        additional_term = 2 * self.nb_params * (self.nb_params + 1) / (self.n - self.nb_params - 1)
+        return self.aic + additional_term
+
 
 def compute_nllh(coordinate_values, maxima_values, function_from_fit, maximum_from_obs=True, assertion_for_inf=True):
     nllh = 0
