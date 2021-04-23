@@ -1,2 +1,2 @@
-# SpatioTemporalExtremes
+# ClimateExtremesInTheFrenchAlps
 
