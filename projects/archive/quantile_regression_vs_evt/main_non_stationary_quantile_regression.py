@@ -1,4 +1,4 @@
-from extreme_fit.model.daily_data_model import TemporalCoordinatesQuantileRegressionModelOnDailyData
+from extreme_fit.model.margin_model.linear_margin_model.daily_data_model import TemporalCoordinatesQuantileRegressionModelOnDailyData
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationTemporalModel, NonStationaryLocationGumbelModel
 from extreme_fit.model.quantile_model.quantile_regression_model import TemporalCoordinatesQuantileRegressionModel

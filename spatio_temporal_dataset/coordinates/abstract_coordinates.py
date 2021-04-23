@@ -142,10 +142,6 @@ class AbstractCoordinates(object):
             return df.drop_duplicates() if drop_duplicates else df
 
     @property
-    def nb_stations(self) -> int:
-        return len(self.df_spatial_coordinates())
-
-    @property
     def spatial_index(self) -> pd.Index:
         df_spatial = self.df_spatial_coordinates()
         if self.has_spatio_temporal_coordinates:

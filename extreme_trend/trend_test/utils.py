@@ -1,5 +1,4 @@
 
-
 import pandas as pd
 
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator

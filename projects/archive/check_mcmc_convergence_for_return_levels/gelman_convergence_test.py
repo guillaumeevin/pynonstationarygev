@@ -6,7 +6,7 @@ from extreme_fit.model.margin_model.utils import \
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_bayesian_extremes import \
     ResultFromBayesianExtremes
 from extreme_fit.model.utils import r
-from spatio_temporal_dataset.utils import load_temporal_coordinates_and_dataset
+from extreme_trend.trend_test.utils import load_temporal_coordinates_and_dataset
 
 
 def compute_gelman_score(means, variances, N, M):

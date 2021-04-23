@@ -18,9 +18,9 @@ from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_m
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from extreme_fit.model.utils import get_null
+from extreme_trend.trend_test.utils import load_temporal_coordinates_and_dataset
 from root_utils import classproperty
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.utils import load_temporal_coordinates_and_dataset
 
 
 class AbstractGevTrendTest(object):

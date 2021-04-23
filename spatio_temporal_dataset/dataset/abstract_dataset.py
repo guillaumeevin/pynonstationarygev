@@ -85,7 +85,7 @@ class AbstractDataset(object):
     def transform_maxima_for_spatial_extreme_package(self, array) -> np.ndarray:
         if self.coordinates.has_spatio_temporal_coordinates:
             nb_obs = self.observations.nb_obs
-            nb_stations = self.coordinates.nb_stations
+            nb_stations = len(self.coordinates.df_spatial_coordinates())
             nb_steps = self.coordinates.nb_steps
             # Permute array lines
             time_steps = np.array(range(nb_steps))

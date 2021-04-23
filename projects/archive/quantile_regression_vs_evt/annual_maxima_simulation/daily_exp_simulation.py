@@ -2,7 +2,7 @@ from abc import ABC
 
 from extreme_fit.distribution.abstract_params import AbstractParams
 from extreme_fit.distribution.exp_params import ExpParams
-from extreme_fit.model.daily_data_model import AbstractModelOnDailyData
+from extreme_fit.model.margin_model.linear_margin_model.daily_data_model import AbstractModelOnDailyData
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_exp_models import \

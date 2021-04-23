@@ -15,7 +15,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
     ExtractEurocodeReturnLevelFromMyBayesianExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
-from spatio_temporal_dataset.utils import load_temporal_coordinates_and_dataset
+from extreme_trend.trend_test.utils import load_temporal_coordinates_and_dataset
 
 
 def main_drawing_bayesian(N=10000):
