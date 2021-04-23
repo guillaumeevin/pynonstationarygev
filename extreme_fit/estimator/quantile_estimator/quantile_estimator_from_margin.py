@@ -17,6 +17,6 @@ class QuantileEstimatorFromMargin(LinearMarginEstimator, AbstractQuantileEstimat
         super().__init__(dataset=dataset, quantile=quantile, margin_model=margin_model)
 
     @cached_property
-    def function_from_fit(self) -> AbstractQuantileFunction:
-        linear_margin_function = super().function_from_fit  # type: AbstractMarginFunction
+    def margin_function_from_fit(self) -> AbstractQuantileFunction:
+        linear_margin_function = super().margin_function_from_fit  # type: AbstractMarginFunction
         return QuantileFunctionFromMarginFunction(self.dataset.coordinates, linear_margin_function, self.quantile)

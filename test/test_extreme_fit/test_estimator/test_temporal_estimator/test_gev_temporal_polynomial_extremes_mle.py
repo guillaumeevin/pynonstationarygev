@@ -44,9 +44,9 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
                                                    starting_year=0,
                                                    fit_method=self.fit_method)
         # Checks that parameters returned are indeed different
-        mle_params_estimated_year1 = estimator.function_from_fit.get_params(np.array([1])).to_dict()
-        mle_params_estimated_year3 = estimator.function_from_fit.get_params(np.array([21])).to_dict()
-        mle_params_estimated_year5 = estimator.function_from_fit.get_params(np.array([41])).to_dict()
+        mle_params_estimated_year1 = estimator.margin_function_from_fit.get_params(np.array([1])).to_dict()
+        mle_params_estimated_year3 = estimator.margin_function_from_fit.get_params(np.array([21])).to_dict()
+        mle_params_estimated_year5 = estimator.margin_function_from_fit.get_params(np.array([41])).to_dict()
         self.assertNotEqual(mle_params_estimated_year1, mle_params_estimated_year3)
         self.assertNotEqual(mle_params_estimated_year3, mle_params_estimated_year5)
         # Assert the relationship for the location is indeed quadratic

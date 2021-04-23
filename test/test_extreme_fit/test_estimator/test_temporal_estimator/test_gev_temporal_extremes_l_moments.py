@@ -45,7 +45,7 @@ class TestGevTemporalExtremesLMoments(unittest.TestCase):
                                                    fit_method=self.fit_method)
         ref = {'loc': 0.0813843045950251, 'scale': 1.1791830110181365, 'shape': 0.6610403806908737}
         for year in range(1, 3):
-            mle_params_estimated = estimator.function_from_fit.get_params(np.array([year])).to_dict()
+            mle_params_estimated = estimator.margin_function_from_fit.get_params(np.array([year])).to_dict()
             for key in ref.keys():
                 self.assertAlmostEqual(ref[key], mle_params_estimated[key], places=3)
 

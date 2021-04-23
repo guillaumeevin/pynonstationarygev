@@ -46,7 +46,7 @@ def _fitted_stationary_gev(fit_method, model_class, starting_year, x_gev):
     dataset = AbstractDataset(observations=observations, coordinates=coordinates)
     estimator = fitted_linear_margin_estimator(model_class, coordinates, dataset, starting_year, fit_method)
     first_coordinate = coordinates.coordinates_values()[0]
-    gev_param = estimator.function_from_fit.get_params(first_coordinate)
+    gev_param = estimator.margin_function_from_fit.get_params(first_coordinate)
     # Warning
     if not -0.5 < gev_param.shape < 0.5:
         pass

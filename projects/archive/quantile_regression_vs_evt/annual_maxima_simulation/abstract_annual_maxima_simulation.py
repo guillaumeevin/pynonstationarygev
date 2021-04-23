@@ -50,5 +50,5 @@ class AnnualMaximaSimulation(AbstractSimulation):
         true_gev_params = margin_model.margin_function.get_params(last_coordinate)
         true_quantile = true_gev_params.quantile(self.quantile_data)
         # Compute estimated values
-        estimated_quantiles = [estimator.function_from_fit.get_quantile(last_coordinate) for estimator in estimators]
+        estimated_quantiles = [estimator.margin_function_from_fit.get_quantile(last_coordinate) for estimator in estimators]
         return 100 * np.abs(np.array(estimated_quantiles) - true_quantile) / true_quantile

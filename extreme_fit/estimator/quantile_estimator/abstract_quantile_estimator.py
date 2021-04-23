@@ -15,7 +15,7 @@ class AbstractQuantileEstimator(AbstractEstimator, ABC):
         self.quantile = quantile
 
     @cached_property
-    def function_from_fit(self) -> AbstractQuantileFunction:
+    def margin_function_from_fit(self) -> AbstractQuantileFunction:
         raise NotImplementedError
 
 

@@ -53,9 +53,9 @@ class TestGevTemporalSpline(unittest.TestCase):
                                                    starting_year=None,
                                                    fit_method=self.fit_method)
         # Checks that parameters returned are indeed different
-        mle_params_estimated_year_first = estimator.function_from_fit.get_params(np.array([self.start_year])).to_dict()
-        mle_params_estimated_year_middle = estimator.function_from_fit.get_params(np.array([self.middle_year])).to_dict()
-        mle_params_estimated_year_last = estimator.function_from_fit.get_params(np.array([self.last_year])).to_dict()
+        mle_params_estimated_year_first = estimator.margin_function_from_fit.get_params(np.array([self.start_year])).to_dict()
+        mle_params_estimated_year_middle = estimator.margin_function_from_fit.get_params(np.array([self.middle_year])).to_dict()
+        mle_params_estimated_year_last = estimator.margin_function_from_fit.get_params(np.array([self.last_year])).to_dict()
         self.assertNotEqual(mle_params_estimated_year_first, mle_params_estimated_year_middle)
         self.assertNotEqual(mle_params_estimated_year_middle, mle_params_estimated_year_last)
         # # Assert the relationship for the location is different between the beginning and the end
@@ -71,7 +71,7 @@ class TestGevTemporalSpline(unittest.TestCase):
         for idx, nb_year in enumerate(range(5)):
             year = self.start_year + nb_year
             gev_params_from_result = estimator.result_from_model_fit.get_gev_params_from_result(idx).to_dict()
-            my_gev_params = estimator.function_from_fit.get_params(np.array([year])).to_dict()
+            my_gev_params = estimator.margin_function_from_fit.get_params(np.array([year])).to_dict()
             for param_name in GevParams.PARAM_NAMES:
                 self.assertAlmostEqual(gev_params_from_result[param_name], my_gev_params[param_name],
                                        msg='for the {} parameter at year={}'.format(param_name, year),

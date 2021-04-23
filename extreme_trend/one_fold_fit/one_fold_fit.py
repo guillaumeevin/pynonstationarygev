@@ -110,7 +110,7 @@ class OneFoldFit(object):
 
     def get_gev_params(self, altitude, year):
         coordinate = self.get_coordinate(altitude, year)
-        gev_params = self.best_function_from_fit.get_params(coordinate, is_transformed=False)
+        gev_params = self.best_margin_function_from_fit.get_params(coordinate, is_transformed=False)
         return gev_params
 
     def moment(self, altitudes, order=1):
@@ -199,7 +199,7 @@ class OneFoldFit(object):
                 coordinate_values_to_check = list(coordinate_values_for_the_fit) + coordinate_values_for_the_result
                 has_undefined_parameters = False
                 for coordinate in coordinate_values_to_check:
-                    gev_params = e.function_from_fit.get_params(coordinate)
+                    gev_params = e.margin_function_from_fit.get_params(coordinate)
                     if gev_params.has_undefined_parameters:
                         has_undefined_parameters = True
                         break
@@ -218,6 +218,12 @@ class OneFoldFit(object):
             print('Error for')
             print(self.massif_name, self.altitude_group)
             raise
+
+        #  Apply the goodness of fit
+        if self.only_models_that_pass_goodness_of_fit_test:
+            return [e for e in sorted_estimators if self.goodness_of_fit_test(e)]
+        if not (self.remove_physically_implausible_models or self.only_models_that_pass_goodness_of_fit_test):
+            assert len(sorted_estimators) == len(self.models_classes)
         return sorted_estimators
 
     def get_coordinate(self, altitude, year):
@@ -232,24 +238,13 @@ class OneFoldFit(object):
 
     def _compute_shape_for_reference_altitude(self, estimator):
         coordinate = self.get_coordinate(self.altitude_plot, self.covariate_after)
-        gev_params = estimator.function_from_fit.get_params(coordinate, is_transformed=False)
+        gev_params = estimator.margin_function_from_fit.get_params(coordinate, is_transformed=False)
         shape = gev_params.shape
         return shape
 
-    @cached_property
-    def sorted_estimators_with_stationary(self):
-        if self.only_models_that_pass_goodness_of_fit_test:
-            return [e for e in self.sorted_estimators
-                    if self.goodness_of_fit_test(e)
-                    ]
-        else:
-            if not self.remove_physically_implausible_models:
-                assert len(self.sorted_estimators) == len(self.models_classes)
-            return self.sorted_estimators
-
     @property
     def has_at_least_one_valid_model(self):
-        return len(self.sorted_estimators_with_stationary) > 0
+        return len(self.sorted_estimators) > 0
 
     @property
     def model_class_to_estimator_with_finite_aic(self):
@@ -258,7 +253,7 @@ class OneFoldFit(object):
     @property
     def best_estimator(self):
         if self.has_at_least_one_valid_model:
-            best_estimator = self.sorted_estimators_with_stationary[0]
+            best_estimator = self.sorted_estimators[0]
             return best_estimator
         else:
             raise ValueError('This object should not have been called because '
@@ -269,8 +264,8 @@ class OneFoldFit(object):
         return self.best_estimator.margin_model
 
     @property
-    def best_function_from_fit(self):
-        return self.best_estimator.function_from_fit
+    def best_margin_function_from_fit(self):
+        return self.best_estimator.margin_function_from_fit
 
     @property
     def best_shape(self):
@@ -282,7 +277,7 @@ class OneFoldFit(object):
 
     def best_coef(self, param_name, dim, degree):
         try:
-            coef = self.best_function_from_fit.param_name_to_coef[param_name]  # type: PolynomialAllCoef
+            coef = self.best_margin_function_from_fit.param_name_to_coef[param_name]  # type: PolynomialAllCoef
             if coef.dim_to_polynomial_coef is None:
                 return coef.intercept
             else:
@@ -403,7 +398,7 @@ class OneFoldFit(object):
 
         # First result - Compute the significance
         sign_of_changes = [self.sign_of_change(f) for f in bootstrap_fitted_functions]
-        if self.sign_of_change(self.best_function_from_fit) > 0:
+        if self.sign_of_change(self.best_margin_function_from_fit) > 0:
             is_significant = np.quantile(sign_of_changes, self.SIGNIFICANCE_LEVEL) > 0
         else:
             is_significant = np.quantile(sign_of_changes, 1 - self.SIGNIFICANCE_LEVEL) < 0
@@ -417,7 +412,7 @@ class OneFoldFit(object):
             for altitude in altitudes:
                 key = (altitude, year)
                 coordinate = self.get_coordinate(altitude, year)
-                mean_estimate = self.get_return_level(self.best_function_from_fit, coordinate)
+                mean_estimate = self.get_return_level(self.best_margin_function_from_fit, coordinate)
                 bootstrap_return_levels = [self.get_return_level(f, coordinate) for f in
                                            bootstrap_fitted_functions]
                 confidence_interval = tuple([np.quantile(bootstrap_return_levels, q)
@@ -437,7 +432,7 @@ class OneFoldFit(object):
         print('last temporal coordinate', last_temporal_coordinate)
         altitude = self.altitude_group.reference_altitude
         coordinate = self.get_coordinate(altitude, last_temporal_coordinate)
-        return self.get_return_level(self.best_function_from_fit, coordinate)
+        return self.get_return_level(self.best_margin_function_from_fit, coordinate)
 
     @property
     def bootstrap_fitted_functions_from_fit(self):
@@ -487,6 +482,6 @@ class OneFoldFit(object):
         dataset = AbstractDataset(observations=observations, coordinates=coordinates)
         model_class = type(self.best_margin_model)
 
-        function_from_fit = self.fitted_linear_margin_estimator(model_class, dataset).function_from_fit
+        function_from_fit = self.fitted_linear_margin_estimator(model_class, dataset).margin_function_from_fit
 
         return function_from_fit

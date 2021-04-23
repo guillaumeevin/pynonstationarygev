@@ -20,7 +20,7 @@ class QuantileRegressionEstimator(AbstractQuantileEstimator):
         return self.quantile_regression_model.fit()
 
     @cached_property
-    def function_from_fit(self) -> AbstractQuantileFunction:
+    def margin_function_from_fit(self) -> AbstractQuantileFunction:
         result_from_model_fit = self.result_from_model_fit  # type: ResultFromQuantreg
         coefs = result_from_model_fit.coefficients
         nb_coefs = len(coefs)

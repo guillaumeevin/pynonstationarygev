@@ -33,7 +33,7 @@ class TestQuantileEstimator(unittest.TestCase):
             # Fit quantile estimators
             for quantile_estimator in quantile_estimators:
                 quantile_estimator.fit()
-                quantile_estimator.function_from_fit.visualize(show=self.DISPLAY)
+                quantile_estimator.margin_function_from_fit.visualize(show=self.DISPLAY)
 
         self.assertTrue(True)
 

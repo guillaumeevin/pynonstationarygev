@@ -123,8 +123,8 @@ class AbstractGevTrendTest(object):
     # Evolution of the GEV parameters and corresponding quantiles
 
     def get_non_stationary_linear_coef(self, param_name: str):
-        return self.unconstrained_estimator.function_from_fit.get_coef(param_name,
-                                                                       AbstractCoordinates.COORDINATE_T)
+        return self.unconstrained_estimator.margin_function_from_fit.get_coef(param_name,
+                                                                              AbstractCoordinates.COORDINATE_T)
 
     @cached_property
     def unconstrained_estimator_gev_params_last_year(self) -> GevParams:
@@ -317,13 +317,13 @@ class AbstractGevTrendTest(object):
         ax.plot(extended_quantiles, extended_maxima, linestyle='-', label=label, color=color, linewidth=5)
 
     def get_unconstrained_gev_params(self, year):
-        gev_params_year = self.unconstrained_estimator.function_from_fit.get_params(
+        gev_params_year = self.unconstrained_estimator.margin_function_from_fit.get_params(
             coordinate=np.array([year]),
             is_transformed=False)
         return gev_params_year
 
     def get_unconstrained_time_derivative_gev_params(self, year):
-        gev_params_year = self.unconstrained_estimator.function_from_fit.get_first_derivative_param(
+        gev_params_year = self.unconstrained_estimator.margin_function_from_fit.get_first_derivative_param(
             coordinate=np.array([year]),
             is_transformed=False,
             dim=0)
@@ -399,7 +399,7 @@ class AbstractGevTrendTest(object):
         empirical_quantiles = []
         # for year, maximum in sorted(zip(self.years, self.maxima), key=lambda t: t[1]):
         for year, maximum in zip(self.years, self.maxima):
-            gev_param = estimator.function_from_fit.get_params(
+            gev_param = estimator.margin_function_from_fit.get_params(
                 coordinate=np.array([year]),
                 is_transformed=False)
             maximum_standardized = gev_param.gumbel_standardization(maximum)
@@ -446,7 +446,7 @@ class AbstractGevTrendTest(object):
         plt.gca().set_ylim(bottom=0)
 
     def get_gev_params_with_big_shape_and_correct_shape(self):
-        gev_params = self.unconstrained_estimator.function_from_fit.get_params(
+        gev_params = self.unconstrained_estimator.margin_function_from_fit.get_params(
             coordinate=np.array([YEAR_OF_INTEREST_FOR_RETURN_LEVEL]),
             is_transformed=False)  # type: GevParams
         gev_params_with_corrected_shape = GevParams(loc=gev_params.location,

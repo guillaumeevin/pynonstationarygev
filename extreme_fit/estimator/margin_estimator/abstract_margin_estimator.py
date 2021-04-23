@@ -59,7 +59,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
             climate_coordinates_with_effects=self.margin_model.climate_coordinates_with_effects)
 
     @cached_property
-    def function_from_fit(self) -> LinearMarginFunction:
+    def margin_function_from_fit(self) -> LinearMarginFunction:
         return load_margin_function(self, self.margin_model)
 
     @property
@@ -70,7 +70,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     def nllh(self):
         maxima_values = self.dataset.maxima_gev
         coordinate_values = self.coordinates_for_nllh
-        return compute_nllh(coordinate_values, maxima_values, self.function_from_fit)
+        return compute_nllh(coordinate_values, maxima_values, self.margin_function_from_fit)
 
     def sorted_empirical_standard_gumbel_quantiles(self, coordinate_for_filter=None):
         sorted_empirical_quantiles = []
@@ -82,7 +82,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
                 keep = any([(f is not None) and (c == f) for c, f in zip(coordinate, coordinate_for_filter)])
                 if not keep:
                     continue
-            gev_param = self.function_from_fit.get_params(
+            gev_param = self.margin_function_from_fit.get_params(
                 coordinate=coordinate,
                 is_transformed=False)
             maximum_standardized = gev_param.gumbel_standardization(maximum[0])
@@ -95,7 +95,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         coordinate_values = self.dataset.df_coordinates.values
         assert len(standard_gumbel_quantiles) == len(coordinate_values)
         for quantile, coordinate in zip(standard_gumbel_quantiles, coordinate_values):
-            gev_param = self.function_from_fit.get_params(
+            gev_param = self.margin_function_from_fit.get_params(
                 coordinate=coordinate,
                 is_transformed=False)
             maximum = gev_param.gumbel_inverse_standardization(quantile)
@@ -118,8 +118,8 @@ class LinearMarginEstimator(AbstractMarginEstimator):
 
     @property
     def nb_params(self):
-        nb_params = self.function_from_fit.nb_params
-        nb_params += self.function_from_fit.nb_params_for_climate_effects
+        nb_params = self.margin_function_from_fit.nb_params
+        nb_params += self.margin_function_from_fit.nb_params_for_climate_effects
         if isinstance(self.margin_model, AbstractTemporalLinearMarginModel) and self.margin_model.is_gumbel_model:
             nb_params -= 1
         return nb_params

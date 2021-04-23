@@ -49,7 +49,7 @@ def get_margin_function_from_fit(model_class, gev_parameter):
                                                coordinates, dataset,
                                                starting_year=None,
                                                fit_method=MarginFitMethod.evgam)
-    return estimator.function_from_fit
+    return estimator.margin_function_from_fit
 
 
 def get_params_from_margin(margin_function, gev_parameter, x):

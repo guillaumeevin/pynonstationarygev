@@ -328,7 +328,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                     y_list = []
                     for t in t_list:
                         coordinate = np.array([altitude, t])
-                        gev_params = one_fold_fit.best_function_from_fit.get_params(coordinate, is_transformed=False)
+                        gev_params = one_fold_fit.best_margin_function_from_fit.get_params(coordinate, is_transformed=False)
                         if plot_mean:
                             y = gev_params.mean
                         else:
@@ -378,7 +378,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         step = 10
         altitudes = list(np.arange(min(altitudes), max(altitudes) + step, step))
         # Get all the correspond peak years
-        margin_function = self.massif_name_to_one_fold_fit[massif_name].best_function_from_fit
+        margin_function = self.massif_name_to_one_fold_fit[massif_name].best_margin_function_from_fit
         peak_years = []
         year_left = 1900
         switch_altitudes = []

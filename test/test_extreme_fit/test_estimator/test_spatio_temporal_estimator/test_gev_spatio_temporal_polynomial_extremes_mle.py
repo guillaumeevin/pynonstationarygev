@@ -73,7 +73,7 @@ class TestGevTemporalQuadraticExtremesMle(unittest.TestCase):
             confidence_interval = EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(estimator,
                                                                                                  ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
                                                                                                  coordinate=coordinate)
-            gev_params = estimator.function_from_fit.get_params(coordinate)
+            gev_params = estimator.margin_function_from_fit.get_params(coordinate)
             return_level = gev_params.return_level(return_period=50)
             if np.isnan(return_level) or np.isnan(confidence_interval.mean_estimate):
                 self.assertTrue(np.isnan(return_level) and np.isnan(confidence_interval.mean_estimate))

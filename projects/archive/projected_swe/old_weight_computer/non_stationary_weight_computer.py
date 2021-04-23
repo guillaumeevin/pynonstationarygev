@@ -25,4 +25,4 @@ class NllhWeightComputer(AbstractWeightComputer):
     def get_function_from_fit(self, ensemble_fit, massif_name, gcm_rcm_couple):
         visualizer = ensemble_fit.gcm_rcm_couple_to_visualizer[gcm_rcm_couple]
         one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
-        return one_fold_fit.best_function_from_fit
+        return one_fold_fit.best_margin_function_from_fit

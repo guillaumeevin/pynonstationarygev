@@ -60,7 +60,7 @@ def plot_curve_gcm_rcm_effect(ax, massif_name, visualizer_list: List[AltitudesSt
         indices = one_fold_fit.dataset.coordinates.get_indices_for_effects(climate_coordinates_with_effects,
                                                                            gcm_rcm_couple)
         assert len(indices) <= 2, indices
-        ordered_climate_effects = one_fold_fit.best_function_from_fit.param_name_to_ordered_climate_effects[param_name]
+        ordered_climate_effects = one_fold_fit.best_margin_function_from_fit.param_name_to_ordered_climate_effects[param_name]
         sum_effects = sum([ordered_climate_effects[i] for i in indices])
         effects.append(sum_effects)
     if len(gcm_rcm_couple) == 2:

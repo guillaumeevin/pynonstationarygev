@@ -34,7 +34,7 @@ class TestSmoothMarginEstimator(unittest.TestCase):
                 # Plot
                 if self.DISPLAY:
                     margin_model.margin_function.visualize_function(show=True)
-                    estimator.function_from_fit.visualize_function(show=True)
+                    estimator.margin_function_from_fit.visualize_function(show=True)
         self.assertTrue(True)
 
 

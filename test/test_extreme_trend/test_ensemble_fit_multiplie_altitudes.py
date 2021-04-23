@@ -44,7 +44,7 @@ class TestEnsembleFit(unittest.TestCase):
                                                temporal_covariate_for_fit=temporal_covariate,
                                                only_models_that_pass_goodness_of_fit_test=False)
 
-            _ = ensemble_fit.visualizer.massif_name_to_one_fold_fit[self.massif_names[0]].best_function_from_fit
+            _ = ensemble_fit.visualizer.massif_name_to_one_fold_fit[self.massif_names[0]].best_margin_function_from_fit
         self.assertTrue(True)
 
     # def test_ensembe_fit_with_effect(self):

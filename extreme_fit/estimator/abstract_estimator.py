@@ -36,7 +36,7 @@ class AbstractEstimator(object):
         return self._result_from_fit
 
     @cached_property
-    def function_from_fit(self) -> AbstractFunction:
+    def margin_function_from_fit(self) -> AbstractFunction:
         raise NotImplementedError
 
 
