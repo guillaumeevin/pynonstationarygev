@@ -49,11 +49,7 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 def set_up_and_load(fast):
     study_class = AdamontSnowfall
-    climate_coordinates_with_effects_list = [None,
-                                             [AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM],
-                                             [AbstractCoordinates.COORDINATE_GCM],
-                                             [AbstractCoordinates.COORDINATE_RCM],
-                                             ][1:2]  # None means we do not create any effect
+
     temporal_covariate_for_fit = [TimeTemporalCovariate,
                                   AnomalyTemperatureWithSplineTemporalCovariate][1]
     set_seed_for_test()
@@ -68,7 +64,7 @@ def set_up_and_load(fast):
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         altitudes_list = [600, 2100, 3600]
     elif fast:
-        gcm_rcm_couples = gcm_rcm_couples[:3]
+        gcm_rcm_couples = gcm_rcm_couples[:2] + gcm_rcm_couples[-2:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         altitudes_list = [2700, 3000]
         model_classes = model_classes[:4]
@@ -84,15 +80,21 @@ def set_up_and_load(fast):
     if fast in [None, False]:
         assert len(set(model_classes)) == 27
     print('number of models', len(model_classes))
-    return altitudes_list, climate_coordinates_with_effects_list, gcm_rcm_couples, massif_names, model_classes, scenario, study_class, temporal_covariate_for_fit
+    return altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, study_class, temporal_covariate_for_fit
 
 
 def main():
     start = time.time()
     fast = None
 
-    altitudes_list, climate_coordinates_with_effects_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
+    altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit = set_up_and_load(fast)
+
+    climate_coordinates_with_effects_list = [None,
+                                             [AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM],
+                                             [AbstractCoordinates.COORDINATE_GCM],
+                                             [AbstractCoordinates.COORDINATE_RCM],
+                                             ][1:2]  # None means we do not create any effect
 
     # Default parameters
     gcm_to_year_min_and_year_max = None

@@ -3,6 +3,7 @@ import math
 import time
 from itertools import chain
 from multiprocessing import Pool
+from typing import List
 
 import numpy as np
 from cached_property import cached_property
@@ -11,6 +12,7 @@ from sklearn.utils import resample
 
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson
+from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
 from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoef, PolynomialCoef
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
@@ -52,8 +54,9 @@ class OneFoldFit(object):
                  only_models_that_pass_goodness_of_fit_test=True,
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
-                 climate_coordinates_with_effects=None
-                 ):
+                 climate_coordinates_with_effects=None,
+                 gcm_rcm_couple_as_pseudo_truth=None):
+        self.gcm_rcm_couple_as_pseudo_truth = gcm_rcm_couple_as_pseudo_truth
         self.first_year = first_year
         self.last_year = last_year
         self.years_of_difference = last_year - first_year
@@ -81,7 +84,8 @@ class OneFoldFit(object):
                                                     fit_method=self.fit_method,
                                                     temporal_covariate_for_fit=self.temporal_covariate_for_fit,
                                                     drop_duplicates=False,
-                                                    climate_coordinates_with_effects=self.climate_coordinates_with_effects)
+                                                    climate_coordinates_with_effects=self.climate_coordinates_with_effects,
+                                                    gcm_rcm_couple_as_pseudo_truth=self.gcm_rcm_couple_as_pseudo_truth)
 
     @classmethod
     def get_moment_str(cls, order):
@@ -187,7 +191,7 @@ class OneFoldFit(object):
     def method_name_to_best_estimator(self, method_names):
         return {self._sorted_estimators_with_method_name(method_name) for method_name in method_names}
 
-    def _sorted_estimators_with_method_name(self, method_name):
+    def _sorted_estimators_with_method_name(self, method_name) -> List[LinearMarginEstimator]:
         estimators = self.estimators_quality_checked
         try:
             sorted_estimators = sorted([estimator for estimator in estimators],

@@ -29,10 +29,11 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                  type_for_MLE="GEV",
                  params_class=GevParams,
                  temporal_covariate_for_fit=None,
-                 climate_coordinates_with_effects=None
+                 climate_coordinates_with_effects=None,
+                 gcm_rcm_couple_as_pseudo_truth=None
                  ):
         super().__init__(coordinates, params_user, starting_point, params_class, fit_method, temporal_covariate_for_fit,
-                         climate_coordinates_with_effects)
+                         climate_coordinates_with_effects, gcm_rcm_couple_as_pseudo_truth)
         self.type_for_mle = type_for_MLE
         self.params_initial_fit_bayesian = params_initial_fit_bayesian
         self.nb_iterations_for_bayesian_fit = nb_iterations_for_bayesian_fit

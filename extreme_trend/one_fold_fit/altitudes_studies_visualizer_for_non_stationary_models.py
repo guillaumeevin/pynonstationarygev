@@ -41,9 +41,11 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                  display_only_model_that_pass_anderson_test=True,
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
-                 climate_coordinates_with_effects=None
+                 climate_coordinates_with_effects=None,
+                 gcm_rcm_couple_as_pseudo_truth=None,
                  ):
         super().__init__(studies.study, show=show, save_to_file=not show)
+        self.gcm_rcm_couple_as_pseudo_truth = gcm_rcm_couple_as_pseudo_truth
         self.studies = studies
         self.model_classes = model_classes
         self.fit_method = fit_method
@@ -92,7 +94,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                                       self.display_only_model_that_pass_test,
                                       self.confidence_interval_based_on_delta_method,
                                       self.remove_physically_implausible_models,
-                                      self.climate_coordinates_with_effects)
+                                      self.climate_coordinates_with_effects,
+                                      self.gcm_rcm_couple_as_pseudo_truth)
             return old_fold_fit
         else:
             return None

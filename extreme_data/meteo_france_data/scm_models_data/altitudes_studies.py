@@ -30,7 +30,8 @@ import matplotlib.pyplot as plt
 class AltitudesStudies(object):
 
     def __init__(self, study_class, altitudes,
-                 spatial_transformation_class=None, temporal_transformation_class=None,
+                 spatial_transformation_class=None,
+                 temporal_transformation_class=None,
                  **kwargs_study):
         self.study_class = study_class
         self.spatial_transformation_class = spatial_transformation_class
@@ -47,9 +48,7 @@ class AltitudesStudies(object):
 
     # Dataset Loader
 
-    def spatio_temporal_dataset(self, massif_name, s_split_spatial: pd.Series = None,
-                                s_split_temporal: pd.Series = None,
-                                massif_altitudes=None):
+    def spatio_temporal_dataset(self, massif_name, massif_altitudes=None):
         coordinate_values_to_maxima = {}
         if massif_altitudes is None:
             massif_altitudes = self.massif_name_to_altitudes[massif_name]
@@ -63,7 +62,7 @@ class AltitudesStudies(object):
                 else:
                     coordinate_values_to_maxima[(altitude, year)] = [maxima]
 
-        coordinates = self.spatio_temporal_coordinates(s_split_spatial, s_split_temporal, massif_altitudes)
+        coordinates = self.spatio_temporal_coordinates(massif_altitudes)
         # Remove the spatial coordinate if we only have one altitude
         if len(massif_altitudes) == 1:
             df = pd.concat([coordinates.df_temporal_coordinates(), coordinates.df_coordinate_climate_model], axis=1)
@@ -84,20 +83,20 @@ class AltitudesStudies(object):
 
     # Coordinates Loader
 
-    def spatio_temporal_coordinates(self, s_split_spatial: pd.Series = None, s_split_temporal: pd.Series = None,
-                                    massif_altitudes=None):
+    def spatio_temporal_coordinates(self, massif_altitudes=None):
         if massif_altitudes is None or set(massif_altitudes) == set(self.altitudes):
             spatial_coordinates = self.spatial_coordinates
         else:
             assert len(massif_altitudes) > 0
             spatial_coordinates = self.spatial_coordinates_for_altitudes(massif_altitudes)
         if isinstance(self.study, AbstractAdamontStudy):
-            return SpatioTemporalCoordinatesForClimateModels(transformation_class=self.spatial_transformation_class,
-                                                             spatial_coordinates=spatial_coordinates,
-                                                             temporal_coordinates=self.temporal_coordinates,
-                                                             gcm_rcm_couple=self.study.gcm_rcm_couple,
-                                                             scenario_str=scenario_to_str(self.study.scenario),
-                                                             )
+            coordinates = SpatioTemporalCoordinatesForClimateModels(transformation_class=self.spatial_transformation_class,
+                                                                    spatial_coordinates=spatial_coordinates,
+                                                                    temporal_coordinates=self.temporal_coordinates,
+                                                                    gcm_rcm_couple=self.study.gcm_rcm_couple,
+                                                                    scenario_str=scenario_to_str(self.study.scenario),
+                                                                    )
+            return coordinates
         else:
             return AbstractSpatioTemporalCoordinates(transformation_class=self.spatial_transformation_class,
                                                      spatial_coordinates=spatial_coordinates,

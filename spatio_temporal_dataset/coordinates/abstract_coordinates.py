@@ -176,7 +176,8 @@ class AbstractCoordinates(object):
 
     def df_temporal_coordinates_for_fit(self, starting_point=None,
                                         temporal_covariate_for_fit: Union[None, type] = None,
-                                        drop_duplicates=True, climate_coordinates_with_effects=None) -> pd.DataFrame:
+                                        drop_duplicates=True, climate_coordinates_with_effects=None,
+                                        gcm_rcm_couple_as_pseudo_truth=None) -> pd.DataFrame:
         # Load time covariate
         if starting_point is None:
             df = self.df_temporal_coordinates(transformed=True, drop_duplicates=drop_duplicates)
@@ -206,7 +207,15 @@ class AbstractCoordinates(object):
             assert all([c in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES for c in climate_coordinates_with_effects])
             for climate_coordinate in climate_coordinates_with_effects:
                 assert climate_coordinate in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES
-                s, unique_values, unique_values_without_nan = self.load_unique_values(climate_coordinate)
+
+                df_coordinate_climate_model = self.df_coordinate_climate_model.copy()
+                # Potentially remove the climate coordinates for some gcm rcm couple
+                if gcm_rcm_couple_as_pseudo_truth is not None:
+                    gcm, rcm = gcm_rcm_couple_as_pseudo_truth
+                    ind = (df_coordinate_climate_model[self.COORDINATE_GCM] == gcm) \
+                          & (df_coordinate_climate_model[self.COORDINATE_RCM] == rcm)
+                    df_coordinate_climate_model.loc[ind, self.COORDINATE_CLIMATE_MODEL_NAMES] = None
+                s, unique_values, unique_values_without_nan = self.load_unique_values(climate_coordinate, df_coordinate_climate_model)
                 has_observations = len(unique_values) == len(unique_values_without_nan) + 1
                 if has_observations:
                     for v in unique_values_without_nan:
@@ -220,8 +229,10 @@ class AbstractCoordinates(object):
 
         return df
 
-    def load_unique_values(self, climate_coordinate):
-        s = self.df_coordinate_climate_model[climate_coordinate]
+    def load_unique_values(self, climate_coordinate, df_coordinate_climate_model=None):
+        if df_coordinate_climate_model is None:
+            df_coordinate_climate_model = self.df_coordinate_climate_model
+        s = df_coordinate_climate_model[climate_coordinate]
         for character in self.character_to_remove_from_climate_model_coordinate_name():
             s = s.str.replace(character, "")
         unique_values = s.unique()
