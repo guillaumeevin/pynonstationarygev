@@ -41,18 +41,17 @@ def main():
     study_classes = [SafranSnowfall1Day
                      , SafranSnowfall3Days,
                      SafranSnowfall5Days, SafranSnowfall7Days][:1]
-    study_classes = [SafranSnowfall2020, SafranSnowfall2019, SafranSnowfallCenterOnDay1day,
-                     SafranSnowfallNotCenterOnDay1day,
-                     SafranSnowfallCenterOnDay1dayMeanRate, SafranSnowfall1Day][:1]
+    # study_classes = [SafranSnowfall2020, SafranSnowfall2019, SafranSnowfallCenterOnDay1day,
+    #                  SafranSnowfallNotCenterOnDay1day,
+    #                  SafranSnowfallCenterOnDay1dayMeanRate, SafranSnowfall1Day][:1]
     # study_classes = [SafranSnowfallNotCenterOnDay1day, SafranSnowfall2019]
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
     set_seed_for_test()
-    model_must_pass_the_test = True
+    model_must_pass_the_test = False
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
-    year_max = 2005
 
-    fast = False
+    fast = None
     if fast is None:
         massif_names = None
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
@@ -66,20 +65,20 @@ def main():
         altitudes_list = altitudes_for_groups[:]
 
     start = time.time()
-    main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_pass_the_test, year_max=year_max)
+    main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_pass_the_test)
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))
     print('Total duration', duration)
 
 
-def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_pass_the_test, year_max=None):
+def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_pass_the_test):
     assert isinstance(altitudes_list, List)
     assert isinstance(altitudes_list[0], List)
     for season in seasons:
         for study_class in study_classes:
             print('Inner loop', season, study_class)
             visualizer_list = load_visualizer_list(season, study_class, altitudes_list, massif_names,
-                                                   model_must_pass_the_test, year_max=year_max)
+                                                   model_must_pass_the_test)
             plot_visualizers(massif_names, visualizer_list)
             for visualizer in visualizer_list:
                 plot_visualizer(massif_names, visualizer)
@@ -88,11 +87,12 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_p
 
 
 def plot_visualizers(massif_names, visualizer_list):
+    with_significance = False
     # plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
-    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list, with_significance=False)
+    plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list, with_significance=with_significance)
     # plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
     for relative in [True, False]:
-        plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative, with_significance=False)
+        plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative, with_significance=with_significance)
     # plot_coherence_curves(['Vanoise'], visualizer_list)
     pass
 

@@ -126,10 +126,7 @@ class OneFoldFit(object):
         return self.relative_changes_of_moment(altitudes=[self.altitude_plot], order=None)[0]
 
     def changes_of_moment(self, altitudes, order=1, covariate_before=None, covariate_after=None):
-        if covariate_before is None:
-            covariate_before = self.covariate_before
-        if covariate_after is None:
-            covariate_after = self.covariate_after
+        covariate_after, covariate_before = self.set_covariate_before_and_after(covariate_after, covariate_before)
         changes = []
         for altitude in altitudes:
             mean_after = self.get_moment(altitude, covariate_after, order)
@@ -137,6 +134,13 @@ class OneFoldFit(object):
             change = mean_after - mean_before
             changes.append(change)
         return changes
+
+    def set_covariate_before_and_after(self, covariate_after, covariate_before):
+        if covariate_before is None:
+            covariate_before = self.covariate_before
+        if covariate_after is None:
+            covariate_after = self.covariate_after
+        return covariate_after, covariate_before
 
     @property
     def covariate_before(self):
@@ -166,6 +170,7 @@ class OneFoldFit(object):
         return s
 
     def relative_changes_of_moment(self, altitudes, order=1, covariate_before=None, covariate_after=None):
+        covariate_after, covariate_before = self.set_covariate_before_and_after(covariate_after, covariate_before)
         relative_changes = []
         for altitude in altitudes:
             mean_after = self.get_moment(altitude, covariate_after, order)
