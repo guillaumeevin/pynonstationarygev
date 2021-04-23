@@ -34,7 +34,7 @@ class PolynomialMarginFunction(LinearMarginFunction):
         return super().get_params(coordinate, is_transformed)
 
     @property
-    def nb_params(self):
+    def nb_params_for_margin_function(self):
         return sum([c.nb_params for c in self.param_name_to_coef.values()])
 
     @classmethod

@@ -50,7 +50,7 @@ class LinearMarginFunction(ParametricMarginFunction):
         return {v: k for k, v in cls.idx_to_coefficient_name(coordinates).items()}
 
     @property
-    def nb_params(self):
+    def nb_params_for_margin_function(self):
         return len(self.coef_dict)
 
     @property

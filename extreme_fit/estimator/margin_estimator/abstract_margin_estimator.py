@@ -66,7 +66,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     def coordinates_for_nllh(self):
         return pd.concat([self.df_coordinates_spat, self.df_coordinates_temp], axis=1).values
 
-    @property
+    @cached_property
     def nllh(self):
         maxima_values = self.dataset.maxima_gev
         coordinate_values = self.coordinates_for_nllh
@@ -118,7 +118,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
 
     @property
     def nb_params(self):
-        nb_params = self.margin_function_from_fit.nb_params
+        nb_params = self.margin_function_from_fit.nb_params_for_margin_function
         nb_params += self.margin_function_from_fit.nb_params_for_climate_effects
         if isinstance(self.margin_model, AbstractTemporalLinearMarginModel) and self.margin_model.is_gumbel_model:
             nb_params -= 1

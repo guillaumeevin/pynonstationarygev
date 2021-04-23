@@ -56,7 +56,7 @@ class AbstractMarginFunction(AbstractFunction):
         raise NotImplementedError
 
     @property
-    def nb_params(self):
+    def nb_params_for_margin_function(self):
         raise NotImplementedError
 
     @property
