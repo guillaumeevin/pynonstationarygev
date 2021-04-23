@@ -47,80 +47,84 @@ from extreme_trend.one_fold_fit.altitude_group import altitudes_for_groups
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 
-def main():
-    start = time.time()
+def set_up_and_load(fast):
     study_class = AdamontSnowfall
-    safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
     climate_coordinates_with_effects_list = [None,
                                              [AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM],
                                              [AbstractCoordinates.COORDINATE_GCM],
                                              [AbstractCoordinates.COORDINATE_RCM],
-                                        ][1:2]  # None means we do not create any effect
-    ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
+                                             ][1:2]  # None means we do not create any effect
     temporal_covariate_for_fit = [TimeTemporalCovariate,
                                   AnomalyTemperatureWithSplineTemporalCovariate][1]
     set_seed_for_test()
-    AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
-    scenarios = [AdamontScenario.rcp85_extended]
+    scenario = AdamontScenario.rcp85_extended
     model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
+    AltitudesStudiesVisualizerForNonStationaryModels.consider_at_least_two_altitudes = False
+    gcm_rcm_couples = get_gcm_rcm_couples(scenario)
+    print('Scenario is', scenario)
+    print('Covariate is {}'.format(temporal_covariate_for_fit))
+    if fast is None:
+        gcm_rcm_couples = gcm_rcm_couples[:]
+        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
+        altitudes_list = [600, 2100, 3600]
+    elif fast:
+        gcm_rcm_couples = gcm_rcm_couples[:3]
+        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
+        altitudes_list = [2700, 3000]
+        model_classes = model_classes[:4]
+    else:
+        altitudes_list = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
+    assert isinstance(gcm_rcm_couples, list)
+    altitudes_list = [[a] for a in altitudes_list]
+    assert isinstance(altitudes_list, List)
+    assert isinstance(altitudes_list[0], List)
+    for altitudes in altitudes_list:
+        assert len(altitudes) == 1
+    massif_names = ['Vanoise']
+    if fast in [None, False]:
+        assert len(set(model_classes)) == 27
+    print('number of models', len(model_classes))
+    return altitudes_list, climate_coordinates_with_effects_list, gcm_rcm_couples, massif_names, model_classes, scenario, study_class, temporal_covariate_for_fit
 
+
+def main():
+    start = time.time()
     fast = None
-    for scenario in scenarios:
-        gcm_rcm_couples = get_gcm_rcm_couples(scenario)
-        if fast is None:
-            gcm_rcm_couples = gcm_rcm_couples[:]
-            AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = [600, 2100, 3600]
-        elif fast:
-            gcm_rcm_couples = gcm_rcm_couples[:3]
-            AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-            altitudes_list = [2700, 3000]
-            model_classes = model_classes[:4]
-        else:
-            altitudes_list = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
 
-        assert isinstance(gcm_rcm_couples, list)
+    altitudes_list, climate_coordinates_with_effects_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
+    study_class, temporal_covariate_for_fit = set_up_and_load(fast)
 
-        altitudes_list = [[a] for a in altitudes_list]
-        assert isinstance(altitudes_list, List)
-        assert isinstance(altitudes_list[0], List)
-        for altitudes in altitudes_list:
-            assert len(altitudes) == 1
-        AltitudesStudiesVisualizerForNonStationaryModels.consider_at_least_two_altitudes = False
+    # Default parameters
+    gcm_to_year_min_and_year_max = None
+    safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
+    print('Take into account the observations: {}'.format(safran_study_class is not None))
+    print('observation class:', get_display_name_from_object_type(safran_study_class))
+    ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
+    AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-        print('Scenario is', scenario)
-        print('Covariate is {}'.format(temporal_covariate_for_fit))
-        print('Take into account the observations: {}'.format(safran_study_class is not None))
-        print('observation class:', get_display_name_from_object_type(safran_study_class))
+    for climate_coordinates_with_effects in climate_coordinates_with_effects_list:
+        print('climate coordinates with effects ', climate_coordinates_with_effects)
 
-        # Default parameters
-        gcm_to_year_min_and_year_max = None
-        massif_names = ['Vanoise']
-        if fast in [None, False]:
-            assert len(set(model_classes)) == 27
-        print('number of models', len(model_classes))
-
-        for climate_coordinates_with_effects in climate_coordinates_with_effects_list:
-            print('climate coordinates with effects ', climate_coordinates_with_effects)
-
-            visualizer = VisualizerForProjectionEnsemble(
-                altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
-                model_classes=model_classes,
-                ensemble_fit_classes=ensemble_fit_classes,
-                massif_names=massif_names,
-                fit_method=MarginFitMethod.evgam,
-                temporal_covariate_for_fit=temporal_covariate_for_fit,
-                remove_physically_implausible_models=True,
-                gcm_to_year_min_and_year_max=gcm_to_year_min_and_year_max,
-                safran_study_class=safran_study_class,
-                display_only_model_that_pass_gof_test=True,
-                climate_coordinates_with_effects=climate_coordinates_with_effects,
-            )
-            visualizer.plot()
+        visualizer = VisualizerForProjectionEnsemble(
+            altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
+            model_classes=model_classes,
+            ensemble_fit_classes=ensemble_fit_classes,
+            massif_names=massif_names,
+            fit_method=MarginFitMethod.evgam,
+            temporal_covariate_for_fit=temporal_covariate_for_fit,
+            remove_physically_implausible_models=True,
+            gcm_to_year_min_and_year_max=gcm_to_year_min_and_year_max,
+            safran_study_class=safran_study_class,
+            display_only_model_that_pass_gof_test=True,
+            climate_coordinates_with_effects=climate_coordinates_with_effects,
+        )
+        visualizer.plot()
 
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))
     print('Total duration', duration)
+
+
 
 
 if __name__ == '__main__':

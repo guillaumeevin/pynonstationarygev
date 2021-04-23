@@ -124,6 +124,9 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     def bic(self, split=Split.all):
         return np.log(self.n(split=split)) * self.nb_params + 2 * self.nllh(split=split)
 
+    def aicc(self, split=Split.all):
+        additional_term = 2 * self.nb_params * (self.nb_params + 1) / (self.n() - self.nb_params - 1)
+        return self.aic(split) + additional_term
 
 def compute_nllh(coordinate_values, maxima_values, function_from_fit, maximum_from_obs=True, assertion_for_inf=True):
     nllh = 0

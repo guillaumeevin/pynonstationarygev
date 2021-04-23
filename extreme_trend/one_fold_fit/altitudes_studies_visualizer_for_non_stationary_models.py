@@ -518,6 +518,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
             for altitude in self.studies.altitudes:
                 coordinate_for_filter = (altitude, None)
+                # We filter on the transformed gumbel quantiles for the altitude of interest
                 unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles(
                     coordinate_for_filter=coordinate_for_filter)
                 n = len(unconstrained_empirical_quantiles)
