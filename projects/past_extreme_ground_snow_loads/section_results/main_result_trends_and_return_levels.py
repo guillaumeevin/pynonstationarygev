@@ -2,6 +2,9 @@ from multiprocessing.pool import Pool
 
 import matplotlib as mpl
 
+from extreme_trend.trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
+    StudyVisualizerForNonStationaryTrends, ModelSubsetForUncertainty
+from extreme_trend.trend_test.visualizers.utils import load_altitude_to_visualizer
 from projects.past_extreme_ground_snow_loads.section_results.plot_trend_curves import plot_trend_map, plot_trend_curves
 from projects.past_extreme_ground_snow_loads.section_results.plot_uncertainty_histogram import plot_uncertainty_histogram
 
@@ -11,9 +14,6 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal, CrocusSnowLoadEurocode
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
-from extreme_trend.trend_test.visualizers import \
-    StudyVisualizerForNonStationaryTrends, ModelSubsetForUncertainty
-from extreme_trend.trend_test.visualizers import load_altitude_to_visualizer
 from projects.past_extreme_ground_snow_loads.utils import paper_study_classes, paper_altitudes
 from root_utils import NB_CORES
 

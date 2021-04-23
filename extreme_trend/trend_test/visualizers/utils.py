@@ -3,7 +3,7 @@ from collections import OrderedDict
 from extreme_data.meteo_france_data.scm_models_data.utils import Season, FrenchRegion
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
-from extreme_trend.trend_test.visualizers import \
+from extreme_trend.trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
     StudyVisualizerForNonStationaryTrends
 
 
