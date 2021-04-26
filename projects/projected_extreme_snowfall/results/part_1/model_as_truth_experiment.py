@@ -16,15 +16,15 @@ class ModelAsTruthExperiment(object):
 
     def __init__(self, altitudes, gcm_rcm_couples, study_class, season, scenario,
                  model_classes: List[AbstractTemporalLinearMarginModel],
-                 massif_names=None,
+                 selection_method_names: List[str],
+                massif_names=None,
                  fit_method=MarginFitMethod.extremes_fevd_mle,
                  temporal_covariate_for_fit=None,
                  display_only_model_that_pass_gof_test=False,
                  remove_physically_implausible_models=False,
                  climate_coordinates_with_effects=None,
-                 selection_method_name='aic'
                  ):
-        self.selection_method_name = selection_method_name
+        self.selection_method_name = selection_method_names
         self.fit_method = fit_method
         self.massif_names = massif_names
         self.temporal_covariate_for_fit = temporal_covariate_for_fit

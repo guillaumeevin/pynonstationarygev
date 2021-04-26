@@ -25,3 +25,4 @@ def error_dict_between_margin_functions(reference: AbstractMarginFunction, fitte
         error = 100 * relative_abs_error(reference_values[gev_value_name], fitted_values[gev_value_name])
         param_name_to_error_serie[gev_value_name] = error
     return param_name_to_error_serie
+

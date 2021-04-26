@@ -1,4 +1,5 @@
 import os.path as op
+from itertools import chain
 from typing import List, Tuple, Union
 
 import matplotlib.pyplot as plt
@@ -215,12 +216,13 @@ class AbstractCoordinates(object):
                     ind = (df_coordinate_climate_model[self.COORDINATE_GCM] == gcm) \
                           & (df_coordinate_climate_model[self.COORDINATE_RCM] == rcm)
                     df_coordinate_climate_model.loc[ind, self.COORDINATE_CLIMATE_MODEL_NAMES] = None
+                # Create some additional columns
                 s, unique_values, unique_values_without_nan = self.load_unique_values(climate_coordinate, df_coordinate_climate_model)
                 has_observations = len(unique_values) == len(unique_values_without_nan) + 1
                 if has_observations:
-                    for v in unique_values_without_nan:
-                        sv = (s == v) * 1
-                        df[v] = sv
+                    for value_name in unique_values_without_nan:
+                        serie_is_value = (s == value_name) * 1
+                        df[value_name] = serie_is_value
                 else:
                     raise NotImplementedError
                     # todo: the coordinate for three gcm should be 1, 0 then 0, 1 finally -1 -1
@@ -246,20 +248,56 @@ class AbstractCoordinates(object):
             column_names.extend(names)
         return column_names
 
-    def get_indices_for_effects(self, climate_coordinates_names_with_effects, gcm_rcm_couple):
+    def get_indices_for_effects(self, full_climate_coordinates_names_with_effects, gcm_rcm_couple):
         indices = []
-        columns_names = self.load_ordered_columns_names(climate_coordinates_names_with_effects)
+        columns_names = self.load_ordered_columns_names(full_climate_coordinates_names_with_effects)
         for name in gcm_rcm_couple:
+            print("her 9", name, type(name))
             name_for_fit = self.climate_model_coordinate_name_to_name_for_fit(name)
             index = columns_names.index(name_for_fit)
             indices.append(index)
         return indices
 
-    def get_climate_coordinate(self, climate_coordinates_names_with_effects, gcm_rcm_couple):
-        columns_names = self.load_ordered_columns_names(climate_coordinates_names_with_effects)
-        climate_coordinates = np.zeros(len(columns_names))
-        for indice in self.get_indices_for_effects(climate_coordinates_names_with_effects, gcm_rcm_couple):
-            climate_coordinates[indice] = 1
+    @classmethod
+    def load_full_climate_coordinates_with_effects(cls, param_name_to_climate_coordinates_with_effects):
+        two_climate_coordinates_considered = [cls.COORDINATE_GCM, cls.COORDINATE_RCM]
+        all_climate_coordinate_with_effects = set(chain(*[c
+                                                          for c
+                                                          in param_name_to_climate_coordinates_with_effects.values()
+                                                          if c is not None]))
+        assert all([c in two_climate_coordinates_considered for c in all_climate_coordinate_with_effects])
+        if len(all_climate_coordinate_with_effects) == 2:
+            return two_climate_coordinates_considered
+        elif len(all_climate_coordinate_with_effects) == 1:
+            return list(all_climate_coordinate_with_effects)
+        else:
+            return None
+
+    def get_climate_coordinate_from_gcm_rcm_couple(self, full_climate_coordinates_names_with_effects,
+                                            climate_coordinates_names_with_param_effects, gcm_rcm_couple):
+        indices_with_ones = self.get_indices_for_effects(full_climate_coordinates_names_with_effects, gcm_rcm_couple)
+        return self.get_climate_coordinate_from_indices(full_climate_coordinates_names_with_effects,
+                                            climate_coordinates_names_with_param_effects, indices_with_ones)
+
+    def get_climate_coordinate_from_full_climate_coordinate(self,  full_climate_coordinates_names_with_effects,
+                                            climate_coordinates_names_with_param_effects , full_climate_coordinate):
+        indices_with_ones = [i for i, v in enumerate(full_climate_coordinate) if v == 1]
+        return self.get_climate_coordinate_from_indices(full_climate_coordinates_names_with_effects,
+                                            climate_coordinates_names_with_param_effects, indices_with_ones)
+
+    def get_climate_coordinate_from_indices(self, full_climate_coordinates_names_with_effects,
+                                            climate_coordinates_names_with_param_effects, indices_with_ones):
+        # Load full names
+        full_names = self.load_ordered_columns_names(full_climate_coordinates_names_with_effects)
+        # Load the specific names
+        specific_names = self.load_ordered_columns_names(climate_coordinates_names_with_param_effects)
+        # The climate coordinate must be the size of the specific coordinate
+        climate_coordinates = np.zeros(len(specific_names))
+        for indice in indices_with_ones:
+            column_name = full_names[indice]
+            if column_name in specific_names:
+                new_indice = specific_names.index(column_name)
+                climate_coordinates[new_indice] = 1
         return climate_coordinates
 
     def df_climate_models(self):

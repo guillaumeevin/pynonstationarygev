@@ -5,6 +5,7 @@ import matplotlib
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
+from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
     NonStationaryTwoLinearShapeModel, NonStationaryTwoLinearShapeOneLinearScaleModel, NonStationaryTwoLinearScaleModel
@@ -66,7 +67,7 @@ def set_up_and_load(fast):
     elif fast:
         gcm_rcm_couples = gcm_rcm_couples[:2] + gcm_rcm_couples[-2:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = [2700, 3000]
+        altitudes_list = [2700, 3000][:1]
         model_classes = model_classes[:4]
     else:
         altitudes_list = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
@@ -85,7 +86,7 @@ def set_up_and_load(fast):
 
 def main():
     start = time.time()
-    fast = None
+    fast = True
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit = set_up_and_load(fast)
@@ -94,7 +95,7 @@ def main():
                                              [AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM],
                                              [AbstractCoordinates.COORDINATE_GCM],
                                              [AbstractCoordinates.COORDINATE_RCM],
-                                             ][1:2]  # None means we do not create any effect
+                                             ]  # None means we do not create any effect
 
     # Default parameters
     gcm_to_year_min_and_year_max = None
@@ -104,23 +105,28 @@ def main():
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    for climate_coordinates_with_effects in climate_coordinates_with_effects_list:
-        print('climate coordinates with effects ', climate_coordinates_with_effects)
+    param_name_to_climate_coordinates_with_effects = {
+        GevParams.LOC: climate_coordinates_with_effects_list[1],
+        GevParams.SCALE: climate_coordinates_with_effects_list[2],
+        GevParams.SHAPE: climate_coordinates_with_effects_list[3],
+    }
 
-        visualizer = VisualizerForProjectionEnsemble(
-            altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
-            model_classes=model_classes,
-            ensemble_fit_classes=ensemble_fit_classes,
-            massif_names=massif_names,
-            fit_method=MarginFitMethod.evgam,
-            temporal_covariate_for_fit=temporal_covariate_for_fit,
-            remove_physically_implausible_models=True,
-            gcm_to_year_min_and_year_max=gcm_to_year_min_and_year_max,
-            safran_study_class=safran_study_class,
-            display_only_model_that_pass_gof_test=True,
-            climate_coordinates_with_effects=climate_coordinates_with_effects,
-        )
-        visualizer.plot()
+    print(model_classes)
+
+    visualizer = VisualizerForProjectionEnsemble(
+        altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
+        model_classes=model_classes,
+        ensemble_fit_classes=ensemble_fit_classes,
+        massif_names=massif_names,
+        fit_method=MarginFitMethod.evgam,
+        temporal_covariate_for_fit=temporal_covariate_for_fit,
+        remove_physically_implausible_models=True,
+        gcm_to_year_min_and_year_max=gcm_to_year_min_and_year_max,
+        safran_study_class=safran_study_class,
+        display_only_model_that_pass_gof_test=True,
+        param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
+    )
+    visualizer.plot()
 
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))

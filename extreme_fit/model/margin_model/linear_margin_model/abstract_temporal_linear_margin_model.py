@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import numpy as np
 import pandas as pd
 from rpy2 import robjects
@@ -29,11 +31,11 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                  type_for_MLE="GEV",
                  params_class=GevParams,
                  temporal_covariate_for_fit=None,
-                 climate_coordinates_with_effects=None,
+                 param_name_to_climate_coordinates_with_effects=None,
                  gcm_rcm_couple_as_pseudo_truth=None
                  ):
         super().__init__(coordinates, params_user, starting_point, params_class, fit_method, temporal_covariate_for_fit,
-                         climate_coordinates_with_effects, gcm_rcm_couple_as_pseudo_truth)
+                         param_name_to_climate_coordinates_with_effects, gcm_rcm_couple_as_pseudo_truth)
         self.type_for_mle = type_for_MLE
         self.params_initial_fit_bayesian = params_initial_fit_bayesian
         self.nb_iterations_for_bayesian_fit = nb_iterations_for_bayesian_fit
@@ -77,16 +79,22 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         maxima_column_name = 'Maxima'
         formula_list = [maxima_column_name + " " + v if i == 0 else v for i, v in enumerate(margin_formula.values())]
         # Add potential climate effects
-        name_of_the_climatic_effects = [c for c in df_coordinates_temp.columns if
-                                        c not in AbstractCoordinates.COORDINATES_NAMES]
-        name_of_the_climatic_effects_for_formula = ["{}".format(c) for c in name_of_the_climatic_effects]
-        formula_effect_str = ' + '.join(name_of_the_climatic_effects_for_formula)
+        ordered_formula_effect_str = []
+        param_name_to_name_of_climatic_effects = OrderedDict()
+        for param_name in GevParams.PARAM_NAMES:
+            # Save the name of the climatic effects
+            climate_coordinates_names_with_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
+            name_of_the_climatic_effects = self.coordinates.load_ordered_columns_names(climate_coordinates_names_with_effects)
+            param_name_to_name_of_climatic_effects[param_name] = name_of_the_climatic_effects
+            # Save the appropriate formula
+            formula_effect_str = ' + '.join(name_of_the_climatic_effects)
+            ordered_formula_effect_str.append(formula_effect_str)
         # We apply the effect on all the parameters
-        if len(name_of_the_climatic_effects) > 0:
+        if self.param_name_to_climate_coordinates_with_effects is not None:
             formula_list = [f.replace(' 1', '') if (('poly(' not in f) and ('s(' not in f)) else f
                             for f in formula_list]
             formula_list = [f + ' + ' if f[-2:] != '~ ' else f for f in formula_list]
-            formula_list = [f + formula_effect_str for f in formula_list]
+            formula_list = [f1 + f2 for f1, f2 in zip(formula_list, ordered_formula_effect_str)]
         formula = r.list(*[robjects.Formula(f) for f in formula_list])
         df = pd.DataFrame({maxima_column_name: np.array(x)})
         df = pd.concat([df, df_coordinates_spat, df_coordinates_temp], axis=1)
@@ -103,7 +111,8 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         return ResultFromEvgam(res, self.param_name_to_list_for_result,
                                self.coordinates.dim_to_coordinate,
                                type_for_mle=self.type_for_mle,
-                               name_of_the_climatic_effects=name_of_the_climatic_effects)
+                               param_name_to_name_of_the_climatic_effects=param_name_to_name_of_climatic_effects,
+                               param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects)
 
     # Gev fit with extRemes package
 

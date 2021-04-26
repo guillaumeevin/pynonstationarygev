@@ -54,7 +54,7 @@ class OneFoldFit(object):
                  only_models_that_pass_goodness_of_fit_test=True,
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
-                 climate_coordinates_with_effects=None,
+                 param_name_to_climate_coordinates_with_effects=None,
                  gcm_rcm_couple_as_pseudo_truth=None):
         self.gcm_rcm_couple_as_pseudo_truth = gcm_rcm_couple_as_pseudo_truth
         self.first_year = first_year
@@ -69,7 +69,7 @@ class OneFoldFit(object):
         self.models_classes = models_classes
         self.fit_method = fit_method
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
-        self.climate_coordinates_with_effects = climate_coordinates_with_effects
+        self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
 
         # Fit Estimators
         self.model_class_to_estimator = {}
@@ -84,7 +84,7 @@ class OneFoldFit(object):
                                                     fit_method=self.fit_method,
                                                     temporal_covariate_for_fit=self.temporal_covariate_for_fit,
                                                     drop_duplicates=False,
-                                                    climate_coordinates_with_effects=self.climate_coordinates_with_effects,
+                                                    param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects,
                                                     gcm_rcm_couple_as_pseudo_truth=self.gcm_rcm_couple_as_pseudo_truth)
 
     @classmethod
@@ -327,11 +327,15 @@ class OneFoldFit(object):
             elif isinstance(self.best_estimator.margin_model, AltitudinalShapeLinearTimeStationary):
                 return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
             else:
+                print("here 11")
+                print(self.model_class_to_estimator_with_finite_aic)
+                print(len(self.model_class_to_estimator_with_finite_aic))
                 if isinstance(self.altitude_group, DefaultAltitudeGroup):
                     return self.model_class_to_estimator_with_finite_aic[StationaryTemporalModel]
                 else:
                     return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinal]
         except KeyError:
+            print(self.altitude_group)
             raise KeyError('A stationary model must be added either in the list of models, or here in the method')
 
     @property

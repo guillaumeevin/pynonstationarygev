@@ -19,14 +19,20 @@ class ResultFromEvgam(AbstractResultFromExtremes):
     def __init__(self, result_from_fit: robjects.ListVector, param_name_to_dim=None,
                  dim_to_coordinate=None,
                  type_for_mle="GEV",
-                 name_of_the_climatic_effects=None) -> None:
+                 param_name_to_name_of_the_climatic_effects=None,
+                 param_name_to_climate_coordinates_with_effects=None) -> None:
         super().__init__(result_from_fit, param_name_to_dim, dim_to_coordinate)
-        self.name_of_the_climatic_effects = name_of_the_climatic_effects
+        self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
+        self.param_name_to_name_of_the_climatic_effects = param_name_to_name_of_the_climatic_effects
         self.type_for_mle = type_for_mle
 
     @property
-    def name_of_the_climatic_effects_to_load_margin_function(self):
-        return self.name_of_the_climatic_effects
+    def param_name_to_name_of_the_climatic_effects_to_load_margin_function(self):
+        return self.param_name_to_name_of_the_climatic_effects
+
+    @property
+    def param_name_to_climate_coordinates_with_effects_to_load_margin_function(self):
+        return self.param_name_to_climate_coordinates_with_effects
 
     @property
     def nllh(self):
@@ -85,7 +91,7 @@ class ResultFromEvgam(AbstractResultFromExtremes):
         if len(r_param_names_with_spline) == 0:
             return get_margin_coef_ordered_dict(self.param_name_to_dims, coefficients, self.type_for_mle,
                                                 dim_to_coordinate_name=self.dim_to_coordinate,
-                                                name_of_the_climatic_effects=self.name_of_the_climatic_effects)
+                                                param_name_to_name_of_the_climatic_effects=self.param_name_to_name_of_the_climatic_effects)
         else:
             # Compute spline param_name to dim_to_knots_and_coefficients
             spline_param_name_to_dim_knots_and_coefficient = {}
@@ -110,7 +116,7 @@ class ResultFromEvgam(AbstractResultFromExtremes):
             assert len(coefficients) == len(np.array(self.name_to_value['coefficients']))
             coef_dict = get_margin_coef_ordered_dict(param_name_to_dims, coefficients, self.type_for_mle,
                                                      dim_to_coordinate_name=self.dim_to_coordinate,
-                                                     name_of_the_climatic_effects=self.name_of_the_climatic_effects)
+                                                     param_name_to_name_of_the_climatic_effects=self.param_name_to_name_of_the_climatic_effects)
             return coef_dict, spline_param_name_to_dim_knots_and_coefficient
 
     def compute_dim_to_knots_and_coefficient(self, param_name, r_param_name):
@@ -150,12 +156,12 @@ class ResultFromEvgam(AbstractResultFromExtremes):
 
     def remove_effects_from_y_from_all_climate_model(self, x_climatic, y, r_param_name):
         y = y.copy()
-        assert self.name_of_the_climatic_effects is not None
+        assert self.param_name_to_name_of_the_climatic_effects is not None
         # Load the coefficient correspond to the effect from the last climate model
         coefficients = self.load_coefficients(r_param_name)
-        effects_coefficients = coefficients[-len(self.name_of_the_climatic_effects):]
-        assert len(effects_coefficients) == len(self.name_of_the_climatic_effects) == len(x_climatic)
-        df_coordinates = pd.DataFrame(x_climatic.transpose(), columns=self.name_of_the_climatic_effects)
+        effects_coefficients = coefficients[-len(self.param_name_to_name_of_the_climatic_effects):]
+        assert len(effects_coefficients) == len(self.param_name_to_name_of_the_climatic_effects) == len(x_climatic)
+        df_coordinates = pd.DataFrame(x_climatic.transpose(), columns=self.param_name_to_name_of_the_climatic_effects)
         for j, effect_coef in enumerate(effects_coefficients):
             ind = df_coordinates.iloc[:, j] == 1.0
             assert len(ind) == len(y)

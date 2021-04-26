@@ -1,4 +1,5 @@
 from abc import ABC
+from itertools import chain
 
 import numpy as np
 import pandas as pd
@@ -22,7 +23,7 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
                  params_user=None, starting_point=None, params_class=GevParams,
                  fit_method=MarginFitMethod.spatial_extremes_mle,
                  temporal_covariate_for_fit=None,
-                 climate_coordinates_with_effects=None,
+                 param_name_to_climate_coordinates_with_effects=None,
                  gcm_rcm_couple_as_pseudo_truth=None,
                  ):
         """
@@ -33,8 +34,16 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         self.starting_point = starting_point
         self.drop_duplicates = True
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
-        self.climate_coordinates_with_effects = climate_coordinates_with_effects
+        self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
         self.gcm_rcm_couple_as_pseudo_truth = gcm_rcm_couple_as_pseudo_truth
+
+    @property
+    def climate_coordinates_with_effects(self):
+        """Return all the effect that are needed to account for in the coordinates"""
+        if self.param_name_to_climate_coordinates_with_effects is None:
+            return None
+        else:
+            return self.coordinates.load_full_climate_coordinates_with_effects(self.param_name_to_climate_coordinates_with_effects)
 
     @cached_property
     def margin_function(self) -> ParametricMarginFunction:

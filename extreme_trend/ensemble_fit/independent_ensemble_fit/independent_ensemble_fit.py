@@ -24,7 +24,7 @@ class IndependentEnsembleFit(AbstractEnsembleFit):
                                                                           self.only_models_that_pass_goodness_of_fit_test,
                                                                           self.confidence_interval_based_on_delta_method,
                                                                           self.remove_physically_implausible_models,
-                                                                          self.climate_coordinates_with_effects)
+                                                                          self.param_name_to_climate_coordinates_with_effects)
             self.gcm_rcm_couple_to_visualizer[gcm_rcm_couple] = visualizer
         # Load merge visualizer for various merge functions
         visualizers = list(self.gcm_rcm_couple_to_visualizer.values())

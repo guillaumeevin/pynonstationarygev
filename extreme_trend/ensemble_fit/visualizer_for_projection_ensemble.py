@@ -36,9 +36,9 @@ class VisualizerForProjectionEnsemble(object):
                  gcm_to_year_min_and_year_max=None,
                  interval_str_prefix='',
                  safran_study_class=None,
-                 climate_coordinates_with_effects=None,
+                 param_name_to_climate_coordinates_with_effects=None,
                  ):
-        self.climate_coordinates_with_effects = climate_coordinates_with_effects
+        self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
         self.safran_study_class = safran_study_class
         self.interval_str_prefix = interval_str_prefix
         self.altitudes_list = altitudes_list
@@ -92,7 +92,7 @@ class VisualizerForProjectionEnsemble(object):
                                                   display_only_model_that_pass_gof_test,
                                                   confidence_interval_based_on_delta_method,
                                                   remove_physically_implausible_models,
-                                                  climate_coordinates_with_effects)
+                                                  param_name_to_climate_coordinates_with_effects)
                 ensemble_class_to_ensemble_fit[ensemble_fit_class] = ensemble_fit
             self.altitude_group_to_ensemble_class_to_ensemble_fit[altitude_group] = ensemble_class_to_ensemble_fit
 
@@ -114,12 +114,12 @@ class VisualizerForProjectionEnsemble(object):
             for relative in [None, True, False]:
                 for order in [None] + GevParams.PARAM_NAMES:
                     plot_relative_dynamic(self.massif_names, visualizer_list,
-                                          self.climate_coordinates_with_effects,
+                                          self.param_name_to_climate_coordinates_with_effects,
                                           self.safran_study_class,
                                           relative,
                                           order,
                                           self.gcm_rcm_couples)
-            if self.climate_coordinates_with_effects is not None:
+            if self.param_name_to_climate_coordinates_with_effects is not None:
                 climate_coordinate_with_effects_to_list = {
                     (AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM): self.gcm_rcm_couples,
                     AbstractCoordinates.COORDINATE_GCM: [[e] for e in set([g for g, r in self.gcm_rcm_couples])],
@@ -127,9 +127,10 @@ class VisualizerForProjectionEnsemble(object):
                 }
                 for c, gcm_rcm_couples in climate_coordinate_with_effects_to_list.items():
                     for param_name in GevParams.PARAM_NAMES[:]:
+                        climate_coordinate_with_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
                         plot_gcm_rcm_effects(self.massif_names, visualizer_list,
                                              list(c) if isinstance(c, tuple) else [c],
-                                             self.climate_coordinates_with_effects,
+                                             climate_coordinate_with_effects,
                                              self.safran_study_class,
                                              gcm_rcm_couples,
                                              param_name)

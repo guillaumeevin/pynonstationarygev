@@ -13,7 +13,7 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covari
 
 
 def plot_relative_dynamic(massif_names, visualizer_list: List[
-    AltitudesStudiesVisualizerForNonStationaryModels], climate_coordinates_with_effects,
+    AltitudesStudiesVisualizerForNonStationaryModels], param_name_to_climate_coordinates_with_effects,
                           safran_study_class, relative, order,
                           gcm_rcm_couples
                           ):
@@ -23,8 +23,7 @@ def plot_relative_dynamic(massif_names, visualizer_list: List[
     is_temp_covariate = visualizer.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate
     massif_name = massif_names[0]
     for v in visualizer_list:
-        plot_curve(ax, massif_name, v, relative, is_temp_covariate, order, gcm_rcm_couples,
-                   climate_coordinates_with_effects)
+        plot_curve(ax, massif_name, v, relative, is_temp_covariate, order, gcm_rcm_couples)
 
     xlabel = 'Anomaly of global temperature w.r.t. pre-industrial levels (K)' if is_temp_covariate else "Years"
     ax.set_xlabel(xlabel)
@@ -37,15 +36,14 @@ def plot_relative_dynamic(massif_names, visualizer_list: List[
 
     ax.legend(ncol=2, prop={'size': 9}, loc='upper left')
     title = ylabel.split('(')[0]
-    set_plot_name(climate_coordinates_with_effects, safran_study_class, title, visualizer)
+    set_plot_name(param_name_to_climate_coordinates_with_effects, safran_study_class, title, visualizer)
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
 
     plt.close()
 
 
 def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStationaryModels,
-               relative, is_temp_cov, order, gcm_rcm_couples, climate_coordinates_with_effects
-               ):
+               relative, is_temp_cov, order, gcm_rcm_couples):
     if is_temp_cov:
         x_list = np.linspace(1, 4.5, num=400)
         covariate_before = 1
@@ -67,7 +65,7 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
     ax.plot(x_list, changes, label=label, color=color, linewidth=4)
     # Plot the sub trend, i.e. for each GCM-RCM couples
     for gcm_rcm_couple in gcm_rcm_couples[:]:
-        fake_altitude = [climate_coordinates_with_effects, gcm_rcm_couple]
+        fake_altitude = gcm_rcm_couple
         changes = [f([fake_altitude], order=order, covariate_before=covariate_before, covariate_after=t)[0] for t in x_list]
         ax.plot(x_list, changes, color=color, linewidth=1, linestyle='dotted')
 
@@ -91,10 +89,11 @@ altitude_to_color = {
 }
 
 
-def set_plot_name(climate_coordinates_with_effects, safran_study_class, title, visualizer):
+def set_plot_name(param_name_to_climate_coordinates_with_effects, safran_study_class, title, visualizer):
+    # raise NotImplementedError
     plot_name = ' %s' % title
-    plot_name += ' with {} effects'.format('no' if climate_coordinates_with_effects is None
+    plot_name += ' with {} effects'.format('no' if param_name_to_climate_coordinates_with_effects is None
                                            else ' and '.join(
-        [c.replace('coord_', '') for c in climate_coordinates_with_effects]))
+        [c.replace('coord_', '') for c in param_name_to_climate_coordinates_with_effects]))
     plot_name += ' with{} observations'.format('out' if safran_study_class is None else '')
     visualizer.plot_name = plot_name
