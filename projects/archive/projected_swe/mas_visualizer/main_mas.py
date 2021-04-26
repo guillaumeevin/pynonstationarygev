@@ -4,7 +4,7 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf impo
 from extreme_data.meteo_france_data.scm_models_data.utils_function import ReturnLevelBootstrap
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
-from projects.archive.projected_swe.model_as_truth_visualizer import ModelAsTruth
+from projects.archive.projected_swe.mas_visualizer import ModelAsTruth
 from projects.archive.projected_swe.weight_solver.indicator import AnnualMaximaMeanIndicator
 from projects.archive.projected_swe.weight_solver import KnuttiWeightSolver
 from projects.archive.projected_swe.weight_solver.knutti_weight_solver_with_bootstrap import \
