@@ -127,15 +127,13 @@ class VisualizerForProjectionEnsemble(object):
                 }
                 for c, gcm_rcm_couples in climate_coordinate_with_effects_to_list.items():
                     for param_name in GevParams.PARAM_NAMES[:]:
-                        climate_coordinate_with_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
+                        climate_coordinate_with_effects = self.param_name_to_climate_coordinates_with_effects[
+                            param_name]
                         plot_gcm_rcm_effects(self.massif_names, visualizer_list,
-                                             list(c) if isinstance(c, tuple) else [c],
                                              climate_coordinate_with_effects,
                                              self.safran_study_class,
                                              gcm_rcm_couples,
                                              param_name)
-
-
 
     def plot(self):
         # Set limit for the plot

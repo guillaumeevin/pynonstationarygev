@@ -67,7 +67,7 @@ def set_up_and_load(fast):
     elif fast:
         gcm_rcm_couples = gcm_rcm_couples[:2] + gcm_rcm_couples[-2:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = [2700, 3000][:1]
+        altitudes_list = [2700, 3000][:]
         model_classes = model_classes[:4]
     else:
         altitudes_list = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]

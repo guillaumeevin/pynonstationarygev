@@ -13,8 +13,7 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 
 def plot_gcm_rcm_effects(massif_names, visualizer_list: List[
-    AltitudesStudiesVisualizerForNonStationaryModels],
-                         full_climate_coordinates_names_with_effects, climate_coordinates_with_effects,
+    AltitudesStudiesVisualizerForNonStationaryModels], climate_coordinates_with_effects,
                          safran_study_class,
                          gcm_rcm_couples, param_name,
                          ):
@@ -26,7 +25,7 @@ def plot_gcm_rcm_effects(massif_names, visualizer_list: List[
     massif_name = massif_names[0]
     all_effects = []
     for gcm_rcm_couple in gcm_rcm_couples:
-        effects = plot_curve_gcm_rcm_effect(ax, massif_name, visualizer_list, full_climate_coordinates_names_with_effects,
+        effects = plot_curve_gcm_rcm_effect(ax, massif_name, visualizer_list,
                                             climate_coordinates_with_effects, gcm_rcm_couple, param_name)
         all_effects.append(effects)
     all_effects = np.array(all_effects)
@@ -35,7 +34,7 @@ def plot_gcm_rcm_effects(massif_names, visualizer_list: List[
 
     ax.plot(mean_effects, altitudes, label='Mean effect', color='k', linewidth=4)
 
-    effect_name = '-'.join([c.replace('coord_', '').upper() for c in full_climate_coordinates_names_with_effects])
+    effect_name = '-'.join([c.replace('coord_', '').upper() for c in climate_coordinates_with_effects])
     param_name_str = GevParams.full_name_from_param_name(param_name)
     xlabel = '{} effect for the {} parameter'.format(effect_name, param_name_str)
     ax.vlines(0, ymin=altitudes[0], ymax=altitudes[-1], color='k', linestyles='dashed')
@@ -59,17 +58,9 @@ def plot_curve_gcm_rcm_effect(ax, massif_name, visualizer_list: List[AltitudesSt
     effects = []
     for visualizer in visualizer_list[:]:
         one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
-        coordinates = one_fold_fit.best_margin_function_from_fit.coordinates
-
-        coordinate = np.array([2000] + list(gcm_rcm_couple))
-
-        climate_coordinate_for_param_name = coordinates.get_climate_coordinate_from_gcm_rcm_couple \
-            (full_climate_coordinates_names_with_effects, climate_coordinates_names_with_param_effects,
-             gcm_rcm_couple)
-
-        param_name_to_total_effect[param_name] = np.dot(effects, climate_coordinate_for_param_name)
-
-        coordinate, total_effect = one_fold_fit.best_margin_function_from_fit.load_param_name_to_total_effect(coordinate)
+        margin_function = one_fold_fit.best_margin_function_from_fit
+        full_climate_coordinate = np.array(list(gcm_rcm_couple))
+        total_effect = margin_function.load_total_effect(full_climate_coordinate, param_name, climate_coordinates_with_effects)
         effects.append(total_effect)
     if len(gcm_rcm_couple) == 2:
         color = gcm_rcm_couple_to_color[gcm_rcm_couple]
