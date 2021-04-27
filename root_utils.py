@@ -15,7 +15,7 @@ for c in [' ', ':', '-']:
 NB_CORES = 7
 
 
-def batch_nb_cores(iterable, nb_cores):
+def batch_nb_cores(iterable, nb_cores=NB_CORES):
     batchsize = math.ceil(len(iterable) / nb_cores)
     return batch(iterable, batchsize)
 
@@ -26,14 +26,16 @@ def batch(iterable, batchsize=1):
         yield iterable[ndx:min(ndx + batchsize, l)]
 
 
-def multiprocessing_batch(function, argument_list, batchsize=None):
+def multiprocessing_batch(function, argument_list, batchsize=None, nb_cores=NB_CORES):
     nb_argument = len(argument_list)
-    with Pool(NB_CORES) as p:
+    with Pool(nb_cores) as p:
         if batchsize is None:
-            batchsize = math.ceil(nb_argument / NB_CORES)
+            batchsize = math.ceil(nb_argument / nb_cores)
         result_list = p.map(function, batch(argument_list, batchsize=batchsize))
-        result_list = list(chain.from_iterable(result_list))
-        return result_list
+        if None in result_list:
+            return None
+        else:
+            return list(chain.from_iterable(result_list))
 
 
 def terminal_command(command_str):

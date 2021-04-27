@@ -6,7 +6,7 @@ import pandas as pd
 from cached_property import cached_property
 
 from extreme_fit.estimator.abstract_estimator import AbstractEstimator
-from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh
+from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh, compute_nllh_with_multiprocessing_for_large_samples
 from extreme_fit.estimator.utils import load_margin_function
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
@@ -83,7 +83,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     def nllh(self):
         maxima_values = self.dataset.maxima_gev
         coordinate_values = self.coordinates_for_nllh
-        return compute_nllh(coordinate_values, maxima_values, self.margin_function_from_fit)
+        return compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxima_values, self.margin_function_from_fit)
 
     @property
     def deviance(self):
