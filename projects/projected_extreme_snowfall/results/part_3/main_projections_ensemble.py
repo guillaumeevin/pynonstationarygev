@@ -110,9 +110,9 @@ def main():
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
     param_name_to_climate_coordinates_with_effects = {
-        GevParams.LOC: climate_coordinates_with_effects_list[1],
+        GevParams.LOC: climate_coordinates_with_effects_list[0],
         GevParams.SCALE: climate_coordinates_with_effects_list[0],
-        GevParams.SHAPE: climate_coordinates_with_effects_list[3],
+        GevParams.SHAPE: climate_coordinates_with_effects_list[0],
     }
 
     visualizer = VisualizerForProjectionEnsemble(

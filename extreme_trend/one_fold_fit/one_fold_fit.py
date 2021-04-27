@@ -191,6 +191,12 @@ class OneFoldFit(object):
     def _sorted_estimators_with_method_name(self, method_name) -> List[LinearMarginEstimator]:
         estimators = self.estimators_quality_checked
         try:
+            for estimator in estimators:
+                start = time.time()
+                estimator.__getattribute__(method_name)
+                end = time.time()
+                duration = str(datetime.timedelta(seconds=end - start))
+                print('duration aic', duration)
             sorted_estimators = sorted([estimator for estimator in estimators],
                                        key=lambda e: e.__getattribute__(method_name))
         except AssertionError as e:

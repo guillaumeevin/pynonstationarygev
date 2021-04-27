@@ -72,15 +72,26 @@ class IndependentMarginFunction(AbstractMarginFunction):
         return self.coordinates.load_full_climate_coordinates_with_effects(
             self.param_name_to_climate_coordinates_with_effects)
 
+    def load_param_name_to_total_effect(self, full_climate_coordinate):
+        return {self.load_total_effect(full_climate_coordinate, param_name) for param_name in GevParams.PARAM_NAMES}
+
+    def load_total_effect(self, full_climate_coordinate, param_name):
+        climate_coordinates_with_param_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
+        if climate_coordinates_with_param_effects is None:
+            return 0
+        elif isinstance(full_climate_coordinate[0], float):
+            return self.load_total_effect_for_float(full_climate_coordinate, param_name)
+        else:
+            return self.load_total_effect_for_gcm_rcm_couple(full_climate_coordinate, param_name)
+
     def load_total_effect_for_float(self, full_climate_coordinate, param_name):
         assert isinstance(full_climate_coordinate[0], float)
         climate_coordinates_with_param_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
+        assert climate_coordinates_with_param_effects is not None
         effects = self.param_name_to_ordered_climate_effects[param_name]
         nb_effects = len(effects)
         if climate_coordinates_with_param_effects == self.full_climate_coordinates_names_with_effects:
             total_effect = np.dot(effects, full_climate_coordinate)
-        elif climate_coordinates_with_param_effects is None:
-            total_effect = 0
         else:
             assert len(climate_coordinates_with_param_effects) == 1
             single_coordinate = climate_coordinates_with_param_effects[0]
@@ -91,18 +102,9 @@ class IndependentMarginFunction(AbstractMarginFunction):
                 total_effect = np.dot(effects, full_climate_coordinate[-nb_effects:])
         return total_effect
 
-    def load_param_name_to_total_effect(self, full_climate_coordinate):
-        param_name_to_total_effect = {}
-        for param_name in GevParams.PARAM_NAMES:
-            if isinstance(full_climate_coordinate[0], float):
-                total_effect = self.load_total_effect_for_float(full_climate_coordinate, param_name)
-            else:
-                total_effect = self.load_total_effect_for_gcm_rcm_couple(full_climate_coordinate, param_name)
-            param_name_to_total_effect[param_name] = total_effect
-        return param_name_to_total_effect
-
     def load_total_effect_for_gcm_rcm_couple(self, full_climate_coordinate, param_name):
         # Transform the climate coordinate if they are represent with a tuple of strings
+        assert self.param_name_to_climate_coordinates_with_effects[param_name] is not None
         gcm_rcm_couple = full_climate_coordinate
         all_column_names = self.coordinates.load_ordered_columns_names(self.full_climate_coordinates_names_with_effects)
         full_climate_coordinate = pd.Series(all_column_names).isin(gcm_rcm_couple).astype(float).values
