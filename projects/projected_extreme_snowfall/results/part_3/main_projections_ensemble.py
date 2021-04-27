@@ -68,7 +68,7 @@ def set_up_and_load(fast):
         gcm_rcm_couples = gcm_rcm_couples[:2] + gcm_rcm_couples[-2:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         altitudes_list = [2700, 3000][:]
-        model_classes = model_classes[:]
+        model_classes = model_classes[:4]
     else:
         altitudes_list = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
     assert isinstance(gcm_rcm_couples, list)
@@ -110,9 +110,9 @@ def main():
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
     param_name_to_climate_coordinates_with_effects = {
-        GevParams.LOC: climate_coordinates_with_effects_list[0],
-        GevParams.SCALE: climate_coordinates_with_effects_list[0],
-        GevParams.SHAPE: climate_coordinates_with_effects_list[0],
+        GevParams.LOC: climate_coordinates_with_effects_list[1],
+        GevParams.SCALE: climate_coordinates_with_effects_list[2],
+        GevParams.SHAPE: climate_coordinates_with_effects_list[3],
     }
 
     visualizer = VisualizerForProjectionEnsemble(

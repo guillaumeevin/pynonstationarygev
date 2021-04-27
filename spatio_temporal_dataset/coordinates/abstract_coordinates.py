@@ -302,13 +302,14 @@ class AbstractCoordinates(object):
         full_names = self.load_ordered_columns_names(full_climate_coordinates_names_with_effects)
         # Load the specific names
         specific_names = self.load_ordered_columns_names(climate_coordinates_names_with_param_effects_to_extract)
+        specific_name_to_index = {name: i for i, name in enumerate(specific_names)}
         # The climate coordinate must be the size of the specific coordinate
         climate_coordinates = np.zeros(len(self.load_ordered_columns_names(climate_coordinates_names_with_param_effects)))
-        for indice in indices_with_ones:
-            column_name = full_names[indice]
-            if column_name in specific_names:
-                new_indice = specific_names.index(column_name)
-                climate_coordinates[new_indice] = 1
+        for index in indices_with_ones:
+            column_name = full_names[index]
+            if column_name in specific_name_to_index:
+                new_index = specific_name_to_index[column_name]
+                climate_coordinates[new_index] = 1
         return climate_coordinates
 
     def df_climate_models(self):
