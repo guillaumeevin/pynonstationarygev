@@ -200,15 +200,14 @@ class OneFoldFit(object):
 
     @cached_property
     def estimators_quality_checked(self):
-        estimators = list(self.model_class_to_estimator.values())
-        if self.remove_physically_implausible_models:
-            # Remove wrong shape
-            estimators = [e for e in estimators if -0.5 < self._compute_shape_for_reference_altitude(e) < 0.5]
-            # Remove models with undefined parameters for the coordinate of interest
-            well_defined_estimators = []
-            for e in estimators:
-                coordinate_values_for_the_fit = e.coordinates_for_nllh
-
+        well_defined_estimators = []
+        for estimator in self.model_class_to_estimator.values():
+            if self.remove_physically_implausible_models:
+                # Remove wrong shape
+                if not(-0.5 < self._compute_shape_for_reference_altitude(estimator) < 0.5):
+                    continue
+                # Remove models with undefined parameters for the coordinate of interest
+                coordinate_values_for_the_fit = estimator.coordinates_for_nllh
                 if isinstance(self.altitude_group, DefaultAltitudeGroup):
                     coordinate_values_for_the_result = []
                 else:
@@ -217,25 +216,24 @@ class OneFoldFit(object):
                 coordinate_values_to_check = list(coordinate_values_for_the_fit) + coordinate_values_for_the_result
                 has_undefined_parameters = False
                 for coordinate in coordinate_values_to_check:
-                    gev_params = e.margin_function_from_fit.get_params(coordinate)
+                    gev_params = estimator.margin_function_from_fit.get_params(coordinate)
                     if gev_params.has_undefined_parameters:
                         has_undefined_parameters = True
                         break
-                if not has_undefined_parameters:
-                    well_defined_estimators.append(e)
-                else:
-                    print('undefined', e)
-            estimators = well_defined_estimators
-
-            if len(estimators) == 0:
-                print(self.massif_name, " has only implausible models")
+                if has_undefined_parameters:
+                    continue
+            if self.only_models_that_pass_goodness_of_fit_test:
+                if not self.goodness_of_fit_test(estimator):
+                    continue
+            # Append to the list
+            well_defined_estimators.append(estimator)
+        if len(well_defined_estimators) == 0:
+            print(self.massif_name, " has only implausible models")
         #  Apply the goodness of fit
-        if self.only_models_that_pass_goodness_of_fit_test:
-            estimators = [e for e in estimators if self.goodness_of_fit_test(e)]
-
         if not (self.remove_physically_implausible_models or self.only_models_that_pass_goodness_of_fit_test):
-            assert len(estimators) == len(self.models_classes)
-        return estimators
+            assert len(well_defined_estimators) == len(self.models_classes)
+        return well_defined_estimators
+
 
     def get_coordinate(self, altitude, year):
         if isinstance(self.altitude_group, DefaultAltitudeGroup):

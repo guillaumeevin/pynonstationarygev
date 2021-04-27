@@ -2,6 +2,8 @@ import datetime
 import math
 import os.path as op
 import subprocess
+from itertools import chain
+from multiprocessing import Pool
 
 from cached_property import cached_property
 
@@ -22,6 +24,16 @@ def batch(iterable, batchsize=1):
     l = len(iterable)
     for ndx in range(0, l, batchsize):
         yield iterable[ndx:min(ndx + batchsize, l)]
+
+
+def multiprocessing_batch(function, argument_list, batchsize=None):
+    nb_argument = len(argument_list)
+    with Pool(NB_CORES) as p:
+        if batchsize is None:
+            batchsize = math.ceil(nb_argument / NB_CORES)
+        result_list = p.map(function, batch(argument_list, batchsize=batchsize))
+        result_list = list(chain.from_iterable(result_list))
+        return result_list
 
 
 def terminal_command(command_str):

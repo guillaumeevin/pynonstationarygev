@@ -68,7 +68,7 @@ def set_up_and_load(fast):
         gcm_rcm_couples = gcm_rcm_couples[:2] + gcm_rcm_couples[-2:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         altitudes_list = [2700, 3000][:]
-        model_classes = model_classes[:4]
+        model_classes = model_classes[:]
     else:
         altitudes_list = [600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
     assert isinstance(gcm_rcm_couples, list)
@@ -99,16 +99,20 @@ def main():
 
     # Default parameters
     gcm_to_year_min_and_year_max = None
+    only_model_that_pass_gof = False
+    remove_physically_implausible_models = False
     safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
     print('Take into account the observations: {}'.format(safran_study_class is not None))
     print('observation class:', get_display_name_from_object_type(safran_study_class))
+    print('only models that pass gof:', only_model_that_pass_gof)
+    print('remove physically implausible models:', remove_physically_implausible_models)
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
     param_name_to_climate_coordinates_with_effects = {
-        GevParams.LOC: climate_coordinates_with_effects_list[1],
-        GevParams.SCALE: climate_coordinates_with_effects_list[1],
-        GevParams.SHAPE: climate_coordinates_with_effects_list[1],
+        GevParams.LOC: climate_coordinates_with_effects_list[0],
+        GevParams.SCALE: climate_coordinates_with_effects_list[0],
+        GevParams.SHAPE: climate_coordinates_with_effects_list[0],
     }
 
     visualizer = VisualizerForProjectionEnsemble(
@@ -118,10 +122,10 @@ def main():
         massif_names=massif_names,
         fit_method=MarginFitMethod.evgam,
         temporal_covariate_for_fit=temporal_covariate_for_fit,
-        remove_physically_implausible_models=True,
+        remove_physically_implausible_models=remove_physically_implausible_models,
         gcm_to_year_min_and_year_max=gcm_to_year_min_and_year_max,
         safran_study_class=safran_study_class,
-        display_only_model_that_pass_gof_test=True,
+        display_only_model_that_pass_gof_test=only_model_that_pass_gof,
         param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
     )
     visualizer.plot()

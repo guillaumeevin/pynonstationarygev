@@ -4,7 +4,6 @@ from rpy2 import robjects
 from rpy2.robjects.pandas2ri import ri2py_dataframe
 from scipy.interpolate import make_interp_spline
 
-
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_result_from_extremes import \
     AbstractResultFromExtremes
@@ -133,10 +132,10 @@ class ResultFromEvgam(AbstractResultFromExtremes):
             y = np.array(self.get_python_dictionary(self.name_to_value[r_param_name])['fitted'])
             if len(data) > 2:
                 x_climatic = data[2:]
-                y = self.remove_effects_from_y_from_all_climate_model(x_climatic, y, r_param_name)
+                y = self.remove_effects_from_y_from_all_climate_model(x_climatic, y, r_param_name, param_name)
             assert len(knots) == 5
             a, b = 0.5, 0.5
-            x_for_interpolation = [a * knots[1] + b * knots[2], (knots[1] + knots[3])/2, b * knots[2] + a * knots[3]]
+            x_for_interpolation = [a * knots[1] + b * knots[2], (knots[1] + knots[3]) / 2, b * knots[2] + a * knots[3]]
 
             # For the time covariate, the distance will be zero for the closer year
             # For the temperature covariate, the distance will be minimal for the closer covariate
@@ -154,20 +153,20 @@ class ResultFromEvgam(AbstractResultFromExtremes):
             dim_knots_and_coefficient[dim] = (knots, coefficients)
         return dim_knots_and_coefficient
 
-    def remove_effects_from_y_from_all_climate_model(self, x_climatic, y, r_param_name):
+    def remove_effects_from_y_from_all_climate_model(self, x_climatic, y, r_param_name, param_name):
         y = y.copy()
-        assert self.param_name_to_name_of_the_climatic_effects is not None
+        name_of_the_climatic_effects = self.param_name_to_name_of_the_climatic_effects[param_name]
+        assert name_of_the_climatic_effects is not None
         # Load the coefficient correspond to the effect from the last climate model
         coefficients = self.load_coefficients(r_param_name)
-        effects_coefficients = coefficients[-len(self.param_name_to_name_of_the_climatic_effects):]
-        assert len(effects_coefficients) == len(self.param_name_to_name_of_the_climatic_effects) == len(x_climatic)
-        df_coordinates = pd.DataFrame(x_climatic.transpose(), columns=self.param_name_to_name_of_the_climatic_effects)
+        effects_coefficients = coefficients[-len(name_of_the_climatic_effects):]
+        assert len(effects_coefficients) == len(name_of_the_climatic_effects) == len(x_climatic)
+        df_coordinates = pd.DataFrame(x_climatic.transpose(), columns=name_of_the_climatic_effects)
         for j, effect_coef in enumerate(effects_coefficients):
             ind = df_coordinates.iloc[:, j] == 1.0
             assert len(ind) == len(y)
             y[ind.values] -= effect_coef
         return y
-
 
     def load_knots(self, r_param_name):
         try:

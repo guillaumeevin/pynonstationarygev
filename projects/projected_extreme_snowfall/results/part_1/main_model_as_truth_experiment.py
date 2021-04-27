@@ -1,5 +1,6 @@
 import datetime
 import time
+from collections import OrderedDict
 from itertools import product
 
 import numpy as np
@@ -10,12 +11,13 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.projected_extreme_snowfall.results.part_1.model_as_truth_experiment import ModelAsTruthExperiment
 from projects.projected_extreme_snowfall.results.part_3.main_projections_ensemble import set_up_and_load
+from root_utils import VERSION
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 def main_model_as_truth_experiment():
     start = time.time()
-    fast = True
+    fast = None
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit = set_up_and_load(fast)
@@ -26,26 +28,39 @@ def main_model_as_truth_experiment():
                                              None
                                              ]  # None means we do not create any effect
     potential_indices = list(range(4))
-    if fast is True:
-        potential_indices = potential_indices[:1]
+    potential_indices = potential_indices[:1]
+
+    # if fast is True:
+    #     potential_indices = potential_indices[:1]
 
     selection_method_names = ['aic', 'aicc', 'bic']
-    combination_to_average_predicted_nllh = {}
+    combination_name_to_average_predicted_nllh = OrderedDict()
     for combination in product(*[potential_indices for _ in range(3)]):
-        print('Combination:', combination)
-        param_name_to_climate_coordinates_with_effects = {param_name: climate_coordinates_with_effects_list[idx].copy()
+        param_name_to_climate_coordinates_with_effects = {param_name: climate_coordinates_with_effects_list[idx]
                                                           for param_name, idx in
                                                           zip(GevParams.PARAM_NAMES, combination)}
-        print(param_name_to_climate_coordinates_with_effects)
+        param_name_to_effect_name = {p: '+'.join([e.replace('coord_', '') for e in l])
+                              for p, l in param_name_to_climate_coordinates_with_effects.items() if l is not None}
+
+        combination_name = ' '.join([param_name + '_' + param_name_to_effect_name[param_name] for param_name in GevParams.PARAM_NAMES
+                                     if param_name in param_name_to_effect_name])
+        if combination_name == '':
+            combination_name = 'no effect'
+        print('Combination:', combination_name)
 
         average = compute_average_nllh(altitudes_list, param_name_to_climate_coordinates_with_effects, gcm_rcm_couples, massif_names,
                                        model_classes, scenario, study_class, temporal_covariate_for_fit,
                                        selection_method_names)
-        combination_to_average_predicted_nllh[combination] = average
+        combination_name_to_average_predicted_nllh[combination_name] = average
 
-    df = pd.DataFrame.from_dict(combination_to_average_predicted_nllh)
-    print(df)
-
+    df = pd.DataFrame.from_dict(combination_name_to_average_predicted_nllh)
+    df.index = selection_method_names
+    df = df.transpose()
+    # sort by best scores
+    df['max'] = df.max(axis=1)
+    df.sort_values(by='max', inplace=True, ascending=False)
+    csv_name = '{}_fast={}.csv'.format(VERSION, fast)
+    df.to_csv(csv_name)
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))
     print('Total duration', duration)
