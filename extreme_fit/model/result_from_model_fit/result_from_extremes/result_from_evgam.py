@@ -11,6 +11,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_int
     ci_method_to_method_name
 from extreme_fit.model.result_from_model_fit.utils import get_margin_coef_ordered_dict
 from extreme_fit.model.utils import r
+from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 class ResultFromEvgam(AbstractResultFromExtremes):
@@ -154,9 +155,18 @@ class ResultFromEvgam(AbstractResultFromExtremes):
         return dim_knots_and_coefficient
 
     def remove_effects_from_y_from_all_climate_model(self, x_climatic, y, r_param_name, param_name):
+        # Run the remove effect
         y = y.copy()
         name_of_the_climatic_effects = self.param_name_to_name_of_the_climatic_effects[param_name]
         assert name_of_the_climatic_effects is not None
+        # Extract potential a subpart of x_climatic
+        climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
+        assert climate_coordinates_with_effects is not None
+        if len(climate_coordinates_with_effects) == 1:
+            if climate_coordinates_with_effects[0] == AbstractCoordinates.COORDINATE_GCM:
+                x_climatic = x_climatic[:len(name_of_the_climatic_effects)]
+            else:
+                x_climatic = x_climatic[-len(name_of_the_climatic_effects):]
         # Load the coefficient correspond to the effect from the last climate model
         coefficients = self.load_coefficients(r_param_name)
         effects_coefficients = coefficients[-len(name_of_the_climatic_effects):]
