@@ -64,7 +64,6 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
     label = '{} m'.format(visualizer.altitude_group.reference_altitude)
     ax.plot(x_list, changes, label=label, color=color, linewidth=4)
     # Plot the sub trend, i.e. for each GCM-RCM couples
-    print('sub trend')
     for gcm_rcm_couple in gcm_rcm_couples[:]:
         fake_altitude = gcm_rcm_couple
         changes = [f([fake_altitude], order=order, covariate_before=covariate_before, covariate_after=t)[0] for t in x_list]

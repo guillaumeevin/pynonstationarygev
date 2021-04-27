@@ -84,7 +84,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             # Save the massif altitudes only for those who pass the condition
             self.massif_name_to_massif_altitudes[massif_name] = massif_altitudes
             # Load dataset
-            dataset = self.get_dataset(massif_altitudes, massif_name)
+            dataset = self.get_dataset(massif_altitudes, massif_name, self.gcm_rcm_couple_as_pseudo_truth)
             old_fold_fit = OneFoldFit(massif_name, dataset, self.model_classes,
                                       self.study.year_min,
                                       self.study.year_max,
@@ -94,14 +94,14 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                                       self.display_only_model_that_pass_test,
                                       self.confidence_interval_based_on_delta_method,
                                       self.remove_physically_implausible_models,
-                                      self.param_name_to_climate_coordinates_with_effects,
-                                      self.gcm_rcm_couple_as_pseudo_truth)
+                                      self.param_name_to_climate_coordinates_with_effects)
             return old_fold_fit
         else:
             return None
 
-    def get_dataset(self, massif_altitudes, massif_name):
-        dataset = self.studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes)
+    def get_dataset(self, massif_altitudes, massif_name, gcm_rcm_couple_as_pseudo_truth=None):
+        dataset = self.studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes,
+                                                       gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple_as_pseudo_truth)
         return dataset
 
     moment_names = ['moment', 'changes_of_moment', 'relative_changes_of_moment'][:]

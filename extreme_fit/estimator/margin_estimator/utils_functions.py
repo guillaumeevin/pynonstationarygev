@@ -12,6 +12,6 @@ def compute_nllh(coordinate_values, maxima_values, margin_function_from_fit, max
         p = gev_params.density(maximum)
         nllh -= np.log(p)
         if assertion_for_inf:
-            assert not np.isinf(nllh), '{} {}'.format(gev_params, coordinate, maximum)
+            assert not np.isinf(nllh), '{} {} {}'.format(gev_params, coordinate, maximum)
     return nllh
 

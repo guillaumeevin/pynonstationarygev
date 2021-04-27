@@ -54,9 +54,7 @@ class OneFoldFit(object):
                  only_models_that_pass_goodness_of_fit_test=True,
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
-                 param_name_to_climate_coordinates_with_effects=None,
-                 gcm_rcm_couple_as_pseudo_truth=None):
-        self.gcm_rcm_couple_as_pseudo_truth = gcm_rcm_couple_as_pseudo_truth
+                 param_name_to_climate_coordinates_with_effects=None):
         self.first_year = first_year
         self.last_year = last_year
         self.years_of_difference = last_year - first_year
@@ -84,8 +82,7 @@ class OneFoldFit(object):
                                                     fit_method=self.fit_method,
                                                     temporal_covariate_for_fit=self.temporal_covariate_for_fit,
                                                     drop_duplicates=False,
-                                                    param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects,
-                                                    gcm_rcm_couple_as_pseudo_truth=self.gcm_rcm_couple_as_pseudo_truth)
+                                                    param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects)
 
     @classmethod
     def get_moment_str(cls, order):

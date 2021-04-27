@@ -73,7 +73,8 @@ class IndependentMarginFunction(AbstractMarginFunction):
         return {param_name: self.load_total_effect(full_climate_coordinate, param_name)
                 for param_name in GevParams.PARAM_NAMES}
 
-    def load_total_effect(self, full_climate_coordinate, param_name, climate_coordinates_names_with_param_effects_to_extract=None):
+    def load_total_effect(self, full_climate_coordinate, param_name,
+                          climate_coordinates_names_with_param_effects_to_extract=None):
         # Load effects to consider for the parameter
         climate_coordinates_with_param_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
         if climate_coordinates_names_with_param_effects_to_extract is None:

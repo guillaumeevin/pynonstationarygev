@@ -32,17 +32,17 @@ def main_model_as_truth_experiment():
     selection_method_names = ['aic', 'aicc', 'bic']
     combination_to_average_predicted_nllh = {}
     for combination in product(*[potential_indices for _ in range(3)]):
-        param_name_to_climate_coordinates_with_effects = {param_name: climate_coordinates_with_effects_list[idx]
+        print('Combination:', combination)
+        param_name_to_climate_coordinates_with_effects = {param_name: climate_coordinates_with_effects_list[idx].copy()
                                                           for param_name, idx in
                                                           zip(GevParams.PARAM_NAMES, combination)}
+        print(param_name_to_climate_coordinates_with_effects)
 
-    for climate_coordinates_with_effects in climate_coordinates_with_effects_list[:1]:
-        print(climate_coordinates_with_effects)
-        average = compute_average_nllh(altitudes_list, climate_coordinates_with_effects, gcm_rcm_couples, massif_names,
+        average = compute_average_nllh(altitudes_list, param_name_to_climate_coordinates_with_effects, gcm_rcm_couples, massif_names,
                                        model_classes, scenario, study_class, temporal_covariate_for_fit,
                                        selection_method_names)
-        average_list.append(average)
-    combination_to_average_predicted_nllh[selection_method_name] = average_list
+        combination_to_average_predicted_nllh[combination] = average
+
     df = pd.DataFrame.from_dict(combination_to_average_predicted_nllh)
     print(df)
 
@@ -51,10 +51,11 @@ def main_model_as_truth_experiment():
     print('Total duration', duration)
 
 
-def compute_average_nllh(altitudes_list, climate_coordinates_with_effects, gcm_rcm_couples, massif_names, model_classes,
+def compute_average_nllh(altitudes_list, param_name_to_climate_coordinates_with_effects, gcm_rcm_couples, massif_names, model_classes,
                          scenario, study_class, temporal_covariate_for_fit, selection_method_names):
     nllh_list = []
-    for altitudes in altitudes_list[:1]:
+    for altitudes in altitudes_list:
+        print('altitudes=', altitudes)
         xp = ModelAsTruthExperiment(altitudes, gcm_rcm_couples, study_class, Season.annual,
                                     scenario=scenario,
                                     selection_method_names=selection_method_names,
@@ -64,10 +65,12 @@ def compute_average_nllh(altitudes_list, climate_coordinates_with_effects, gcm_r
                                     temporal_covariate_for_fit=temporal_covariate_for_fit,
                                     remove_physically_implausible_models=True,
                                     display_only_model_that_pass_gof_test=True,
-                                    climate_coordinates_with_effects=climate_coordinates_with_effects,
+                                    param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects
                                     )
-        nllh_list.append(xp.run_all_experiments())
-    return np.mean(nllh_list)
+        nllh_array = xp.run_all_experiments()
+        assert len(nllh_array) == len(selection_method_names)
+        nllh_list.append(nllh_array)
+    return np.mean(nllh_list, axis=0)
 
 
 if __name__ == '__main__':

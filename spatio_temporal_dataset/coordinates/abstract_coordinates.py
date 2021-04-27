@@ -62,6 +62,8 @@ class AbstractCoordinates(object):
         # Transformation class is instantiated with all coordinates
         self.transformation = transformation_class(self.df_all_coordinates)  # type: AbstractTransformation
         assert isinstance(self.transformation, AbstractTransformation)
+        # Some parameters to set if needed
+        self.gcm_rcm_couple_as_pseudo_truth = None
 
     # ClassMethod constructor
 
@@ -177,8 +179,7 @@ class AbstractCoordinates(object):
 
     def df_temporal_coordinates_for_fit(self, starting_point=None,
                                         temporal_covariate_for_fit: Union[None, type] = None,
-                                        drop_duplicates=True, climate_coordinates_with_effects=None,
-                                        gcm_rcm_couple_as_pseudo_truth=None) -> pd.DataFrame:
+                                        drop_duplicates=True, climate_coordinates_with_effects=None) -> pd.DataFrame:
         # Load time covariate
         if starting_point is None:
             df = self.df_temporal_coordinates(transformed=True, drop_duplicates=drop_duplicates)
@@ -211,14 +212,14 @@ class AbstractCoordinates(object):
 
                 df_coordinate_climate_model = self.df_coordinate_climate_model.copy()
                 # Potentially remove the climate coordinates for some gcm rcm couple
-                if gcm_rcm_couple_as_pseudo_truth is not None:
-                    gcm, rcm = gcm_rcm_couple_as_pseudo_truth
+                # We cannot do it sooner because we need the name of the GCM and RCM to find the appropriate temperature
+                if self.gcm_rcm_couple_as_pseudo_truth is not None:
+                    gcm, rcm = self.gcm_rcm_couple_as_pseudo_truth
                     ind = (df_coordinate_climate_model[self.COORDINATE_GCM] == gcm) \
                           & (df_coordinate_climate_model[self.COORDINATE_RCM] == rcm)
                     df_coordinate_climate_model.loc[ind, self.COORDINATE_CLIMATE_MODEL_NAMES] = None
                 # Create some additional columns
-                s, unique_values, unique_values_without_nan = self.load_unique_values(climate_coordinate, df_coordinate_climate_model)
-                has_observations = len(unique_values) == len(unique_values_without_nan) + 1
+                s, has_observations, unique_values_without_nan = self.load_unique_values(climate_coordinate, df_coordinate_climate_model)
                 if has_observations:
                     for value_name in unique_values_without_nan:
                         serie_is_value = (s == value_name) * 1
@@ -239,7 +240,13 @@ class AbstractCoordinates(object):
             s = s.str.replace(character, "")
         unique_values = s.unique()
         unique_values_without_nan = [v for v in unique_values if isinstance(v, str)]
-        return s, unique_values, unique_values_without_nan
+        has_observations = len(unique_values) == len(unique_values_without_nan) + 1
+        # Remove if need the names of the pseudo ground truth
+        if self.gcm_rcm_couple_as_pseudo_truth is not None:
+            gcm_rcm_couple_names_for_fit = [self.climate_model_coordinate_name_to_name_for_fit(name)
+                                            for name in self.gcm_rcm_couple_as_pseudo_truth]
+            unique_values_without_nan = [name for name in unique_values_without_nan if name not in gcm_rcm_couple_names_for_fit]
+        return s, has_observations, unique_values_without_nan
 
     def load_ordered_columns_names(self, climate_coordinates_names_with_effects):
         column_names = []

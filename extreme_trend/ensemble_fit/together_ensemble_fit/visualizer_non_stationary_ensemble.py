@@ -32,7 +32,7 @@ class VisualizerNonStationaryEnsemble(AltitudesStudiesVisualizerForNonStationary
         altitudes_after_intersection = sorted(list(altitudes_after_intersection))
         return altitudes_after_intersection
 
-    def get_dataset(self, massif_altitudes, massif_name):
+    def get_dataset(self, massif_altitudes, massif_name, gcm_rcm_couple_as_pseudo_truth=None):
         df_coordinates_list = []
         df_maxima_gev_list = []
         for studies in self.gcm_rcm_couple_to_studies.values():
@@ -47,5 +47,6 @@ class VisualizerNonStationaryEnsemble(AltitudesStudiesVisualizerForNonStationary
         df = pd.concat(df_coordinates_list, axis=0)
         df.index = index
         coordinates = AbstractCoordinates(df=df)
+        coordinates.gcm_rcm_couple_as_pseudo_truth = gcm_rcm_couple_as_pseudo_truth
         dataset = AbstractDataset(observations=observations, coordinates=coordinates)
         return dataset

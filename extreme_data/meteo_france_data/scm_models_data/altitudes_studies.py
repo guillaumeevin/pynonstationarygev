@@ -48,7 +48,8 @@ class AltitudesStudies(object):
 
     # Dataset Loader
 
-    def spatio_temporal_dataset(self, massif_name, massif_altitudes=None):
+    def spatio_temporal_dataset(self, massif_name, massif_altitudes=None,
+                                gcm_rcm_couple_as_pseudo_truth=None):
         coordinate_values_to_maxima = {}
         if massif_altitudes is None:
             massif_altitudes = self.massif_name_to_altitudes[massif_name]
@@ -69,6 +70,7 @@ class AltitudesStudies(object):
             coordinates = AbstractTemporalCoordinates.from_df(df)
 
         observations = AnnualMaxima.from_coordinates(coordinates, coordinate_values_to_maxima)
+        coordinates.gcm_rcm_couple_as_pseudo_truth = gcm_rcm_couple_as_pseudo_truth
         return AbstractDataset(observations=observations, coordinates=coordinates)
 
     @cached_property

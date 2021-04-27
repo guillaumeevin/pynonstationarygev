@@ -24,7 +24,6 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
                  fit_method=MarginFitMethod.spatial_extremes_mle,
                  temporal_covariate_for_fit=None,
                  param_name_to_climate_coordinates_with_effects=None,
-                 gcm_rcm_couple_as_pseudo_truth=None,
                  ):
         """
         :param starting_point: starting coordinate for the temporal trend
@@ -35,7 +34,6 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         self.drop_duplicates = True
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
-        self.gcm_rcm_couple_as_pseudo_truth = gcm_rcm_couple_as_pseudo_truth
 
     @property
     def climate_coordinates_with_effects(self):
