@@ -111,8 +111,8 @@ class VisualizerForProjectionEnsemble(object):
                 plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative,
                                                         with_significance=with_significance)
         else:
-            for relative in [None, True, False][:]:
-                for order in [None] + GevParams.PARAM_NAMES[:]:
+            for relative in [None, True, False][:1]:
+                for order in [None] + GevParams.PARAM_NAMES[:1]:
                     plot_relative_dynamic(self.massif_names, visualizer_list,
                                           self.param_name_to_climate_coordinates_with_effects,
                                           self.safran_study_class,
@@ -127,13 +127,15 @@ class VisualizerForProjectionEnsemble(object):
                 }
                 for c, gcm_rcm_couples in climate_coordinate_with_effects_to_list.items():
                     for param_name in GevParams.PARAM_NAMES[:]:
-                        climate_coordinates_names_with_param_effects_to_extract = list(c) if isinstance(c, tuple) else [c]
-                        if set(climate_coordinates_names_with_param_effects_to_extract).issubset(set(self.param_name_to_climate_coordinates_with_effects[param_name])):
-                            plot_gcm_rcm_effects(self.massif_names, visualizer_list,
-                                                 climate_coordinates_names_with_param_effects_to_extract,
-                                                 self.safran_study_class,
-                                                 gcm_rcm_couples,
-                                                 param_name)
+                        climate_coordinates_with_param_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
+                        if climate_coordinates_with_param_effects is not None:
+                            climate_coordinates_names_with_param_effects_to_extract = list(c) if isinstance(c, tuple) else [c]
+                            if set(climate_coordinates_names_with_param_effects_to_extract).issubset(set(climate_coordinates_with_param_effects)):
+                                plot_gcm_rcm_effects(self.massif_names, visualizer_list,
+                                                     climate_coordinates_names_with_param_effects_to_extract,
+                                                     self.safran_study_class,
+                                                     gcm_rcm_couples,
+                                                     param_name)
 
     def plot(self):
         # Set limit for the plot

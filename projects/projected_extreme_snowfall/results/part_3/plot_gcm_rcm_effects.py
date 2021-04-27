@@ -25,8 +25,7 @@ def plot_gcm_rcm_effects(massif_names, visualizer_list: List[
     massif_name = massif_names[0]
     all_effects = []
     for gcm_rcm_couple in gcm_rcm_couples:
-        effects = plot_curve_gcm_rcm_effect(ax, massif_name, visualizer_list,
-                                            climate_coordinates_names_with_param_effects_to_extract, gcm_rcm_couple, param_name)
+        effects = plot_curve_gcm_rcm_effect(ax, massif_name, visualizer_list, gcm_rcm_couple, param_name)
         all_effects.append(effects)
     all_effects = np.array(all_effects)
     mean_effects = np.mean(all_effects, axis=0)
@@ -52,7 +51,6 @@ def plot_gcm_rcm_effects(massif_names, visualizer_list: List[
 
 
 def plot_curve_gcm_rcm_effect(ax, massif_name, visualizer_list: List[AltitudesStudiesVisualizerForNonStationaryModels],
-                              climate_coordinates_names_with_param_effects_to_extract,
                               gcm_rcm_couple, param_name):
     altitudes = [v.study.altitude for v in visualizer_list]
     effects = []
@@ -60,7 +58,7 @@ def plot_curve_gcm_rcm_effect(ax, massif_name, visualizer_list: List[AltitudesSt
         one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
         margin_function = one_fold_fit.best_margin_function_from_fit
         full_climate_coordinate = np.array(list(gcm_rcm_couple))
-        total_effect = margin_function.load_total_effect_for_gcm_rcm_couple(full_climate_coordinate, param_name, climate_coordinates_names_with_param_effects_to_extract)
+        total_effect = margin_function.load_total_effect_for_gcm_rcm_couple(full_climate_coordinate, param_name)
         effects.append(total_effect)
     if len(gcm_rcm_couple) == 2:
         color = gcm_rcm_couple_to_color[gcm_rcm_couple]

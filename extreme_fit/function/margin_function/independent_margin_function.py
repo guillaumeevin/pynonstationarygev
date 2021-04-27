@@ -3,6 +3,7 @@ import time
 from typing import Dict, Union
 
 import numpy as np
+import pandas as pd
 
 from extreme_fit.function.param_function.param_function import AbstractParamFunction
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -100,31 +101,12 @@ class IndependentMarginFunction(AbstractMarginFunction):
             param_name_to_total_effect[param_name] = total_effect
         return param_name_to_total_effect
 
-    def load_total_effect_for_gcm_rcm_couple(self, full_climate_coordinate, param_name,
-                                             climate_coordinates_names_with_param_effects_to_extract=None):
-        # Load effects to consider for the parameter
-        climate_coordinates_with_param_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
-        if climate_coordinates_names_with_param_effects_to_extract is None:
-            climate_coordinates_names_with_param_effects_to_extract = climate_coordinates_with_param_effects
-        # Some assertion
-        if climate_coordinates_with_param_effects is None:
-            assert climate_coordinates_names_with_param_effects_to_extract is None
-        else:
-            assert set(climate_coordinates_names_with_param_effects_to_extract).issubset(
-                set(climate_coordinates_with_param_effects))
-        if climate_coordinates_with_param_effects is None:
-            total_effect = 0
-        else:
-            # Transform the climate coordinate if they are represent with a tuple of strings
-            gcm_rcm_couple = full_climate_coordinate
-            climate_coordinate = self.coordinates.get_climate_coordinate_from_gcm_rcm_couple \
-                (self.full_climate_coordinates_names_with_effects, climate_coordinates_with_param_effects,
-                 gcm_rcm_couple, climate_coordinates_names_with_param_effects_to_extract)
-            # Compute total effect
-            effects = self.param_name_to_ordered_climate_effects[param_name]
-            assert len(effects) == len(climate_coordinate)
-            total_effect = np.dot(effects, climate_coordinate)
-        return total_effect
+    def load_total_effect_for_gcm_rcm_couple(self, full_climate_coordinate, param_name):
+        # Transform the climate coordinate if they are represent with a tuple of strings
+        gcm_rcm_couple = full_climate_coordinate
+        all_column_names = self.coordinates.load_ordered_columns_names(self.full_climate_coordinates_names_with_effects)
+        full_climate_coordinate = pd.Series(all_column_names).isin(gcm_rcm_couple).astype(float).values
+        return self.load_total_effect_for_float(full_climate_coordinate, param_name)
 
     def get_first_derivative_param(self, coordinate: np.ndarray, is_transformed: bool, dim: int = 0):
         transformed_coordinate = coordinate if is_transformed else self.transform(coordinate)
