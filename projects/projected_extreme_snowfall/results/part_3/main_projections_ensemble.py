@@ -65,7 +65,7 @@ def set_up_and_load(fast):
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         altitudes_list = [600, 2100, 3600]
     elif fast:
-        gcm_rcm_couples = gcm_rcm_couples[:2] + gcm_rcm_couples[-2:]
+        gcm_rcm_couples = gcm_rcm_couples[:4]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         altitudes_list = [2700, 3000][:]
         model_classes = model_classes[:4]
@@ -110,8 +110,6 @@ def main():
         GevParams.SCALE: climate_coordinates_with_effects_list[2],
         GevParams.SHAPE: climate_coordinates_with_effects_list[3],
     }
-
-    print(model_classes)
 
     visualizer = VisualizerForProjectionEnsemble(
         altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,

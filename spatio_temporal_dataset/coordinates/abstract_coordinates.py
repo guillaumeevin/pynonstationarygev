@@ -252,7 +252,6 @@ class AbstractCoordinates(object):
         indices = []
         columns_names = self.load_ordered_columns_names(full_climate_coordinates_names_with_effects)
         for name in gcm_rcm_couple:
-            print("her 9", name, type(name))
             name_for_fit = self.climate_model_coordinate_name_to_name_for_fit(name)
             index = columns_names.index(name_for_fit)
             indices.append(index)
@@ -274,10 +273,12 @@ class AbstractCoordinates(object):
             return None
 
     def get_climate_coordinate_from_gcm_rcm_couple(self, full_climate_coordinates_names_with_effects,
-                                            climate_coordinates_names_with_param_effects, gcm_rcm_couple):
+                                            climate_coordinates_names_with_param_effects, gcm_rcm_couple,
+                                                        climate_coordinates_names_with_param_effects_to_extract=None):
         indices_with_ones = self.get_indices_for_effects(full_climate_coordinates_names_with_effects, gcm_rcm_couple)
         return self.get_climate_coordinate_from_indices(full_climate_coordinates_names_with_effects,
-                                            climate_coordinates_names_with_param_effects, indices_with_ones)
+                                            climate_coordinates_names_with_param_effects, indices_with_ones,
+                                                        climate_coordinates_names_with_param_effects_to_extract)
 
     def get_climate_coordinate_from_full_climate_coordinate(self,  full_climate_coordinates_names_with_effects,
                                             climate_coordinates_names_with_param_effects , full_climate_coordinate):
@@ -286,13 +287,16 @@ class AbstractCoordinates(object):
                                             climate_coordinates_names_with_param_effects, indices_with_ones)
 
     def get_climate_coordinate_from_indices(self, full_climate_coordinates_names_with_effects,
-                                            climate_coordinates_names_with_param_effects, indices_with_ones):
+                                            climate_coordinates_names_with_param_effects, indices_with_ones,
+                                            climate_coordinates_names_with_param_effects_to_extract=None):
+        if climate_coordinates_names_with_param_effects_to_extract is None:
+            climate_coordinates_names_with_param_effects_to_extract = climate_coordinates_names_with_param_effects
         # Load full names
         full_names = self.load_ordered_columns_names(full_climate_coordinates_names_with_effects)
         # Load the specific names
-        specific_names = self.load_ordered_columns_names(climate_coordinates_names_with_param_effects)
+        specific_names = self.load_ordered_columns_names(climate_coordinates_names_with_param_effects_to_extract)
         # The climate coordinate must be the size of the specific coordinate
-        climate_coordinates = np.zeros(len(specific_names))
+        climate_coordinates = np.zeros(len(self.load_ordered_columns_names(climate_coordinates_names_with_param_effects)))
         for indice in indices_with_ones:
             column_name = full_names[indice]
             if column_name in specific_names:

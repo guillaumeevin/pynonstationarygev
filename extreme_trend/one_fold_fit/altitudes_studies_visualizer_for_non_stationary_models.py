@@ -75,7 +75,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         massifs_without_any_validated_fit = [massif_name
                                              for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
                                              if not old_fold_fit.has_at_least_one_valid_model]
-        print('Not validated:', len(massifs_without_any_validated_fit), massifs_without_any_validated_fit)
+        print('# of massif without any validated fit:', len(massifs_without_any_validated_fit), massifs_without_any_validated_fit)
 
     def fit_one_fold(self, massif_name):
         # Load valid massif altitudes

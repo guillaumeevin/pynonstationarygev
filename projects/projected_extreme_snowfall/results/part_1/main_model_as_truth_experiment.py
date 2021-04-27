@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
+from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.projected_extreme_snowfall.results.part_1.model_as_truth_experiment import ModelAsTruthExperiment
 from projects.projected_extreme_snowfall.results.part_3.main_projections_ensemble import set_up_and_load
@@ -22,22 +23,27 @@ def main_model_as_truth_experiment():
     climate_coordinates_with_effects_list = [[AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM],
                                              [AbstractCoordinates.COORDINATE_GCM],
                                              [AbstractCoordinates.COORDINATE_RCM],
+                                             None
                                              ]  # None means we do not create any effect
-    potential_indices = list(range(4))[:1]
-    selection_method_name_to_average_predicted_nllh = {}
-    selection_method_names = ['aic', 'aicc', 'bic']
-    average_list = []
-    for combination in product(*[potential_indices for _ in range(3)]):
-        combination
+    potential_indices = list(range(4))
+    if fast is True:
+        potential_indices = potential_indices[:1]
 
+    selection_method_names = ['aic', 'aicc', 'bic']
+    combination_to_average_predicted_nllh = {}
+    for combination in product(*[potential_indices for _ in range(3)]):
+        param_name_to_climate_coordinates_with_effects = {param_name: climate_coordinates_with_effects_list[idx]
+                                                          for param_name, idx in
+                                                          zip(GevParams.PARAM_NAMES, combination)}
 
     for climate_coordinates_with_effects in climate_coordinates_with_effects_list[:1]:
         print(climate_coordinates_with_effects)
         average = compute_average_nllh(altitudes_list, climate_coordinates_with_effects, gcm_rcm_couples, massif_names,
-                             model_classes, scenario, study_class, temporal_covariate_for_fit, selection_method_names)
+                                       model_classes, scenario, study_class, temporal_covariate_for_fit,
+                                       selection_method_names)
         average_list.append(average)
-    selection_method_name_to_average_predicted_nllh[selection_method_name] = average_list
-    df = pd.DataFrame.from_dict(selection_method_name_to_average_predicted_nllh)
+    combination_to_average_predicted_nllh[selection_method_name] = average_list
+    df = pd.DataFrame.from_dict(combination_to_average_predicted_nllh)
     print(df)
 
     end = time.time()

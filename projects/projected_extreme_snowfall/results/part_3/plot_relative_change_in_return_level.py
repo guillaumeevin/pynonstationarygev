@@ -51,7 +51,7 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
         x_list = np.linspace(1951, 2100, num=150)
         covariate_before = 1951
     one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
-    print(relative, order)
+    print('relative:', relative, 'order:', order)
     print(get_display_name_from_object_type(type(one_fold_fit.best_margin_model)),
           "significant={}".format(one_fold_fit.is_significant))
     if relative is None:
@@ -64,6 +64,7 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
     label = '{} m'.format(visualizer.altitude_group.reference_altitude)
     ax.plot(x_list, changes, label=label, color=color, linewidth=4)
     # Plot the sub trend, i.e. for each GCM-RCM couples
+    print('sub trend')
     for gcm_rcm_couple in gcm_rcm_couples[:]:
         fake_altitude = gcm_rcm_couple
         changes = [f([fake_altitude], order=order, covariate_before=covariate_before, covariate_after=t)[0] for t in x_list]
