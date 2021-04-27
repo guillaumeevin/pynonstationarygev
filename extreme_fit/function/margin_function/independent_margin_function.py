@@ -106,24 +106,25 @@ class IndependentMarginFunction(AbstractMarginFunction):
         climate_coordinates_with_param_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
         if climate_coordinates_names_with_param_effects_to_extract is None:
             climate_coordinates_names_with_param_effects_to_extract = climate_coordinates_with_param_effects
-        assert set(climate_coordinates_names_with_param_effects_to_extract).issubset(
-            set(climate_coordinates_with_param_effects))
-        # Load param_name_to_climate_coordinate
-        if isinstance(full_climate_coordinate[0], float):
-            climate_coordinate = self.coordinates.get_climate_coordinate_from_full_climate_coordinate \
-                (self.full_climate_coordinates_names_with_effects,
-                 climate_coordinates_with_param_effects,
-                 full_climate_coordinate)
+        # Some assertion
+        if climate_coordinates_with_param_effects is None:
+            assert climate_coordinates_names_with_param_effects_to_extract is None
+        else:
+            assert set(climate_coordinates_names_with_param_effects_to_extract).issubset(
+                set(climate_coordinates_with_param_effects))
+        if climate_coordinates_with_param_effects is None:
+            total_effect = 0
         else:
             # Transform the climate coordinate if they are represent with a tuple of strings
             gcm_rcm_couple = full_climate_coordinate
             climate_coordinate = self.coordinates.get_climate_coordinate_from_gcm_rcm_couple \
                 (self.full_climate_coordinates_names_with_effects, climate_coordinates_with_param_effects,
                  gcm_rcm_couple, climate_coordinates_names_with_param_effects_to_extract)
-        # Compute total effect
-        effects = self.param_name_to_ordered_climate_effects[param_name]
-        assert len(effects) == len(climate_coordinate)
-        return np.dot(effects, climate_coordinate)
+            # Compute total effect
+            effects = self.param_name_to_ordered_climate_effects[param_name]
+            assert len(effects) == len(climate_coordinate)
+            total_effect = np.dot(effects, climate_coordinate)
+        return total_effect
 
     def get_first_derivative_param(self, coordinate: np.ndarray, is_transformed: bool, dim: int = 0):
         transformed_coordinate = coordinate if is_transformed else self.transform(coordinate)

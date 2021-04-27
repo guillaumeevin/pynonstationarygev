@@ -86,16 +86,24 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
             for param_name in GevParams.PARAM_NAMES:
                 # Save the name of the climatic effects
                 climate_coordinates_names_with_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
-                name_of_the_climatic_effects = self.coordinates.load_ordered_columns_names(climate_coordinates_names_with_effects)
+                if climate_coordinates_names_with_effects is None:
+                    name_of_the_climatic_effects = []
+                else:
+                    name_of_the_climatic_effects = self.coordinates.load_ordered_columns_names(climate_coordinates_names_with_effects)
                 param_name_to_name_of_climatic_effects[param_name] = name_of_the_climatic_effects
                 # Save the appropriate formula
                 formula_effect_str = ' + '.join(name_of_the_climatic_effects)
                 ordered_formula_effect_str.append(formula_effect_str)
             # We apply the effect on all the parameters
-            formula_list = [f.replace(' 1', '') if (('poly(' not in f) and ('s(' not in f)) else f
-                            for f in formula_list]
-            formula_list = [f + ' + ' if f[-2:] != '~ ' else f for f in formula_list]
-            formula_list = [f1 + f2 for f1, f2 in zip(formula_list, ordered_formula_effect_str)]
+            new_formula_list = []
+            for f, f_effect in zip(formula_list, ordered_formula_effect_str):
+                has_effect = len(f_effect) > 0
+                if ('poly(' not in f) and ('s(' not in f) and has_effect:
+                    f = f.replace(' 1', '')
+                if (f[-2:] != '~ ') and has_effect:
+                    f += ' + '
+                new_formula_list.append(f + f_effect)
+            formula_list = new_formula_list
         formula = r.list(*[robjects.Formula(f) for f in formula_list])
         df = pd.DataFrame({maxima_column_name: np.array(x)})
         df = pd.concat([df, df_coordinates_spat, df_coordinates_temp], axis=1)

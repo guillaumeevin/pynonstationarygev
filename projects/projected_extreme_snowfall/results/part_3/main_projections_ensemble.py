@@ -86,7 +86,7 @@ def set_up_and_load(fast):
 
 def main():
     start = time.time()
-    fast = None
+    fast = True
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit = set_up_and_load(fast)
@@ -111,7 +111,7 @@ def main():
 
     param_name_to_climate_coordinates_with_effects = {
         GevParams.LOC: climate_coordinates_with_effects_list[1],
-        GevParams.SCALE: climate_coordinates_with_effects_list[2],
+        GevParams.SCALE: climate_coordinates_with_effects_list[0],
         GevParams.SHAPE: climate_coordinates_with_effects_list[3],
     }
 
