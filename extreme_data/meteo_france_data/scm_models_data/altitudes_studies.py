@@ -50,6 +50,7 @@ class AltitudesStudies(object):
 
     def spatio_temporal_dataset(self, massif_name, massif_altitudes=None,
                                 gcm_rcm_couple_as_pseudo_truth=None):
+        assert len(massif_name) > 1, massif_name
         coordinate_values_to_maxima = {}
         if massif_altitudes is None:
             massif_altitudes = self.massif_name_to_altitudes[massif_name]

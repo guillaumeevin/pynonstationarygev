@@ -131,7 +131,7 @@ class ResultFromEvgam(AbstractResultFromExtremes):
             data = np.array(self.name_to_value["data"])
             x = data[1]
             y = np.array(self.get_python_dictionary(self.name_to_value[r_param_name])['fitted'])
-            if len(data) > 2:
+            if (len(data) > 2) and (self.param_name_to_climate_coordinates_with_effects[param_name] is not None):
                 x_climatic = data[2:]
                 y = self.remove_effects_from_y_from_all_climate_model(x_climatic, y, r_param_name, param_name)
             assert len(knots) == 5
