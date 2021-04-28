@@ -12,6 +12,10 @@ def compute_nllh(coordinate_values, maxima_values, margin_function_from_fit,
     return compute_nllh_for_list_of_pair(args)
 
 
+class NllhIsInfException(Exception):
+    pass
+
+
 def compute_nllh_for_list_of_pair(args):
     assertion_for_inf, list_of_pair, margin_function_from_fit, maximum_from_obs = args
     nllh = 0
@@ -24,7 +28,9 @@ def compute_nllh_for_list_of_pair(args):
         p = gev_params.density(maximum)
         nllh -= np.log(p)
         if assertion_for_inf:
-            assert not np.isinf(nllh), '{} {} {}'.format(gev_params, coordinate, maximum)
+            if np.isinf(nllh):
+                msg = '{} {} {}'.format(gev_params, coordinate, maximum)
+                raise NllhIsInfException(msg)
     return nllh
 
 

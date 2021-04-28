@@ -28,9 +28,9 @@ def batch(iterable, batchsize=1):
 
 def multiprocessing_batch(function, argument_list, batchsize=None, nb_cores=NB_CORES):
     nb_argument = len(argument_list)
+    if batchsize is None:
+        batchsize = math.ceil(nb_argument / nb_cores)
     with Pool(nb_cores) as p:
-        if batchsize is None:
-            batchsize = math.ceil(nb_argument / nb_cores)
         result_list = p.map(function, batch(argument_list, batchsize=batchsize))
         if None in result_list:
             return None
