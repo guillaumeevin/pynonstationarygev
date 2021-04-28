@@ -111,8 +111,8 @@ def main():
 
     param_name_to_climate_coordinates_with_effects = {
         GevParams.LOC: climate_coordinates_with_effects_list[0],
-        GevParams.SCALE: climate_coordinates_with_effects_list[0],
-        GevParams.SHAPE: climate_coordinates_with_effects_list[0],
+        GevParams.SCALE: climate_coordinates_with_effects_list[1],
+        GevParams.SHAPE: climate_coordinates_with_effects_list[2],
     }
 
     visualizer = VisualizerForProjectionEnsemble(

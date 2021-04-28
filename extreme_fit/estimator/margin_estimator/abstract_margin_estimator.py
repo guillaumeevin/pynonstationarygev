@@ -83,7 +83,9 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     def nllh(self):
         maxima_values = self.dataset.maxima_gev
         coordinate_values = self.coordinates_for_nllh
-        return compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxima_values, self.margin_function_from_fit)
+        nllh = compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxima_values, self.margin_function_from_fit)
+        npt.assert_almost_equal(self.result_from_model_fit.nllh, nllh, decimal=0)
+        return nllh
 
     @property
     def deviance(self):
