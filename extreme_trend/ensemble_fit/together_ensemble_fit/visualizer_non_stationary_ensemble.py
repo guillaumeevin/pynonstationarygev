@@ -38,9 +38,8 @@ class VisualizerNonStationaryEnsemble(AltitudesStudiesVisualizerForNonStationary
         for gcm_rcm_couple, studies in self.gcm_rcm_couple_to_studies.items():
             dataset = studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes)
             observation_or_pseudo_truth = gcm_rcm_couple in [gcm_rcm_couple_as_pseudo_truth, (None, None)]
+            # By default the weight on data is always 1
             weight_on_data = self.weight_on_observation if observation_or_pseudo_truth else 1
-            if observation_or_pseudo_truth:
-                print("obs or pseudo truth", gcm_rcm_couple, 'weight is', weight_on_data)
             for _ in range(weight_on_data):
                 df_coordinates_list.append(dataset.coordinates.df_coordinates(add_climate_informations=True))
                 df_maxima_gev_list.append(dataset.observations.df_maxima_gev)

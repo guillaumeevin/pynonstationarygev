@@ -30,7 +30,7 @@ class ModelAsTruthExperiment(object):
                  remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
                  gcm_rcm_couples_sampled_for_experiment=None,
-                 weight_on_observation=None,
+                 weight_on_observation=1,
                  ):
         self.weight_on_observation = weight_on_observation
         self.gcm_rcm_couples_sampled_for_experiment = gcm_rcm_couples_sampled_for_experiment
@@ -91,11 +91,10 @@ class ModelAsTruthExperiment(object):
                 nllh_list.append(nllh)
         except (NllhIsInfException, SafeRunException):
             nllh_list = [np.nan for _ in self.selection_method_names]
-        end = time.time()
-        duration = str(datetime.timedelta(seconds=end - start))
+
+        duration = str(datetime.timedelta(seconds=time.time() - start))
         print('Total duration for one experiment', duration)
-        print(nllh_list)
-        print([get_display_name_from_object_type(type(e.margin_model)) for e in best_estimator_list])
+
         return np.array(nllh_list)
 
     def load_studies_for_test(self, gcm_rcm_couple_set_as_truth) -> AltitudesStudies:

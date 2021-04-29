@@ -1,7 +1,6 @@
 
 
 import unittest
-from typing import List
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples
@@ -13,16 +12,12 @@ from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_m
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
     NonStationaryTwoLinearScaleAndShapeOneLinearLocModel, NonStationaryTwoLinearLocationAndScaleAndShapeModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
-from extreme_fit.model.quantile_model.quantile_regression_model import ConstantQuantileRegressionModel
 from extreme_fit.model.utils import set_seed_for_test
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
-from projects.archive.quantile_regression_vs_evt.annual_maxima_simulation.gev_simulation import StationarySimulation
-from projects.projected_extreme_snowfall.results.part_3.main_projections_ensemble import set_up_and_load
-from projects.projected_extreme_snowfall.results.utils import SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from projects.projected_extreme_snowfall.results.utils import climate_coordinates_with_effects_list
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureWithSplineTemporalCovariate
 
@@ -45,17 +40,10 @@ class TestProjectedEnsemble(unittest.TestCase):
                          NonStationaryTwoLinearScaleAndShapeOneLinearLocModel,
                          NonStationaryTwoLinearLocationAndScaleAndShapeModel]
 
-        climate_coordinates_with_effects_list = [None,
-                                                 [AbstractCoordinates.COORDINATE_GCM,
-                                                  AbstractCoordinates.COORDINATE_RCM],
-                                                 [AbstractCoordinates.COORDINATE_GCM],
-                                                 [AbstractCoordinates.COORDINATE_RCM],
-                                                 ]  # None means we do not create any effect
-
         # Default parameters
         gcm_to_year_min_and_year_max = None
-        only_model_that_pass_gof = False
-        remove_physically_implausible_models = False
+        only_model_that_pass_gof = True
+        remove_physically_implausible_models = True
         safran_study_class = SafranSnowfall2019
         ensemble_fit_classes = [TogetherEnsembleFit]
 

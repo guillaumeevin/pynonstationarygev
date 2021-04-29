@@ -5,20 +5,15 @@ import matplotlib.pyplot as plt
 
 import pandas as pd
 
-from projects.projected_extreme_snowfall.results.part_1.main_model_as_truth_experiment import CSV_PATH
-from projects.projected_extreme_snowfall.results.part_1.utils import load_combination_name_to_dict_v2, \
+from projects.projected_extreme_snowfall.results.part_1.v1.main_mas_v1 import CSV_PATH
+from projects.projected_extreme_snowfall.results.part_1.v1.utils_v1 import load_combination_name_to_dict_v2
+from projects.projected_extreme_snowfall.results.utils import climate_coordinates_with_effects_list, \
     load_combination_name_for_tuple
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 def plot_summary_graph_for_w():
     # csv_filename = "nbloop{}_fast_None_altitudes_600_2100_3600_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_6.csv"
     csv_filename = "nbloop{}_fast_None_altitudes_2100_3600_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_3.csv"
-    climate_coordinates_with_effects_list = [None,
-                                             [AbstractCoordinates.COORDINATE_GCM],
-                                             [AbstractCoordinates.COORDINATE_RCM],
-                                             [AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM]
-                                             ]  # None means we do not create any effect
     combinations = [(i, i, i) for i in range(4)][:]
     combinations_names = list(load_combination_name_to_dict_v2(climate_coordinates_with_effects_list,
                                                                 combinations).keys())
