@@ -93,17 +93,22 @@ class AltitudesStudies(object):
             assert len(massif_altitudes) > 0
             spatial_coordinates = self.spatial_coordinates_for_altitudes(massif_altitudes)
         if isinstance(self.study, AbstractAdamontStudy):
-            coordinates = SpatioTemporalCoordinatesForClimateModels(transformation_class=self.spatial_transformation_class,
-                                                                    spatial_coordinates=spatial_coordinates,
-                                                                    temporal_coordinates=self.temporal_coordinates,
-                                                                    gcm_rcm_couple=self.study.gcm_rcm_couple,
-                                                                    scenario_str=scenario_to_str(self.study.scenario),
-                                                                    )
-            return coordinates
+            return SpatioTemporalCoordinatesForClimateModels(transformation_class=self.spatial_transformation_class,
+                                                             spatial_coordinates=spatial_coordinates,
+                                                             temporal_coordinates=self.temporal_coordinates,
+                                                             gcm_rcm_couple=self.study.gcm_rcm_couple,
+                                                             scenario_str=scenario_to_str(self.study.scenario),
+                                                             )
         else:
-            return AbstractSpatioTemporalCoordinates(transformation_class=self.spatial_transformation_class,
-                                                     spatial_coordinates=spatial_coordinates,
-                                                     temporal_coordinates=self.temporal_coordinates)
+            return SpatioTemporalCoordinatesForClimateModels(transformation_class=self.spatial_transformation_class,
+                                                             spatial_coordinates=spatial_coordinates,
+                                                             temporal_coordinates=self.temporal_coordinates,
+                                                             gcm_rcm_couple=(np.nan, np.nan),
+                                                             scenario_str=np.nan,
+                                                             )
+            # return AbstractSpatioTemporalCoordinates(transformation_class=self.spatial_transformation_class,
+            #                                          spatial_coordinates=spatial_coordinates,
+            #                                          temporal_coordinates=self.temporal_coordinates)
 
     @cached_property
     def temporal_coordinates(self):

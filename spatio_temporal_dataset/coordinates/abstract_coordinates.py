@@ -219,16 +219,18 @@ class AbstractCoordinates(object):
                           & (df_coordinate_climate_model[self.COORDINATE_RCM] == rcm)
                     df_coordinate_climate_model.loc[ind, self.COORDINATE_CLIMATE_MODEL_NAMES] = None
                 # Create some additional columns
-                s, has_observations, unique_values_without_nan = self.load_unique_values(climate_coordinate, df_coordinate_climate_model)
-                if has_observations:
-                    for value_name in unique_values_without_nan:
-                        serie_is_value = (s == value_name) * 1
-                        df[value_name] = serie_is_value
-                else:
-                    raise NotImplementedError
-                    # todo: the coordinate for three gcm should be 1, 0 then 0, 1 finally -1 -1
-                    # maybe it not exactly that, but in this case (without observaitons),
-                    # i need to ensure a constraint that the sum of coef is zero
+                only_observation_with_empty_climate_model_columns = df_coordinate_climate_model.isnull().all().all()
+                if not only_observation_with_empty_climate_model_columns:
+                    s, has_observations, unique_values_without_nan = self.load_unique_values(climate_coordinate, df_coordinate_climate_model)
+                    if has_observations:
+                        for value_name in unique_values_without_nan:
+                            serie_is_value = (s == value_name) * 1
+                            df[value_name] = serie_is_value
+                    else:
+                        raise NotImplementedError
+                        # todo: the coordinate for three gcm should be 1, 0 then 0, 1 finally -1 -1
+                        # maybe it not exactly that, but in this case (without observaitons),
+                        # i need to ensure a constraint that the sum of coef is zero
 
         return df
 

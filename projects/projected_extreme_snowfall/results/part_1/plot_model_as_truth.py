@@ -21,18 +21,16 @@ i_to_label = {
     3: 'GCM and RCM effects'
 }
 
-def plot_summary():
-    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_1"
+
+
+def plot_utils(csv_filename):
     csv_filename += '.csv'
     csv_filepath = op.join(CSV_PATH, csv_filename)
     df_csv = pd.read_csv(csv_filepath, index_col=0)
-
     ax = plt.gca()
-
     potential_indices = list(range(4))
     all_combinations = [potential_indices for _ in range(3)]
     combinations = list(product(*all_combinations))
-
     set_of_i_in_legend = set()
     for combination in combinations:
         combination_name = load_combination_name_for_tuple(combination)
@@ -59,10 +57,23 @@ def plot_summary():
                         linestyle='None', label=label)
         except KeyError:
             pass
-    ax.set_xlabel('Number of parameters for the effects')
-    ax.set_ylabel('Sum of nllh on the period 2020-2100')
     ax.legend()
+    ax.set_xlabel('Number of parameters for the effects')
+    return ax
+
+
+def plot_summary_model_as_truth():
+    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_1"
+    ax = plot_utils(csv_filename)
+    ax.set_ylabel('Sum of nllh on the period 2020-2100')
+    plt.show()
+
+def plot_summary_calibration():
+    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20"
+    ax = plot_utils(csv_filename)
+    ax.set_ylabel('Sum of nllh on the period 1990-2019')
     plt.show()
 
 if __name__ == '__main__':
-    plot_summary()
+    plot_summary_calibration()
+    # plot_summary_model_as_truth()
