@@ -35,10 +35,15 @@ class VisualizerNonStationaryEnsemble(AltitudesStudiesVisualizerForNonStationary
     def get_dataset(self, massif_altitudes, massif_name, gcm_rcm_couple_as_pseudo_truth=None):
         df_coordinates_list = []
         df_maxima_gev_list = []
-        for studies in self.gcm_rcm_couple_to_studies.values():
+        for gcm_rcm_couple, studies in self.gcm_rcm_couple_to_studies.items():
             dataset = studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes)
-            df_coordinates_list.append(dataset.coordinates.df_coordinates(add_climate_informations=True))
-            df_maxima_gev_list.append(dataset.observations.df_maxima_gev)
+            observation_or_pseudo_truth = gcm_rcm_couple in [gcm_rcm_couple_as_pseudo_truth, (None, None)]
+            weight_on_data = self.weight_on_observation if observation_or_pseudo_truth else 1
+            if observation_or_pseudo_truth:
+                print("obs or pseudo truth", gcm_rcm_couple, 'weight is', weight_on_data)
+            for _ in range(weight_on_data):
+                df_coordinates_list.append(dataset.coordinates.df_coordinates(add_climate_informations=True))
+                df_maxima_gev_list.append(dataset.observations.df_maxima_gev)
 
         index = pd.RangeIndex(0, sum([len(df) for df in df_maxima_gev_list]))
         df_maxima_gev = pd.concat(df_maxima_gev_list, axis=0)

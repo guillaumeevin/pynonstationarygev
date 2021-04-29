@@ -43,8 +43,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                  remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
                  gcm_rcm_couple_as_pseudo_truth=None,
+                 weight_on_observation=1,
                  ):
         super().__init__(studies.study, show=show, save_to_file=not show)
+        self.weight_on_observation = weight_on_observation
         self.gcm_rcm_couple_as_pseudo_truth = gcm_rcm_couple_as_pseudo_truth
         self.studies = studies
         self.model_classes = model_classes

@@ -63,7 +63,7 @@ def set_up_and_load(fast):
     if fast is None:
         gcm_rcm_couples = gcm_rcm_couples[:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = [2100]
+        altitudes_list = [600, 2100, 3600]
     elif fast:
         gcm_rcm_couples = gcm_rcm_couples[:2] + gcm_rcm_couples[-2:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
@@ -92,15 +92,15 @@ def main():
     study_class, temporal_covariate_for_fit = set_up_and_load(fast)
 
     climate_coordinates_with_effects_list = [None,
-                                             [AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM],
                                              [AbstractCoordinates.COORDINATE_GCM],
                                              [AbstractCoordinates.COORDINATE_RCM],
+                                             [AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM],
                                              ]  # None means we do not create any effect
 
     # Default parameters
     gcm_to_year_min_and_year_max = None
-    only_model_that_pass_gof = False
-    remove_physically_implausible_models = False
+    only_model_that_pass_gof = True
+    remove_physically_implausible_models = True
     safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
     print('Take into account the observations: {}'.format(safran_study_class is not None))
     print('observation class:', get_display_name_from_object_type(safran_study_class))
@@ -110,9 +110,9 @@ def main():
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
     param_name_to_climate_coordinates_with_effects = {
-        GevParams.LOC: climate_coordinates_with_effects_list[0],
-        GevParams.SCALE: climate_coordinates_with_effects_list[1],
-        GevParams.SHAPE: climate_coordinates_with_effects_list[2],
+        GevParams.LOC: climate_coordinates_with_effects_list[3],
+        GevParams.SCALE: climate_coordinates_with_effects_list[3],
+        GevParams.SHAPE: climate_coordinates_with_effects_list[3],
     }
 
     visualizer = VisualizerForProjectionEnsemble(

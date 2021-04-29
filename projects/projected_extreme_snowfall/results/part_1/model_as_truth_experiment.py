@@ -4,6 +4,7 @@ import time
 from typing import List
 
 import numpy as np
+from rpy2.rinterface import RRuntimeError
 
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh, NllhIsInfException
@@ -28,7 +29,9 @@ class ModelAsTruthExperiment(object):
                  remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
                  gcm_rcm_couples_sampled_for_experiment=None,
+                 weight_on_observation=None,
                  ):
+        self.weight_on_observation = weight_on_observation
         self.gcm_rcm_couples_sampled_for_experiment = gcm_rcm_couples_sampled_for_experiment
         self.selection_method_names = selection_method_names
         self.fit_method = fit_method
@@ -67,7 +70,8 @@ class ModelAsTruthExperiment(object):
                                                      confidence_interval_based_on_delta_method=False,
                                                      remove_physically_implausible_models=self.remove_physically_implausible_models,
                                                      param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects,
-                                                     gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple_set_as_truth)
+                                                     gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple_set_as_truth,
+                                                     weight_on_observation=self.weight_on_observation)
 
         # Get the best margin function for the selection method name
         one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
@@ -84,7 +88,7 @@ class ModelAsTruthExperiment(object):
                 nllh = compute_nllh(df_coordinates_temp.values, dataset.observations.maxima_gev,
                                     best_estimator.margin_function_from_fit)
                 nllh_list.append(nllh)
-        except NllhIsInfException:
+        except (NllhIsInfException, RRuntimeError):
             nllh_list = [np.nan for _ in self.selection_method_names]
         end = time.time()
         duration = str(datetime.timedelta(seconds=end - start))
@@ -95,13 +99,13 @@ class ModelAsTruthExperiment(object):
 
     def load_studies_for_test(self, gcm_rcm_couple_set_as_truth) -> AltitudesStudies:
         """For gcm_rcm_couple_set_as_truth, load the data from 2020 to 2100"""
-        return self.load_altitude_studies(gcm_rcm_couple_set_as_truth, 2006, 2100)
+        return self.load_altitude_studies(gcm_rcm_couple_set_as_truth, 2020, 2100)
 
     def load_gcm_rcm_couple_to_studies(self, gcm_rcm_couple_set_as_truth):
         """For the gcm_rcm_couple_set_as_truth load only the data from 1959 to 2019"""
         gcm_rcm_couple_to_studies = {}
         # Load the pseudo observations
-        gcm_rcm_couple_to_studies[gcm_rcm_couple_set_as_truth] = self.load_altitude_studies(gcm_rcm_couple_set_as_truth, 1959, 2005)
+        gcm_rcm_couple_to_studies[gcm_rcm_couple_set_as_truth] = self.load_altitude_studies(gcm_rcm_couple_set_as_truth, 1959, 2019)
         # Load the rest of the projections
         for gcm_rcm_couple in set(self.gcm_rcm_couples) - {gcm_rcm_couple_set_as_truth}:
             gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple)

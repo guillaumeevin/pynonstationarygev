@@ -44,11 +44,12 @@ def plot_relative_dynamic(massif_names, visualizer_list: List[
 
 def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStationaryModels,
                relative, is_temp_cov, order, gcm_rcm_couples):
+    num = 100
     if is_temp_cov:
-        x_list = np.linspace(1, 4.5, num=400)
+        x_list = np.linspace(1, 4.5, num=num)
         covariate_before = 1
     else:
-        x_list = np.linspace(1951, 2100, num=150)
+        x_list = np.linspace(1951, 2100, num=num)
         covariate_before = 1951
     one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
     print('relative:', relative, 'order:', order)

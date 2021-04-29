@@ -106,6 +106,7 @@ class IndependentMarginFunction(AbstractMarginFunction):
     def load_total_effect_for_gcm_rcm_couple(self, full_climate_coordinate, param_name):
         # Transform the climate coordinate if they are represent with a tuple of strings
         gcm_rcm_couple = full_climate_coordinate
+        gcm_rcm_couple = [self.coordinates.climate_model_coordinate_name_to_name_for_fit(e) for e in gcm_rcm_couple]
         all_column_names = self.coordinates.load_ordered_columns_names(self.full_climate_coordinates_names_with_effects)
         full_climate_coordinate = pd.Series(all_column_names).isin(gcm_rcm_couple).astype(float).values
         return self.load_total_effect_for_float(full_climate_coordinate, param_name)
