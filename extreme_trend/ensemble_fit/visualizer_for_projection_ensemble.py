@@ -131,7 +131,6 @@ class VisualizerForProjectionEnsemble(object):
                         climate_coordinates_with_param_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
                         if climate_coordinates_with_param_effects is not None:
                             climate_coordinates_names_with_param_effects_to_extract = list(c) if isinstance(c, tuple) else [c]
-                            print(c, climate_coordinates_names_with_param_effects_to_extract)
                             if set(climate_coordinates_names_with_param_effects_to_extract).issubset(set(climate_coordinates_with_param_effects)):
                                 plot_gcm_rcm_effects(self.massif_names, visualizer_list,
                                                      climate_coordinates_names_with_param_effects_to_extract,

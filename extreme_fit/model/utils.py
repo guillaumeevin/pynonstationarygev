@@ -130,6 +130,11 @@ def _safe_run_r_estimator(function, data=None, max_ratio_between_two_extremes_va
         # Add data to the parameters
         parameters['data'] = data
 
+    res = run_safe_r_method(function, parameters)
+    return res
+
+
+def run_safe_r_method(function, parameters):
     run_successful = False
     res = None
     f = io.StringIO()

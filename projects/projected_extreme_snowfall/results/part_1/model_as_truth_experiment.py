@@ -11,6 +11,7 @@ from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh,
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
+from extreme_fit.model.utils import SafeRunException
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.ensemble_fit.together_ensemble_fit.visualizer_non_stationary_ensemble import \
     VisualizerNonStationaryEnsemble
@@ -88,7 +89,7 @@ class ModelAsTruthExperiment(object):
                 nllh = compute_nllh(df_coordinates_temp.values, dataset.observations.maxima_gev,
                                     best_estimator.margin_function_from_fit)
                 nllh_list.append(nllh)
-        except (NllhIsInfException, RRuntimeError):
+        except (NllhIsInfException, SafeRunException):
             nllh_list = [np.nan for _ in self.selection_method_names]
         end = time.time()
         duration = str(datetime.timedelta(seconds=end - start))
