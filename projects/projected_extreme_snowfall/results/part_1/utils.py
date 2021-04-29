@@ -29,7 +29,6 @@ def update_csv(csv_filepath, combination_name, altitude, gcm_rcm_couple, value):
         if df.empty:
             df = pd.DataFrame({column_name: [value]}, index=[combination_name])
         else:
-            print(df.head())
             nb_index = len(df.index)
             df.loc[combination_name] = df.iloc[nb_index - 1] * np.nan
     if column_name not in df.columns:
@@ -41,6 +40,7 @@ def update_csv(csv_filepath, combination_name, altitude, gcm_rcm_couple, value):
         df.drop(columns=[sum_column_name], inplace=True)
     df[sum_column_name] = df.sum(axis=1)
     df.sort_values(by=sum_column_name, inplace=True)
+    print(df.head())
     # save intermediate results
     df.to_csv(csv_filepath)
 

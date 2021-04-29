@@ -1,27 +1,14 @@
 import datetime
-import random
 import time
-from collections import OrderedDict
 from itertools import product
 
 import numpy as np
-import pandas as pd
 
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
-from extreme_data.utils import DATA_PATH
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.projected_extreme_snowfall.results.part_1.model_as_truth_experiment import ModelAsTruthExperiment
-from projects.projected_extreme_snowfall.results.part_3.main_projections_ensemble import set_up_and_load
-from projects.projected_extreme_snowfall.results.utils import climate_coordinates_with_effects_list, \
-    load_combination_name
-from root_utils import VERSION
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-import os.path as op
-
-
-
-
+from projects.projected_extreme_snowfall.results.utils import load_combination_name
 
 
 def compute_average_nllh(altitudes_list, param_name_to_climate_coordinates_with_effects, gcm_rcm_couples, massif_names,

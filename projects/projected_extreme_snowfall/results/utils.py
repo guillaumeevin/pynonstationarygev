@@ -2,6 +2,7 @@ from typing import List
 
 import matplotlib
 
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel, NonStationaryShapeTemporalModel, \
@@ -22,6 +23,7 @@ from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_de
     NonStationaryTwoLinearShapeModel, NonStationaryTwoLinearShapeOneLinearScaleModel, NonStationaryTwoLinearScaleModel
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
+from root_utils import get_display_name_from_object_type
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
@@ -71,12 +73,17 @@ def set_up_and_load(fast):
     if fast in [None, False]:
         assert len(set(model_classes)) == 27
     print('number of models', len(model_classes))
+    print('number of gcm rcm couples', len(gcm_rcm_couples))
     remove_physically_implausible_models, display_only_model_that_pass_gof_test = True, True
 
     print('only models that pass gof:', display_only_model_that_pass_gof_test)
     print('remove physically implausible models:', remove_physically_implausible_models)
 
-    return altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test
+    safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
+    print('observation class:', get_display_name_from_object_type(safran_study_class))
+    print('Take into account the observations: {}'.format(safran_study_class is not None))
+
+    return altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class
 
 
 climate_coordinates_with_effects_list = [None,
