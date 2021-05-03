@@ -40,7 +40,6 @@ def update_csv(csv_filepath, combination_name, altitude, gcm_rcm_couple, value):
         df.drop(columns=[sum_column_name], inplace=True)
     df[sum_column_name] = df.sum(axis=1)
     df.sort_values(by=sum_column_name, inplace=True)
-    print(df.head())
     # save intermediate results
     df.to_csv(csv_filepath)
 

@@ -21,8 +21,6 @@ from root_utils import get_display_name_from_object_type
 
 class ModelAsTruthExperiment(AbstractExperiment):
 
-
-
     def __init__(self, altitudes, gcm_rcm_couples, study_class, season, scenario,
                  model_classes: List[AbstractTemporalLinearMarginModel], selection_method_names: List[str],
                  massif_names=None, fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None,
@@ -57,7 +55,8 @@ class ModelAsTruthExperiment(AbstractExperiment):
         """For the gcm_rcm_couple_set_as_truth load only the data from 1959 to 2019"""
         gcm_rcm_couple_to_studies = {}
         # Load the pseudo observations
-        gcm_rcm_couple_to_studies[gcm_rcm_couple_as_pseudo_truth] = self.load_altitude_studies(gcm_rcm_couple_as_pseudo_truth, 1959, 2019)
+        gcm_rcm_couple_to_studies[gcm_rcm_couple_as_pseudo_truth] = self.load_altitude_studies(
+            gcm_rcm_couple_as_pseudo_truth, 1959, 2019)
         # Load the rest of the projections
         for gcm_rcm_couple in set(self.gcm_rcm_couples) - {gcm_rcm_couple_as_pseudo_truth}:
             gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple)
@@ -69,4 +68,4 @@ class ModelAsTruthExperiment(AbstractExperiment):
         else:
             kwargs = {'year_min': year_min, 'year_max': year_max}
         return AltitudesStudies(self.study_class, self.altitudes, season=self.season,
-                                   scenario=self.scenario, gcm_rcm_couple=gcm_rcm_couple, **kwargs)
+                                scenario=self.scenario, gcm_rcm_couple=gcm_rcm_couple, **kwargs)

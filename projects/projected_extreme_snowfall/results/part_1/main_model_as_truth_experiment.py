@@ -17,13 +17,11 @@ from projects.projected_extreme_snowfall.results.utils import load_combination_n
 def main_model_as_truth_experiment():
     start = time.time()
 
-    fast = True
+    fast = False
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class = set_up_and_load \
         (fast)
-
     nb_gcm_rcm_couples_as_truth_that_are_the_closest = 5
-
     # Load the csv filepath
     altitudes_str = '_'.join([str(a[0]) for a in altitudes_list])
     csv_filename = 'fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_nb_samples_{}.csv'.format(fast,
@@ -33,12 +31,14 @@ def main_model_as_truth_experiment():
                                                                                                          nb_gcm_rcm_couples_as_truth_that_are_the_closest)
     csv_filepath = op.join(CSV_PATH, csv_filename)
 
+    inverse = False
     # combinations = [(i, i, i) for i in [3]]
     potential_indices = list(range(4))
     couples = list(product(potential_indices, potential_indices))
-    combinations = [tuple([3] + list(c)) for c in couples]
+    combinations = [tuple([2] + list(c)) for c in couples]
 
-    for altitudes in altitudes_list:
+    step = -1 if inverse else 1
+    for altitudes in altitudes_list[::step]:
         altitude = altitudes[0]
 
         gcm_rcm_running = ordered_gcm_rcm_couples_in_terms_of_bias_similar_to_bias_of_obs(
@@ -46,10 +46,10 @@ def main_model_as_truth_experiment():
             gcm_rcm_couples, massif_names, scenario,
             1959, 2019, study_class, safran_study_class)
 
-        for gcm_rcm_couple in gcm_rcm_running:
-            print("Running:", altitude, gcm_rcm_running)
-            for i, combination in enumerate(combinations, 1):
-                print('Combination {}/{}'.format(i, len(combinations)))
+        for gcm_rcm_couple in gcm_rcm_running[::step]:
+
+            for i, combination in list(enumerate(combinations, 1))[::step]:
+                print("Running:", altitude, gcm_rcm_couple, 'Combination {}/{}, {}'.format(i, len(combinations), combination))
 
                 combination_name = load_combination_name_for_tuple(combination)
                 param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(

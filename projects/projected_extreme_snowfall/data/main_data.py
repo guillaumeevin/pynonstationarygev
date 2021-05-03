@@ -19,10 +19,11 @@ def main():
     adamont_study_class = AdamontSnowfall
     year_min = 1950
     year_max = 2100
+    legend_and_labels = False
     massif_names = ['Vanoise']
     season = Season.annual
     adamont_scenario = AdamontScenario.rcp85_extended
-    altitudes = [600, 2100, 3600]
+    altitudes = [1200, 2100, 3000]
     for altitude in altitudes:
         plt.figure(figsize=(10, 5))
         # Loading part
@@ -34,7 +35,7 @@ def main():
                                          season=season, scenario=adamont_scenario)
         print(altitude, adamont_scenario)
         adamont_studies.plot_maxima_time_series_adamont(massif_names=massif_names,
-                                                        scm_study=scm_study, legend_and_labels=True)
+                                                        scm_study=scm_study, legend_and_labels=legend_and_labels)
 
 if __name__ == '__main__':
     main()

@@ -51,6 +51,18 @@ class AbstractExperiment(object):
 
     def run_one_experiment(self, **kwargs):
         start = time.time()
+        try:
+            nllh_list = self._run_one_experiment(kwargs)
+        except (NllhIsInfException, SafeRunException) as e:
+            print(e.__repr__())
+            nllh_list = [np.nan for _ in self.selection_method_names]
+
+        duration = str(datetime.timedelta(seconds=time.time() - start))
+        print('Total duration for one experiment', duration)
+
+        return np.array(nllh_list)
+
+    def _run_one_experiment(self, kwargs):
         # Load gcm_rcm_couple_to_studies
         gcm_rcm_couple_to_studies = self.load_gcm_rcm_couple_to_studies(**kwargs)
         # Load ensemble fit
@@ -65,28 +77,20 @@ class AbstractExperiment(object):
                                                      remove_physically_implausible_models=self.remove_physically_implausible_models,
                                                      param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects,
                                                      **kwargs)
-
         # Get the best margin function for the selection method name
         one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
         best_estimator_list = [one_fold_fit._sorted_estimators_with_method_name(method_name)[0]
-                                              for method_name in self.selection_method_names]
+                               for method_name in self.selection_method_names]
         # Compute the average nllh for the test data
         studies = self.load_studies_for_test(**kwargs)
         dataset = self.load_spatio_temporal_dataset(studies, **kwargs)
-        try:
-            nllh_list = []
-            for best_estimator in best_estimator_list:
-                df_coordinates_temp = best_estimator.load_coordinates_temp(dataset.coordinates)
-                nllh = compute_nllh(df_coordinates_temp.values, dataset.observations.maxima_gev,
-                                    best_estimator.margin_function_from_fit)
-                nllh_list.append(nllh)
-        except (NllhIsInfException, SafeRunException):
-            nllh_list = [np.nan for _ in self.selection_method_names]
-
-        duration = str(datetime.timedelta(seconds=time.time() - start))
-        print('Total duration for one experiment', duration)
-
-        return np.array(nllh_list)
+        nllh_list = []
+        for best_estimator in best_estimator_list:
+            df_coordinates_temp = best_estimator.load_coordinates_temp(dataset.coordinates)
+            nllh = compute_nllh(df_coordinates_temp.values, dataset.observations.maxima_gev,
+                                best_estimator.margin_function_from_fit)
+            nllh_list.append(nllh)
+        return nllh_list
 
     def load_spatio_temporal_dataset(self, studies, **kwargs):
         raise NotImplementedError
