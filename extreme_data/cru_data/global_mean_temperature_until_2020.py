@@ -35,7 +35,6 @@ def _year_to_monthly_global_mean_temp_anomaly_wrt_1850_1900():
     year_to_monthly_values = _year_to_monthly_global_mean_temp_anomaly_wrt_1961_1990()
     # Compute the average temperature for the reference period
     mean_temp_reference = np.mean([np.mean(year_to_monthly_values[year]) for year in range(1850, 1901)])
-    print(mean_temp_reference)
     # Remove this mean temp from all the data
     year_to_monthly_values_shifted = OrderedDict()
     for year, monthly_values in year_to_monthly_values.items():

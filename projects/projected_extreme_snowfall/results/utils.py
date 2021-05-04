@@ -74,7 +74,7 @@ def set_up_and_load(fast):
         assert len(set(model_classes)) == 27
     print('number of models', len(model_classes))
     print('number of gcm rcm couples', len(gcm_rcm_couples))
-    remove_physically_implausible_models, display_only_model_that_pass_gof_test = True, True
+    remove_physically_implausible_models, display_only_model_that_pass_gof_test = False, True
 
     print('only models that pass gof:', display_only_model_that_pass_gof_test)
     print('remove physically implausible models:', remove_physically_implausible_models)

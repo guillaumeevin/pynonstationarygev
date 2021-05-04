@@ -1,4 +1,3 @@
-
 import os.path as op
 from itertools import product
 
@@ -21,16 +20,6 @@ i_to_label = {
     2: 'RCM effects',
     3: 'GCM and RCM effects'
 }
-
-
-
-def plot_summary_model_as_truth():
-    # csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_1"
-    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_5"
-    ax = plot_utils(csv_filename)
-    ax.set_ylabel('Sum of nllh on the period 2020-2100')
-    plt.show()
-
 
 def plot_utils(csv_filename):
     csv_filename += '.csv'
@@ -78,7 +67,7 @@ def plot_utils(csv_filename):
                     set_of_i_in_legend.add(i)
                 else:
                     label = None
-                if combination == (0,0,0):
+                if combination == (0, 0, 0):
                     no_effect_combination_value = value
                     ax.hlines(value, linestyle='--', xmin=-5, xmax=35)
                 else:
@@ -96,11 +85,30 @@ def plot_utils(csv_filename):
     return ax
 
 def plot_summary_calibration():
-    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20"
+    year = 2015
+    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_splityear_{}".format(year)
     ax = plot_utils(csv_filename)
-    ax.set_ylabel('Sum of nllh on the period 1990-2019')
+    start_year_end_test = csv_filename[-4:]
+    ax.set_ylabel('Sum of nllh on the period {}-2019'.format(start_year_end_test))
     plt.show()
+
+def plot_summary_calibration_with_model_as_truth():
+    year = 2000
+    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_1_splityear_{}".format(year)
+    ax = plot_utils(csv_filename)
+    start_year_end_test = csv_filename[-4:]
+    ax.set_ylabel('Sum of nllh on the period {}-2019'.format(start_year_end_test))
+    plt.show()
+
+def plot_summary_model_as_truth():
+    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_5"
+    ax = plot_utils(csv_filename)
+    ax.set_ylabel('Sum of nllh on the period 2020-2100')
+    plt.show()
+
+
 
 if __name__ == '__main__':
     # plot_summary_calibration()
+    # plot_summary_calibration_with_model_as_truth()
     plot_summary_model_as_truth()
