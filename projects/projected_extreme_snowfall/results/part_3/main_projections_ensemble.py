@@ -29,15 +29,16 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 def main():
     start = time.time()
 
-    fast = True
+    fast = False
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class = set_up_and_load(
         fast)
 
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
 
-    combination = (3, 3, 3)
+    combination = (2, 3, 0)
     param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
+    print(param_name_to_climate_coordinates_with_effects)
 
     visualizer = VisualizerForProjectionEnsemble(
         altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,

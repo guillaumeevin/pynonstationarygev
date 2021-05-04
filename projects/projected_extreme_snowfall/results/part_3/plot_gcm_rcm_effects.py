@@ -40,7 +40,7 @@ def plot_gcm_rcm_effects(massif_names, visualizer_list: List[
     ax.set_xlabel(xlabel)
     ax.set_ylabel('Altitude (m)')
     title = '{} parameter'.format(param_name_str)
-    ax.set_ylim(top=altitudes[-1] + 1300)
+    ax.set_ylim(top=altitudes[-1] + 700)
     ax.yaxis.set_ticks(altitudes)
     size = 7 if len(climate_coordinates_names_with_param_effects_to_extract) == 2 else 10
     ax.legend(ncol=3, prop={'size': size})

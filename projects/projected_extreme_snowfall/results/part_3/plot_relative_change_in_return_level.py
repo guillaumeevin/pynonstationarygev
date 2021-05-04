@@ -34,7 +34,7 @@ def plot_relative_dynamic(massif_names, visualizer_list: List[
     ylabel = '{} {} ({})'.format(change, name, unit)
     ax.set_ylabel(ylabel)
 
-    ax.legend(ncol=2, prop={'size': 9}, loc='upper left')
+    ax.legend(ncol=3, prop={'size': 9}, loc='upper left')
     title = ylabel.split('(')[0]
     set_plot_name(param_name_to_climate_coordinates_with_effects, safran_study_class, title, visualizer)
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
@@ -52,9 +52,11 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
         x_list = np.linspace(1951, 2100, num=num)
         covariate_before = 1951
     one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
+    print('\nplot curve')
+    print(visualizer.study.altitude)
     print('relative:', relative, 'order:', order)
     print(get_display_name_from_object_type(type(one_fold_fit.best_margin_model)),
-          "significant={}".format(one_fold_fit.is_significant))
+          "temporally significant={}".format(one_fold_fit.is_significant))
     if relative is None:
         f = one_fold_fit.get_moment_for_plots
     else:
@@ -70,24 +72,29 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
         changes = [f([fake_altitude], order=order, covariate_before=covariate_before, covariate_after=t)[0] for t in x_list]
         ax.plot(x_list, changes, color=color, linewidth=1, linestyle='dotted')
 
-
 altitude_to_color = {
-    # Low altitude group
-    600: 'darkred',
-    900: 'red',
-    # Mid altitude gruop
-    1200: 'darkorange',
-    1500: 'orange',
-    1800: 'gold',
-    # High altitude group
-    2100: 'lightskyblue',
-    2400: 'skyblue',
-    2700: 'dodgerblue',
-    # Very high altitude group
+    1200: 'red',
+    2100: 'orange',
     3000: 'b',
-    3300: 'mediumblue',
-    3600: 'darkblue',
 }
+
+# altitude_to_color = {
+#     # Low altitude group
+#     600: 'darkred',
+#     900: 'red',
+#     # Mid altitude gruop
+#     1200: 'darkorange',
+#     1500: 'orange',
+#     1800: 'gold',
+#     # High altitude group
+#     2100: 'lightskyblue',
+#     2400: 'skyblue',
+#     2700: 'dodgerblue',
+#     # Very high altitude group
+#     3000: 'b',
+#     3300: 'mediumblue',
+#     3600: 'darkblue',
+# }
 
 
 def set_plot_name(param_name_to_climate_coordinates_with_effects, safran_study_class, title, visualizer):

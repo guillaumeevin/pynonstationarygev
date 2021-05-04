@@ -5,8 +5,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from projects.projected_extreme_snowfall.results.part_1.v1.main_mas_v1 import CSV_PATH
 from projects.projected_extreme_snowfall.results.utils import load_combination_name_for_tuple
+from root_utils import VERSION_TIME
 
 i_to_color = {
     0: 'k',
@@ -81,7 +83,7 @@ def plot_utils(csv_filename):
         percentage = np.round(100 * sum(is_smaller_than_no_effect) / len(is_smaller_than_no_effect))
         print('Percentages of effet combination lower than the "no effect combination" = {}\%'.format(percentage))
     ax.legend()
-    ax.set_xlabel('Number of parameters for the effects')
+    ax.set_xlabel('Number of effects')
     return ax
 
 def plot_summary_calibration():
@@ -103,7 +105,10 @@ def plot_summary_calibration_with_model_as_truth():
 def plot_summary_model_as_truth():
     csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_5"
     ax = plot_utils(csv_filename)
-    ax.set_ylabel('Sum of nllh on the period 2020-2100')
+    ax.set_ylabel('Negative log likelihood on the period 2020-2100\n'
+                  'summed on the model-as-truth experiment for the 3 altitudes ')
+    filename = "{}/{}".format(VERSION_TIME, "model as truth")
+    StudyVisualizer.savefig_in_results(filename, transparent=True)
     plt.show()
 
 
