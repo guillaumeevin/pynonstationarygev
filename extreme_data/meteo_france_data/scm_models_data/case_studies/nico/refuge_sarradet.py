@@ -36,7 +36,7 @@ def write_df_with_annual_maxima(massif_name, french_region, writer, study_class,
     df.columns = altitude_str
     name = study.variable_name
     short_name = name[:31]
-    df.to_excel(writer, sheet_name=short_name)
+    df.to_excel(writer, scheet_name=short_name)
     return df
 
 

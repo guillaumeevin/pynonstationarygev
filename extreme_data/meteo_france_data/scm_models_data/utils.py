@@ -173,6 +173,18 @@ STUDY_TYPES = ['alp_flat', 'postes', 'alp_allslopes']
 ORIENTATIONS = [0.0, 45.0, 90.0, 135.0, 180.0, 225.0, 270.0, 315.0]
 SLOPES = [20.0, 40.0]
 
+
+orientation_float_to_orientation_name = {
+    0.0: "N",
+    45.0: "NE",
+    90.0: "E",
+    135.0: "SE",
+    180.0: "S",
+    225.0: "SW",
+    270.0: "W",
+    315.0: "NW",
+}
+
 # Slopes are in degrees, 3 slopes (0, 20°, 40°)
 # Aspect are in the order N then NE, then E, in the same order as specified above
 # Its seems logical they start with the east, just like following clockwise

@@ -8,7 +8,7 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables impo
     CrocusDepthVariable, CrocusRecentSweVariableThreeDays, TotalSnowLoadVariable, RecentSnowLoadVariableThreeDays, \
     CrocusSnowLoadEurocodeVariable, CrocusDensityVariable, RecentSnowLoadVariableFiveDays, \
     RecentSnowLoadVariableSevenDays, RecentSnowLoadVariableOneDay, CrocusVariable, CrocusDepthIn3DaysVariable, \
-    CrocusDepthWetVariable
+    CrocusDepthWetVariable, CrocusRamsondVariable
 
 
 class Crocus(AbstractStudy):
@@ -23,7 +23,8 @@ class Crocus(AbstractStudy):
                         RecentSnowLoadVariableFiveDays,
                         RecentSnowLoadVariableSevenDays,
                         CrocusDepthWetVariable,
-                        CrocusDepthIn3DaysVariable
+                        CrocusDepthIn3DaysVariable,
+                        CrocusRamsondVariable
                         ]
 
     def __init__(self, variable_class, *args, **kwargs):
@@ -113,6 +114,10 @@ class CrocusDepth(Crocus):
         return self.winter_annual_aggregation(time_serie)
 
 
+class CrocusRamsond(Crocus):
+    def __init__(self, *args, **kwargs):
+        Crocus.__init__(self, CrocusRamsondVariable, *args, **kwargs)
+
 class CrocusSnowLoadEurocode(Crocus):
 
     def __init__(self, *args, **kwargs):
@@ -134,7 +139,7 @@ class CrocusDaysWithSnowOnGround(Crocus):
 
 
 if __name__ == '__main__':
-    for study in [CrocusSnowLoadTotal(altitude=900, orientation=90.0)]:
+    for study in [CrocusRamsond(altitude=900, orientation=90.0)]:
         d = study.year_to_dataset_ordered_dict[1959]
         print(d)
         print(study.reanalysis_path)

@@ -52,6 +52,13 @@ class CrocusRecentSweVariableSevenDays(CrocusTotalSweVariable):
         return 'SWE_7DY_ISBA'
 
 
+class CrocusRamsondVariable(CrocusVariable):
+
+    @classmethod
+    def keyword(cls):
+        return "RAMSOND_ISBA"
+
+
 class AbstractSnowLoadVariable(CrocusVariable):
     UNIT = 'kN $m^{-2}$'
 
