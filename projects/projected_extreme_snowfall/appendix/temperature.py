@@ -30,15 +30,23 @@ def main_plot_temperature_with_spline_on_top(anomaly=True):
         d = winter_year_to_averaged_global_mean_temp_wrt_1850_1900(spline)
         years, global_mean_temp = list(d.keys()), list(d.values())
         linestyle, linewidth, label = get_setting(spline, "HadCRUT5 reanalysis")
-        linewidth *= 1.5
+        linewidth *= 1
         ax.plot(years, global_mean_temp, linestyle=linestyle, color='k', label=label, linewidth=linewidth)
+
+    ax2 = ax.twinx()
+    legend_elements = [
+        Line2D([0], [0], color='k', lw=1, label="Smoothed global mean", linestyle='-'),
+        Line2D([0], [0], color='k', lw=1, label="Raw global mean", linestyle='dotted'),
+    ]
+    ax2.legend(handles=legend_elements, loc='center left')
+    ax2.set_yticks([])
 
     title = 'Anomaly'
     ax.legend(loc='upper left')
-    ax.set_xlabel('Winter years')
-    ax.set_ylabel('Anomaly of global mean temperature\nwith respect to pre-industrial levels (K)')
+    ax.set_xlabel('Years')
+    ax.set_ylabel('Anomaly of global mean temperature\nwith respect to pre-industrial levels ($^o$C)')
     ax.set_xlim((1850, 2100))
-    plt.show()
+    # plt.show()
     if title is None:
         plt.show()
     else:
