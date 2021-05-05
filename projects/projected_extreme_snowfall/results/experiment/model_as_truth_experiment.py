@@ -55,8 +55,11 @@ class ModelAsTruthExperiment(AbstractExperiment):
         """For the gcm_rcm_couple_set_as_truth load only the data from 1959 to 2019"""
         gcm_rcm_couple_to_studies = {}
         # Load the pseudo observations
-        gcm_rcm_couple_to_studies[gcm_rcm_couple_as_pseudo_truth] = self.load_altitude_studies(
-            gcm_rcm_couple_as_pseudo_truth, 1959, 2019)
+        pseudo_truth_studies = self.load_altitude_studies(gcm_rcm_couple_as_pseudo_truth, 1959, 2019)
+        assert pseudo_truth_studies.study.year_min == 1959
+        assert pseudo_truth_studies.study.year_max == 2019
+        gcm_rcm_couple_to_studies[gcm_rcm_couple_as_pseudo_truth] = pseudo_truth_studies
+
         # Load the rest of the projections
         for gcm_rcm_couple in set(self.gcm_rcm_couples) - {gcm_rcm_couple_as_pseudo_truth}:
             gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple)

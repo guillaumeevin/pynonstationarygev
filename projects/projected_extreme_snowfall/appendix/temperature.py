@@ -38,6 +38,7 @@ def main_plot_temperature_with_spline_on_top(anomaly=True):
     ax.set_xlabel('Winter years')
     ax.set_ylabel('Anomaly of global mean temperature\nwith respect to pre-industrial levels (K)')
     ax.set_xlim((1850, 2100))
+    plt.show()
     if title is None:
         plt.show()
     else:

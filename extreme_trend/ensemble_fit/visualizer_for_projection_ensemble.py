@@ -111,7 +111,7 @@ class VisualizerForProjectionEnsemble(object):
                 plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative,
                                                         with_significance=with_significance)
         else:
-            for relative in [None, True, False][:1]:
+            for relative in [None, True, False][:]:
                 orders = [None] + GevParams.PARAM_NAMES[:]
                 for order in orders[:]:
                     plot_relative_dynamic(self.massif_names, visualizer_list,

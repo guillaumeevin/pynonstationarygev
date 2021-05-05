@@ -149,11 +149,11 @@ def apply_cubic_spline(x, y, gcm):
     # low s parameter will overfit the curve, i.e. we do not accept high distance of the curve with the data
     gcm_to_s_parameter_for_univariate_spline = \
         {
-            'MPI-ESM-LR': 9,
-            'CNRM-CM5': 3,
-            'IPSL-CM5A-MR': 4,
-            'EC-EARTH': 2,
-            'HadGEM2-ES': 5,
+            'MPI-ESM-LR': 10,
+            'CNRM-CM5': 5,
+            'IPSL-CM5A-MR': 7,
+            'EC-EARTH': 3.5,
+            'HadGEM2-ES': 6,
             'NorESM1-M': 4.5
         }
     s = gcm_to_s_parameter_for_univariate_spline[gcm]

@@ -32,6 +32,9 @@ def ordered_gcm_rcm_couples_in_terms_of_bias_similar_to_bias_of_obs(nb_gcm_rcm_c
                       index=gcm_rcm_couples)
     # Load the gcm_rcm columns
     for gcm_rcm_couple in gcm_rcm_couples:
+        gcm, rcm = gcm_rcm_couple
+        if (gcm == 'HadGEM2-ES') or (rcm == 'RCA4'):
+            continue
         adamont_study = gcm_rcm_couple_to_study[gcm_rcm_couple]
         df[gcm_rcm_couple] = [compute_mean_bias_for_annual_maxima(massif_name, adamont_study, study) if c != gcm_rcm_couple else np.nan
                                for c, study in gcm_rcm_couple_to_study.items()]
@@ -47,12 +50,15 @@ def ordered_gcm_rcm_couples_in_terms_of_bias_similar_to_bias_of_obs(nb_gcm_rcm_c
     # # Some prints for the presentation
     df_small = df.iloc[:9 + 1, -2:]
     df_small = df_small.round(decimals=2)
-    print(df_small)
+    # print(df_small)
     # df_small.to_csv("altitude={}.csv".format(altitude))
 
     print('\ndistance for altitude={}'.format(altitude))
-    print(df[DISTANCE].iloc[:nb_gcm_rcm_couples_as_truth+1])
-    return list(df.index)[1:nb_gcm_rcm_couples_as_truth+1]
+    print(df.loc[:, [MEAN_BIAS, DISTANCE]].iloc[:nb_gcm_rcm_couples_as_truth+1])
+
+    gcm_rcm_list = list(df.index)[1:nb_gcm_rcm_couples_as_truth + 1]
+    assert len(gcm_rcm_list) == nb_gcm_rcm_couples_as_truth
+    return gcm_rcm_list
 
 def compute_mean_bias_for_annual_maxima(massif_name, study_reference: AbstractStudy, study_for_comparison: AbstractAdamontStudy):
     start_1, end_1 = study_reference.start_year_and_stop_year

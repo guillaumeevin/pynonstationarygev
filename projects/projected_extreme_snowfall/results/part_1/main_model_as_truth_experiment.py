@@ -32,9 +32,9 @@ def main_model_as_truth_experiment():
     csv_filepath = op.join(CSV_PATH, csv_filename)
 
     inverse = False
-    # combinations = [(i, i, i) for i in [3]]
+    # combinations = [(i, i, i) for i in [0]]
     potential_indices = list(range(4))
-    idx = 0
+    idx = 3
     combinations = [(c, idx, 0) for c in potential_indices]
 
     step = -1 if inverse else 1

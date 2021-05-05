@@ -36,7 +36,7 @@ def main():
 
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
 
-    combination = (2, 3, 0)
+    combination = (3, 2, 0)
     param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
     print(param_name_to_climate_coordinates_with_effects)
 
