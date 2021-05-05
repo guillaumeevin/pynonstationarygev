@@ -58,6 +58,12 @@ class CrocusRamsondVariable(CrocusVariable):
     def keyword(cls):
         return "RAMSOND_ISBA"
 
+class CrocusWetThVariable(CrocusVariable):
+
+    @classmethod
+    def keyword(cls):
+        return 'WET_TH_ISBA'
+
 
 class AbstractSnowLoadVariable(CrocusVariable):
     UNIT = 'kN $m^{-2}$'
