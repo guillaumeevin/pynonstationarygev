@@ -22,7 +22,7 @@ class SafranSnowfallVariable(AbstractVariable):
     """
 
     NAME = 'Snowfall'
-    UNIT = 'kg $m^{-2}$'
+    UNIT = 'kg m$^{-2}$'
 
     # this could have been mm w.e (mm in water equivalent)
 

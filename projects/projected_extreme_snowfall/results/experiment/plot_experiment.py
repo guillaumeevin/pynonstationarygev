@@ -23,7 +23,8 @@ i_to_label = {
     3: 'GCM and RCM effects'
 }
 
-def plot_utils(csv_filename):
+
+def plot_utils(csv_filename, altitude):
     csv_filename += '.csv'
     csv_filepath = op.join(CSV_PATH, csv_filename)
     df = pd.read_csv(csv_filepath, index_col=0)
@@ -41,6 +42,11 @@ def plot_utils(csv_filename):
     print('number of missing full combinations:', sum(ind))
     print('number of studied full combinations:', len(ind) - sum(ind))
     df = df.loc[~ind]
+
+    column_name = 'sum' if altitude is None else 'sum_{}'.format(altitude)
+    if altitude is not None:
+        df = create_additional_sum_columns_for_elevation(df, altitude)
+
     ax = plt.gca()
     potential_indices = list(range(4))
     all_combinations = [potential_indices, potential_indices, [0]]
@@ -52,7 +58,7 @@ def plot_utils(csv_filename):
     for combination in combinations:
         combination_name = load_combination_name_for_tuple(combination)
         try:
-            value = df.loc[combination_name, 'sum']
+            value = -df.loc[combination_name, column_name]
             # Compute the abs
             nb_params = 0
             for i in combination:
@@ -82,9 +88,10 @@ def plot_utils(csv_filename):
         is_smaller_than_no_effect = [v < no_effect_combination_value for v in all_values_with_effect]
         percentage = np.round(100 * sum(is_smaller_than_no_effect) / len(is_smaller_than_no_effect))
         print('Percentages of effet combination lower than the "no effect combination" = {}\%'.format(percentage))
-    ax.legend()
+    ax.legend(loc='lower right')
     ax.set_xlabel('Number of effects')
     return ax
+
 
 def plot_summary_calibration():
     year = 2015
@@ -94,26 +101,48 @@ def plot_summary_calibration():
     ax.set_ylabel('Sum of nllh on the period {}-2019'.format(start_year_end_test))
     plt.show()
 
+
 def plot_summary_calibration_with_model_as_truth():
     year = 2000
-    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_1_splityear_{}".format(year)
+    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_1_splityear_{}".format(
+        year)
     ax = plot_utils(csv_filename)
     start_year_end_test = csv_filename[-4:]
     ax.set_ylabel('Sum of nllh on the period {}-2019'.format(start_year_end_test))
     plt.show()
 
-def plot_summary_model_as_truth():
-    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_5"
-    ax = plot_utils(csv_filename)
-    ax.set_ylabel('Negative log likelihood on the period 2020-2100\n'
-                  'summed on the model-as-truth experiment for the 3 altitudes ')
-    filename = "{}/{}".format(VERSION_TIME, "model as truth")
-    StudyVisualizer.savefig_in_results(filename, transparent=True)
-    plt.show()
 
+def plot_summary_model_as_truth():
+    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_5_Vanoise"
+    csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_5_Beaufortain"
+    # csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_5_Haute-Tarentaise"
+    # csv_filename = "fast_False_altitudes_1200_2100_3000_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_5"
+    for altitude in [None, 3000, 2100, 1200][:]:
+        ax = plot_utils(csv_filename, altitude)
+        end = 'the 3 altitudes' if altitude is None else 'the {} m'.format(altitude)
+        title = 'model-as-truth experiment for the {}'.format(end)
+        ax.set_ylabel('Log likelihood on the period 2020-2100\n'
+                      'summed on the {}'.format(title))
+        filename = "{}/{}".format(VERSION_TIME, title)
+        StudyVisualizer.savefig_in_results(filename, transparent=False)
+        plt.close()
+        # plt.show()
+
+
+def create_additional_sum_columns_for_elevation(df, altitude):
+    altitude_str = str(altitude)
+    columns_for_altitudes = [c for c in df.columns if altitude_str in c]
+    new_column = 'sum_{}'.format(altitude_str)
+    if new_column not in df:
+        df_altitude = df.loc[:, columns_for_altitudes]
+        ind = df_altitude.isnull().any(axis=1)
+        df[new_column] = np.nan
+        df[new_column] = df_altitude.sum(axis=1)
+    return df
 
 
 if __name__ == '__main__':
     # plot_summary_calibration()
     # plot_summary_calibration_with_model_as_truth()
     plot_summary_model_as_truth()
+    # create_additional_sum_columns_for_elevation()

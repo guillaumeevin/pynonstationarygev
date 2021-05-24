@@ -67,7 +67,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
             else:
                 unit = self.study.variable_unit
             value_label += ' ({})'.format(unit)
-            value_label = value_label.capitalize()
+            # value_label = value_label.capitalize()
 
             if elevation_as_xaxis:
                 # Display the y label on the twin axis
@@ -216,4 +216,5 @@ def main_paper3():
 
 
 if __name__ == '__main__':
-    main_paper3()
+    # main_paper3()
+    main_paper2()

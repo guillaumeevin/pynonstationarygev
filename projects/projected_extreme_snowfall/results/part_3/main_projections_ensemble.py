@@ -3,6 +3,7 @@ import time
 
 import matplotlib
 
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontSnowLoad
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -30,9 +31,10 @@ def main():
     start = time.time()
 
     fast = False
+    snowfall = True
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class = set_up_and_load(
-        fast)
+        fast, snowfall)
 
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
 

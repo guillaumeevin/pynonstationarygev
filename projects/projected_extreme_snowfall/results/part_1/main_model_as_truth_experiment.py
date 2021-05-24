@@ -23,16 +23,20 @@ def main_model_as_truth_experiment():
         (fast)
     nb_gcm_rcm_couples_as_truth_that_are_the_closest = 5
     # Load the csv filepath
+    massif_names = ['Vanoise']
+    massif_names = ['Beaufortain']
+    massif_names = ['Haute-Tarentaise']
     altitudes_str = '_'.join([str(a[0]) for a in altitudes_list])
-    csv_filename = 'fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_nb_samples_{}.csv'.format(fast,
+    csv_filename = 'fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_nb_samples_{}_{}.csv'.format(fast,
                                                                                                          altitudes_str,
                                                                                                          len(model_classes),
                                                                                                          len(gcm_rcm_couples),
-                                                                                                         nb_gcm_rcm_couples_as_truth_that_are_the_closest)
+                                                                                                         nb_gcm_rcm_couples_as_truth_that_are_the_closest,
+                                                                                                            massif_names[0])
     csv_filepath = op.join(CSV_PATH, csv_filename)
 
-    inverse = False
-    # combinations = [(i, i, i) for i in [0]]
+    inverse = True
+    combinations = [(i, i, i) for i in [0]]
     potential_indices = list(range(4))
     idx = 3
     combinations = [(c, idx, 0) for c in potential_indices]

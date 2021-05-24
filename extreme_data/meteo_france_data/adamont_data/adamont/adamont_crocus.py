@@ -22,7 +22,7 @@ class AdamontSnowLoad(AbstractAdamontStudy):
 
 
 if __name__ == '__main__':
-    for study_class in [AdamontSwe, AdamontSnowLoad]:
+    for study_class in [AdamontSwe, AdamontSnowLoad][1:]:
         study = study_class(altitude=1800, adamont_version=2, gcm_rcm_couple=('HadGEM2-ES', 'RACMO22E'),
                                 scenario=AdamontScenario.rcp85_extended)
         print(study.year_to_annual_maxima[2000])

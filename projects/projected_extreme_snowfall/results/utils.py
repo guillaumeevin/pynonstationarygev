@@ -2,6 +2,8 @@ from typing import List
 
 import matplotlib
 
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontSnowLoad
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
@@ -40,8 +42,14 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
     AbstractExtractEurocodeReturnLevel
 
 
-def set_up_and_load(fast):
-    study_class = AdamontSnowfall
+def set_up_and_load(fast, snowfall=True):
+
+    if snowfall:
+        safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
+        study_class = AdamontSnowfall
+    else:
+        study_class = AdamontSnowLoad
+        safran_study_class = CrocusSnowLoadTotal
 
     temporal_covariate_for_fit = [TimeTemporalCovariate,
                                   AnomalyTemperatureWithSplineTemporalCovariate][1]
@@ -79,7 +87,6 @@ def set_up_and_load(fast):
     print('only models that pass gof:', display_only_model_that_pass_gof_test)
     print('remove physically implausible models:', remove_physically_implausible_models)
 
-    safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
     print('observation class:', get_display_name_from_object_type(safran_study_class))
     print('Take into account the observations: {}'.format(safran_study_class is not None))
 

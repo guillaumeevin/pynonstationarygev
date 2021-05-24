@@ -76,11 +76,11 @@ class CrocusSweSimulationVariable(AbstractAdamontVariable):
 
     @classproperty
     def indicator_name_for_maxima(cls):
-        return 'swe-max-winter-11-04-NN'
+        return 'swe-max-year-NN'
 
     @classproperty
     def indicator_name_for_maxima_date(cls):
-        return 'date-swe-max-winter-11-04-NN'
+        return 'date-swe-max-year-NN'
 
 
 class CrocusTotalSnowLoadVariable(CrocusSweSimulationVariable):

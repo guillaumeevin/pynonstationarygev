@@ -84,8 +84,9 @@ def main_comparaison_plot():
 
             # list_of_massis_names = [None]
             list_of_massis_names = [['Vanoise']]
+            list_of_massis_names = [['Beaufortain']]
+            list_of_massis_names = [['Haute-Tarentaise']]
 
-            print((len(gcm_rcm_couples)))
             for relative_bias in [True, False][:]:
                 for mean in [True, False][:1]:
                     for massif_names in list_of_massis_names:
@@ -95,7 +96,6 @@ def main_comparaison_plot():
                         bias_in_the_mean = []
                         list_altitudes_for_bias = []
                         for gcm_rcm_couple in gcm_rcm_couples:
-                            print('lop')
                             adamont_altitude_studies = AltitudesStudies(study_class=adamont_study_class,
                                                                         altitudes=altitudes,
                                                                         year_min=1959,
@@ -152,9 +152,9 @@ def main_comparaison_plot():
                         # bias_name = 'Relative differences' if relative_bias else 'Differences'
                         bias_name = 'Relative biases' if relative_bias else 'Biases'
                         if gcm_as_pseudo_truth is None:
-                            bias_name += ' for the observations'
+                            bias_name += ' w.r.t. the observations'
                         else:
-                            bias_name += ' for the pseudo observations from {}'.format('/'.join(gcm_as_pseudo_truth))
+                            bias_name += ' w.r.t. the pseudo observations from {}'.format('/'.join(gcm_as_pseudo_truth))
                         mean_str = 'mean' if mean else 'std'
                         title = '{} in the {} annual\nmaxima of {} for {}' \
                                 'on the period 1959-2019 ({})'.format(bias_name, mean_str,

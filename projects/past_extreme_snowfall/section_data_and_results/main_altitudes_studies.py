@@ -55,7 +55,8 @@ def main():
     if fast is None:
         massif_names = None
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = altitudes_for_groups[2:3]
+        # altitudes_list = altitudes_for_groups[2:3]
+        altitudes_list = altitudes_for_groups[1:2]
     elif fast:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:]
@@ -100,7 +101,7 @@ def plot_visualizers(massif_names, visualizer_list):
 def plot_visualizer(massif_names, visualizer):
     # Plot time series
     # visualizer.studies.plot_maxima_time_series(massif_names)
-    # visualizer.studies.plot_maxima_time_series(['Vanoise'])
+    visualizer.studies.plot_maxima_time_series(['Vanoise'])
 
     # visualizer.plot_shape_map()
     visualizer.plot_moments()

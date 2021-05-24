@@ -30,6 +30,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_int
     ConfidenceIntervalMethodFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     EurocodeConfidenceIntervalFromExtremes
+from extreme_fit.model.utils import SafeRunException
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup, altitudes_for_groups
 from root_utils import NB_CORES, batch
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -368,7 +369,11 @@ class OneFoldFit(object):
 
     def goodness_of_fit_test(self, estimator):
         quantiles = estimator.sorted_empirical_standard_gumbel_quantiles()
-        goodness_of_fit_anderson_test = goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
+        try:
+            goodness_of_fit_anderson_test = goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
+        except SafeRunException as e:
+            print('goodness of fit failed:', e.__repr__())
+            goodness_of_fit_anderson_test = False
         return goodness_of_fit_anderson_test
 
     def standard_gumbel_quantiles(self, n=None):

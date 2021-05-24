@@ -11,25 +11,27 @@ set.seed(42)
 N <- 101
 loc = 0; scale = 1; shape <- 1
 x_gev <- rgev(N, loc = loc, scale = scale, shape = shape)
-years = seq(0, 100) / 100
+years = runif(101)
+# years = seq(0, 100) / 100
 df <- data.frame(x_gev, years)
 colnames(df) <- c("prcp", "year")
 print(length(years))
 # print(COprcp_gev)
 print('before call')
-fmla_gev2 <- list(prcp ~ s(year, k=3, m=1, bs="bs"), ~ 1, ~ 1)
+fmla_gev2 <- list(prcp ~ s(year, k=4, m=1, bs="cr"), ~ 1, ~ 1)
+# fmla_gev2 <- list(prcp ~ s(year, k=3, m=1, bs="cr"), ~ 1, ~ 1)
 # fmla_gev2 <- list(prcp ~ s(elev, bs="bs", k=4, m=2), ~ 1, ~ 1)
 m_gev2 <- evgam_fixed(fmla_gev2, data=df, family="gev")
 # summary(m_gev2)
 print('print results')
 # print(m_gev2)
 # print(m_gev2$coefficients)
-# location <- m_gev2$location
-# print(location)
+location <- m_gev2$location
+print(location)
 # # print(location)
-# smooth <- m_gev2$location$smooth[[1]]
+smooth <- m_gev2$location$smooth[[1]]
 # # summary(location)
-# print(smooth)
+print(smooth)
 
 # print(smooth[1])
 # print(attr(smooth, "qrc"))
