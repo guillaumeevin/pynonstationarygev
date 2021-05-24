@@ -8,7 +8,7 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables impo
     CrocusDepthVariable, CrocusRecentSweVariableThreeDays, TotalSnowLoadVariable, RecentSnowLoadVariableThreeDays, \
     CrocusSnowLoadEurocodeVariable, CrocusDensityVariable, RecentSnowLoadVariableFiveDays, \
     RecentSnowLoadVariableSevenDays, RecentSnowLoadVariableOneDay, CrocusVariable, CrocusDepthIn3DaysVariable, \
-    CrocusDepthWetVariable, CrocusRamsondVariable, CrocusWetThVariable
+    CrocusDepthWetVariable, CrocusRamsondVariable, CrocusWetThVariable, CrocusDepthIn1DayVariable
 
 
 class Crocus(AbstractStudy):
@@ -23,6 +23,7 @@ class Crocus(AbstractStudy):
                         RecentSnowLoadVariableFiveDays,
                         RecentSnowLoadVariableSevenDays,
                         CrocusDepthWetVariable,
+                        CrocusDepthIn1DayVariable,
                         CrocusDepthIn3DaysVariable,
                         CrocusRamsondVariable,
                         CrocusWetThVariable
@@ -94,6 +95,12 @@ class ExtendedCrocusSweTotal(AbstractExtendedStudy, CrocusSweTotal):
     pass
 
 
+class CrocusDepthIn1Day(Crocus):
+
+    def __init__(self, *args, **kwargs):
+        Crocus.__init__(self, CrocusDepthIn1DayVariable, *args, **kwargs)
+
+
 class CrocusDepthIn3Days(Crocus):
 
     def __init__(self, *args, **kwargs):
@@ -119,9 +126,11 @@ class CrocusRamsond(Crocus):
     def __init__(self, *args, **kwargs):
         Crocus.__init__(self, CrocusRamsondVariable, *args, **kwargs)
 
+
 class CrocusWetth(Crocus):
     def __init__(self, *args, **kwargs):
         Crocus.__init__(self, CrocusWetThVariable, *args, **kwargs)
+
 
 class CrocusSnowLoadEurocode(Crocus):
 
@@ -144,7 +153,7 @@ class CrocusDaysWithSnowOnGround(Crocus):
 
 
 if __name__ == '__main__':
-    for study in [CrocusWetth(altitude=900, orientation=90.0)]:
+    for study in [CrocusDepthIn1Day(altitude=900, orientation=90.0)]:
         d = study.year_to_dataset_ordered_dict[1959]
         print(d)
         print(study.reanalysis_path)

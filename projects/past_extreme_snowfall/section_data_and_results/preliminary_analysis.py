@@ -8,6 +8,7 @@ from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import A
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import _gcm_rcm_couple_adamont_v2_to_full_name
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import get_gcm_rcm_couples, rcp_scenarios
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepthIn1Day
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
@@ -15,6 +16,7 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.utils import fit_linear_regression
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from extreme_trend.one_fold_fit.altitude_group import altitudes_for_groups
+from projects.past_extreme_ground_snow_loads.utils import paper_altitudes
 
 
 class PointwiseGevStudyVisualizer(AltitudesStudies):
@@ -192,10 +194,12 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
 
 def main_paper2():
     altitudes = list(chain.from_iterable(altitudes_for_groups))
-
-    # altitudes = paper_altitudes
-    altitudes = [1800, 2100]
-    visualizer = PointwiseGevStudyVisualizer(SafranSnowfall1Day, altitudes=altitudes)
+    # altitudes = [1800, 2100]
+    # study_class = SafranSnowfall1Day
+    # visualizer = PointwiseGevStudyVisualizer(study_class, altitudes=altitudes, year_min=2000, year_max=2008)
+    study_class = CrocusDepthIn1Day
+    visualizer = PointwiseGevStudyVisualizer(study_class, altitudes=altitudes)
+    
     visualizer.plot_gev_params_against_altitude()
 
     # visualizer.plot_gev_params_against_time_for_all_altitudes()
