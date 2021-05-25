@@ -51,7 +51,7 @@ def main():
     model_must_pass_the_test = False
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = None
+    fast = False
     if fast is None:
         massif_names = None
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
@@ -62,6 +62,7 @@ def main():
         massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:]
         altitudes_list = altitudes_for_groups[2:3]
     else:
+        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         massif_names = None
         altitudes_list = altitudes_for_groups[:]
 

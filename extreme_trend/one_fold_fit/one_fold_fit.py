@@ -264,6 +264,13 @@ class OneFoldFit(object):
     def best_estimator(self):
         if self.has_at_least_one_valid_model:
             best_estimator = self.sorted_estimators_with_aic[0]
+            # Add some check up for the paper 2
+            if not isinstance(self.altitude_group, DefaultAltitudeGroup):
+                coordinate = best_estimator.coordinates_for_nllh[0]
+                gev_params = best_estimator.margin_function_from_fit.get_params(coordinate)
+                assert -0.5 < gev_params.shape < 0.5
+                assert not self.only_models_that_pass_goodness_of_fit_test
+                assert not self.remove_physically_implausible_models
             return best_estimator
         else:
             raise ValueError('This object should not have been called because '

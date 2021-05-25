@@ -44,6 +44,7 @@ class IndependentMarginFunction(AbstractMarginFunction):
         # The climatic coordinate can be of two types either 1 and 0 vectors,
         # or a vector with several information such as the GCM str, RCM str and the climate coordinates with effects
         if len(coordinate) > self.coordinates.nb_coordinates:
+            assert isinstance(coordinate[0], float)
             assert self.param_name_to_ordered_climate_effects is not None
             assert self.param_name_to_climate_coordinates_with_effects is not None
             assert AbstractCoordinates.COORDINATE_X not in self.coordinates.coordinates_names, \
