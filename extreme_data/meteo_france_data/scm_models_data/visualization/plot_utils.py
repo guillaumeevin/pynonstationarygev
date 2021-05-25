@@ -47,7 +47,7 @@ def get_color_and_linestyle_from_massif_id(massif_id, massif_name):
 
 def load_plot(cmap, graduation, label, massif_name_to_value, altitude, add_x_label=True,
               negative_and_positive_values=True, massif_name_to_text=None, add_colorbar=True, max_abs_change=None,
-              xlabel=None, fontsize_label=10):
+              xlabel=None, fontsize_label=10, massif_names_with_white_dot=None):
     if max_abs_change is None:
         max_abs_change = max([abs(e) for e in massif_name_to_value.values()])
     if negative_and_positive_values:
@@ -89,7 +89,8 @@ def load_plot(cmap, graduation, label, massif_name_to_value, altitude, add_x_lab
                                   fontsize_label=fontsize_label,
                                   massif_name_to_text=massif_name_to_text,
                                   add_text=massif_name_to_text is not None,
-                                  massif_name_to_hatch_boolean_list=massif_name_to_hatch_boolean_list
+                                  massif_name_to_hatch_boolean_list=massif_name_to_hatch_boolean_list,
+                                  massif_names_with_white_dot=massif_names_with_white_dot
                                   )
     ax.get_xaxis().set_visible(True)
     ax.set_xticks([])

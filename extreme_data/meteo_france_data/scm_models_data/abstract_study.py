@@ -576,6 +576,7 @@ class AbstractStudy(object):
                         massif_name_to_text=None,
                         fontsize_label=15,
                         add_legend=True,
+                        massif_names_with_white_dot=None
                         ):
         if ax is None:
             ax = plt.gca()
@@ -614,11 +615,14 @@ class AbstractStudy(object):
                 if massif_name_to_fill_kwargs is not None and massif_name in massif_name_to_fill_kwargs:
                     fill_kwargs = massif_name_to_fill_kwargs[massif_name]
                     ax.fill(*coords_list, **fill_kwargs)
+                    if massif_names_with_white_dot is not None and massif_name in massif_names_with_white_dot:
+                        fill_kwargs = {"facecolor":"none", "hatch":"o"*2, "edgecolor":"w"}
+                        ax.fill(*coords_list, **fill_kwargs)
                 else:
+                    # For the missing massifs
                     ax.fill(*coords_list, **{'color': default_color_for_missing_massif})
 
-                # For the moment we comment all the part of this code
-                # Add a hatch to visualize the mean & variance variation sign
+                # Add a hatch for the missing massifs
                 hatch_list = ['//', '\\\\']
                 if massif_name_to_hatch_boolean_list is not None:
                     if massif_name in massif_name_to_hatch_boolean_list:

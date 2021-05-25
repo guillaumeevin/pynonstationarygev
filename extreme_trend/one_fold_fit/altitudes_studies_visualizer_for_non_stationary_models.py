@@ -234,6 +234,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             massif_name_to_text = {m: round(v) for m, v in massif_name_to_value.items()}
             graduation = self.altitude_group.graduation_for_return_level
             fontsize_label = 17
+            massif_names_with_white_dot = None
         else:
             # cmap = plt.cm.RdYlGn
             cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
@@ -242,8 +243,13 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             cmap = remove_the_extreme_colors(cmap)
             graduation = 10
             fontsize_label = 10
+            massif_names_with_white_dot = set([massif_name
+                                               for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()
+                                               if not one_fold_fit.is_significant])
 
         negative_and_positive_values = self.moment_names.index(method_name) > 0
+
+
         # Plot the map
 
         self.plot_map(cmap=cmap, graduation=graduation,
@@ -256,6 +262,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       massif_name_to_text=massif_name_to_text,
                       xlabel=self.altitude_group.xlabel,
                       fontsize_label=fontsize_label,
+                      massif_names_with_white_dot=massif_names_with_white_dot,
                       )
 
     @property
