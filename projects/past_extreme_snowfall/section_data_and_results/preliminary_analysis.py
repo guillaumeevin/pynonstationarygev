@@ -199,7 +199,7 @@ def main_paper2():
     # visualizer = PointwiseGevStudyVisualizer(study_class, altitudes=altitudes, year_min=2000, year_max=2008)
     study_class = CrocusDepthIn1Day
     visualizer = PointwiseGevStudyVisualizer(study_class, altitudes=altitudes)
-    
+
     visualizer.plot_gev_params_against_altitude()
 
     # visualizer.plot_gev_params_against_time_for_all_altitudes()
