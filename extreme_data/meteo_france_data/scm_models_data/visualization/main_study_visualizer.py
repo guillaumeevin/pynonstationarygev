@@ -2,12 +2,14 @@ import time
 from collections import OrderedDict
 from typing import List
 
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontSnowLoad
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, \
     ExtendedCrocusDepth, \
     ExtendedCrocusSweTotal, CrocusDaysWithSnowOnGround, CrocusSwe3Days, CrocusSnowLoad3Days, CrocusSnowLoadTotal, \
     CrocusSnowLoadEurocode, CrocusSnowLoad5Days, CrocusSnowLoad7Days
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2020, CrocusSnowLoad2019
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_snow_density import CrocusSnowDensity
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusDensityVariable
 from extreme_data.meteo_france_data.scm_models_data.safran.gap_between_study import GapBetweenSafranSnowfall2019And2020, \
@@ -66,6 +68,8 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusSnowLoadEurocode: 'GSL from annual maximum of HS \nand {}'.format(eurocode_snow_density),
     CrocusDepth: 'SD',
     CrocusSnowLoadTotal: 'GSL',
+    CrocusSnowLoad2019: 'GSL',
+    CrocusSnowLoad2020: 'GSL',
     CrocusSnowLoad3Days: 'GSL3',
     CrocusSnowLoad5Days: 'GSL5',
     CrocusSnowLoad7Days: 'GSL7',
@@ -80,6 +84,7 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
 }
 ADAMONT_STUDY_CLASS_TO_ABBREVIATION = {
     AdamontSnowfall: 'daily snowfall',
+    AdamontSnowLoad: 'GSL',
 }
 STUDY_CLASS_TO_ABBREVIATION = {**ADAMONT_STUDY_CLASS_TO_ABBREVIATION, **SCM_STUDY_CLASS_TO_ABBREVIATION}
 

@@ -4,7 +4,9 @@ import matplotlib
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontSnowLoad
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
+from extreme_data.meteo_france_data.scm_models_data.studyfrommaxfiles import AbstractStudyMaxFiles
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel, NonStationaryShapeTemporalModel, \
@@ -49,7 +51,8 @@ def set_up_and_load(fast, snowfall=True):
         study_class = AdamontSnowfall
     else:
         study_class = AdamontSnowLoad
-        safran_study_class = CrocusSnowLoadTotal
+        safran_study_class = CrocusSnowLoad2019
+
 
     temporal_covariate_for_fit = [TimeTemporalCovariate,
                                   AnomalyTemperatureWithSplineTemporalCovariate][1]
@@ -75,6 +78,8 @@ def set_up_and_load(fast, snowfall=True):
     altitudes_list = [[a] for a in altitudes_list]
     assert isinstance(altitudes_list, List)
     assert isinstance(altitudes_list[0], List)
+    assert (safran_study_class is None) or (issubclass(safran_study_class, AbstractStudyMaxFiles))
+
     for altitudes in altitudes_list:
         assert len(altitudes) == 1
     massif_names = ['Vanoise']

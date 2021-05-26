@@ -21,7 +21,7 @@ from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_poly
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from extreme_trend.one_fold_fit.altitude_group import \
-    get_altitude_group_from_altitudes, VeyHighAltitudeGroup, MidAltitudeGroup
+    get_altitude_group_from_altitudes, VeyHighAltitudeGroup, MidAltitudeGroup, DefaultAltitudeGroup
 from extreme_trend.one_fold_fit.one_fold_fit import \
     OneFoldFit
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -123,8 +123,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             percentage_of_non_zeros = 100 * np.count_nonzero(annual_maxima) / len(annual_maxima)
             if percentage_of_non_zeros > 90:
                 massif_altitudes.append(altitude)
-            # else:
-            #     print(massif_name, altitude, percentage_of_non_zeros)
+            else:
+                if isinstance(self.altitude_group, DefaultAltitudeGroup):
+                    print('time series excluded due number of zeros > 10\%')
+                    print(massif_name, altitude, percentage_of_non_zeros)
         return massif_altitudes
 
     def load_condition(self, massif_altitudes):

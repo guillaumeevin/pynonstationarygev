@@ -2,14 +2,18 @@ import numpy as np
 import os.path as op
 import matplotlib
 
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontSnowLoad
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import \
     get_year_min_and_year_max_used_to_compute_quantile, gcm_rcm_couple_to_color
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, \
     gcm_rcm_couple_to_str, get_gcm_rcm_couples
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
     SafranSnowfall2019
+from extreme_data.meteo_france_data.scm_models_data.studyfrommaxfiles import AbstractStudyMaxFiles
 from projects.projected_extreme_snowfall.results.part_1.compute_pairwise_distance import \
     ordered_gcm_rcm_couples_in_terms_of_bias_similar_to_bias_of_obs
 
@@ -63,7 +67,6 @@ def compute_bias_and_display_it(ax,
 
 
 def main_comparaison_plot():
-    altitudes = [1200, 2100, 3000][:]
 
     for adamont_version in [2][:]:
         print('version:', adamont_version)
@@ -76,8 +79,18 @@ def main_comparaison_plot():
             if gcm_as_pseudo_truth is not None:
                 gcm_rcm_couples.remove(gcm_as_pseudo_truth)
 
-            safran_study_class = SafranSnowfall2019 if adamont_version == 2 else SafranSnowfall1Day
-            adamont_study_class = AdamontSnowfall
+            snowfall = True
+            if snowfall:
+                safran_study_class = SafranSnowfall2019 if adamont_version == 2 else SafranSnowfall1Day
+                adamont_study_class = AdamontSnowfall
+                altitudes = [1200, 2100, 3000][:]
+            else:
+                safran_study_class = CrocusSnowLoad2019
+                adamont_study_class = AdamontSnowLoad
+                altitudes = [600, 900, 1200, 1500, 1800][:]
+
+            assert (safran_study_class is None) or (issubclass(safran_study_class, AbstractStudyMaxFiles))
+
             comparaison_study_class = 'SAFRAN'
 
             year_min_to_reanalysis_altitude_studies = {}
