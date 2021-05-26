@@ -79,7 +79,7 @@ def main_comparaison_plot():
             if gcm_as_pseudo_truth is not None:
                 gcm_rcm_couples.remove(gcm_as_pseudo_truth)
 
-            snowfall = True
+            snowfall = False
             if snowfall:
                 safran_study_class = SafranSnowfall2019 if adamont_version == 2 else SafranSnowfall1Day
                 adamont_study_class = AdamontSnowfall
