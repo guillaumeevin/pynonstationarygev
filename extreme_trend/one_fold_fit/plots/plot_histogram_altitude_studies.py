@@ -84,7 +84,7 @@ def plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list: L
 
     plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x)
 
-    visualizer.plot_name = 'All trends'
+    visualizer.plot_name = 'All trends for {} return period'.format(OneFoldFit.return_period)
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
 
     plt.close()

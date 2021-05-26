@@ -2,6 +2,10 @@ import datetime
 import time
 from typing import List
 import matplotlib as mpl
+
+from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
+from root_utils import get_display_name_from_object_type
+
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
@@ -32,7 +36,7 @@ from extreme_trend.one_fold_fit.altitude_group import altitudes_for_groups
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranSnowfall3Days, \
     SafranSnowfall5Days, SafranSnowfall7Days, SafranSnowfallCenterOnDay1day, SafranSnowfallNotCenterOnDay1day, \
-    SafranSnowfallCenterOnDay1dayMeanRate
+    SafranSnowfallCenterOnDay1dayMeanRate, SafranPrecipitation1Day
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 
@@ -46,6 +50,9 @@ def main():
     #                  SafranSnowfallCenterOnDay1dayMeanRate, SafranSnowfall1Day][:1]
     # study_classes = [SafranSnowfallNotCenterOnDay1day, SafranSnowfall2019]
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
+
+    # study_classes = [SafranPrecipitation1Day]
+    # seasons = [Season.winter][:]
 
     set_seed_for_test()
     model_must_pass_the_test = False
@@ -77,20 +84,25 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_p
     assert isinstance(altitudes_list[0], List)
     for season in seasons:
         for study_class in study_classes:
-            print('Inner loop', season, study_class)
+            print('Run', get_display_name_from_object_type(study_class), season)
             visualizer_list = load_visualizer_list(season, study_class, altitudes_list, massif_names,
                                                    model_must_pass_the_test)
-            plot_visualizers(massif_names, visualizer_list)
+            with_significance = False
+            plot_visualizers(massif_names, visualizer_list, with_significance)
             for visualizer in visualizer_list:
-                plot_visualizer(massif_names, visualizer)
+                plot_visualizer(massif_names, visualizer, with_significance)
             del visualizer_list
             time.sleep(2)
 
 
-def plot_visualizers(massif_names, visualizer_list):
-    with_significance = False
+def plot_visualizers(massif_names, visualizer_list, with_significance):
+    default_return_period = OneFoldFit.return_period
+    for return_period in [5, 10, 50, 100]:
+        OneFoldFit.return_period = return_period
+        plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list, with_significance=with_significance)
+    OneFoldFit.return_period = default_return_period
+
     # plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
-    # plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list, with_significance=with_significance)
     # plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
     # for relative in [True, False]:
     #     plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative, with_significance=with_significance)
@@ -98,13 +110,13 @@ def plot_visualizers(massif_names, visualizer_list):
     pass
 
 
-def plot_visualizer(massif_names, visualizer):
+def plot_visualizer(massif_names, visualizer, with_significance):
     # Plot time series
     # visualizer.studies.plot_maxima_time_series(massif_names)
     # visualizer.studies.plot_maxima_time_series(['Vanoise'])
 
     # visualizer.plot_shape_map()
-    visualizer.plot_moments()
+    visualizer.plot_moments(with_significance)
     # visualizer.plot_qqplots()
 
     # for std in [True, False]:

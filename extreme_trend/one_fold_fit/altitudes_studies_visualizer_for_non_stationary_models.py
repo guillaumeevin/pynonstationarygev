@@ -146,11 +146,11 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
     def first_one_fold_fit(self):
         return list(self.massif_name_to_one_fold_fit.values())[0]
 
-    def plot_moments(self):
+    def plot_moments(self, with_significance):
         for method_name in self.moment_names[:2]:
             for order in self.orders:
                 # self.plot_against_years(method_name, order)
-                self.plot_map_moment(method_name, order)
+                self.plot_map_moment(method_name, order, with_significance)
 
     def method_name_and_order_to_max_abs(self, method_name, order):
         c = (method_name, order)
@@ -199,7 +199,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             ratios.append(ratio)
         return ratios
 
-    def plot_map_moment(self, method_name, order):
+    def plot_map_moment(self, method_name, order, with_significance):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
         # Plot settings
         moment = ' '.join(method_name.split('_'))
@@ -245,9 +245,12 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             cmap = remove_the_extreme_colors(cmap)
             graduation = 10
             fontsize_label = 10
-            massif_names_with_white_dot = set([massif_name
-                                               for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()
-                                               if not one_fold_fit.is_significant])
+            if with_significance:
+                massif_names_with_white_dot = set([massif_name
+                                                   for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()
+                                                   if not one_fold_fit.is_significant])
+            else:
+                massif_names_with_white_dot = None
 
         negative_and_positive_values = self.moment_names.index(method_name) > 0
 

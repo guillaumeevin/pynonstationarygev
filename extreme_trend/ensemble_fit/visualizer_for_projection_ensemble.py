@@ -104,7 +104,7 @@ class VisualizerForProjectionEnsemble(object):
         if self.has_elevation_non_stationarity:
             with_significance = False
             for v in visualizer_list:
-                v.plot_moments()
+                v.plot_moments(with_significance=with_significance)
             plot_histogram_all_trends_against_altitudes(self.massif_names, visualizer_list,
                                                         with_significance=with_significance)
             for relative in [True, False]:
