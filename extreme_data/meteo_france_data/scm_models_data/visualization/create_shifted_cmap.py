@@ -24,19 +24,23 @@ def get_shifted_map(vmin, vmax, cmap=plt.cm.bwr):
     shifted_cmap = shiftedColorMap(cmap, midpoint=midpoint, name='shifted')
     return shifted_cmap
 
+
 def remove_the_extreme_colors(cmap, epsilon=0.05):
     epsilon = epsilon
-    colors = cmap(np.linspace(epsilon, 1-epsilon, cmap.N))
+    colors = cmap(np.linspace(epsilon, 1 - epsilon, cmap.N))
     return LinearSegmentedColormap.from_list('without extreme', colors)
+
 
 def get_inverse_colormap(cmap):
     colors = cmap(np.linspace(1, 0, cmap.N))
     return LinearSegmentedColormap.from_list('Inverse', colors)
 
+
 def get_cmap_with_inverted_blue_and_green_channels(cmap):
     colors = cmap(np.linspace(0, 1, cmap.N))
     colors = [[c[0], c[2], c[1], c[3]] for c in colors]
     return LinearSegmentedColormap.from_list('Inverted channels', colors)
+
 
 def get_half_colormap(cmap):
     colors = cmap(np.linspace(0.5, 1, cmap.N // 2))
@@ -109,6 +113,17 @@ def ticks_values_and_labels_for_positive_value(graduation, max_abs_change):
         positive_ticks.append(round(tick, 1))
         tick += graduation
     ticks_values = [(t / max_abs_change) for t in positive_ticks]
+    return ticks_values, positive_ticks
+
+
+def ticks_values_and_labels_for_positive_value_with_min_abs_change(graduation, min_abs_change, max_abs_change):
+    assert max_abs_change != np.inf
+    positive_ticks = []
+    tick = min_abs_change
+    while tick < max_abs_change:
+        positive_ticks.append(round(tick, 1))
+        tick += graduation
+    ticks_values = [((t - min_abs_change)/(max_abs_change-min_abs_change)) for t in positive_ticks]
     return ticks_values, positive_ticks
 
 

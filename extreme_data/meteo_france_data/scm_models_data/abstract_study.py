@@ -311,6 +311,14 @@ class AbstractStudy(object):
         return massif_name_to_annual_maxima
 
     @cached_property
+    def massif_name_to_annual_mean(self):
+        massif_name_to_annual_mean = OrderedDict()
+        for i, massif_name in enumerate(self.study_massif_names):
+            maxima = np.array([self.year_to_annual_mean[year][i] for year in self.ordered_years])
+            massif_name_to_annual_mean[massif_name] = maxima
+        return massif_name_to_annual_mean
+
+    @cached_property
     def massif_name_to_daily_time_series(self):
         massif_name_to_daily_time_series = OrderedDict()
         for i, massif_name in enumerate(self.study_massif_names):

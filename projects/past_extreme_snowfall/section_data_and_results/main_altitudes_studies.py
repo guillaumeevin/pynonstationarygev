@@ -2,15 +2,16 @@ import datetime
 import time
 from typing import List
 import matplotlib as mpl
-
-from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
-from root_utils import get_display_name_from_object_type
-
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 import matplotlib
 matplotlib.use('Agg')
+
+from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
+from root_utils import get_display_name_from_object_type
+
+
 
 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
@@ -52,7 +53,7 @@ def main():
     seasons = [Season.annual, Season.winter, Season.spring, Season.automn][:1]
 
     # study_classes = [SafranPrecipitation1Day]
-    # seasons = [Season.winter][:]
+    # seasons = [Season.winter, Season.automn][:1]
 
     set_seed_for_test()
     model_must_pass_the_test = False
@@ -87,7 +88,7 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_p
             print('Run', get_display_name_from_object_type(study_class), season)
             visualizer_list = load_visualizer_list(season, study_class, altitudes_list, massif_names,
                                                    model_must_pass_the_test)
-            with_significance = False
+            with_significance = True
             plot_visualizers(massif_names, visualizer_list, with_significance)
             for visualizer in visualizer_list:
                 plot_visualizer(massif_names, visualizer, with_significance)
@@ -97,7 +98,7 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_p
 
 def plot_visualizers(massif_names, visualizer_list, with_significance):
     default_return_period = OneFoldFit.return_period
-    for return_period in [5, 10, 50, 100]:
+    for return_period in [10, 100]:
         OneFoldFit.return_period = return_period
         plot_histogram_all_trends_against_altitudes(massif_names, visualizer_list, with_significance=with_significance)
     OneFoldFit.return_period = default_return_period
