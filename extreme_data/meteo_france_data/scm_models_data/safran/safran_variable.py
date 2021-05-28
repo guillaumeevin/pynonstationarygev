@@ -117,7 +117,7 @@ class SafranDateFirstSnowfallVariable(SafranSnowfallVariable):
 class SafranRainfallVariable(SafranSnowfallVariable):
     """Warning: this corresponds to water falling. Total precipitaiton equals Rainfall + Snowfall"""
     NAME = 'Rainfall'
-    UNIT = 'kg $m^{-2}$'
+    UNIT = 'kg m$^{-2}$'
 
     @classmethod
     def keyword(cls):
@@ -126,7 +126,7 @@ class SafranRainfallVariable(SafranSnowfallVariable):
 
 class SafranTotalPrecipVariable(AbstractVariable):
     NAME = 'Precipitation'[:6]
-    UNIT = 'kg $m^{-2}$'
+    UNIT = 'kg m$^{-2}$'
 
     def __init__(self, snow_variable_array, rain_variable_array, nb_consecutive_days=3):
         super().__init__(None)

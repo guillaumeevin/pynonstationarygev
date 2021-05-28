@@ -20,7 +20,7 @@ def get_month_name(month_no, locale='C'):
         return calendar.month_name[month_no]
 
 
-def plot_season_repartition_of_maxima(studies, massif_names, title='', idx=0, projected=False):
+def plot_season_repartition_of_maxima(studies, massif_names, title='', idx=0, projected=False, j=1):
     month_to_name = {month: get_month_name(month) for month in range(1, 13)}
 
     all_years = studies.study.ordered_years
@@ -55,10 +55,11 @@ def plot_season_repartition_of_maxima(studies, massif_names, title='', idx=0, pr
     ax2.plot(month_names, mean_maxima, label='Mean annual maxima')
     ax2.legend(loc='upper right')
 
-    ax.set_ylabel('Percentages of annual maxima')
+    suffix = ' for the range {}'.format(j)
+    ax.set_ylabel('Percentages of annual maxima' + suffix)
     ax.set_ylim(bottom=0)
     ax.grid()
-    ax2.set_ylabel('Mean annual maxima')
+    ax2.set_ylabel('Mean annual maxima' + suffix)
     ax2.set_ylim(bottom=0)
 
     studies.show_or_save_to_file(title, no_title=True)
@@ -94,7 +95,7 @@ def main_repartition_for_snowfall_past():
                           'Beaufortain', 'Bauges', 'Mont-Blanc', 'Aravis', 'Chablais']
     south_massif_names = ['Mercantour', 'Ubaye', 'Haut_Var-Haut_Verdon', 'Parpaillon', 'Champsaur',
                           'Devoluy', 'Queyras', 'Pelvoux', 'Thabor']
-    for altitudes in altitudes_for_groups[:]:
+    for j, altitudes in enumerate(altitudes_for_groups, 1):
         studies = AltitudesStudies(study_class, altitudes)
         elevation = get_altitude_group_from_altitudes(altitudes).reference_altitude
 
@@ -104,7 +105,7 @@ def main_repartition_for_snowfall_past():
             for masssif_names, region_name in zip([masssif_names, norht_massif_names, south_massif_names],
                                                   ['All', 'North', 'South']):
                 plot_season_repartition_of_maxima(studies, masssif_names, '{} {}'.format(region_name, elevation),
-                                                  idx=idx)
+                                                  idx=idx, j=j)
                 break
 
 

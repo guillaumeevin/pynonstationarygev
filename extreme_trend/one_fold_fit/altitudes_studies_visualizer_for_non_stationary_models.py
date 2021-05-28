@@ -78,7 +78,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                                              for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
                                              if not old_fold_fit.has_at_least_one_valid_model]
         if len(self.massif_names) > 1:
-            print('# of massif without any validated fit:', len(massifs_without_any_validated_fit), massifs_without_any_validated_fit)
+            print('# of massif without any validated fit:', len(massifs_without_any_validated_fit),
+                  massifs_without_any_validated_fit)
 
     def fit_one_fold(self, massif_name):
         # Load valid massif altitudes
@@ -247,13 +248,13 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             fontsize_label = 10
             if with_significance:
                 massif_names_with_white_dot = set([massif_name
-                                                   for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()
+                                                   for massif_name, one_fold_fit in
+                                                   self.massif_name_to_one_fold_fit.items()
                                                    if not one_fold_fit.is_significant])
             else:
                 massif_names_with_white_dot = None
 
         negative_and_positive_values = self.moment_names.index(method_name) > 0
-
 
         # Plot the map
 
@@ -290,7 +291,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         ax.legend(prop={'size': 7}, ncol=3)
         moment = ' '.join(method_name.split('_'))
         moment = moment.replace('moment',
-                                '{} in {}'.format(OneFoldFit.get_moment_str(order=order), self.first_one_fold_fit.last_year))
+                                '{} in {}'.format(OneFoldFit.get_moment_str(order=order),
+                                                  self.first_one_fold_fit.last_year))
         plot_name = 'Model {} annual maxima of {}'.format(moment,
                                                           SCM_STUDY_CLASS_TO_ABBREVIATION[self.studies.study_class])
         ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
@@ -346,7 +348,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                     y_list = []
                     for t in t_list:
                         coordinate = np.array([altitude, t])
-                        gev_params = one_fold_fit.best_margin_function_from_fit.get_params(coordinate, is_transformed=False)
+                        gev_params = one_fold_fit.best_margin_function_from_fit.get_params(coordinate,
+                                                                                           is_transformed=False)
                         if plot_mean:
                             y = gev_params.mean
                         else:
@@ -527,6 +530,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         return self.massif_name_to_one_fold_fit[massif_name].model_names
 
     def plot_qqplots(self):
+        qqplots_metrics = []
         for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
             ax = plt.gca()
             altitudes = self.massif_name_to_massif_altitudes[massif_name]
@@ -549,6 +553,15 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                     all_quantiles.extend(standard_gumbel_quantiles)
                     all_quantiles.extend(unconstrained_empirical_quantiles)
 
+                    # Compute the Root Mean Squared Percent Error (RMSPE)
+                    unconstrained_empirical_quantiles = np.array(unconstrained_empirical_quantiles)
+                    standard_gumbel_quantiles = np.array(standard_gumbel_quantiles)
+                    change = unconstrained_empirical_quantiles - standard_gumbel_quantiles
+                    ratio_of_change_array = 100 * change / standard_gumbel_quantiles
+                    print(ratio_of_change_array)
+                    rmspe = np.mean(np.abs(ratio_of_change_array))
+                    qqplots_metrics.append(rmspe)
+
             size_label = 20
             ax.set_xlabel("Theoretical quantile", fontsize=size_label)
             ax.set_ylabel("Empirical quantile", fontsize=size_label)
@@ -569,3 +582,5 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             ax.legend(handles[::-1], labels[::-1], prop={'size': labelsize})
             self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show, no_title=True)
             plt.close()
+
+        return qqplots_metrics

@@ -1,5 +1,7 @@
 import matplotlib as mpl
 
+from projects.projected_extreme_snowfall.results.utils import load_study_classes
+
 mpl.use('Agg')
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
@@ -15,15 +17,14 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 
 def main():
-    scm_study_class = SafranSnowfall1Day
-    adamont_study_class = AdamontSnowfall
+    scm_study_class, adamont_study_class = load_study_classes(snowfall=False)
     year_min = 1950
     year_max = 2100
-    legend_and_labels = False
+    legend_and_labels = True
     massif_names = ['Vanoise']
     season = Season.annual
     adamont_scenario = AdamontScenario.rcp85_extended
-    altitudes = [1200, 2100, 3000]
+    altitudes = [600, 1200, 1800]
     for altitude in altitudes:
         plt.figure(figsize=(10, 5))
         # Loading part

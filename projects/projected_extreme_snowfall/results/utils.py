@@ -46,12 +46,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
 
 def set_up_and_load(fast, snowfall=True):
 
-    if snowfall:
-        safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
-        study_class = AdamontSnowfall
-    else:
-        study_class = AdamontSnowLoad
-        safran_study_class = CrocusSnowLoad2019
+    safran_study_class, study_class = load_study_classes(snowfall)
 
 
     temporal_covariate_for_fit = [TimeTemporalCovariate,
@@ -96,6 +91,16 @@ def set_up_and_load(fast, snowfall=True):
     print('Take into account the observations: {}'.format(safran_study_class is not None))
 
     return altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class
+
+
+def load_study_classes(snowfall):
+    if snowfall:
+        safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
+        study_class = AdamontSnowfall
+    else:
+        study_class = AdamontSnowLoad
+        safran_study_class = CrocusSnowLoad2019
+    return safran_study_class, study_class
 
 
 climate_coordinates_with_effects_list = [None,

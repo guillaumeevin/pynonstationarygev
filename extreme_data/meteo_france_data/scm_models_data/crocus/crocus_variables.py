@@ -66,7 +66,7 @@ class CrocusWetThVariable(CrocusVariable):
 
 
 class AbstractSnowLoadVariable(CrocusVariable):
-    UNIT = 'kN $m^{-2}$'
+    UNIT = 'kN m$^{-2}$'
 
     @property
     def daily_time_serie_array(self) -> np.ndarray:
