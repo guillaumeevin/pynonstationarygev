@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
+from projects.projected_extreme_snowfall.results.combination_utils import load_combination_name_for_tuple
 from projects.projected_extreme_snowfall.results.part_1.v1.main_mas_v1 import CSV_PATH
-from projects.projected_extreme_snowfall.results.utils import load_combination_name_for_tuple
 from root_utils import VERSION_TIME
 
 i_to_color = {

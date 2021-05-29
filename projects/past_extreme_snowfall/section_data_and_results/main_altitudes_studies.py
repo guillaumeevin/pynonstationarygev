@@ -52,12 +52,12 @@ def main():
     model_must_pass_the_test = False
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = True
+    fast = None
     if fast is None:
         massif_names = None
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        # altitudes_list = altitudes_for_groups[2:3]
-        altitudes_list = altitudes_for_groups[1:2]
+        altitudes_list = altitudes_for_groups[2:3]
+        # altitudes_list = altitudes_for_groups[1:2]
     elif fast:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         massif_names = ['Vanoise', 'Haute-Maurienne', 'Vercors'][:1]
@@ -91,12 +91,12 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_p
 
 def plot_visualizers(massif_names, visualizer_list, with_significance):
     # return_level_plots(massif_names, visualizer_list, with_significance)
-    qqplot_plots(visualizer_list)
+    # qqplot_plots(visualizer_list)
 
     # plot_histogram_all_models_against_altitudes(massif_names, visualizer_list)
     # plot_shoe_plot_ratio_interval_size_against_altitude(massif_names, visualizer_list)
-    # for relative in [True, False]:
-    #     plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative, with_significance=with_significance)
+    for relative in [True, False]:
+        plot_shoe_plot_changes_against_altitude(massif_names, visualizer_list, relative=relative, with_significance=with_significance)
     # plot_coherence_curves(['Vanoise'], visualizer_list)
     pass
 
@@ -107,7 +107,7 @@ def plot_visualizer(massif_names, visualizer, with_significance):
     # visualizer.studies.plot_maxima_time_series(['Vanoise'])
 
     # visualizer.plot_shape_map()
-    # visualizer.plot_moments(with_significance)
+    visualizer.plot_moments(with_significance)
 
     # for std in [True, False]:
     #     visualizer.studies.plot_mean_maxima_against_altitude(std=std)

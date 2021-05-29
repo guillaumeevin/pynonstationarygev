@@ -32,6 +32,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_retur
     EurocodeConfidenceIntervalFromExtremes
 from extreme_fit.model.utils import SafeRunException
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup, altitudes_for_groups
+from projects.projected_extreme_snowfall.results.combination_utils import load_combination
 from root_utils import NB_CORES, batch
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
@@ -70,20 +71,23 @@ class OneFoldFit(object):
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
 
+        print('here', load_combination(param_name_to_climate_coordinates_with_effects))
+
         # Fit Estimators
         self.model_class_to_estimator = {}
         for model_class in models_classes:
-            self.model_class_to_estimator[model_class] = self.fitted_linear_margin_estimator(model_class, self.dataset)
+            self.model_class_to_estimator[model_class] = self.fitted_linear_margin_estimator(model_class, self.dataset, self.param_name_to_climate_coordinates_with_effects)
+        print(len(self.model_class_to_estimator))
         # Compute sorted estimators indirectly
         _ = self.has_at_least_one_valid_model
 
-    def fitted_linear_margin_estimator(self, model_class, dataset):
+    def fitted_linear_margin_estimator(self, model_class, dataset, param_name_to_climate_coordinates_with_effects):
         return fitted_linear_margin_estimator_short(model_class=model_class,
                                                     dataset=dataset,
                                                     fit_method=self.fit_method,
                                                     temporal_covariate_for_fit=self.temporal_covariate_for_fit,
                                                     drop_duplicates=False,
-                                                    param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects)
+                                                    param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects)
 
     @classmethod
     def get_moment_str(cls, order):
@@ -223,6 +227,7 @@ class OneFoldFit(object):
                         break
                 if has_undefined_parameters:
                     continue
+            #  Apply the goodness of fit
             if self.only_models_that_pass_goodness_of_fit_test:
                 if not self.goodness_of_fit_test(estimator):
                     continue
@@ -230,7 +235,7 @@ class OneFoldFit(object):
             well_defined_estimators.append(estimator)
         if len(well_defined_estimators) == 0:
             print(self.massif_name, " has only implausible models")
-        #  Apply the goodness of fit
+        # Check the number of models when we do not apply any goodness of fit
         if not (self.remove_physically_implausible_models or self.only_models_that_pass_goodness_of_fit_test):
             assert len(well_defined_estimators) == len(self.models_classes)
         return well_defined_estimators
@@ -330,15 +335,12 @@ class OneFoldFit(object):
                 return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
             elif isinstance(self.best_estimator.margin_model, AltitudinalShapeLinearTimeStationary):
                 return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
+            elif isinstance(self.altitude_group, DefaultAltitudeGroup):
+                return self.model_class_to_estimator_with_finite_aic[StationaryTemporalModel]
             else:
-                return self.stationary_estimator_standard
+                return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinal]
         except KeyError:
             raise KeyError('A stationary model must be added either in the list of models, or here in the method')
-
-    @cached_property
-    def stationary_estimator_standard(self):
-        model_class = StationaryTemporalModel if isinstance(self.altitude_group, DefaultAltitudeGroup) else StationaryAltitudinal
-        return self.fitted_linear_margin_estimator(model_class, self.dataset)
 
     @property
     def likelihood_ratio(self):
@@ -505,6 +507,7 @@ class OneFoldFit(object):
         dataset = AbstractDataset(observations=observations, coordinates=coordinates)
         model_class = type(self.best_margin_model)
 
-        function_from_fit = self.fitted_linear_margin_estimator(model_class, dataset).margin_function_from_fit
+        assert self.param_name_to_climate_coordinates_with_effects is None
+        function_from_fit = self.fitted_linear_margin_estimator(model_class, dataset, self.param_name_to_climate_coordinates_with_effects).margin_function_from_fit
 
         return function_from_fit

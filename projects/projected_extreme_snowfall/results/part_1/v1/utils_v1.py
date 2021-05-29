@@ -7,8 +7,8 @@ import numpy as np
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.utils import MarginFitMethod
+from projects.projected_extreme_snowfall.results.combination_utils import load_combination_name
 from projects.projected_extreme_snowfall.results.experiment.model_as_truth_experiment import ModelAsTruthExperiment
-from projects.projected_extreme_snowfall.results.utils import load_combination_name
 
 
 def compute_average_nllh(altitudes_list, param_name_to_climate_coordinates_with_effects, gcm_rcm_couples, massif_names,

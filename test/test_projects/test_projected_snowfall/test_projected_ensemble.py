@@ -17,7 +17,7 @@ from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit impo
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
-from projects.projected_extreme_snowfall.results.utils import climate_coordinates_with_effects_list
+from projects.projected_extreme_snowfall.results.combination_utils import climate_coordinates_with_effects_list
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureWithSplineTemporalCovariate
 
