@@ -47,31 +47,7 @@ class TestEnsembleFit(unittest.TestCase):
             _ = ensemble_fit.visualizer.massif_name_to_one_fold_fit[self.massif_names[0]].best_margin_function_from_fit
         self.assertTrue(True)
 
-    # def test_ensembe_fit_with_effect(self):
-    #     model_classes = [StationaryAltitudinal][:]
-    #
-    #     for temporal_covariate in [TimeTemporalCovariate,
-    #                                AnomalyTemperatureWithSplineTemporalCovariate]:
-    #         ensemble_fit = TogetherEnsembleFit(massif_names=self.massif_names,
-    #                                            gcm_rcm_couple_to_altitude_studies=self.gcm_rcm_couple_to_altitude_studies,
-    #                                            models_classes=model_classes,
-    #                                            temporal_covariate_for_fit=temporal_covariate,
-    #                                            only_models_that_pass_goodness_of_fit_test=False,
-    #                                            climate_coordinates_with_effects=[AbstractCoordinates.COORDINATE_GCM])
-    #
-    #         model_class_to_estimator = ensemble_fit.visualizer.massif_name_to_one_fold_fit[self.massif_names[0]].model_class_to_estimator
-    #         model_class_to_expected_number_params = {
-    #             StationaryAltitudinal: 5,
-    #         }
-    #         for model_class in model_classes:
-    #             expected = model_class_to_expected_number_params[model_class]
-    #             found = model_class_to_estimator[model_class].nb_params
-    #             self.assertEqual(expected, found)
-    #
-    #         # _ = ensemble_fit.visualizer.massif_name_to_one_fold_fit[self.massif_names[0]].best_function_from_fit
-    #
-    #
-    #     self.assertTrue(True)
+
 
 
 if __name__ == '__main__':

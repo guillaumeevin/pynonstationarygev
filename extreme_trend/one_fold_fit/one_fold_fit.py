@@ -32,7 +32,8 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_retur
     EurocodeConfidenceIntervalFromExtremes
 from extreme_fit.model.utils import SafeRunException
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup, altitudes_for_groups
-from projects.projected_extreme_snowfall.results.combination_utils import load_combination
+from projects.projected_extreme_snowfall.results.combination_utils import load_combination, generate_sub_combination, \
+    load_param_name_to_climate_coordinates_with_effects
 from root_utils import NB_CORES, batch
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
@@ -71,13 +72,15 @@ class OneFoldFit(object):
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
 
-        print('here', load_combination(param_name_to_climate_coordinates_with_effects))
-
         # Fit Estimators
-        self.model_class_to_estimator = {}
+        self.fitted_estimators = set()
         for model_class in models_classes:
-            self.model_class_to_estimator[model_class] = self.fitted_linear_margin_estimator(model_class, self.dataset, self.param_name_to_climate_coordinates_with_effects)
-        print(len(self.model_class_to_estimator))
+            for sub_combination in generate_sub_combination(load_combination(self.param_name_to_climate_coordinates_with_effects)):
+                param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(sub_combination)
+                fitted_estimator = self.fitted_linear_margin_estimator(model_class, self.dataset,
+                                                                param_name_to_climate_coordinates_with_effects)
+                self.fitted_estimators.add(fitted_estimator)
+        print(len(self.fitted_estimators))
         # Compute sorted estimators indirectly
         _ = self.has_at_least_one_valid_model
 
@@ -206,7 +209,7 @@ class OneFoldFit(object):
     @cached_property
     def estimators_quality_checked(self):
         well_defined_estimators = []
-        for estimator in self.model_class_to_estimator.values():
+        for estimator in self.fitted_estimators:
             if self.remove_physically_implausible_models:
                 # Remove wrong shape
                 if not(-0.5 < self._compute_shape_for_reference_altitude(estimator) < 0.5):
@@ -262,8 +265,13 @@ class OneFoldFit(object):
         return len(self.sorted_estimators_with_aic) > 0
 
     @property
-    def model_class_to_estimator_with_finite_aic(self):
-        return {type(estimator.margin_model): estimator for estimator in self.sorted_estimators_with_aic}
+    def model_class_and_combination_to_estimator_with_finite_aic(self):
+        d = {}
+        for estimator in self.sorted_estimators_with_aic:
+            margin_model = estimator.margin_model
+            combination = load_combination(margin_model.param_name_to_climate_coordinates_with_effects)
+            d[(type(margin_model), combination)] = estimator
+        return d
 
     @property
     def best_estimator(self):
@@ -327,18 +335,11 @@ class OneFoldFit(object):
     @property
     def stationary_estimator(self):
         try:
-            if isinstance(self.best_estimator.margin_model, AbstractGumbelAltitudinalModel):
-                return self.model_class_to_estimator_with_finite_aic[StationaryGumbelAltitudinal]
-            elif isinstance(self.best_estimator.margin_model, AltitudinalOnlyScale):
-                return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinalOnlyScale]
-            elif isinstance(self.best_estimator.margin_model, AltitudinalShapeLinearTimeStationary):
-                return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
-            elif isinstance(self.best_estimator.margin_model, AltitudinalShapeLinearTimeStationary):
-                return self.model_class_to_estimator_with_finite_aic[AltitudinalShapeLinearTimeStationary]
-            elif isinstance(self.altitude_group, DefaultAltitudeGroup):
-                return self.model_class_to_estimator_with_finite_aic[StationaryTemporalModel]
+            combination = load_combination(self.best_estimator.margin_model.param_name_to_climate_coordinates_with_effects)
+            if isinstance(self.altitude_group, DefaultAltitudeGroup):
+                return self.model_class_and_combination_to_estimator_with_finite_aic[(StationaryTemporalModel, combination)]
             else:
-                return self.model_class_to_estimator_with_finite_aic[StationaryAltitudinal]
+                return self.model_class_and_combination_to_estimator_with_finite_aic[(StationaryAltitudinal, combination)]
         except KeyError:
             raise KeyError('A stationary model must be added either in the list of models, or here in the method')
 

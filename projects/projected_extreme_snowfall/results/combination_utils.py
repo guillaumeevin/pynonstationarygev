@@ -1,3 +1,5 @@
+import itertools
+
 from extreme_fit.distribution.gev.gev_params import GevParams
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
@@ -18,6 +20,15 @@ def load_param_name_to_climate_coordinates_with_effects(combination):
                                                       zip(GevParams.PARAM_NAMES, combination)}
     return param_name_to_climate_coordinates_with_effects
 
+
+def generate_sub_combination(combination):
+    number_to_sub_numbers = {
+        0: [0],
+        1: [0, 1],
+        2: [0, 2],
+        3: [0, 1, 2, 3]
+    }
+    return list(itertools.product(*[number_to_sub_numbers[number] for number in combination]))
 
 def load_combination(param_name_to_climate_coordinates_with_effects):
     if param_name_to_climate_coordinates_with_effects is None:
