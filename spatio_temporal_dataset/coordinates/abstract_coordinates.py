@@ -226,6 +226,8 @@ class AbstractCoordinates(object):
                         for value_name in unique_values_without_nan:
                             serie_is_value = (s == value_name) * 1
                             df[value_name] = serie_is_value
+                        sum_of_ones = df.iloc[1:].sum(axis=0)
+                        assert sum_of_ones.sum() > 0
                     else:
                         raise NotImplementedError
                         # todo: the coordinate for three gcm should be 1, 0 then 0, 1 finally -1 -1

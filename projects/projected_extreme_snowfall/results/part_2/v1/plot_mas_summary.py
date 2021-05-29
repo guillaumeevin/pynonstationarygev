@@ -7,8 +7,8 @@ import pandas as pd
 
 from projects.projected_extreme_snowfall.results.combination_utils import climate_coordinates_with_effects_list, \
     load_combination_name_for_tuple
-from projects.projected_extreme_snowfall.results.part_1.v1.main_mas_v1 import CSV_PATH
-from projects.projected_extreme_snowfall.results.part_1.v1.utils_v1 import load_combination_name_to_dict_v2
+from projects.projected_extreme_snowfall.results.part_2.v1.main_mas_v1 import CSV_PATH
+from projects.projected_extreme_snowfall.results.part_2.v1.utils_v1 import load_combination_name_to_dict_v2
 
 def plot_summary_graph_for_w():
     # csv_filename = "nbloop{}_fast_None_altitudes_600_2100_3600_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_6.csv"

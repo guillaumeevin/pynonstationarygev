@@ -1,17 +1,16 @@
 import datetime
 import os.path as op
 import time
-from itertools import product
 
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.projected_extreme_snowfall.results.combination_utils import load_combination_name_for_tuple, \
     load_param_name_to_climate_coordinates_with_effects
-from projects.projected_extreme_snowfall.results.part_1.compute_pairwise_distance import \
+from projects.projected_extreme_snowfall.results.part_2.v2.compute_pairwise_distance import \
     ordered_gcm_rcm_couples_in_terms_of_bias_similar_to_bias_of_obs
 from projects.projected_extreme_snowfall.results.experiment.model_as_truth_experiment import ModelAsTruthExperiment
-from projects.projected_extreme_snowfall.results.part_1.utils import update_csv, is_already_done
-from projects.projected_extreme_snowfall.results.part_1.v1.main_mas_v1 import CSV_PATH
+from projects.projected_extreme_snowfall.results.part_2.v2.utils import update_csv, is_already_done
+from projects.projected_extreme_snowfall.results.part_2.v1.main_mas_v1 import CSV_PATH
 from projects.projected_extreme_snowfall.results.part_3.main_projections_ensemble import set_up_and_load
 
 

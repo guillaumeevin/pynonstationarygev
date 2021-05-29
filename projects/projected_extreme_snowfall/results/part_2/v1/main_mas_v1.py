@@ -8,7 +8,7 @@ import pandas as pd
 
 from extreme_data.utils import DATA_PATH
 from projects.projected_extreme_snowfall.results.combination_utils import climate_coordinates_with_effects_list
-from projects.projected_extreme_snowfall.results.part_1.v1.utils_v1 import compute_average_nllh, load_combination_name_to_dict_v2
+from projects.projected_extreme_snowfall.results.part_2.v1.utils_v1 import compute_average_nllh, load_combination_name_to_dict_v2
 from projects.projected_extreme_snowfall.results.part_3.main_projections_ensemble import set_up_and_load
 
 CSV_PATH = op.join(DATA_PATH, "model_as_truth_csv")

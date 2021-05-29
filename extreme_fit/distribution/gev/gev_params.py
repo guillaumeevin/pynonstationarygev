@@ -61,6 +61,10 @@ class GevParams(AbstractExtremeParams):
                 quantile_annual_variation -= (sigma1 / self.shape) * (1 - power)
         return quantile_annual_variation
 
+    @nan_if_undefined_wrapper
+    def to_dict(self) -> dict:
+        return super().to_dict()
+
     @property
     @nan_if_undefined_wrapper
     def param_values(self):

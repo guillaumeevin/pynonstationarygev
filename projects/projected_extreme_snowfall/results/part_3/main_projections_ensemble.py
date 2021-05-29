@@ -7,7 +7,7 @@ from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
-from projects.projected_extreme_snowfall.results.utils import set_up_and_load
+from projects.projected_extreme_snowfall.results.setting_utils import set_up_and_load
 
 matplotlib.use('Agg')
 import matplotlib as mpl
@@ -32,7 +32,7 @@ def main():
 
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
 
-    combination = (3, 2, 0)
+    combination = (3, 3, 0)
     param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
     print(param_name_to_climate_coordinates_with_effects)
 

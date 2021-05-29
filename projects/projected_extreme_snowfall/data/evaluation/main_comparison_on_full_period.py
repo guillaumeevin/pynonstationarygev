@@ -5,17 +5,13 @@ import matplotlib
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontSnowLoad
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import \
-    get_year_min_and_year_max_used_to_compute_quantile, gcm_rcm_couple_to_color
+    gcm_rcm_couple_to_color
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, \
     gcm_rcm_couple_to_str, get_gcm_rcm_couples
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusSnowLoadTotal
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
-from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
-    SafranSnowfall2019
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
 from extreme_data.meteo_france_data.scm_models_data.studyfrommaxfiles import AbstractStudyMaxFiles
-from projects.projected_extreme_snowfall.results.part_1.compute_pairwise_distance import \
-    ordered_gcm_rcm_couples_in_terms_of_bias_similar_to_bias_of_obs
 
 matplotlib.use('Agg')
 
