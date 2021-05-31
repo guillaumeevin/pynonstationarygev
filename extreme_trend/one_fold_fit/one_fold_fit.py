@@ -240,8 +240,6 @@ class OneFoldFit(object):
             print(self.massif_name, " has only implausible models")
         # Check the number of models when we do not apply any goodness of fit
         if not (self.remove_physically_implausible_models or self.only_models_that_pass_goodness_of_fit_test):
-            print(len(well_defined_estimators))
-            print(len(self.models_classes))
             assert len(well_defined_estimators) == len(self.models_classes) * len(self.sub_combinations)
         return well_defined_estimators
 

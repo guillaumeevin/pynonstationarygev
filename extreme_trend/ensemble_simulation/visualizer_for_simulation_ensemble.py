@@ -5,6 +5,8 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranS
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_trend.ensemble_simulation.simulation_fit_for_ensemble.abstract_simulation_fit_for_ensemble import \
     AbstractSimulationFitForEnsemble
+from extreme_trend.ensemble_simulation.simulation_fit_for_ensemble.separate_simulation_fit_for_ensemble import \
+    SeparateSimulationFitForEnsemble
 from extreme_trend.ensemble_simulation.simulation_fit_for_ensemble.together_simulation_fit_for_ensemble import \
     TogetherSimulationFitForEnsemble
 import matplotlib.pyplot as plt
@@ -14,12 +16,20 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
 
     def __init__(self, simulation, year_list_to_test, return_period, model_classes):
         super().__init__(SafranSnowfall1Day(), show=False, save_to_file=True)
+        self.return_period = return_period
         # Load simulation fits
         self.simulation_fits = []  # type: List[AbstractSimulationFitForEnsemble]
-        for with_effects in [True, False][:]:
-            self.simulation_fits.append(TogetherSimulationFitForEnsemble(simulation, year_list_to_test, return_period, model_classes,
-                                                                         with_effects=with_effects, with_observation=True))
-        self.return_period = return_period
+        fit_classes = [SeparateSimulationFitForEnsemble, TogetherSimulationFitForEnsemble][1:]
+        for fit_class in fit_classes:
+            fit_class_simulation_fits = [
+                fit_class(simulation, year_list_to_test, return_period, model_classes,
+                          with_effects=False, with_observation=False),
+                fit_class(simulation, year_list_to_test, return_period, model_classes,
+                          with_effects=False, with_observation=True),
+                fit_class(simulation, year_list_to_test, return_period, model_classes,
+                          with_effects=True, with_observation=True)
+            ][:]
+            self.simulation_fits.extend(fit_class_simulation_fits)
 
     def plot_mean_metrics(self):
         for metric_name in AbstractSimulationFitForEnsemble.METRICS[:1]:
@@ -30,5 +40,7 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
         for simulation_fit in self.simulation_fits:
             simulation_fit.plot_mean_metric(ax, metric_name)
         ax.legend()
-        self.show_or_save_to_file(plot_name='mean {} for {}-year return level'.format(metric_name, self.return_period))
+        ylabel = 'Mean {} for {}-year return level'.format(metric_name.capitalize(), self.return_period)
+        ax.set_ylabel(ylabel)
+        self.show_or_save_to_file(plot_name=ylabel)
         plt.close()

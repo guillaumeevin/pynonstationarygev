@@ -36,47 +36,102 @@ class AbstractSimulationWithEffects(object):
         self.nb_ensemble_member = nb_ensemble_member
         self.model_class = model_class
         self.nb_temporal_steps = 150
-        self.coordinates = AbstractCoordinates.from_df(self.load_df())
+        self.coordinates = AbstractCoordinates.from_df(self.load_df_full(with_observations=True))
         self.margin_model = model_class(self.coordinates)
         self.margin_function = self.margin_model.margin_function
 
         self.simulation_ids = range(self.nb_simulations)
-        # Sample the simulation parameters
+        # Sample once the simulation parameters
         self.simulation_id_to_margin_function = {simulation_id: self.load_margin_function()
-                                                 for simulation_id in self.simulation_ids} # type: Dict[int, IndependentMarginFunction]
-
-        # Sample once the observation from the simulation parameters
-        self.simulation_id_to_dataset = {}
+                                                 for simulation_id in
+                                                 self.simulation_ids}  # type: Dict[int, IndependentMarginFunction]
+        # Sample once the observation
+        self.simulation_id_to_coordinate_to_maxima = {}
         for simulation_id, margin_function in self.simulation_id_to_margin_function.items():
-            df = self.coordinates.df_temporal_coordinates_for_fit(climate_coordinates_with_effects=[AbstractCoordinates.COORDINATE_RCM],
-                                                               drop_duplicates=False)
-            maxima_list = [margin_function.get_params(coordinate).sample(1) for _, coordinate in df.iterrows()]
-            df_maxima_gev = pd.DataFrame.from_dict({'obs_gev': maxima_list})
-            df_maxima_gev.index = self.coordinates.index
-            observations = AbstractSpatioTemporalObservations(df_maxima_gev=df_maxima_gev)
-            dataset = AbstractDataset(observations, self.coordinates)
-            self.simulation_id_to_dataset[simulation_id] = dataset
+            df_full = self.coordinates.df_temporal_coordinates_for_fit(
+                climate_coordinates_with_effects=[AbstractCoordinates.COORDINATE_RCM],
+                drop_duplicates=False)
+            df_short = pd.concat([self.coordinates.df_all_coordinates,
+                            self.coordinates.df_coordinate_climate_model.loc[:, AbstractCoordinates.COORDINATE_RCM]], axis=1)
+            couple_coordinate_to_maxima = {}
+            for (_, coordinate_full), (_, coordinate_short) in zip(df_full.iterrows(), df_short.iterrows()):
+                couple_coordinate_to_maxima[tuple(coordinate_short)] = margin_function.get_params(coordinate_full).sample(1)
+            self.simulation_id_to_coordinate_to_maxima[simulation_id] = couple_coordinate_to_maxima
 
+        # Load the together datasets
+        self.simulation_id_to_together_dataset_with_obs = {simulation_id: self.load_together_dataset(simulation_id, True)
+                                                           for simulation_id in self.simulation_ids}
+        self.simulation_id_to_together_dataset_without_obs = {simulation_id: self.load_together_dataset(simulation_id, False)
+                                                              for simulation_id in self.simulation_ids}
+        # Load the separate datasets
+        self.simulation_id_to_separate_datasets_with_obs = {simulation_id: self.load_separate_datasets_with_obs(simulation_id, True)
+                                                           for simulation_id in self.simulation_ids}
+        self.simulation_id_to_separate_datasets_without_obs = {simulation_id: self.load_separate_datasets_with_obs(simulation_id, False)
+                                                              for simulation_id in self.simulation_ids}
 
-
-    def load_df(self):
-        df = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(
-            nb_temporal_steps=self.nb_temporal_steps, start=0, end=1).df_all_coordinates
-        df[AbstractCoordinates.COORDINATE_RCM] = None
-        # For the observations we keep only the data between 1959 and 2019
-        df_final = df.copy().iloc[8:-81]
-        assert len(df_final) == 61
+    def load_separate_datasets_with_obs(self, simulation_id, with_observations):
+        datasets = []
         for j in range(self.nb_ensemble_member):
-            name = self.ensemble_member_idx_to_name(j)
-            df[AbstractCoordinates.COORDINATE_RCM] = name
-            df_final = df_final.append(df.copy(), ignore_index=True)
-        # df_final = pd.concat(df_list, axis=0, ignore_index=True, join='inner')
+            coordinates = AbstractCoordinates.from_df(self.load_df_separate(j, with_observations))
+            datasets.append(self.load_dataset(coordinates, simulation_id))
+        return datasets
+
+    def load_together_dataset(self, simulation_id, with_observations):
+        coordinates = AbstractCoordinates.from_df(self.load_df_full(with_observations))
+        return self.load_dataset(coordinates, simulation_id)
+
+    def load_dataset(self, coordinates, simulation_id):
+        df_short = pd.concat([coordinates.df_all_coordinates,
+                              coordinates.df_coordinate_climate_model.loc[:, AbstractCoordinates.COORDINATE_RCM]],
+                             axis=1)
+
+        coordinate_to_maxima = self.simulation_id_to_coordinate_to_maxima[simulation_id]
+        maxima_list = [coordinate_to_maxima[tuple(coordinate_short)] for _, coordinate_short in df_short.iterrows()]
+        df_maxima_gev = pd.DataFrame.from_dict({'obs_gev': maxima_list})
+        df_maxima_gev.index = coordinates.index
+        observations = AbstractSpatioTemporalObservations(df_maxima_gev=df_maxima_gev)
+        return AbstractDataset(observations, coordinates)
+
+    def load_df_separate(self, j, with_observations=True):
+        df_final = self.load_df_observations(with_observations)
+        df = self.load_df_ensemble_member(j)
+        df_final = df_final.append(df, ignore_index=True)
+        df_final.index = np.arange(0, len(df_final))
+        return df_final
+
+    def load_df_full(self, with_observations=True):
+        df_final = self.load_df_observations(with_observations)
+        for j in range(self.nb_ensemble_member):
+            df = self.load_df_ensemble_member(j)
+            df_final = df_final.append(df, ignore_index=True)
         df_final.index = np.arange(0, len(df_final))
         assert len(df_final.columns) == 2
         return df_final
 
+    def load_df_ensemble_member(self, j):
+        df = self.load_df_basic()
+        name = self.ensemble_member_idx_to_name(j)
+        df[AbstractCoordinates.COORDINATE_RCM] = name
+        return df
+
+    def load_df_observations(self, with_observations):
+        if with_observations:
+            df = self.load_df_basic()
+            # For the observations we keep only the data between 1959 and 2019
+            df = df.iloc[8:-81]
+            assert len(df) == 61
+            return df
+        else:
+            return pd.DataFrame()
+
+    def load_df_basic(self):
+        df = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(
+            nb_temporal_steps=self.nb_temporal_steps, start=0, end=1).df_all_coordinates
+        df[AbstractCoordinates.COORDINATE_RCM] = None
+        return df
+
     def ensemble_member_idx_to_name(self, j):
-        return 'RCM_{}'.format(j+1)
+        return 'RCM_{}'.format(j + 1)
 
     def load_margin_function(self) -> IndependentMarginFunction:
         # Sample the non-stationary parameters
@@ -117,7 +172,7 @@ class AbstractSimulationWithEffects(object):
 
             # Plot observations
             y_list = [self.get_params_simulation(margin_function, x, None, gev_param_name) for x in x_list]
-            ax.plot(x_list, y_list, color=color, linewidth=4, label='Simulation #{}'.format(simulation_id+1))
+            ax.plot(x_list, y_list, color=color, linewidth=4, label='Simulation #{}'.format(simulation_id + 1))
 
             # Plot ensemble members
             if plot_ensemble_members:
@@ -177,7 +232,7 @@ class AbstractSimulationWithEffects(object):
         if j is None:
             return year - 1951
         else:
-            return year - 1951 + (j+1) * 150
+            return year - 1951 + (j + 1) * 150
 
     def plot_time_series(self, simulation_id):
         def get_list(dataset, ind):
@@ -186,13 +241,14 @@ class AbstractSimulationWithEffects(object):
             return maxima_list, x_list
 
         ax = plt.gca()
-        dataset = self.simulation_id_to_dataset[simulation_id]
+        dataset = self.simulation_id_to_together_dataset_with_obs[simulation_id]
         # Plot the ensemble member
         colors = list(gcm_rcm_couple_to_color.values())
         for j, color in zip(list(range(self.nb_ensemble_member)), colors):
-            ind = self.coordinates.df_coordinate_climate_model[AbstractCoordinates.COORDINATE_RCM] == self.ensemble_member_idx_to_name(j)
+            ind = self.coordinates.df_coordinate_climate_model[
+                      AbstractCoordinates.COORDINATE_RCM] == self.ensemble_member_idx_to_name(j)
             maxima_list, x_list = get_list(dataset, ind)
-            ax.plot(x_list, maxima_list, color=color, linewidth=2, label='Ensemble member #{}'.format(j+1))
+            ax.plot(x_list, maxima_list, color=color, linewidth=2, label='Ensemble member #{}'.format(j + 1))
         # Plot the observation on top
         ind = self.coordinates.df_coordinate_climate_model.isnull().any(axis=1)
         maxima_list, x_list = get_list(dataset, ind)
@@ -200,14 +256,13 @@ class AbstractSimulationWithEffects(object):
         self.set_fake_x_axis(ax)
         ax.set_ylabel('Simulated annual maxima')
         ax.legend(prop={'size': 6}, ncol=3)
-        self.visualizer.plot_name = 'observations from simulation {}'.format(simulation_id+1)
+        self.visualizer.plot_name = 'observations from simulation {}'.format(simulation_id + 1)
         self.visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
 
     @cached_property
     def visualizer(self):
         return StudyVisualizer(SafranSnowfall1Day(), show=False, save_to_file=True)
-
 
     def sample_around(self, value):
         assert value != 0

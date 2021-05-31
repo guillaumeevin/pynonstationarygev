@@ -1,5 +1,3 @@
-
-
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.utils import set_seed_for_test
 from extreme_trend.ensemble_simulation.abstract_simulation_with_effect import \
@@ -26,8 +24,6 @@ def main_simulation():
                                                  return_period=50,
                                                  model_classes=model_classes)
     visualizer.plot_mean_metrics()
-
-
 
 
 if __name__ == '__main__':
