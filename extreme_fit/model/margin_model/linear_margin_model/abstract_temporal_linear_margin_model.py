@@ -48,6 +48,10 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
             assert len(df_coordinates_spat) == len(data)
 
         x = ro.FloatVector(data)
+
+        if self.param_name_to_climate_coordinates_with_effects is not None:
+            assert self.fit_method == MarginFitMethod.evgam
+
         if self.params_class is GevParams:
             if self.fit_method == MarginFitMethod.is_mev_gev_fit:
                 return self.ismev_gev_fit(x, df_coordinates_temp)
@@ -107,6 +111,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         formula = r.list(*[robjects.Formula(f) for f in formula_list])
         df = pd.DataFrame({maxima_column_name: np.array(x)})
         df = pd.concat([df, df_coordinates_spat, df_coordinates_temp], axis=1)
+        # todo: put this assertion earlier in the code for other sub methods
         assert not df.isnull().any(axis=1).any(), "Some Nan values in df:\n {}".format(df)
         data = get_r_dataframe_from_python_dataframe(df)
         if self.type_for_mle is not "GEV":

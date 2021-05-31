@@ -44,13 +44,17 @@ class IndependentMarginFunction(AbstractMarginFunction):
         # The climatic coordinate can be of two types either 1 and 0 vectors,
         # or a vector with several information such as the GCM str, RCM str and the climate coordinates with effects
         if len(coordinate) > self.coordinates.nb_coordinates:
-            assert self.param_name_to_ordered_climate_effects is not None
-            assert self.param_name_to_climate_coordinates_with_effects is not None
-            assert AbstractCoordinates.COORDINATE_X not in self.coordinates.coordinates_names, \
-                'check the order of coordinates that everything is ok'
-            # Load full coordinates, and full names of the effect
-            full_climate_coordinate = coordinate[self.coordinates.nb_coordinates:].copy()
-            param_name_to_total_effect = self.load_param_name_to_total_effect(full_climate_coordinate)
+            if self.param_name_to_climate_coordinates_with_effects is None:
+                param_name_to_total_effect = None
+            else:
+                # Load full coordinates, and coordinates
+                full_climate_coordinate = coordinate[self.coordinates.nb_coordinates:].copy()
+                assert self.param_name_to_ordered_climate_effects is not None
+                assert AbstractCoordinates.COORDINATE_X not in self.coordinates.coordinates_names, \
+                    'check the order of coordinates that everything is ok'
+                # Load full names of the effect
+                param_name_to_total_effect = self.load_param_name_to_total_effect(full_climate_coordinate)
+            # Update coordinate
             coordinate = np.array(coordinate[:self.coordinates.nb_coordinates])
         else:
             param_name_to_total_effect = None

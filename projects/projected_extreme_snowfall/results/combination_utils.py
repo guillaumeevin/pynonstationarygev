@@ -18,7 +18,10 @@ def load_param_name_to_climate_coordinates_with_effects(combination):
     param_name_to_climate_coordinates_with_effects = {param_name: climate_coordinates_with_effects_list[idx]
                                                       for param_name, idx in
                                                       zip(GevParams.PARAM_NAMES, combination)}
-    return param_name_to_climate_coordinates_with_effects
+    if all([v is None for v in param_name_to_climate_coordinates_with_effects.values()]):
+        return None
+    else:
+        return param_name_to_climate_coordinates_with_effects
 
 
 def generate_sub_combination(combination):

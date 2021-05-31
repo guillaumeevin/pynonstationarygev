@@ -536,8 +536,11 @@ class StudyVisualizer(VisualizationParameters):
         ax.get_yaxis().set_visible(False)
         ax.set_aspect('equal')
 
-    def show_or_save_to_file(self, add_classic_title=True, no_title=False, tight_layout=False, tight_pad=None,
-                             dpi=None, folder_for_variable=True):
+    def show_or_save_to_file(self, add_classic_title=False, no_title=True, tight_layout=False, tight_pad=None,
+                             dpi=None, folder_for_variable=True, plot_name=None):
+        if plot_name is not None:
+            self.plot_name = plot_name
+
         if isinstance(self.study, AbstractAdamontStudy):
             prefix = gcm_rcm_couple_to_str(self.study.gcm_rcm_couple)
             prefix = prefix.replace('/', '-')

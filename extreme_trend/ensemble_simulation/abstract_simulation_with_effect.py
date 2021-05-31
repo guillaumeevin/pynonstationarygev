@@ -1,4 +1,5 @@
 from random import uniform
+from typing import Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,8 +12,10 @@ from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.function.margin_function.independent_margin_function import IndependentMarginFunction
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationAndScaleAndShapeTemporalModel
+from extreme_fit.model.utils import set_seed_for_test
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
@@ -27,6 +30,7 @@ class AbstractSimulationWithEffects(object):
                  relative_percentage_for_temporal_and_effects=0.1,
                  model_class=NonStationaryLocationAndScaleAndShapeTemporalModel,
                  nb_ensemble_member=20):
+        set_seed_for_test()
         self.relative_percentage_for_temporal_and_effects = relative_percentage_for_temporal_and_effects
         self.nb_simulations = nb_simulations
         self.nb_ensemble_member = nb_ensemble_member
@@ -36,11 +40,10 @@ class AbstractSimulationWithEffects(object):
         self.margin_model = model_class(self.coordinates)
         self.margin_function = self.margin_model.margin_function
 
-        print()
-
+        self.simulation_ids = range(self.nb_simulations)
         # Sample the simulation parameters
         self.simulation_id_to_margin_function = {simulation_id: self.load_margin_function()
-                                                 for simulation_id in range(self.nb_simulations)}
+                                                 for simulation_id in self.simulation_ids} # type: Dict[int, IndependentMarginFunction]
 
         # Sample once the observation from the simulation parameters
         self.simulation_id_to_dataset = {}
@@ -54,6 +57,8 @@ class AbstractSimulationWithEffects(object):
             dataset = AbstractDataset(observations, self.coordinates)
             self.simulation_id_to_dataset[simulation_id] = dataset
 
+
+
     def load_df(self):
         df = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(
             nb_temporal_steps=self.nb_temporal_steps, start=0, end=1).df_all_coordinates
@@ -66,14 +71,14 @@ class AbstractSimulationWithEffects(object):
             df[AbstractCoordinates.COORDINATE_RCM] = name
             df_final = df_final.append(df.copy(), ignore_index=True)
         # df_final = pd.concat(df_list, axis=0, ignore_index=True, join='inner')
-        df_final.index = np.arange(1, len(df_final)+1)
+        df_final.index = np.arange(0, len(df_final))
         assert len(df_final.columns) == 2
         return df_final
 
     def ensemble_member_idx_to_name(self, j):
         return 'RCM_{}'.format(j+1)
 
-    def load_margin_function(self):
+    def load_margin_function(self) -> IndependentMarginFunction:
         # Sample the non-stationary parameters
         coef_dict = dict()
         coef_dict['locCoeff1'] = 10

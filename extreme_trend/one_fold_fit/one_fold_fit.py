@@ -14,6 +14,7 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
+from extreme_fit.function.margin_function.independent_margin_function import IndependentMarginFunction
 from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoef, PolynomialCoef
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
@@ -50,7 +51,7 @@ class OneFoldFit(object):
     quantile_level = 1 - (1 / return_period)
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
-                 first_year, last_year,
+                 first_year=None, last_year=None,
                  fit_method=MarginFitMethod.extremes_fevd_mle,
                  temporal_covariate_for_fit=None,
                  altitude_group=None,
@@ -60,7 +61,6 @@ class OneFoldFit(object):
                  param_name_to_climate_coordinates_with_effects=None):
         self.first_year = first_year
         self.last_year = last_year
-        self.years_of_difference = last_year - first_year
         self.remove_physically_implausible_models = remove_physically_implausible_models
         self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
         self.only_models_that_pass_goodness_of_fit_test = only_models_that_pass_goodness_of_fit_test
@@ -71,16 +71,16 @@ class OneFoldFit(object):
         self.fit_method = fit_method
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
-
+        self.sub_combinations = generate_sub_combination(
+            load_combination(self.param_name_to_climate_coordinates_with_effects))
         # Fit Estimators
         self.fitted_estimators = set()
         for model_class in models_classes:
-            for sub_combination in generate_sub_combination(load_combination(self.param_name_to_climate_coordinates_with_effects)):
+            for sub_combination in self.sub_combinations:
                 param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(sub_combination)
                 fitted_estimator = self.fitted_linear_margin_estimator(model_class, self.dataset,
                                                                 param_name_to_climate_coordinates_with_effects)
                 self.fitted_estimators.add(fitted_estimator)
-        print(len(self.fitted_estimators))
         # Compute sorted estimators indirectly
         _ = self.has_at_least_one_valid_model
 
@@ -240,7 +240,9 @@ class OneFoldFit(object):
             print(self.massif_name, " has only implausible models")
         # Check the number of models when we do not apply any goodness of fit
         if not (self.remove_physically_implausible_models or self.only_models_that_pass_goodness_of_fit_test):
-            assert len(well_defined_estimators) == len(self.models_classes)
+            print(len(well_defined_estimators))
+            print(len(self.models_classes))
+            assert len(well_defined_estimators) == len(self.models_classes) * len(self.sub_combinations)
         return well_defined_estimators
 
 
@@ -294,7 +296,7 @@ class OneFoldFit(object):
         return self.best_estimator.margin_model
 
     @property
-    def best_margin_function_from_fit(self):
+    def best_margin_function_from_fit(self) -> IndependentMarginFunction:
         return self.best_estimator.margin_function_from_fit
 
     @property
