@@ -1,19 +1,20 @@
 
 
 from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.model.utils import set_seed_for_test
-from extreme_trend.ensemble_simulation.abstract_simulation_with_effect import \
+from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract_simulation_with_effect import \
     AbstractSimulationWithEffects
+from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_versions import SimulationVersion2
 
 
 def main_simulation():
-    simulation_ids = [0, 1, 2, 3]
-    simulation = AbstractSimulationWithEffects(len(simulation_ids))
+    simulation_ids = [0, 1, 2, 3, 4, 5, 6, 7, 8][:]
+    simulation_class = [SimulationVersion2][0]
+    simulation = simulation_class(len(simulation_ids))
     plot_simulation(simulation, simulation_ids)
 
 
 def plot_simulation(simulation, simulation_ids):
-    for gev_param_name in [None] + GevParams.PARAM_NAMES:
+    for gev_param_name in GevParams.PARAM_NAMES + [None]:
         simulation.plot_simulation_parameter(gev_param_name, simulation_ids, plot_ensemble_members=True)
     for simulation_id in simulation_ids:
         simulation.plot_time_series(simulation_id=simulation_id)

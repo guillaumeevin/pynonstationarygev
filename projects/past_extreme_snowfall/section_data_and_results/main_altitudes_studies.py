@@ -52,7 +52,7 @@ def main():
     model_must_pass_the_test = False
     AbstractExtractEurocodeReturnLevel.ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.2
 
-    fast = None
+    fast = True
     if fast is None:
         massif_names = None
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
@@ -81,7 +81,7 @@ def main_loop(altitudes_list, massif_names, seasons, study_classes, model_must_p
             print('Run', get_display_name_from_object_type(study_class), season)
             visualizer_list = load_visualizer_list(season, study_class, altitudes_list, massif_names,
                                                    model_must_pass_the_test)
-            with_significance = False
+            with_significance = True
             plot_visualizers(massif_names, visualizer_list, with_significance)
             for visualizer in visualizer_list:
                 plot_visualizer(massif_names, visualizer, with_significance)

@@ -49,6 +49,7 @@ class OneFoldFit(object):
     SIGNIFICANCE_LEVEL = 0.05
     return_period = 100
     quantile_level = 1 - (1 / return_period)
+    nb_cores_for_multiprocess = NB_CORES
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
                  first_year=None, last_year=None,
@@ -77,9 +78,10 @@ class OneFoldFit(object):
         self.fitted_estimators = set()
         for model_class in models_classes:
             for sub_combination in self.sub_combinations:
-                param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(sub_combination)
+                param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
+                    sub_combination)
                 fitted_estimator = self.fitted_linear_margin_estimator(model_class, self.dataset,
-                                                                param_name_to_climate_coordinates_with_effects)
+                                                                       param_name_to_climate_coordinates_with_effects)
                 self.fitted_estimators.add(fitted_estimator)
         # Compute sorted estimators indirectly
         _ = self.has_at_least_one_valid_model
@@ -212,7 +214,7 @@ class OneFoldFit(object):
         for estimator in self.fitted_estimators:
             if self.remove_physically_implausible_models:
                 # Remove wrong shape
-                if not(-0.5 < self._compute_shape_for_reference_altitude(estimator) < 0.5):
+                if not (-0.5 < self._compute_shape_for_reference_altitude(estimator) < 0.5):
                     continue
                 # Remove models with undefined parameters for the coordinate of interest
                 coordinate_values_for_the_fit = estimator.coordinates_for_nllh
@@ -242,7 +244,6 @@ class OneFoldFit(object):
         if not (self.remove_physically_implausible_models or self.only_models_that_pass_goodness_of_fit_test):
             assert len(well_defined_estimators) == len(self.models_classes) * len(self.sub_combinations)
         return well_defined_estimators
-
 
     def get_coordinate(self, altitude, year):
         if isinstance(self.altitude_group, DefaultAltitudeGroup):
@@ -335,11 +336,14 @@ class OneFoldFit(object):
     @property
     def stationary_estimator(self):
         try:
-            combination = load_combination(self.best_estimator.margin_model.param_name_to_climate_coordinates_with_effects)
+            combination = load_combination(
+                self.best_estimator.margin_model.param_name_to_climate_coordinates_with_effects)
             if isinstance(self.altitude_group, DefaultAltitudeGroup):
-                return self.model_class_and_combination_to_estimator_with_finite_aic[(StationaryTemporalModel, combination)]
+                return self.model_class_and_combination_to_estimator_with_finite_aic[
+                    (StationaryTemporalModel, combination)]
             else:
-                return self.model_class_and_combination_to_estimator_with_finite_aic[(StationaryAltitudinal, combination)]
+                return self.model_class_and_combination_to_estimator_with_finite_aic[
+                    (StationaryAltitudinal, combination)]
         except KeyError:
             raise KeyError('A stationary model must be added either in the list of models, or here in the method')
 
@@ -468,15 +472,15 @@ class OneFoldFit(object):
 
         if multiprocess is None:
             start = time.time()
-            with Pool(NB_CORES) as p:
-                batchsize = math.ceil(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP / NB_CORES)
+            with Pool(self.nb_cores_for_multiprocess) as p:
+                batchsize = math.ceil(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP / self.nb_cores_for_multiprocess)
                 list_functions_from_fit = p.map(self.fit_batch_bootstrap_estimator, batch(idxs, batchsize=batchsize))
                 functions_from_fit = list(chain.from_iterable(list_functions_from_fit))
 
         elif multiprocess:
             print('multiprocessing')
             start = time.time()
-            with Pool(NB_CORES) as p:
+            with Pool(self.nb_cores_for_multiprocess) as p:
                 functions_from_fit = p.map(self.fit_one_bootstrap_estimator, idxs)
 
         else:
@@ -503,12 +507,12 @@ class OneFoldFit(object):
         coordinate_values_to_maxima = self.best_estimator. \
             coordinate_values_to_maxima_from_standard_gumbel_quantiles(standard_gumbel_quantiles=resample_residuals)
 
-        coordinates = self.dataset.coordinates
-        observations = AnnualMaxima.from_coordinates(coordinates, coordinate_values_to_maxima)
-        dataset = AbstractDataset(observations=observations, coordinates=coordinates)
+        observations = AnnualMaxima.from_df_coordinates(coordinate_values_to_maxima,
+                                                        self.best_estimator.df_coordinates_for_fit)
+        dataset = AbstractDataset(observations=observations, coordinates=self.dataset.coordinates)
         model_class = type(self.best_margin_model)
 
-        assert self.param_name_to_climate_coordinates_with_effects is None
-        function_from_fit = self.fitted_linear_margin_estimator(model_class, dataset, self.param_name_to_climate_coordinates_with_effects).margin_function_from_fit
+        function_from_fit = self.fitted_linear_margin_estimator(model_class, dataset,
+                                                                self.param_name_to_climate_coordinates_with_effects).margin_function_from_fit
 
         return function_from_fit

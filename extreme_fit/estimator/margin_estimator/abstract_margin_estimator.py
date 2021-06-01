@@ -6,7 +6,8 @@ import pandas as pd
 from cached_property import cached_property
 
 from extreme_fit.estimator.abstract_estimator import AbstractEstimator
-from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh, compute_nllh_with_multiprocessing_for_large_samples
+from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh, \
+    compute_nllh_with_multiprocessing_for_large_samples
 from extreme_fit.estimator.utils import load_margin_function
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
@@ -15,6 +16,7 @@ from extreme_fit.function.margin_function.linear_margin_function import LinearMa
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
+
 
 class AbstractMarginEstimator(AbstractEstimator, ABC):
 
@@ -61,6 +63,10 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         df_coordinates_temp = self.load_coordinates_temp(coordinates)
         return df_coordinates_temp
 
+    @property
+    def df_coordinates_for_fit(self):
+        return pd.concat([self.df_coordinates_spat, self.df_coordinates_temp], axis=1)
+
     def load_coordinates_temp(self, coordinates):
         assert coordinates.gcm_rcm_couple_as_pseudo_truth == self.dataset.coordinates.gcm_rcm_couple_as_pseudo_truth, \
             "you should set the gcm rcm couple as pseudo truth similarly"
@@ -77,13 +83,14 @@ class LinearMarginEstimator(AbstractMarginEstimator):
 
     @property
     def coordinates_for_nllh(self):
-        return pd.concat([self.df_coordinates_spat, self.df_coordinates_temp], axis=1).values
+        return self.df_coordinates_for_fit.values
 
     @cached_property
     def nllh(self):
         maxima_values = self.dataset.maxima_gev
         coordinate_values = self.coordinates_for_nllh
-        nllh = compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxima_values, self.margin_function_from_fit)
+        nllh = compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxima_values,
+                                                                   self.margin_function_from_fit)
         npt.assert_almost_equal(self.result_from_model_fit.nllh, nllh, decimal=0)
         return nllh
 
@@ -114,11 +121,10 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         additional_term = 2 * self.nb_params * (self.nb_params + 1) / (self.nb_data - self.nb_params - 1)
         return self.aic + additional_term
 
-
     def sorted_empirical_standard_gumbel_quantiles(self, coordinate_for_filter=None):
         sorted_empirical_quantiles = []
         maxima_values = self.dataset.maxima_gev
-        coordinate_values = self.dataset.df_coordinates.values
+        coordinate_values = self.df_coordinates_for_fit.values
         for maximum, coordinate in zip(maxima_values, coordinate_values):
             if coordinate_for_filter is not None:
                 assert len(coordinate) == len(coordinate_for_filter)
@@ -128,14 +134,18 @@ class LinearMarginEstimator(AbstractMarginEstimator):
             gev_param = self.margin_function_from_fit.get_params(
                 coordinate=coordinate,
                 is_transformed=False)
-            maximum_standardized = gev_param.gumbel_standardization(maximum[0])
+            # Take the first and unique maximum
+            maximum = maximum[0]
+            if isinstance(maximum, np.ndarray):
+                maximum = maximum[0]
+            maximum_standardized = gev_param.gumbel_standardization(maximum)
             sorted_empirical_quantiles.append(maximum_standardized)
         sorted_empirical_quantiles = sorted(sorted_empirical_quantiles)
         return sorted_empirical_quantiles
 
     def coordinate_values_to_maxima_from_standard_gumbel_quantiles(self, standard_gumbel_quantiles):
         coordinate_values_to_maxima = {}
-        coordinate_values = self.dataset.df_coordinates.values
+        coordinate_values = self.df_coordinates_for_fit.values
         assert len(standard_gumbel_quantiles) == len(coordinate_values)
         for quantile, coordinate in zip(standard_gumbel_quantiles, coordinate_values):
             gev_param = self.margin_function_from_fit.get_params(

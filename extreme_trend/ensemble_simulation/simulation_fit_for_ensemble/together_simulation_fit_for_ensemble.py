@@ -1,8 +1,7 @@
-from collections import OrderedDict
-
 import numpy as np
 
-from extreme_trend.ensemble_simulation.abstract_simulation_with_effect import AbstractSimulationWithEffects
+from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
+    AbstractExtractEurocodeReturnLevel
 from extreme_trend.ensemble_simulation.simulation_fit_for_ensemble.abstract_simulation_fit_for_ensemble import \
     AbstractSimulationFitForEnsemble
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
@@ -28,30 +27,12 @@ class TogetherSimulationFitForEnsemble(AbstractSimulationFitForEnsemble):
             dataset = self.simulation.simulation_id_to_together_dataset_without_obs[simulation_id]
         # Load one fold fit
         one_fold_fit = self.load_one_fold_fit(dataset, str(simulation_id))
-        # todo: it should be the bootstrap here
-        margin_functions = []
+        nb_bootstrap = AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP
+        OneFoldFit.nb_cores_for_multiprocess = 4
+        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP *= self.simulation.nb_ensemble_member
+        margin_functions_uncertainty = one_fold_fit.bootstrap_fitted_functions_from_fit
+        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = nb_bootstrap
         margin_function = one_fold_fit.best_margin_function_from_fit
         true_margin_function = self.simulation.simulation_id_to_margin_function[simulation_id]
-        crpss_list = []
-        rmse_list = []
-        absolute_list = []
-        for x in self.x_list_to_test:
-            coordinates = np.array([x])
-            true_value = self.compute_return_levels(true_margin_function, coordinates)
-            prediction = self.compute_return_levels(margin_function, coordinates)
-            # Compute rmse
-            rmse = np.power(true_value - prediction, 2)
-            rmse_list.append(rmse)
-            # Compute absolute relative difference
-            absolute_relative_difference = np.abs( 100 * (true_value - prediction) / true_value)
-            absolute_list.append(absolute_relative_difference)
 
-
-            # Compute crpss from bootstrap samples
-            # predictions = [self.compute_return_levels(f, x) for f in margin_functions]
-        return {
-            self.RMSE_METRIC: rmse_list,
-            self.CRPSS_METRIC: crpss_list,
-            self.ABSOLUTE_RELATIVE_DIFFERENCE_METRIC: absolute_list,
-        }
-
+        return self.compute_dict([margin_function], margin_functions_uncertainty, true_margin_function)

@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 class VisualizerForSimulationEnsemble(StudyVisualizer):
 
-    def __init__(self, simulation, year_list_to_test, return_period, model_classes):
+    def __init__(self, simulation, year_list_to_test, return_period, model_classes, fast):
         super().__init__(SafranSnowfall1Day(), show=False, save_to_file=True)
         self.return_period = return_period
         # Load simulation fits
@@ -30,16 +30,18 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
                           with_effects=True, with_observation=True, color="green")
             ][:]
             self.simulation_fits.extend(fit_class_simulation_fits)
+        self.simulation_fits = self.simulation_fits[::-1][:1]
 
     def plot_mean_metrics(self):
-        for metric_name in AbstractSimulationFitForEnsemble.METRICS[:1]:
+        for metric_name in AbstractSimulationFitForEnsemble.METRICS[:]:
             self.plot_mean_metric(metric_name)
 
     def plot_mean_metric(self, metric_name):
         ax = plt.gca()
-        for simulation_fit in self.simulation_fits:
+        for j, simulation_fit in enumerate(self.simulation_fits, 1):
+            print('\n\nSimulation fit method #{}'.format(j))
             simulation_fit.plot_mean_metric(ax, metric_name)
-        ax.legend(ncol=2, prop={'size': 5})
+        ax.legend(ncol=2, prop={'size': 6})
         ylabel = 'Mean {} for {}-year return level'.format(metric_name.capitalize(), self.return_period)
         ax.set_ylabel(ylabel)
         self.show_or_save_to_file(plot_name=ylabel)

@@ -59,10 +59,13 @@ class AltitudesStudies(object):
         for altitude in massif_altitudes:
             study = self.altitude_to_study[altitude]
             for year, maxima in zip(study.ordered_years, study.massif_name_to_annual_maxima[massif_name]):
+                # Cast to float
+                year, altitude = float(year), float(altitude)
                 if len(massif_altitudes) == 1:
-                    coordinate_values_to_maxima[year] = [maxima]
+                    coordinate_values = [year]
                 else:
-                    coordinate_values_to_maxima[(altitude, year)] = [maxima]
+                    coordinate_values = [altitude, year]
+                coordinate_values_to_maxima[tuple(coordinate_values)] = [maxima]
 
         coordinates = self.spatio_temporal_coordinates(massif_altitudes)
         # Remove the spatial coordinate if we only have one altitude

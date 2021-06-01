@@ -1,26 +1,29 @@
 import numpy as np
+import properscoring as ps
 from cached_property import cached_property
 
 from extreme_fit.model.margin_model.utils import MarginFitMethod
-from extreme_trend.ensemble_simulation.abstract_simulation_with_effect import AbstractSimulationWithEffects
+from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract_simulation_with_effect import AbstractSimulationWithEffects
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
-from projects.projected_extreme_snowfall.results.setting_utils import LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
+from root_utils import get_display_name_from_object_type
 
 
 class AbstractSimulationFitForEnsemble(object):
     RMSE_METRIC = 'rmse'
     ABSOLUTE_RELATIVE_DIFFERENCE_METRIC = 'absolute relative difference'
     CRPSS_METRIC = 'crpss'
-    METRICS = [ABSOLUTE_RELATIVE_DIFFERENCE_METRIC, RMSE_METRIC, CRPSS_METRIC]
+    WIDTH_METRIC = 'crpss'
+    METRICS = [ABSOLUTE_RELATIVE_DIFFERENCE_METRIC, RMSE_METRIC, CRPSS_METRIC, WIDTH_METRIC]
 
     def __init__(self, simulation: AbstractSimulationWithEffects,
                  year_list_to_test,
                  return_period,
                  model_classes,
-                 with_effects=True, with_observation=True,
+                 with_effects=True,
+                 with_observation=True,
                  color='k'):
         self.color = color
         self.simulation = simulation
@@ -70,7 +73,8 @@ class AbstractSimulationFitForEnsemble(object):
     def metric_name_to_all_list(self):
         all_dict = [ ]
         for i in self.simulation.simulation_ids:
-            print('{} simulation'.format(i), type(self))
+            name = 'Simulation #{} for {}\n'.format(i, get_display_name_from_object_type(type(self)))
+            print(self.add_suffix(name))
             all_dict.append(self.compute_metric_name_to_list(i))
 
         return {metric_name: [d[metric_name] for d in all_dict] for metric_name in self.METRICS}
@@ -82,17 +86,42 @@ class AbstractSimulationFitForEnsemble(object):
         gev_params = margin_function.get_params(x)
         return gev_params.return_level(self.return_period)
 
-    def compute_metrics(self, coordinates, prediction, predictions, true_margin_function):
+    def compute_dict(self, margin_functions, margin_functions_uncertainty, true_margin_function):
+        crpss_list = []
+        rmse_list = []
+        absolute_list = []
+        width_list = []
+        for x in self.x_list_to_test:
+            coordinates = np.array([x])
+            prediction = np.mean([self.compute_return_levels(f, coordinates) for f in margin_functions])
+            absolute_relative_difference, crpss, rmse, width = self.compute_metrics(coordinates, prediction,
+                                                                             margin_functions_uncertainty,
+                                                                             true_margin_function)
+
+            rmse_list.append(rmse)
+            absolute_list.append(absolute_relative_difference)
+            crpss_list.append(crpss)
+            width_list.append(width)
+        return {
+            self.RMSE_METRIC: rmse_list,
+            self.CRPSS_METRIC: crpss_list,
+            self.ABSOLUTE_RELATIVE_DIFFERENCE_METRIC: absolute_list,
+            self.WIDTH_METRIC: width_list,
+        }
+
+    def compute_metrics(self, coordinates, prediction, margin_functions_from_bootstrap, true_margin_function):
+        print("here 89", len(margin_functions_from_bootstrap))
         true_value = self.compute_return_levels(true_margin_function, coordinates)
         # Compute rmse
         rmse = np.power(true_value - prediction, 2)
         # Compute absolute relative difference
         absolute_relative_difference = np.abs(100 * (true_value - prediction) / true_value)
         # Compute crpss
-        # todo: Compute crpss from bootstrap samples
-        _ = predictions
-        crpss = 0
-        return absolute_relative_difference, crpss, rmse
+        predictions_from_bootstrap = [self.compute_return_levels(f, coordinates) for f in margin_functions_from_bootstrap]
+        crpss = ps.crps_ensemble(true_value, predictions_from_bootstrap)
+        # Compute width metric
+        width = np.quantile(predictions_from_bootstrap, 0.95) - np.quantile(predictions_from_bootstrap, 0.05)
+        return absolute_relative_difference, crpss, rmse, width
 
     def add_suffix(self, name):
         if self.with_effects:
