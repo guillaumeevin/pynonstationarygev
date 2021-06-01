@@ -1,3 +1,6 @@
+import datetime
+import time
+
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.utils import set_seed_for_test
 from extreme_trend.ensemble_simulation.abstract_simulation_with_effect import \
@@ -7,15 +10,21 @@ from projects.projected_extreme_snowfall.results.setting_utils import LINEAR_MOD
 
 
 def main_simulation():
+    start = time.time()
+
     model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
 
-    fast = True
-    if fast:
+    fast = None
+    if fast is True:
         model_classes = model_classes[:3]
         nb_simulations = 1
         year_list_to_test = [2025, 2050, 2075, 2100]
-    else:
+    elif fast is None:
+        model_classes = model_classes
         nb_simulations = 1
+        year_list_to_test = [2020 + i * 5 for i in range(17)]
+    else:
+        nb_simulations = 100
         year_list_to_test = list(range(2020, 2101))
 
     # Set settings
@@ -25,6 +34,9 @@ def main_simulation():
                                                  model_classes=model_classes)
     visualizer.plot_mean_metrics()
 
+    end = time.time()
+    duration = str(datetime.timedelta(seconds=end - start))
+    print('Total duration', duration)
 
 if __name__ == '__main__':
     main_simulation()

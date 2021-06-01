@@ -29,6 +29,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
 from extreme_fit.model.utils import set_seed_for_test
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
+from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from root_utils import get_display_name_from_object_type
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
@@ -42,9 +43,13 @@ def set_up_and_load(fast, snowfall=True):
     safran_study_class, study_class = load_study_classes(snowfall)
 
     if snowfall:
+        return_period = 100
         model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
     else:
+        return_period = 50
         model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
+
+    OneFoldFit.return_period = return_period
 
     temporal_covariate_for_fit = [TimeTemporalCovariate,
                                   AnomalyTemperatureWithSplineTemporalCovariate][1]

@@ -4,6 +4,7 @@ from cached_property import cached_property
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_trend.ensemble_simulation.abstract_simulation_with_effect import AbstractSimulationWithEffects
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup
+from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
 from projects.projected_extreme_snowfall.results.setting_utils import LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
@@ -19,7 +20,9 @@ class AbstractSimulationFitForEnsemble(object):
                  year_list_to_test,
                  return_period,
                  model_classes,
-                 with_effects=True, with_observation=True):
+                 with_effects=True, with_observation=True,
+                 color='k'):
+        self.color = color
         self.simulation = simulation
         self.return_period = return_period
         self.year_list_to_test = year_list_to_test
@@ -39,12 +42,25 @@ class AbstractSimulationFitForEnsemble(object):
         combination = (2, 2, 0) if self.with_effects else (0, 0, 0)
         self.param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
 
+    @property
+    def linestyle(self):
+        raise NotImplementedError
+
     def plot_mean_metric(self, ax, metric_name):
         assert metric_name in self.METRICS
         mean_crpss = np.mean(self.metric_name_to_all_list[metric_name], axis=0)
         ax.set_xlabel('Years')
         ax.set_xlim((self.year_list_to_test[0], self.year_list_to_test[-1]))
-        ax.plot(self.year_list_to_test, mean_crpss, label=self.name)
+        ax.plot(self.year_list_to_test, mean_crpss, label=self.name, color=self.color, linestyle=self.linestyle)
+
+    def load_one_fold_fit(self, dataset, name):
+        one_fold_fit = OneFoldFit(massif_name=name, dataset=dataset, models_classes=self.model_classes,
+                                  altitude_group=self.altitude_group,
+                                  only_models_that_pass_goodness_of_fit_test=self.only_models_that_pass_goodness_of_fit_test,
+                                  confidence_interval_based_on_delta_method=self.confidence_interval_based_on_delta_method,
+                                  param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects,
+                                  fit_method=self.fit_method)
+        return one_fold_fit
 
     @property
     def name(self):
