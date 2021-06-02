@@ -111,6 +111,7 @@ class VisualizerForProjectionEnsemble(object):
                 plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative,
                                                         with_significance=with_significance)
         else:
+            with_significance = True
             for relative in [None, True, False][:]:
                 orders = [None] + GevParams.PARAM_NAMES[:]
                 for order in orders[:]:
@@ -119,7 +120,8 @@ class VisualizerForProjectionEnsemble(object):
                                           self.safran_study_class,
                                           relative,
                                           order,
-                                          self.gcm_rcm_couples)
+                                          self.gcm_rcm_couples,
+                                          with_significance)
             if self.param_name_to_climate_coordinates_with_effects is not None:
                 climate_coordinate_with_effects_to_list = {
                     (AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM): self.gcm_rcm_couples,

@@ -45,9 +45,14 @@ def set_up_and_load(fast, snowfall=True):
     if snowfall:
         return_period = 100
         model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
+        altitudes_list = [1200, 2100, 3000]
+        massif_names = ['Vanoise'] # todo: change that in the end
+
     else:
         return_period = 50
         model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
+        altitudes_list = [600, 900, 1200, 1500, 1800]
+        massif_names = ['Vanoise']
 
     OneFoldFit.return_period = return_period
 
@@ -62,25 +67,24 @@ def set_up_and_load(fast, snowfall=True):
     if fast is None:
         gcm_rcm_couples = gcm_rcm_couples[:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = [2100]
+        altitudes_list = altitudes_list[1:2]
     elif fast:
         gcm_rcm_couples = gcm_rcm_couples[:2] + gcm_rcm_couples[-2:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = [2100][:]
-        model_classes = model_classes[:4]
+        altitudes_list = altitudes_list[1:2]
+        model_classes = model_classes[:2]
     else:
-        altitudes_list = [1200, 2100, 3000]
+        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 100
+
     assert isinstance(gcm_rcm_couples, list)
     altitudes_list = [[a] for a in altitudes_list]
     assert isinstance(altitudes_list, List)
     assert isinstance(altitudes_list[0], List)
     assert (safran_study_class is None) or (issubclass(safran_study_class, AbstractStudyMaxFiles))
 
+    print('Altitudes', altitudes_list)
     for altitudes in altitudes_list:
         assert len(altitudes) == 1
-    massif_names = ['Vanoise']
-    if fast in [None, False]:
-        assert len(set(model_classes)) == 27
     print('number of models', len(model_classes))
     print('number of gcm rcm couples', len(gcm_rcm_couples))
     remove_physically_implausible_models, display_only_model_that_pass_gof_test = False, True

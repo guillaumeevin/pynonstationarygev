@@ -49,7 +49,9 @@ class OneFoldFit(object):
     SIGNIFICANCE_LEVEL = 0.05
     return_period = 100
     quantile_level = 1 - (1 / return_period)
+    multiprocessing = None
     nb_cores_for_multiprocess = NB_CORES
+    max_batchsize = None
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
                  first_year=None, last_year=None,
@@ -267,12 +269,21 @@ class OneFoldFit(object):
 
     @property
     def model_class_and_combination_to_estimator_with_finite_aic(self):
+        return self._create_d(self.sorted_estimators_with_aic)
+
+    @property
+    def model_class_to_stationary_estimator_not_checked(self):
+        return self._create_d(self.fitted_estimators)
+
+    @staticmethod
+    def _create_d(estimators):
         d = {}
-        for estimator in self.sorted_estimators_with_aic:
+        for estimator in estimators:
             margin_model = estimator.margin_model
             combination = load_combination(margin_model.param_name_to_climate_coordinates_with_effects)
             d[(type(margin_model), combination)] = estimator
         return d
+
 
     @property
     def best_estimator(self):
@@ -339,10 +350,10 @@ class OneFoldFit(object):
             combination = load_combination(
                 self.best_estimator.margin_model.param_name_to_climate_coordinates_with_effects)
             if isinstance(self.altitude_group, DefaultAltitudeGroup):
-                return self.model_class_and_combination_to_estimator_with_finite_aic[
+                return self.model_class_to_stationary_estimator_not_checked[
                     (StationaryTemporalModel, combination)]
             else:
-                return self.model_class_and_combination_to_estimator_with_finite_aic[
+                return self.model_class_to_stationary_estimator_not_checked[
                     (StationaryAltitudinal, combination)]
         except KeyError:
             raise KeyError('A stationary model must be added either in the list of models, or here in the method')
@@ -467,17 +478,18 @@ class OneFoldFit(object):
     @property
     def bootstrap_fitted_functions_from_fit(self):
         print('nb of bootstrap for confidence interval=', AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP)
-        multiprocess = None
         idxs = list(range(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP))
 
-        if multiprocess is None:
+        if self.multiprocessing is None:
             start = time.time()
             with Pool(self.nb_cores_for_multiprocess) as p:
                 batchsize = math.ceil(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP / self.nb_cores_for_multiprocess)
+                if self.max_batchsize is not None:
+                    batchsize = min(self.max_batchsize, batchsize)
                 list_functions_from_fit = p.map(self.fit_batch_bootstrap_estimator, batch(idxs, batchsize=batchsize))
                 functions_from_fit = list(chain.from_iterable(list_functions_from_fit))
 
-        elif multiprocess:
+        elif self.multiprocessing:
             print('multiprocessing')
             start = time.time()
             with Pool(self.nb_cores_for_multiprocess) as p:

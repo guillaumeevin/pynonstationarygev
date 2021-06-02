@@ -20,17 +20,22 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
         # Load simulation fits
         self.simulation_fits = []  # type: List[AbstractSimulationFitForEnsemble]
         fit_classes = [SeparateSimulationFitForEnsemble, TogetherSimulationFitForEnsemble][:]
+        fit_class_to_colors = {
+            SeparateSimulationFitForEnsemble: ['royalblue', 'navy'],
+            TogetherSimulationFitForEnsemble: ['forestgreen', 'darkgreen']
+        }
         for fit_class in fit_classes:
+            colors = fit_class_to_colors[fit_class]
             fit_class_simulation_fits = [
                 fit_class(simulation, year_list_to_test, return_period, model_classes,
-                          with_effects=False, with_observation=False, color='blue'),
+                          with_effects=False, with_observation=False, color=colors[0]),
+                # fit_class(simulation, year_list_to_test, return_period, model_classes,
+                #           with_effects=False, with_observation=True, color='red'),
                 fit_class(simulation, year_list_to_test, return_period, model_classes,
-                          with_effects=False, with_observation=True, color='red'),
-                fit_class(simulation, year_list_to_test, return_period, model_classes,
-                          with_effects=True, with_observation=True, color="green")
+                          with_effects=True, with_observation=True, color=colors[1])
             ][:]
             self.simulation_fits.extend(fit_class_simulation_fits)
-        self.simulation_fits = self.simulation_fits[::-1][:1]
+        self.simulation_fits = self.simulation_fits[::-1][:]
 
     def plot_mean_metrics(self):
         for metric_name in AbstractSimulationFitForEnsemble.METRICS[:]:

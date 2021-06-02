@@ -10,10 +10,6 @@ class SeparateSimulationFitForEnsemble(AbstractSimulationFitForEnsemble):
         super().__init__(*args, **kwargs)
 
     @property
-    def linestyle(self):
-        return 'dotted'
-
-    @property
     def name(self):
         return self.add_suffix("Separate fit ")
 

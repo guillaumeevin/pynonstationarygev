@@ -70,3 +70,34 @@ class SimulationVersion2(AbstractSimulationWithEffects):
                                                                     param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
                                                                     param_name_to_ordered_climate_effects=param_name_to_ordered_climate_effects)
         return margin_function
+
+class SimulationVersion3(AbstractSimulationWithEffects):
+
+    def load_margin_function(self) -> IndependentMarginFunction:
+        # Sample the non-stationary parameters
+        coef_dict = dict()
+        coef_dict['locCoeff1'] = 10
+        coef_dict['scaleCoeff1'] = 1
+        shape = beta(6, 9) - 0.5
+        coef_dict['shapeCoeff1'] = shape
+        coef_dict['tempCoeffLoc1'] = self.sample_uniform(0.1) * coef_dict['locCoeff1']
+        coef_dict['tempCoeffScale1'] = self.sample_uniform(0.1) * coef_dict['scaleCoeff1']
+        coef_dict['tempCoeffShape1'] = self.sample_uniform(0.1) * coef_dict['shapeCoeff1']
+        # Climatic effects
+        param_name_to_climate_coordinates_with_effects = {
+            GevParams.LOC: [AbstractCoordinates.COORDINATE_RCM],
+            GevParams.SCALE: [AbstractCoordinates.COORDINATE_RCM],
+            GevParams.SHAPE: None,
+        }
+        param_name_to_ordered_climate_effects = {
+            GevParams.LOC: [0 for _ in range(self.nb_ensemble_member)],
+            GevParams.SCALE: [0 for _ in range(self.nb_ensemble_member)],
+            GevParams.SHAPE: [],
+        }
+        # Load margin function
+        margin_function = type(self.margin_function).from_coef_dict(self.coordinates,
+                                                                    self.margin_function.param_name_to_dims,
+                                                                    coef_dict,
+                                                                    param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
+                                                                    param_name_to_ordered_climate_effects=param_name_to_ordered_climate_effects)
+        return margin_function

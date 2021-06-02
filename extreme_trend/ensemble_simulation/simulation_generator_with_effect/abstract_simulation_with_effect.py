@@ -138,15 +138,19 @@ class AbstractSimulationWithEffects(object):
 
     def plot_simulation_parameter(self, gev_param_name, simulation_ids, plot_ensemble_members=False):
         ax = plt.gca()
-        x_list = np.linspace(0, 1, num=50)
+        x_list = np.linspace(0, 1, num=150)
         colors = list(gcm_rcm_couple_to_color.values())
         assert len(simulation_ids) <= len(colors)
         for color, simulation_id in zip(colors, simulation_ids):
             margin_function = self.simulation_id_to_margin_function[simulation_id]
 
             # Plot observations
-            y_list = [self.get_params_simulation(margin_function, x, None, gev_param_name) for x in x_list]
-            ax.plot(x_list, y_list, color=color, linewidth=4, label='Simulation #{}'.format(simulation_id + 1))
+            x_list_past_observation = [x for x in x_list if self.year_from_x(x) < 2020]
+            x_list_projected_observation = [x for x in x_list if self.year_from_x(x) >= 2020]
+            y_list = [self.get_params_simulation(margin_function, x, None, gev_param_name) for x in x_list_past_observation]
+            ax.plot(x_list_past_observation, y_list, color=color, linewidth=4, label='Simulation #{}'.format(simulation_id + 1))
+            y_list = [self.get_params_simulation(margin_function, x, None, gev_param_name) for x in x_list_projected_observation]
+            ax.plot(x_list_projected_observation, y_list, color=color, linewidth=4, linestyle='dashed')
 
             # Plot ensemble members
             if plot_ensemble_members:
@@ -157,19 +161,21 @@ class AbstractSimulationWithEffects(object):
         self.set_fake_x_axis(ax)
         ax2 = ax.twinx()
         legend_elements = [
-            Line2D([0], [0], color='k', lw=4, label="Observation", linestyle='-'),
+            Line2D([0], [0], color='k', lw=4, label="Past observation", linestyle='-'),
+            Line2D([0], [0], color='k', lw=4, label="Projected observation", linestyle='dashed'),
             Line2D([0], [0], color='k', lw=1, label="Ensemble member", linestyle='dotted'),
         ]
         if gev_param_name is GevParams.SHAPE:
             legend_elements = legend_elements[:1]
-        ax2.legend(handles=legend_elements, loc='upper right', prop={'size': 7})
+        size = 7
+        ax2.legend(handles=legend_elements, loc='upper right', prop={'size': size}, handlelength=5)
         ax2.set_yticks([])
 
         ylabel = '100-year return level' if gev_param_name is None \
             else '{} parameter'.format(GevParams.full_name_from_param_name(gev_param_name))
         ax.set_ylabel(ylabel)
         self.visualizer.plot_name = '{} simulation'.format(ylabel)
-        ax.legend(loc='upper left', prop={'size': 7})
+        ax.legend(loc='upper left', prop={'size': size})
         self.visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
 

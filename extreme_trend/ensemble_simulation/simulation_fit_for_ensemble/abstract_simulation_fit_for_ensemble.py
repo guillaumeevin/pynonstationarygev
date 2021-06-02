@@ -15,7 +15,7 @@ class AbstractSimulationFitForEnsemble(object):
     RMSE_METRIC = 'rmse'
     ABSOLUTE_RELATIVE_DIFFERENCE_METRIC = 'absolute relative difference'
     CRPSS_METRIC = 'crpss'
-    WIDTH_METRIC = 'crpss'
+    WIDTH_METRIC = 'Width of the 90\% uncertainty interval'
     METRICS = [ABSOLUTE_RELATIVE_DIFFERENCE_METRIC, RMSE_METRIC, CRPSS_METRIC, WIDTH_METRIC]
 
     def __init__(self, simulation: AbstractSimulationWithEffects,
@@ -45,16 +45,17 @@ class AbstractSimulationFitForEnsemble(object):
         combination = (2, 2, 0) if self.with_effects else (0, 0, 0)
         self.param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
 
-    @property
-    def linestyle(self):
-        raise NotImplementedError
-
     def plot_mean_metric(self, ax, metric_name):
         assert metric_name in self.METRICS
         mean_crpss = np.mean(self.metric_name_to_all_list[metric_name], axis=0)
         ax.set_xlabel('Years')
         ax.set_xlim((self.year_list_to_test[0], self.year_list_to_test[-1]))
-        ax.plot(self.year_list_to_test, mean_crpss, label=self.name, color=self.color, linestyle=self.linestyle)
+        ax.plot(self.year_list_to_test, mean_crpss, label=self.name, color=self.color)
+        if self.simulation.nb_simulations < 10:
+            print('We do not print uncertainty interval for less than 10 samples')
+        else:
+            lower_bound, upper_bound = [np.quantile(self.metric_name_to_all_list[metric_name], q, axis=0) for q in [0.1, 0.9]]
+            ax.fill_between(self.year_list_to_test, lower_bound, upper_bound, color=self.color, alpha=0.1)
 
     def load_one_fold_fit(self, dataset, name):
         one_fold_fit = OneFoldFit(massif_name=name, dataset=dataset, models_classes=self.model_classes,
@@ -110,7 +111,6 @@ class AbstractSimulationFitForEnsemble(object):
         }
 
     def compute_metrics(self, coordinates, prediction, margin_functions_from_bootstrap, true_margin_function):
-        print("here 89", len(margin_functions_from_bootstrap))
         true_value = self.compute_return_levels(true_margin_function, coordinates)
         # Compute rmse
         rmse = np.power(true_value - prediction, 2)
