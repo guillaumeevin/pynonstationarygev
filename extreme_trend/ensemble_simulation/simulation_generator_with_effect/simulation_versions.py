@@ -101,3 +101,5 @@ class SimulationVersion3(AbstractSimulationWithEffects):
                                                                     param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
                                                                     param_name_to_ordered_climate_effects=param_name_to_ordered_climate_effects)
         return margin_function
+
+

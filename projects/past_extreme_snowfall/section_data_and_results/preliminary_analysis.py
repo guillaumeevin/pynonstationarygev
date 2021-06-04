@@ -9,7 +9,8 @@ from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import A
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import _gcm_rcm_couple_adamont_v2_to_full_name
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import get_gcm_rcm_couples, rcp_scenarios
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepthIn1Day
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, SafranPrecipitation1Day
+from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -175,6 +176,7 @@ class PointwiseGevStudyVisualizer(AltitudesStudies):
         params = []
         # confidence_intervals = []
         for altitude, study in self.altitude_to_study.items():
+            print(altitude, study.season)
             if massif_name in study.massif_name_to_stationary_gev_params:
                 gev_params = study.massif_name_to_stationary_gev_params[massif_name]
                 altitudes.append(altitude)
@@ -196,9 +198,12 @@ def main_paper2():
     altitudes = list(chain.from_iterable(altitudes_for_groups))
     # altitudes = [1800, 2100]
     # study_class = SafranSnowfall1Day
+    season = Season.annual
+    season = Season.winter
     # visualizer = PointwiseGevStudyVisualizer(study_class, altitudes=altitudes, year_min=2000, year_max=2008)
-    study_class = CrocusDepthIn1Day
-    visualizer = PointwiseGevStudyVisualizer(study_class, altitudes=altitudes)
+    study_class = SafranPrecipitation1Day
+
+    visualizer = PointwiseGevStudyVisualizer(study_class, altitudes=altitudes, season=season)
 
     visualizer.plot_gev_params_against_altitude()
 

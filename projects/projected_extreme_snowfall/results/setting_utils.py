@@ -41,6 +41,7 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covari
 def set_up_and_load(fast, snowfall=True):
 
     safran_study_class, study_class = load_study_classes(snowfall)
+    OneFoldFit.multiprocessing = False
 
     if snowfall:
         return_period = 100
@@ -49,9 +50,12 @@ def set_up_and_load(fast, snowfall=True):
         massif_names = ['Vanoise'] # todo: change that in the end
 
     else:
-        return_period = 50
+        # model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
         model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
-        altitudes_list = [600, 900, 1200, 1500, 1800]
+        # OneFoldFit.SIGNIFICANCE_LEVEL = 0.10
+        return_period = 50
+        # model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
+        altitudes_list = [1500]
         massif_names = ['Vanoise']
 
     OneFoldFit.return_period = return_period
@@ -67,11 +71,12 @@ def set_up_and_load(fast, snowfall=True):
     if fast is None:
         gcm_rcm_couples = gcm_rcm_couples[:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = altitudes_list[1:2]
+        # altitudes_list = altitudes_list[-2:-1]
+        altitudes_list = altitudes_list[:1]
     elif fast:
         gcm_rcm_couples = gcm_rcm_couples[:2] + gcm_rcm_couples[-2:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = altitudes_list[1:2]
+        altitudes_list = altitudes_list[:1]
         model_classes = model_classes[:2]
     else:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 100
@@ -83,6 +88,8 @@ def set_up_and_load(fast, snowfall=True):
     assert (safran_study_class is None) or (issubclass(safran_study_class, AbstractStudyMaxFiles))
 
     print('Altitudes', altitudes_list)
+    print('Return period:', OneFoldFit.return_period)
+    print('Significance level:', OneFoldFit.SIGNIFICANCE_LEVEL)
     for altitudes in altitudes_list:
         assert len(altitudes) == 1
     print('number of models', len(model_classes))

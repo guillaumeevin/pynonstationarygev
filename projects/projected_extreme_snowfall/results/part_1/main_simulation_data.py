@@ -4,11 +4,13 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract_simulation_with_effect import \
     AbstractSimulationWithEffects
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_versions import SimulationVersion2
+from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_versions_v2 import \
+    SimulationLogScaleWithShift, SimulationLogScaleWithoutShift
 
 
 def main_simulation():
-    simulation_ids = [0, 1, 2, 3, 4, 5, 6, 7, 8][:1]
-    simulation_class = [SimulationVersion2][0]
+    simulation_ids = [0, 1, 2, 3, 4, 5, 6, 7, 8][:4]
+    simulation_class = [SimulationLogScaleWithShift, SimulationLogScaleWithoutShift][0]
     simulation = simulation_class(len(simulation_ids))
     plot_simulation(simulation, simulation_ids)
 

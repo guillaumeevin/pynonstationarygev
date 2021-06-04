@@ -7,6 +7,8 @@ from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract
     AbstractSimulationWithEffects
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_versions import SimulationVersion1, \
     SimulationVersion2, SimulationVersion3
+from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_versions_v2 import \
+    SimulationLogScaleWithShift, SimulationLogScaleWithoutShift
 from extreme_trend.ensemble_simulation.visualizer_for_simulation_ensemble import VisualizerForSimulationEnsemble
 from projects.projected_extreme_snowfall.results.setting_utils import LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
 
@@ -18,7 +20,7 @@ def main_simulation():
 
     fast = None
     if fast is True:
-        model_classes = model_classes[:3]
+        model_classes = model_classes[:2]
         nb_simulations = 1
         year_list_to_test = [2025, 2050, 2075, 2100]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1
@@ -33,7 +35,8 @@ def main_simulation():
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 5
 
     # Set settings
-    simulation_version = [SimulationVersion1, SimulationVersion2, SimulationVersion3][-1]
+    simulation_version = [SimulationVersion1, SimulationVersion2, SimulationVersion3,
+                          SimulationLogScaleWithShift, SimulationLogScaleWithoutShift][-1]
     simulation = simulation_version(nb_simulations)
     visualizer = VisualizerForSimulationEnsemble(simulation, year_list_to_test,
                                                  return_period=50,

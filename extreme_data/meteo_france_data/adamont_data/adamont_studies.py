@@ -11,6 +11,8 @@ from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import 
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str, \
     get_year_min_and_year_max_from_scenario
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import Safran
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariable
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION, ADAMONT_STUDY_CLASS_TO_ABBREVIATION
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
@@ -85,7 +87,10 @@ class AdamontStudies(object):
         try:
             x = scm_study.ordered_years
             y = scm_study.massif_name_to_annual_maxima[massif_name]
-            label = 'SAFRAN reanalysis'
+            if issubclass(type(scm_study.variable_class), SafranSnowfallVariable):
+                label = 'SAFRAN reanalysis'
+            else:
+                label = 'SAFRAN-Crocus reanalysis'
             color = 'black'
             ax.plot(x, y, linewidth=linewidth * 2, label=label, color=color)
         except KeyError:
@@ -95,7 +100,7 @@ class AdamontStudies(object):
         ax.xaxis.set_ticks(ticks)
         ax.yaxis.grid()
         ax.set_xlim((self.year_min_studies, self.year_max_studies))
-        if legend_and_labels:
+        if legend_and_labels is True:
             # Augment the ylim for the legend
             ylim_min, ylim_max = ax.get_ylim()
             ax.set_ylim((ylim_min, ylim_max * 1.5))
@@ -108,7 +113,7 @@ class AdamontStudies(object):
                                                         self.study.altitude)
         fontsize = 13
         ax.tick_params(axis='both', which='major', labelsize=fontsize)
-        if legend_and_labels:
+        if legend_and_labels in [None, True]:
             ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=fontsize)
             ax.set_xlabel('years', fontsize=fontsize)
         plot_name = 'time series/' + plot_name

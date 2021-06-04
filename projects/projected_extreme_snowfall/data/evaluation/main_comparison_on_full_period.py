@@ -83,7 +83,7 @@ def main_comparaison_plot():
             else:
                 safran_study_class = CrocusSnowLoad2019
                 adamont_study_class = AdamontSnowLoad
-                altitudes = [600, 900, 1200, 1500, 1800][:]
+                altitudes = [600, 900, 1200, 1500, 1800][-2:]
 
             assert (safran_study_class is None) or (issubclass(safran_study_class, AbstractStudyMaxFiles))
 
@@ -92,12 +92,12 @@ def main_comparaison_plot():
             year_min_to_reanalysis_altitude_studies = {}
 
             # list_of_massis_names = [None]
-            list_of_massis_names = [['Vanoise']]
             list_of_massis_names = [['Beaufortain']]
             list_of_massis_names = [['Haute-Tarentaise']]
+            list_of_massis_names = [['Vanoise']]
 
             for relative_bias in [True, False][:]:
-                for mean in [True, False][:1]:
+                for mean in [True, False][:]:
                     for massif_names in list_of_massis_names:
 
 

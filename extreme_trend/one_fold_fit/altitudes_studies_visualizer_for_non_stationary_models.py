@@ -14,6 +14,7 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_vis
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.distribution.gumbel.gumbel_gof import get_pvalue_anderson_darling_test
 from extreme_fit.function.margin_function.abstract_margin_function import AbstractMarginFunction
 from extreme_fit.function.param_function.linear_coef import LinearCoef
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
@@ -538,7 +539,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
             all_quantiles = []
 
-            for altitude in self.studies.altitudes:
+            for altitude in altitudes:
                 coordinate_for_filter = (altitude, None)
                 # We filter on the transformed gumbel quantiles for the altitude of interest
                 unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles(
@@ -554,13 +555,13 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                     all_quantiles.extend(unconstrained_empirical_quantiles)
 
                     # Compute the Root Mean Squared Percent Error (RMSPE)
-                    unconstrained_empirical_quantiles = np.array(unconstrained_empirical_quantiles)
-                    standard_gumbel_quantiles = np.array(standard_gumbel_quantiles)
-                    change = unconstrained_empirical_quantiles - standard_gumbel_quantiles
-                    ratio_of_change_array = 100 * change / standard_gumbel_quantiles
-                    print(ratio_of_change_array)
-                    rmspe = np.mean(np.abs(ratio_of_change_array))
-                    qqplots_metrics.append(rmspe)
+                    # unconstrained_empirical_quantiles = np.array(unconstrained_empirical_quantiles)
+                    # standard_gumbel_quantiles = np.array(standard_gumbel_quantiles)
+                    # change = unconstrained_empirical_quantiles - standard_gumbel_quantiles
+                    # ratio_of_change_array = 100 * change / standard_gumbel_quantiles
+
+                    pvalue = get_pvalue_anderson_darling_test(unconstrained_empirical_quantiles)
+                    qqplots_metrics.append(pvalue)
 
             size_label = 20
             ax.set_xlabel("Theoretical quantile", fontsize=size_label)

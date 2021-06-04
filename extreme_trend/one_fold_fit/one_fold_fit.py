@@ -35,7 +35,7 @@ from extreme_fit.model.utils import SafeRunException
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup, altitudes_for_groups
 from projects.projected_extreme_snowfall.results.combination_utils import load_combination, generate_sub_combination, \
     load_param_name_to_climate_coordinates_with_effects
-from root_utils import NB_CORES, batch
+from root_utils import NB_CORES, batch, get_display_name_from_object_type
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate
@@ -240,8 +240,13 @@ class OneFoldFit(object):
                     continue
             # Append to the list
             well_defined_estimators.append(estimator)
+        # print('well defined estimators for {} m:'.format(self.altitude_group.reference_altitude),
+        #       len(well_defined_estimators),'out of', len(self.fitted_estimators))
+        # for e in well_defined_estimators:
+        #     print(get_display_name_from_object_type(type(e.margin_model)))
+        #     print(e.margin_model.param_name_to_climate_coordinates_with_effects)
         if len(well_defined_estimators) == 0:
-            print(self.massif_name, " has only implausible models")
+            print(self.massif_name, " has only implausible models for altitude={}".format(self.altitude_group.reference_altitude))
         # Check the number of models when we do not apply any goodness of fit
         if not (self.remove_physically_implausible_models or self.only_models_that_pass_goodness_of_fit_test):
             assert len(well_defined_estimators) == len(self.models_classes) * len(self.sub_combinations)

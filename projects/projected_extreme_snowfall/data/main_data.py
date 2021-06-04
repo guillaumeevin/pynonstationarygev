@@ -20,11 +20,11 @@ def main():
     scm_study_class, adamont_study_class = load_study_classes(snowfall=False)
     year_min = 1950
     year_max = 2100
-    legend_and_labels = True
+    legend_and_labels = None
     massif_names = ['Vanoise']
     season = Season.annual
     adamont_scenario = AdamontScenario.rcp85_extended
-    altitudes = [600, 1200, 1800]
+    altitudes = [1500]
     for altitude in altitudes:
         plt.figure(figsize=(10, 5))
         # Loading part

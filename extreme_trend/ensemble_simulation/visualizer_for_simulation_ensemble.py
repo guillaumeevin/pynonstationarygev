@@ -21,8 +21,8 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
         self.simulation_fits = []  # type: List[AbstractSimulationFitForEnsemble]
         fit_classes = [SeparateSimulationFitForEnsemble, TogetherSimulationFitForEnsemble][:]
         fit_class_to_colors = {
-            SeparateSimulationFitForEnsemble: ['royalblue', 'navy'],
-            TogetherSimulationFitForEnsemble: ['forestgreen', 'darkgreen']
+            SeparateSimulationFitForEnsemble: ['silver', 'gray'],
+            TogetherSimulationFitForEnsemble: ['tan', 'brown']
         }
         for fit_class in fit_classes:
             colors = fit_class_to_colors[fit_class]

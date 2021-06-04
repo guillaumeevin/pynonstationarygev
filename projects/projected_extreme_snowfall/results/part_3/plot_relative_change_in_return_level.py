@@ -6,6 +6,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
 from extreme_data.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
+from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_to_color
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable, \
     TotalSnowLoadVariable
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -39,7 +40,9 @@ def plot_relative_dynamic(massif_names, visualizer_list: List[
     ylabel = '{} {} ({})'.format(change, name, unit)
     ax.set_ylabel(ylabel)
 
-    ax.legend(prop={'size': 7}, loc='upper left')
+    h, l = ax.get_legend_handles_labels()
+    if len(h) > 1:
+        ax.legend(prop={'size': 7}, loc='upper left')
     title = ylabel.split('(')[0]
     set_plot_name(param_name_to_climate_coordinates_with_effects, safran_study_class, title, visualizer)
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
@@ -50,7 +53,7 @@ def plot_relative_dynamic(massif_names, visualizer_list: List[
 def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStationaryModels,
                relative, is_temp_cov, order, gcm_rcm_couples,
                with_significance):
-    q_list = [0.1, 0.9]
+    q_list = [0.25, 0.75]
     alpha = 0.1
 
     num = 100
@@ -72,17 +75,22 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
         f = one_fold_fit.relative_changes_of_moment if relative else one_fold_fit.changes_of_moment
     altitude = visualizer.study.altitude
     color = altitude_to_color[altitude]
+
+    snowfall = not (visualizer.study.variable_class.NAME == TotalSnowLoadVariable.NAME)
+
+    # Plot the sub trend, i.e. for each GCM-RCM couples
+    for gcm_rcm_couple in gcm_rcm_couples[:]:
+        fake_altitude = gcm_rcm_couple
+        gcm_rcm_color = color if snowfall else gcm_rcm_couple_to_color[gcm_rcm_couple]
+        changes = [f([fake_altitude], order=order, covariate_before=covariate_before, covariate_after=t)[0] for t in
+                   x_list]
+        ax.plot(x_list, changes, color=gcm_rcm_color, linewidth=1, linestyle='dotted')
+
     # Plot the main trend
     changes = [f([None], order=order, covariate_before=covariate_before, covariate_after=t)[0] for t in x_list]
     label = '{} m'.format(visualizer.altitude_group.reference_altitude)
-    ax.plot(x_list, changes, label=label, color=color, linewidth=1)
-
-    # Plot the sub trend, i.e. for each GCM-RCM couples
-    # for gcm_rcm_couple in gcm_rcm_couples[:]:
-    #     fake_altitude = gcm_rcm_couple
-    #     changes = [f([fake_altitude], order=order, covariate_before=covariate_before, covariate_after=t)[0] for t in
-    #                x_list]
-    #     ax.plot(x_list, changes, color=color, linewidth=1, linestyle='dotted')
+    obs_color = color if snowfall else 'k'
+    ax.plot(x_list, changes, label=label, color=obs_color, linewidth=2)
 
     # Additional plots for the value of return level
     if (relative is None) and (order is None):
@@ -94,19 +102,19 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
                              margin_functions]
 
             lower_bound, upper_bound = [np.quantile(return_levels, q, axis=0) for q in q_list]
-            ax.fill_between(x_list, lower_bound, upper_bound, color=color, alpha=alpha)
+            ax.fill_between(x_list, lower_bound, upper_bound, color=obs_color, alpha=alpha)
 
         # Plot the structure standard as reference for the snow load
-        if visualizer.study.variable_class.NAME == TotalSnowLoadVariable.NAME:
+        if not snowfall:
             eurocode_region = massif_name_to_eurocode_region[massif_name]()
             constant_norm = eurocode_region.valeur_caracteristique(altitude)
-            print(constant_norm)
-            ax.plot(x_list, [constant_norm for _ in x_list], color=color, linestyle='dashed')
+            ax.plot(x_list, [constant_norm for _ in x_list], color=obs_color, linestyle='dashed')
 
         ax2 = ax.twinx()
         legend_elements = [
-            Line2D([0], [0], color='k', lw=1, label="Projections for RCP 8.5", linestyle='-'),
-            Patch(facecolor='k', edgecolor='k', label="80\% uncertainty interval for the projections", alpha=alpha),
+            Line2D([0], [0], color='k', lw=2, label="Projections for the observations", linestyle='-'),
+            Line2D([0], [0], color='k', lw=1, label="Projections for the ensemble members", linestyle='dotted'),
+            Patch(facecolor='k', edgecolor='k', label="50\% uncertainty interval for the projections", alpha=alpha),
             Line2D([0], [0], color='k', lw=1, label="French building standard", linestyle='dashed'),
         ]
         size = 7

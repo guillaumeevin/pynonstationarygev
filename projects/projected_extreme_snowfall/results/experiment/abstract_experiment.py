@@ -79,17 +79,17 @@ class AbstractExperiment(object):
                                                      **kwargs)
         # Get the best margin function for the selection method name
         one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
-        best_estimator_list = [one_fold_fit._sorted_estimators_with_method_name(method_name)[0]
-                               for method_name in self.selection_method_names]
+        best_estimator_list = [one_fold_fit._sorted_estimators_with_method_name(selection_method_name)[0]
+                               for selection_method_name in self.selection_method_names]
         # Compute the average nllh for the test data
-        studies = self.load_studies_for_test(**kwargs)
-        dataset = self.load_spatio_temporal_dataset(studies, **kwargs)
+        studies_for_test = self.load_studies_for_test(**kwargs)
+        dataset_test = self.load_spatio_temporal_dataset(studies_for_test, **kwargs)
         nllh_list = []
         for best_estimator in best_estimator_list:
-            df_coordinates_temp = best_estimator.load_coordinates_temp(dataset.coordinates)
-            nllh = compute_nllh(df_coordinates_temp.values, dataset.observations.maxima_gev,
+            df_coordinates_temp_for_test = best_estimator.load_coordinates_temp(dataset_test.coordinates)
+            nllh_for_test = compute_nllh(df_coordinates_temp_for_test.values, dataset_test.observations.maxima_gev,
                                 best_estimator.margin_function_from_fit)
-            nllh_list.append(nllh)
+            nllh_list.append(nllh_for_test)
         return nllh_list
 
     def load_spatio_temporal_dataset(self, studies, **kwargs):

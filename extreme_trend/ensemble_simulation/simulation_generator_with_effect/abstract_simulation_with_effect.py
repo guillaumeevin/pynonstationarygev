@@ -139,7 +139,8 @@ class AbstractSimulationWithEffects(object):
     def plot_simulation_parameter(self, gev_param_name, simulation_ids, plot_ensemble_members=False):
         ax = plt.gca()
         x_list = np.linspace(0, 1, num=150)
-        colors = list(gcm_rcm_couple_to_color.values())
+        # colors = list(gcm_rcm_couple_to_color.values())
+        colors = ['lightpink', 'violet', 'm', 'darkmagenta']
         assert len(simulation_ids) <= len(colors)
         for color, simulation_id in zip(colors, simulation_ids):
             margin_function = self.simulation_id_to_margin_function[simulation_id]
@@ -234,7 +235,7 @@ class AbstractSimulationWithEffects(object):
         maxima_list, x_list = get_list(dataset, ind)
         ax.plot(x_list, maxima_list, color='black', linewidth=4, label='Observation')
         self.set_fake_x_axis(ax)
-        ax.set_ylabel('Simulated annual maxima')
+        ax.set_ylabel('Simulated annual maxima for simulation #{}'.format(simulation_id+1))
         ax.legend(prop={'size': 6}, ncol=3)
         self.visualizer.plot_name = 'observations from simulation {}'.format(simulation_id + 1)
         self.visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
@@ -254,3 +255,6 @@ class AbstractSimulationWithEffects(object):
 
     def sample_uniform(self, bound):
         return uniform(a=-bound, b=bound)
+
+    def _sample_uniform(self, bound_left, bound_right):
+        return uniform(bound_left, bound_right)
