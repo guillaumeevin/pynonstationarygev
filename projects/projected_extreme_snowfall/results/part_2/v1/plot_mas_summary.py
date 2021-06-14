@@ -44,36 +44,36 @@ def plot_summary_graph_for_w():
     plt.show()
 
 def plot_summary_graph_for_fixed_w(w=1):
-    csv_filename = "nbloop{}_fast_None_altitudes_2100_3600_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_3"
+    csv_filename = "snow_load_fast_False_altitudes_1500_nb_of_models_8_nb_gcm_rcm_couples_20_alpha_1"
+    # csv_filename = "snow_load_fast_False_altitudes_1500_nb_of_models_8_nb_gcm_rcm_couples_20_alpha_1"
     # csv_filename = "nbloop{}_fast_None_altitudes_600_2100_3600_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_6"
     csv_filename = csv_filename.format(w) + '.csv'
     csv_filepath = op.join(CSV_PATH, csv_filename.format(w))
     df_csv = pd.read_csv(csv_filepath, index_col=0)
 
-    combinations = [(0,0,0), (3,3,3)]
-
-    potential_indices = list(range(4))
-    all_combinations = [potential_indices for _ in range(3)]
+    potential_indices = list(range(5))
+    all_combinations = [potential_indices for _ in range(2)] + [[0]]
     combinations = list(product(*all_combinations))
     ax = plt.gca()
     i_to_color = {
         0: 'k',
         1: 'g',
         2: 'r',
-        3: 'b'
+        3: 'b',
+        4: 'y'
     }
     i_to_label = {
         0: 'no effect',
         1: 'GCM effects',
         2: 'RCM effects',
-        3: 'GCM and RCM effects'
+        3: 'GCM and RCM effects',
+        4: 'ensemble member effect'
     }
     set_of_i_in_legend = set()
     for combination in combinations:
         combination_name = load_combination_name_for_tuple(combination)
         try:
-            value = df_csv.loc[combination_name, 'min']
-            print('Found:', combination_name)
+            value = df_csv.loc[combination_name, 'sum']
             # Compute the abs
             nb_params = 0
             for i in combination:
@@ -81,6 +81,8 @@ def plot_summary_graph_for_fixed_w(w=1):
                     nb_params += 6
                 if i in [2, 3]:
                     nb_params += 11
+                if i in [4]:
+                    nb_params += 19
             shift = 1
             for j, i in enumerate(combination):
                 marker = 'o' if i == 0 else 'x'
@@ -94,13 +96,12 @@ def plot_summary_graph_for_fixed_w(w=1):
                         linestyle='None', label=label)
         except KeyError:
             pass
-    ax.set_xlabel('Number of parameters for the effects')
-    ax.set_ylabel('Minimum averaged nllh on the period 2020-2100')
+    ax.set_xlabel('Number of correction coefficients')
+    ax.set_ylabel('Sum of nllh on the period 2020-2100')
     ax.legend()
     plt.show()
 
 
 
 if __name__ == '__main__':
-    plot_summary_graph_for_w()
-    # plot_summary_graph_for_fixed_w(w=1)
+    plot_summary_graph_for_fixed_w()

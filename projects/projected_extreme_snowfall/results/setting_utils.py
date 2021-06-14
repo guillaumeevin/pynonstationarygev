@@ -74,7 +74,7 @@ def set_up_and_load(fast, snowfall=True):
         # altitudes_list = altitudes_list[-2:-1]
         altitudes_list = altitudes_list[:1]
     elif fast:
-        gcm_rcm_couples = gcm_rcm_couples[:2] + gcm_rcm_couples[-2:]
+        gcm_rcm_couples = gcm_rcm_couples[:4]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         altitudes_list = altitudes_list[:1]
         model_classes = model_classes[:2]

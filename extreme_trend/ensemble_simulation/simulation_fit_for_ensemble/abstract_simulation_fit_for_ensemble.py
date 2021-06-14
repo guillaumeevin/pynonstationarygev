@@ -12,11 +12,11 @@ from root_utils import get_display_name_from_object_type
 
 
 class AbstractSimulationFitForEnsemble(object):
-    RMSE_METRIC = 'rmse'
+    RMSE_METRIC = 'RMSE'
     ABSOLUTE_RELATIVE_DIFFERENCE_METRIC = 'absolute relative difference'
-    CRPSS_METRIC = 'crpss'
+    CRPS_METRIC = 'CRPS'
     WIDTH_METRIC = 'Width of the 90\% uncertainty interval'
-    METRICS = [ABSOLUTE_RELATIVE_DIFFERENCE_METRIC, RMSE_METRIC, CRPSS_METRIC, WIDTH_METRIC]
+    METRICS = [ABSOLUTE_RELATIVE_DIFFERENCE_METRIC, RMSE_METRIC, CRPS_METRIC, WIDTH_METRIC]
 
     def __init__(self, simulation: AbstractSimulationWithEffects,
                  year_list_to_test,
@@ -105,7 +105,7 @@ class AbstractSimulationFitForEnsemble(object):
             width_list.append(width)
         return {
             self.RMSE_METRIC: rmse_list,
-            self.CRPSS_METRIC: crpss_list,
+            self.CRPS_METRIC: crpss_list,
             self.ABSOLUTE_RELATIVE_DIFFERENCE_METRIC: absolute_list,
             self.WIDTH_METRIC: width_list,
         }
@@ -128,8 +128,8 @@ class AbstractSimulationFitForEnsemble(object):
             name += 'with effects'
         else:
             name += 'without effects'
-        if self.with_observation:
-            name += ' with observations'
-        else:
-            name += ' without observations'
+        # if self.with_observation:
+        #     name += ' with observations'
+        # else:
+        #     name += ' without observations'
         return name

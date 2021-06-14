@@ -31,7 +31,7 @@ class ModelAsTruthExperiment(AbstractExperiment):
         return self.massif_names[0]
 
     def run_all_experiments(self):
-        return np.nanmean([self.run_one_experiment(c) for c in self.gcm_rcm_couples_sampled_for_experiment], axis=0)
+        return np.nansum([self.run_one_experiment(gcm_rcm_couple_as_pseudo_truth=c) for c in self.gcm_rcm_couples_sampled_for_experiment], axis=0)
 
     def load_spatio_temporal_dataset(self, studies, **kwargs):
 

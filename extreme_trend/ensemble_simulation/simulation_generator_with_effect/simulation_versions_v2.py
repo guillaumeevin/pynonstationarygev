@@ -12,11 +12,11 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
 
     @property
     def alpha_rcm_location(self):
-        return 0.1
+        return 0.1 # this is the bias in the mean
 
     @property
     def alpha_rcm_scale(self):
-        return 0.1
+        return 0.1 # this is the bias in the mean & in the std (because the scale parameter participate to both)
 
     @property
     def shift_rcm(self):
@@ -24,7 +24,7 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
 
     @property
     def alpha_non_stationary(self):
-        return 0.1
+        return 0.5 # it roughly diminish from half on the time series plot
 
     def sample_uniform_scale(self, alpha):
         return self._sample_uniform(np.log(1 - alpha), np.log(1 + alpha))
@@ -32,11 +32,12 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
     def load_margin_function(self) -> IndependentMarginFunction:
         # constant parameters
         coef_dict = dict()
-        coef_dict['locCoeff1'] = 10
-        coef_dict['scaleCoeff1'] = 1
+        coef_dict['locCoeff1'] = 2.53
+        scale_at_zero = 1.11
+        coef_dict['scaleCoeff1'] = np.log(scale_at_zero)
         shape = beta(6, 9) - 0.5
-        # Non stationary effects
         coef_dict['shapeCoeff1'] = shape
+        # Non stationary effects
         coef_dict['tempCoeffLoc1'] = self.sample_uniform(self.alpha_non_stationary) * coef_dict['locCoeff1']
         coef_dict['tempCoeffScale1'] = self.sample_uniform_scale(self.alpha_non_stationary) * coef_dict['scaleCoeff1']
         coef_dict['tempCoeffShape1'] = self.sample_uniform(self.alpha_non_stationary) * coef_dict['shapeCoeff1']

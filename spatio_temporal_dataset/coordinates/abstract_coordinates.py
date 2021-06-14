@@ -31,7 +31,8 @@ class AbstractCoordinates(object):
     COORDINATE_RCP = 'coord_rcp'
     COORDINATE_GCM = 'coord_gcm'
     COORDINATE_RCM = 'coord_rcm'
-    COORDINATE_CLIMATE_MODEL_NAMES = [COORDINATE_RCP, COORDINATE_GCM, COORDINATE_RCM]
+    COORDINATE_GCM_AND_RCM = 'coord_gcm_and_rcm'
+    COORDINATE_CLIMATE_MODEL_NAMES = [COORDINATE_RCP, COORDINATE_GCM, COORDINATE_RCM, COORDINATE_GCM_AND_RCM]
     # Coordinates columns
     COORDINATES_NAMES = COORDINATE_SPATIAL_NAMES + [COORDINATE_T] + COORDINATE_CLIMATE_MODEL_NAMES
     # Coordinate type
@@ -206,10 +207,8 @@ class AbstractCoordinates(object):
             df_input = pd.concat([df, self.df_coordinate_climate_model], axis=1)
             df.loc[:, self.COORDINATE_T] = df_input.apply(temporal_covariate_for_fit.get_temporal_covariate, axis=1)
         if climate_coordinates_with_effects is not None:
-            assert all([c in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES for c in climate_coordinates_with_effects])
+            assert all([c in self.COORDINATE_CLIMATE_MODEL_NAMES for c in climate_coordinates_with_effects])
             for climate_coordinate in climate_coordinates_with_effects:
-                assert climate_coordinate in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES
-
                 df_coordinate_climate_model = self.df_coordinate_climate_model.copy()
                 # Potentially remove the climate coordinates for some gcm rcm couple
                 # We cannot do it sooner because we need the name of the GCM and RCM to find the appropriate temperature
@@ -247,8 +246,11 @@ class AbstractCoordinates(object):
         has_observations = len(unique_values) == len(unique_values_without_nan) + 1
         # Remove if need the names of the pseudo ground truth
         if self.gcm_rcm_couple_as_pseudo_truth is not None:
+            # Add the gcm and rcm names
             gcm_rcm_couple_names_for_fit = [self.climate_model_coordinate_name_to_name_for_fit(name)
                                             for name in self.gcm_rcm_couple_as_pseudo_truth]
+            # Add the combined name
+            gcm_rcm_couple_names_for_fit.append("".join(gcm_rcm_couple_names_for_fit))
             unique_values_without_nan = [name for name in unique_values_without_nan if name not in gcm_rcm_couple_names_for_fit]
         return s, has_observations, unique_values_without_nan
 
@@ -261,14 +263,16 @@ class AbstractCoordinates(object):
 
     @classmethod
     def load_full_climate_coordinates_with_effects(cls, param_name_to_climate_coordinates_with_effects):
-        two_climate_coordinates_considered = [cls.COORDINATE_GCM, cls.COORDINATE_RCM]
+        three_climate_coordinates_considered = [cls.COORDINATE_GCM, cls.COORDINATE_RCM, cls.COORDINATE_GCM_AND_RCM]
         all_climate_coordinate_with_effects = set(chain(*[c
                                                           for c
                                                           in param_name_to_climate_coordinates_with_effects.values()
                                                           if c is not None]))
-        assert all([c in two_climate_coordinates_considered for c in all_climate_coordinate_with_effects])
-        if len(all_climate_coordinate_with_effects) == 2:
-            return two_climate_coordinates_considered
+        assert all([c in three_climate_coordinates_considered for c in all_climate_coordinate_with_effects])
+        if len(all_climate_coordinate_with_effects) == 3:
+            return three_climate_coordinates_considered
+        elif len(all_climate_coordinate_with_effects) == 2:
+            return [c for c in three_climate_coordinates_considered if c in all_climate_coordinate_with_effects]
         elif len(all_climate_coordinate_with_effects) == 1:
             return list(all_climate_coordinate_with_effects)
         else:

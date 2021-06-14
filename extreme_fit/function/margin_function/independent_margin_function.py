@@ -98,10 +98,11 @@ class IndependentMarginFunction(AbstractMarginFunction):
         elif climate_coordinates_with_param_effects is None:
             total_effect = 0
         else:
-            assert len(climate_coordinates_with_param_effects) == 1
-            single_coordinate = climate_coordinates_with_param_effects[0]
-            assert single_coordinate in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES
-            if single_coordinate == AbstractCoordinates.COORDINATE_GCM:
+            first_coordinate = climate_coordinates_with_param_effects[0]
+            assert first_coordinate in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES
+            if first_coordinate == AbstractCoordinates.COORDINATE_GCM:
+                total_effect = np.dot(effects, full_climate_coordinate[:nb_effects])
+            elif (first_coordinate == AbstractCoordinates.COORDINATE_RCM) and (AbstractCoordinates.COORDINATE_GCM not in self.full_climate_coordinates_names_with_effects):
                 total_effect = np.dot(effects, full_climate_coordinate[:nb_effects])
             else:
                 total_effect = np.dot(effects, full_climate_coordinate[-nb_effects:])

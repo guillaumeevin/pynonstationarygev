@@ -126,9 +126,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             if percentage_of_non_zeros > 90:
                 massif_altitudes.append(altitude)
             else:
-                if isinstance(self.altitude_group, DefaultAltitudeGroup):
-                    print('time series excluded due number of zeros > 10\%')
-                    print(massif_name, altitude, percentage_of_non_zeros)
+                # if isinstance(self.altitude_group, DefaultAltitudeGroup):
+                print('time series excluded due number of zeros > 10\%')
+                print(massif_name, altitude, percentage_of_non_zeros)
         return massif_altitudes
 
     def load_condition(self, massif_altitudes):
