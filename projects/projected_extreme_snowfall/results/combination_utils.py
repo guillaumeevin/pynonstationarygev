@@ -28,9 +28,9 @@ def load_param_name_to_climate_coordinates_with_effects(combination):
 def generate_sub_combination(combination):
     number_to_sub_numbers = {
         0: [0],
-        1: [1],
-        2: [2],
-        3: [1, 2, 3],
+        1: [0, 1],
+        2: [0, 2],
+        3: [0, 1, 2, 3],
         4: [4],
     }
     return list(itertools.product(*[number_to_sub_numbers[number] for number in combination]))

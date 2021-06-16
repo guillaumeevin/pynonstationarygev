@@ -19,6 +19,7 @@ def main_simulation():
     start = time.time()
 
     model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
+    model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
 
     fast = None
     if fast is True:
@@ -28,8 +29,8 @@ def main_simulation():
     elif fast is None:
         nb_simulations = 10
         year_list_to_test = [2020 + i * 5 for i in range(17)]
-        # AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1
-        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 5
+        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1
+        # AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 5
     else:
         nb_simulations = 100
         year_list_to_test = list(range(2020, 2101))

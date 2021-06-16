@@ -47,10 +47,10 @@ class AbstractSimulationFitForEnsemble(object):
 
     def plot_mean_metric(self, ax, metric_name):
         assert metric_name in self.METRICS
-        mean_crpss = np.mean(self.metric_name_to_all_list[metric_name], axis=0)
+        mean_metric = np.mean(self.metric_name_to_all_list[metric_name], axis=0)
         ax.set_xlabel('Years')
         ax.set_xlim((self.year_list_to_test[0], self.year_list_to_test[-1]))
-        ax.plot(self.year_list_to_test, mean_crpss, label=self.name, color=self.color)
+        ax.plot(self.year_list_to_test, mean_metric, label=self.name, color=self.color)
         if self.simulation.nb_simulations < 10:
             print('We do not print uncertainty interval for less than 10 samples')
         else:
