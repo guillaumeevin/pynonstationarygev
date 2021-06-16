@@ -11,6 +11,15 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 class AbstractSimulationLogScale(AbstractSimulationWithEffects):
 
     @property
+    def summary_parameter(self):
+        return "{}_{}_{}_{}_{}_{}".format(self.location_at_zero,
+                                       self.scale_at_zero,
+                                       self.alpha_non_stationary,
+                                       self.alpha_rcm_location,
+                                       self.alpha_rcm_scale,
+                                       self.shift_rcm)
+
+    @property
     def alpha_rcm_location(self):
         # return 0.2 # this is the bias in the mean
         return 0.1 # this is the bias in the mean
@@ -18,7 +27,7 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
     @property
     def alpha_rcm_scale(self):
         # return 0.3 # this is the bias in the mean & in the std (because the scale parameter participate to both)
-        return 0.2 # this is the bias in the mean & in the std (because the scale parameter participate to both)
+        return 0.1 # this is the bias in the mean & in the std (because the scale parameter participate to both)
 
     @property
     def shift_rcm(self):
@@ -32,12 +41,22 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
     def sample_uniform_scale(self, alpha):
         return self._sample_uniform(np.log(1 - alpha), np.log(1 + alpha))
 
+    @property
+    def location_at_zero(self):
+        return 2.53
+
+    @property
+    def scale_at_zero(self):
+        return 1.11
+
     def load_margin_function(self) -> IndependentMarginFunction:
         # constant parameters
         coef_dict = dict()
-        coef_dict['locCoeff1'] = 2.53
-        scale_at_zero = 1.11
-        coef_dict['scaleCoeff1'] = np.log(scale_at_zero)
+        # coef_dict['locCoeff1'] = self.location_at_zero
+        # scale_at_zero = self.scale_at_zero
+        # coef_dict['scaleCoeff1'] = np.log(scale_at_zero)
+        coef_dict['locCoeff1'] = 10
+        coef_dict['scaleCoeff1'] = 1
         shape = beta(6, 9) - 0.5
         coef_dict['shapeCoeff1'] = shape
         # Non stationary effects

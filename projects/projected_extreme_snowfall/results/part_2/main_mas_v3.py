@@ -42,7 +42,7 @@ def main_preliminary_projections():
     if fast in [True, None]:
         alpha = ''
         gcm_rcm_couples_sampled_for_experiment = [('CNRM-CM5', 'ALADIN63')]
-        gcm_rcm_couples_sampled_for_experiment = [('NorESM1-M', 'REMO2015'), ('MPI-ESM-LR', 'REMO2009')]
+        # gcm_rcm_couples_sampled_for_experiment = [('NorESM1-M', 'REMO2015'), ('MPI-ESM-LR', 'REMO2009')]
     else:
         alpha = 40
         gcm_rcm_couples_sampled_for_experiment = plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias,
@@ -59,7 +59,8 @@ def main_preliminary_projections():
 
     print("Number of couples:", len(gcm_rcm_couples_sampled_for_experiment))
 
-    idx_list = [0, 1, 2, 3, 4, 5][1:]
+    idx_list = [0, 1, 2, 3, 4][3:4]
+
     for i in idx_list:
         j = i
         print(i, j)

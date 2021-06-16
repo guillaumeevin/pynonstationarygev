@@ -20,14 +20,15 @@ def main_simulation():
 
     model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
 
-    fast = True
+    fast = None
     if fast is True:
-        nb_simulations = 20
+        nb_simulations = 1
         year_list_to_test = [2025, 2050, 2075, 2100]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1
     elif fast is None:
         nb_simulations = 10
         year_list_to_test = [2020 + i * 5 for i in range(17)]
+        # AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 5
     else:
         nb_simulations = 100

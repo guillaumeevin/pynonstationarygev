@@ -241,6 +241,10 @@ class AbstractSimulationWithEffects(object):
         self.visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
 
+    @property
+    def summary_parameter(self):
+        raise NotImplementedError
+
     @cached_property
     def visualizer(self):
         return StudyVisualizer(SafranSnowfall1Day(), show=False, save_to_file=True)

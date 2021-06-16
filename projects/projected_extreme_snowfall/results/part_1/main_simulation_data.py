@@ -12,7 +12,8 @@ def main_simulation():
     # nb = 1
     nb = 4
     simulation_ids = [0, 1, 2, 3, 4, 5, 6, 7, 8][:nb]
-    simulation_class = [SimulationLogScaleWithShift, SimulationLogScaleWithoutShift][0]
+    simulation_class = [SimulationLogScaleWithShift,
+                        SimulationLogScaleWithoutShift][0]
     simulation = simulation_class(len(simulation_ids))
     plot_simulation(simulation, simulation_ids)
 
