@@ -37,9 +37,11 @@ def main():
     param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
     print(combination)
 
+    gcm_to_year_min_and_year_max = {c[0]: (1959, 2019) for c in gcm_rcm_couples}
     visualizer = VisualizerForProjectionEnsemble(
         altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
         model_classes=model_classes,
+        gcm_to_year_min_and_year_max=gcm_to_year_min_and_year_max,
         ensemble_fit_classes=ensemble_fit_classes,
         massif_names=massif_names,
         fit_method=MarginFitMethod.evgam,

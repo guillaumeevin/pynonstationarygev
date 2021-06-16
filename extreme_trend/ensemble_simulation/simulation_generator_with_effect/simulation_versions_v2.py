@@ -12,11 +12,13 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
 
     @property
     def alpha_rcm_location(self):
+        # return 0.2 # this is the bias in the mean
         return 0.1 # this is the bias in the mean
 
     @property
     def alpha_rcm_scale(self):
-        return 0.1 # this is the bias in the mean & in the std (because the scale parameter participate to both)
+        # return 0.3 # this is the bias in the mean & in the std (because the scale parameter participate to both)
+        return 0.2 # this is the bias in the mean & in the std (because the scale parameter participate to both)
 
     @property
     def shift_rcm(self):
@@ -24,7 +26,8 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
 
     @property
     def alpha_non_stationary(self):
-        return 0.5 # it roughly diminish from half on the time series plot
+        # return 0.5 # it roughly diminish from half on the time series plot
+        return 0.1
 
     def sample_uniform_scale(self, alpha):
         return self._sample_uniform(np.log(1 - alpha), np.log(1 + alpha))

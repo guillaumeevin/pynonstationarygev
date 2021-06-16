@@ -69,6 +69,9 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
     print('relative:', relative, 'order:', order)
     print(get_display_name_from_object_type(type(one_fold_fit.best_margin_model)),
           "temporally significant={}".format(one_fold_fit.is_significant))
+    print("all effects significant={}".format(one_fold_fit.correction_is_significant))
+    print("gcm effects significant={}".format(one_fold_fit.gcm_correction_is_significant))
+    print("rcm effects significant={}".format(one_fold_fit.rcm_correction_is_significant))
     if relative is None:
         f = one_fold_fit.get_moment_for_plots
     else:

@@ -46,8 +46,8 @@ class ModelAsTruthExperiment(AbstractExperiment):
         gcm_rcm_couple_to_studies = {}
         # Load the pseudo observations
         pseudo_truth_studies = self.load_altitude_studies(gcm_rcm_couple_as_pseudo_truth, 1959, 2019)
-        assert pseudo_truth_studies.study.year_min == 1959
-        assert pseudo_truth_studies.study.year_max == 2019
+        assert pseudo_truth_studies.study.year_min == 1959, pseudo_truth_studies.study.year_min
+        assert pseudo_truth_studies.study.year_max == 2019, pseudo_truth_studies.study.year_max
         gcm_rcm_couple_to_studies[gcm_rcm_couple_as_pseudo_truth] = pseudo_truth_studies
 
         # Load the rest of the projections

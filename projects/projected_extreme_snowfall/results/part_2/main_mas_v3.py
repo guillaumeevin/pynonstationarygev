@@ -29,30 +29,39 @@ def main_preliminary_projections():
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class = set_up_and_load(
         fast, snowfall)
+    display_only_model_that_pass_gof_test = False
     # Load study
     massif_name = massif_names[0]
     altitudes = altitudes_list[0]
     altitude = altitudes[0]
-    gcm_rcm_couple_to_study, safran_study = load_study(altitudes, gcm_rcm_couples, safran_study_class, scenario,
+    gcm_rcm_couple_to_study, safran_study = load_study(altitude, gcm_rcm_couples, safran_study_class, scenario,
                                                        study_class)
+    print('number of couples loaded:', len(gcm_rcm_couple_to_study))
     average_bias = plot_bias(gcm_rcm_couple_to_study, massif_name, safran_study)
-    alpha = 1
-    gcm_rcm_couples_sampled_for_experiment = plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias, alpha)
 
     if fast in [True, None]:
-        gcm_rcm_couples_sampled_for_experiment = gcm_rcm_couples_sampled_for_experiment[:1]
+        alpha = ''
+        gcm_rcm_couples_sampled_for_experiment = [('CNRM-CM5', 'ALADIN63')]
+        gcm_rcm_couples_sampled_for_experiment = [('NorESM1-M', 'REMO2015'), ('MPI-ESM-LR', 'REMO2009')]
+    else:
+        alpha = 40
+        gcm_rcm_couples_sampled_for_experiment = plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias,
+                                                                   alpha)
 
-    csv_filename = 'snow_load_fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_alpha_{}.csv'.format(fast, altitude,
+    print(gcm_rcm_couples_sampled_for_experiment)
+
+    csv_filename = 'last_snow_load_fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_alpha_{}.xlsx'.format(fast, altitude,
                                                                                                      len(model_classes),
-                                                                                                     len(gcm_rcm_couples),
+                                                                                                     len(gcm_rcm_couple_to_study),
                                                                                                      alpha)
+    print(csv_filename)
     csv_filepath = op.join(CSV_PATH, csv_filename)
 
     print("Number of couples:", len(gcm_rcm_couples_sampled_for_experiment))
-    i_to_nllh_value = OrderedDict()
-    idx_list = list(range(5))[::1]
-    # idx_list = [0, 4]
-    for i, j in product(idx_list, idx_list):
+
+    idx_list = [0, 1, 2, 3, 4, 5][1:]
+    for i in idx_list:
+        j = i
         print(i, j)
         for gcm_rcm_couple in gcm_rcm_couples_sampled_for_experiment:
             combination = (i, j, 0)
@@ -74,8 +83,8 @@ def main_preliminary_projections():
                                         gcm_rcm_couples_sampled_for_experiment=gcm_rcm_couples_sampled_for_experiment,
                                         param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
                                         )
-            nllh_value = xp.run_one_experiment(gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
-            update_csv(csv_filepath, combination_name, altitude, gcm_rcm_couple, nllh_value)
+            nllh_list = xp.run_one_experiment(gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
+            update_csv(csv_filepath, combination_name, altitude, gcm_rcm_couple, nllh_list)
 
 
 if __name__ == '__main__':

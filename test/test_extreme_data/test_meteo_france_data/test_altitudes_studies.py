@@ -5,6 +5,7 @@ from extreme_data.meteo_france_data.adamont_data.adamont_scenario import Adamont
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 
+
 class TestAltitudesStudies(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -18,6 +19,7 @@ class TestVisualization(TestAltitudesStudies):
 
     def test_plot_maxima_time_series(self):
         self.studies.plot_maxima_time_series(massif_names=['Vercors'], show=False)
+
 
 class TestSpatioTemporalDatasetForClimateModels(unittest.TestCase):
 
@@ -35,6 +37,7 @@ class TestSpatioTemporalDatasetForClimateModels(unittest.TestCase):
         dataset = self.studies.spatio_temporal_dataset(self.massif_name)
         self.assertEqual(self.studies.study.scenario, AdamontScenario.rcp85)
         self.assertEqual(len(dataset.coordinates.df_coordinate_climate_model.columns), 4)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -55,10 +55,7 @@ def plot_curve_gcm_rcm_effect(ax, massif_name, visualizer_list: List[AltitudesSt
     altitudes = [v.study.altitude for v in visualizer_list]
     effects = []
     for visualizer in visualizer_list[:]:
-        one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
-        margin_function = one_fold_fit.best_margin_function_from_fit
-        full_climate_coordinate = np.array(list(gcm_rcm_couple))
-        total_effect = margin_function.load_total_effect_for_gcm_rcm_couple(full_climate_coordinate, param_name)
+        total_effect = load_total_effect(gcm_rcm_couple, massif_name, param_name, visualizer)
         effects.append(total_effect)
     if len(gcm_rcm_couple) == 2:
         color = gcm_rcm_couple_to_color[gcm_rcm_couple]
@@ -73,3 +70,11 @@ def plot_curve_gcm_rcm_effect(ax, massif_name, visualizer_list: List[AltitudesSt
             rcm = gcm_rcm_couple[0]
             ax.plot(effects, altitudes, label=rcm)
     return effects
+
+
+def load_total_effect(gcm_rcm_couple, massif_name, param_name, visualizer):
+    one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
+    margin_function = one_fold_fit.best_margin_function_from_fit
+    full_climate_coordinate = gcm_rcm_couple
+    total_effect = margin_function.load_total_effect_for_gcm_rcm_couple(full_climate_coordinate, param_name)
+    return total_effect

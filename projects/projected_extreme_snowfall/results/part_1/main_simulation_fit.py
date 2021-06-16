@@ -1,6 +1,8 @@
 import datetime
 import time
 
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
+    NonStationaryLocationAndScaleAndShapeTemporalModel, NonStationaryLocationAndScaleTemporalModel
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract_simulation_with_effect import \
@@ -16,16 +18,14 @@ from projects.projected_extreme_snowfall.results.setting_utils import LINEAR_MOD
 def main_simulation():
     start = time.time()
 
-    model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
+    model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
 
-    fast = None
+    fast = True
     if fast is True:
-        model_classes = model_classes[:2]
-        nb_simulations = 1
+        nb_simulations = 20
         year_list_to_test = [2025, 2050, 2075, 2100]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1
     elif fast is None:
-        model_classes = model_classes
         nb_simulations = 10
         year_list_to_test = [2020 + i * 5 for i in range(17)]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 5
@@ -35,8 +35,9 @@ def main_simulation():
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 5
 
     # Set settings
-    simulation_version = [SimulationVersion1, SimulationVersion2, SimulationVersion3,
-                          SimulationLogScaleWithShift, SimulationLogScaleWithoutShift][-1]
+    simulation_version = SimulationLogScaleWithShift
+    # simulation_version = [SimulationVersion1, SimulationVersion2, SimulationVersion3,
+    #                       SimulationLogScaleWithShift, SimulationLogScaleWithoutShift][-1]
     simulation = simulation_version(nb_simulations)
     visualizer = VisualizerForSimulationEnsemble(simulation, year_list_to_test,
                                                  return_period=50,

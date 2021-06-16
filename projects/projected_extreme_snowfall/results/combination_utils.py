@@ -7,7 +7,8 @@ climate_coordinates_with_effects_list = [None,
                                          [AbstractCoordinates.COORDINATE_GCM],
                                          [AbstractCoordinates.COORDINATE_RCM],
                                          [AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM],
-                                         [AbstractCoordinates.COORDINATE_GCM_AND_RCM]
+                                         [AbstractCoordinates.COORDINATE_GCM_AND_RCM],
+                                         [AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM],
                                          ]  # None means we do not create any effect
 
 

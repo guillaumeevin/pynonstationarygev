@@ -16,7 +16,9 @@ from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit impo
 from extreme_trend.one_fold_fit.altitude_group import get_altitude_group_from_altitudes
 from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
-from projects.projected_extreme_snowfall.results.part_3.plot_gcm_rcm_effects import plot_gcm_rcm_effects
+from projects.projected_extreme_snowfall.results.part_2.plot_bias import plot_bias, load_study
+from projects.projected_extreme_snowfall.results.part_3.plot_gcm_rcm_effects import plot_gcm_rcm_effects, \
+    load_total_effect
 from projects.projected_extreme_snowfall.results.part_3.plot_relative_change_in_return_level import \
     plot_relative_dynamic
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -39,6 +41,7 @@ class VisualizerForProjectionEnsemble(object):
                  param_name_to_climate_coordinates_with_effects=None,
                  ):
         self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
+        self.study_class = study_class
         self.safran_study_class = safran_study_class
         self.interval_str_prefix = interval_str_prefix
         self.altitudes_list = altitudes_list
@@ -103,8 +106,8 @@ class VisualizerForProjectionEnsemble(object):
     def plot_for_visualizer_list(self, visualizer_list):
         if self.has_elevation_non_stationarity:
             with_significance = False
-            for v in visualizer_list:
-                v.plot_moments(with_significance=with_significance)
+            for visualizer in visualizer_list:
+                visualizer.plot_moments(with_significance=with_significance)
             plot_histogram_all_trends_against_altitudes(self.massif_names, visualizer_list,
                                                         with_significance=with_significance)
             for relative in [True, False]:
@@ -112,7 +115,27 @@ class VisualizerForProjectionEnsemble(object):
                                                         with_significance=with_significance)
         else:
             with_significance = True
-            for relative in [None, True, False][:]:
+            # Correction coefficient plots
+            if self.param_name_to_climate_coordinates_with_effects is not None:
+                # Plot the bias in the mean and std after taking into account the bias correction
+                for visualizer in visualizer_list:
+                    for massif_name in self.massif_names:
+                        gcm_rcm_couple_to_study, safran_study = load_study(visualizer.studies.study.altitude,
+                                                                           self.gcm_rcm_couples,
+                                                                           self.safran_study_class, self.scenario,
+                                                                           self.study_class)
+
+                        gcm_rcm_couple_to_params_effects = {}
+                        for gcm_rcm_couple in self.gcm_rcm_couples:
+                            params_effects = [load_total_effect(gcm_rcm_couple, massif_name,
+                                                                param_name, visualizer)
+                                              for param_name in GevParams.PARAM_NAMES]
+                            gcm_rcm_couple_to_params_effects[gcm_rcm_couple] = params_effects
+                        plot_bias(gcm_rcm_couple_to_study, massif_name, safran_study, gcm_rcm_couple_to_params_effects)
+                if len(visualizer_list) > 1:
+                    self.plot_effect_against_altitude(visualizer_list)
+            # Moment plot
+            for relative in [None, True, False][:1]:
                 orders = [None] + GevParams.PARAM_NAMES[:]
                 for order in orders[:]:
                     plot_relative_dynamic(self.massif_names, visualizer_list,
@@ -122,23 +145,25 @@ class VisualizerForProjectionEnsemble(object):
                                           order,
                                           self.gcm_rcm_couples,
                                           with_significance)
-            if self.param_name_to_climate_coordinates_with_effects is not None:
-                climate_coordinate_with_effects_to_list = {
-                    (AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM): self.gcm_rcm_couples,
-                    AbstractCoordinates.COORDINATE_GCM: [[e] for e in set([g for g, r in self.gcm_rcm_couples])],
-                    AbstractCoordinates.COORDINATE_RCM: [[e] for e in set([r for g, r in self.gcm_rcm_couples])]
-                }
-                for c, gcm_rcm_couples in climate_coordinate_with_effects_to_list.items():
-                    for param_name in GevParams.PARAM_NAMES[:]:
-                        climate_coordinates_with_param_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
-                        if climate_coordinates_with_param_effects is not None:
-                            climate_coordinates_names_with_param_effects_to_extract = list(c) if isinstance(c, tuple) else [c]
-                            if set(climate_coordinates_names_with_param_effects_to_extract).issubset(set(climate_coordinates_with_param_effects)):
-                                plot_gcm_rcm_effects(self.massif_names, visualizer_list,
-                                                     climate_coordinates_names_with_param_effects_to_extract,
-                                                     self.safran_study_class,
-                                                     gcm_rcm_couples,
-                                                     param_name)
+
+    def plot_effect_against_altitude(self, visualizer_list):
+        climate_coordinate_with_effects_to_list = {
+            (AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM): self.gcm_rcm_couples,
+            AbstractCoordinates.COORDINATE_GCM: [[e] for e in set([g for g, r in self.gcm_rcm_couples])],
+            AbstractCoordinates.COORDINATE_RCM: [[e] for e in set([r for g, r in self.gcm_rcm_couples])]
+        }
+        for c, gcm_rcm_couples in climate_coordinate_with_effects_to_list.items():
+            for param_name in GevParams.PARAM_NAMES[:]:
+                climate_coordinates_with_param_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
+                if climate_coordinates_with_param_effects is not None:
+                    climate_coordinates_names_with_param_effects_to_extract = list(c) if isinstance(c, tuple) else [c]
+                    if set(climate_coordinates_names_with_param_effects_to_extract).issubset(
+                            set(climate_coordinates_with_param_effects)):
+                        plot_gcm_rcm_effects(self.massif_names, visualizer_list,
+                                             climate_coordinates_names_with_param_effects_to_extract,
+                                             self.safran_study_class,
+                                             gcm_rcm_couples,
+                                             param_name)
 
     def plot(self):
         # Set limit for the plot

@@ -246,7 +246,8 @@ class OneFoldFit(object):
         #     print(get_display_name_from_object_type(type(e.margin_model)))
         #     print(e.margin_model.param_name_to_climate_coordinates_with_effects)
         if len(well_defined_estimators) == 0:
-            print(self.massif_name, " has only implausible models for altitude={}".format(self.altitude_group.reference_altitude))
+            print(self.massif_name,
+                  " has only implausible models for altitude={}".format(self.altitude_group.reference_altitude))
         # Check the number of models when we do not apply any goodness of fit
         if not (self.remove_physically_implausible_models or self.only_models_that_pass_goodness_of_fit_test):
             assert len(well_defined_estimators) == len(self.models_classes) * len(self.sub_combinations)
@@ -288,7 +289,6 @@ class OneFoldFit(object):
             combination = load_combination(margin_model.param_name_to_climate_coordinates_with_effects)
             d[(type(margin_model), combination)] = estimator
         return d
-
 
     @property
     def best_estimator(self):
@@ -350,26 +350,87 @@ class OneFoldFit(object):
     # Significant
 
     @property
+    def best_combination(self):
+        return load_combination(
+            self.best_estimator.margin_model.param_name_to_climate_coordinates_with_effects)
+
+    @cached_property
     def stationary_estimator(self):
-        try:
-            combination = load_combination(
-                self.best_estimator.margin_model.param_name_to_climate_coordinates_with_effects)
-            if isinstance(self.altitude_group, DefaultAltitudeGroup):
-                return self.model_class_to_stationary_estimator_not_checked[
-                    (StationaryTemporalModel, combination)]
+        if isinstance(self.altitude_group, DefaultAltitudeGroup):
+            model_class = StationaryTemporalModel
+        else:
+            model_class = StationaryAltitudinal
+        param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
+            self.best_combination)
+        return self.fitted_linear_margin_estimator(model_class, self.dataset,
+                                                   param_name_to_climate_coordinates_with_effects)
+
+    @cached_property
+    def non_stationary_estimator_without_the_correction(self):
+        combination = (0, 0, 0)
+        model_class = type(self.best_estimator.margin_model)
+        param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
+            combination)
+        return self.fitted_linear_margin_estimator(model_class, self.dataset,
+                                                   param_name_to_climate_coordinates_with_effects)
+
+    @cached_property
+    def non_stationary_estimator_without_the_gcm_correction(self):
+        assert self.param_name_to_climate_coordinates_with_effects is not None
+        combination = self.best_combination
+        model_class = type(self.best_estimator.margin_model)
+        assert any([c in [1, 3] for c in combination])
+        combination_without_gcm_correction = []
+        for c in combination:
+            if c == 1:
+                res = 0
+            elif c == 3:
+                res = 2
             else:
-                return self.model_class_to_stationary_estimator_not_checked[
-                    (StationaryAltitudinal, combination)]
-        except KeyError:
-            raise KeyError('A stationary model must be added either in the list of models, or here in the method')
+                res = c
+            combination_without_gcm_correction.append(res)
+        param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
+            combination_without_gcm_correction)
+        return self.fitted_linear_margin_estimator(model_class, self.dataset,
+                                                   param_name_to_climate_coordinates_with_effects)
+
+    @cached_property
+    def non_stationary_estimator_without_the_rcm_correction(self):
+        assert self.param_name_to_climate_coordinates_with_effects is not None
+        combination = self.best_combination
+        model_class = type(self.best_estimator.margin_model)
+        assert any([c in [2, 3] for c in combination])
+        combination_without_rcm_correction = []
+        for c in combination:
+            if c == 2:
+                res = 0
+            elif c == 3:
+                res = 1
+            else:
+                res = c
+            combination_without_rcm_correction.append(res)
+        param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
+            combination_without_rcm_correction)
+        return self.fitted_linear_margin_estimator(model_class, self.dataset,
+                                                   param_name_to_climate_coordinates_with_effects)
 
     @property
-    def likelihood_ratio(self):
-        return self.stationary_estimator.deviance - self.best_estimator.deviance
+    def correction_is_significant(self):
+        assert self.param_name_to_climate_coordinates_with_effects is not None
+        return self.likelihood_ratio_test(self.non_stationary_estimator_without_the_correction)
 
     @property
-    def degree_freedom_chi2(self):
-        return self.best_estimator.nb_params - self.stationary_estimator.nb_params
+    def gcm_correction_is_significant(self):
+        return self.likelihood_ratio_test(self.non_stationary_estimator_without_the_gcm_correction)
+
+    @property
+    def rcm_correction_is_significant(self):
+        return self.likelihood_ratio_test(self.non_stationary_estimator_without_the_rcm_correction)
+
+    def likelihood_ratio_test(self, estimator):
+        degree_freedom_chi2 = self.best_estimator.nb_params - estimator.nb_params
+        likelihood_ratio = estimator.deviance - self.best_estimator.deviance
+        return likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=degree_freedom_chi2)
 
     @cached_property
     def is_significant(self) -> bool:
@@ -382,7 +443,7 @@ class OneFoldFit(object):
                     for c in stationary_model_classes]):
                 return False
             else:
-                return self.likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=self.degree_freedom_chi2)
+                return self.likelihood_ratio_test(self.stationary_estimator)
         else:
             # Bootstrap based significance
             return self.cached_results_from_bootstrap[0]

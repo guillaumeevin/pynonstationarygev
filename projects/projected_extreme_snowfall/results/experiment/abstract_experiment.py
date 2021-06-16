@@ -7,7 +7,8 @@ import numpy as np
 from rpy2.rinterface import RRuntimeError
 
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh, NllhIsInfException
+from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh, NllhIsInfException, \
+    compute_nllh_for_list_of_pair
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -79,17 +80,19 @@ class AbstractExperiment(object):
                                                      **kwargs)
         # Get the best margin function for the selection method name
         one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
-        best_estimator_list = [one_fold_fit._sorted_estimators_with_method_name(selection_method_name)[0]
-                               for selection_method_name in self.selection_method_names]
+        assert len(self.selection_method_names) == 1
+        best_estimator = one_fold_fit._sorted_estimators_with_method_name("aic")[0]
         # Compute the average nllh for the test data
         studies_for_test = self.load_studies_for_test(**kwargs)
         dataset_test = self.load_spatio_temporal_dataset(studies_for_test, **kwargs)
         nllh_list = []
-        for best_estimator in best_estimator_list:
-            df_coordinates_temp_for_test = best_estimator.load_coordinates_temp(dataset_test.coordinates)
-            nllh_for_test = compute_nllh(df_coordinates_temp_for_test.values, dataset_test.observations.maxima_gev,
-                                best_estimator.margin_function_from_fit)
-            nllh_list.append(nllh_for_test)
+        df_coordinates_temp_for_test = best_estimator.load_coordinates_temp(dataset_test.coordinates)
+        print('Model={}'.format(get_display_name_from_object_type(best_estimator.margin_model)))
+        for time, maxima in zip(df_coordinates_temp_for_test.values, dataset_test.observations.maxima_gev):
+            list_of_pair = [(maxima, time)]
+            args = True, list_of_pair, best_estimator.margin_function_from_fit, True
+            nllh_for_test = compute_nllh_for_list_of_pair(args)
+            nllh_list.append(-nllh_for_test)
         return nllh_list
 
     def load_spatio_temporal_dataset(self, studies, **kwargs):
