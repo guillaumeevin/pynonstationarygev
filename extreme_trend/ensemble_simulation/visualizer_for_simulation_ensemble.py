@@ -15,12 +15,14 @@ import matplotlib.pyplot as plt
 
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract_simulation_with_effect import \
     AbstractSimulationWithEffects
+from projects.projected_extreme_snowfall.results.combination_utils import number_to_sub_numbers
 
 
 class VisualizerForSimulationEnsemble(StudyVisualizer):
 
     def __init__(self, simulation: AbstractSimulationWithEffects, year_list_to_test, return_period, model_classes, fast):
         super().__init__(SafranSnowfall1Day(), show=False, save_to_file=True)
+        self.model_classes = model_classes
         self.simulation = simulation
         self.return_period = return_period
         # Load simulation fits
@@ -42,6 +44,8 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
             ][:]
             self.simulation_fits.extend(fit_class_simulation_fits)
         self.simulation_fits = self.simulation_fits[::-1][:]
+        if fast:
+            self.simulation_fits = self.simulation_fits[:1]
 
     def plot_mean_metrics(self):
         for metric_name in AbstractSimulationFitForEnsemble.METRICS[:]:
@@ -55,7 +59,10 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
         ax.legend(ncol=2, prop={'size': 6})
         ylabel = 'Mean {} for {}-year return level'.format(metric_name.capitalize(), self.return_period)
         ax.set_ylabel(ylabel)
-        plot_name = ylabel + 'bootstrap{}_nbsimu{}'.format(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP,
+        plot_name = ylabel
+        sub_combination = '_'.join([str(n) for n in number_to_sub_numbers[2]])
+        plot_name += '_models{}_combination{}'.format(len(self.model_classes), sub_combination)
+        plot_name += '_bootstrap{}_nbsimu{}'.format(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP,
                                                            self.simulation.nb_simulations)  + self.simulation.summary_parameter
         self.show_or_save_to_file(plot_name=plot_name)
         plt.close()

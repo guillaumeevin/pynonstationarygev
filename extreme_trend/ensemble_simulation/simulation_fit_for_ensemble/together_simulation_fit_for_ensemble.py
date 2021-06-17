@@ -24,12 +24,13 @@ class TogetherSimulationFitForEnsemble(AbstractSimulationFitForEnsemble):
         # Load one fold fit
         one_fold_fit = self.load_one_fold_fit(dataset, str(simulation_id))
         nb_bootstrap = AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP
-        # OneFoldFit.nb_cores_for_multiprocess = 4
-        # OneFoldFit.max_batchsize = 1
-        OneFoldFit.multiprocessing = False
-        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP *= self.simulation.nb_ensemble_member
-        margin_functions_uncertainty = one_fold_fit.bootstrap_fitted_functions_from_fit
-        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = nb_bootstrap
+        if AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP == 0:
+            margin_functions_uncertainty = []
+        else:
+            OneFoldFit.multiprocessing = False
+            AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP *= self.simulation.nb_ensemble_member
+            margin_functions_uncertainty = one_fold_fit.bootstrap_fitted_functions_from_fit
+            AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = nb_bootstrap
         margin_function = one_fold_fit.best_margin_function_from_fit
         true_margin_function = self.simulation.simulation_id_to_margin_function[simulation_id]
 

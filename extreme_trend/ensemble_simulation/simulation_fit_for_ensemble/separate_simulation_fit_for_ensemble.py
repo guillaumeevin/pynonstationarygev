@@ -1,5 +1,7 @@
 import numpy as np
 
+from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
+    AbstractExtractEurocodeReturnLevel
 from extreme_trend.ensemble_simulation.simulation_fit_for_ensemble.abstract_simulation_fit_for_ensemble import \
     AbstractSimulationFitForEnsemble
 
@@ -22,8 +24,9 @@ class SeparateSimulationFitForEnsemble(AbstractSimulationFitForEnsemble):
         one_fold_fits = [self.load_one_fold_fit(dataset, "name") for dataset in datasets]
         # Load bootstrap functions
         margin_functions_uncertainty = []
-        for one_fold_fit in one_fold_fits:
-            margin_functions_uncertainty.extend(one_fold_fit.bootstrap_fitted_functions_from_fit)
+        if AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP > 0:
+            for one_fold_fit in one_fold_fits:
+                margin_functions_uncertainty.extend(one_fold_fit.bootstrap_fitted_functions_from_fit)
         margin_functions = [one_fold_fit.best_margin_function_from_fit for one_fold_fit in one_fold_fits]
         true_margin_function = self.simulation.simulation_id_to_margin_function[simulation_id]
 

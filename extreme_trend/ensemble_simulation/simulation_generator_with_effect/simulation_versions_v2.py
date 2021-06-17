@@ -52,11 +52,11 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
     def load_margin_function(self) -> IndependentMarginFunction:
         # constant parameters
         coef_dict = dict()
-        # coef_dict['locCoeff1'] = self.location_at_zero
-        # scale_at_zero = self.scale_at_zero
-        # coef_dict['scaleCoeff1'] = np.log(scale_at_zero)
-        coef_dict['locCoeff1'] = 10
-        coef_dict['scaleCoeff1'] = 1
+        coef_dict['locCoeff1'] = self.location_at_zero
+        scale_at_zero = self.scale_at_zero
+        coef_dict['scaleCoeff1'] = np.log(scale_at_zero)
+        # coef_dict['locCoeff1'] = 10
+        # coef_dict['scaleCoeff1'] = 1
         shape = beta(6, 9) - 0.5
         coef_dict['shapeCoeff1'] = shape
         # Non stationary effects

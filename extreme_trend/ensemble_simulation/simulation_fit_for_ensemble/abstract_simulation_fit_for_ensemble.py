@@ -118,9 +118,12 @@ class AbstractSimulationFitForEnsemble(object):
         absolute_relative_difference = np.abs(100 * (true_value - prediction) / true_value)
         # Compute crpss
         predictions_from_bootstrap = [self.compute_return_levels(f, coordinates) for f in margin_functions_from_bootstrap]
-        crpss = ps.crps_ensemble(true_value, predictions_from_bootstrap)
-        # Compute width metric
-        width = np.quantile(predictions_from_bootstrap, 0.95) - np.quantile(predictions_from_bootstrap, 0.05)
+        if len(predictions_from_bootstrap) == 0:
+            crpss, width = 0, 0
+        else:
+            crpss = ps.crps_ensemble(true_value, predictions_from_bootstrap)
+            # Compute width metric
+            width = np.quantile(predictions_from_bootstrap, 0.95) - np.quantile(predictions_from_bootstrap, 0.05)
         return absolute_relative_difference, crpss, rmse, width
 
     def add_suffix(self, name):
