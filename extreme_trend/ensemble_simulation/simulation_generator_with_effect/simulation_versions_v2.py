@@ -61,7 +61,7 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
         coef_dict['shapeCoeff1'] = shape
         # Non stationary effects
         coef_dict['tempCoeffLoc1'] = self.sample_uniform(self.alpha_non_stationary) * coef_dict['locCoeff1']
-        coef_dict['tempCoeffScale1'] = self.sample_uniform_scale(self.alpha_non_stationary) * coef_dict['scaleCoeff1']
+        coef_dict['tempCoeffScale1'] = self.sample_uniform_scale(self.alpha_non_stationary)
         coef_dict['tempCoeffShape1'] = self.sample_uniform(self.alpha_non_stationary) * coef_dict['shapeCoeff1']
         # Climatic effects
         param_name_to_climate_coordinates_with_effects = {
@@ -72,7 +72,7 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
         param_name_to_ordered_climate_effects = {
             GevParams.LOC: [(self.shift_rcm + self.sample_uniform(self.alpha_rcm_location)) * coef_dict['locCoeff1'] for _ in
                             range(self.nb_ensemble_member)],
-            GevParams.SCALE: [self.sample_uniform_scale(self.alpha_rcm_scale) * coef_dict['scaleCoeff1'] for _ in
+            GevParams.SCALE: [self.sample_uniform_scale(self.alpha_rcm_scale) for _ in
                               range(self.nb_ensemble_member)],
             GevParams.SHAPE: [],
         }

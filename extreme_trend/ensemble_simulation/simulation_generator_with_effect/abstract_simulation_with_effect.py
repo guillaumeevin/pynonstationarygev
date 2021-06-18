@@ -156,6 +156,7 @@ class AbstractSimulationWithEffects(object):
         x_list = np.linspace(0, 1, num=150)
         # colors = list(gcm_rcm_couple_to_color.values())
         colors = ['lightpink', 'violet', 'm', 'darkmagenta']
+        colors += ['red', 'blue', 'cyan', 'y', 'k', 'green']
         assert len(simulation_ids) <= len(colors)
         for color, simulation_id in zip(colors, simulation_ids):
             margin_function = self.simulation_id_to_margin_function[simulation_id]
