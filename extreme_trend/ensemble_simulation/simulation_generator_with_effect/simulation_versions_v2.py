@@ -13,21 +13,21 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
     @property
     def summary_parameter(self):
         return "{}_{}_{}_{}_{}_{}".format(self.location_at_zero,
-                                       self.scale_at_zero,
-                                       self.alpha_non_stationary,
-                                       self.alpha_rcm_location,
-                                       self.alpha_rcm_scale,
-                                       self.shift_rcm)
+                                          self.scale_at_zero,
+                                          self.alpha_non_stationary,
+                                          self.alpha_rcm_location,
+                                          self.alpha_rcm_scale,
+                                          self.shift_rcm)
 
     @property
     def alpha_rcm_location(self):
         # return 0.2 # this is the bias in the mean
-        return 0.1 # this is the bias in the mean
+        return 0.1  # this is the bias in the mean
 
     @property
     def alpha_rcm_scale(self):
         # return 0.3 # this is the bias in the mean & in the std (because the scale parameter participate to both)
-        return 0.1 # this is the bias in the mean & in the std (because the scale parameter participate to both)
+        return 0.1  # this is the bias in the mean & in the std (because the scale parameter participate to both)
 
     @property
     def shift_rcm(self):
@@ -70,7 +70,8 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
             GevParams.SHAPE: None,
         }
         param_name_to_ordered_climate_effects = {
-            GevParams.LOC: [(self.shift_rcm + self.sample_uniform(self.alpha_rcm_location)) * coef_dict['locCoeff1'] for _ in
+            GevParams.LOC: [(self.shift_rcm + self.sample_uniform(self.alpha_rcm_location)) * coef_dict['locCoeff1'] for
+                            _ in
                             range(self.nb_ensemble_member)],
             GevParams.SCALE: [self.sample_uniform_scale(self.alpha_rcm_scale) for _ in
                               range(self.nb_ensemble_member)],
@@ -86,14 +87,22 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
         return margin_function
 
 
-class SimulationLogScaleWithShift(AbstractSimulationLogScale):
+class SimulationLogScaleWithShift0(AbstractSimulationLogScale):
+
+    @property
+    def shift_rcm(self):
+        return 0
+
+
+class SimulationLogScaleWithShift10(AbstractSimulationLogScale):
 
     @property
     def shift_rcm(self):
         return 0.1
 
-class SimulationLogScaleWithoutShift(AbstractSimulationLogScale):
+
+class SimulationLogScaleWithShift20(AbstractSimulationLogScale):
 
     @property
     def shift_rcm(self):
-        return 0
+        return 0.2
