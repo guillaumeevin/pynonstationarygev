@@ -13,7 +13,7 @@ from projects.projected_extreme_snowfall.results.part_2.v2.utils import main_she
 
 def plot_summary_graph_for_fixed_w(w=1):
     csv_filename = "last_snow_load_fast_False_altitudes_1500_nb_of_models_1_nb_gcm_rcm_couples_20_alpha_3"
-    csv_filename = "last_snowfall_fast_None_altitudes_3000_nb_of_models_1_nb_gcm_rcm_couples_20_alpha_30"
+    csv_filename = "last_snow_load_fast_False_altitudes_1500_nb_of_models_1_nb_gcm_rcm_couples_20_alpha_3_selection_split_sample"
     # csv_filename = "last_snow_load_fast_None_altitudes_3000_nb_of_models_27_nb_gcm_rcm_couples_20_alpha_"
     csv_filename = csv_filename.format(w) + '.xlsx'
     csv_filepath = op.join(CSV_PATH, csv_filename.format(w))

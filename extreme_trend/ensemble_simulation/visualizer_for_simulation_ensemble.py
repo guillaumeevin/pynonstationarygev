@@ -48,7 +48,7 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
             self.simulation_fits.extend(fit_class_simulation_fits)
         self.simulation_fits = self.simulation_fits[::-1][:]
         if fast:
-            self.simulation_fits = self.simulation_fits[:1]
+            self.simulation_fits = self.simulation_fits[1:2]
 
     def plot_mean_metrics(self):
         for metric_name in AbstractSimulationFitForEnsemble.METRICS[:]:

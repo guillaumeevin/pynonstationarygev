@@ -14,6 +14,7 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationAndScaleAndShapeTemporalModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
+from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects, load_combination_name_for_tuple
 from projects.projected_extreme_snowfall.results.experiment.model_as_truth_experiment import ModelAsTruthExperiment
@@ -28,6 +29,8 @@ def main_preliminary_projections():
     show = False
     fast = False
     snowfall = False
+
+    OneFoldFit.SELECTION_METHOD_NAME = 'split_sample'
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -55,10 +58,11 @@ def main_preliminary_projections():
     print(gcm_rcm_couples_sampled_for_experiment)
 
     study = 'snowfall' if snowfall else 'snow_load'
-    csv_filename = 'last_{}_fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_alpha_{}.xlsx'.format(study, fast, altitude,
+    csv_filename = 'last_{}_fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_alpha_{}_selection_{}.xlsx'.format(study, fast, altitude,
                                                                                                              len(model_classes),
                                                                                                              len(gcm_rcm_couple_to_study),
-                                                                                                             alpha)
+                                                                                                             alpha,
+                                                                                                                          OneFoldFit.SELECTION_METHOD_NAME)
     print(csv_filename)
     csv_filepath = op.join(CSV_PATH, csv_filename)
 

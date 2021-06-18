@@ -10,21 +10,28 @@ from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_tempor
 
 
 def compute_mean_log_score_with_split_sample(global_estimator: LinearMarginEstimator):
-    ratio = 2/3
-    nb_test_obs = 20
-    nb_train_obs = 41
+    ratio = 0.5
+    nb_train_obs = math.ceil(61 * ratio)
+    nb_test_obs = 61 - nb_train_obs
     # Load splits
     global_dataset = global_estimator.dataset
-    global_coordinates = global_dataset.coordinates.df_coordinates(add_climate_informations=True)
-    ind_test_split = global_coordinates[AbstractCoordinates.COORDINATE_RCM].isnull()
-    t_coordinates = global_coordinates.loc[ind_test_split, AbstractCoordinates.COORDINATE_T].values
+    global_coordinates = global_dataset.coordinates
+    global_df_coordinates = global_coordinates.df_coordinates(add_climate_informations=True)
+    gcm_rcm_couple_as_pseudo_truth = global_coordinates.gcm_rcm_couple_as_pseudo_truth
+    if gcm_rcm_couple_as_pseudo_truth is None:
+        ind_test_split = global_df_coordinates[AbstractCoordinates.COORDINATE_RCM].isnull()
+    else:
+        gcm, rcm = gcm_rcm_couple_as_pseudo_truth
+        ind_test_split = (global_df_coordinates[AbstractCoordinates.COORDINATE_RCM] == rcm) \
+                         & (global_df_coordinates[AbstractCoordinates.COORDINATE_GCM] == gcm)
+    t_coordinates = global_df_coordinates.loc[ind_test_split, AbstractCoordinates.COORDINATE_T].values
     index_to_start_test = math.ceil(len(t_coordinates) * ratio)
     value_to_start_test = sorted(t_coordinates)[index_to_start_test]
-    ind_test_split &= global_coordinates.loc[ind_test_split, AbstractCoordinates.COORDINATE_T] >= value_to_start_test
+    ind_test_split &= global_df_coordinates.loc[ind_test_split, AbstractCoordinates.COORDINATE_T] >= value_to_start_test
     assert sum(ind_test_split) == nb_test_obs
     ind_train_split = ~ind_test_split
-    assert sum(ind_train_split) % 150 == nb_train_obs
-    coordinates = AbstractCoordinates.from_df(global_coordinates.loc[ind_train_split].copy())
+    coordinates = AbstractCoordinates.from_df(global_df_coordinates.loc[ind_train_split].copy())
+    coordinates.gcm_rcm_couple_as_pseudo_truth = global_coordinates.gcm_rcm_couple_as_pseudo_truth
     observations = AbstractSpatioTemporalObservations(
         df_maxima_gev=global_dataset.observations.df_maxima_gev.loc[ind_train_split].copy())
     dataset = AbstractDataset(observations, coordinates)

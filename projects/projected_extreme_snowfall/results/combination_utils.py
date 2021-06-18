@@ -29,7 +29,7 @@ number_to_sub_numbers = {
     1: [0, 1],
     2: [0, 2],
     3: [0, 1, 2, 3],
-    4: [4],
+    4: [0, 4],
 }
 
 def generate_sub_combination(combination):
