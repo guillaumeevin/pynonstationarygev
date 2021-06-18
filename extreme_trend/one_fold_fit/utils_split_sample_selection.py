@@ -1,8 +1,10 @@
 import math
 
+import numpy as np
+
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
-from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh
+from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh, NllhIsInfException
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
@@ -47,6 +49,9 @@ def compute_mean_log_score_with_split_sample(global_estimator: LinearMarginEstim
     maxima_values = global_dataset.observations.df_maxima_gev.loc[ind_test_split].values
     coordinate_values = global_estimator.df_coordinates_temp.loc[ind_test_split].values
     # Compute the list of log score
-    mean_log_score = compute_nllh(coordinate_values, maxima_values,
-                                  local_estimator.margin_function_from_fit) / nb_test_obs
+    try:
+        mean_log_score = compute_nllh(coordinate_values, maxima_values,
+                                      local_estimator.margin_function_from_fit) / nb_test_obs
+    except NllhIsInfException:
+        mean_log_score = np.Inf
     return mean_log_score

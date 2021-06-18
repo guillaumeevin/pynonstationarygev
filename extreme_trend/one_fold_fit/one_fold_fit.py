@@ -218,6 +218,7 @@ class OneFoldFit(object):
                 if OneFoldFit.SELECTION_METHOD_NAME == 'split_sample':
                     for estimator in estimators:
                         estimator.split_sample = compute_mean_log_score_with_split_sample(estimator)
+                    assert not all([np.isinf(estimator.split_sample) for estimator in estimators])
                 sorted_estimators = sorted([estimator for estimator in estimators],
                                            key=lambda e: e.__getattribute__(method_name))
             except AssertionError as e:
