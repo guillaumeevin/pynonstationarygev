@@ -72,7 +72,7 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
         param_name_to_ordered_climate_effects = {
             GevParams.LOC: [(self.shift_rcm + self.sample_uniform(self.alpha_rcm_location)) * coef_dict['locCoeff1'] for _ in
                             range(self.nb_ensemble_member)],
-            GevParams.SCALE: [self.sample_uniform_scale(self.alpha_rcm_scale) * self.scale_at_zero for _ in
+            GevParams.SCALE: [self.sample_uniform_scale(self.alpha_rcm_scale) * coef_dict['scaleCoeff1'] for _ in
                               range(self.nb_ensemble_member)],
             GevParams.SHAPE: [],
         }

@@ -44,7 +44,7 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
                 fit_class(self.simulation, year_list_to_test, return_period, model_classes,
                           with_effects=True, with_observation=True, color=colors[2], with_sub_combinations=False),
 
-            ][:2]
+            ][:]
             self.simulation_fits.extend(fit_class_simulation_fits)
         self.simulation_fits = self.simulation_fits[::-1][:]
         if fast:
