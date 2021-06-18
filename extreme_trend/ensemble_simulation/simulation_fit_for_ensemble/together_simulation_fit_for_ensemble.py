@@ -23,6 +23,7 @@ class TogetherSimulationFitForEnsemble(AbstractSimulationFitForEnsemble):
             dataset = self.simulation.simulation_id_to_together_dataset_without_obs[simulation_id]
         # Load one fold fit
         one_fold_fit = self.load_one_fold_fit(dataset, str(simulation_id))
+        self.print_one_fold_fit_informations(one_fold_fit)
         nb_bootstrap = AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP
         if AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP == 0:
             margin_functions_uncertainty = []

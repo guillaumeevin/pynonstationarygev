@@ -36,7 +36,7 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
     @property
     def alpha_non_stationary(self):
         # return 0.5 # it roughly diminish from half on the time series plot
-        return 0.1
+        return 0.5
 
     def sample_uniform_scale(self, alpha):
         return self._sample_uniform(np.log(1 - alpha), np.log(1 + alpha))
@@ -72,7 +72,7 @@ class AbstractSimulationLogScale(AbstractSimulationWithEffects):
         param_name_to_ordered_climate_effects = {
             GevParams.LOC: [(self.shift_rcm + self.sample_uniform(self.alpha_rcm_location)) * coef_dict['locCoeff1'] for _ in
                             range(self.nb_ensemble_member)],
-            GevParams.SCALE: [self.sample_uniform_scale(self.alpha_rcm_scale) * coef_dict['scaleCoeff1'] for _ in
+            GevParams.SCALE: [self.sample_uniform_scale(self.alpha_rcm_scale) * self.scale_at_zero for _ in
                               range(self.nb_ensemble_member)],
             GevParams.SHAPE: [],
         }
@@ -90,7 +90,7 @@ class SimulationLogScaleWithShift(AbstractSimulationLogScale):
 
     @property
     def shift_rcm(self):
-        return 0.1
+        return 0
 
 class SimulationLogScaleWithoutShift(AbstractSimulationLogScale):
 

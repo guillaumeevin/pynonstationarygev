@@ -38,10 +38,10 @@ def update_csv(excel_filepath, combination_name, altitude, gcm_rcm_couple, value
     column_name = load_column_name(altitude, gcm_rcm_couple)
     for split in [None, "early", "later"]:
         local_sheetname = main_sheet_name
-        value = np.mean(value_list)
+        value = np.sum(value_list)
         if split is not None:
             local_sheetname += ' ' + split
-            value = np.mean(value_list[:40]) if split == "early" else np.mean(value_list[-40:])
+            value = np.sum(value_list[:40]) if split == "early" else np.sum(value_list[-40:])
 
         df = load_excel(excel_filepath, local_sheetname)
         df = add_dynamical_value(column_name, combination_name, df, value)

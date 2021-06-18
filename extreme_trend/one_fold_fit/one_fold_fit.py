@@ -52,6 +52,7 @@ class OneFoldFit(object):
     multiprocessing = None
     nb_cores_for_multiprocess = NB_CORES
     max_batchsize = None
+    SELECTION_METHOD_NAME = 'aic'
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
                  first_year=None, last_year=None,
@@ -194,8 +195,8 @@ class OneFoldFit(object):
     # Minimizing the AIC and some properties
 
     @cached_property
-    def sorted_estimators_with_aic(self):
-        return self._sorted_estimators_with_method_name(method_name='aic')
+    def sorted_estimators_with_default_selection_method(self):
+        return self._sorted_estimators_with_method_name(method_name=self.SELECTION_METHOD_NAME)
 
     def method_name_to_best_estimator(self, method_names):
         return {self._sorted_estimators_with_method_name(method_name) for method_name in method_names}
@@ -271,11 +272,11 @@ class OneFoldFit(object):
 
     @property
     def has_at_least_one_valid_model(self):
-        return len(self.sorted_estimators_with_aic) > 0
+        return len(self.sorted_estimators_with_default_selection_method) > 0
 
     @property
     def model_class_and_combination_to_estimator_with_finite_aic(self):
-        return self._create_d(self.sorted_estimators_with_aic)
+        return self._create_d(self.sorted_estimators_with_default_selection_method)
 
     @property
     def model_class_to_stationary_estimator_not_checked(self):
@@ -293,7 +294,7 @@ class OneFoldFit(object):
     @property
     def best_estimator(self):
         if self.has_at_least_one_valid_model:
-            best_estimator = self.sorted_estimators_with_aic[0]
+            best_estimator = self.sorted_estimators_with_default_selection_method[0]
             # Add some check up for the paper 2
             if not isinstance(self.altitude_group, DefaultAltitudeGroup):
                 coordinate = best_estimator.coordinates_for_nllh[0]
@@ -336,7 +337,7 @@ class OneFoldFit(object):
 
     @property
     def model_names(self):
-        return [e.margin_model.name_str for e in self.sorted_estimators_with_aic]
+        return [e.margin_model.name_str for e in self.sorted_estimators_with_default_selection_method]
 
     @property
     def best_name(self):

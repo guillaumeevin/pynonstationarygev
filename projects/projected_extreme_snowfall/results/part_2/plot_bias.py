@@ -11,7 +11,7 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
 
 
-def plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias_obs, alpha):
+def plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias_obs, alpha, show=False):
     average_bias_obs = average_bias_obs
     gcm_rcm_couple_to_average_bias = {}
     for gcm_rcm_couple in gcm_rcm_couple_to_study.keys():
@@ -43,10 +43,11 @@ def plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias_obs, al
     ax.hlines(0, xmin=lim_left, xmax=lim_right)
 
     ax.legend(prop={'size': 7})
-    ax.set_xlabel('Average relative bias for the mean of annual maxima (\%)')
-    ax.set_ylabel('Average relative bias for the std of annual maxima (\%)')
+    ax.set_xlabel('Average relative bias for the mean of annual maxima for 1959-2019 (\%)')
+    ax.set_ylabel('Average relative bias for the std of annual maxima for 1959-2019 (\%)')
 
-    # plt.show()
+    if show:
+        plt.show()
     plt.close()
     gcm_rcm_couples_selected = []
     for gcm_rcm_couple, average_bias in gcm_rcm_couple_to_average_bias.items():
@@ -57,27 +58,30 @@ def plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias_obs, al
 
 
 def plot_bias(gcm_rcm_couple_to_study, massif_name, safran_study,
-              gcm_rcm_couple_to_params_effects=None):
+              gcm_rcm_couple_to_params_effects=None,
+              show=False):
     # Create plot
     biases_matrix, gcm_rcm_couple_to_biases, average_bias = compute_average_bias(gcm_rcm_couple_to_study, massif_name,
                                                                                  safran_study,
                                                                                  gcm_rcm_couple_to_params_effects)
     ax = plt.gca()
+    xi, yi = average_bias
+    ax.scatter([xi], [yi], color="k", marker='x', label="Average relative bias")
     for gcm_rcm_couple, biases in gcm_rcm_couple_to_biases.items():
         xi, yi = biases
         color = gcm_rcm_couple_to_color[gcm_rcm_couple]
         name = gcm_rcm_couple_to_str(gcm_rcm_couple)
         ax.scatter([xi], [yi], color=color, marker='o', label=name)
-    xi, yi = average_bias
-    ax.scatter([xi], [yi], color="k", marker='x', label="Average relative bias")
+
     lim_left, lim_right = ax.get_xlim()
     ax.hlines(0, xmin=lim_left, xmax=lim_right)
     lim_left, lim_right = ax.get_ylim()
     ax.vlines(0, ymin=lim_left, ymax=lim_right)
     ax.legend(prop={'size': 7}, loc='lower right', ncol=1)
-    ax.set_xlabel('Relative bias for the mean of annual maxima (\%)')
-    ax.set_ylabel('Relative bias for the standard deviation of annual maxima (\%)')
-    # plt.show()
+    ax.set_xlabel('Relative bias for the mean of annual maxima for 1959-2019 (\%)')
+    ax.set_ylabel('Relative bias for the standard deviation of annual maxima for 1959-2019 (\%)')
+    if show:
+        plt.show()
     plt.close()
     return average_bias
 

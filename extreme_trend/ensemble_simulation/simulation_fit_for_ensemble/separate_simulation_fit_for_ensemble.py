@@ -22,6 +22,8 @@ class SeparateSimulationFitForEnsemble(AbstractSimulationFitForEnsemble):
             datasets = self.simulation.simulation_id_to_separate_datasets_without_obs[simulation_id]
         # Fit one fold
         one_fold_fits = [self.load_one_fold_fit(dataset, "name") for dataset in datasets]
+        for one_fold_fit in one_fold_fits:
+            self.print_one_fold_fit_informations(one_fold_fit)
         # Load bootstrap functions
         margin_functions_uncertainty = []
         if AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP > 0:

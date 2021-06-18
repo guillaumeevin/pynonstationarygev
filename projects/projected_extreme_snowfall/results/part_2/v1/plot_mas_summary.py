@@ -11,42 +11,9 @@ from projects.projected_extreme_snowfall.results.part_2.v1.main_mas_v1 import CS
 from projects.projected_extreme_snowfall.results.part_2.v1.utils_v1 import load_combination_name_to_dict_v2
 from projects.projected_extreme_snowfall.results.part_2.v2.utils import main_sheet_name
 
-
-def plot_summary_graph_for_w():
-    # csv_filename = "nbloop{}_fast_None_altitudes_600_2100_3600_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_6.csv"
-    csv_filename = "last_snow_load_fast_False_altitudes_1500_nb_of_models_8_nb_gcm_rcm_couples_20_alpha_40"
-    combinations = [(i, i, i) for i in range(4)][:]
-    combinations_names = list(load_combination_name_to_dict_v2(climate_coordinates_with_effects_list,
-                                                                combinations).keys())
-    combination_name_to_res = {c: [] for c in combinations_names}
-    w_list = []
-    for w in range(1, 40):
-        csv_filepath = op.join(CSV_PATH, csv_filename.format(w))
-        if op.exists(csv_filepath):
-            print('w=', w)
-            w_list.append(w)
-            df_csv = pd.read_csv(csv_filepath, index_col=0)
-            for combination_name in combinations_names:
-                try:
-                    value = df_csv.loc[combination_name, 'min']
-                except KeyError:
-                    value = None
-                print(combination_name, value)
-                combination_name_to_res[combination_name].append(value)
-    # Plot
-    ax = plt.gca()
-    for combination_name, res in combination_name_to_res.items():
-        w_list_for_plot = [w for i, w in enumerate(w_list) if res[i] is not None]
-        res_for_plot = [r for r in res if r is not None]
-        ax.plot(w_list_for_plot, res_for_plot, label=combination_name.replace('_', ' '),
-                marker='x')
-    ax.set_xlabel('w')
-    ax.set_ylabel('Minimum averaged nllh on the period 2020-2100')
-    ax.legend()
-    plt.show()
-
 def plot_summary_graph_for_fixed_w(w=1):
-    csv_filename = "last_snow_load_fast_False_altitudes_1500_nb_of_models_8_nb_gcm_rcm_couples_20_alpha_40"
+    csv_filename = "last_snow_load_fast_False_altitudes_1500_nb_of_models_1_nb_gcm_rcm_couples_20_alpha_3"
+    csv_filename = "last_snowfall_fast_None_altitudes_3000_nb_of_models_1_nb_gcm_rcm_couples_20_alpha_30"
     # csv_filename = "last_snow_load_fast_None_altitudes_3000_nb_of_models_27_nb_gcm_rcm_couples_20_alpha_"
     csv_filename = csv_filename.format(w) + '.xlsx'
     csv_filepath = op.join(CSV_PATH, csv_filename.format(w))
@@ -113,6 +80,41 @@ def plot_summary_graph_for_fixed_w(w=1):
             ax.legend(prop={'size': 10})
             plt.show()
             plt.close()
+
+
+# def plot_summary_graph_for_w():
+#     # csv_filename = "nbloop{}_fast_None_altitudes_600_2100_3600_nb_of_models_27_nb_gcm_rcm_couples_20_nb_samples_6.csv"
+#     csv_filename = "last_snow_load_fast_False_altitudes_1500_nb_of_models_8_nb_gcm_rcm_couples_20_alpha_40"
+#     combinations = [(i, i, i) for i in range(4)][:]
+#     combinations_names = list(load_combination_name_to_dict_v2(climate_coordinates_with_effects_list,
+#                                                                 combinations).keys())
+#     combination_name_to_res = {c: [] for c in combinations_names}
+#     w_list = []
+#     for w in range(1, 40):
+#         csv_filepath = op.join(CSV_PATH, csv_filename.format(w))
+#         if op.exists(csv_filepath):
+#             print('w=', w)
+#             w_list.append(w)
+#             df_csv = pd.read_csv(csv_filepath, index_col=0)
+#             for combination_name in combinations_names:
+#                 try:
+#                     value = df_csv.loc[combination_name, 'min']
+#                 except KeyError:
+#                     value = None
+#                 print(combination_name, value)
+#                 combination_name_to_res[combination_name].append(value)
+#     # Plot
+#     ax = plt.gca()
+#     for combination_name, res in combination_name_to_res.items():
+#         w_list_for_plot = [w for i, w in enumerate(w_list) if res[i] is not None]
+#         res_for_plot = [r for r in res if r is not None]
+#         ax.plot(w_list_for_plot, res_for_plot, label=combination_name.replace('_', ' '),
+#                 marker='x')
+#     ax.set_xlabel('w')
+#     ax.set_ylabel('Minimum averaged nllh on the period 2020-2100')
+#     ax.legend()
+#     plt.show()
+
 
 
 

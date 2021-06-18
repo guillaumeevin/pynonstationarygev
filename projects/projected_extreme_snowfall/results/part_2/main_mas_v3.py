@@ -11,6 +11,8 @@ from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
+    NonStationaryLocationAndScaleAndShapeTemporalModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects, load_combination_name_for_tuple
@@ -23,43 +25,46 @@ from projects.projected_extreme_snowfall.results.setting_utils import set_up_and
 
 def main_preliminary_projections():
     # Load parameters
+    show = False
     fast = False
     snowfall = False
+
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class = set_up_and_load(
         fast, snowfall)
     display_only_model_that_pass_gof_test = False
     # Load study
+    model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
     massif_name = massif_names[0]
     altitudes = altitudes_list[0]
     altitude = altitudes[0]
     gcm_rcm_couple_to_study, safran_study = load_study(altitude, gcm_rcm_couples, safran_study_class, scenario,
                                                        study_class)
     print('number of couples loaded:', len(gcm_rcm_couple_to_study))
-    average_bias = plot_bias(gcm_rcm_couple_to_study, massif_name, safran_study)
-
-    if fast in [True, None]:
+    average_bias = plot_bias(gcm_rcm_couple_to_study, massif_name, safran_study, show=show)
+    if fast in [True]:
         alpha = ''
         gcm_rcm_couples_sampled_for_experiment = [('CNRM-CM5', 'ALADIN63')]
         # gcm_rcm_couples_sampled_for_experiment = [('NorESM1-M', 'REMO2015'), ('MPI-ESM-LR', 'REMO2009')]
     else:
-        alpha = 40
+        alpha = 30 if snowfall else 3
         gcm_rcm_couples_sampled_for_experiment = plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias,
-                                                                   alpha)
+                                                                   alpha, show=show)
 
     print(gcm_rcm_couples_sampled_for_experiment)
 
-    csv_filename = 'last_snow_load_fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_alpha_{}.xlsx'.format(fast, altitude,
-                                                                                                     len(model_classes),
-                                                                                                     len(gcm_rcm_couple_to_study),
-                                                                                                     alpha)
+    study = 'snowfall' if snowfall else 'snow_load'
+    csv_filename = 'last_{}_fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_alpha_{}.xlsx'.format(study, fast, altitude,
+                                                                                                             len(model_classes),
+                                                                                                             len(gcm_rcm_couple_to_study),
+                                                                                                             alpha)
     print(csv_filename)
     csv_filepath = op.join(CSV_PATH, csv_filename)
 
     print("Number of couples:", len(gcm_rcm_couples_sampled_for_experiment))
 
-    idx_list = [0, 1, 2, 3, 4][3:4]
+    idx_list = [0, 1, 2, 3, 4][::-1]
 
     for i in idx_list:
         j = i

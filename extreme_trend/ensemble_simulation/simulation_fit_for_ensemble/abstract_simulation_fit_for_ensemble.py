@@ -45,6 +45,11 @@ class AbstractSimulationFitForEnsemble(object):
         combination = (2, 2, 0) if self.with_effects else (0, 0, 0)
         self.param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
 
+    @staticmethod
+    def print_one_fold_fit_informations(one_fold_fit):
+        print('here info one one fold fit:', one_fold_fit.best_combination, get_display_name_from_object_type(one_fold_fit.best_margin_model))
+
+
     def plot_mean_metric(self, ax, metric_name):
         assert metric_name in self.METRICS
         mean_metric = np.mean(self.metric_name_to_all_list[metric_name], axis=0)

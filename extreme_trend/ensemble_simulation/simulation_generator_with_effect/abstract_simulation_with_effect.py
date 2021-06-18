@@ -12,6 +12,7 @@ from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import 
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
 from extreme_fit.function.margin_function.independent_margin_function import IndependentMarginFunction
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationAndScaleAndShapeTemporalModel
@@ -52,22 +53,28 @@ class AbstractSimulationWithEffects(object):
                 climate_coordinates_with_effects=[AbstractCoordinates.COORDINATE_RCM],
                 drop_duplicates=False)
             df_short = pd.concat([self.coordinates.df_all_coordinates,
-                            self.coordinates.df_coordinate_climate_model.loc[:, AbstractCoordinates.COORDINATE_RCM]], axis=1)
+                                  self.coordinates.df_coordinate_climate_model.loc[:,
+                                  AbstractCoordinates.COORDINATE_RCM]], axis=1)
             couple_coordinate_to_maxima = {}
             for (_, coordinate_full), (_, coordinate_short) in zip(df_full.iterrows(), df_short.iterrows()):
-                couple_coordinate_to_maxima[tuple(coordinate_short)] = margin_function.get_params(coordinate_full).sample(1)
+                couple_coordinate_to_maxima[tuple(coordinate_short)] = margin_function.get_params(
+                    coordinate_full).sample(1)
             self.simulation_id_to_coordinate_to_maxima[simulation_id] = couple_coordinate_to_maxima
 
         # Load the together datasets
-        self.simulation_id_to_together_dataset_with_obs = {simulation_id: self.load_together_dataset(simulation_id, True)
-                                                           for simulation_id in self.simulation_ids}
-        self.simulation_id_to_together_dataset_without_obs = {simulation_id: self.load_together_dataset(simulation_id, False)
-                                                              for simulation_id in self.simulation_ids}
+        self.simulation_id_to_together_dataset_with_obs = {
+            simulation_id: self.load_together_dataset(simulation_id, True)
+            for simulation_id in self.simulation_ids}
+        self.simulation_id_to_together_dataset_without_obs = {
+            simulation_id: self.load_together_dataset(simulation_id, False)
+            for simulation_id in self.simulation_ids}
         # Load the separate datasets
-        self.simulation_id_to_separate_datasets_with_obs = {simulation_id: self.load_separate_datasets_with_obs(simulation_id, True)
-                                                           for simulation_id in self.simulation_ids}
-        self.simulation_id_to_separate_datasets_without_obs = {simulation_id: self.load_separate_datasets_with_obs(simulation_id, False)
-                                                              for simulation_id in self.simulation_ids}
+        self.simulation_id_to_separate_datasets_with_obs = {
+            simulation_id: self.load_separate_datasets_with_obs(simulation_id, True)
+            for simulation_id in self.simulation_ids}
+        self.simulation_id_to_separate_datasets_without_obs = {
+            simulation_id: self.load_separate_datasets_with_obs(simulation_id, False)
+            for simulation_id in self.simulation_ids}
 
     def load_separate_datasets_with_obs(self, simulation_id, with_observations):
         datasets = []
@@ -148,9 +155,12 @@ class AbstractSimulationWithEffects(object):
             # Plot observations
             x_list_past_observation = [x for x in x_list if self.year_from_x(x) < 2020]
             x_list_projected_observation = [x for x in x_list if self.year_from_x(x) >= 2020]
-            y_list = [self.get_params_simulation(margin_function, x, None, gev_param_name) for x in x_list_past_observation]
-            ax.plot(x_list_past_observation, y_list, color=color, linewidth=4, label='Simulation #{}'.format(simulation_id + 1))
-            y_list = [self.get_params_simulation(margin_function, x, None, gev_param_name) for x in x_list_projected_observation]
+            y_list = [self.get_params_simulation(margin_function, x, None, gev_param_name) for x in
+                      x_list_past_observation]
+            ax.plot(x_list_past_observation, y_list, color=color, linewidth=4,
+                    label='Simulation #{}'.format(simulation_id + 1))
+            y_list = [self.get_params_simulation(margin_function, x, None, gev_param_name) for x in
+                      x_list_projected_observation]
             ax.plot(x_list_projected_observation, y_list, color=color, linewidth=4, linestyle='dashed')
 
             # Plot ensemble members
@@ -189,6 +199,10 @@ class AbstractSimulationWithEffects(object):
         ax.set_xticklabels([1950 + 10 * i for i in range(16)])
         ax.set_xlim((ticks[0], ticks[-1]))
 
+    def get_gev_params(self, margin_function, x, j):
+        return GevParams(*[self.get_params_simulation(margin_function, x, j, gev_param_name)
+                           for gev_param_name in GevParams.PARAM_NAMES])
+
     def get_params_simulation(self, margin_function, x, j, gev_param_name):
         if j is None:
             coordinate = np.array([x])
@@ -215,31 +229,79 @@ class AbstractSimulationWithEffects(object):
         else:
             return year - 1951 + (j + 1) * 150
 
+    @staticmethod
+    def get_list(dataset, ind):
+        x_list = [e[0] for e in dataset.coordinates.df_all_coordinates.loc[ind].values]
+        maxima_list = [e[0] for e in dataset.observations.df_maxima_gev.loc[ind].values[:, 0]]
+        return maxima_list, x_list
+
     def plot_time_series(self, simulation_id):
-        def get_list(dataset, ind):
-            x_list = [e[0] for e in dataset.coordinates.df_all_coordinates.loc[ind].values]
-            maxima_list = [e[0] for e in dataset.observations.df_maxima_gev.loc[ind].values[:, 0]]
-            return maxima_list, x_list
 
         ax = plt.gca()
         dataset = self.simulation_id_to_together_dataset_with_obs[simulation_id]
         # Plot the ensemble member
         colors = list(gcm_rcm_couple_to_color.values())
         for j, color in zip(list(range(self.nb_ensemble_member)), colors):
-            ind = self.coordinates.df_coordinate_climate_model[
-                      AbstractCoordinates.COORDINATE_RCM] == self.ensemble_member_idx_to_name(j)
-            maxima_list, x_list = get_list(dataset, ind)
+            maxima_list, x_list = self.get_maxima_and_x_for_ensemble_member_j(dataset, j)
             ax.plot(x_list, maxima_list, color=color, linewidth=2, label='Ensemble member #{}'.format(j + 1))
         # Plot the observation on top
-        ind = self.coordinates.df_coordinate_climate_model.isnull().any(axis=1)
-        maxima_list, x_list = get_list(dataset, ind)
+        maxima_list, x_list = self.get_maxima_and_x_list_for_observations(dataset)
         ax.plot(x_list, maxima_list, color='black', linewidth=4, label='Observation')
         self.set_fake_x_axis(ax)
-        ax.set_ylabel('Simulated annual maxima for simulation #{}'.format(simulation_id+1))
+        ax.set_ylabel('Simulated annual maxima for simulation #{}'.format(simulation_id + 1))
         ax.legend(prop={'size': 6}, ncol=3)
         self.visualizer.plot_name = 'observations from simulation {}'.format(simulation_id + 1)
         self.visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
+
+    def plot_bias(self, simulation_id, year=2019):
+        ax = plt.gca()
+        x = self.get_x_from_year(year)
+        margin_function = self.simulation_id_to_margin_function[simulation_id]
+        gev_params_obs = self.get_gev_params(margin_function, x, None)
+        all_biases = []
+        for j in range(self.nb_ensemble_member):
+            gev_params_j = self.get_gev_params(margin_function, x, j)
+            biases = []
+            for f in ['mean', 'std']:
+                moment_ref, moment_comparison = [gev_params.__getattribute__(f) for gev_params in
+                                                 [gev_params_obs, gev_params_j]]
+                bias = moment_comparison - moment_ref
+                bias *= 100 / moment_ref
+                biases.append(bias)
+            all_biases.append(biases)
+        all_biases = np.array(all_biases)
+        average_bias = np.mean(all_biases, axis=0)
+
+        xi, yi = average_bias
+        ax.scatter([xi], [yi], color="k", marker='x', label="Average relative bias")
+        colors = gcm_rcm_couple_to_color.values()
+        for j, (biases, color) in enumerate(zip(all_biases, colors)):
+            xi, yi = biases
+            name = 'Ensemble member #{}'.format(j+1)
+            ax.scatter([xi], [yi], color=color, marker='o', label=name)
+
+        lim_left, lim_right = ax.get_xlim()
+        ax.vlines(0, ymin=min(0, lim_left), ymax=lim_right)
+        ax.legend(prop={'size': 7}, ncol=1)
+        lim_left, lim_right = ax.get_ylim()
+        ax.hlines(0, xmin=min(0, lim_left), xmax=lim_right)
+        ax.set_xlabel('Relative bias for the mean of annual maxima in {} (\%)'.format(year))
+        ax.set_ylabel('Relative bias for the standard deviation of annual maxima in {} (\%)'.format(year))
+        self.visualizer.plot_name = 'bias from simulation {}'.format(simulation_id + 1)
+        self.visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
+        plt.close()
+
+    def get_maxima_and_x_list_for_observations(self, dataset):
+        ind = self.coordinates.df_coordinate_climate_model.isnull().any(axis=1)
+        maxima_list, x_list = self.get_list(dataset, ind)
+        return maxima_list, x_list
+
+    def get_maxima_and_x_for_ensemble_member_j(self, dataset, j):
+        ind = self.coordinates.df_coordinate_climate_model[
+                  AbstractCoordinates.COORDINATE_RCM] == self.ensemble_member_idx_to_name(j)
+        maxima_list, x_list = self.get_list(dataset, ind)
+        return maxima_list, x_list
 
     @property
     def summary_parameter(self):

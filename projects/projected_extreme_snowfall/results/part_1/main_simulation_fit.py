@@ -12,6 +12,7 @@ from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulati
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_versions_v2 import \
     SimulationLogScaleWithShift, SimulationLogScaleWithoutShift
 from extreme_trend.ensemble_simulation.visualizer_for_simulation_ensemble import VisualizerForSimulationEnsemble
+from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from projects.projected_extreme_snowfall.results.setting_utils import LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
 
 
@@ -20,7 +21,8 @@ def main_simulation():
 
     model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
     # model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
-
+    OneFoldFit.SELECTION_METHOD_NAME = 'aic'
+    print(OneFoldFit.SELECTION_METHOD_NAME)
     fast = None
     if fast is True:
         nb_simulations = 1
