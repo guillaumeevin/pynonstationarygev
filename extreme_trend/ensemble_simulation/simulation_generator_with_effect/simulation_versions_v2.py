@@ -90,7 +90,7 @@ class SimulationLogScaleWithShift(AbstractSimulationLogScale):
 
     @property
     def shift_rcm(self):
-        return 0
+        return 0.1
 
 class SimulationLogScaleWithoutShift(AbstractSimulationLogScale):
 

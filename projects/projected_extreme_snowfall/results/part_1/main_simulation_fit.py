@@ -20,9 +20,7 @@ def main_simulation():
     start = time.time()
 
     model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
-    # model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
     OneFoldFit.SELECTION_METHOD_NAME = 'aic'
-    print(OneFoldFit.SELECTION_METHOD_NAME)
     fast = None
     if fast is True:
         nb_simulations = 1

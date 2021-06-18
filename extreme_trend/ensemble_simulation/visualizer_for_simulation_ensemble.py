@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract_simulation_with_effect import \
     AbstractSimulationWithEffects
+from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from projects.projected_extreme_snowfall.results.combination_utils import number_to_sub_numbers
 
 
@@ -29,19 +30,21 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
         self.simulation_fits = []  # type: List[AbstractSimulationFitForEnsemble]
         fit_classes = [SeparateSimulationFitForEnsemble, TogetherSimulationFitForEnsemble][:]
         fit_class_to_colors = {
-            SeparateSimulationFitForEnsemble: ['silver', 'gray'],
-            TogetherSimulationFitForEnsemble: ['tan', 'brown']
+            SeparateSimulationFitForEnsemble: ['silver', 'gray', 'black'],
+            TogetherSimulationFitForEnsemble: ['tan', 'peru', 'brown']
         }
         for fit_class in fit_classes:
             colors = fit_class_to_colors[fit_class]
             fit_class_simulation_fits = [
                 fit_class(self.simulation, year_list_to_test, return_period, model_classes,
-                          with_effects=False, with_observation=False, color=colors[0]),
-                # fit_class(simulation, year_list_to_test, return_period, model_classes,
-                #           with_effects=False, with_observation=True, color='red'),
+                          with_effects=False, with_observation=False, color=colors[0], with_sub_combinations=False),
                 fit_class(self.simulation, year_list_to_test, return_period, model_classes,
-                          with_effects=True, with_observation=True, color=colors[1])
-            ][:]
+                          with_effects=True, with_observation=True, color=colors[1],
+                          with_sub_combinations=True),
+                fit_class(self.simulation, year_list_to_test, return_period, model_classes,
+                          with_effects=True, with_observation=True, color=colors[2], with_sub_combinations=False),
+
+            ][:2]
             self.simulation_fits.extend(fit_class_simulation_fits)
         self.simulation_fits = self.simulation_fits[::-1][:]
         if fast:
@@ -61,6 +64,7 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
         ax.set_ylabel(ylabel)
         plot_name = ylabel
         sub_combination = '_'.join([str(n) for n in number_to_sub_numbers[2]])
+        plot_name += OneFoldFit.SELECTION_METHOD_NAME
         plot_name += '_models{}_combination{}'.format(len(self.model_classes), sub_combination)
         plot_name += '_bootstrap{}_nbsimu{}'.format(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP,
                                                            self.simulation.nb_simulations)  + self.simulation.summary_parameter

@@ -62,7 +62,9 @@ class OneFoldFit(object):
                  only_models_that_pass_goodness_of_fit_test=True,
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
-                 param_name_to_climate_coordinates_with_effects=None):
+                 param_name_to_climate_coordinates_with_effects=None,
+                 with_sub_combinations=True):
+        self.with_sub_combinations = with_sub_combinations
         self.first_year = first_year
         self.last_year = last_year
         self.remove_physically_implausible_models = remove_physically_implausible_models
@@ -75,14 +77,17 @@ class OneFoldFit(object):
         self.fit_method = fit_method
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
-        self.sub_combinations = generate_sub_combination(
-            load_combination(self.param_name_to_climate_coordinates_with_effects))
+        # Load combinations
+        combination = load_combination(self.param_name_to_climate_coordinates_with_effects)
+        if self.with_sub_combinations:
+            self.sub_combinations = generate_sub_combination(combination)
+        else:
+            self.sub_combinations = [combination]
         # Fit Estimators
         self.fitted_estimators = set()
         for model_class in models_classes:
             for sub_combination in self.sub_combinations:
-                param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
-                    sub_combination)
+                param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(sub_combination)
                 fitted_estimator = self.fitted_linear_margin_estimator(model_class, self.dataset,
                                                                        param_name_to_climate_coordinates_with_effects)
                 self.fitted_estimators.add(fitted_estimator)

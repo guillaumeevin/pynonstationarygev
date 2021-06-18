@@ -23,6 +23,7 @@ class AbstractSimulationFitForEnsemble(object):
                  return_period,
                  model_classes,
                  with_effects=True,
+                 with_sub_combinations=True,
                  with_observation=True,
                  color='k'):
         self.color = color
@@ -43,6 +44,7 @@ class AbstractSimulationFitForEnsemble(object):
         self.confidence_interval_based_on_delta_method = False
         self.remove_physically_implausible_models = False
         combination = (2, 2, 0) if self.with_effects else (0, 0, 0)
+        self.with_sub_combinations = with_sub_combinations
         self.param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
 
     @staticmethod
@@ -68,6 +70,7 @@ class AbstractSimulationFitForEnsemble(object):
                                   only_models_that_pass_goodness_of_fit_test=self.only_models_that_pass_goodness_of_fit_test,
                                   confidence_interval_based_on_delta_method=self.confidence_interval_based_on_delta_method,
                                   param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects,
+                                  with_sub_combinations=self.with_sub_combinations,
                                   fit_method=self.fit_method)
         return one_fold_fit
 
@@ -134,6 +137,8 @@ class AbstractSimulationFitForEnsemble(object):
     def add_suffix(self, name):
         if self.with_effects:
             name += 'with effects'
+            if self.with_sub_combinations:
+                name += ' or without effects'
         else:
             name += 'without effects'
         # if self.with_observation:
