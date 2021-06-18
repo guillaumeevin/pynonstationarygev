@@ -32,7 +32,8 @@ class AbstractCoordinates(object):
     COORDINATE_GCM = 'coord_gcm'
     COORDINATE_RCM = 'coord_rcm'
     COORDINATE_GCM_AND_RCM = 'coord_gcm_and_rcm'
-    COORDINATE_CLIMATE_MODEL_NAMES = [COORDINATE_RCP, COORDINATE_GCM, COORDINATE_RCM, COORDINATE_GCM_AND_RCM]
+    COORDINATE_IS_ENSEMBLE_MEMBER = 'coord_is_ensemble_member'
+    COORDINATE_CLIMATE_MODEL_NAMES = [COORDINATE_RCP, COORDINATE_GCM, COORDINATE_RCM, COORDINATE_GCM_AND_RCM, COORDINATE_IS_ENSEMBLE_MEMBER]
     # Coordinates columns
     COORDINATES_NAMES = COORDINATE_SPATIAL_NAMES + [COORDINATE_T] + COORDINATE_CLIMATE_MODEL_NAMES
     # Coordinate type
@@ -263,20 +264,28 @@ class AbstractCoordinates(object):
 
     @classmethod
     def load_full_climate_coordinates_with_effects(cls, param_name_to_climate_coordinates_with_effects):
-        three_climate_coordinates_considered = [cls.COORDINATE_GCM, cls.COORDINATE_RCM, cls.COORDINATE_GCM_AND_RCM]
+        four_climate_coordinates_considered = [cls.COORDINATE_GCM, cls.COORDINATE_RCM, cls.COORDINATE_GCM_AND_RCM,
+                                           cls.COORDINATE_IS_ENSEMBLE_MEMBER]
         all_climate_coordinate_with_effects = set(chain(*[c
                                                           for c
                                                           in param_name_to_climate_coordinates_with_effects.values()
                                                           if c is not None]))
-        assert all([c in three_climate_coordinates_considered for c in all_climate_coordinate_with_effects])
-        if len(all_climate_coordinate_with_effects) == 3:
-            return three_climate_coordinates_considered
-        elif len(all_climate_coordinate_with_effects) == 2:
-            return [c for c in three_climate_coordinates_considered if c in all_climate_coordinate_with_effects]
+        assert all([c in four_climate_coordinates_considered for c in all_climate_coordinate_with_effects])
+        if len(all_climate_coordinate_with_effects) > 1:
+            return [c for c in four_climate_coordinates_considered if c in all_climate_coordinate_with_effects]
         elif len(all_climate_coordinate_with_effects) == 1:
             return list(all_climate_coordinate_with_effects)
         else:
             return None
+        #
+        # if len(all_climate_coordinate_with_effects) == 3:
+        #     return four_climate_coordinates_considered
+        # elif len(all_climate_coordinate_with_effects) == 2:
+        #     return [c for c in four_climate_coordinates_considered if c in all_climate_coordinate_with_effects]
+        # elif len(all_climate_coordinate_with_effects) == 1:
+        #     return list(all_climate_coordinate_with_effects)
+        # else:
+        #     return None
 
     def df_climate_models(self):
         return self.df_coordinate_climate_model

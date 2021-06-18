@@ -8,6 +8,7 @@ climate_coordinates_with_effects_list = [None,
                                          [AbstractCoordinates.COORDINATE_RCM],
                                          [AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM],
                                          [AbstractCoordinates.COORDINATE_GCM_AND_RCM],
+                                         [AbstractCoordinates.COORDINATE_IS_ENSEMBLE_MEMBER],
                                          ]  # None means we do not create any effect
 
 
@@ -30,6 +31,7 @@ number_to_sub_numbers = {
     2: [0, 2],
     3: [0, 1, 2, 3],
     4: [0, 4],
+    5: [0, 5],
 }
 
 def generate_sub_combination(combination):

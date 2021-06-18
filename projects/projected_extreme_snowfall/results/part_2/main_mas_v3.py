@@ -68,7 +68,7 @@ def main_preliminary_projections():
 
     print("Number of couples:", len(gcm_rcm_couples_sampled_for_experiment))
 
-    idx_list = [0, 1, 2, 3, 4][::-1]
+    idx_list = [0, 1, 2, 3, 4, 5][::-1]
 
     for i in idx_list:
         j = i
