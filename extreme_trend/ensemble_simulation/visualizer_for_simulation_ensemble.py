@@ -64,8 +64,8 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
         ax.set_ylabel(ylabel)
         plot_name = ylabel
         sub_combination = '_'.join([str(n) for n in number_to_sub_numbers[2]])
-        plot_name += OneFoldFit.SELECTION_METHOD_NAME
-        plot_name += '_models{}_combination{}'.format(len(self.model_classes), sub_combination)
+        plot_name += '_' + OneFoldFit.SELECTION_METHOD_NAME
+        plot_name += '_models{}_combination_{}'.format(len(self.model_classes), sub_combination)
         plot_name += '_bootstrap{}_nbsimu{}'.format(AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP,
                                                            self.simulation.nb_simulations)  + self.simulation.summary_parameter
         self.show_or_save_to_file(plot_name=plot_name)

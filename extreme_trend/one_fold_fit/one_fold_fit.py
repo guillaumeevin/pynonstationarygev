@@ -33,6 +33,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_retur
     EurocodeConfidenceIntervalFromExtremes
 from extreme_fit.model.utils import SafeRunException
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup, altitudes_for_groups
+from extreme_trend.one_fold_fit.utils_split_sample_selection import compute_mean_log_score_with_split_sample
 from projects.projected_extreme_snowfall.results.combination_utils import load_combination, generate_sub_combination, \
     load_param_name_to_climate_coordinates_with_effects
 from root_utils import NB_CORES, batch, get_display_name_from_object_type
@@ -101,6 +102,8 @@ class OneFoldFit(object):
                                                     temporal_covariate_for_fit=self.temporal_covariate_for_fit,
                                                     drop_duplicates=False,
                                                     param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects)
+
+
 
     @classmethod
     def get_moment_str(cls, order):
@@ -208,13 +211,19 @@ class OneFoldFit(object):
 
     def _sorted_estimators_with_method_name(self, method_name) -> List[LinearMarginEstimator]:
         estimators = self.estimators_quality_checked
-        try:
-            sorted_estimators = sorted([estimator for estimator in estimators],
-                                       key=lambda e: e.__getattribute__(method_name))
-        except AssertionError as e:
-            print('Error for:\n', self.massif_name, self.altitude_group)
-            raise e
-        return sorted_estimators
+        if len(estimators) == 1:
+            return estimators
+        else:
+            try:
+                if OneFoldFit.SELECTION_METHOD_NAME == 'split_sample':
+                    for estimator in estimators:
+                        estimator.split_sample = compute_mean_log_score_with_split_sample(estimator)
+                sorted_estimators = sorted([estimator for estimator in estimators],
+                                           key=lambda e: e.__getattribute__(method_name))
+            except AssertionError as e:
+                print('Error for:\n', self.massif_name, self.altitude_group)
+                raise e
+            return sorted_estimators
 
     @cached_property
     def estimators_quality_checked(self):

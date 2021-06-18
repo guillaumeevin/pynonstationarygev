@@ -109,7 +109,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                 new_formula_list.append(f + f_effect)
             formula_list = new_formula_list
         formula = r.list(*[robjects.Formula(f) for f in formula_list])
-        df = pd.DataFrame({maxima_column_name: np.array(x)})
+        df = pd.DataFrame({maxima_column_name: np.array(x)}, index=df_coordinates_temp.index)
         df = pd.concat([df, df_coordinates_spat, df_coordinates_temp], axis=1)
         # todo: put this assertion earlier in the code for other sub methods
         assert not df.isnull().any(axis=1).any(), "Some Nan values in df:\n {}".format(df)

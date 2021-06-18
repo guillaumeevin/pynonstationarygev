@@ -20,7 +20,8 @@ def main_simulation():
     start = time.time()
 
     model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
-    OneFoldFit.SELECTION_METHOD_NAME = 'aic'
+    # OneFoldFit.SELECTION_METHOD_NAME = 'aic'
+    OneFoldFit.SELECTION_METHOD_NAME = 'split_sample'
     fast = None
     if fast is True:
         nb_simulations = 1
