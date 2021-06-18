@@ -103,6 +103,10 @@ class AbstractSimulationWithEffects(object):
         df_final = self.load_df_observations(with_observations)
         df = self.load_df_ensemble_member(j)
         df_final = df_final.append(df, ignore_index=True)
+        if with_observations:
+            assert len(df_final) == 150 + 61
+        else:
+            assert len(df_final) == 150
         df_final.index = np.arange(0, len(df_final))
         return df_final
 
@@ -111,6 +115,10 @@ class AbstractSimulationWithEffects(object):
         for j in range(self.nb_ensemble_member):
             df = self.load_df_ensemble_member(j)
             df_final = df_final.append(df, ignore_index=True)
+        if with_observations:
+            assert len(df_final) == 150 * 20 + 61
+        else:
+            assert len(df_final) == 150 * 20
         df_final.index = np.arange(0, len(df_final))
         assert len(df_final.columns) == 2
         return df_final
