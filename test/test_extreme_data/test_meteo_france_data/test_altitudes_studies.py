@@ -36,7 +36,7 @@ class TestSpatioTemporalDatasetForClimateModels(unittest.TestCase):
     def test_dataset(self):
         dataset = self.studies.spatio_temporal_dataset(self.massif_name)
         self.assertEqual(self.studies.study.scenario, AdamontScenario.rcp85)
-        self.assertEqual(len(dataset.coordinates.df_coordinate_climate_model.columns), 4)
+        self.assertEqual(len(dataset.coordinates.df_coordinate_climate_model.columns), 5)
 
 
 if __name__ == '__main__':

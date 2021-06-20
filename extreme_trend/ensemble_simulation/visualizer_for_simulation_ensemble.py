@@ -37,12 +37,9 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
             colors = fit_class_to_colors[fit_class]
             fit_class_simulation_fits = [
                 fit_class(self.simulation, year_list_to_test, return_period, model_classes,
-                          with_effects=False, with_observation=False, color=colors[0], with_sub_combinations=False),
+                          with_effects=False, with_observation=False, color=colors[0]),
                 fit_class(self.simulation, year_list_to_test, return_period, model_classes,
-                          with_effects=True, with_observation=True, color=colors[1],
-                          with_sub_combinations=True),
-                fit_class(self.simulation, year_list_to_test, return_period, model_classes,
-                          with_effects=True, with_observation=True, color=colors[2], with_sub_combinations=False),
+                          with_effects=True, with_observation=True, color=colors[2]),
 
             ][:]
             self.simulation_fits.extend(fit_class_simulation_fits)

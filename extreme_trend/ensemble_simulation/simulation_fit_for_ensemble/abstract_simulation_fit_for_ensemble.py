@@ -23,7 +23,7 @@ class AbstractSimulationFitForEnsemble(object):
                  return_period,
                  model_classes,
                  with_effects=True,
-                 with_sub_combinations=True,
+                 with_sub_combinations=False,
                  with_observation=True,
                  color='k'):
         self.color = color

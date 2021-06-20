@@ -310,6 +310,12 @@ class AbstractStudy(object):
             massif_name_to_annual_maxima[massif_name] = maxima
         return massif_name_to_annual_maxima
 
+    def year_to_annual_maxima_for_a_massif(self, massif_name):
+        maxima = self.massif_name_to_annual_maxima[massif_name]
+        assert len(maxima) == len(self.ordered_years)
+        return dict(zip(self.ordered_years, maxima))
+
+
     @cached_property
     def massif_name_to_annual_mean(self):
         massif_name_to_annual_mean = OrderedDict()

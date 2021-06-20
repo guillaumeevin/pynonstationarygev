@@ -18,19 +18,19 @@ from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects, load_combination_name_for_tuple
 from projects.projected_extreme_snowfall.results.experiment.model_as_truth_experiment import ModelAsTruthExperiment
-from projects.projected_extreme_snowfall.results.part_2.plot_bias import plot_bias, plot_average_bias, load_study
+from projects.projected_extreme_snowfall.results.part_2.average_bias import plot_average_bias, load_study, \
+    compute_average_bias, plot_bias
 from projects.projected_extreme_snowfall.results.part_2.v1.main_mas_v1 import CSV_PATH
-from projects.projected_extreme_snowfall.results.part_2.v2.utils import update_csv, is_already_done
+from projects.projected_extreme_snowfall.results.part_2.v2.utils import update_csv, is_already_done, load_excel, \
+    main_sheet_name
 from projects.projected_extreme_snowfall.results.setting_utils import set_up_and_load
 
 
 def main_preliminary_projections():
     # Load parameters
-    show = False
+    show = None
     fast = False
     snowfall = False
-
-    OneFoldFit.SELECTION_METHOD_NAME = 'split_sample'
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -45,41 +45,48 @@ def main_preliminary_projections():
     gcm_rcm_couple_to_study, safran_study = load_study(altitude, gcm_rcm_couples, safran_study_class, scenario,
                                                        study_class)
     print('number of couples loaded:', len(gcm_rcm_couple_to_study))
-    average_bias = plot_bias(gcm_rcm_couple_to_study, massif_name, safran_study, show=show)
+    average_bias, _ = compute_average_bias(gcm_rcm_couple_to_study, massif_name, safran_study, show=show)
     if fast in [True]:
         alpha = ''
         gcm_rcm_couples_sampled_for_experiment = [('CNRM-CM5', 'ALADIN63')]
+        gcm_rcm_couple_to_average_bias, gcm_rcm_couple_to_gcm_rcm_couple_to_biases = None, None
         # gcm_rcm_couples_sampled_for_experiment = [('NorESM1-M', 'REMO2015'), ('MPI-ESM-LR', 'REMO2009')]
     else:
-        alpha = 30 if snowfall else 3
-        gcm_rcm_couples_sampled_for_experiment = plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias,
+        alpha = 30 if snowfall else 5
+        gcm_rcm_couples_sampled_for_experiment, gcm_rcm_couple_to_average_bias, gcm_rcm_couple_to_gcm_rcm_couple_to_biases = plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias,
                                                                    alpha, show=show)
 
     print(gcm_rcm_couples_sampled_for_experiment)
 
     study = 'snowfall' if snowfall else 'snow_load'
-    csv_filename = 'last_{}_fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_alpha_{}_selection_{}.xlsx'.format(study, fast, altitude,
+    csv_filename = 'last_{}_fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_alpha_{}.xlsx'.format(study, fast, altitude,
                                                                                                              len(model_classes),
                                                                                                              len(gcm_rcm_couple_to_study),
-                                                                                                             alpha,
-                                                                                                                          OneFoldFit.SELECTION_METHOD_NAME)
+                                                                                                             alpha
+                                                                                                                        )
     print(csv_filename)
-    csv_filepath = op.join(CSV_PATH, csv_filename)
+
+    if gcm_rcm_couple_to_average_bias is not None:
+        for couple in gcm_rcm_couples_sampled_for_experiment:
+            plot_bias(gcm_rcm_couple_to_study[couple], gcm_rcm_couple_to_average_bias[couple], gcm_rcm_couple_to_gcm_rcm_couple_to_biases[couple], show)
+
+
+    excel_filepath = op.join(CSV_PATH, csv_filename)
 
     print("Number of couples:", len(gcm_rcm_couples_sampled_for_experiment))
 
-    idx_list = [0, 1, 2, 3, 4, 5][::-1]
-
-    for i in idx_list:
-        j = i
-        print(i, j)
+    couple_list = [(0, 0)]
+    for index_name in [1, 2, 4, 5]:
+        couple_list.extend([(index_name, index_name), (index_name, 0), (0, index_name)][:1])
+    for index_name, j in couple_list[::1]:
+        print(index_name, j)
         for gcm_rcm_couple in gcm_rcm_couples_sampled_for_experiment:
-            combination = (i, j, 0)
+            combination = (index_name, j, 0)
             param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
                 combination)
 
             combination_name = load_combination_name_for_tuple(combination)
-            if is_already_done(csv_filepath, combination_name, altitude, gcm_rcm_couple):
+            if is_already_done(excel_filepath, combination_name, altitude, gcm_rcm_couple):
                 continue
             xp = ModelAsTruthExperiment(altitudes, gcm_rcm_couples, study_class, Season.annual,
                                         scenario=scenario,
@@ -94,7 +101,16 @@ def main_preliminary_projections():
                                         param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
                                         )
             nllh_list = xp.run_one_experiment(gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
-            update_csv(csv_filepath, combination_name, altitude, gcm_rcm_couple, nllh_list)
+            update_csv(excel_filepath, combination_name, altitude, gcm_rcm_couple, nllh_list)
+    # Plot the content of the final df
+    df = load_excel(excel_filepath, main_sheet_name)
+    df = df.reindex(sorted(df.columns), axis=1)
+    j_to_argmax = {j: int(df.iloc[:, j].values.argmax()) for j in range(len(df.columns))}
+    for i, (index_name, row) in enumerate(df.iterrows()):
+        print(index_name)
+        values = [str(round(e, 1)) for e in list(row.values)]
+        values = ['\\textbf{' + e + '}' if j_to_argmax[j] == i else e for j, e in enumerate(values)]
+        print(' & '.join(values) + ' \\\\')
 
 
 if __name__ == '__main__':
