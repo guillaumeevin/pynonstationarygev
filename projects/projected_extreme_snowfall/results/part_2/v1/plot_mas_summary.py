@@ -14,6 +14,9 @@ from projects.projected_extreme_snowfall.results.part_2.v2.utils import main_she
 def plot_summary_graph_for_fixed_w(w=1):
     csv_filename = "last_snow_load_fast_False_altitudes_1500_nb_of_models_1_nb_gcm_rcm_couples_20_alpha_3"
     csv_filename = "last_snow_load_fast_False_altitudes_1500_nb_of_models_1_nb_gcm_rcm_couples_20_alpha_3_selection_split_sample"
+    csv_filename = "last_snow_load_fast_False_altitudes_1500_nb_of_models_1_nb_gcm_rcm_couples_20_alpha_3_selection_aic"
+    csv_filename = "last_snow_load_fast_False_altitudes_1500_nb_of_models_1_nb_gcm_rcm_couples_12_alpha_3_selection_split_sample"
+    csv_filename = "last_snow_load_fast_False_altitudes_1500_nb_of_models_1_nb_gcm_rcm_couples_12_alpha_3_selection_aic"
     # csv_filename = "last_snow_load_fast_None_altitudes_3000_nb_of_models_27_nb_gcm_rcm_couples_20_alpha_"
     csv_filename = csv_filename.format(w) + '.xlsx'
     csv_filepath = op.join(CSV_PATH, csv_filename.format(w))
@@ -25,7 +28,7 @@ def plot_summary_graph_for_fixed_w(w=1):
         for name_column in name_columns:
             print(name_column)
 
-            potential_indices = [0, 1, 2, 3, 4]
+            potential_indices = [0, 1, 2, 3, 4, 5]
             all_combinations = [potential_indices for _ in range(2)] + [[0]]
             combinations = list(product(*all_combinations))
             ax = plt.gca()
@@ -34,14 +37,16 @@ def plot_summary_graph_for_fixed_w(w=1):
                 1: 'g',
                 2: 'r',
                 3: 'b',
-                4: 'y'
+                4: 'y',
+                5: 'orange'
             }
             i_to_label = {
                 0: 'without correction coefficients',
                 1: 'correction coefficients shared across GCMs',
                 2: 'correction coefficients shared across RCMs',
                 3: 'with correction coefficients shared across GCMs and RCMs',
-                4: 'with one correction coefficient for each GCM-RCM pair'
+                4: 'with one correction coefficient for each GCM-RCM pair',
+                5: 'with one single correction coefficient shared across all pairs'
             }
             set_of_i_in_legend = set()
             for combination in combinations:

@@ -11,7 +11,7 @@ from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulati
 def main_simulation():
     # nb = 1
     nb = 4
-    simulation_ids = [0, 1, 2, 3, 4, 5, 6, 7, 8][:nb]
+    simulation_ids = list(range(nb))
     simulation_class = [SimulationLogScaleWithShift10][0]
     simulation = simulation_class(len(simulation_ids))
     plot_simulation(simulation, simulation_ids)

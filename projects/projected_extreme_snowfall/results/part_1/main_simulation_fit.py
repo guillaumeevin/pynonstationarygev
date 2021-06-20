@@ -28,7 +28,7 @@ def main_simulation():
         year_list_to_test = [2025, 2050, 2075, 2100]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 0
     elif fast is None:
-        nb_simulations = 20
+        nb_simulations = 9
         year_list_to_test = [2020 + i * 5 for i in range(17)]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 0
     else:

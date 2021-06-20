@@ -116,9 +116,9 @@ class AbstractSimulationWithEffects(object):
             df = self.load_df_ensemble_member(j)
             df_final = df_final.append(df, ignore_index=True)
         if with_observations:
-            assert len(df_final) == 150 * 20 + 61
+            assert len(df_final) == 150 * self.nb_ensemble_member + 61
         else:
-            assert len(df_final) == 150 * 20
+            assert len(df_final) == 150 * self.nb_ensemble_member
         df_final.index = np.arange(0, len(df_final))
         assert len(df_final.columns) == 2
         return df_final
@@ -155,8 +155,10 @@ class AbstractSimulationWithEffects(object):
         ax = plt.gca()
         x_list = np.linspace(0, 1, num=150)
         # colors = list(gcm_rcm_couple_to_color.values())
-        colors = ['lightpink', 'violet', 'm', 'darkmagenta']
+        # colors = ['lightpink', 'violet', 'm', 'darkmagenta']
+        colors = ['red', 'blue', 'cyan', 'y', 'k', 'green']
         colors += ['red', 'blue', 'cyan', 'y', 'k', 'green']
+        colors += ['lightpink', 'violet', 'm', 'darkmagenta']
         assert len(simulation_ids) <= len(colors)
         for color, simulation_id in zip(colors, simulation_ids):
             margin_function = self.simulation_id_to_margin_function[simulation_id]
