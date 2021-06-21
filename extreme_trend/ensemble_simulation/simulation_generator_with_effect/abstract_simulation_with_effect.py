@@ -259,16 +259,18 @@ class AbstractSimulationWithEffects(object):
         ax = plt.gca()
         dataset = self.simulation_id_to_together_dataset_with_obs[simulation_id]
         # Plot the ensemble member
-        colors = list(gcm_rcm_couple_to_color.values())
+        colors = list(gcm_rcm_couple_to_color.values())[::-1]
         for j, color in zip(list(range(self.nb_ensemble_member)), colors):
             maxima_list, x_list = self.get_maxima_and_x_for_ensemble_member_j(dataset, j)
-            ax.plot(x_list, maxima_list, color=color, linewidth=2, label='Ensemble member #{}'.format(j + 1))
+            fake_index = self.nb_ensemble_member - j
+            ax.plot(x_list, maxima_list, color=color, linewidth=2, label='Ensemble member #{}'.format(fake_index))
         # Plot the observation on top
         maxima_list, x_list = self.get_maxima_and_x_list_for_observations(dataset)
         ax.plot(x_list, maxima_list, color='black', linewidth=4, label='Observation')
         self.set_fake_x_axis(ax)
         ax.set_ylabel('Simulated annual maxima for simulation #{}'.format(simulation_id + 1))
-        ax.legend(prop={'size': 6}, ncol=3)
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[::-1], labels[::-1], prop={'size': 6}, ncol=3)
         self.visualizer.plot_name = 'observations from simulation {}'.format(simulation_id + 1)
         self.visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
@@ -278,15 +280,20 @@ class AbstractSimulationWithEffects(object):
         dataset = self.simulation_id_to_together_dataset_with_obs[simulation_id]
         all_biases, average_bias = self.compute_average_bias(dataset)
 
-        colors = gcm_rcm_couple_to_color.values()
+        colors = list(gcm_rcm_couple_to_color.values())[::-1]
         for j, (biases, color) in enumerate(zip(all_biases, colors)):
             xi, yi = biases
-            name = 'Ensemble member #{}'.format(j + 1)
+            fake_index = self.nb_ensemble_member - j
+            name = 'Ensemble member #{}'.format(fake_index)
             ax.scatter([xi], [yi], color=color, marker='o', label=name)
 
         plot_bias_repartition(average_bias, ax, 'observation', skip_percent=False)
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[::-1], labels[::-1], prop={'size': 7}, loc='lower right', ncol=1)
+
         self.visualizer.plot_name = 'bias from simulation {}'.format(simulation_id + 1)
         self.visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
+
         plt.close()
 
     def compute_average_bias(self, dataset):

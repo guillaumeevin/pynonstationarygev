@@ -1,5 +1,7 @@
 import os.path as op
 
+import matplotlib
+
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationAndScaleAndShapeTemporalModel
@@ -8,7 +10,7 @@ from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects, load_combination_name_for_tuple
 from projects.projected_extreme_snowfall.results.experiment.model_as_truth_experiment import ModelAsTruthExperiment
 from projects.projected_extreme_snowfall.results.part_2.average_bias import plot_average_bias, load_study, \
-    compute_average_bias, plot_bias
+    compute_average_bias, plot_bias, plot_time_series
 from projects.projected_extreme_snowfall.results.part_2.v1.main_mas_v1 import CSV_PATH
 from projects.projected_extreme_snowfall.results.part_2.v2.utils import update_csv, is_already_done, load_excel, \
     main_sheet_name
@@ -20,6 +22,11 @@ def main_preliminary_projections():
     show = None
     fast = False
     snowfall = False
+
+    matplotlib.use('Agg')
+    import matplotlib as mpl
+    mpl.rcParams['text.usetex'] = False
+    mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -34,6 +41,7 @@ def main_preliminary_projections():
     gcm_rcm_couple_to_study, safran_study = load_study(altitude, gcm_rcm_couples, safran_study_class, scenario,
                                                        study_class)
     print('number of couples loaded:', len(gcm_rcm_couple_to_study))
+
     average_bias, _ = compute_average_bias(gcm_rcm_couple_to_study, massif_name, safran_study, show=show)
     print('average bias for safran:', average_bias)
     if fast in [True]:
@@ -76,8 +84,6 @@ def main_preliminary_projections():
                 combination)
 
             combination_name = load_combination_name_for_tuple(combination)
-            if is_already_done(excel_filepath, combination_name, altitude, gcm_rcm_couple):
-                continue
             xp = ModelAsTruthExperiment(altitudes, gcm_rcm_couples, study_class, Season.annual,
                                         scenario=scenario,
                                         selection_method_names=['aic'],
@@ -90,6 +96,14 @@ def main_preliminary_projections():
                                         gcm_rcm_couples_sampled_for_experiment=gcm_rcm_couples_sampled_for_experiment,
                                         param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
                                         )
+            # plot time series
+            gcm_rcm_couple_to_studies = xp.load_gcm_rcm_couple_to_studies(gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
+            gcm_rcm_couple_to_study = {c: studies.study for c, studies in gcm_rcm_couple_to_studies.items()}
+            gcm_rcm_couple_to_other_study = {c: s for c, s in gcm_rcm_couple_to_study.items() if c != gcm_rcm_couple}
+            plot_time_series(massif_name, gcm_rcm_couple_to_study[gcm_rcm_couple], gcm_rcm_couple_to_other_study, show)
+
+            if is_already_done(excel_filepath, combination_name, altitude, gcm_rcm_couple):
+                continue
             nllh_list = xp.run_one_experiment(gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
             update_csv(excel_filepath, combination_name, altitude, gcm_rcm_couple, nllh_list)
     # Plot the content of the final df

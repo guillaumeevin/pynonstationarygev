@@ -5,11 +5,9 @@ import numpy as np
 
 from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_to_color
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str, SEPARATOR_STR
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
-from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
 
 
 def plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias_obs, alpha, show=False):
@@ -69,8 +67,6 @@ def compute_average_bias(gcm_rcm_couple_to_study, massif_name, reference_study, 
 
 def plot_bias(study_reference, average_bias, gcm_rcm_couple_to_biases, show):
     ax = plt.gca()
-    name = gcm_rcm_couple_to_str(study_reference.gcm_rcm_couple) \
-        if isinstance(study_reference, AbstractAdamontStudy) else 'SAFRAN'
 
     for gcm_rcm_couple, biases in gcm_rcm_couple_to_biases.items():
         xi, yi = biases
@@ -78,11 +74,50 @@ def plot_bias(study_reference, average_bias, gcm_rcm_couple_to_biases, show):
         name = gcm_rcm_couple_to_str(gcm_rcm_couple)
         ax.scatter([xi], [yi], color=color, marker='o', label=name)
 
+    name = gcm_rcm_couple_to_str(study_reference.gcm_rcm_couple) \
+        if isinstance(study_reference, AbstractAdamontStudy) else 'SAFRAN'
     plot_bias_repartition(average_bias, ax, name)
     if show in [None, True]:
         save_to_file = True if show is None else False
         visualizer = StudyVisualizer(study_reference, save_to_file=save_to_file)
         visualizer.plot_name = 'plot bias repartition'
+        visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
+    plt.close()
+
+
+def plot_time_series(massif_name, study_reference, gcm_rcm_couple_to_study, show):
+    ax = plt.gca()
+    # Plot the ensemble member
+    linewidth = 2
+    for gcm_rcm_couple, color in list(gcm_rcm_couple_to_color.items())[::-1]:
+        if gcm_rcm_couple in gcm_rcm_couple_to_study:
+            study = gcm_rcm_couple_to_study[gcm_rcm_couple]
+            if massif_name in study.massif_name_to_annual_maxima:
+                x = study.ordered_years
+                y = study.massif_name_to_annual_maxima[massif_name]
+                label = gcm_rcm_couple_to_str(gcm_rcm_couple)
+                color = gcm_rcm_couple_to_color[gcm_rcm_couple]
+                ax.plot(x, y, linewidth=linewidth, label=label, color=color)
+
+    # Plot the pseudo observation on top
+    x = study_reference.ordered_years
+    y = study_reference.massif_name_to_annual_maxima[massif_name]
+    label = 'Pseudo observation'
+    color = 'black'
+    ax.plot(x, y, linewidth=linewidth * 2, label=label, color=color)
+    ax.set_ylabel(
+        'Annual maxima with {} as pseudo observations'.format(gcm_rcm_couple_to_str(study_reference.gcm_rcm_couple)))
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles[::-1], labels[::-1], prop={'size': 6}, ncol=3)
+
+    ax.set_xlabel('Years')
+    plt.tick_params(axis='both', which='major', labelsize=7)
+    ax.set_xlim((1950, 2100))
+
+    if show in [None, True]:
+        save_to_file = True if show is None else False
+        visualizer = StudyVisualizer(study_reference, save_to_file=save_to_file, show=show)
+        visualizer.plot_name = 'time series'
         visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
     plt.close()
 
