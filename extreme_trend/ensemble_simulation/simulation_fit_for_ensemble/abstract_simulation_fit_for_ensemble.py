@@ -60,13 +60,14 @@ class AbstractSimulationFitForEnsemble(object):
         mean_metric = np.mean(self.metric_name_to_all_list[metric_name], axis=0)
         ax.set_xlabel('Years')
         ax.set_xlim((self.year_list_to_test[0], self.year_list_to_test[-1]))
+        print("Accuracy in {} w.r.t. {}:".format(self.year_list_to_test[-1], metric_name), mean_metric[-1])
         ax.plot(self.year_list_to_test, mean_metric, label=self.name, color=self.color)
-        if self.simulation.nb_simulations < 10:
-            print('We do not print uncertainty interval for less than 10 samples')
-        else:
-            lower_bound, upper_bound = [np.quantile(self.metric_name_to_all_list[metric_name], q, axis=0) for q in
-                                        [0.25, 0.75]]
-            ax.fill_between(self.year_list_to_test, lower_bound, upper_bound, color=self.color, alpha=0.1)
+        # if self.simulation.nb_simulations < 10:
+        #     print('We do not print uncertainty interval for less than 10 samples')
+        # else:
+        #     lower_bound, upper_bound = [np.quantile(self.metric_name_to_all_list[metric_name], q, axis=0) for q in
+        #                                 [0.25, 0.75]]
+        #     ax.fill_between(self.year_list_to_test, lower_bound, upper_bound, color=self.color, alpha=0.1)
 
     def load_one_fold_fit(self, dataset, name):
         one_fold_fit = OneFoldFit(massif_name=name, dataset=dataset, models_classes=self.model_classes,
