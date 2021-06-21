@@ -35,6 +35,7 @@ def main_preliminary_projections():
                                                        study_class)
     print('number of couples loaded:', len(gcm_rcm_couple_to_study))
     average_bias, _ = compute_average_bias(gcm_rcm_couple_to_study, massif_name, safran_study, show=show)
+    print('average bias for safran:', average_bias)
     if fast in [True]:
         alpha = ''
         gcm_rcm_couples_sampled_for_experiment = [('CNRM-CM5', 'ALADIN63')]

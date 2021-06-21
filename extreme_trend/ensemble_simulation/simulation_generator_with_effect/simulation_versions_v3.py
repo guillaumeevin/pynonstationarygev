@@ -12,42 +12,65 @@ class AbstractSimulationForSnowLoadAt1500(AbstractSimulationWithEffects):
 
     @property
     def summary_parameter(self):
-        return "{}_{}_{}".format(self.alpha_rcm_location,
-                                          self.alpha_rcm_scale,
-                                          self.shift_rcm)
+        return "{}_{}".format(self.shift_mean,
+                                    self.shift_std)
 
     @property
-    def alpha_rcm_location(self):
-        # return 0.2 # this is the bias in the mean
-        return 0.1  # this is the bias in the mean
+    def shift_mean(self):
+        return self.average_bias_reference[0] / 100
 
     @property
-    def alpha_rcm_scale(self):
-        # return 0.3 # this is the bias in the mean & in the std (because the scale parameter participate to both)
-        return 0.1  # this is the bias in the mean & in the std (because the scale parameter participate to both)
+    def shift_std(self):
+        return self.average_bias_reference[1] / 100
 
     @property
-    def shift_rcm(self):
+    def average_bias_reference(self):
         raise NotImplementedError
 
-    def sample_uniform_scale(self, alpha):
-        return self._sample_uniform(np.log(1 - alpha), np.log(1 + alpha))
+    @property
+    def shift_location(self):
+        gev_params = self.gev_params_at_zero
+        a = (gev_params.g(1) - 1) * gev_params.scale / gev_params.shape
+        res1 = (a + gev_params.location) * self.shift_mean
+        res2 = a * self.shift_scale
+        res = res1 - res2
+        res /= gev_params.location
+        return res
+
+    @property
+    def shift_scale(self):
+        return self.shift_std
 
     @property
     def location_at_zero(self):
-        return 2.86
+        return 2.77
 
     @property
     def scale_at_zero(self):
-        return 0.2982
+        return 1.30
+
+    @property
+    def shape_at_zero(self):
+        return -0.105
+
+    @property
+    def gev_params_at_zero(self):
+        return GevParams(self.location_at_zero, self.scale_at_zero, self.shape_at_zero)
 
     def load_margin_function(self) -> IndependentMarginFunction:
+        gev_params_shifted = GevParams(self.location_at_zero * (1 + self.shift_location),
+                                       self.scale_at_zero * (1+ self.shift_scale),
+                                       self.shape_at_zero)
+        relative_change_in_mean = (gev_params_shifted.mean - self.gev_params_at_zero.mean) / self.gev_params_at_zero.mean
+        assert np.isclose(relative_change_in_mean, self.shift_mean)
+        relative_change_in_std = (gev_params_shifted.std - self.gev_params_at_zero.std) / self.gev_params_at_zero.std
+        assert np.isclose(relative_change_in_std, self.shift_std)
         # constant parameters
         coef_dict = dict()
-        coef_dict['locCoeff1'] = 2.77
-        scale_at_zero = 1.30
+        coef_dict['locCoeff1'] = self.location_at_zero
+        scale_at_zero = self.scale_at_zero
         coef_dict['scaleCoeff1'] = np.log(scale_at_zero)
-        coef_dict['shapeCoeff1'] = -0.105
+        coef_dict['shapeCoeff1'] = self.shape_at_zero
         # Non stationary effects
         coef_dict['tempCoeffLoc1'] = -0.8 * coef_dict['locCoeff1']
         coef_dict['tempCoeffScale1'] = np.log(1 - 0.57)
@@ -59,10 +82,11 @@ class AbstractSimulationForSnowLoadAt1500(AbstractSimulationWithEffects):
             GevParams.SHAPE: None,
         }
         param_name_to_ordered_climate_effects = {
-            GevParams.LOC: [(self.shift_rcm + self.sample_uniform(self.alpha_rcm_location)) * coef_dict['locCoeff1'] for
-                            _ in
-                            range(self.nb_ensemble_member)],
-            GevParams.SCALE: [self.sample_uniform_scale(self.alpha_rcm_scale) for _ in
+            GevParams.LOC: [
+                self.shift_location * coef_dict['locCoeff1'] for
+                _ in
+                range(self.nb_ensemble_member)],
+            GevParams.SCALE: [np.log(1 + self.shift_scale) for _ in
                               range(self.nb_ensemble_member)],
             GevParams.SHAPE: [],
         }
@@ -74,6 +98,13 @@ class AbstractSimulationForSnowLoadAt1500(AbstractSimulationWithEffects):
                                                                     param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
                                                                     param_name_to_ordered_climate_effects=param_name_to_ordered_climate_effects)
         return margin_function
+
+
+class SimulationSnowLoadWithShiftLikeSafran(AbstractSimulationForSnowLoadAt1500):
+
+    @property
+    def average_bias_reference(self):
+        return 4.381, 7.1338
 
 
 class SimulationSnowLoadWithShift0(AbstractSimulationForSnowLoadAt1500):

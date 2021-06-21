@@ -3,7 +3,8 @@ import properscoring as ps
 from cached_property import cached_property
 
 from extreme_fit.model.margin_model.utils import MarginFitMethod
-from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract_simulation_with_effect import AbstractSimulationWithEffects
+from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract_simulation_with_effect import \
+    AbstractSimulationWithEffects
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from projects.projected_extreme_snowfall.results.combination_utils import \
@@ -45,12 +46,14 @@ class AbstractSimulationFitForEnsemble(object):
         self.remove_physically_implausible_models = False
         combination = (2, 2, 0) if self.with_effects else (0, 0, 0)
         self.with_sub_combinations = with_sub_combinations
-        self.param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
+        self.param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
+            combination)
 
     @staticmethod
-    def print_one_fold_fit_informations(one_fold_fit):
-        print('here info one one fold fit:', one_fold_fit.best_combination, get_display_name_from_object_type(one_fold_fit.best_margin_model))
-
+    def print_one_fold_fit_informations(one_fold_fit: OneFoldFit):
+        assert len(one_fold_fit.fitted_estimators) == 1
+        print('here info one one fold fit:', one_fold_fit.best_combination,
+              get_display_name_from_object_type(one_fold_fit.best_margin_model))
 
     def plot_mean_metric(self, ax, metric_name):
         assert metric_name in self.METRICS
@@ -61,7 +64,8 @@ class AbstractSimulationFitForEnsemble(object):
         if self.simulation.nb_simulations < 10:
             print('We do not print uncertainty interval for less than 10 samples')
         else:
-            lower_bound, upper_bound = [np.quantile(self.metric_name_to_all_list[metric_name], q, axis=0) for q in [0.25, 0.75]]
+            lower_bound, upper_bound = [np.quantile(self.metric_name_to_all_list[metric_name], q, axis=0) for q in
+                                        [0.25, 0.75]]
             ax.fill_between(self.year_list_to_test, lower_bound, upper_bound, color=self.color, alpha=0.1)
 
     def load_one_fold_fit(self, dataset, name):
@@ -80,7 +84,7 @@ class AbstractSimulationFitForEnsemble(object):
 
     @cached_property
     def metric_name_to_all_list(self):
-        all_dict = [ ]
+        all_dict = []
         for i in self.simulation.simulation_ids:
             name = 'Simulation #{} for {}\n'.format(i, get_display_name_from_object_type(type(self)))
             print(self.add_suffix(name))
@@ -104,8 +108,8 @@ class AbstractSimulationFitForEnsemble(object):
             coordinates = np.array([x])
             prediction = np.mean([self.compute_return_levels(f, coordinates) for f in margin_functions])
             absolute_relative_difference, crpss, rmse, width = self.compute_metrics(coordinates, prediction,
-                                                                             margin_functions_uncertainty,
-                                                                             true_margin_function)
+                                                                                    margin_functions_uncertainty,
+                                                                                    true_margin_function)
 
             rmse_list.append(rmse)
             absolute_list.append(absolute_relative_difference)
@@ -125,7 +129,8 @@ class AbstractSimulationFitForEnsemble(object):
         # Compute absolute relative difference
         absolute_relative_difference = np.abs(100 * (true_value - prediction) / true_value)
         # Compute crpss
-        predictions_from_bootstrap = [self.compute_return_levels(f, coordinates) for f in margin_functions_from_bootstrap]
+        predictions_from_bootstrap = [self.compute_return_levels(f, coordinates) for f in
+                                      margin_functions_from_bootstrap]
         if len(predictions_from_bootstrap) == 0:
             crpss, width = 0, 0
         else:
@@ -136,11 +141,11 @@ class AbstractSimulationFitForEnsemble(object):
 
     def add_suffix(self, name):
         if self.with_effects:
-            name += 'with effects'
+            name += 'with Constant correction coefficients'
             if self.with_sub_combinations:
                 name += ' or without effects'
         else:
-            name += 'without effects'
+            name += 'with Zero correction coefficients'
         # if self.with_observation:
         #     name += ' with observations'
         # else:

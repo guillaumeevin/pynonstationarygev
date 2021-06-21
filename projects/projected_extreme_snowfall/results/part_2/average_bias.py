@@ -90,7 +90,7 @@ def plot_bias(study_reference, average_bias, gcm_rcm_couple_to_biases, show):
 def plot_bias_repartition(average_bias, ax, name, skip_percent=True):
     percent = '\%' if skip_percent else '%'
     xi, yi = average_bias
-    ax.scatter([xi], [yi], color="k", marker='x', label="Average relative bias")
+    ax.scatter([xi], [yi], color="k", marker='x', label="Average bias")
     ax.set_xlim(-25, 45)
     ax.set_ylim(-25, 45)
     lim_left, lim_right = ax.get_xlim()

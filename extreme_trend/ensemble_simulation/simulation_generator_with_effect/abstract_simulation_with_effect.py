@@ -43,41 +43,46 @@ class AbstractSimulationWithEffects(object):
         self.margin_function = self.margin_model.margin_function
 
         self.simulation_ids = range(self.nb_simulations)
-        # Sample once the simulation parameters
-        self.simulation_id_to_margin_function = {simulation_id: self.load_margin_function()
-                                                 for simulation_id in
-                                                 self.simulation_ids}  # type: Dict[int, IndependentMarginFunction]
-        # Sample once the observation
+        self.simulation_id_to_margin_function = {}
         self.simulation_id_to_coordinate_to_maxima = {}
-        for simulation_id, margin_function in self.simulation_id_to_margin_function.items():
-            df_full = self.coordinates.df_temporal_coordinates_for_fit(
-                climate_coordinates_with_effects=[AbstractCoordinates.COORDINATE_RCM],
-                drop_duplicates=False)
-            df_short = pd.concat([self.coordinates.df_all_coordinates,
-                                  self.coordinates.df_coordinate_climate_model.loc[:,
-                                  AbstractCoordinates.COORDINATE_RCM]], axis=1)
-            couple_coordinate_to_maxima = {}
-            for (_, coordinate_full), (_, coordinate_short) in zip(df_full.iterrows(), df_short.iterrows()):
-                couple_coordinate_to_maxima[tuple(coordinate_short)] = margin_function.get_params(
-                    coordinate_full).sample(1)
-            self.simulation_id_to_coordinate_to_maxima[simulation_id] = couple_coordinate_to_maxima
+        self.simulation_id_to_together_dataset_with_obs = {}
+        self.simulation_id_to_separate_datasets_with_obs = {}
+        self.simulation_id_to_separate_datasets_without_obs = {}
+        self.simulation_id_to_together_dataset_without_obs = {}
 
-        # Load the together datasets
-        self.simulation_id_to_together_dataset_with_obs = {
-            simulation_id: self.load_together_dataset(simulation_id, True)
-            for simulation_id in self.simulation_ids}
-        self.simulation_id_to_together_dataset_without_obs = {
-            simulation_id: self.load_together_dataset(simulation_id, False)
-            for simulation_id in self.simulation_ids}
-        # Load the separate datasets
-        self.simulation_id_to_separate_datasets_with_obs = {
-            simulation_id: self.load_separate_datasets_with_obs(simulation_id, True)
-            for simulation_id in self.simulation_ids}
-        self.simulation_id_to_separate_datasets_without_obs = {
-            simulation_id: self.load_separate_datasets_with_obs(simulation_id, False)
-            for simulation_id in self.simulation_ids}
+        for simulation_id in self.simulation_ids:
+            print('simulation', simulation_id)
+            acceptable_simulation = False
+            while not acceptable_simulation:
+                print('looping')
+                # Sample once the simulation parameters
+                margin_function = self.load_margin_function() # type: IndependentMarginFunction
+                # Sample once the observation
+                df_full = self.coordinates.df_temporal_coordinates_for_fit(
+                    climate_coordinates_with_effects=[AbstractCoordinates.COORDINATE_RCM],
+                    drop_duplicates=False)
+                df_short = pd.concat([self.coordinates.df_all_coordinates,
+                                      self.coordinates.df_coordinate_climate_model.loc[:,
+                                      AbstractCoordinates.COORDINATE_RCM]], axis=1)
+                couple_coordinate_to_maxima = {}
+                for (_, coordinate_full), (_, coordinate_short) in zip(df_full.iterrows(), df_short.iterrows()):
+                    couple_coordinate_to_maxima[tuple(coordinate_short)] = margin_function.get_params(
+                        coordinate_full).sample(1)
 
-    def load_separate_datasets_with_obs(self, simulation_id, with_observations):
+                self.simulation_id_to_margin_function[simulation_id] = margin_function
+                self.simulation_id_to_coordinate_to_maxima[simulation_id] = couple_coordinate_to_maxima
+                dataset_together_with_obs = self.load_together_dataset(simulation_id, True)
+                average_bias = np.array(self.compute_average_bias(dataset_together_with_obs)[-1])
+                average_bias_reference = np.array(self.average_bias_reference)
+                acceptable_simulation = np.linalg.norm(average_bias - average_bias_reference) < 5
+
+            # Load the dict
+            self.simulation_id_to_together_dataset_with_obs[simulation_id] = self.load_together_dataset(simulation_id, True)
+            self.simulation_id_to_separate_datasets_with_obs[simulation_id] = self.load_separate_datasets(simulation_id, True)
+            self.simulation_id_to_separate_datasets_without_obs[simulation_id] = self.load_separate_datasets(simulation_id, False)
+            self.simulation_id_to_together_dataset_without_obs[simulation_id] = self.load_together_dataset(simulation_id, False)
+
+    def load_separate_datasets(self, simulation_id, with_observations):
         datasets = []
         for j in range(self.nb_ensemble_member):
             coordinates = AbstractCoordinates.from_df(self.load_df_separate(j, with_observations))
@@ -271,6 +276,20 @@ class AbstractSimulationWithEffects(object):
     def plot_bias(self, simulation_id):
         ax = plt.gca()
         dataset = self.simulation_id_to_together_dataset_with_obs[simulation_id]
+        all_biases, average_bias = self.compute_average_bias(dataset)
+
+        colors = gcm_rcm_couple_to_color.values()
+        for j, (biases, color) in enumerate(zip(all_biases, colors)):
+            xi, yi = biases
+            name = 'Ensemble member #{}'.format(j + 1)
+            ax.scatter([xi], [yi], color=color, marker='o', label=name)
+
+        plot_bias_repartition(average_bias, ax, 'observation', skip_percent=False)
+        self.visualizer.plot_name = 'bias from simulation {}'.format(simulation_id + 1)
+        self.visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
+        plt.close()
+
+    def compute_average_bias(self, dataset):
         annual_maxima1 = self.get_maxima_between_1959_and_2019(dataset, None)
         all_biases = []
         for j in range(self.nb_ensemble_member):
@@ -284,17 +303,7 @@ class AbstractSimulationWithEffects(object):
             all_biases.append(biases)
         all_biases = np.array(all_biases)
         average_bias = np.mean(all_biases, axis=0)
-
-        colors = gcm_rcm_couple_to_color.values()
-        for j, (biases, color) in enumerate(zip(all_biases, colors)):
-            xi, yi = biases
-            name = 'Ensemble member #{}'.format(j + 1)
-            ax.scatter([xi], [yi], color=color, marker='o', label=name)
-
-        plot_bias_repartition(average_bias, ax, 'observation', skip_percent=False)
-        self.visualizer.plot_name = 'bias from simulation {}'.format(simulation_id + 1)
-        self.visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
-        plt.close()
+        return all_biases, average_bias
 
     def get_maxima_and_x_list(self, dataset, j):
         if j is None:
@@ -334,3 +343,6 @@ class AbstractSimulationWithEffects(object):
 
     def _sample_uniform(self, bound_left, bound_right):
         return uniform(bound_left, bound_right)
+
+    def sample_uniform_scale(self, alpha):
+        return self._sample_uniform(np.log(1 - alpha), np.log(1 + alpha))
