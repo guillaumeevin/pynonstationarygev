@@ -6,13 +6,15 @@ from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_versions import SimulationVersion2
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_versions_v2 import \
     SimulationLogScaleWithShift10
+from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_versions_v3 import \
+    AbstractSimulationForSnowLoadAt1500, SimulationSnowLoadWithShift0
 
 
 def main_simulation():
-    # nb = 1
-    nb = 4
+    nb = 1
+    # nb = 4
     simulation_ids = list(range(nb))
-    simulation_class = [SimulationLogScaleWithShift10][0]
+    simulation_class = [SimulationSnowLoadWithShift0][0]
     simulation = simulation_class(len(simulation_ids))
     plot_simulation(simulation, simulation_ids)
 

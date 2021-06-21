@@ -12,7 +12,7 @@ from scipy.interpolate import interp1d, UnivariateSpline
 
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_rnumber
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import get_year_min_and_year_max_from_scenario, \
-    AdamontScenario, adamont_scenarios_real, get_gcm_list
+    AdamontScenario, adamont_scenarios_real, get_gcm_list, scenario_to_real_scenarios
 from extreme_data.utils import DATA_PATH
 
 GLOBALTEMP_WEB_PATH = "https://climexp.knmi.nl/CMIP5/Tglobal/"
@@ -25,8 +25,15 @@ def get_scenario_name(scenario):
     else:
         return str(scenario).split('.')[-1]
 
-
 def year_to_global_mean_temp(gcm, scenario, year_min=None, year_max=None, spline=True, anomaly=True):
+    if scenario in adamont_scenarios_real:
+        return _year_to_global_mean_temp(gcm, scenario, year_min, year_max, spline, anomaly)
+    else:
+        histo_scenario, rcp_scenario = scenario_to_real_scenarios(scenario)
+        return _year_to_global_mean_temp(gcm, rcp_scenario, year_min, year_max, spline, anomaly)
+
+def _year_to_global_mean_temp(gcm, scenario, year_min=None, year_max=None, spline=True, anomaly=True):
+    assert scenario in adamont_scenarios_real
     d = OrderedDict()
     years, global_mean_temps = years_and_global_mean_temps(gcm, scenario, year_min, year_max, spline=spline,
                                                            anomaly=anomaly)
@@ -38,7 +45,7 @@ def year_to_global_mean_temp(gcm, scenario, year_min=None, year_max=None, spline
 def year_to_averaged_global_mean_temp(scenario, year_min=None, year_max=None, spline=True, anomaly=True):
     d = OrderedDict()
     gcm_list = get_gcm_list(adamont_version=2)
-    d_list = [year_to_global_mean_temp(gcm, scenario) for gcm in gcm_list]
+    d_list = [year_to_global_mean_temp(gcm, scenario, year_min, year_max, spline, anomaly) for gcm in gcm_list]
     l = [list(d.keys()) for d in d_list]
     min_year = min([years[0] for years in l])
     max_year = max([years[-1] for years in l])
