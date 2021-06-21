@@ -17,6 +17,7 @@ from extreme_fit.function.margin_function.independent_margin_function import Ind
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationAndScaleAndShapeTemporalModel
 from extreme_fit.model.utils import set_seed_for_test
+from projects.projected_extreme_snowfall.results.part_2.average_bias import plot_bias_repartition
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
@@ -210,9 +211,11 @@ class AbstractSimulationWithEffects(object):
         ax.set_xticklabels([1950 + 10 * i for i in range(16)])
         ax.set_xlim((ticks[0], ticks[-1]))
 
-    def get_gev_params(self, margin_function, x, j):
-        return GevParams(*[self.get_params_simulation(margin_function, x, j, gev_param_name)
-                           for gev_param_name in GevParams.PARAM_NAMES])
+    def get_maxima_between_1959_and_2019(self, dataset, j):
+        maxima_list, x_list = self.get_maxima_and_x_list(dataset, j)
+        maxima_between_1959_and_2019 = [m for m, x in zip(maxima_list, x_list) if 1959 <= self.year_from_x(x) <= 2019]
+        assert len(maxima_between_1959_and_2019) == 61, len(maxima_between_1959_and_2019)
+        return maxima_between_1959_and_2019
 
     def get_params_simulation(self, margin_function, x, j, gev_param_name):
         if j is None:
@@ -232,7 +235,7 @@ class AbstractSimulationWithEffects(object):
         return (year - 1951) / self.nb_temporal_steps
 
     def year_from_x(self, x):
-        return x * self.nb_temporal_steps + 1951
+        return int(x * (self.nb_temporal_steps - 1) + 1951)
 
     def get_index_from_year_and_j(self, year, j):
         if j is None:
@@ -265,18 +268,16 @@ class AbstractSimulationWithEffects(object):
         self.visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
 
-    def plot_bias(self, simulation_id, year=2019):
+    def plot_bias(self, simulation_id):
         ax = plt.gca()
-        x = self.get_x_from_year(year)
-        margin_function = self.simulation_id_to_margin_function[simulation_id]
-        gev_params_obs = self.get_gev_params(margin_function, x, None)
+        dataset = self.simulation_id_to_together_dataset_with_obs[simulation_id]
+        annual_maxima1 = self.get_maxima_between_1959_and_2019(dataset, None)
         all_biases = []
         for j in range(self.nb_ensemble_member):
-            gev_params_j = self.get_gev_params(margin_function, x, j)
+            annual_maxima2 = self.get_maxima_between_1959_and_2019(dataset, j)
             biases = []
-            for f in ['mean', 'std']:
-                moment_ref, moment_comparison = [gev_params.__getattribute__(f) for gev_params in
-                                                 [gev_params_obs, gev_params_j]]
+            for f in [np.mean, np.std]:
+                moment_ref, moment_comparison = [f(maxima) for maxima in [annual_maxima1, annual_maxima2]]
                 bias = moment_comparison - moment_ref
                 bias *= 100 / moment_ref
                 biases.append(bias)
@@ -284,24 +285,22 @@ class AbstractSimulationWithEffects(object):
         all_biases = np.array(all_biases)
         average_bias = np.mean(all_biases, axis=0)
 
-        xi, yi = average_bias
-        ax.scatter([xi], [yi], color="k", marker='x', label="Average relative bias")
         colors = gcm_rcm_couple_to_color.values()
         for j, (biases, color) in enumerate(zip(all_biases, colors)):
             xi, yi = biases
-            name = 'Ensemble member #{}'.format(j+1)
+            name = 'Ensemble member #{}'.format(j + 1)
             ax.scatter([xi], [yi], color=color, marker='o', label=name)
 
-        lim_left, lim_right = ax.get_xlim()
-        ax.vlines(0, ymin=min(0, lim_left), ymax=lim_right)
-        ax.legend(prop={'size': 7}, ncol=1)
-        lim_left, lim_right = ax.get_ylim()
-        ax.hlines(0, xmin=min(0, lim_left), xmax=lim_right)
-        ax.set_xlabel('Relative bias for the mean of annual maxima in {} (\%)'.format(year))
-        ax.set_ylabel('Relative bias for the standard deviation of annual maxima in {} (\%)'.format(year))
+        plot_bias_repartition(average_bias, ax, 'observation', skip_percent=False)
         self.visualizer.plot_name = 'bias from simulation {}'.format(simulation_id + 1)
         self.visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
+
+    def get_maxima_and_x_list(self, dataset, j):
+        if j is None:
+            return self.get_maxima_and_x_list_for_observations(dataset)
+        else:
+            return self.get_maxima_and_x_for_ensemble_member_j(dataset, j)
 
     def get_maxima_and_x_list_for_observations(self, dataset):
         ind = self.coordinates.df_coordinate_climate_model.isnull().any(axis=1)

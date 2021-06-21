@@ -69,14 +69,28 @@ def compute_average_bias(gcm_rcm_couple_to_study, massif_name, reference_study, 
 
 def plot_bias(study_reference, average_bias, gcm_rcm_couple_to_biases, show):
     ax = plt.gca()
-    xi, yi = average_bias
-    ax.scatter([xi], [yi], color="k", marker='x', label="Average relative bias")
+    name = gcm_rcm_couple_to_str(study_reference.gcm_rcm_couple) \
+        if isinstance(study_reference, AbstractAdamontStudy) else 'SAFRAN'
+
     for gcm_rcm_couple, biases in gcm_rcm_couple_to_biases.items():
         xi, yi = biases
         color = gcm_rcm_couple_to_color[gcm_rcm_couple]
         name = gcm_rcm_couple_to_str(gcm_rcm_couple)
         ax.scatter([xi], [yi], color=color, marker='o', label=name)
 
+    plot_bias_repartition(average_bias, ax, name)
+    if show in [None, True]:
+        save_to_file = True if show is None else False
+        visualizer = StudyVisualizer(study_reference, save_to_file=save_to_file)
+        visualizer.plot_name = 'plot bias repartition'
+        visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
+    plt.close()
+
+
+def plot_bias_repartition(average_bias, ax, name, skip_percent=True):
+    percent = '\%' if skip_percent else '%'
+    xi, yi = average_bias
+    ax.scatter([xi], [yi], color="k", marker='x', label="Average relative bias")
     ax.set_xlim(-25, 45)
     ax.set_ylim(-25, 45)
     lim_left, lim_right = ax.get_xlim()
@@ -84,18 +98,10 @@ def plot_bias(study_reference, average_bias, gcm_rcm_couple_to_biases, show):
     lim_left, lim_right = ax.get_ylim()
     ax.vlines(0, ymin=lim_left, ymax=lim_right)
     ax.legend(prop={'size': 7}, loc='lower right', ncol=1)
-    name = gcm_rcm_couple_to_str(study_reference.gcm_rcm_couple) \
-        if isinstance(study_reference, AbstractAdamontStudy) else 'SAFRAN'
     common_label = 'Bias w.r.t {}'.format(name)
-    common_label += ' for the {} (\%)'
+    common_label += ' for the {} (' + percent + ')'
     ax.set_xlabel(common_label.format('mean'))
     ax.set_ylabel(common_label.format('standard deviation'))
-    if show in [None, True]:
-        save_to_file = True if show is None else False
-        visualizer = StudyVisualizer(study_reference, save_to_file=save_to_file)
-        visualizer.plot_name = 'plot bias repartition'
-        visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
-    plt.close()
 
 
 def compute_bias(massif_name, study_reference: AbstractStudy,
