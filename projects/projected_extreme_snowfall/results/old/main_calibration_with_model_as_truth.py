@@ -20,7 +20,7 @@ def main_model_as_truth_experiment():
 
     fast = False
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
-    study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class = set_up_and_load \
+    study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load \
         (fast)
     nb_gcm_rcm_couples_as_truth_that_are_the_closest = 1
     # Load the csv filepath
@@ -68,7 +68,7 @@ def main_model_as_truth_experiment():
                                             selection_method_names=['aic'],
                                             model_classes=model_classes,
                                             massif_names=massif_names,
-                                            fit_method=MarginFitMethod.evgam,
+                                            fit_method=fit_method,
                                             temporal_covariate_for_fit=temporal_covariate_for_fit,
                                             remove_physically_implausible_models=remove_physically_implausible_models,
                                             display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,

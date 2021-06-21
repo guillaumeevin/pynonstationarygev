@@ -24,6 +24,7 @@ from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_de
     NonStationaryTwoLinearLocationAndShape
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
     NonStationaryTwoLinearShapeModel, NonStationaryTwoLinearShapeOneLinearScaleModel, NonStationaryTwoLinearScaleModel
+from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
 from extreme_fit.model.utils import set_seed_for_test
@@ -39,9 +40,10 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covari
 
 
 def set_up_and_load(fast, snowfall=True):
-
+    # todo: it might have been prerable to load an object containing all the attributes
     safran_study_class, study_class = load_study_classes(snowfall)
     OneFoldFit.multiprocessing = False
+    fit_method = MarginFitMethod.evgam
 
     if snowfall:
         return_period = 100
@@ -102,7 +104,7 @@ def set_up_and_load(fast, snowfall=True):
     print('observation class:', get_display_name_from_object_type(safran_study_class))
     print('Take into account the observations: {}'.format(safran_study_class is not None))
 
-    return altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class
+    return altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method
 
 
 def load_study_classes(snowfall):

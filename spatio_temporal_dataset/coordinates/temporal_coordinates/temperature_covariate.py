@@ -4,7 +4,6 @@ from extreme_data.meteo_france_data.adamont_data.adamont_scenario import str_to_
 from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import year_to_global_mean_temp, \
     year_to_averaged_global_mean_temp
 from extreme_data.meteo_france_data.mean_alps_temperature import load_year_to_mean_alps_temperatures
-from extreme_data.nasa_data.global_mean_temperature_until_2016 import load_year_to_mean_global_temperature_until_2016
 from root_utils import classproperty
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
@@ -32,14 +31,6 @@ class AbstractTemperatureCovariate(AbstractTemporalCovariateForFit):
             return pd.Series(cls.year_to_global_mean[t])
         except KeyError:
             raise KeyError('Global mean temperature is not known for Year t={}'.format(t))
-
-
-class MeanGlobalTemperatureCovariate(AbstractTemperatureCovariate):
-
-    @classmethod
-    def load_year_to_temperature_covariate(cls):
-        return load_year_to_mean_global_temperature_until_2016()
-
 
 class MeanAlpsTemperatureCovariate(AbstractTemperatureCovariate):
 

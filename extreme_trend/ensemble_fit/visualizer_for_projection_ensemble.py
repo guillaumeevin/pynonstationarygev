@@ -61,28 +61,10 @@ class VisualizerForProjectionEnsemble(object):
         altitude_group_to_gcm_couple_to_studies = OrderedDict()
         for altitudes in altitudes_list:
             altitude_group = get_altitude_group_from_altitudes(altitudes)
-            gcm_rcm_couple_to_studies = {}
-            for gcm_rcm_couple in gcm_rcm_couples:
-                if gcm_to_year_min_and_year_max is None:
-                    kwargs_study = {}
-                else:
-                    gcm = gcm_rcm_couple[0]
-                    if gcm not in gcm_to_year_min_and_year_max:
-                        # It means that for this gcm and scenario,
-                        # there is not enough data (less than 30 years) for the fit
-                        continue
-                    year_min, year_max = gcm_to_year_min_and_year_max[gcm]
-                    kwargs_study = {'year_min': year_min, 'year_max': year_max}
-                studies = AltitudesStudies(study_class, altitudes, season=season,
-                                           scenario=scenario, gcm_rcm_couple=gcm_rcm_couple,
-                                           **kwargs_study)
-                gcm_rcm_couple_to_studies[gcm_rcm_couple] = studies
-            # Potentially add the observations
-            if self.safran_study_class is not None:
-                studies = AltitudesStudies(self.safran_study_class, altitudes, season=season)
-                gcm_rcm_couple_to_studies[(None, None)] = studies
-            if len(gcm_rcm_couple_to_studies) == 0:
-                print('No valid studies for the following couples:', self.gcm_rcm_couples)
+            gcm_rcm_couple_to_studies = self.load_gcm_rcm_couple_to_studies(altitudes, gcm_rcm_couples,
+                                                                            gcm_to_year_min_and_year_max,
+                                                                            safran_study_class, scenario, season,
+                                                                            study_class)
             altitude_group_to_gcm_couple_to_studies[altitude_group] = gcm_rcm_couple_to_studies
 
         # Load ensemble fit
@@ -98,6 +80,33 @@ class VisualizerForProjectionEnsemble(object):
                                                   param_name_to_climate_coordinates_with_effects)
                 ensemble_class_to_ensemble_fit[ensemble_fit_class] = ensemble_fit
             self.altitude_group_to_ensemble_class_to_ensemble_fit[altitude_group] = ensemble_class_to_ensemble_fit
+
+    @classmethod
+    def load_gcm_rcm_couple_to_studies(cls, altitudes, gcm_rcm_couples, gcm_to_year_min_and_year_max,
+                                       safran_study_class, scenario, season, study_class):
+        gcm_rcm_couple_to_studies = {}
+        for gcm_rcm_couple in gcm_rcm_couples:
+            if gcm_to_year_min_and_year_max is None:
+                kwargs_study = {}
+            else:
+                gcm = gcm_rcm_couple[0]
+                if gcm not in gcm_to_year_min_and_year_max:
+                    # It means that for this gcm and scenario,
+                    # there is not enough data (less than 30 years) for the fit
+                    continue
+                year_min, year_max = gcm_to_year_min_and_year_max[gcm]
+                kwargs_study = {'year_min': year_min, 'year_max': year_max}
+            studies = AltitudesStudies(study_class, altitudes, season=season,
+                                       scenario=scenario, gcm_rcm_couple=gcm_rcm_couple,
+                                       **kwargs_study)
+            gcm_rcm_couple_to_studies[gcm_rcm_couple] = studies
+        # Potentially add the observations
+        if safran_study_class is not None:
+            studies = AltitudesStudies(safran_study_class, altitudes, season=season)
+            gcm_rcm_couple_to_studies[(None, None)] = studies
+        if len(gcm_rcm_couple_to_studies) == 0:
+            print('No valid studies for the following couples:', gcm_rcm_couples)
+        return gcm_rcm_couple_to_studies
 
     @property
     def has_elevation_non_stationarity(self):

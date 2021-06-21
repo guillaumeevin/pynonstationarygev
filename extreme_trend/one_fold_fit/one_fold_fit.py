@@ -415,20 +415,22 @@ class OneFoldFit(object):
         assert self.param_name_to_climate_coordinates_with_effects is not None
         combination = self.best_combination
         model_class = type(self.best_estimator.margin_model)
-        assert any([c in [2, 3] for c in combination])
-        combination_without_rcm_correction = []
-        for c in combination:
-            if c == 2:
-                res = 0
-            elif c == 3:
-                res = 1
-            else:
-                res = c
-            combination_without_rcm_correction.append(res)
-        param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
-            combination_without_rcm_correction)
-        return self.fitted_linear_margin_estimator(model_class, self.dataset,
-                                                   param_name_to_climate_coordinates_with_effects)
+        if any([c in [2, 3] for c in combination]):
+            combination_without_rcm_correction = []
+            for c in combination:
+                if c == 2:
+                    res = 0
+                elif c == 3:
+                    res = 1
+                else:
+                    res = c
+                combination_without_rcm_correction.append(res)
+            param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
+                combination_without_rcm_correction)
+            return self.fitted_linear_margin_estimator(model_class, self.dataset,
+                                                       param_name_to_climate_coordinates_with_effects)
+        else:
+            return self.best_estimator
 
     @property
     def correction_is_significant(self):

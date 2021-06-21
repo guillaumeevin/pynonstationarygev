@@ -23,7 +23,7 @@ def main_preliminary_projections():
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
-    display_only_model_that_pass_gof_test, safran_study_class = set_up_and_load(
+    display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
         fast, snowfall)
     display_only_model_that_pass_gof_test = False
     # Load study
