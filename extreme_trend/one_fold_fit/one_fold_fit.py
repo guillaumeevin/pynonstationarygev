@@ -88,7 +88,8 @@ class OneFoldFit(object):
         self.fitted_estimators = set()
         for model_class in models_classes:
             for sub_combination in self.sub_combinations:
-                param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(sub_combination)
+                param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
+                    sub_combination)
                 fitted_estimator = self.fitted_linear_margin_estimator(model_class, self.dataset,
                                                                        param_name_to_climate_coordinates_with_effects)
                 self.fitted_estimators.add(fitted_estimator)
@@ -96,14 +97,14 @@ class OneFoldFit(object):
         _ = self.has_at_least_one_valid_model
 
     def fitted_linear_margin_estimator(self, model_class, dataset, param_name_to_climate_coordinates_with_effects):
-        return fitted_linear_margin_estimator_short(model_class=model_class,
-                                                    dataset=dataset,
-                                                    fit_method=self.fit_method,
-                                                    temporal_covariate_for_fit=self.temporal_covariate_for_fit,
-                                                    drop_duplicates=False,
-                                                    param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects)
-
-
+        estimator = fitted_linear_margin_estimator_short(model_class=model_class, dataset=dataset,
+                                                         fit_method=self.fit_method,
+                                                         temporal_covariate_for_fit=self.temporal_covariate_for_fit,
+                                                         drop_duplicates=False,
+                                                         param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects)
+        # assert that is not inf
+        assert not np.isinf(estimator.nllh)
+        return estimator
 
     @classmethod
     def get_moment_str(cls, order):
