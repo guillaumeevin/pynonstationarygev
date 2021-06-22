@@ -74,22 +74,22 @@ class TestOneFoldFit(unittest.TestCase):
             _ = one_fold_fit.best_estimator.margin_model
         self.assertTrue(True)
 
-    def test_remove_physically_implausible_models(self):
-        self.massif_name = "Aravis"
-        self.altitudes = [600, 900]
-        self.model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
-        dataset = self.load_dataset(AdamontSnowfall,
-                                    scenario=AdamontScenario.rcp85, gcm_rcm_couple=('CNRM-CM5', 'CCLM4-8-17'))
-        one_fold_fit = OneFoldFit(self.massif_name, dataset,
-                                  models_classes=self.model_classes,
-                                  temporal_covariate_for_fit=None,
-                                  only_models_that_pass_goodness_of_fit_test=False,
-                                  remove_physically_implausible_models=True,
-                                  altitude_group=LowAltitudeGroup(),
-                                  first_year=1959,
-                                  last_year=2019
-                                  )
-        self.assertFalse(one_fold_fit.has_at_least_one_valid_model)
+    # def test_remove_physically_implausible_models(self):
+    #     self.massif_name = "Aravis"
+    #     self.altitudes = [600, 900]
+    #     self.model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
+    #     dataset = self.load_dataset(AdamontSnowfall,
+    #                                 scenario=AdamontScenario.rcp85, gcm_rcm_couple=('CNRM-CM5', 'CCLM4-8-17'))
+    #     one_fold_fit = OneFoldFit(self.massif_name, dataset,
+    #                               models_classes=self.model_classes,
+    #                               temporal_covariate_for_fit=None,
+    #                               only_models_that_pass_goodness_of_fit_test=False,
+    #                               remove_physically_implausible_models=True,
+    #                               altitude_group=LowAltitudeGroup(),
+    #                               first_year=1959,
+    #                               last_year=2019
+    #                               )
+    #     self.assertFalse(one_fold_fit.has_at_least_one_valid_model)
 
     def test_assertion_error_for_a_specific_case(self):
         self.massif_name = "Thabor"

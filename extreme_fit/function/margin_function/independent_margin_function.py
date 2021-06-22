@@ -55,7 +55,7 @@ class IndependentMarginFunction(AbstractMarginFunction):
                 # Load full names of the effect
                 param_name_to_total_effect = self.load_param_name_to_total_effect(full_climate_coordinate)
             # Update coordinate
-            coordinate = np.array(coordinate[:self.coordinates.nb_coordinates])
+            coordinate = np.array([float(e) for e in coordinate[:self.coordinates.nb_coordinates]])
         else:
             param_name_to_total_effect = None
 
@@ -112,7 +112,8 @@ class IndependentMarginFunction(AbstractMarginFunction):
         # Transform the climate coordinate if they are represent with a tuple of strings
         gcm_rcm_couple = full_climate_coordinate
         column_names_for_gcm_rcm_couple = [self.coordinates.climate_model_coordinate_name_to_name_for_fit(e) for e in gcm_rcm_couple]
-        column_names_for_gcm_rcm_couple.append(''.join(column_names_for_gcm_rcm_couple))
+        if len(column_names_for_gcm_rcm_couple) == 2:
+            column_names_for_gcm_rcm_couple.append(''.join(column_names_for_gcm_rcm_couple))
         all_column_names = self.coordinates.load_ordered_columns_names(self.full_climate_coordinates_names_with_effects)
         full_climate_coordinate = pd.Series(all_column_names).isin(column_names_for_gcm_rcm_couple).astype(float).values
         return self.load_total_effect_for_float(full_climate_coordinate, param_name)

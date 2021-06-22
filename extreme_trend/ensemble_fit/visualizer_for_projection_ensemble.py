@@ -17,6 +17,7 @@ from extreme_trend.one_fold_fit.altitude_group import get_altitude_group_from_al
 from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
 from projects.projected_extreme_snowfall.results.part_2.average_bias import load_study
+from projects.projected_extreme_snowfall.results.part_3.bias_reduction import plot_bias_reduction
 from projects.projected_extreme_snowfall.results.part_3.plot_gcm_rcm_effects import plot_gcm_rcm_effects, \
     load_total_effect
 from projects.projected_extreme_snowfall.results.part_3.plot_relative_change_in_return_level import \
@@ -140,7 +141,7 @@ class VisualizerForProjectionEnsemble(object):
                                                                 param_name, visualizer)
                                               for param_name in GevParams.PARAM_NAMES]
                             gcm_rcm_couple_to_params_effects[gcm_rcm_couple] = params_effects
-                        # plot_bias(gcm_rcm_couple_to_study, massif_name, safran_study, gcm_rcm_couple_to_params_effects)
+                        plot_bias_reduction(gcm_rcm_couple_to_study, massif_name, safran_study, visualizer, self.scenario)
                 if len(visualizer_list) > 1:
                     self.plot_effect_against_altitude(visualizer_list)
             # Moment plot

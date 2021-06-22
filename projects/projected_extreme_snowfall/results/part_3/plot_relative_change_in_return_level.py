@@ -121,7 +121,7 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
             Line2D([0], [0], color='k', lw=1, label="French building standard", linestyle='dashed'),
         ]
         size = 7
-        ax2.legend(handles=legend_elements, loc='upper right', prop={'size': size}, handlelength=3)
+        ax2.legend(handles=legend_elements, loc='lower left', prop={'size': size}, handlelength=3)
         ax2.set_yticks([])
 
 

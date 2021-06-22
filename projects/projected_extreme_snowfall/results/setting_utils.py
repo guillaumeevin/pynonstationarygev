@@ -45,6 +45,8 @@ def set_up_and_load(fast, snowfall=True):
     OneFoldFit.multiprocessing = False
     fit_method = MarginFitMethod.evgam
 
+    remove_physically_implausible_models, display_only_model_that_pass_gof_test = False, True
+
     if snowfall:
         return_period = 100
         model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
@@ -52,8 +54,10 @@ def set_up_and_load(fast, snowfall=True):
         massif_names = ['Vanoise'] # todo: change that in the end
 
     else:
+        display_only_model_that_pass_gof_test = False
         # model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
-        model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
+        model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
+        # model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
         # OneFoldFit.SIGNIFICANCE_LEVEL = 0.10
         return_period = 50
         # model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
@@ -96,7 +100,6 @@ def set_up_and_load(fast, snowfall=True):
         assert len(altitudes) == 1
     print('number of models', len(model_classes))
     print('number of gcm rcm couples', len(gcm_rcm_couples))
-    remove_physically_implausible_models, display_only_model_that_pass_gof_test = False, True
 
     print('only models that pass gof:', display_only_model_that_pass_gof_test)
     print('remove physically implausible models:', remove_physically_implausible_models)
