@@ -148,6 +148,8 @@ def compute_bias(massif_name, study_reference: AbstractStudy,
                       if year in ordered_years]
     annual_maxima2 = [m for year, m in study_for_comparison.year_to_annual_maxima_for_a_massif(massif_name).items()
                       if year in ordered_years]
+    assert len(annual_maxima1) <= 61, "bias should be at maximum computed on the 1959-2019 period"
+    assert len(annual_maxima2) <= 61, "bias should be at maximum computed on the 1959-2019 period"
     assert len(annual_maxima1) == len(annual_maxima2), "{} vs {}".format(len(annual_maxima1), len(annual_maxima2))
     biases = []
     for f in [np.mean, np.std]:

@@ -33,6 +33,7 @@ class AbstractSimulationWithEffects(object):
                  model_class=NonStationaryLocationAndScaleAndShapeTemporalModel,
                  nb_ensemble_member=20):
         set_seed_for_test()
+        assert nb_simulations > 1
         self.relative_percentage_for_temporal_and_effects = relative_percentage_for_temporal_and_effects
         self.nb_simulations = nb_simulations
         self.nb_ensemble_member = nb_ensemble_member
