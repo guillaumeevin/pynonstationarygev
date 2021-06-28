@@ -2,7 +2,7 @@
 # Objective : TODO
 # Created by: erwan
 # Created on: 30/03/2021
-source('evgam_fixed.R')
+source('/home/erwan/Documents/projects/spatiotemporalextremes/extreme_fit/distribution/gev/evgam_fixed.R')
 library(evgam)
 library(mgcv)
 library(SpatialExtremes)
@@ -12,9 +12,10 @@ N <- 101
 loc = 0; scale = 1; shape <- 1
 x_gev <- rgev(N, loc = loc, scale = scale, shape = shape)
 years = runif(101)
+indicator = c(rep(0, 51), rep(1, 50))
 # years = seq(0, 100) / 100
-df <- data.frame(x_gev, years)
-colnames(df) <- c("prcp", "year")
+df <- data.frame(x_gev, years, indicator)
+colnames(df) <- c("prcp", "year", "indicator")
 print(length(years))
 # print(COprcp_gev)
 print('before call')

@@ -7,14 +7,22 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
     AbstractExtractEurocodeReturnLevel
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract_simulation_with_effect import \
     AbstractSimulationWithEffects
+from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_version_v4 import \
+    CenterExperiment7_5, CenterExperiment10, CenterExperiment12_5
+from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_version_v5 import MeanExperiment7_5, \
+    MeanExperiment5, MeanExperiment10, MeanExperiment12_5
+from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_version_v6 import STDExperiment5, \
+    STDExperiment7_5, STDExperiment10, STDExperiment12_5
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_versions import SimulationVersion1, \
     SimulationVersion2, SimulationVersion3
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_versions_v2 import SimulationLogScaleWithShift20, \
     SimulationLogScaleWithShift0, SimulationLogScaleWithShift10
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.simulation_versions_v3 import \
-    AbstractSimulationForSnowLoadAt1500, SimulationSnowLoadWithShiftLikeSafran
+    AbstractSimulationForSnowLoadAt1500, SimulationSnowLoadWithShiftLikeSafran, SimulationSnowLoadWithShift0And0, \
+    SimulationLogScaleWithShift10And0, SimulationLogScaleWithShift0And10
 from extreme_trend.ensemble_simulation.visualizer_for_simulation_ensemble import VisualizerForSimulationEnsemble
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
+from projects.projected_extreme_snowfall.results.part_1.main_simulation_data import plot_simulation
 from projects.projected_extreme_snowfall.results.setting_utils import LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
 
 
@@ -39,10 +47,16 @@ def main_simulation():
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 5
 
     # Set settings
-    simulation_version = [SimulationSnowLoadWithShiftLikeSafran][0]
+    simulation_class = [CenterExperiment7_5, CenterExperiment10, CenterExperiment12_5][0]
+    simulation_class = [CenterExperiment7_5, CenterExperiment10, CenterExperiment12_5][0]
+    simulation_class = [MeanExperiment5, MeanExperiment7_5, MeanExperiment10, MeanExperiment12_5][3]
+    simulation_class = [STDExperiment5, STDExperiment7_5, STDExperiment10, STDExperiment12_5][0]
+    # simulation_class = [SimulationSnowLoadWithShiftLikeSafran, SimulationSnowLoadWithShift0And0,
+    #                     SimulationLogScaleWithShift10And0, SimulationLogScaleWithShift0And10][0]
     # simulation_version = [SimulationVersion1, SimulationVersion2, SimulationVersion3,
     #                       SimulationLogScaleWithShift, SimulationLogScaleWithoutShift][-1]
-    simulation = simulation_version(nb_simulations)
+    simulation = simulation_class(nb_simulations)
+    plot_simulation(simulation, list(range(nb_simulations)))
     visualizer = VisualizerForSimulationEnsemble(simulation, year_list_to_test,
                                                  return_period=50,
                                                  model_classes=model_classes,

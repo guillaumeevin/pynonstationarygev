@@ -41,8 +41,12 @@ def plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias_obs, al
     ax.set_xlabel('Average relative bias for the mean of annual maxima (\%)')
     ax.set_ylabel('Average relative bias for the std of annual maxima (\%)')
 
-    if show:
-        plt.show()
+    if show in [None, True]:
+        save_to_file = True if show is None else False
+        any_study = list(gcm_rcm_couple_to_study.values())[0]
+        visualizer = StudyVisualizer(any_study, save_to_file=save_to_file)
+        visualizer.plot_name = 'plot average bias repartition for {}'.format(massif_name)
+        visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
     plt.close()
     gcm_rcm_couples_selected = []
     for gcm_rcm_couple, average_bias in gcm_rcm_couple_to_average_bias.items():
@@ -61,11 +65,11 @@ def compute_average_bias(gcm_rcm_couple_to_study, massif_name, reference_study, 
     biases_matrix = np.array(list(gcm_rcm_couple_to_biases.values()))
     average_bias = np.mean(biases_matrix, axis=0)
     # Plot the bias
-    plot_bias(reference_study, average_bias, gcm_rcm_couple_to_biases, show)
+    plot_bias(reference_study, average_bias, gcm_rcm_couple_to_biases, massif_name, show)
     return average_bias, gcm_rcm_couple_to_biases
 
 
-def plot_bias(study_reference, average_bias, gcm_rcm_couple_to_biases, show):
+def plot_bias(study_reference, average_bias, gcm_rcm_couple_to_biases, massif_name, show):
     ax = plt.gca()
 
     for gcm_rcm_couple, biases in gcm_rcm_couple_to_biases.items():
@@ -80,7 +84,7 @@ def plot_bias(study_reference, average_bias, gcm_rcm_couple_to_biases, show):
     if show in [None, True]:
         save_to_file = True if show is None else False
         visualizer = StudyVisualizer(study_reference, save_to_file=save_to_file)
-        visualizer.plot_name = 'plot bias repartition'
+        visualizer.plot_name = 'plot bias repartition for {}'.format(massif_name)
         visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
     plt.close()
 

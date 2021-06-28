@@ -3,6 +3,7 @@ import time
 
 import matplotlib
 
+from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from projects.projected_extreme_snowfall.results.combination_utils import \
@@ -37,19 +38,22 @@ def main():
     param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
     print(combination)
 
-    visualizer = VisualizerForProjectionEnsemble(
-        altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
-        model_classes=model_classes,
-        ensemble_fit_classes=ensemble_fit_classes,
-        massif_names=massif_names,
-        fit_method=fit_method,
-        temporal_covariate_for_fit=temporal_covariate_for_fit,
-        remove_physically_implausible_models=remove_physically_implausible_models,
-        safran_study_class=safran_study_class,
-        display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
-        param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
-    )
-    visualizer.plot()
+    all_massif_names = AbstractStudy.all_massif_names()[:]
+    for massif_name in all_massif_names:
+        massif_names = [massif_name]
+        visualizer = VisualizerForProjectionEnsemble(
+            altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
+            model_classes=model_classes,
+            ensemble_fit_classes=ensemble_fit_classes,
+            massif_names=massif_names,
+            fit_method=fit_method,
+            temporal_covariate_for_fit=temporal_covariate_for_fit,
+            remove_physically_implausible_models=remove_physically_implausible_models,
+            safran_study_class=safran_study_class,
+            display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
+            param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
+        )
+        visualizer.plot()
 
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))

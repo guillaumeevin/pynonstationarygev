@@ -240,8 +240,10 @@ class AbstractCoordinates(object):
         if df_coordinate_climate_model is None:
             df_coordinate_climate_model = self.df_coordinate_climate_model
         s = df_coordinate_climate_model[climate_coordinate]
-        for character in self.character_to_remove_from_climate_model_coordinate_name():
-            s = s.str.replace(character, "")
+        typ = np.dtype('float64')
+        if typ != s.dtype:
+            for character in self.character_to_remove_from_climate_model_coordinate_name():
+                s = s.str.replace(character, "")
         unique_values = s.unique()
         unique_values_without_nan = [v for v in unique_values if isinstance(v, str)]
         has_observations = len(unique_values) == len(unique_values_without_nan) + 1

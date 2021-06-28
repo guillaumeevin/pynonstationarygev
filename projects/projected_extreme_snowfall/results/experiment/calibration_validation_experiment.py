@@ -47,7 +47,7 @@ class CalibrationValidaitonExperiment(AbstractExperiment):
         gcm_rcm_couple_to_studies[(None, None)] = self.load_altitude_studies(None, 1959, self.start_year_for_test_set-1)
         # Load the rest of the projections
         for gcm_rcm_couple in self.gcm_rcm_couples:
-            gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, None, 2019)
+            gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, None, None)
         return gcm_rcm_couple_to_studies
 
     def load_altitude_studies(self, gcm_rcm_couple=None, year_min=None, year_max=None):

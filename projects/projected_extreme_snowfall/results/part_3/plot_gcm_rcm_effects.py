@@ -44,7 +44,8 @@ def plot_gcm_rcm_effects(massif_names, visualizer_list: List[
     ax.yaxis.set_ticks(altitudes)
     size = 7 if len(climate_coordinates_names_with_param_effects_to_extract) == 2 else 10
     ax.legend(ncol=3, prop={'size': size})
-    set_plot_name(climate_coordinates_names_with_param_effects_to_extract, safran_study_class, title, visualizer)
+    set_plot_name(climate_coordinates_names_with_param_effects_to_extract, safran_study_class, title, visualizer,
+                  massif_name)
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
 
     plt.close()

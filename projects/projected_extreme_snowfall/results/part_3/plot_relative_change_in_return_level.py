@@ -44,7 +44,7 @@ def plot_relative_dynamic(massif_names, visualizer_list: List[
     if len(h) > 1:
         ax.legend(prop={'size': 7}, loc='upper left')
     title = ylabel.split('(')[0]
-    set_plot_name(param_name_to_climate_coordinates_with_effects, safran_study_class, title, visualizer)
+    set_plot_name(param_name_to_climate_coordinates_with_effects, safran_study_class, title, visualizer, massif_name)
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
 
     plt.close()
@@ -144,11 +144,12 @@ altitude_to_color = {
 }
 
 
-def set_plot_name(param_name_to_climate_coordinates_with_effects, safran_study_class, title, visualizer):
+def set_plot_name(param_name_to_climate_coordinates_with_effects, safran_study_class, title, visualizer, massif_name):
     # raise NotImplementedError
     plot_name = ' %s' % title
     plot_name += ' with {} effects'.format('no' if param_name_to_climate_coordinates_with_effects is None
                                            else ' and '.join(
         [c.replace('coord_', '') for c in param_name_to_climate_coordinates_with_effects]))
     plot_name += ' with{} observations'.format('out' if safran_study_class is None else '')
+    plot_name += massif_name.replace('-', '_')
     visualizer.plot_name = plot_name

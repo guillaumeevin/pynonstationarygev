@@ -33,7 +33,7 @@ class AbstractSimulationWithEffects(object):
                  model_class=NonStationaryLocationAndScaleAndShapeTemporalModel,
                  nb_ensemble_member=20):
         set_seed_for_test()
-        assert nb_simulations > 1
+        assert nb_simulations > 0
         self.relative_percentage_for_temporal_and_effects = relative_percentage_for_temporal_and_effects
         self.nb_simulations = nb_simulations
         self.nb_ensemble_member = nb_ensemble_member
@@ -75,13 +75,17 @@ class AbstractSimulationWithEffects(object):
                 dataset_together_with_obs = self.load_together_dataset(simulation_id, True)
                 average_bias = np.array(self.compute_average_bias(dataset_together_with_obs)[-1])
                 average_bias_reference = np.array(self.average_bias_reference)
-                acceptable_simulation = np.linalg.norm(average_bias - average_bias_reference) < 5
+                acceptable_simulation = np.linalg.norm(average_bias - average_bias_reference) < self.alpha_ray
 
             # Load the dict
             self.simulation_id_to_together_dataset_with_obs[simulation_id] = self.load_together_dataset(simulation_id, True)
             self.simulation_id_to_separate_datasets_with_obs[simulation_id] = self.load_separate_datasets(simulation_id, True)
             self.simulation_id_to_separate_datasets_without_obs[simulation_id] = self.load_separate_datasets(simulation_id, False)
             self.simulation_id_to_together_dataset_without_obs[simulation_id] = self.load_together_dataset(simulation_id, False)
+
+    @property
+    def alpha_ray(self):
+        raise NotImplementedError
 
     def load_separate_datasets(self, simulation_id, with_observations):
         datasets = []
@@ -165,7 +169,8 @@ class AbstractSimulationWithEffects(object):
         # colors = ['lightpink', 'violet', 'm', 'darkmagenta']
         colors = ['red', 'blue', 'cyan', 'y', 'k', 'green']
         colors += ['red', 'blue', 'cyan', 'y', 'k', 'green']
-        colors += ['lightpink', 'violet', 'm', 'darkmagenta']
+        colors += ['lightpink', 'violet', 'm', 'darkmagenta' , 'grey']
+        colors += ['lightpink', 'violet', 'm', 'darkmagenta' , 'grey']
         assert len(simulation_ids) <= len(colors)
         for color, simulation_id in zip(colors, simulation_ids):
             margin_function = self.simulation_id_to_margin_function[simulation_id]

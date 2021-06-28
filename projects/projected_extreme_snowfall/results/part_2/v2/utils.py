@@ -36,7 +36,7 @@ def update_csv(excel_filepath, combination_name, altitude, gcm_rcm_couple, value
     writer = pd.ExcelWriter(excel_filepath, engine='xlsxwriter')
     # Update main result
     column_name = load_column_name(altitude, gcm_rcm_couple)
-    for split in [None, "early", "later"]:
+    for split in [None, "early", "later"][:]:
         local_sheetname = main_sheet_name
         value = np.sum(value_list)
         if split is not None:
@@ -54,11 +54,11 @@ def update_csv(excel_filepath, combination_name, altitude, gcm_rcm_couple, value
         # save intermediate results
         df.to_excel(writer, local_sheetname)
     # update sub result
-    df2 = load_excel(excel_filepath, column_name)
-    years = list(range(2020, 2101))
-    for year, nllh in zip(years, value_list):
-        df2 = add_dynamical_value(str(year), combination_name, df2, nllh)
-    df2.to_excel(writer, column_name)
+    # df2 = load_excel(excel_filepath, column_name)
+    # years = list(range(2020, 2101))
+    # for year, nllh in zip(years, value_list):
+    #     df2 = add_dynamical_value(str(year), combination_name, df2, nllh)
+    # df2.to_excel(writer, column_name)
     writer.save()
     writer.close()
 

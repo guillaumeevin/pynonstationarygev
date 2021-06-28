@@ -50,6 +50,7 @@ def set_up_and_load(fast, snowfall=True):
     if snowfall:
         return_period = 100
         model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
+        model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
         altitudes_list = [1200, 2100, 3000]
         massif_names = ['Vanoise'] # todo: change that in the end
 

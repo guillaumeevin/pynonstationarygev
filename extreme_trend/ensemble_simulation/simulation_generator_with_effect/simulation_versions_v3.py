@@ -12,12 +12,17 @@ class AbstractSimulationForSnowLoadAt1500(AbstractSimulationWithEffects):
 
     @property
     def summary_parameter(self):
-        return "{}_{}".format(self.shift_mean,
-                                    self.shift_std)
+        return "_{}_{}_{}".format(self.shift_mean,
+                                     self.shift_std,
+                                     self.alpha_ray)
 
     @property
     def shift_mean(self):
         return self.average_bias_reference[0] / 100
+
+    @property
+    def alpha_ray(self):
+        return 5
 
     @property
     def shift_std(self):
@@ -59,9 +64,10 @@ class AbstractSimulationForSnowLoadAt1500(AbstractSimulationWithEffects):
 
     def load_margin_function(self) -> IndependentMarginFunction:
         gev_params_shifted = GevParams(self.location_at_zero * (1 + self.shift_location),
-                                       self.scale_at_zero * (1+ self.shift_scale),
+                                       self.scale_at_zero * (1 + self.shift_scale),
                                        self.shape_at_zero)
-        relative_change_in_mean = (gev_params_shifted.mean - self.gev_params_at_zero.mean) / self.gev_params_at_zero.mean
+        relative_change_in_mean = (
+                                          gev_params_shifted.mean - self.gev_params_at_zero.mean) / self.gev_params_at_zero.mean
         assert np.isclose(relative_change_in_mean, self.shift_mean)
         relative_change_in_std = (gev_params_shifted.std - self.gev_params_at_zero.std) / self.gev_params_at_zero.std
         assert np.isclose(relative_change_in_std, self.shift_std)
@@ -106,23 +112,26 @@ class SimulationSnowLoadWithShiftLikeSafran(AbstractSimulationForSnowLoadAt1500)
     def average_bias_reference(self):
         return 4.381, 7.1338
 
+    @property
+    def alpha_ray(self):
+        return 5
 
-class SimulationSnowLoadWithShift0(AbstractSimulationForSnowLoadAt1500):
+class SimulationSnowLoadWithShift0And0(AbstractSimulationForSnowLoadAt1500):
 
     @property
-    def shift_rcm(self):
-        return 0
+    def average_bias_reference(self):
+        return 0, 0
 
 
-class SimulationLogScaleWithShift10(AbstractSimulationForSnowLoadAt1500):
-
-    @property
-    def shift_rcm(self):
-        return 0.1
-
-
-class SimulationLogScaleWithShift20(AbstractSimulationForSnowLoadAt1500):
+class SimulationLogScaleWithShift10And0(AbstractSimulationForSnowLoadAt1500):
 
     @property
-    def shift_rcm(self):
-        return 0.2
+    def average_bias_reference(self):
+        return 10, 0
+
+
+class SimulationLogScaleWithShift0And10(AbstractSimulationForSnowLoadAt1500):
+
+    @property
+    def average_bias_reference(self):
+        return 0, 10
