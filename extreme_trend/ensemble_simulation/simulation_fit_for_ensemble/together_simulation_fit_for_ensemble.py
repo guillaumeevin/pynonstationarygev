@@ -16,6 +16,10 @@ class TogetherSimulationFitForEnsemble(AbstractSimulationFitForEnsemble):
     def name(self):
         return self.add_suffix("Together fit ")
 
+    @property
+    def short_name(self):
+        return self.add_short_suffix("Together fit ")
+
     def compute_metric_name_to_list(self, simulation_id):
         if self.with_observation:
             dataset = self.simulation.simulation_id_to_together_dataset_with_obs[simulation_id]

@@ -6,10 +6,12 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
 from extreme_data.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
-from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_to_color
+from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_to_color, gcm_to_color
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable, \
     TotalSnowLoadVariable
 from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
+    AbstractExtractEurocodeReturnLevel
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
@@ -33,11 +35,11 @@ def plot_relative_dynamic(massif_names, visualizer_list: List[
 
     xlabel = 'Anomaly of global temperature w.r.t. pre-industrial levels (K)' if is_temp_covariate else "Years"
     ax.set_xlabel(xlabel)
-    change = 'Relative change in' if relative is True else ("Value of" if relative is None else "Change in")
+    change = 'Relative change in' if relative is True else ("" if relative is None else "Change in")
     unit = '\%' if relative is True else (visualizer.study.variable_unit if order != GevParams.SHAPE else 'no unit')
-    name = 'the {} parameter'.format(GevParams.full_name_from_param_name(order)) if order is not None \
+    name = '{} parameter'.format(GevParams.full_name_from_param_name(order)) if order is not None \
         else '{}-year return levels'.format(OneFoldFit.return_period)
-    ylabel = '{} {} ({})'.format(change, name, unit)
+    ylabel = '{} {} for the {} massif ({})'.format(change, name, massif_name, unit)
     ax.set_ylabel(ylabel)
 
     h, l = ax.get_legend_handles_labels()
@@ -53,7 +55,8 @@ def plot_relative_dynamic(massif_names, visualizer_list: List[
 def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStationaryModels,
                relative, is_temp_cov, order, gcm_rcm_couples,
                with_significance):
-    q_list = [0.25, 0.75]
+    q_list = [0.05, 0.95]
+    width = 100 * (q_list[1] - q_list[0])
     alpha = 0.1
 
     num = 100
@@ -96,30 +99,41 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
     ax.plot(x_list, changes, label=label, color=obs_color, linewidth=2)
 
     # Additional plots for the value of return level
-    if (relative is None) and (order is None):
+    if relative is None:
         # Plot the uncertainty interval
         if with_significance:
-            margin_functions = one_fold_fit.bootstrap_fitted_functions_from_fit
+            margin_functions = one_fold_fit.bootstrap_fitted_functions_from_fit_cached
             coordinates_list = [np.array([t]) for t in x_list]
-            return_levels = [[f.get_params(c).return_level(OneFoldFit.return_period) for c in coordinates_list] for f in
-                             margin_functions]
 
-            lower_bound, upper_bound = [np.quantile(return_levels, q, axis=0) for q in q_list]
+            if order is None:
+                values = [[f.get_params(c).return_level(OneFoldFit.return_period) for c in coordinates_list] for
+                                 f in
+                                 margin_functions]
+            else:
+                values = [[f.get_params(c).to_dict()[order] for c in coordinates_list] for
+                                 f in
+                                 margin_functions]
+
+            lower_bound, upper_bound = [np.quantile(values, q, axis=0) for q in q_list]
             ax.fill_between(x_list, lower_bound, upper_bound, color=obs_color, alpha=alpha)
 
         # Plot the structure standard as reference for the snow load
-        if not snowfall:
-            eurocode_region = massif_name_to_eurocode_region[massif_name]()
-            constant_norm = eurocode_region.valeur_caracteristique(altitude)
-            ax.plot(x_list, [constant_norm for _ in x_list], color=obs_color, linestyle='dashed')
+        # if not snowfall:
+        #     eurocode_region = massif_name_to_eurocode_region[massif_name]()
+        #     constant_norm = eurocode_region.valeur_caracteristique(altitude)
+        #     ax.plot(x_list, [constant_norm for _ in x_list], color=obs_color, linestyle='dashed')
 
         ax2 = ax.twinx()
         legend_elements = [
-            Line2D([0], [0], color='k', lw=2, label="Projections for the observations", linestyle='-'),
-            Line2D([0], [0], color='k', lw=1, label="Projections for the ensemble members", linestyle='dotted'),
-            Patch(facecolor='k', edgecolor='k', label="50\% uncertainty interval for the projections", alpha=alpha),
-            Line2D([0], [0], color='k', lw=1, label="French building standard", linestyle='dashed'),
+            Line2D([0], [0], color='k', lw=3, label="Projection", linestyle='-'),
+            # Line2D([0], [0], color='k', lw=1, label="French building standard", linestyle='dashed'),
         ]
+        if order != GevParams.SHAPE:
+            for gcm, color in gcm_to_color.items():
+                legend_elements.append(Line2D([0], [0], color=color, lw=2, label="Projection for the {} GCM".format(gcm), linestyle='dotted'))
+        legend_elements.append(Patch(facecolor='k', edgecolor='k', label="90\% uncertainty interval for the projection", alpha=alpha),
+)
+
         size = 7
         ax2.legend(handles=legend_elements, loc='lower left', prop={'size': size}, handlelength=3)
         ax2.set_yticks([])

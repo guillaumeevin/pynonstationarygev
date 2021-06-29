@@ -31,20 +31,27 @@ def is_already_done(excel_filepath, combination_name, altitude, gcm_rcm_couple):
         return False
 
 
-def update_csv(excel_filepath, combination_name, altitude, gcm_rcm_couple, value_list):
+def update_csv(excel_filepath, row_name, altitude, gcm_rcm_couple, value_list, sheetname=None):
     # Check value
     writer = pd.ExcelWriter(excel_filepath, engine='xlsxwriter')
     # Update main result
     column_name = load_column_name(altitude, gcm_rcm_couple)
-    for split in [None, "early", "later"][:]:
-        local_sheetname = main_sheet_name
-        value = np.sum(value_list)
-        if split is not None:
-            local_sheetname += ' ' + split
-            value = np.sum(value_list[:40]) if split == "early" else np.sum(value_list[-40:])
+    # update sub result
+    for split in [None, "early", "later"][:1]:
+        if sheetname is None:
+
+            local_sheetname = main_sheet_name
+            value = np.sum(value_list)
+            if split is not None:
+                local_sheetname += ' ' + split
+                value = np.sum(value_list[:40]) if split == "early" else np.sum(value_list[-40:])
+        else:
+            local_sheetname = sheetname
+            value = value_list
+
 
         df = load_excel(excel_filepath, local_sheetname)
-        df = add_dynamical_value(column_name, combination_name, df, value)
+        df = add_dynamical_value(column_name, row_name, df, value)
         # Compute sum on the column without gaps
         sum_column_name = 'sum'
         if sum_column_name in df.columns:
@@ -53,7 +60,6 @@ def update_csv(excel_filepath, combination_name, altitude, gcm_rcm_couple, value
         df.sort_values(by=sum_column_name, inplace=True)
         # save intermediate results
         df.to_excel(writer, local_sheetname)
-    # update sub result
     # df2 = load_excel(excel_filepath, column_name)
     # years = list(range(2020, 2101))
     # for year, nllh in zip(years, value_list):
@@ -63,17 +69,17 @@ def update_csv(excel_filepath, combination_name, altitude, gcm_rcm_couple, value
     writer.close()
 
 
-def add_dynamical_value(column_name, combination_name, df, value):
+def add_dynamical_value(column_name, row_name, df, value):
     # Add value dynamically
-    if combination_name not in df.index:
+    if row_name not in df.index:
         if df.empty:
-            df = pd.DataFrame({column_name: [value]}, index=[combination_name])
+            df = pd.DataFrame({column_name: [value]}, index=[row_name])
         else:
             nb_index = len(df.index)
-            df.loc[combination_name] = df.iloc[nb_index - 1] * np.nan
+            df.loc[row_name] = df.iloc[nb_index - 1] * np.nan
     if column_name not in df.columns:
         df[column_name] = np.nan
-    df.loc[combination_name, column_name] = value
+    df.loc[row_name, column_name] = value
     return df
 
 

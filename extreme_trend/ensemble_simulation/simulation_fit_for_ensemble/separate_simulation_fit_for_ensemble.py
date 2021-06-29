@@ -15,6 +15,10 @@ class SeparateSimulationFitForEnsemble(AbstractSimulationFitForEnsemble):
     def name(self):
         return self.add_suffix("Separate fit ")
 
+    @property
+    def short_name(self):
+        return self.add_short_suffix("Separate fit ")
+
     def compute_metric_name_to_list(self, simulation_id):
         if self.with_observation:
             datasets = self.simulation.simulation_id_to_separate_datasets_with_obs[simulation_id]

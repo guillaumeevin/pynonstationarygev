@@ -1,8 +1,12 @@
 from typing import List
+import os.path as op
+
+import pandas as pd
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
+from extreme_data.utils import DATA_PATH
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
 from extreme_trend.ensemble_simulation.simulation_fit_for_ensemble.abstract_simulation_fit_for_ensemble import \
@@ -17,6 +21,10 @@ from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract
     AbstractSimulationWithEffects
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from projects.projected_extreme_snowfall.results.combination_utils import number_to_sub_numbers
+from projects.projected_extreme_snowfall.results.part_2.v2.utils import load_excel, add_dynamical_value
+from root_utils import get_display_name_from_object_type
+
+SIMULATION_PATH = op.join(DATA_PATH, "simulation_excel")
 
 
 class VisualizerForSimulationEnsemble(StudyVisualizer):
@@ -46,6 +54,24 @@ class VisualizerForSimulationEnsemble(StudyVisualizer):
         self.simulation_fits = self.simulation_fits[::-1][:]
         if fast:
             self.simulation_fits = self.simulation_fits[1:2]
+
+
+
+    def write_to_csv(self, ):
+        class_name = get_display_name_from_object_type(type(self.simulation))
+        if  '__' not in class_name:
+            print(class_name, 'not a valid name for csv writing')
+        else:
+            for metric_name in AbstractSimulationFitForEnsemble.METRICS[:]:
+
+                class_name_prefix, row_name, column_name = class_name.split('__')
+                excel_filepath = op.join(SIMULATION_PATH, "{}_{}_{}_{}.xlsx".format(metric_name, class_name_prefix,
+                                                                                    self.simulation.nb_simulations,
+                                                                                    AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP))
+
+                for j, simulation_fit in enumerate(self.simulation_fits, 1):
+                    print('\n\nSimulation fit method #{}'.format(j))
+                    simulation_fit.update_csv(excel_filepath, metric_name, row_name, column_name)
 
     def plot_mean_metrics(self):
         for metric_name in AbstractSimulationFitForEnsemble.METRICS[:]:

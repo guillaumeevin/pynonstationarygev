@@ -560,6 +560,10 @@ class OneFoldFit(object):
         coordinate = self.get_coordinate(altitude, last_temporal_coordinate)
         return self.get_return_level(self.best_margin_function_from_fit, coordinate)
 
+    @cached_property
+    def bootstrap_fitted_functions_from_fit_cached(self):
+        return self.bootstrap_fitted_functions_from_fit
+
     @property
     def bootstrap_fitted_functions_from_fit(self):
         print('nb of bootstrap for confidence interval=', AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP)

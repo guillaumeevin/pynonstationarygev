@@ -90,7 +90,7 @@ class AdamontStudies(object):
             if issubclass(type(scm_study.variable_class), SafranSnowfallVariable):
                 label = 'SAFRAN reanalysis'
             else:
-                label = 'SAFRAN-Crocus reanalysis'
+                label = 'S2M reanalysis'
             color = 'black'
             ax.plot(x, y, linewidth=linewidth * 2, label=label, color=color)
         except KeyError:

@@ -5,6 +5,8 @@ import matplotlib
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_fit.model.margin_model.utils import MarginFitMethod
+from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
+    AbstractExtractEurocodeReturnLevel
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
@@ -39,6 +41,8 @@ def main():
     print(combination)
 
     all_massif_names = AbstractStudy.all_massif_names()[:]
+    AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 100
+    all_massif_names = ['Vanoise']
     for massif_name in all_massif_names:
         massif_names = [massif_name]
         visualizer = VisualizerForProjectionEnsemble(

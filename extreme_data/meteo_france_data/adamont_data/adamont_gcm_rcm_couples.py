@@ -137,6 +137,6 @@ gcm_to_color = {
 
     'IPSL-CM5A-MR': 'orange',
 
-    'NorESM1-M': 'y',
+    'NorESM1-M': 'gold',
 }
 

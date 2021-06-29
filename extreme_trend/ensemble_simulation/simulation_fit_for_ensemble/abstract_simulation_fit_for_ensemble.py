@@ -1,7 +1,9 @@
 import numpy as np
+import pandas as pd
 import properscoring as ps
 from cached_property import cached_property
 
+from extreme_data.utils import DATA_PATH
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_trend.ensemble_simulation.simulation_generator_with_effect.abstract_simulation_with_effect import \
     AbstractSimulationWithEffects
@@ -9,7 +11,9 @@ from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
+from projects.projected_extreme_snowfall.results.part_2.v2.utils import update_csv, load_excel, add_dynamical_value
 from root_utils import get_display_name_from_object_type
+import os.path as op
 
 
 class AbstractSimulationFitForEnsemble(object):
@@ -55,6 +59,22 @@ class AbstractSimulationFitForEnsemble(object):
         print('here info one one fold fit:', one_fold_fit.best_combination,
               get_display_name_from_object_type(one_fold_fit.best_margin_model))
 
+    def metric_last_year(self, metric_name):
+        mean_metric = np.mean(self.metric_name_to_all_list[metric_name], axis=0)
+        return mean_metric[-1]
+
+    def update_csv(self, excel_filepath, metric_name, row_name, column_name):
+        local_sheetname = "Main"
+        value = self.metric_last_year(metric_name)
+        column_name = '({}, {})'.format(row_name, column_name)
+        row_name = self.short_name
+        writer = pd.ExcelWriter(excel_filepath, engine='xlsxwriter')
+        df = load_excel(excel_filepath, local_sheetname)
+        df = add_dynamical_value(column_name, row_name, df, value)
+        df.to_excel(writer, local_sheetname)
+        writer.save()
+        writer.close()
+
     def plot_mean_metric(self, ax, metric_name):
         assert metric_name in self.METRICS
         mean_metric = np.mean(self.metric_name_to_all_list[metric_name], axis=0)
@@ -81,6 +101,10 @@ class AbstractSimulationFitForEnsemble(object):
 
     @property
     def name(self):
+        raise NotImplementedError
+
+    @property
+    def short_name(self):
         raise NotImplementedError
 
     @cached_property
@@ -139,6 +163,13 @@ class AbstractSimulationFitForEnsemble(object):
             # Compute width metric
             width = np.quantile(predictions_from_bootstrap, 0.95) - np.quantile(predictions_from_bootstrap, 0.05)
         return absolute_relative_difference, crpss, rmse, width
+
+    def add_short_suffix(self, name):
+        if self.with_effects:
+            name += 'with'
+        else:
+            name += 'without'
+        return name
 
     def add_suffix(self, name):
         if self.with_effects:
