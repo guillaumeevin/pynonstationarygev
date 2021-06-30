@@ -154,6 +154,21 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 # self.plot_against_years(method_name, order)
                 self.plot_map_moment(method_name, order, with_significance)
 
+    def plot_moments_projections(self, with_significance):
+        default_covariate = OneFoldFit.COVARIATE_AFTER_TEMPERATURE
+        OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 1
+        max_abs = self.plot_map_moment_projections("moment", None, with_significance)
+        for covariate in [2, 3, 4]:
+            print("covariate", covariate)
+            OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
+            self.plot_map_moment_projections("moment", None, with_significance, max_abs)
+        OneFoldFit.COVARIATE_AFTER_TEMPERATURE = default_covariate
+
+        for covariate in [2, 3, 4]:
+            print("covariate", covariate)
+            OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
+            self.plot_map_moment_projections('changes_of_moment', None, with_significance)
+
     def method_name_and_order_to_max_abs(self, method_name, order):
         c = (method_name, order)
         if c not in self._method_name_and_order_to_max_abs:
@@ -162,7 +177,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             return self._method_name_and_order_to_max_abs[c]
 
     def method_name_and_order_to_d(self, method_name, order):
-        c = (method_name, order)
+        c = (method_name, order, OneFoldFit.COVARIATE_AFTER_TEMPERATURE)
         if c not in self._method_name_and_order_to_massif_name_to_value:
             # Compute values
             massif_name_to_value = {}
@@ -200,6 +215,93 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             ratio = new_interval_size / old_interval_size
             ratios.append(ratio)
         return ratios
+
+    def plot_map_moment_projections(self, method_name, order, with_significance, max_abs_change=None):
+        massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
+        # Plot settings
+        moment = ' '.join(method_name.split('_'))
+        d_temperature = {'C': '{C}'}
+        str_for_last_year = ' at +${}^o\mathrm{C}$' \
+            if self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate else ' in {}'
+        str_for_last_year = str_for_last_year.format(self.first_one_fold_fit.covariate_after, **d_temperature)
+        moment = moment.replace('moment', '{}{}'.format(OneFoldFit.get_moment_str(order=order), str_for_last_year))
+        plot_name = '{} '.format(moment)
+
+        if 'change' in method_name:
+            plot_name = plot_name.replace(str_for_last_year, '')
+            plot_name += self.first_one_fold_fit.between_covariate_str
+
+            if 'relative' not in method_name:
+                # Put the relative score as text on the plot for the change.
+                massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
+                                       self.method_name_and_order_to_d(self.moment_names[2], order).items()}
+                print('Between 1 and {}'.format(OneFoldFit.COVARIATE_AFTER_TEMPERATURE))
+                for i in [1, 2]:
+                    if i == 2:
+                        print('relative change')
+                    else:
+                        print('absolute change')
+                    d = self.method_name_and_order_to_d(self.moment_names[i], order)
+                    print(d)
+                    print("Average", np.mean(list(d.values())))
+
+        parenthesis = self.study.variable_unit if 'relative' not in method_name else '\%'
+        ylabel = '{} ({})'.format(plot_name, parenthesis)
+
+
+        add_colorbar = True
+
+        is_return_level_plot = (self.moment_names.index(method_name) == 0) and (order is None)
+        fontsize_label = 13
+
+        if is_return_level_plot:
+
+            if max_abs_change is None:
+                max_abs_change = max([v for v in massif_name_to_value.values()])
+
+            cmap = plt.cm.Blues
+            # cmap = remove_the_extreme_colors(cmap, epsilon=0.25)
+            # cmap = get_inverse_colormap(cmap)
+            massif_name_to_text = {m: round(v, 1) for m, v in massif_name_to_value.items()}
+            max_abs_change = 9.9
+            graduation = 2
+            massif_names_with_white_dot = None
+        else:
+            # cmap = plt.cm.RdYlGn
+            cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
+            # cmap = get_inverse_colormap(cmap)
+            # cmap = get_cmap_with_inverted_blue_and_green_channels(cmap)
+            cmap = remove_the_extreme_colors(cmap)
+            graduation = 0.5
+            if with_significance:
+                print('nb of massifs with singificant correct')
+                print(sum([one_fold_fit.gcm_correction_is_significant for one_fold_fit in self.massif_name_to_one_fold_fit.values()]))
+                print('nb of massifs with singificant trend')
+                print(sum([one_fold_fit.is_significant for one_fold_fit in self.massif_name_to_one_fold_fit.values()]))
+
+                massif_names_with_white_dot = set([massif_name
+                                                   for massif_name, one_fold_fit in
+                                                   self.massif_name_to_one_fold_fit.items()
+                                                   if not one_fold_fit.is_significant])
+            else:
+                massif_names_with_white_dot = None
+
+        negative_and_positive_values = self.moment_names.index(method_name) > 0
+
+        # Plot the map
+        self.plot_map(cmap=cmap, graduation=graduation,
+                      label=ylabel, massif_name_to_value=massif_name_to_value,
+                      plot_name=plot_name, add_x_label=False,
+                      negative_and_positive_values=negative_and_positive_values,
+                      altitude=self.altitude_group.reference_altitude,
+                      add_colorbar=add_colorbar,
+                      max_abs_change=max_abs_change,
+                      massif_name_to_text=massif_name_to_text,
+                      fontsize_label=fontsize_label,
+                      massif_names_with_white_dot=massif_names_with_white_dot,
+                      half_cmap_for_positive=False,
+                      )
+        return max_abs_change
 
     def plot_map_moment(self, method_name, order, with_significance):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)

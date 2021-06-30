@@ -735,7 +735,8 @@ class StudyVisualizer(VisualizationParameters):
 
     def plot_map(self, cmap, graduation, label, massif_name_to_value, plot_name, add_x_label=True,
                  negative_and_positive_values=True, massif_name_to_text=None, altitude=None, add_colorbar=True,
-                 max_abs_change=None, xlabel=None, fontsize_label=10, massif_names_with_white_dot=None):
+                 max_abs_change=None, xlabel=None, fontsize_label=10, massif_names_with_white_dot=None,
+                 half_cmap_for_positive=True):
         if altitude is None:
             altitude = self.study.altitude
         if len(massif_name_to_value) > 0:
@@ -743,7 +744,8 @@ class StudyVisualizer(VisualizationParameters):
                       add_x_label=add_x_label, negative_and_positive_values=negative_and_positive_values,
                       massif_name_to_text=massif_name_to_text,
                       add_colorbar=add_colorbar, max_abs_change=max_abs_change, xlabel=xlabel,
-                      fontsize_label=fontsize_label, massif_names_with_white_dot=massif_names_with_white_dot)
+                      fontsize_label=fontsize_label, massif_names_with_white_dot=massif_names_with_white_dot,
+                      half_cmap_for_positive=half_cmap_for_positive)
             self.plot_name = plot_name
             # self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True, dpi=500)
             self.show_or_save_to_file(add_classic_title=False, no_title=True, dpi=500, tight_layout=True)

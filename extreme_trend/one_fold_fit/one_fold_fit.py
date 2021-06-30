@@ -54,6 +54,7 @@ class OneFoldFit(object):
     nb_cores_for_multiprocess = NB_CORES
     max_batchsize = None
     SELECTION_METHOD_NAME = 'aic'
+    COVARIATE_AFTER_TEMPERATURE = 2
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
                  first_year=None, last_year=None,
@@ -178,7 +179,7 @@ class OneFoldFit(object):
             return self.first_year, self.last_year
         elif self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate:
             # In 2020, we are roughly at 1 degree. Thus it natural to see the augmentation from 1 to 2 degree.
-            return 1, 2
+            return 1, self.COVARIATE_AFTER_TEMPERATURE
         else:
             raise NotImplementedError
 
