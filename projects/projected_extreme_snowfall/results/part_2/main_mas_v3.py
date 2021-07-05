@@ -36,13 +36,21 @@ def main_preliminary_projections():
     display_only_model_that_pass_gof_test = False
     # Load study
     model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
-    massif_name = massif_names[0]
-    altitudes = altitudes_list[0]
-    altitude = altitudes[0]
+    for altitudes in altitudes_list[::-1]:
+
+        altitude = altitudes[0]
+        run_mas(altitude, altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
+                model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
+                study_class, temporal_covariate_for_fit)
+
+
+def run_mas(altitude, altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
+            model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
+            study_class, temporal_covariate_for_fit):
+    print('Altitude={}'.format(altitude))
     gcm_rcm_couple_to_study, safran_study = load_study(altitude, gcm_rcm_couples, safran_study_class, scenario,
                                                        study_class)
     print('number of couples loaded:', len(gcm_rcm_couple_to_study))
-
     all_massif_names = AbstractStudy.all_massif_names()[::-1]
     if fast:
         all_massif_names = all_massif_names[:1]
@@ -58,23 +66,26 @@ def main_preliminary_projections():
             # gcm_rcm_couples_sampled_for_experiment = [('NorESM1-M', 'REMO2015'), ('MPI-ESM-LR', 'REMO2009')]
         else:
             alpha = 30 if snowfall else 100
-            gcm_rcm_couples_sampled_for_experiment, gcm_rcm_couple_to_average_bias, gcm_rcm_couple_to_gcm_rcm_couple_to_biases = plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias,
-                                                                       alpha, show=show)
+            gcm_rcm_couples_sampled_for_experiment, gcm_rcm_couple_to_average_bias, gcm_rcm_couple_to_gcm_rcm_couple_to_biases = plot_average_bias(
+                gcm_rcm_couple_to_study, massif_name, average_bias,
+                alpha, show=show)
 
         print(gcm_rcm_couples_sampled_for_experiment)
 
         study = 'snowfall' if snowfall else 'snow_load'
-        csv_filename = 'last_{}_fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_alpha_{}.xlsx'.format(study, fast, altitude,
+        csv_filename = 'last_{}_fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_alpha_{}.xlsx'.format(study,
+                                                                                                                 fast,
+                                                                                                                 altitude,
                                                                                                                  len(model_classes),
                                                                                                                  len(gcm_rcm_couple_to_study),
                                                                                                                  alpha
-                                                                                                                            )
+                                                                                                                 )
         print(csv_filename)
 
         if gcm_rcm_couple_to_average_bias is not None:
             for couple in gcm_rcm_couples_sampled_for_experiment:
-                plot_bias(gcm_rcm_couple_to_study[couple], gcm_rcm_couple_to_average_bias[couple], gcm_rcm_couple_to_gcm_rcm_couple_to_biases[couple], massif_name, show)
-
+                plot_bias(gcm_rcm_couple_to_study[couple], gcm_rcm_couple_to_average_bias[couple],
+                          gcm_rcm_couple_to_gcm_rcm_couple_to_biases[couple], massif_name, show)
 
         excel_filepath = op.join(CSV_PATH, csv_filename)
 
@@ -103,10 +114,14 @@ def main_preliminary_projections():
                                             param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
                                             )
                 # plot time series
-                gcm_rcm_couple_to_studies_plot = xp.load_gcm_rcm_couple_to_studies(gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
-                gcm_rcm_couple_to_study_plot = {c: studies.study for c, studies in gcm_rcm_couple_to_studies_plot.items()}
-                gcm_rcm_couple_to_other_study_plot = {c: s for c, s in gcm_rcm_couple_to_study.items() if c != gcm_rcm_couple}
-                plot_time_series(massif_name, gcm_rcm_couple_to_study_plot[gcm_rcm_couple], gcm_rcm_couple_to_other_study_plot, show)
+                gcm_rcm_couple_to_studies_plot = xp.load_gcm_rcm_couple_to_studies(
+                    gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
+                gcm_rcm_couple_to_study_plot = {c: studies.study for c, studies in
+                                                gcm_rcm_couple_to_studies_plot.items()}
+                gcm_rcm_couple_to_other_study_plot = {c: s for c, s in gcm_rcm_couple_to_study.items() if
+                                                      c != gcm_rcm_couple}
+                plot_time_series(massif_name, gcm_rcm_couple_to_study_plot[gcm_rcm_couple],
+                                 gcm_rcm_couple_to_other_study_plot, show)
 
                 name = str(altitude) + massif_name
                 if is_already_done(excel_filepath, combination_name, name, gcm_rcm_couple):
