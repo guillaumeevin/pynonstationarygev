@@ -3,7 +3,9 @@ import numpy as np
 from extreme_data.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable, \
     TotalSnowLoadVariable, CrocusTotalSweVariable
-from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariable
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariable, \
+    SafranTotalPrecipVariable
+from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from root_utils import classproperty
 
 
@@ -38,6 +40,14 @@ class AbstractAdamontVariable(AbstractVariable):
         else:
             return annual_maxima_data
 
+    @classproperty
+    def season_to_indicator_name_for_maxima(cls):
+        raise NotImplementedError
+
+    @classproperty
+    def season_to_indicator_name_for_maxima_date(cls):
+        raise NotImplementedError
+
 
 class SafranSnowfallSimulationVariable(AbstractAdamontVariable):
     UNIT = SafranSnowfallVariable.UNIT
@@ -61,6 +71,36 @@ class SafranSnowfallSimulationVariable(AbstractAdamontVariable):
     @classproperty
     def indicator_name_for_maxima(cls):
         return 'max-1day-snowf'
+
+
+class SafranPrecipitationSimulationVariable(AbstractAdamontVariable):
+    UNIT = SafranTotalPrecipVariable.UNIT
+    NAME = SafranTotalPrecipVariable.NAME
+
+    @classmethod
+    def variable_folder_name(cls, annual_maxima_date):
+        if annual_maxima_date:
+            return cls.get_folder_name_from_indicator_name(cls.indicator_name_for_maxima_date)
+        else:
+            return 'Precip'
+
+    @property
+    def daily_time_serie_array(self) -> np.ndarray:
+        return self.variable_array
+
+    @classmethod
+    def keyword(cls):
+        return 'Prec'
+
+    @classproperty
+    def indicator_name_for_maxima(cls):
+        return 'max-1day-precipf-year'
+
+    @classproperty
+    def season_to_indicator_name_for_maxima(cls):
+        return {
+            Season.winter: "max-1day-precipf-winter-12-02",
+        }
 
 
 class CrocusSweSimulationVariable(AbstractAdamontVariable):

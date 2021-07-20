@@ -146,9 +146,15 @@ class AbstractAdamontStudy(AbstractStudy):
 
     def indicator_name(self, maxima_date) -> str:
         if maxima_date:
-            return self.variable_class.indicator_name_for_maxima_date
+            if self.season is Season.annual:
+                return self.variable_class.indicator_name_for_maxima_date
+            else:
+                return self.variable_class.season_to_indicator_name_for_maxima_date[self.season]
         else:
-            return self.variable_class.indicator_name_for_maxima
+            if self.season is Season.annual:
+                return self.variable_class.indicator_name_for_maxima
+            else:
+                return self.variable_class.season_to_indicator_name_for_maxima[self.season]
 
     def _scenario_to_str_adamont_v2(self, scenario):
         scenario_name = scenario_to_str(scenario)
