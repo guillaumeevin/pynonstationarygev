@@ -33,19 +33,23 @@ def plot_relative_dynamic(massif_names, visualizer_list: List[
     for v in visualizer_list:
         plot_curve(ax, massif_name, v, relative, is_temp_covariate, order, gcm_rcm_couples, with_significance)
 
-    xlabel = 'Anomaly of global temperature w.r.t. pre-industrial levels (K)' if is_temp_covariate else "Years"
+    xlabel = 'T, the smoothed anomaly of global temperature w.r.t. pre-industrial levels (K)' if is_temp_covariate else "Years"
     ax.set_xlabel(xlabel)
     change = 'Relative change in' if relative is True else ("" if relative is None else "Change in")
     unit = '\%' if relative is True else (visualizer.study.variable_unit if order != GevParams.SHAPE else 'no unit')
-    name = '{} parameter'.format(GevParams.full_name_from_param_name(order)) if order is not None \
-        else '{}-year return levels'.format(OneFoldFit.return_period)
-    ylabel = '{} {} for the {} massif ({})'.format(change, name, massif_name, unit)
+    if order is None:
+        name = '{}-year return levels'.format(OneFoldFit.return_period)
+    else:
+        name = '{} parameter'.format(GevParams.full_name_from_param_name(order))
+    ylabel = '{} {} ({})'.format(change, name, unit)
+    ylabel = ylabel.strip()
+    ylabel = ylabel[0].upper() + ylabel[1:]
     ax.set_ylabel(ylabel)
 
     h, l = ax.get_legend_handles_labels()
     if len(h) > 1:
-        ax.legend(prop={'size': 7}, loc='upper left')
-    title = ylabel.split('(')[0]
+        ax.legend(prop={'size': 14})
+    title = '{} {} for the {} massif'.format(change, name, massif_name)
     set_plot_name(param_name_to_climate_coordinates_with_effects, safran_study_class, title, visualizer, massif_name)
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
 
@@ -123,19 +127,28 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
         #     constant_norm = eurocode_region.valeur_caracteristique(altitude)
         #     ax.plot(x_list, [constant_norm for _ in x_list], color=obs_color, linestyle='dashed')
 
+        if order is None:
+            label_global = "$\\textrm{RL50}"
+        else:
+            label_global = "$\\" + GevParams.greek_letter_from_param_name_confidence_interval(order, linearity_in_shape=True)
+
+        label_obs = label_global + '(\\textrm{T})$'
+
         ax2 = ax.twinx()
         legend_elements = [
-            Line2D([0], [0], color='k', lw=3, label="Projection", linestyle='-'),
+            Line2D([0], [0], color='k', lw=3, label=label_obs, linestyle='-'),
             # Line2D([0], [0], color='k', lw=1, label="French building standard", linestyle='dashed'),
         ]
         if order != GevParams.SHAPE:
             for gcm, color in gcm_to_color.items():
-                legend_elements.append(Line2D([0], [0], color=color, lw=2, label="Projection for the {} GCM".format(gcm), linestyle='dotted'))
-        legend_elements.append(Patch(facecolor='k', edgecolor='k', label="90\% uncertainty interval for the projection", alpha=alpha),
+                label_gcm = label_global + '(\\textrm{T,' + gcm + '},\\cdot)$'
+                legend_elements.append(Line2D([0], [0], color=color, lw=2, label=label_gcm, linestyle='dotted'))
+        legend_elements.append(Patch(facecolor='k', edgecolor='k', label="90\% uncertainty interval for {}".format(label_obs), alpha=alpha),
 )
 
-        size = 7
-        ax2.legend(handles=legend_elements, loc='lower left', prop={'size': size}, handlelength=3)
+        size = 9
+        loc = 'upper left' if order is GevParams.SHAPE else 'upper right'
+        ax2.legend(handles=legend_elements, loc=loc, prop={'size': size}, handlelength=3)
         ax2.set_yticks([])
 
 
