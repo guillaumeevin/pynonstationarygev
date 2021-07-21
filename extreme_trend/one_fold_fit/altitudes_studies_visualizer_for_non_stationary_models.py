@@ -265,14 +265,16 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             if max_abs_change is None:
                 max_abs_change = max([v for v in massif_name_to_value.values()])
 
-            cmap = plt.cm.Blues
+            cmap = plt.cm.Oranges
             # cmap = remove_the_extreme_colors(cmap, epsilon=0.25)
             # cmap = get_inverse_colormap(cmap)
             massif_name_to_text = {m: round(v, 1) for m, v in massif_name_to_value.items()}
             max_abs_change = 9.9
             graduation = 2
             massif_names_with_white_dot = None
+            half_cmap_for_positive = False
         else:
+            half_cmap_for_positive = True
             fontsize_label = 10
             # cmap = plt.cm.RdYlGn
             cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
@@ -298,7 +300,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             else:
                 massif_names_with_white_dot = None
 
-        negative_and_positive_values = self.moment_names.index(method_name) > 0
+        negative_and_positive_values = False
 
         # Plot the map
         self.plot_map(cmap=cmap, graduation=graduation,
@@ -311,7 +313,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       massif_name_to_text=massif_name_to_text,
                       fontsize_label=fontsize_label,
                       massif_names_with_white_dot=massif_names_with_white_dot,
-                      half_cmap_for_positive=False,
+                      half_cmap_for_positive=half_cmap_for_positive,
                       )
         return max_abs_change
 

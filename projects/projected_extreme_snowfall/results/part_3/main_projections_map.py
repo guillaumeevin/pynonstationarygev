@@ -54,7 +54,7 @@ def main():
         param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
     )
 
-    with_significance = True
+    with_significance = False
     sub_visualizers = [together_ensemble_fit.visualizer
                        for together_ensemble_fit in visualizer.ensemble_fits(TogetherEnsembleFit)]
     print(len(sub_visualizers))

@@ -4,8 +4,8 @@ import numpy as np
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import \
-    ticks_values_and_labels_for_percentages, get_shifted_map, get_colors, ticks_values_and_labels_for_positive_value, \
-    get_half_colormap, ticks_values_and_labels_for_positive_value_with_min_abs_change
+    ticks_values_and_labels_for_percentages, get_shifted_map, get_colors, ticks_values_and_labels_for_half_value, \
+    get_upper_half_colormap, ticks_values_and_labels_for_positive_value_with_min_abs_change, get_lower_half_colormap
 
 
 def plot_against_altitude(x_ticks, ax, massif_id, massif_name, values, altitude=None, fill=False,
@@ -51,7 +51,8 @@ def load_plot(cmap, graduation, label, massif_name_to_value, altitude, add_x_lab
               negative_and_positive_values=True, massif_name_to_text=None, add_colorbar=True, max_abs_change=None,
               xlabel=None, fontsize_label=10, massif_names_with_white_dot=None,
               min_ratio_equal_to_zero_for_positive_values=True,
-              half_cmap_for_positive=True):
+              half_cmap_for_positive=True,
+              ):
     if max_abs_change is None:
         max_abs_change = max([abs(e) for e in massif_name_to_value.values()])
     if negative_and_positive_values:
@@ -61,17 +62,24 @@ def load_plot(cmap, graduation, label, massif_name_to_value, altitude, add_x_lab
         cmap = get_shifted_map(min_ratio, max_ratio, cmap)
     else:
         max_ratio = max_abs_change
+        is_negative = all([e < 0 for e in massif_name_to_value.values()])
         if half_cmap_for_positive:
-            cmap = get_half_colormap(cmap)
+            if is_negative:
+                cmap = get_lower_half_colormap(cmap)
+            else:
+                cmap = get_upper_half_colormap(cmap)
         if min_ratio_equal_to_zero_for_positive_values:
-            ticks, labels = ticks_values_and_labels_for_positive_value(graduation=graduation,
-                                                                       max_abs_change=max_abs_change)
+            ticks, labels = ticks_values_and_labels_for_half_value(graduation=graduation,
+                                                                   max_abs_change=max_abs_change,
+                                                                   positive=not is_negative)
             min_ratio = 0
         else:
             min_ratio = np.floor(min([abs(e) for e in massif_name_to_value.values()]))
             ticks, labels = ticks_values_and_labels_for_positive_value_with_min_abs_change(graduation=graduation,
                                                                                            min_abs_change=min_ratio,
                                                                                            max_abs_change=max_ratio)
+        if is_negative:
+            min_ratio, max_ratio = -max_ratio, -min_ratio
 
     for v in massif_name_to_value.values():
         assert isinstance(v, float)

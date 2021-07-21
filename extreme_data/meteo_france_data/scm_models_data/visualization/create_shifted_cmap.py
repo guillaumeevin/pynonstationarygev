@@ -42,7 +42,13 @@ def get_cmap_with_inverted_blue_and_green_channels(cmap):
     return LinearSegmentedColormap.from_list('Inverted channels', colors)
 
 
-def get_half_colormap(cmap):
+def get_lower_half_colormap(cmap):
+    colors = cmap(np.linspace(0, 0.5, cmap.N // 2))
+    # Create a new colormap from those colors
+    return LinearSegmentedColormap.from_list('Lower Half', colors)
+
+
+def get_upper_half_colormap(cmap):
     colors = cmap(np.linspace(0.5, 1, cmap.N // 2))
     # Create a new colormap from those colors
     return LinearSegmentedColormap.from_list('Upper Half', colors)
@@ -105,7 +111,7 @@ def ticks_values_and_labels_for_percentages(graduation, max_abs_change):
     return ticks_values, all_ticks_labels
 
 
-def ticks_values_and_labels_for_positive_value(graduation, max_abs_change):
+def ticks_values_and_labels_for_half_value(graduation, max_abs_change, positive=True):
     assert max_abs_change != np.inf
     positive_ticks = []
     tick = 0
@@ -113,6 +119,12 @@ def ticks_values_and_labels_for_positive_value(graduation, max_abs_change):
         positive_ticks.append(round(tick, 1))
         tick += graduation
     ticks_values = [(t / max_abs_change) for t in positive_ticks]
+    if not positive:
+        positive_ticks = [-v for v in positive_ticks[::-1]]
+        shift = 1 - ticks_values[-1]
+        print('here 56', shift, ticks_values[-1])
+        ticks_values = [t + shift for t in ticks_values]
+    print(ticks_values, positive_ticks)
     return ticks_values, positive_ticks
 
 
@@ -123,7 +135,7 @@ def ticks_values_and_labels_for_positive_value_with_min_abs_change(graduation, m
     while tick < max_abs_change:
         positive_ticks.append(round(tick, 1))
         tick += graduation
-    ticks_values = [((t - min_abs_change)/(max_abs_change-min_abs_change)) for t in positive_ticks]
+    ticks_values = [((t - min_abs_change) / (max_abs_change - min_abs_change)) for t in positive_ticks]
     return ticks_values, positive_ticks
 
 
