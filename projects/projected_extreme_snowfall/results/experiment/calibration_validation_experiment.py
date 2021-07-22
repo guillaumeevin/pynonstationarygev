@@ -27,11 +27,13 @@ class CalibrationValidaitonExperiment(AbstractExperiment):
                  display_only_model_that_pass_gof_test=False, remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
                  safran_study_class=None,
-                 start_year_for_test_set=1990):
+                 start_year_for_test_set=1990,
+                 year_max_for_studies=None):
         super().__init__(altitudes, gcm_rcm_couples, study_class, season, scenario, model_classes,
                          selection_method_names, massif_names, fit_method, temporal_covariate_for_fit,
                          display_only_model_that_pass_gof_test, remove_physically_implausible_models,
                          param_name_to_climate_coordinates_with_effects)
+        self.year_max_for_studies = year_max_for_studies
         self.start_year_for_test_set = start_year_for_test_set
         self.safran_study_class = safran_study_class
 
@@ -47,7 +49,7 @@ class CalibrationValidaitonExperiment(AbstractExperiment):
         gcm_rcm_couple_to_studies[(None, None)] = self.load_altitude_studies(None, 1959, self.start_year_for_test_set-1)
         # Load the rest of the projections
         for gcm_rcm_couple in self.gcm_rcm_couples:
-            gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, None, None)
+            gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, None, year_max=self.year_max_for_studies)
         return gcm_rcm_couple_to_studies
 
     def load_altitude_studies(self, gcm_rcm_couple=None, year_min=None, year_max=None):

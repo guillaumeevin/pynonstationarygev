@@ -29,19 +29,26 @@ def main_calibration_validation_experiment():
 
     # Load the csv filepath
     altitudes_str = '_'.join([str(a[0]) for a in altitudes_list])
-    start_year_for_the_test_set = 2008
+    percentage = 0.8
+    last_year_for_the_train_set = 1959 + round(percentage*61) - 1
+    start_year_for_the_test_set = last_year_for_the_train_set + 1
+    print(percentage, start_year_for_the_test_set)
 
-    all_massif_names = AbstractStudy.all_massif_names()[::-1]
+    year_max_for_studies = None
+    print('year max for studies:', year_max_for_studies)
+
+    all_massif_names = AbstractStudy.all_massif_names()[::1]
     if fast:
         all_massif_names = all_massif_names[:1]
     for massif_name in all_massif_names:
         print(massif_name)
         massif_names = [massif_name]
-        csv_filename = 'fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_splityear_{}.xlsx'.format(fast,
+        csv_filename = 'fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_splityear_{}_year_max_studies_{}.xlsx'.format(fast,
                                                                                                              altitudes_str,
                                                                                                              len(model_classes),
                                                                                                              len(gcm_rcm_couples),
-                                                                                                             start_year_for_the_test_set)
+                                                                                                             start_year_for_the_test_set,
+                                                                                                                                 year_max_for_studies)
         csv_filepath = op.join(CSV_PATH, csv_filename)
 
         for altitudes in altitudes_list:
