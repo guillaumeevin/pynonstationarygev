@@ -16,12 +16,14 @@ class ModelAsTruthExperiment(AbstractExperiment):
                  massif_names=None, fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None,
                  display_only_model_that_pass_gof_test=False, remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
-                 gcm_rcm_couples_sampled_for_experiment=None, weight_on_observation=1
+                 gcm_rcm_couples_sampled_for_experiment=None, weight_on_observation=1,
+                 year_max=2100,
                  ):
         super().__init__(altitudes, gcm_rcm_couples, study_class, season, scenario, model_classes,
                          selection_method_names, massif_names, fit_method, temporal_covariate_for_fit,
                          display_only_model_that_pass_gof_test, remove_physically_implausible_models,
                          param_name_to_climate_coordinates_with_effects)
+        self.year_max = year_max
         self.gcm_rcm_couples_sampled_for_experiment = gcm_rcm_couples_sampled_for_experiment
         self.weight_on_observation = weight_on_observation
 
@@ -39,7 +41,7 @@ class ModelAsTruthExperiment(AbstractExperiment):
 
     def load_studies_for_test(self, gcm_rcm_couple_as_pseudo_truth) -> AltitudesStudies:
         """For gcm_rcm_couple_set_as_truth, load the data from 2020 to 2100"""
-        return self.load_altitude_studies(gcm_rcm_couple_as_pseudo_truth, 2020, 2100)
+        return self.load_altitude_studies(gcm_rcm_couple_as_pseudo_truth, 2020, self.year_max)
 
     def load_gcm_rcm_couple_to_studies(self, gcm_rcm_couple_as_pseudo_truth):
         """For the gcm_rcm_couple_set_as_truth load only the data from 1959 to 2019"""
@@ -52,7 +54,7 @@ class ModelAsTruthExperiment(AbstractExperiment):
 
         # Load the rest of the projections
         for gcm_rcm_couple in set(self.gcm_rcm_couples) - {gcm_rcm_couple_as_pseudo_truth}:
-            gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple)
+            gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, year_max=self.year_max)
         return gcm_rcm_couple_to_studies
 
     def load_altitude_studies(self, gcm_rcm_couple, year_min=None, year_max=None):
