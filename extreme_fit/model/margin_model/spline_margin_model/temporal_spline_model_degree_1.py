@@ -182,3 +182,27 @@ class NonStationaryTwoLinearLocationAndScaleAndShapeModel(SplineMarginModel):
             GevParams.SHAPE: [(self.coordinates.idx_temporal_coordinates, 1, 2)],
             GevParams.SCALE: [(self.coordinates.idx_temporal_coordinates, 1, 2)],
         })
+
+
+# three linearity three times
+
+class NonStationaryThreeLinearLocationAndScaleAndShapeModel(SplineMarginModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({
+            GevParams.LOC: [(self.coordinates.idx_temporal_coordinates, 1, 3)],
+            GevParams.SHAPE: [(self.coordinates.idx_temporal_coordinates, 1, 3)],
+            GevParams.SCALE: [(self.coordinates.idx_temporal_coordinates, 1, 3)],
+        })
+
+
+# four linearity three times
+
+class NonStationaryFourLinearLocationAndScaleAndShapeModel(SplineMarginModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({
+            GevParams.LOC: [(self.coordinates.idx_temporal_coordinates, 1, 4)],
+            GevParams.SHAPE: [(self.coordinates.idx_temporal_coordinates, 1, 4)],
+            GevParams.SCALE: [(self.coordinates.idx_temporal_coordinates, 1, 4)],
+        })

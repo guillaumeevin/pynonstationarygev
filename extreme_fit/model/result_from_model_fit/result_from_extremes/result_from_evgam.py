@@ -134,9 +134,14 @@ class ResultFromEvgam(AbstractResultFromExtremes):
             if (len(data) > 2) and (self.param_name_to_climate_coordinates_with_effects[param_name] is not None):
                 x_climatic = data[2:]
                 y = self.remove_effects_from_y_from_all_climate_model(x_climatic, y, r_param_name, param_name)
-            assert len(knots) == 5
-            a, b = 0.5, 0.5
-            x_for_interpolation = [a * knots[1] + b * knots[2], (knots[1] + knots[3]) / 2, b * knots[2] + a * knots[3]]
+            if len(knots) == 5:
+                a, b = 0.5, 0.5
+                x_for_interpolation = [a * knots[1] + b * knots[2], (knots[1] + knots[3]) / 2, b * knots[2] + a * knots[3]]
+            else:
+                raise NotImplementedError('it crashes')
+                x_for_interpolation = [(knots[1] + knots[2]) / 2]
+                x_for_interpolation.extend([(knots[i+1] + knots[i+3]) / 2 for i in range(len(knots)-4)])
+                x_for_interpolation += [(knots[-3] + knots[-2]) / 2]
 
             # For the time covariate, the distance will be zero for the closer year
             # For the temperature covariate, the distance will be minimal for the closer covariate

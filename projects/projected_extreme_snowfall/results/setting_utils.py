@@ -21,7 +21,8 @@ from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_de
     NonStationaryTwoLinearLocationOneLinearShapeModel, NonStationaryTwoLinearLocationAndShapeOneLinearScaleModel, \
     NonStationaryTwoLinearLocationAndScaleAndShapeModel, \
     NonStationaryTwoLinearLocationAndScaleOneLinearShapeModel, NonStationaryTwoLinearLocationAndScaleModel, \
-    NonStationaryTwoLinearLocationAndShape
+    NonStationaryTwoLinearLocationAndShape, NonStationaryThreeLinearLocationAndScaleAndShapeModel, \
+    NonStationaryFourLinearLocationAndScaleAndShapeModel
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
     NonStationaryTwoLinearShapeModel, NonStationaryTwoLinearShapeOneLinearScaleModel, NonStationaryTwoLinearScaleModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -51,8 +52,12 @@ def set_up_and_load(fast, snowfall=True):
         display_only_model_that_pass_gof_test = False
         return_period = 100
         model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
-        model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
-        altitudes_list = [1200, 2100, 3000]
+        model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
+        altitudes_list = [1500]
+        # model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
+        # model_classes = [NonStationaryThreeLinearLocationAndScaleAndShapeModel]
+        # model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
+        # altitudes_list = [1200, 2100, 3000][:2]
         massif_names = ['Vanoise'] # todo: change that in the end
 
     else:
