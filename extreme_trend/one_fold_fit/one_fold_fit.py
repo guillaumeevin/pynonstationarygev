@@ -24,6 +24,7 @@ from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_m
     StationaryGumbelAltitudinal, AbstractGumbelAltitudinalModel
 from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_with_linear_shape_wrt_altitude import \
     AltitudinalShapeLinearTimeStationary
+from extreme_fit.model.margin_model.spline_margin_model.spline_margin_model import SplineMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
@@ -101,6 +102,8 @@ class OneFoldFit(object):
         _ = self.has_at_least_one_valid_model
 
     def fitted_linear_margin_estimator(self, model_class, dataset, param_name_to_climate_coordinates_with_effects):
+        if issubclass(model_class, SplineMarginModel):
+            assert self.fit_method is MarginFitMethod.evgam
         estimator = fitted_linear_margin_estimator_short(model_class=model_class, dataset=dataset,
                                                          fit_method=self.fit_method,
                                                          temporal_covariate_for_fit=self.temporal_covariate_for_fit,

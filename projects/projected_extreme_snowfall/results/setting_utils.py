@@ -43,11 +43,11 @@ def set_up_and_load(fast, snowfall=True):
     # todo: it might have been prerable to load an object containing all the attributes
     safran_study_class, study_class = load_study_classes(snowfall)
     OneFoldFit.multiprocessing = False
-    fit_method = MarginFitMethod.evgam
 
     remove_physically_implausible_models, display_only_model_that_pass_gof_test = False, True
 
     if snowfall:
+        fit_method = MarginFitMethod.evgam
         display_only_model_that_pass_gof_test = False
         return_period = 100
         model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
@@ -56,6 +56,7 @@ def set_up_and_load(fast, snowfall=True):
         massif_names = ['Vanoise'] # todo: change that in the end
 
     else:
+        fit_method = MarginFitMethod.extremes_fevd_mle
         display_only_model_that_pass_gof_test = False
         # model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
         model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]

@@ -13,9 +13,21 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
 
     def __init__(self, result_from_fit: robjects.ListVector, param_name_to_dim=None,
                  dim_to_coordinate=None,
-                 type_for_mle="GEV") -> None:
+                 type_for_mle="GEV",
+                 param_name_to_name_of_the_climatic_effects=None,
+                 param_name_to_climate_coordinates_with_effects=None) -> None:
         super().__init__(result_from_fit, param_name_to_dim, dim_to_coordinate)
+        self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
+        self.param_name_to_name_of_the_climatic_effects = param_name_to_name_of_the_climatic_effects
         self.type_for_mle = type_for_mle
+
+    @property
+    def param_name_to_name_of_the_climatic_effects_to_load_margin_function(self):
+        return self.param_name_to_name_of_the_climatic_effects
+
+    @property
+    def param_name_to_climate_coordinates_with_effects_to_load_margin_function(self):
+        return self.param_name_to_climate_coordinates_with_effects
 
     @property
     def margin_coef_ordered_dict(self):
@@ -26,7 +38,8 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
         else:
             values = {i: np.array(v)[0] for i, v in enumerate(d.values())}
         return get_margin_coef_ordered_dict(self.param_name_to_dims, values, self.type_for_mle,
-                                            dim_to_coordinate_name=self.dim_to_coordinate)
+                                            dim_to_coordinate_name=self.dim_to_coordinate,
+                                            param_name_to_name_of_the_climatic_effects=self.param_name_to_name_of_the_climatic_effects)
 
     def _confidence_interval_method(self, common_kwargs, ci_method, return_period):
         method_name = ci_method_to_method_name[ci_method]

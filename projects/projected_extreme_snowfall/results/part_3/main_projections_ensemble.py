@@ -38,10 +38,9 @@ def main():
 
     combination = (1, 1, 0)
     param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
-    print(combination)
 
     all_massif_names = AbstractStudy.all_massif_names()[:]
-    AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 100
+    # AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 100
     all_massif_names = ['Vanoise']
     for massif_name in all_massif_names:
         massif_names = [massif_name]
