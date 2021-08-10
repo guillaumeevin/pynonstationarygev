@@ -54,7 +54,10 @@ class OneFoldFit(object):
     nb_cores_for_multiprocess = NB_CORES
     max_batchsize = None
     SELECTION_METHOD_NAME = 'aic'
+    COVARIATE_BEFORE_TEMPERATURE = 1
     COVARIATE_AFTER_TEMPERATURE = 2
+    COVARIATE_BEFORE_DISPLAY = None
+    COVARIATE_AFTER_DISPLAY = None
 
     def __init__(self, massif_name: str, dataset: AbstractDataset, models_classes,
                  first_year=None, last_year=None,
@@ -119,6 +122,12 @@ class OneFoldFit(object):
     def get_moment_for_plots(self, altitudes, order=1, covariate_before=None, covariate_after=None):
         return [self.get_moment(altitudes[0], covariate_after, order)]
 
+    def get_moment_covariate_float_or_list(self, altitude, temporal_covariate, order=1):
+        if isinstance(temporal_covariate, tuple):
+            return np.mean([self.get_moment(altitude, c, order) for c in temporal_covariate])
+        else:
+            return self.get_moment(altitude, temporal_covariate, order)
+
     def get_moment(self, altitude, temporal_covariate, order=1):
         gev_params = self.get_gev_params(altitude, temporal_covariate)
         if order == 1:
@@ -152,8 +161,8 @@ class OneFoldFit(object):
         covariate_after, covariate_before = self.set_covariate_before_and_after(covariate_after, covariate_before)
         changes = []
         for altitude in altitudes:
-            mean_after = self.get_moment(altitude, covariate_after, order)
-            mean_before = self.get_moment(altitude, covariate_before, order)
+            mean_after = self.get_moment_covariate_float_or_list(altitude, covariate_after, order)
+            mean_before = self.get_moment_covariate_float_or_list(altitude, covariate_before, order)
             change = mean_after - mean_before
             changes.append(change)
         return changes
@@ -179,25 +188,28 @@ class OneFoldFit(object):
             return self.first_year, self.last_year
         elif self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate:
             # In 2020, we are roughly at 1 degree. Thus it natural to see the augmentation from 1 to 2 degree.
-            return 1, self.COVARIATE_AFTER_TEMPERATURE
+            return self.COVARIATE_BEFORE_TEMPERATURE, self.COVARIATE_AFTER_TEMPERATURE
         else:
             raise NotImplementedError
 
     @property
     def between_covariate_str(self):
         d_temperature = {'C': '{C}'}
-        s = ' between +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$' if self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate \
-            else ' between {} and {}'
-        s = s.format(self.covariate_before, self.covariate_after,
-                     **d_temperature)
-        return s
+        if self.COVARIATE_BEFORE_DISPLAY is not None:
+            return ' between {} and {}'.format(self.COVARIATE_BEFORE_DISPLAY, self.COVARIATE_AFTER_DISPLAY)
+        else:
+            s = ' between +${}^o\mathrm{C}$ and +${}^o\mathrm{C}$' if self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate \
+                else ' between {} and {}'
+            s = s.format(self.covariate_before, self.covariate_after,
+                         **d_temperature)
+            return s
 
     def relative_changes_of_moment(self, altitudes, order=1, covariate_before=None, covariate_after=None):
         covariate_after, covariate_before = self.set_covariate_before_and_after(covariate_after, covariate_before)
         relative_changes = []
         for altitude in altitudes:
-            mean_after = self.get_moment(altitude, covariate_after, order)
-            mean_before = self.get_moment(altitude, covariate_before, order)
+            mean_after = self.get_moment_covariate_float_or_list(altitude, covariate_after, order)
+            mean_before = self.get_moment_covariate_float_or_list(altitude, covariate_before, order)
             relative_change = 100 * (mean_after - mean_before) / np.abs(mean_before)
             relative_changes.append(relative_change)
         return relative_changes
@@ -450,6 +462,9 @@ class OneFoldFit(object):
     def likelihood_ratio_test(self, estimator):
         degree_freedom_chi2 = self.best_estimator.nb_params - estimator.nb_params
         likelihood_ratio = estimator.deviance - self.best_estimator.deviance
+        # pvalue = 1 - chi2.cdf(likelihood_ratio, df=degree_freedom_chi2)
+        # print(likelihood_ratio, chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=degree_freedom_chi2))
+        # print("here likelihood ratio test: pvalue={}, significance level={}".format(pvalue, self.SIGNIFICANCE_LEVEL))
         return likelihood_ratio > chi2.ppf(q=1 - self.SIGNIFICANCE_LEVEL, df=degree_freedom_chi2)
 
     @cached_property

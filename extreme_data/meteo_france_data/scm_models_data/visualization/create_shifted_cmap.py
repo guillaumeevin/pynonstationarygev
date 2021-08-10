@@ -122,9 +122,7 @@ def ticks_values_and_labels_for_half_value(graduation, max_abs_change, positive=
     if not positive:
         positive_ticks = [-v for v in positive_ticks[::-1]]
         shift = 1 - ticks_values[-1]
-        print('here 56', shift, ticks_values[-1])
         ticks_values = [t + shift for t in ticks_values]
-    print(ticks_values, positive_ticks)
     return ticks_values, positive_ticks
 
 

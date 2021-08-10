@@ -48,6 +48,7 @@ def set_up_and_load(fast, snowfall=True):
     remove_physically_implausible_models, display_only_model_that_pass_gof_test = False, True
 
     if snowfall:
+        display_only_model_that_pass_gof_test = False
         return_period = 100
         model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
         model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
