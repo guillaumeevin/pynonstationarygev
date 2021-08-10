@@ -27,15 +27,17 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 def main():
     start = time.time()
 
-    fast = None
+    fast = False
     snowfall = False
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
         fast, snowfall)
-
+    print(altitudes_list)
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
 
+    altitudes_list = [[2100]]
+    print(altitudes_list)
     combination = (1, 1, 0)
     param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
     print(combination)
@@ -59,7 +61,7 @@ def main():
                        for together_ensemble_fit in visualizer.ensemble_fits(TogetherEnsembleFit)]
     print(len(sub_visualizers))
     sub_visualizer = sub_visualizers[0]
-    sub_visualizer.plot_moments_projections(with_significance)
+    sub_visualizer.plot_moments_projections(with_significance, scenario)
 
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))

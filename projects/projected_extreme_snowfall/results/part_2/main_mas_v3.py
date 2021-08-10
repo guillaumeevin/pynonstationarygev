@@ -22,7 +22,7 @@ def main_preliminary_projections():
     # Load parameters
     show = None
     fast = False
-    snowfall = False
+    snowfall = True
 
     matplotlib.use('Agg')
     import matplotlib as mpl
@@ -36,9 +36,12 @@ def main_preliminary_projections():
     display_only_model_that_pass_gof_test = False
     # Load study
     model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
+    altitudes_list = [[900], [1500], [2100]][1:2]
+
     for altitudes in altitudes_list[::-1]:
 
         altitude = altitudes[0]
+        print(altitude)
         run_mas(altitude, altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
                 model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
                 study_class, temporal_covariate_for_fit)
@@ -65,7 +68,7 @@ def run_mas(altitude, altitudes, display_only_model_that_pass_gof_test, fast, gc
             gcm_rcm_couple_to_average_bias, gcm_rcm_couple_to_gcm_rcm_couple_to_biases = None, None
             # gcm_rcm_couples_sampled_for_experiment = [('NorESM1-M', 'REMO2015'), ('MPI-ESM-LR', 'REMO2009')]
         else:
-            alpha = 30 if snowfall else 100
+            alpha = 100 if snowfall else 100
             gcm_rcm_couples_sampled_for_experiment, gcm_rcm_couple_to_average_bias, gcm_rcm_couple_to_gcm_rcm_couple_to_biases = plot_average_bias(
                 gcm_rcm_couple_to_study, massif_name, average_bias,
                 alpha, show=show)
