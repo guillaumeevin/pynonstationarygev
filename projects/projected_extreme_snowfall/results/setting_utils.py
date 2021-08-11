@@ -126,6 +126,12 @@ def load_study_classes(snowfall):
         safran_study_class = CrocusSnowLoad2019
     return safran_study_class, study_class
 
+
+def get_last_year_for_the_train_set(percentage):
+    last_year_for_the_train_set = 1959 + round(percentage * 61) - 1
+    return last_year_for_the_train_set
+
+
 LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE= [
     StationaryTemporalModel,
     NonStationaryScaleTemporalModel,

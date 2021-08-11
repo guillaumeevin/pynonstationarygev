@@ -1,3 +1,5 @@
+from projects.projected_extreme_snowfall.results.experiment.calibration_validation_experiment import \
+    CalibrationValidationExperiment
 
 excel_path = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/model_as_truth_csv/v2"
 # excel_path = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/model_as_truth_csv"
@@ -15,10 +17,15 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-excel_path = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/abstract_experiments/CalibrationValidationExperiment"
 excel_start = 'AdamontPrecipitation_1500m_4couples_testTrue_NonStationaryLocationAndScaleAndShapeTemporalModel'
-excel_start = 'AdamontPrecipitation_1500m_20couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel'
-# excel_start = 'AdamontPrecipitation_1500m_20couples_testTrue_NonStationaryLocationAndScaleAndShapeTemporalModel'
+excel_start = 'AdamontSnowLoad_1500m_20couples_testTrue_NonStationaryLocationAndScaleAndShapeTemporalModel'
+excel_start = 'AdamontPrecipitation_1500m_20couples_testTrue_NonStationaryLocationAndScaleAndShapeTemporalModel'
+
+excel_start = 'AdamontPrecipitation_1500m_20couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_'
+
+folder = ["CalibrationValidationExperiment", "ModelAsTruthExperiment"][1]
+excel_path = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/abstract_experiments"
+excel_path = op.join(excel_path, folder)
 
 def main():
     year_to_name_to_mean_score = {}
@@ -52,13 +59,13 @@ def main():
         is_train = 'Train' in name
         linestyle = '--' if is_train else '-'
         short_name = '_'.join(name.split('_')[1:])
-        label = None if is_train else short_name[5:]
+        label = None if is_train else short_name
         # color = short_name_to_color[short_name]
         color = i_to_color[i]
         mean_scores = [year_to_name_to_mean_score[year][name] for year in years]
         ax.plot(percentages, mean_scores, label=label, linestyle=linestyle, color=color)
     ax.legend()
-    ax.set_xlabel('Percentages of year for the calibration of the split-sample experiment (\%)')
+    ax.set_xlabel('Percentages of year for the calibration of the split-sample experiment (%)')
     ax.set_ylabel('Mean logarithmic score')
     plt.show()
 

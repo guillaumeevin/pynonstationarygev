@@ -16,16 +16,14 @@ from projects.projected_extreme_snowfall.results.part_2.v1.main_mas_v1 import CS
 from projects.projected_extreme_snowfall.results.experiment.calibration_validation_experiment import \
     CalibrationValidationExperiment
 from projects.projected_extreme_snowfall.results.part_3.main_projections_ensemble import set_up_and_load
+from projects.projected_extreme_snowfall.results.setting_utils import get_last_year_for_the_train_set
 from root_utils import get_display_name_from_object_type
-
-gcm_couple_fake = ("", "")
-
 
 def main_calibration_validation_experiment():
     start = time.time()
 
     fast = False
-    snowfall = None
+    snowfall = False
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -34,10 +32,10 @@ def main_calibration_validation_experiment():
 
     # Load the csv filepath
     percentage = 0.8
-    last_year_for_the_train_set = 1959 + round(percentage*61) - 1
+    last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
     start_year_for_the_test_set = last_year_for_the_train_set + 1
-    print(percentage, start_year_for_the_test_set)
-    display_only_model_that_pass_gof_test = False
+
+    display_only_model_that_pass_gof_test = True
 
     year_max_for_studies = 2019
     print('year max for studies:', year_max_for_studies)

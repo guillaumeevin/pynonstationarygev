@@ -15,13 +15,13 @@ from projects.projected_extreme_snowfall.results.part_2.average_bias import plot
 from projects.projected_extreme_snowfall.results.part_2.v1.main_mas_v1 import CSV_PATH
 from projects.projected_extreme_snowfall.results.part_2.v2.utils import update_csv, is_already_done, load_excel, \
     main_sheet_name
-from projects.projected_extreme_snowfall.results.setting_utils import set_up_and_load
+from projects.projected_extreme_snowfall.results.setting_utils import set_up_and_load, get_last_year_for_the_train_set
 
 
 def main_preliminary_projections():
     # Load parameters
     show = False
-    fast = True
+    fast = False
     snowfall = None
 
     if show in [None, True]:
@@ -29,6 +29,9 @@ def main_preliminary_projections():
         import matplotlib as mpl
         mpl.rcParams['text.usetex'] = False
         mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+
+    year_max_for_pseudo_obs, year_max_for_gcm = 2019, 2100
+    year_max_for_pseudo_obs, year_max_for_gcm = get_last_year_for_the_train_set(0.8), 2019
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -38,12 +41,12 @@ def main_preliminary_projections():
     for altitudes in altitudes_list[::-1]:
         run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
                 model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
-                study_class, temporal_covariate_for_fit)
+                study_class, temporal_covariate_for_fit, year_max_for_gcm, year_max_for_pseudo_obs)
 
 
 def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
             model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
-            study_class, temporal_covariate_for_fit):
+            study_class, temporal_covariate_for_fit, year_max_for_gcm, year_max_for_pseudo_obs):
     altitude = altitudes[0]
     print('Altitude={}'.format(altitude))
     gcm_rcm_couple_to_study, safran_study = load_study(altitude, gcm_rcm_couples, safran_study_class, scenario,
@@ -58,7 +61,8 @@ def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_coup
             alpha=1000, show=show)
 
         print("Number of couples:", len(gcm_rcm_couples_sampled_for_experiment))
-        for i in [0, 1, 2, 4, 5]:
+        for i in [0, 1, 2, 4, 5][::-1]:
+            print(i)
             for gcm_rcm_couple in gcm_rcm_couples_sampled_for_experiment:
                 combination = (i, i, 0)
 
@@ -68,13 +72,16 @@ def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_coup
                                             scenario=scenario,
                                             selection_method_names=['aic'],
                                             model_classes=model_classes,
-                                            massif_names=massif_names,
+                                            massif_names=[massif_name],
                                             fit_method=MarginFitMethod.evgam,
                                             temporal_covariate_for_fit=temporal_covariate_for_fit,
                                             remove_physically_implausible_models=remove_physically_implausible_models,
                                             display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
                                             gcm_rcm_couples_sampled_for_experiment=gcm_rcm_couples_sampled_for_experiment,
-                                            param_name_to_climate_coordinates_with_effects=load_param_name_to_climate_coordinates_with_effects(combination),
+                                            param_name_to_climate_coordinates_with_effects=load_param_name_to_climate_coordinates_with_effects(
+                                                combination),
+                                            year_max_for_gcm=year_max_for_gcm,
+                                            year_max_for_pseudo_obs=year_max_for_pseudo_obs,
                                             )
                 xp.run_one_experiment(gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
 

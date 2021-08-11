@@ -104,7 +104,6 @@ class AbstractExperiment(object):
         dataset_test = self.load_spatio_temporal_dataset(studies, **kwargs)
         nllh_list = []
         df_coordinates_temp_for_test = best_estimator.load_coordinates_temp(dataset_test.coordinates)
-        print('Model={}'.format(get_display_name_from_object_type(best_estimator.margin_model)))
         for time, maxima in zip(df_coordinates_temp_for_test.values, dataset_test.observations.maxima_gev):
             list_of_pair = [(maxima, time)]
             args = True, list_of_pair, best_estimator.margin_function_from_fit, True
