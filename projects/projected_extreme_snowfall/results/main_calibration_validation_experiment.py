@@ -24,7 +24,7 @@ gcm_couple_fake = ("", "")
 def main_calibration_validation_experiment():
     start = time.time()
 
-    fast = None
+    fast = False
     snowfall = None
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
@@ -33,12 +33,11 @@ def main_calibration_validation_experiment():
         fast, snowfall)
 
     # Load the csv filepath
-    percentage = 0.85
+    percentage = 0.8
     last_year_for_the_train_set = 1959 + round(percentage*61) - 1
     start_year_for_the_test_set = last_year_for_the_train_set + 1
     print(percentage, start_year_for_the_test_set)
-    display_only_model_that_pass_gof_test = True
-    # massif_names = ['Mont-Blanc']
+    display_only_model_that_pass_gof_test = False
 
     year_max_for_studies = 2019
     print('year max for studies:', year_max_for_studies)
