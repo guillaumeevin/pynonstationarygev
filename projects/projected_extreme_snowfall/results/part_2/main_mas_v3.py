@@ -20,91 +20,51 @@ from projects.projected_extreme_snowfall.results.setting_utils import set_up_and
 
 def main_preliminary_projections():
     # Load parameters
-    show = None
-    fast = False
-    snowfall = True
+    show = False
+    fast = True
+    snowfall = None
 
-    matplotlib.use('Agg')
-    import matplotlib as mpl
-    mpl.rcParams['text.usetex'] = False
-    mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+    if show in [None, True]:
+        matplotlib.use('Agg')
+        import matplotlib as mpl
+        mpl.rcParams['text.usetex'] = False
+        mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
         fast, snowfall)
-    display_only_model_that_pass_gof_test = False
-    # Load study
-    model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
-    altitudes_list = [[900], [1500], [2100]][1:2]
 
     for altitudes in altitudes_list[::-1]:
-
-        altitude = altitudes[0]
-        print(altitude)
-        run_mas(altitude, altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
+        run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
                 model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
                 study_class, temporal_covariate_for_fit)
 
 
-def run_mas(altitude, altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
+def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
             model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
             study_class, temporal_covariate_for_fit):
+    altitude = altitudes[0]
     print('Altitude={}'.format(altitude))
     gcm_rcm_couple_to_study, safran_study = load_study(altitude, gcm_rcm_couples, safran_study_class, scenario,
                                                        study_class)
-    print('number of couples loaded:', len(gcm_rcm_couple_to_study))
-    all_massif_names = AbstractStudy.all_massif_names()[::-1]
-    if fast:
-        all_massif_names = all_massif_names[:1]
-    for massif_name in all_massif_names:
+
+    for massif_name in massif_names:
         print(massif_name)
 
         average_bias, _ = compute_average_bias(gcm_rcm_couple_to_study, massif_name, safran_study, show=show)
-        print('average bias for safran:', average_bias)
-        if fast in [True]:
-            alpha = ''
-            gcm_rcm_couples_sampled_for_experiment = [('CNRM-CM5', 'ALADIN63')]
-            gcm_rcm_couple_to_average_bias, gcm_rcm_couple_to_gcm_rcm_couple_to_biases = None, None
-            # gcm_rcm_couples_sampled_for_experiment = [('NorESM1-M', 'REMO2015'), ('MPI-ESM-LR', 'REMO2009')]
-        else:
-            alpha = 100 if snowfall else 100
-            gcm_rcm_couples_sampled_for_experiment, gcm_rcm_couple_to_average_bias, gcm_rcm_couple_to_gcm_rcm_couple_to_biases = plot_average_bias(
-                gcm_rcm_couple_to_study, massif_name, average_bias,
-                alpha, show=show)
-
-        print(gcm_rcm_couples_sampled_for_experiment)
-
-        study = 'snowfall' if snowfall else 'snow_load'
-        csv_filename = 'last_{}_fast_{}_altitudes_{}_nb_of_models_{}_nb_gcm_rcm_couples_{}_alpha_{}.xlsx'.format(study,
-                                                                                                                 fast,
-                                                                                                                 altitude,
-                                                                                                                 len(model_classes),
-                                                                                                                 len(gcm_rcm_couple_to_study),
-                                                                                                                 alpha
-                                                                                                                 )
-        print(csv_filename)
-
-        if gcm_rcm_couple_to_average_bias is not None:
-            for couple in gcm_rcm_couples_sampled_for_experiment:
-                plot_bias(gcm_rcm_couple_to_study[couple], gcm_rcm_couple_to_average_bias[couple],
-                          gcm_rcm_couple_to_gcm_rcm_couple_to_biases[couple], massif_name, show)
-
-        excel_filepath = op.join(CSV_PATH, csv_filename)
+        gcm_rcm_couples_sampled_for_experiment, gcm_rcm_couple_to_average_bias, gcm_rcm_couple_to_gcm_rcm_couple_to_biases = plot_average_bias(
+            gcm_rcm_couple_to_study, massif_name, average_bias,
+            alpha=1000, show=show)
 
         print("Number of couples:", len(gcm_rcm_couples_sampled_for_experiment))
-        couple_list = [(0, 0)]
-        for index_name in [1, 2, 4, 5]:
-            couple_list.extend([(index_name, index_name), (index_name, 0), (0, index_name)][:1])
-        for index_name, j in couple_list[:]:
-            print(index_name, j)
+        for i in [0, 1, 2, 4, 5]:
             for gcm_rcm_couple in gcm_rcm_couples_sampled_for_experiment:
-                combination = (index_name, j, 0)
-                param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
-                    combination)
+                combination = (i, i, 0)
 
-                combination_name = load_combination_name_for_tuple(combination)
-                xp = ModelAsTruthExperiment(altitudes, gcm_rcm_couples, study_class, Season.annual,
+                xp = ModelAsTruthExperiment(altitudes, gcm_rcm_couples,
+                                            safran_study_class,
+                                            study_class, Season.annual,
                                             scenario=scenario,
                                             selection_method_names=['aic'],
                                             model_classes=model_classes,
@@ -114,32 +74,9 @@ def run_mas(altitude, altitudes, display_only_model_that_pass_gof_test, fast, gc
                                             remove_physically_implausible_models=remove_physically_implausible_models,
                                             display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
                                             gcm_rcm_couples_sampled_for_experiment=gcm_rcm_couples_sampled_for_experiment,
-                                            param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
+                                            param_name_to_climate_coordinates_with_effects=load_param_name_to_climate_coordinates_with_effects(combination),
                                             )
-                # plot time series
-                gcm_rcm_couple_to_studies_plot = xp.load_gcm_rcm_couple_to_studies(
-                    gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
-                gcm_rcm_couple_to_study_plot = {c: studies.study for c, studies in
-                                                gcm_rcm_couple_to_studies_plot.items()}
-                gcm_rcm_couple_to_other_study_plot = {c: s for c, s in gcm_rcm_couple_to_study.items() if
-                                                      c != gcm_rcm_couple}
-                plot_time_series(massif_name, gcm_rcm_couple_to_study_plot[gcm_rcm_couple],
-                                 gcm_rcm_couple_to_other_study_plot, show)
-
-                name = str(altitude) + massif_name
-                if is_already_done(excel_filepath, combination_name, name, gcm_rcm_couple):
-                    continue
-                nllh_list = xp.run_one_experiment(gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
-                update_csv(excel_filepath, combination_name, name, gcm_rcm_couple, nllh_list)
-        # Plot the content of the final df
-        df = load_excel(excel_filepath, main_sheet_name)
-        df = df.reindex(sorted(df.columns), axis=1)
-        j_to_argmax = {j: int(df.iloc[:, j].values.argmax()) for j in range(len(df.columns))}
-        for i, (index_name, row) in enumerate(df.iterrows()):
-            print(index_name)
-            values = [str(round(e, 1)) for e in list(row.values)]
-            values = ['\\textbf{' + e + '}' if j_to_argmax[j] == i else e for j, e in enumerate(values)]
-            print(' & '.join(values) + ' \\\\')
+                xp.run_one_experiment(gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
 
 
 if __name__ == '__main__':

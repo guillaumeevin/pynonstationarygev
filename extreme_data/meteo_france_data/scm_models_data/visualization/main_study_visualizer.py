@@ -3,7 +3,7 @@ from collections import OrderedDict
 from typing import List
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontSnowLoad
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall, AdamontPrecipitation
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, \
     ExtendedCrocusDepth, \
@@ -22,6 +22,7 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranS
     SafranSnowfall7Days, SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days, \
     SafranPrecipitation7Days, SafranDateFirstSnowfall, SafranSnowfallCenterOnDay1dayMeanRate, \
     SafranSnowfallCenterOnDay1day
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
     SafranSnowfall2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariableCenterOnDay
@@ -43,7 +44,6 @@ SCM_STUDIES = [SafranSnowfall, CrocusSweTotal, CrocusDepth, CrocusSwe3Days]
 SCM_STUDIES_NAMES = [get_display_name_from_object_type(k) for k in SCM_STUDIES]
 SCM_STUDY_NAME_TO_SCM_STUDY = dict(zip(SCM_STUDIES_NAMES, SCM_STUDIES))
 
-# I keep the scm study separated from the adamont study (for the tests)
 SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall: 'SF3',
     SafranSnowfall1Day: 'daily snowfall',
@@ -60,6 +60,7 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall5Days: 'SF5',
     SafranSnowfall7Days: 'SF7',
     SafranPrecipitation1Day: 'PR1',
+    SafranPrecipitation2019: 'precipitation',
     SafranPrecipitation3Days: 'PR3',
     SafranPrecipitation5Days: 'PR5',
     SafranPrecipitation7Days: 'PR7',
@@ -82,9 +83,11 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusSnowDensity: 'Density',
     SafranDateFirstSnowfall: 'SF1 first date'
 }
+# I keep the scm study separated from the adamont study (for the tests)
 ADAMONT_STUDY_CLASS_TO_ABBREVIATION = {
     AdamontSnowfall: 'daily snowfall',
     AdamontSnowLoad: 'snow load',
+    AdamontPrecipitation: 'precipitation',
 }
 STUDY_CLASS_TO_ABBREVIATION = {**ADAMONT_STUDY_CLASS_TO_ABBREVIATION, **SCM_STUDY_CLASS_TO_ABBREVIATION}
 

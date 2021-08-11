@@ -1,9 +1,11 @@
 from typing import List
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontSnowLoad
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall, AdamontPrecipitation
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples
+from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
 from extreme_data.meteo_france_data.scm_models_data.studyfrommaxfiles import AbstractStudyMaxFiles
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -47,31 +49,27 @@ def set_up_and_load(fast, snowfall=True):
 
     remove_physically_implausible_models, display_only_model_that_pass_gof_test = False, True
 
-    if snowfall:
+    if snowfall is True:
         fit_method = MarginFitMethod.evgam
         display_only_model_that_pass_gof_test = False
         return_period = 100
-        model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
         model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
         altitudes_list = [1500]
         # model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
         # model_classes = [NonStationaryThreeLinearLocationAndScaleAndShapeModel]
         # model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
-        # altitudes_list = [1200, 2100, 3000][:2]
-        massif_names = ['Vanoise'] # todo: change that in the end
-
+    elif snowfall is None:
+        fit_method = MarginFitMethod.extremes_fevd_mle
+        display_only_model_that_pass_gof_test = False
+        model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
+        return_period = 100
+        altitudes_list = [1500]
     else:
         fit_method = MarginFitMethod.extremes_fevd_mle
         display_only_model_that_pass_gof_test = False
-        # model_classes = SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE
         model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
-        # model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
-        # OneFoldFit.SIGNIFICANCE_LEVEL = 0.10
         return_period = 50
-        # model_classes = LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE
         altitudes_list = [1500]
-        massif_names = ['Vanoise']
-
     OneFoldFit.return_period = return_period
 
     temporal_covariate_for_fit = [TimeTemporalCovariate,
@@ -83,17 +81,15 @@ def set_up_and_load(fast, snowfall=True):
     print('Scenario is', scenario)
     print('Covariate is {}'.format(temporal_covariate_for_fit))
     if fast is None:
-        gcm_rcm_couples = gcm_rcm_couples[:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        # altitudes_list = altitudes_list[-2:-1]
-        altitudes_list = altitudes_list[-1:]
+        massif_names = ['Vanoise']
     elif fast:
         gcm_rcm_couples = gcm_rcm_couples[:4]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        altitudes_list = altitudes_list[:1]
-        model_classes = model_classes[:2]
+        massif_names = ['Vanoise']
     else:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 100
+        massif_names = AbstractStudy.all_massif_names()
 
     assert isinstance(gcm_rcm_couples, list)
     altitudes_list = [[a] for a in altitudes_list]
@@ -119,9 +115,12 @@ def set_up_and_load(fast, snowfall=True):
 
 
 def load_study_classes(snowfall):
-    if snowfall:
+    if snowfall is True:
         safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
         study_class = AdamontSnowfall
+    elif snowfall is None:
+        study_class = AdamontPrecipitation
+        safran_study_class = SafranPrecipitation2019
     else:
         study_class = AdamontSnowLoad
         safran_study_class = CrocusSnowLoad2019

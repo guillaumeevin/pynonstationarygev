@@ -37,19 +37,10 @@ class CalibrationValidationWithModelAsTruthExperiment(AbstractExperiment):
         self.gcm_rcm_couples_sampled_for_experiment = gcm_rcm_couples_sampled_for_experiment
         self.weight_on_observation = weight_on_observation
 
-    @property
-    def massif_name(self):
-        assert len(self.massif_names) == 1
-        return self.massif_names[0]
-
     def run_all_experiments(self):
         return np.nanmean([self.run_one_experiment(c) for c in self.gcm_rcm_couples_sampled_for_experiment], axis=0)
 
-    def load_spatio_temporal_dataset(self, studies, **kwargs):
-
-        return studies.spatio_temporal_dataset(self.massif_name, **kwargs)
-
-    def load_studies_for_test(self, gcm_rcm_couple_as_pseudo_truth) -> AltitudesStudies:
+    def load_studies_obs_for_test(self, gcm_rcm_couple_as_pseudo_truth) -> AltitudesStudies:
         """For gcm_rcm_couple_set_as_truth, load the data from 2020 to 2100"""
         return self.load_altitude_studies(gcm_rcm_couple_as_pseudo_truth, self.start_year_for_test_set, 2019)
 
@@ -63,11 +54,3 @@ class CalibrationValidationWithModelAsTruthExperiment(AbstractExperiment):
         for gcm_rcm_couple in set(self.gcm_rcm_couples) - {gcm_rcm_couple_as_pseudo_truth}:
             gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, None, 2019)
         return gcm_rcm_couple_to_studies
-
-    def load_altitude_studies(self, gcm_rcm_couple, year_min=None, year_max=None):
-        if year_min is None and year_max is None:
-            kwargs = {}
-        else:
-            kwargs = {'year_min': year_min, 'year_max': year_max}
-        return AltitudesStudies(self.study_class, self.altitudes, season=self.season,
-                                scenario=self.scenario, gcm_rcm_couple=gcm_rcm_couple, **kwargs)

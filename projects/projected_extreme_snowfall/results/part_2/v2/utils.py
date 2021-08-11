@@ -54,14 +54,16 @@ def update_csv(excel_filepath, row_name, altitude, gcm_rcm_couple, value_list, s
         # Compute sum on the column without gaps
         # sum_column_name = 'sum'
         mean_column_name = 'pourcentage of massif where approach better than without coef'
+        mean_column_name = 'mean'
         # if sum_column_name in df.columns:
         #     df.drop(columns=[sum_column_name], inplace=True)
         if mean_column_name in df.columns:
             df.drop(columns=[mean_column_name], inplace=True)
         # df[sum_column_name] = df.sum(axis=1)
-        df2 = df > df.loc["no effect"]
-        df[mean_column_name] = df2.mean(axis=1) * 100
-        df.sort_values(by=mean_column_name, inplace=True)
+        df[mean_column_name] = df.mean(axis=1)
+        # df2 = df > df.loc["no effect"]
+        # df[mean_column_name] = df2.mean(axis=1) * 100
+        # df.sort_values(by=mean_column_name, inplace=True)
         # save intermediate results
         df.to_excel(writer, local_sheetname)
     # df2 = load_excel(excel_filepath, column_name)
