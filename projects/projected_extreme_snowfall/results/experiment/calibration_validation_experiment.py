@@ -37,7 +37,7 @@ class CalibrationValidationExperiment(AbstractExperiment):
 
     @property
     def excel_filename(self):
-        return super().excel_filename + '_{}_{}'.format(self.start_year_for_test_set, self.year_max_for_studies)
+        return super().excel_filename + '_{}_{}'.format(self.start_year_for_test_set-1, self.year_max_for_studies)
 
     def load_studies_obs_for_test(self) -> AltitudesStudies:
         return self.load_altitude_studies(None, self.start_year_for_test_set, 2019)

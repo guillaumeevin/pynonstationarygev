@@ -31,7 +31,7 @@ def main_preliminary_projections():
         mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
     year_max_for_pseudo_obs, year_max_for_gcm = 2019, 2100
-    year_max_for_pseudo_obs, year_max_for_gcm = get_last_year_for_the_train_set(0.8), 2019
+    year_max_for_pseudo_obs, year_max_for_gcm = get_last_year_for_the_train_set(0.5), 2019
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -61,7 +61,7 @@ def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_coup
             alpha=1000, show=show)
 
         print("Number of couples:", len(gcm_rcm_couples_sampled_for_experiment))
-        for i in [0, 1, 2, 4, 5][::-1]:
+        for i in [0, 1, 2, 4, 5]:
             print(i)
             for gcm_rcm_couple in gcm_rcm_couples_sampled_for_experiment:
                 combination = (i, i, 0)
