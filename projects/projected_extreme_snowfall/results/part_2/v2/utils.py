@@ -60,7 +60,9 @@ def update_csv(excel_filepath, row_name, altitude, gcm_rcm_couple, value_list, s
         if mean_column_name in df.columns:
             df.drop(columns=[mean_column_name], inplace=True)
         # df[sum_column_name] = df.sum(axis=1)
-        df[mean_column_name] = df.mean(axis=1)
+        # Average only on the columns with nan
+        ind = ~df.isnull().any(axis=0)
+        df[mean_column_name] = df.loc[:, ind].mean(axis=1)
         # df2 = df > df.loc["no effect"]
         # df[mean_column_name] = df2.mean(axis=1) * 100
         # df.sort_values(by=mean_column_name, inplace=True)

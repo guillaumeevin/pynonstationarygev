@@ -62,18 +62,18 @@ class AbstractExperiment(object):
 
     def run_one_experiment(self, **kwargs):
         gcm_couple = ("", "") if len(kwargs) == 0 else kwargs['gcm_rcm_couple_as_pseudo_truth']
-        if not is_already_done(self.excel_filepath, self.combination_name, self.experiment_name, gcm_couple):
+        if not is_already_done(self.excel_filepath, self.get_row_name(self.prefixs[0]), self.experiment_name, gcm_couple):
             start = time.time()
             try:
-                nllh_list = self._run_one_experiment(kwargs)
-            except (NllhIsInfException, SafeRunException) as e:
+                nllh_lists = self._run_one_experiment(kwargs)
+            except (NllhIsInfException, SafeRunException, KeyError) as e:
                 print(e.__repr__())
-                nllh_list = [np.nan for _ in self.selection_method_names]
-
+                nllh_lists = [[np.nan], [np.nan]]
             duration = str(datetime.timedelta(seconds=time.time() - start))
             print('Total duration for one experiment', duration)
-            nllh_value = np.array(nllh_list)
-            update_csv(self.excel_filepath, self.combination_name, self.experiment_name, gcm_couple, nllh_value)
+            for nllh_list, prefix in zip(nllh_lists, self.prefixs):
+                row_name = self.get_row_name(prefix)
+                update_csv(self.excel_filepath, row_name, self.experiment_name, gcm_couple, np.array(nllh_list))
 
     def _run_one_experiment(self, kwargs):
         # Load gcm_rcm_couple_to_studies
@@ -95,17 +95,20 @@ class AbstractExperiment(object):
         assert len(one_fold_fit.fitted_estimators) == 1, 'for the model as truth they should not be any combinations'
         assert len(self.selection_method_names) == 1
         best_estimator = one_fold_fit._sorted_estimators_with_method_name("aic")[0]
-        # Compute the average nllh for the test data
+        # Compute the log score
         studies_for_test = self.load_studies_obs_for_test(**kwargs)
-        dataset_test = self.load_spatio_temporal_dataset(studies_for_test, **kwargs)
+        studies_for_train = self.load_studies_obs_for_train(**kwargs)
+        return [self.compute_nllh_list(best_estimator, kwargs, s) for s in [studies_for_train, studies_for_test]]
+
+    def compute_nllh_list(self, best_estimator, kwargs, studies):
+        dataset_test = self.load_spatio_temporal_dataset(studies, **kwargs)
         nllh_list = []
         df_coordinates_temp_for_test = best_estimator.load_coordinates_temp(dataset_test.coordinates)
         print('Model={}'.format(get_display_name_from_object_type(best_estimator.margin_model)))
         for time, maxima in zip(df_coordinates_temp_for_test.values, dataset_test.observations.maxima_gev):
             list_of_pair = [(maxima, time)]
             args = True, list_of_pair, best_estimator.margin_function_from_fit, True
-            nllh_for_test = compute_nllh_for_list_of_pair(args)
-            nllh_list.append(-nllh_for_test)
+            nllh_list.append(compute_nllh_for_list_of_pair(args))
         return nllh_list
 
     def load_altitude_studies(self, gcm_rcm_couple=None, year_min=None, year_max=None):
@@ -163,3 +166,10 @@ class AbstractExperiment(object):
     @property
     def combination_name(self):
         return load_combination_name(self.param_name_to_climate_coordinates_with_effects)
+
+    def get_row_name(self, prefix):
+        return "{}_{}".format(prefix, self.combination_name)
+
+    @property
+    def prefixs(self):
+        return ['Train', 'Test']
