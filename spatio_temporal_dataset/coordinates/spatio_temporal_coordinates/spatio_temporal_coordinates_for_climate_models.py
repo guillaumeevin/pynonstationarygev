@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
@@ -21,6 +22,10 @@ class SpatioTemporalCoordinatesForClimateModels(AbstractSpatioTemporalCoordinate
         df[self.COORDINATE_RCP] = scenario_str
         df[self.COORDINATE_GCM] = gcm
         df[self.COORDINATE_RCM] = rcm
-        df[self.COORDINATE_GCM_AND_RCM] = gcm + rcm
-        df[self.COORDINATE_IS_ENSEMBLE_MEMBER] = 'is_ensemble_member'
+        if isinstance(gcm, float) and np.isnan(gcm) and np.isnan(rcm):
+            df[self.COORDINATE_GCM_AND_RCM] = None
+            df[self.COORDINATE_IS_ENSEMBLE_MEMBER] = None
+        else:
+            df[self.COORDINATE_GCM_AND_RCM] = gcm + rcm
+            df[self.COORDINATE_IS_ENSEMBLE_MEMBER] = 'is_ensemble_member'
         super().__init__(df, transformation_class, spatial_coordinates, temporal_coordinates)
