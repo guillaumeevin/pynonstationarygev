@@ -49,7 +49,9 @@ def main():
             # year_to_name_to_mean_score[year] = {df.index[i]: df.loc[ind].mean() for i in range(len(df))}
     # Plot
     years = sorted(list(year_to_name_to_mean_score.keys()))
-    percentages = [100 * (int(year) - 1959) / 61 for year in years]
+    percentages = [round(100 * (int(year)+1 - 1959) / 61,2) for year in years]
+    percentages = [round(p / 10) * 10 for p in percentages]
+
     names = list(df.index)
     ax = plt.gca()
     for j, name in enumerate(names):
@@ -62,11 +64,17 @@ def main():
         mean_scores = [year_to_name_to_mean_score[year][name] for year in years]
         ax.plot(percentages, mean_scores, label=label, linestyle=linestyle, color=color)
     ax.legend()
+    ax3 = ax.twiny()
+    ax3.set_xticks(percentages)
+    ax3.set_xlim(ax.get_xlim())
+    ax3.set_xticklabels(['{}'.format(year) for year in years])
+    ax3.set_xlabel('Last year where observations are available for the calibration')
     ax.set_xticks(percentages)
-    ax.set_xticklabels(['1959-{}'.format(year) for year in years])
-    ax.set_xlabel('Period where the observations are available for the calibration')
+    ax.set_xticklabels(['{}%'.format(p) for p in percentages])
+    ax.set_xlabel('Percentage of observation for the calibration (%)')
     ax.set_ylabel('Mean logarithmic score')
     ax2 = ax.twinx()
+
     legend_elements = [
         Line2D([0], [0], color='k', lw=1, label="Score on calibration set",
                linestyle="--"),
@@ -74,6 +82,7 @@ def main():
                linestyle="-")
     ]
     ax2.legend(handles=legend_elements, loc='center right')
+    ax2.set_yticks([])
     plt.show()
 
 short_name_to_color = {

@@ -210,18 +210,10 @@ class AbstractCoordinates(object):
         if climate_coordinates_with_effects is not None:
             assert all([c in self.COORDINATE_CLIMATE_MODEL_NAMES for c in climate_coordinates_with_effects])
             for climate_coordinate in climate_coordinates_with_effects:
-                df_coordinate_climate_model = self.df_coordinate_climate_model.copy()
-                # Potentially remove the climate coordinates for some gcm rcm couple
-                # We cannot do it sooner because we need the name of the GCM and RCM to find the appropriate temperature
-                if self.gcm_rcm_couple_as_pseudo_truth is not None:
-                    gcm, rcm = self.gcm_rcm_couple_as_pseudo_truth
-                    ind = (df_coordinate_climate_model[self.COORDINATE_GCM] == gcm) \
-                          & (df_coordinate_climate_model[self.COORDINATE_RCM] == rcm)
-                    df_coordinate_climate_model.loc[ind, self.COORDINATE_CLIMATE_MODEL_NAMES] = None
                 # Create some additional columns
-                only_observation_with_empty_climate_model_columns = df_coordinate_climate_model.isnull().all().all()
+                only_observation_with_empty_climate_model_columns = self.df_coordinate_climate_model_with_potential_pseudo_truth.isnull().all().all()
                 if not only_observation_with_empty_climate_model_columns:
-                    s, has_observations, unique_values_without_nan = self.load_unique_values(climate_coordinate, df_coordinate_climate_model)
+                    s, has_observations, unique_values_without_nan = self.load_unique_values(climate_coordinate)
                     if has_observations:
                         for value_name in unique_values_without_nan:
                             serie_is_value = (s == value_name) * 1
@@ -233,12 +225,25 @@ class AbstractCoordinates(object):
                         # todo: the coordinate for three gcm should be 1, 0 then 0, 1 finally -1 -1
                         # maybe it not exactly that, but in this case (without observaitons),
                         # i need to ensure a constraint that the sum of coef is zero
-
+                    # Check that the number of observations is lower than 100
+                    ind = (df.iloc[:, 1:] == 0).all(axis=1)
+                    assert 0 < sum(ind) < 100, sum(ind)
         return df
 
-    def load_unique_values(self, climate_coordinate, df_coordinate_climate_model=None):
-        if df_coordinate_climate_model is None:
-            df_coordinate_climate_model = self.df_coordinate_climate_model
+    @property
+    def df_coordinate_climate_model_with_potential_pseudo_truth(self):
+        df_coordinate_climate_model = self.df_coordinate_climate_model.copy()
+        # Potentially remove the climate coordinates for some gcm rcm couple
+        # We cannot do it sooner because we need the name of the GCM and RCM to find the appropriate temperature
+        if self.gcm_rcm_couple_as_pseudo_truth is not None:
+            gcm, rcm = self.gcm_rcm_couple_as_pseudo_truth
+            ind = (df_coordinate_climate_model[self.COORDINATE_GCM] == gcm) \
+                  & (df_coordinate_climate_model[self.COORDINATE_RCM] == rcm)
+            df_coordinate_climate_model.loc[ind, self.COORDINATE_CLIMATE_MODEL_NAMES] = None
+        return df_coordinate_climate_model
+
+    def load_unique_values(self, climate_coordinate):
+        df_coordinate_climate_model = self.df_coordinate_climate_model_with_potential_pseudo_truth
         s = df_coordinate_climate_model[climate_coordinate]
         typ = np.dtype('float64')
         if typ != s.dtype:
@@ -247,14 +252,6 @@ class AbstractCoordinates(object):
         unique_values = s.unique()
         unique_values_without_nan = [v for v in unique_values if isinstance(v, str)]
         has_observations = len(unique_values) == len(unique_values_without_nan) + 1
-        # Remove if need the names of the pseudo ground truth
-        if self.gcm_rcm_couple_as_pseudo_truth is not None:
-            # Add the gcm and rcm names
-            gcm_rcm_couple_names_for_fit = [self.climate_model_coordinate_name_to_name_for_fit(name)
-                                            for name in self.gcm_rcm_couple_as_pseudo_truth]
-            # Add the combined name
-            gcm_rcm_couple_names_for_fit.append("".join(gcm_rcm_couple_names_for_fit))
-            unique_values_without_nan = [name for name in unique_values_without_nan if name not in gcm_rcm_couple_names_for_fit]
         return s, has_observations, unique_values_without_nan
 
     def load_ordered_columns_names(self, climate_coordinates_names_with_effects):
