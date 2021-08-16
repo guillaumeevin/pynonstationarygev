@@ -139,7 +139,7 @@ class AbstractExperiment(object):
                                                                             for_fit=False)
         for maxima, coordinate in zip(dataset_test.observations.maxima_gev, df_coordinates_temp_for_test.values):
             list_of_pair = [(maxima, coordinate)]
-            args = True, list_of_pair, best_estimator.margin_function_from_fit, True
+            args = True, list_of_pair, best_estimator.margin_function_from_fit, True, True
             nllh_list.append(compute_nllh_for_list_of_pair(args))
         return nllh_list
 

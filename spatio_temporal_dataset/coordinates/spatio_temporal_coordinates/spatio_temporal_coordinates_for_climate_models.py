@@ -27,5 +27,5 @@ class SpatioTemporalCoordinatesForClimateModels(AbstractSpatioTemporalCoordinate
             df[self.COORDINATE_IS_ENSEMBLE_MEMBER] = None
         else:
             df[self.COORDINATE_GCM_AND_RCM] = gcm + rcm
-            df[self.COORDINATE_IS_ENSEMBLE_MEMBER] = 'is_ensemble_member'
+            df[self.COORDINATE_IS_ENSEMBLE_MEMBER] = self.IS_ENSEMBLE_STR
         super().__init__(df, transformation_class, spatial_coordinates, temporal_coordinates)

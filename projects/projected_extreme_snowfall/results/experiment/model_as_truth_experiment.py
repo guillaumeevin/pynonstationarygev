@@ -58,6 +58,9 @@ class ModelAsTruthExperiment(AbstractExperiment):
         """For gcm_rcm_couple_set_as_truth, load the data from 2020 to 2100"""
         return self.load_altitude_studies(gcm_rcm_couple_as_pseudo_truth, 1959, self.year_max_for_pseudo_obs)
 
+    def gcm_rcm_couples_for_ensemble_members(self, gcm_rcm_couple_as_pseudo_truth):
+        return set(self.gcm_rcm_couples) - {gcm_rcm_couple_as_pseudo_truth}
+
     def load_gcm_rcm_couple_to_studies(self, gcm_rcm_couple_as_pseudo_truth):
         """For the gcm_rcm_couple_set_as_truth load only the data from 1959 to 2019"""
         gcm_rcm_couple_to_studies = {}
@@ -68,7 +71,22 @@ class ModelAsTruthExperiment(AbstractExperiment):
         gcm_rcm_couple_to_studies[gcm_rcm_couple_as_pseudo_truth] = pseudo_truth_studies
 
         # Load the rest of the projections
-        for gcm_rcm_couple in set(self.gcm_rcm_couples) - {gcm_rcm_couple_as_pseudo_truth}:
+        for gcm_rcm_couple in self.gcm_rcm_couples_for_ensemble_members(gcm_rcm_couple_as_pseudo_truth):
             gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple,
                                                                                    year_max=self.year_max)
+        return gcm_rcm_couple_to_studies
+
+    def load_gcm_rcm_couple_to_studies_for_train_period_and_ensemble_members(self, gcm_rcm_couple_as_pseudo_truth):
+        gcm_rcm_couple_to_studies = {}
+        for gcm_rcm_couple in self.gcm_rcm_couples_for_ensemble_members(gcm_rcm_couple_as_pseudo_truth):
+            gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple,
+                                                                                   year_max=2019)
+        return gcm_rcm_couple_to_studies
+
+    def load_gcm_rcm_couple_to_studies_for_test_period_and_ensemble_members(self, gcm_rcm_couple_as_pseudo_truth):
+        gcm_rcm_couple_to_studies = {}
+        for gcm_rcm_couple in self.gcm_rcm_couples_for_ensemble_members(gcm_rcm_couple_as_pseudo_truth):
+            gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple,
+                                                                                   year_min=2020,
+                                                                                   year_max=2100)
         return gcm_rcm_couple_to_studies

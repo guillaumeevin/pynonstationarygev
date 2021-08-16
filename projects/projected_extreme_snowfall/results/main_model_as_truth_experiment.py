@@ -21,8 +21,8 @@ from projects.projected_extreme_snowfall.results.setting_utils import set_up_and
 def main_preliminary_projections():
     # Load parameters
     show = False
-    fast = None
-    snowfall = None
+    fast = True
+    snowfall = False
 
     if show in [None, True]:
         matplotlib.use('Agg')
@@ -31,7 +31,7 @@ def main_preliminary_projections():
         mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
     year_max_for_pseudo_obs, year_max_for_gcm = 2019, 2100
-    year_max_for_pseudo_obs, year_max_for_gcm = get_last_year_for_the_train_set(0.7), 2019
+    year_max_for_pseudo_obs, year_max_for_gcm = get_last_year_for_the_train_set(0.7), 2100
     weight_on_observation = 4
     print('weight on observation=', weight_on_observation)
 
