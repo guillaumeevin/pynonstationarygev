@@ -21,7 +21,7 @@ from projects.projected_extreme_snowfall.results.setting_utils import set_up_and
 def main_preliminary_projections():
     # Load parameters
     show = False
-    fast = False
+    fast = None
     snowfall = None
 
     if show in [None, True]:
@@ -31,7 +31,9 @@ def main_preliminary_projections():
         mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
     year_max_for_pseudo_obs, year_max_for_gcm = 2019, 2100
-    year_max_for_pseudo_obs, year_max_for_gcm = get_last_year_for_the_train_set(0.5), 2019
+    year_max_for_pseudo_obs, year_max_for_gcm = get_last_year_for_the_train_set(0.7), 2019
+    weight_on_observation = 4
+    print('weight on observation=', weight_on_observation)
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -41,12 +43,12 @@ def main_preliminary_projections():
     for altitudes in altitudes_list[::-1]:
         run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
                 model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
-                study_class, temporal_covariate_for_fit, year_max_for_gcm, year_max_for_pseudo_obs)
+                study_class, temporal_covariate_for_fit, year_max_for_gcm, year_max_for_pseudo_obs, weight_on_observation)
 
 
 def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
             model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
-            study_class, temporal_covariate_for_fit, year_max_for_gcm, year_max_for_pseudo_obs):
+            study_class, temporal_covariate_for_fit, year_max_for_gcm, year_max_for_pseudo_obs, weight_on_observation):
     altitude = altitudes[0]
     print('Altitude={}'.format(altitude))
     gcm_rcm_couple_to_study, safran_study = load_study(altitude, gcm_rcm_couples, safran_study_class, scenario,
@@ -82,6 +84,7 @@ def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_coup
                                                 combination),
                                             year_max_for_gcm=year_max_for_gcm,
                                             year_max_for_pseudo_obs=year_max_for_pseudo_obs,
+                                            weight_on_observation=weight_on_observation,
                                             )
                 xp.run_one_experiment(gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
 

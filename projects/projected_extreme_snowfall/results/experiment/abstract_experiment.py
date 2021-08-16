@@ -20,7 +20,7 @@ from extreme_trend.ensemble_fit.together_ensemble_fit.visualizer_non_stationary_
     VisualizerNonStationaryEnsemble
 from projects.projected_extreme_snowfall.results.combination_utils import load_combination, load_combination_name
 from projects.projected_extreme_snowfall.results.part_2.v2.utils import is_already_done, update_csv
-from root_utils import get_display_name_from_object_type
+from root_utils import get_display_name_from_object_type, classproperty
 import os.path as op
 
 
@@ -60,20 +60,32 @@ class AbstractExperiment(object):
     def load_gcm_rcm_couple_to_studies(self, **kwargs):
         raise NotImplementedError
 
+    def load_gcm_rcm_couple_to_studies_for_train_period_and_ensemble_members(self, **kwargs):
+        raise NotImplementedError
+
+    def load_gcm_rcm_couple_to_studies_for_test_period_and_ensemble_members(self, **kwargs):
+        raise NotImplementedError
+
     def run_one_experiment(self, **kwargs):
         gcm_couple = ("", "") if len(kwargs) == 0 else kwargs['gcm_rcm_couple_as_pseudo_truth']
-        if not is_already_done(self.excel_filepath, self.get_row_name(self.prefixs[0]), self.experiment_name, gcm_couple):
+        is_already_done_all = all([is_already_done(self.excel_filepath, self.get_row_name(p), self.experiment_name, gcm_couple)
+                               for p in self.prefixs])
+        if not is_already_done_all:
             start = time.time()
             try:
                 nllh_lists = self._run_one_experiment(kwargs)
             except (NllhIsInfException, SafeRunException, KeyError) as e:
                 print(e.__repr__())
-                nllh_lists = [[np.nan], [np.nan]]
+                nllh_lists = [[np.nan] for _ in self.prefixs]
             duration = str(datetime.timedelta(seconds=time.time() - start))
             print('Total duration for one experiment', duration)
             for nllh_list, prefix in zip(nllh_lists, self.prefixs):
                 row_name = self.get_row_name(prefix)
                 update_csv(self.excel_filepath, row_name, self.experiment_name, gcm_couple, np.array(nllh_list))
+
+    @property
+    def kwargs_for_visualizer(self):
+        return {}
 
     def _run_one_experiment(self, kwargs):
         # Load gcm_rcm_couple_to_studies
@@ -89,23 +101,44 @@ class AbstractExperiment(object):
                                                      confidence_interval_based_on_delta_method=False,
                                                      remove_physically_implausible_models=self.remove_physically_implausible_models,
                                                      param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects,
-                                                     **kwargs)
+                                                     **kwargs,
+                                                     **self.kwargs_for_visualizer)
         # Get the best margin function for the selection method name
         one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
         assert len(one_fold_fit.fitted_estimators) == 1, 'for the model as truth they should not be any combinations'
         assert len(self.selection_method_names) == 1
         best_estimator = one_fold_fit._sorted_estimators_with_method_name("aic")[0]
-        # Compute the log score
+        # Check nllh
+        _ = best_estimator.nllh
+        # Compute the log score for the observations
         studies_for_test = self.load_studies_obs_for_test(**kwargs)
         studies_for_train = self.load_studies_obs_for_train(**kwargs)
-        return [self.compute_nllh_list(best_estimator, kwargs, s) for s in [studies_for_train, studies_for_test]]
+        train_and_test_nllh_list = [self.compute_nllh_list(best_estimator, kwargs, s) for s in [studies_for_train, studies_for_test]]
+        # Compute the log score for the ensemble members
+        gcm_rcm_studies_nllh_list_for_train_period = self.compute_nllh_list_for_ensemble_members(best_estimator,
+                                                                                self.load_gcm_rcm_couple_to_studies_for_train_period_and_ensemble_members(**kwargs),
+                                                                                kwargs)
+        gcm_rcm_studies_nllh_list_for_test_period = self.compute_nllh_list_for_ensemble_members(best_estimator,
+                                                                                self.load_gcm_rcm_couple_to_studies_for_test_period_and_ensemble_members(**kwargs),
+                                                                                kwargs)
+        return train_and_test_nllh_list + [gcm_rcm_studies_nllh_list_for_train_period, gcm_rcm_studies_nllh_list_for_test_period]
+
+    def compute_nllh_list_for_ensemble_members(self, best_estimator, gcm_rcm_couple_to_studies_for_ensemble_member,
+                                               kwargs):
+        gcm_rcm_studies_nllh_list = []
+        for studies in gcm_rcm_couple_to_studies_for_ensemble_member.values():
+            nllh_list = self.compute_nllh_list(best_estimator, kwargs, studies)
+            gcm_rcm_studies_nllh_list.extend(nllh_list)
+        return gcm_rcm_studies_nllh_list
 
     def compute_nllh_list(self, best_estimator, kwargs, studies):
         dataset_test = self.load_spatio_temporal_dataset(studies, **kwargs)
         nllh_list = []
-        df_coordinates_temp_for_test = best_estimator.load_coordinates_temp(dataset_test.coordinates)
-        for time, maxima in zip(df_coordinates_temp_for_test.values, dataset_test.observations.maxima_gev):
-            list_of_pair = [(maxima, time)]
+
+        df_coordinates_temp_for_test = best_estimator.load_coordinates_temp(dataset_test.coordinates,
+                                                                            for_fit=False)
+        for maxima, coordinate in zip(dataset_test.observations.maxima_gev, df_coordinates_temp_for_test.values):
+            list_of_pair = [(maxima, coordinate)]
             args = True, list_of_pair, best_estimator.margin_function_from_fit, True
             nllh_list.append(compute_nllh_for_list_of_pair(args))
         return nllh_list
@@ -169,6 +202,7 @@ class AbstractExperiment(object):
     def get_row_name(self, prefix):
         return "{}_{}".format(prefix, self.combination_name)
 
-    @property
+    @classproperty
     def prefixs(self):
-        return ['Train', 'Test']
+        return ['CalibrationObs', 'ValidationObs', 'CalibrationGCMRCMcoupleonCalibrationPeriod',
+                'CalibrationGCMRCMcoupleonValidationPeriod']

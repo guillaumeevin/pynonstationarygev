@@ -181,7 +181,8 @@ class AbstractCoordinates(object):
 
     def df_temporal_coordinates_for_fit(self, starting_point=None,
                                         temporal_covariate_for_fit: Union[None, type] = None,
-                                        drop_duplicates=True, climate_coordinates_with_effects=None) -> pd.DataFrame:
+                                        drop_duplicates=True, climate_coordinates_with_effects=None,
+                                        for_fit=True) -> pd.DataFrame:
         # Load time covariate
         if starting_point is None:
             df = self.df_temporal_coordinates(transformed=True, drop_duplicates=drop_duplicates)
@@ -220,14 +221,21 @@ class AbstractCoordinates(object):
                             df[value_name] = serie_is_value
                         sum_of_ones = df.iloc[1:].sum(axis=0)
                         assert sum_of_ones.sum() > 0
+                    elif not for_fit:
+                        if len(unique_values_without_nan) == 1:
+                            for c in [self.COORDINATE_GCM, self.COORDINATE_RCM]:
+                                df[c] = self.df_coordinate_climate_model[c]
+                        else:
+                            raise NotImplementedError
                     else:
+
                         raise NotImplementedError
                         # todo: the coordinate for three gcm should be 1, 0 then 0, 1 finally -1 -1
-                        # maybe it not exactly that, but in this case (without observaitons),
-                        # i need to ensure a constraint that the sum of coef is zero
+                            # maybe it not exactly that, but in this case (without observaitons),
+                            # i need to ensure a constraint that the sum of coef is zero
                     # Check that the number of observations is lower than 100
-                    ind = (df.iloc[:, 1:] == 0).all(axis=1)
-                    assert 0 < sum(ind) < 100, sum(ind)
+                    # ind = (df.iloc[:, 1:] == 0).all(axis=1)
+                    # assert 0 < sum(ind) < 100, sum(ind)
         return df
 
     @property

@@ -23,7 +23,7 @@ def main_calibration_validation_experiment():
     start = time.time()
 
     fast = False
-    snowfall = None
+    snowfall = False
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -31,13 +31,13 @@ def main_calibration_validation_experiment():
         fast, snowfall)
 
     # Load the csv filepath
-    percentage = 0.1
+    percentage = 0.6
     last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
     start_year_for_the_test_set = last_year_for_the_train_set + 1
 
     display_only_model_that_pass_gof_test = False
 
-    year_max_for_studies = 2019
+    year_max_for_studies = None
     print('year max for studies:', year_max_for_studies)
 
     for massif_name in massif_names:

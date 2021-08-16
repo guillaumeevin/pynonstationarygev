@@ -67,14 +67,15 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     def df_coordinates_for_fit(self):
         return pd.concat([self.df_coordinates_spat, self.df_coordinates_temp], axis=1)
 
-    def load_coordinates_temp(self, coordinates):
+    def load_coordinates_temp(self, coordinates, for_fit=True):
         assert coordinates.gcm_rcm_couple_as_pseudo_truth == self.dataset.coordinates.gcm_rcm_couple_as_pseudo_truth, \
             "you should set the gcm rcm couple as pseudo truth similarly"
         df_coordinates_temp = coordinates.df_temporal_coordinates_for_fit(
             temporal_covariate_for_fit=self.margin_model.temporal_covariate_for_fit,
             starting_point=self.margin_model.starting_point,
             drop_duplicates=self.margin_model.drop_duplicates,
-            climate_coordinates_with_effects=self.margin_model.climate_coordinates_with_effects)
+            climate_coordinates_with_effects=self.margin_model.climate_coordinates_with_effects,
+            for_fit=for_fit)
         return df_coordinates_temp
 
     @cached_property
