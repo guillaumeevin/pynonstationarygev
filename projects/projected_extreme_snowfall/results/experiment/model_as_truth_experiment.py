@@ -29,6 +29,10 @@ class ModelAsTruthExperiment(AbstractExperiment):
         self.gcm_rcm_couples_sampled_for_experiment = gcm_rcm_couples_sampled_for_experiment
         self.weight_on_observation = weight_on_observation
 
+    @property
+    def kwargs_for_visualizer(self):
+        return {'weight_on_observation': self.weight_on_observation}
+
     # def plot_time_series(self):
     #     # plot time series
     #     gcm_rcm_couple_to_studies_plot = xp.load_gcm_rcm_couple_to_studies(
@@ -40,9 +44,11 @@ class ModelAsTruthExperiment(AbstractExperiment):
     #     plot_time_series(massif_name, gcm_rcm_couple_to_study_plot[gcm_rcm_couple],
     #                      gcm_rcm_couple_to_other_study_plot, show)
 
+
+
     @property
     def excel_filename(self):
-        return super().excel_filename + '_{}_{}'.format(self.year_max_for_pseudo_obs, self.year_max)
+        return super().excel_filename + '_{}_{}_w{}'.format(self.year_max_for_pseudo_obs, self.year_max, self.weight_on_observation)
 
     def load_studies_obs_for_test(self, gcm_rcm_couple_as_pseudo_truth) -> AltitudesStudies:
         """For gcm_rcm_couple_set_as_truth, load the data from 2020 to 2100"""

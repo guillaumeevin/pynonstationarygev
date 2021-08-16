@@ -1,5 +1,6 @@
 from matplotlib.lines import Line2D
 
+from projects.projected_extreme_snowfall.results.experiment.abstract_experiment import AbstractExperiment
 from projects.projected_extreme_snowfall.results.experiment.calibration_validation_experiment import \
     CalibrationValidationExperiment
 
@@ -19,11 +20,18 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-excel_start = 'AdamontPrecipitation_1500m_20couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_'
+excel_start = 'AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_'
 
 folder = ["CalibrationValidationExperiment", "ModelAsTruthExperiment"][0]
 excel_path = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/abstract_experiments"
 excel_path = op.join(excel_path, folder)
+
+
+class AbstractSensitivityExperimentGraph(object):
+
+    def plot(self):
+        pass
+
 
 def main():
     year_to_name_to_mean_score = {}
@@ -49,17 +57,16 @@ def main():
             # year_to_name_to_mean_score[year] = {df.index[i]: df.loc[ind].mean() for i in range(len(df))}
     # Plot
     years = sorted(list(year_to_name_to_mean_score.keys()))
-    percentages = [round(100 * (int(year)+1 - 1959) / 61,2) for year in years]
-    percentages = [round(p / 10) * 10 for p in percentages]
+    percentages = [round(100 * (int(year) + 1 - 1959) / 61, 2) for year in years]
+    # percentages = [round(p / 10) * 10 for p in percentages]
 
     names = list(df.index)
     ax = plt.gca()
     for j, name in enumerate(names):
-        i = j // 2 if j <= 5 else 1 + j // 2
-        is_train = 'Train' in name
-        linestyle = '--' if is_train else '-'
-        short_name = '_'.join(name.split('_')[1:])
-        label = None if is_train else short_name_to_label[short_name]
+        prefix, *rest = name.split('_')
+        linestyle = prefix_to_linestyle[prefix]
+        short_name = '_'.join(rest)
+        label = short_name_to_label[short_name] if prefix == 'ValidationObs' else None
         color = short_name_to_color[short_name]
         mean_scores = [year_to_name_to_mean_score[year][name] for year in years]
         ax.plot(percentages, mean_scores, label=label, linestyle=linestyle, color=color)
@@ -76,14 +83,20 @@ def main():
     ax2 = ax.twinx()
 
     legend_elements = [
-        Line2D([0], [0], color='k', lw=1, label="Score on calibration set",
-               linestyle="--"),
-        Line2D([0], [0], color='k', lw=1, label="Score on validation set",
-               linestyle="-")
+        Line2D([0], [0], color='k', lw=1, label=prefix_to_label[prefix],
+               linestyle=prefix_to_linestyle[prefix])
+        for prefix in AbstractExperiment.prefixs
     ]
     ax2.legend(handles=legend_elements, loc='center right')
     ax2.set_yticks([])
     plt.show()
+
+
+linestyles = ['--', '-', 'dotted', 'dashdot']
+prefix_to_linestyle = dict(zip(AbstractExperiment.prefixs, linestyles))
+labels = ["Score for obs on calibration set", "Score for obs on validation set",
+          "Score for gcm-rcm on calibration period", "Score for gcm-rcm on validation period"]
+prefix_to_label = dict(zip(AbstractExperiment.prefixs, labels))
 
 short_name_to_color = {
     "no effect": "blue",
@@ -101,9 +114,5 @@ short_name_to_label = {
     "loc_rcm scale_rcm": "One adjustment coefficient for each RCM",
 }
 
-
-
-
 if __name__ == '__main__':
     main()
-
