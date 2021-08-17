@@ -22,8 +22,8 @@ from root_utils import get_display_name_from_object_type
 def main_calibration_validation_experiment():
     start = time.time()
 
-    fast = None
-    snowfall = False
+    fast = False
+    snowfall = None
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -31,7 +31,7 @@ def main_calibration_validation_experiment():
         fast, snowfall)
 
     # Load the csv filepath
-    altitudes_list = [[2100]]
+    altitudes_list = [[1500]]
     percentage = 0.2
     last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
     start_year_for_the_test_set = last_year_for_the_train_set + 1

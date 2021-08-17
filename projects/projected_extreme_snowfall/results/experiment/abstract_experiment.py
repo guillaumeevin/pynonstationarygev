@@ -118,11 +118,20 @@ class AbstractExperiment(object):
         assert len(self.selection_method_names) == 1
         best_estimator = one_fold_fit._sorted_estimators_with_method_name("aic")[0]
         # Compute the log score for the observations
-        _, _, total_nllh_list, _ = self.compute_log_score(best_estimator, False, kwargs)
-        assert len(total_nllh_list) == len(best_estimator.coordinates_for_nllh)
-        npt.assert_almost_equal(sum(total_nllh_list), best_estimator.nllh, decimal=0)
-        ensemble_members_nllh_list, test_nllh_list, total_nllh_list, train_nllh_list = self.compute_log_score(best_estimator, True, kwargs)
-        return [train_nllh_list, test_nllh_list, ensemble_members_nllh_list, total_nllh_list]
+        only_validation_score = False
+        if only_validation_score:
+            gumbel_standardization = True
+            studies_for_train = self.load_studies_obs_for_train(**kwargs)
+            studies_for_test = self.load_studies_obs_for_test(**kwargs)
+            train_nllh_list = self.compute_nllh_list(best_estimator, kwargs, studies_for_train, gumbel_standardization)
+            test_nllh_list = self.compute_nllh_list(best_estimator, kwargs, studies_for_test, gumbel_standardization)
+            return [train_nllh_list, test_nllh_list]
+        else:
+            _, _, total_nllh_list, _ = self.compute_log_score(best_estimator, False, kwargs)
+            assert len(total_nllh_list) == len(best_estimator.coordinates_for_nllh)
+            npt.assert_almost_equal(sum(total_nllh_list), best_estimator.nllh, decimal=0)
+            ensemble_members_nllh_list, test_nllh_list, total_nllh_list, train_nllh_list = self.compute_log_score(best_estimator, True, kwargs)
+            return [train_nllh_list, test_nllh_list, ensemble_members_nllh_list, total_nllh_list]
 
     def compute_log_score(self, best_estimator, gumbel_standardization, kwargs):
         studies_for_train = self.load_studies_obs_for_train(**kwargs)

@@ -54,7 +54,7 @@ def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_coup
     gcm_rcm_couple_to_study, safran_study = load_study(altitude, gcm_rcm_couples, safran_study_class, scenario,
                                                        study_class)
 
-    for massif_name in massif_names[:-8:-1]:
+    for massif_name in massif_names[::-1]:
         print(massif_name)
 
         average_bias, _ = compute_average_bias(gcm_rcm_couple_to_study, massif_name, safran_study, show=show)
