@@ -27,7 +27,7 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 def main():
     start = time.time()
 
-    fast = None
+    fast = True
     snowfall = False
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -38,6 +38,7 @@ def main():
 
     combination = (1, 1, 0)
     param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(combination)
+    linear_effects = True
 
     all_massif_names = AbstractStudy.all_massif_names()[:]
     # AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 100
@@ -55,6 +56,7 @@ def main():
             safran_study_class=safran_study_class,
             display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
             param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
+            linear_effects=linear_effects,
         )
         visualizer.plot()
 

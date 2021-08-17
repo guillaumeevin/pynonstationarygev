@@ -10,6 +10,8 @@ class AbstractResultFromModelFit(object):
             self.name_to_value = self.get_python_dictionary(result_from_fit)
         else:
             self.name_to_value = {}
+        self.linear_effects = False
+
 
     @property
     def variance_covariance_matrix(self):
@@ -45,6 +47,7 @@ class AbstractResultFromModelFit(object):
     @property
     def param_name_to_climate_coordinates_with_effects_to_load_margin_function(self):
         return None
+
 
     @property
     def margin_coef_ordered_dict(self):

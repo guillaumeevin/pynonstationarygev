@@ -16,7 +16,8 @@ class TogetherEnsembleFit(AbstractEnsembleFit):
                                                           self.only_models_that_pass_goodness_of_fit_test,
                                                           self.confidence_interval_based_on_delta_method,
                                                           self.remove_physically_implausible_models,
-                                                          self.param_name_to_climate_coordinates_with_effects
+                                                          self.param_name_to_climate_coordinates_with_effects,
+                                                          self.linear_effects
                                                           )
 
     @property

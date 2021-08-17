@@ -32,9 +32,10 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                  params_class=GevParams,
                  temporal_covariate_for_fit=None,
                  param_name_to_climate_coordinates_with_effects=None,
+                 linear_effects=False,
                  ):
         super().__init__(coordinates, params_user, starting_point, params_class, fit_method, temporal_covariate_for_fit,
-                         param_name_to_climate_coordinates_with_effects)
+                         param_name_to_climate_coordinates_with_effects, linear_effects)
         self.type_for_mle = type_for_MLE
         self.params_initial_fit_bayesian = params_initial_fit_bayesian
         self.nb_iterations_for_bayesian_fit = nb_iterations_for_bayesian_fit
@@ -100,7 +101,8 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                self.coordinates.dim_to_coordinate,
                                type_for_mle=self.type_for_mle,
                                param_name_to_name_of_the_climatic_effects=param_name_to_name_of_climatic_effects,
-                               param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects)
+                               param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects,
+                               linear_effects=self.linear_effects)
 
     def add_climate_effects(self, formula_list):
         # Add potential climate effects
@@ -118,6 +120,10 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                     name_of_the_climatic_effects = self.coordinates.load_ordered_columns_names(
                         climate_coordinates_names_with_effects)
                 param_name_to_name_of_climatic_effects[param_name] = name_of_the_climatic_effects
+                # Potentially add a linearity for the effect
+                if self.linear_effects:
+                    name_of_the_climatic_effects = ['{} + {}:{}'.format(name, AbstractCoordinates.COORDINATE_T, name)
+                                                    for name in name_of_the_climatic_effects]
                 # Save the appropriate formula
                 formula_effect_str = ' + '.join(name_of_the_climatic_effects)
                 ordered_formula_effect_str.append(formula_effect_str)
@@ -150,7 +156,8 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
     def run_fevd_fixed(self, df_coordinates_temp, df_coordinates_spat, method, x):
         if self.fit_method == MarginFitMethod.extremes_fevd_l_moments:
             assert self.margin_function.is_a_stationary_model
-        r_type_argument_kwargs, y, param_name_to_name_of_climatic_effects = self.extreme_arguments(df_coordinates_temp, df_coordinates_spat)
+        r_type_argument_kwargs, y, param_name_to_name_of_climatic_effects = self.extreme_arguments(df_coordinates_temp,
+                                                                                                   df_coordinates_spat)
         res = safe_run_r_estimator(function=r('fevd_fixed'),
                                    x=x,
                                    data=y,
@@ -162,7 +169,8 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                      self.coordinates.dim_to_coordinate,
                                      type_for_mle=self.type_for_mle,
                                      param_name_to_name_of_the_climatic_effects=param_name_to_name_of_climatic_effects,
-                                     param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects
+                                     param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects,
+                                     linear_effects=self.linear_effects,
                                      )
 
     def extremes_fevd_bayesian_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:

@@ -48,12 +48,15 @@ class IndependentMarginFunction(AbstractMarginFunction):
                 param_name_to_total_effect = None
             else:
                 # Load full coordinates, and coordinates
+                assert self.coordinates.nb_coordinates == 1, 'replace the line below if assert'
+                temporal_coordinate = float(coordinate[0].copy())
                 full_climate_coordinate = coordinate[self.coordinates.nb_coordinates:].copy()
                 assert self.param_name_to_ordered_climate_effects is not None
                 assert AbstractCoordinates.COORDINATE_X not in self.coordinates.coordinates_names, \
                     'check the order of coordinates that everything is ok'
                 # Load full names of the effect
-                param_name_to_total_effect = self.load_param_name_to_total_effect(full_climate_coordinate)
+                param_name_to_total_effect = self.load_param_name_to_total_effect(full_climate_coordinate,
+                                                                                  temporal_coordinate)
             # Update coordinate
             coordinate = np.array([float(e) for e in coordinate[:self.coordinates.nb_coordinates]])
         else:
@@ -76,28 +79,36 @@ class IndependentMarginFunction(AbstractMarginFunction):
         return self.coordinates.load_full_climate_coordinates_with_effects(
             self.param_name_to_climate_coordinates_with_effects)
 
-    def load_param_name_to_total_effect(self, full_climate_coordinate):
+    def load_param_name_to_total_effect(self, full_climate_coordinate, temporal_coordinate):
         param_name_to_total_effect = {}
         for param_name in GevParams.PARAM_NAMES:
             if self.full_climate_coordinates_names_with_effects is None:
                 total_effect = 0
             elif isinstance(full_climate_coordinate[0], float):
-                total_effect = self.load_total_effect_for_float(full_climate_coordinate, param_name)
+                total_effect = self.load_total_effect_for_float(full_climate_coordinate, param_name, temporal_coordinate)
             else:
-                total_effect = self.load_total_effect_for_gcm_rcm_couple(full_climate_coordinate, param_name)
+                total_effect = self.load_total_effect_for_gcm_rcm_couple(full_climate_coordinate, param_name, temporal_coordinate)
             param_name_to_total_effect[param_name] = total_effect
         return param_name_to_total_effect
 
-    def load_total_effect_for_float(self, full_climate_coordinate, param_name):
+    def load_total_effect_for_float(self, full_climate_coordinate, param_name, temporal_coordinate):
         assert isinstance(full_climate_coordinate[0], float)
         climate_coordinates_with_param_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
         effects = self.param_name_to_ordered_climate_effects[param_name]
-        nb_effects = len(effects)
         if climate_coordinates_with_param_effects == self.full_climate_coordinates_names_with_effects:
-            total_effect = np.dot(effects, full_climate_coordinate)
+            if isinstance(effects, tuple) and len(effects) == 2:
+                constant_effects, linear_effects = effects
+                constant_effect = np.dot(constant_effects, full_climate_coordinate)
+                linear_effect = np.dot(linear_effects, full_climate_coordinate)
+                linear_effect *= temporal_coordinate
+                total_effect = constant_effect + linear_effect
+            else:
+                total_effect = np.dot(effects, full_climate_coordinate)
         elif climate_coordinates_with_param_effects is None:
             total_effect = 0
         else:
+            nb_effects = len(effects)
+            print('here 65', 'code goes into total effect last part')
             first_coordinate = climate_coordinates_with_param_effects[0]
             assert first_coordinate in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES
             if first_coordinate == AbstractCoordinates.COORDINATE_GCM:
@@ -108,7 +119,7 @@ class IndependentMarginFunction(AbstractMarginFunction):
                 total_effect = np.dot(effects, full_climate_coordinate[-nb_effects:])
         return total_effect
 
-    def load_total_effect_for_gcm_rcm_couple(self, full_climate_coordinate, param_name):
+    def load_total_effect_for_gcm_rcm_couple(self, full_climate_coordinate, param_name, temporal_coordinate):
         # Transform the climate coordinate if they are represent with a tuple of strings
         gcm_rcm_couple = full_climate_coordinate
         column_names_for_gcm_rcm_couple = [self.coordinates.climate_model_coordinate_name_to_name_for_fit(e) for e in gcm_rcm_couple]
@@ -117,7 +128,7 @@ class IndependentMarginFunction(AbstractMarginFunction):
         column_names_for_gcm_rcm_couple.append(AbstractCoordinates.IS_ENSEMBLE_STR)
         all_column_names = self.coordinates.load_ordered_columns_names(self.full_climate_coordinates_names_with_effects)
         full_climate_coordinate = pd.Series(all_column_names).isin(column_names_for_gcm_rcm_couple).astype(float).values
-        return self.load_total_effect_for_float(full_climate_coordinate, param_name)
+        return self.load_total_effect_for_float(full_climate_coordinate, param_name, temporal_coordinate)
 
     def get_first_derivative_param(self, coordinate: np.ndarray, is_transformed: bool, dim: int = 0):
         transformed_coordinate = coordinate if is_transformed else self.transform(coordinate)

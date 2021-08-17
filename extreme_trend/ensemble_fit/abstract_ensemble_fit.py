@@ -18,6 +18,7 @@ class AbstractEnsembleFit(object):
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
+                 linear_effects=False,
                  ):
         self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
         self.remove_physically_implausible_models = remove_physically_implausible_models
@@ -28,6 +29,7 @@ class AbstractEnsembleFit(object):
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.only_models_that_pass_goodness_of_fit_test = only_models_that_pass_goodness_of_fit_test
         self.confidence_interval_based_on_delta_method = confidence_interval_based_on_delta_method
+        self.linear_effects = linear_effects
 
     @property
     def altitudes(self):

@@ -38,7 +38,9 @@ class VisualizerForSimpleCase(object):
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
                  combinations_for_together=None,
+                 linear_effects=False
                  ):
+        self.linear_effects = linear_effects
         self.combinations_for_together = combinations_for_together
         self.safran_study_class = safran_study_class
         self.remove_physically_implausible_models = remove_physically_implausible_models
@@ -83,7 +85,8 @@ class VisualizerForSimpleCase(object):
                                                                display_only_model_that_pass_gof_test,
                                                                confidence_interval_based_on_delta_method,
                                                                remove_physically_implausible_models,
-                                                               param_name_to_climate_coordinates_with_effects)
+                                                               param_name_to_climate_coordinates_with_effects,
+                                                               linear_effects)
                 self.combination_name_to_together_ensemble_fit[combination_name] = together_ensemble_fit
 
     def visualize_gev_parameters(self):
@@ -106,7 +109,7 @@ class VisualizerForSimpleCase(object):
                 linestyle = '--'
                 label = None
 
-            ax.plot(x, y, label=label, linestyle=linestyle, color='k')
+            ax.plot(x, y, label=label, linestyle=linestyle, color='k', linewidth=3)
 
         # Together plot
         colors = ['red', 'blue', 'green', 'orange']

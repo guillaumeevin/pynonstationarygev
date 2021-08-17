@@ -20,8 +20,11 @@ class ResultFromEvgam(AbstractResultFromExtremes):
                  dim_to_coordinate=None,
                  type_for_mle="GEV",
                  param_name_to_name_of_the_climatic_effects=None,
-                 param_name_to_climate_coordinates_with_effects=None) -> None:
+                 param_name_to_climate_coordinates_with_effects=None,
+                 linear_effects=False,
+                 ) -> None:
         super().__init__(result_from_fit, param_name_to_dim, dim_to_coordinate)
+        self.linear_effects = linear_effects
         self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
         self.param_name_to_name_of_the_climatic_effects = param_name_to_name_of_the_climatic_effects
         self.type_for_mle = type_for_mle
@@ -91,7 +94,8 @@ class ResultFromEvgam(AbstractResultFromExtremes):
         if len(r_param_names_with_spline) == 0:
             return get_margin_coef_ordered_dict(self.param_name_to_dims, coefficients, self.type_for_mle,
                                                 dim_to_coordinate_name=self.dim_to_coordinate,
-                                                param_name_to_name_of_the_climatic_effects=self.param_name_to_name_of_the_climatic_effects)
+                                                param_name_to_name_of_the_climatic_effects=self.param_name_to_name_of_the_climatic_effects,
+                                                linear_effects=self.linear_effects)
         else:
             # Compute spline param_name to dim_to_knots_and_coefficients
             spline_param_name_to_dim_knots_and_coefficient = {}

@@ -40,6 +40,7 @@ class VisualizerForProjectionEnsemble(object):
                  interval_str_prefix='',
                  safran_study_class=None,
                  param_name_to_climate_coordinates_with_effects=None,
+                 linear_effects=False,
                  ):
         self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
         self.study_class = study_class
@@ -78,7 +79,8 @@ class VisualizerForProjectionEnsemble(object):
                                                   display_only_model_that_pass_gof_test,
                                                   confidence_interval_based_on_delta_method,
                                                   remove_physically_implausible_models,
-                                                  param_name_to_climate_coordinates_with_effects)
+                                                  param_name_to_climate_coordinates_with_effects,
+                                                  linear_effects)
                 ensemble_class_to_ensemble_fit[ensemble_fit_class] = ensemble_fit
             self.altitude_group_to_ensemble_class_to_ensemble_fit[altitude_group] = ensemble_class_to_ensemble_fit
 

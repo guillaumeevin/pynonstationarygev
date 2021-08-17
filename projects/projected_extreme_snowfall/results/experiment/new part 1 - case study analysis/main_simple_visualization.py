@@ -37,7 +37,9 @@ def main_simple_visualizatoin():
     gcm_rcm_couples = gcm_rcm_couples[:2]
     altitudes = altitudes_list[0]
     percentage = 1
+    fit_method = MarginFitMethod.evgam
     last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
+    linear_effects = True
 
     display_only_model_that_pass_gof_test = False
 
@@ -47,7 +49,7 @@ def main_simple_visualizatoin():
     weight_on_observation = 1
     print('weight on observation=', weight_on_observation)
 
-    combinations = [(0, 0, 0), (2, 2, 0)]
+    combinations = [(0, 0, 0), (1, 1, 1)]
 
     visualizer = VisualizerForSimpleCase(altitudes, gcm_rcm_couples, safran_study_class, study_class, Season.annual,
                                          scenario=scenario,
@@ -57,7 +59,8 @@ def main_simple_visualizatoin():
                                          temporal_covariate_for_fit=temporal_covariate_for_fit,
                                          remove_physically_implausible_models=remove_physically_implausible_models,
                                          display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
-                                         combinations_for_together=combinations)
+                                         combinations_for_together=combinations,
+                                         linear_effects=linear_effects)
     visualizer.visualize_gev_parameters()
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))

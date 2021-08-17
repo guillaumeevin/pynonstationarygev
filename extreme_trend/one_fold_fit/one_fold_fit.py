@@ -69,7 +69,9 @@ class OneFoldFit(object):
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
+                 linear_effects=False,
                  with_sub_combinations=False):
+        self.linear_effects = linear_effects
         self.with_sub_combinations = with_sub_combinations
         self.first_year = first_year
         self.last_year = last_year
@@ -108,7 +110,8 @@ class OneFoldFit(object):
                                                          fit_method=self.fit_method,
                                                          temporal_covariate_for_fit=self.temporal_covariate_for_fit,
                                                          drop_duplicates=False,
-                                                         param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects)
+                                                         param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
+                                                         linear_effects=self.linear_effects)
         # assert that is not inf
         assert not np.isinf(estimator.nllh)
         return estimator
@@ -140,7 +143,9 @@ class OneFoldFit(object):
         elif order is None:
             return gev_params.return_level(return_period=self.return_period)
         elif order in GevParams.PARAM_NAMES:
-            return gev_params.to_dict()[order]
+            d = gev_params.to_dict()
+            assert not np.isnan(d)
+            return d[order]
         else:
             raise NotImplementedError
 
