@@ -21,7 +21,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 excel_start = 'AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_'
-
+# excel_start = 'AdamontSnowLoad_2100m_20couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_'
+excel_start = "AdamontSnowLoad_1500m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1"
+excel_start = "AdamontSnowLoad_2100m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1"
+excel_start = "AdamontSnowLoad_2100m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w4_"
+excel_start = "AdamontSnowLoad_2100m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w40"
+excel_start = "AdamontSnowLoad_2100m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w2"
+excel_start = "AdamontSnowLoad_2100m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w10"
+excel_start = "AdamontSnowLoad_1500m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_"
+excel_start = "AdamontSnowLoad_2100m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_"
+# excel_start = "AdamontSnowLoad_2100m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w25"
+#
 folder = ["CalibrationValidationExperiment", "ModelAsTruthExperiment"][0]
 excel_path = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/abstract_experiments"
 excel_path = op.join(excel_path, folder)
@@ -95,7 +105,7 @@ def main():
 linestyles = ['--', '-', 'dotted', 'dashdot']
 prefix_to_linestyle = dict(zip(AbstractExperiment.prefixs, linestyles))
 labels = ["Score for obs on calibration set", "Score for obs on validation set",
-          "Score for gcm-rcm on calibration period", "Score for gcm-rcm on validation period"]
+          "Score for ensemble members on calibration period", "Score on the complete calibration set"]
 prefix_to_label = dict(zip(AbstractExperiment.prefixs, labels))
 
 short_name_to_color = {
@@ -103,7 +113,9 @@ short_name_to_color = {
     "loc_gcm scale_gcm": 'orange',
     "loc_gcm_and_rcm scale_gcm_and_rcm": 'violet',
     "loc_is_ensemble_member scale_is_ensemble_member": 'yellow',
+'loc_is_ensemble_member scale_is_ensemble_member shape_is_ensemble_member': 'green',
     "loc_rcm scale_rcm": "red",
+'loc_is_ensemble_member': "grey"
 }
 
 short_name_to_label = {
@@ -112,6 +124,8 @@ short_name_to_label = {
     "loc_gcm_and_rcm scale_gcm_and_rcm": 'One adjustment coefficient for each GCM-RCM pair',
     "loc_is_ensemble_member scale_is_ensemble_member": 'One adjustment coefficient for all GCM-RCM pairs',
     "loc_rcm scale_rcm": "One adjustment coefficient for each RCM",
+'loc_is_ensemble_member scale_is_ensemble_member shape_is_ensemble_member': 'is ensemble with shape',
+'loc_is_ensemble_member': 'is ensemble loc only'
 }
 
 if __name__ == '__main__':

@@ -21,7 +21,7 @@ from projects.projected_extreme_snowfall.results.setting_utils import set_up_and
 def main_preliminary_projections():
     # Load parameters
     show = False
-    fast = True
+    fast = False
     snowfall = False
 
     if show in [None, True]:
@@ -31,8 +31,8 @@ def main_preliminary_projections():
         mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
     year_max_for_pseudo_obs, year_max_for_gcm = 2019, 2100
-    year_max_for_pseudo_obs, year_max_for_gcm = get_last_year_for_the_train_set(0.7), 2100
-    weight_on_observation = 4
+    # year_max_for_pseudo_obs, year_max_for_gcm = get_last_year_for_the_train_set(0.7), 2100
+    weight_on_observation = 1
     print('weight on observation=', weight_on_observation)
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
@@ -54,7 +54,7 @@ def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_coup
     gcm_rcm_couple_to_study, safran_study = load_study(altitude, gcm_rcm_couples, safran_study_class, scenario,
                                                        study_class)
 
-    for massif_name in massif_names:
+    for massif_name in massif_names[:-8:-1]:
         print(massif_name)
 
         average_bias, _ = compute_average_bias(gcm_rcm_couple_to_study, massif_name, safran_study, show=show)
@@ -63,7 +63,7 @@ def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_coup
             alpha=1000, show=show)
 
         print("Number of couples:", len(gcm_rcm_couples_sampled_for_experiment))
-        for i in [0, 1, 2, 4, 5]:
+        for i in [0, 1, 2, 4, 5][:]:
             print(i)
             for gcm_rcm_couple in gcm_rcm_couples_sampled_for_experiment:
                 combination = (i, i, 0)

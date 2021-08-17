@@ -1,4 +1,8 @@
 import datetime
+import itertools
+
+import numpy.testing as npt
+
 import os
 import random
 import time
@@ -10,7 +14,7 @@ from rpy2.rinterface import RRuntimeError
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from extreme_data.utils import DATA_PATH
 from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh, NllhIsInfException, \
-    compute_nllh_for_list_of_pair
+    compute_nllh_for_list_of_pair, compute_nllh_with_multiprocessing_for_large_samples
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -35,7 +39,9 @@ class AbstractExperiment(object):
                  display_only_model_that_pass_gof_test=False,
                  remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
+                 weight_on_observation=1,
                  ):
+        self.weight_on_observation = weight_on_observation
         self.selection_method_names = selection_method_names
         self.fit_method = fit_method
         self.massif_names = massif_names
@@ -58,6 +64,9 @@ class AbstractExperiment(object):
         raise NotImplementedError
 
     def load_gcm_rcm_couple_to_studies(self, **kwargs):
+        raise NotImplementedError
+
+    def load_gcm_rcm_couple_to_studies_for_ensemble_members(self, **kwargs):
         raise NotImplementedError
 
     def load_gcm_rcm_couple_to_studies_for_train_period_and_ensemble_members(self, **kwargs):
@@ -85,7 +94,7 @@ class AbstractExperiment(object):
 
     @property
     def kwargs_for_visualizer(self):
-        return {}
+        return {'weight_on_observation': self.weight_on_observation}
 
     def _run_one_experiment(self, kwargs):
         # Load gcm_rcm_couple_to_studies
@@ -108,40 +117,46 @@ class AbstractExperiment(object):
         assert len(one_fold_fit.fitted_estimators) == 1, 'for the model as truth they should not be any combinations'
         assert len(self.selection_method_names) == 1
         best_estimator = one_fold_fit._sorted_estimators_with_method_name("aic")[0]
-        # Check nllh
-        _ = best_estimator.nllh
         # Compute the log score for the observations
-        studies_for_test = self.load_studies_obs_for_test(**kwargs)
-        studies_for_train = self.load_studies_obs_for_train(**kwargs)
-        train_and_test_nllh_list = [self.compute_nllh_list(best_estimator, kwargs, s) for s in [studies_for_train, studies_for_test]]
-        # Compute the log score for the ensemble members
-        gcm_rcm_studies_nllh_list_for_train_period = self.compute_nllh_list_for_ensemble_members(best_estimator,
-                                                                                self.load_gcm_rcm_couple_to_studies_for_train_period_and_ensemble_members(**kwargs),
-                                                                                kwargs)
-        gcm_rcm_studies_nllh_list_for_test_period = self.compute_nllh_list_for_ensemble_members(best_estimator,
-                                                                                self.load_gcm_rcm_couple_to_studies_for_test_period_and_ensemble_members(**kwargs),
-                                                                                kwargs)
-        return train_and_test_nllh_list + [gcm_rcm_studies_nllh_list_for_train_period, gcm_rcm_studies_nllh_list_for_test_period]
+        _, _, total_nllh_list, _ = self.compute_log_score(best_estimator, False, kwargs)
+        assert len(total_nllh_list) == len(best_estimator.coordinates_for_nllh)
+        npt.assert_almost_equal(sum(total_nllh_list), best_estimator.nllh, decimal=0)
+        ensemble_members_nllh_list, test_nllh_list, total_nllh_list, train_nllh_list = self.compute_log_score(best_estimator, True, kwargs)
+        return [train_nllh_list, test_nllh_list, ensemble_members_nllh_list, total_nllh_list]
 
-    def compute_nllh_list_for_ensemble_members(self, best_estimator, gcm_rcm_couple_to_studies_for_ensemble_member,
-                                               kwargs):
+    def compute_log_score(self, best_estimator, gumbel_standardization, kwargs):
+        studies_for_train = self.load_studies_obs_for_train(**kwargs)
+        studies_for_test = self.load_studies_obs_for_test(**kwargs)
+        studies_list_for_ensemble_members = self.load_gcm_rcm_couple_to_studies_for_ensemble_members(
+            **kwargs).values()
+
+        train_nllh_list = self.compute_nllh_list(best_estimator, kwargs, studies_for_train, gumbel_standardization)
+        test_nllh_list = self.compute_nllh_list(best_estimator, kwargs, studies_for_test, gumbel_standardization)
+        ensemble_members_nllh_list = self.compute_nllh_list_from_studies_list(best_estimator, kwargs,
+                                                                              studies_list_for_ensemble_members,
+                                                                              gumbel_standardization)
+        train_nllh_list = list(itertools.chain.from_iterable([train_nllh_list for _ in range(self.weight_on_observation)]))
+        # ensemble_members_nllh_list = list(itertools.chain.from_iterable([ensemble_members_nllh_list for _ in range(self.weight_on_observation)]))
+
+        total_nllh_list = train_nllh_list + ensemble_members_nllh_list
+        return ensemble_members_nllh_list, test_nllh_list, total_nllh_list, train_nllh_list
+
+    def compute_nllh_list_from_studies_list(self, best_estimator, kwargs, studies_list, gumbel_standardization):
         gcm_rcm_studies_nllh_list = []
-        for studies in gcm_rcm_couple_to_studies_for_ensemble_member.values():
-            nllh_list = self.compute_nllh_list(best_estimator, kwargs, studies)
+        for studies in studies_list:
+            nllh_list = self.compute_nllh_list(best_estimator, kwargs, studies, gumbel_standardization)
             gcm_rcm_studies_nllh_list.extend(nllh_list)
         return gcm_rcm_studies_nllh_list
 
-    def compute_nllh_list(self, best_estimator, kwargs, studies):
+    def compute_nllh_list(self, best_estimator, kwargs, studies, gumbel_standardization):
         dataset_test = self.load_spatio_temporal_dataset(studies, **kwargs)
-        nllh_list = []
-
         df_coordinates_temp_for_test = best_estimator.load_coordinates_temp(dataset_test.coordinates,
                                                                             for_fit=False)
-        for maxima, coordinate in zip(dataset_test.observations.maxima_gev, df_coordinates_temp_for_test.values):
-            list_of_pair = [(maxima, coordinate)]
-            args = True, list_of_pair, best_estimator.margin_function_from_fit, True, True
-            nllh_list.append(compute_nllh_for_list_of_pair(args))
-        return nllh_list
+        maxima_values = dataset_test.observations.maxima_gev
+        coordinate_values = df_coordinates_temp_for_test.values
+        nllh = compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxima_values, best_estimator.margin_function_from_fit,
+                                                                   True, True, gumbel_standardization)
+        return [nllh / len(coordinate_values) for _ in coordinate_values]
 
     def load_altitude_studies(self, gcm_rcm_couple=None, year_min=None, year_max=None):
         kwargs = {}
@@ -167,7 +182,8 @@ class AbstractExperiment(object):
         nb_couples = len(self.gcm_rcm_couples)
         goodness_of_fit = self.display_only_model_that_pass_gof_test
         model_name = get_display_name_from_object_type(self.model_class)
-        return "{}_{}m_{}couples_test{}_{}".format(study_name, altitude, nb_couples, goodness_of_fit, model_name)
+        return "{}_{}m_{}couples_test{}_{}_w{}".format(study_name, altitude, nb_couples, goodness_of_fit, model_name,
+                                                      self.weight_on_observation)
 
     @property
     def excel_filepath(self):
@@ -204,5 +220,5 @@ class AbstractExperiment(object):
 
     @classproperty
     def prefixs(self):
-        return ['CalibrationObs', 'ValidationObs', 'CalibrationGCMRCMcoupleonCalibrationPeriod',
-                'CalibrationGCMRCMcoupleonValidationPeriod']
+        return ['CalibrationObs', 'ValidationObs', 'CalibrationEnsembleMembers',
+                'CalibrationAll']

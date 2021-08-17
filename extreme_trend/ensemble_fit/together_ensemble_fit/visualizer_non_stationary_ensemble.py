@@ -40,6 +40,7 @@ class VisualizerNonStationaryEnsemble(AltitudesStudiesVisualizerForNonStationary
             observation_or_pseudo_truth = gcm_rcm_couple in [gcm_rcm_couple_as_pseudo_truth, (None, None)]
             # By default the weight on data is always 1
             weight_on_data = self.weight_on_observation if observation_or_pseudo_truth else 1
+            # weight_on_data = 1 if observation_or_pseudo_truth else self.weight_on_observation
             for _ in range(weight_on_data):
                 df_coordinates_list.append(dataset.coordinates.df_coordinates(add_climate_informations=True))
                 df_maxima_gev_list.append(dataset.observations.df_maxima_gev)

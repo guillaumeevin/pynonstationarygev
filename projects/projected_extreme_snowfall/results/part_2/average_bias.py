@@ -11,6 +11,7 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualiz
 
 
 def plot_average_bias(gcm_rcm_couple_to_study, massif_name, average_bias_obs, alpha, show=False):
+    assert len(gcm_rcm_couple_to_study) > 1
     gcm_rcm_couple_to_average_bias = {}
     gcm_rcm_couple_to_gcm_rcm_couple_to_biases = {}
     for gcm_rcm_couple in gcm_rcm_couple_to_study.keys():

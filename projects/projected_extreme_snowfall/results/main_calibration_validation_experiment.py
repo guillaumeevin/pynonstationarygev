@@ -22,7 +22,7 @@ from root_utils import get_display_name_from_object_type
 def main_calibration_validation_experiment():
     start = time.time()
 
-    fast = True
+    fast = None
     snowfall = False
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
@@ -31,19 +31,24 @@ def main_calibration_validation_experiment():
         fast, snowfall)
 
     # Load the csv filepath
-    percentage = 0.6
+    altitudes_list = [[2100]]
+    percentage = 0.2
     last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
     start_year_for_the_test_set = last_year_for_the_train_set + 1
 
     display_only_model_that_pass_gof_test = False
 
+    print('Last year for the train set', last_year_for_the_train_set, 'Percentage', percentage)
     year_max_for_studies = None
     print('year max for studies:', year_max_for_studies)
+    weight_on_observation = 1
+    print('weight on observation=', weight_on_observation)
 
     for massif_name in massif_names:
         for altitudes in altitudes_list:
-            for i in [0, 1, 2, 4, 5]:
-                print(i)
+            # for i in [0, 1, 2, 4, 5]:
+            for i in [0, 5]:
+                print("parameterization:", i)
                 combination = (i, i, 0)
                 xp = CalibrationValidationExperiment(altitudes, gcm_rcm_couples, safran_study_class, study_class, Season.annual,
                                                      scenario=scenario,
@@ -55,12 +60,13 @@ def main_calibration_validation_experiment():
                                                      remove_physically_implausible_models=remove_physically_implausible_models,
                                                      display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
                                                      param_name_to_climate_coordinates_with_effects=load_param_name_to_climate_coordinates_with_effects(combination),
+                                                     weight_on_observation=weight_on_observation,
                                                      start_year_for_test_set=start_year_for_the_test_set,
                                                      year_max_for_studies=year_max_for_studies)
                 xp.run_one_experiment()
-        end = time.time()
-        duration = str(datetime.timedelta(seconds=end - start))
-        print('Total duration', duration)
+    end = time.time()
+    duration = str(datetime.timedelta(seconds=end - start))
+    print('Total duration', duration)
 
 
 if __name__ == '__main__':

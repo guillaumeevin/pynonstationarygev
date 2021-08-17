@@ -82,7 +82,8 @@ def set_up_and_load(fast, snowfall=True):
     print('Covariate is {}'.format(temporal_covariate_for_fit))
     if fast is None:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        massif_names = ['Vanoise']
+        massif_names = AbstractStudy.all_massif_names()
+        gcm_rcm_couples = gcm_rcm_couples[:1]
     elif fast:
         gcm_rcm_couples = gcm_rcm_couples[:4]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
