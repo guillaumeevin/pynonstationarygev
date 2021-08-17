@@ -40,7 +40,9 @@ class AbstractExperiment(object):
                  remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
                  weight_on_observation=1,
+                 only_obs_score=True,
                  ):
+        self.only_obs_score = only_obs_score
         self.weight_on_observation = weight_on_observation
         self.selection_method_names = selection_method_names
         self.fit_method = fit_method
@@ -77,18 +79,20 @@ class AbstractExperiment(object):
 
     def run_one_experiment(self, **kwargs):
         gcm_couple = ("", "") if len(kwargs) == 0 else kwargs['gcm_rcm_couple_as_pseudo_truth']
-        is_already_done_all = all([is_already_done(self.excel_filepath, self.get_row_name(p), self.experiment_name, gcm_couple)
-                               for p in self.prefixs])
+        prefixs = self.prefixs[:2] if self.only_obs_score else self.prefixs
+        l = [is_already_done(self.excel_filepath, self.get_row_name(p), self.experiment_name, gcm_couple) for p
+                    in prefixs]
+        is_already_done_all = all(l)
         if not is_already_done_all:
             start = time.time()
             try:
                 nllh_lists = self._run_one_experiment(kwargs)
             except (NllhIsInfException, SafeRunException, KeyError) as e:
                 print(e.__repr__())
-                nllh_lists = [[np.nan] for _ in self.prefixs]
+                nllh_lists = [[np.nan] for _ in prefixs]
             duration = str(datetime.timedelta(seconds=time.time() - start))
             print('Total duration for one experiment', duration)
-            for nllh_list, prefix in zip(nllh_lists, self.prefixs):
+            for nllh_list, prefix in zip(nllh_lists, prefixs):
                 row_name = self.get_row_name(prefix)
                 update_csv(self.excel_filepath, row_name, self.experiment_name, gcm_couple, np.array(nllh_list))
 
@@ -118,8 +122,7 @@ class AbstractExperiment(object):
         assert len(self.selection_method_names) == 1
         best_estimator = one_fold_fit._sorted_estimators_with_method_name("aic")[0]
         # Compute the log score for the observations
-        only_validation_score = False
-        if only_validation_score:
+        if self.only_obs_score:
             gumbel_standardization = True
             studies_for_train = self.load_studies_obs_for_train(**kwargs)
             studies_for_test = self.load_studies_obs_for_test(**kwargs)
