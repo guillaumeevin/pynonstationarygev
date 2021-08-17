@@ -22,8 +22,8 @@ from root_utils import get_display_name_from_object_type
 def main_calibration_validation_experiment():
     start = time.time()
 
-    fast = False
-    snowfall = None
+    fast = True
+    snowfall = False
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -32,11 +32,13 @@ def main_calibration_validation_experiment():
 
     # Load the csv filepath
     altitudes_list = [[1500]]
-    percentage = 0.2
+    percentage = 0.8
     last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
     start_year_for_the_test_set = last_year_for_the_train_set + 1
 
     display_only_model_that_pass_gof_test = False
+    linear_effects = (True, False, False)
+    fit_method = MarginFitMethod.evgam
 
     print('Last year for the train set', last_year_for_the_train_set, 'Percentage', percentage)
     year_max_for_studies = None
@@ -46,10 +48,10 @@ def main_calibration_validation_experiment():
 
     for massif_name in massif_names:
         for altitudes in altitudes_list:
-            # for i in [0, 1, 2, 4, 5]:
-            for i in [0, 5]:
+            for i in [0, 1, 2, 4, 5]:
+            # for i in [0, 5]:
                 print("parameterization:", i)
-                combination = (i, i, 0)
+                combination = (i, 0, 0)
                 xp = CalibrationValidationExperiment(altitudes, gcm_rcm_couples, safran_study_class, study_class, Season.annual,
                                                      scenario=scenario,
                                                      selection_method_names=['aic'],
@@ -61,6 +63,7 @@ def main_calibration_validation_experiment():
                                                      display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
                                                      param_name_to_climate_coordinates_with_effects=load_param_name_to_climate_coordinates_with_effects(combination),
                                                      weight_on_observation=weight_on_observation,
+                                                     linear_effects=linear_effects,
                                                      start_year_for_test_set=start_year_for_the_test_set,
                                                      year_max_for_studies=year_max_for_studies)
                 xp.run_one_experiment()

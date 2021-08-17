@@ -40,10 +40,12 @@ class AbstractExperiment(object):
                  remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
                  weight_on_observation=1,
+                 linear_effects=(False, False, False),
                  only_obs_score=True,
                  ):
         self.only_obs_score = only_obs_score
         self.weight_on_observation = weight_on_observation
+        self.linear_effects = linear_effects
         self.selection_method_names = selection_method_names
         self.fit_method = fit_method
         self.massif_names = massif_names
@@ -98,7 +100,8 @@ class AbstractExperiment(object):
 
     @property
     def kwargs_for_visualizer(self):
-        return {'weight_on_observation': self.weight_on_observation}
+        return {'weight_on_observation': self.weight_on_observation,
+                'linear_effects': self.linear_effects}
 
     def _run_one_experiment(self, kwargs):
         # Load gcm_rcm_couple_to_studies
@@ -194,8 +197,9 @@ class AbstractExperiment(object):
         nb_couples = len(self.gcm_rcm_couples)
         goodness_of_fit = self.display_only_model_that_pass_gof_test
         model_name = get_display_name_from_object_type(self.model_class)
-        return "{}_{}m_{}couples_test{}_{}_w{}".format(study_name, altitude, nb_couples, goodness_of_fit, model_name,
-                                                      self.weight_on_observation)
+        return "{}_{}m_{}couples_test{}_{}_w{}_{}".format(study_name, altitude, nb_couples, goodness_of_fit, model_name,
+                                                      self.weight_on_observation,
+                                                          self.linear_effects)
 
     @property
     def excel_filepath(self):

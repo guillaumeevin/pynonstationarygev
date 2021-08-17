@@ -50,8 +50,8 @@ class SplineMarginFunction(LinearMarginFunction):
     def from_coef_dict(cls, coordinates: AbstractCoordinates, param_name_to_dims: Dict[str, List[Tuple[int, int]]],
                        coef_dict: Dict[str, float], starting_point: Union[None, int] = None, log_scale=None,
                        param_name_to_name_of_the_climatic_effects=None, param_name_to_climate_coordinates_with_effects=None,
-                       linear_effects=False):
-        assert linear_effects is False
+                       linear_effects=(False, False, False)):
+        assert not any(list(linear_effects))
         coef_dict, spline_param_name_to_dim_to_knots_and_coefficient = coef_dict
         # Load polynomial coefficient
         polynomial_margin_function = PolynomialMarginFunction.from_coef_dict(coordinates, param_name_to_dims, coef_dict,

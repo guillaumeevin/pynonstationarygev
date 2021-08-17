@@ -69,7 +69,7 @@ class OneFoldFit(object):
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
-                 linear_effects=False,
+                 linear_effects=(False, False, False),
                  with_sub_combinations=False):
         self.linear_effects = linear_effects
         self.with_sub_combinations = with_sub_combinations

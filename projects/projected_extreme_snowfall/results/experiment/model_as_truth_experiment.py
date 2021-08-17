@@ -17,13 +17,14 @@ class ModelAsTruthExperiment(AbstractExperiment):
                  display_only_model_that_pass_gof_test=False, remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
                  gcm_rcm_couples_sampled_for_experiment=None, weight_on_observation=1,
+                 linear_effects=(False, False, False),
                  year_max_for_gcm=2100,
                  year_max_for_pseudo_obs=2019,
                  ):
         super().__init__(altitudes, gcm_rcm_couples, safran_study_class, study_class, season, scenario, model_classes,
                          selection_method_names, massif_names, fit_method, temporal_covariate_for_fit,
                          display_only_model_that_pass_gof_test, remove_physically_implausible_models,
-                         param_name_to_climate_coordinates_with_effects, weight_on_observation)
+                         param_name_to_climate_coordinates_with_effects, weight_on_observation, linear_effects)
         self.year_max_for_pseudo_obs = year_max_for_pseudo_obs
         self.year_max = year_max_for_gcm
         self.gcm_rcm_couples_sampled_for_experiment = gcm_rcm_couples_sampled_for_experiment

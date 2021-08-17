@@ -24,7 +24,7 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
                  fit_method=MarginFitMethod.spatial_extremes_mle,
                  temporal_covariate_for_fit=None,
                  param_name_to_climate_coordinates_with_effects=None,
-                 linear_effects=False,
+                 linear_effects=(False, False, False),
                  ):
         """
         :param starting_point: starting coordinate for the temporal trend
@@ -43,7 +43,8 @@ class ParametricMarginModel(AbstractMarginModel, ABC):
         if self.param_name_to_climate_coordinates_with_effects is None:
             return None
         else:
-            return self.coordinates.load_full_climate_coordinates_with_effects(self.param_name_to_climate_coordinates_with_effects)
+            return self.coordinates.load_full_climate_coordinates_with_effects(
+                self.param_name_to_climate_coordinates_with_effects)
 
     @cached_property
     def margin_function(self) -> ParametricMarginFunction:

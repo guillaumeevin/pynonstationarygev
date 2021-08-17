@@ -98,7 +98,7 @@ class ParametricMarginFunction(IndependentMarginFunction):
                        log_scale=None, param_name_to_name_of_the_climatic_effects=None,
                        param_name_to_climate_coordinates_with_effects=None,
                        param_name_to_ordered_climate_effects=None,
-                       linear_effects=False):
+                       linear_effects=(False, False, False)):
         assert cls.COEF_CLASS is not None, 'a COEF_CLASS class attributes needs to be defined'
         # Load param_name_to_coef
         param_name_to_coef = {}
@@ -124,10 +124,10 @@ class ParametricMarginFunction(IndependentMarginFunction):
             param_name_to_ordered_climate_effects = None
         else:
             param_name_to_ordered_climate_effects = {}
-            for param_name in GevParams.PARAM_NAMES:
+            for j, param_name in enumerate(GevParams.PARAM_NAMES):
                 names = param_name_to_name_of_the_climatic_effects[param_name]
                 ordered_climate_effects = [coef_dict[param_name + name] for name in names]
-                if linear_effects:
+                if linear_effects[j]:
                     ordered_climate_effects_linear = [coef_dict[param_name + name + AbstractCoordinates.COORDINATE_T] for name in names]
                     param_name_to_ordered_climate_effects[param_name] = (ordered_climate_effects, ordered_climate_effects_linear)
                 else:

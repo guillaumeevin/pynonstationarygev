@@ -28,12 +28,14 @@ class CalibrationValidationExperiment(AbstractExperiment):
                  display_only_model_that_pass_gof_test=False, remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
                  weight_on_observation=1,
+                 linear_effects=(False, False, False),
                  start_year_for_test_set=1990,
                  year_max_for_studies=None):
         super().__init__(altitudes, gcm_rcm_couples, safran_study_class, study_class, season, scenario, model_classes,
                          selection_method_names, massif_names, fit_method, temporal_covariate_for_fit,
                          display_only_model_that_pass_gof_test, remove_physically_implausible_models,
                          param_name_to_climate_coordinates_with_effects, weight_on_observation,
+                         linear_effects
                          )
         self.year_max_for_studies = year_max_for_studies
         self.start_year_for_test_set = start_year_for_test_set

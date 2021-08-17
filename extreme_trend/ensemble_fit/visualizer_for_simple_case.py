@@ -38,7 +38,7 @@ class VisualizerForSimpleCase(object):
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
                  combinations_for_together=None,
-                 linear_effects=False
+                 linear_effects=(False, False, False)
                  ):
         self.linear_effects = linear_effects
         self.combinations_for_together = combinations_for_together
@@ -120,6 +120,8 @@ class VisualizerForSimpleCase(object):
             x = sorted([c[0] for c in coordinates])
             y = [one_fold_fit.best_margin_function_from_fit.get_params(np.array([e])).to_dict()[gev_param] for e in x]
             label = combination_name.replace('_','-')
+            if self.linear_effects:
+                label += ' with linear effect'
             ax.plot(x, y, label=label, color=color)
             other_combinations = set([tuple(c[1:]) for c in coordinates])
             other_combinations = [c for c in other_combinations if sum(c) > 0]

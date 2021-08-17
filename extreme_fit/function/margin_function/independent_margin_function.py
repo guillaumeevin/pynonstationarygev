@@ -107,8 +107,8 @@ class IndependentMarginFunction(AbstractMarginFunction):
         elif climate_coordinates_with_param_effects is None:
             total_effect = 0
         else:
+            assert not isinstance(effects, tuple)
             nb_effects = len(effects)
-            print('here 65', 'code goes into total effect last part')
             first_coordinate = climate_coordinates_with_param_effects[0]
             assert first_coordinate in AbstractCoordinates.COORDINATE_CLIMATE_MODEL_NAMES
             if first_coordinate == AbstractCoordinates.COORDINATE_GCM:

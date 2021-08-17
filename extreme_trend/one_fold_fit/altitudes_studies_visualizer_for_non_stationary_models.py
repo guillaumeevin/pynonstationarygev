@@ -46,7 +46,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                  confidence_interval_based_on_delta_method=False,
                  remove_physically_implausible_models=False,
                  param_name_to_climate_coordinates_with_effects=None,
-                 linear_effects=False,
+                 linear_effects=(False, False, False),
                  gcm_rcm_couple_as_pseudo_truth=None,
                  weight_on_observation=1,
                  ):

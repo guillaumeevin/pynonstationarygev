@@ -21,7 +21,7 @@ class ResultFromEvgam(AbstractResultFromExtremes):
                  type_for_mle="GEV",
                  param_name_to_name_of_the_climatic_effects=None,
                  param_name_to_climate_coordinates_with_effects=None,
-                 linear_effects=False,
+                 linear_effects=(False, False, False),
                  ) -> None:
         super().__init__(result_from_fit, param_name_to_dim, dim_to_coordinate)
         self.linear_effects = linear_effects

@@ -40,7 +40,7 @@ class VisualizerForProjectionEnsemble(object):
                  interval_str_prefix='',
                  safran_study_class=None,
                  param_name_to_climate_coordinates_with_effects=None,
-                 linear_effects=False,
+                 linear_effects=(False, False, False),
                  ):
         self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
         self.study_class = study_class

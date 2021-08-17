@@ -32,7 +32,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                  params_class=GevParams,
                  temporal_covariate_for_fit=None,
                  param_name_to_climate_coordinates_with_effects=None,
-                 linear_effects=False,
+                 linear_effects=(False, False, False),
                  ):
         super().__init__(coordinates, params_user, starting_point, params_class, fit_method, temporal_covariate_for_fit,
                          param_name_to_climate_coordinates_with_effects, linear_effects)
@@ -111,7 +111,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         else:
             ordered_formula_effect_str = []
             param_name_to_name_of_climatic_effects = OrderedDict()
-            for param_name in GevParams.PARAM_NAMES:
+            for j, param_name in enumerate(GevParams.PARAM_NAMES):
                 # Save the name of the climatic effects
                 climate_coordinates_names_with_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
                 if climate_coordinates_names_with_effects is None:
@@ -121,7 +121,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                         climate_coordinates_names_with_effects)
                 param_name_to_name_of_climatic_effects[param_name] = name_of_the_climatic_effects
                 # Potentially add a linearity for the effect
-                if self.linear_effects:
+                if self.linear_effects[j]:
                     name_of_the_climatic_effects = ['{} + {}:{}'.format(name, AbstractCoordinates.COORDINATE_T, name)
                                                     for name in name_of_the_climatic_effects]
                 # Save the appropriate formula

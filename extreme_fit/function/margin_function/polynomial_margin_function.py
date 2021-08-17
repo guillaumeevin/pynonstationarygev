@@ -42,7 +42,7 @@ class PolynomialMarginFunction(LinearMarginFunction):
     def from_coef_dict(cls, coordinates: AbstractCoordinates, param_name_to_dims: Dict[str, List[Tuple[int, int]]],
                        coef_dict: Dict[str, float], starting_point: Union[None, int] = None, log_scale=None,
                        param_name_to_name_of_the_climatic_effects=None, param_name_to_climate_coordinates_with_effects=None,
-                       linear_effects=False):
+                       linear_effects=(False, False, False)):
         param_name_to_dim_and_max_degree = param_name_to_dims
         assert cls.COEF_CLASS is not None, 'a COEF_CLASS class attributes needs to be defined'
         param_name_to_coef = {}

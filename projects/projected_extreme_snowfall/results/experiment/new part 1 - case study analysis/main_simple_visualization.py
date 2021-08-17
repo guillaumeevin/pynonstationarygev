@@ -4,6 +4,7 @@ import time
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
+from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
     NonStationaryLocationAndScaleAndShapeTemporalModel
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
@@ -24,7 +25,7 @@ from root_utils import get_display_name_from_object_type
 def main_simple_visualizatoin():
     start = time.time()
 
-    fast = True
+    fast = False
     snowfall = False
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
@@ -34,12 +35,12 @@ def main_simple_visualizatoin():
 
     # Load the csv filepath
     massif_name = 'Chartreuse'
-    gcm_rcm_couples = gcm_rcm_couples[:2]
-    altitudes = altitudes_list[0]
+    gcm_rcm_couples = gcm_rcm_couples[:1]
+    altitudes = [1500]
     percentage = 1
     fit_method = MarginFitMethod.evgam
     last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
-    linear_effects = True
+    linear_effects = (True, False, False)
 
     display_only_model_that_pass_gof_test = False
 
@@ -49,7 +50,7 @@ def main_simple_visualizatoin():
     weight_on_observation = 1
     print('weight on observation=', weight_on_observation)
 
-    combinations = [(0, 0, 0), (1, 1, 1)]
+    combinations = [(0, 0, 0), (5, 5, 0)]
 
     visualizer = VisualizerForSimpleCase(altitudes, gcm_rcm_couples, safran_study_class, study_class, Season.annual,
                                          scenario=scenario,

@@ -30,8 +30,8 @@ excel_start = "AdamontSnowLoad_2100m_1couples_testFalse_NonStationaryLocationAnd
 excel_start = "AdamontSnowLoad_2100m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w10"
 excel_start = "AdamontSnowLoad_1500m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_"
 excel_start = "AdamontSnowLoad_2100m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_"
-excel_start = "AdamontPrecipitation_1500m_20couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_"
-# excel_start = "AdamontSnowLoad_2100m_1couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w25"
+excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_True_"
+# excel_start = "AdamontPrecipitation_1500m_20couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_True_"
 #
 folder = ["CalibrationValidationExperiment", "ModelAsTruthExperiment"][0]
 excel_path = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/abstract_experiments"
@@ -73,8 +73,10 @@ def main():
 
     names = list(df.index)
     ax = plt.gca()
+    prefix_found = set()
     for j, name in enumerate(names):
         prefix, *rest = name.split('_')
+        prefix_found.add(prefix)
         linestyle = prefix_to_linestyle[prefix]
         short_name = '_'.join(rest)
         label = short_name_to_label[short_name] if prefix == 'ValidationObs' else None
@@ -96,9 +98,9 @@ def main():
     legend_elements = [
         Line2D([0], [0], color='k', lw=1, label=prefix_to_label[prefix],
                linestyle=prefix_to_linestyle[prefix])
-        for prefix in AbstractExperiment.prefixs
+        for prefix in prefix_found
     ]
-    ax2.legend(handles=legend_elements, loc='center right')
+    ax2.legend(handles=legend_elements)
     ax2.set_yticks([])
     plt.show()
 
@@ -116,7 +118,8 @@ short_name_to_color = {
     "loc_is_ensemble_member scale_is_ensemble_member": 'yellow',
 'loc_is_ensemble_member scale_is_ensemble_member shape_is_ensemble_member': 'green',
     "loc_rcm scale_rcm": "red",
-'loc_is_ensemble_member': "grey"
+'loc_is_ensemble_member': "grey",
+'scale_is_ensemble_member': 'violet'
 }
 
 short_name_to_label = {
@@ -126,7 +129,8 @@ short_name_to_label = {
     "loc_is_ensemble_member scale_is_ensemble_member": 'One adjustment coefficient for all GCM-RCM pairs',
     "loc_rcm scale_rcm": "One adjustment coefficient for each RCM",
 'loc_is_ensemble_member scale_is_ensemble_member shape_is_ensemble_member': 'is ensemble with shape',
-'loc_is_ensemble_member': 'is ensemble loc only'
+'loc_is_ensemble_member': 'is ensemble loc only',
+'scale_is_ensemble_member': 'is ensemble scale only'
 }
 
 if __name__ == '__main__':
