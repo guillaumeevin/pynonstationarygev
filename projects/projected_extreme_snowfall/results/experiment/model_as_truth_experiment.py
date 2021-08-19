@@ -15,7 +15,7 @@ class ModelAsTruthExperiment(AbstractExperiment):
                  model_classes: List[AbstractTemporalLinearMarginModel], selection_method_names: List[str],
                  massif_names=None, fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None,
                  display_only_model_that_pass_gof_test=False, remove_physically_implausible_models=False,
-                 param_name_to_climate_coordinates_with_effects=None,
+                 combination=None,
                  gcm_rcm_couples_sampled_for_experiment=None, weight_on_observation=1,
                  linear_effects=(False, False, False),
                  year_max_for_gcm=2100,
@@ -24,7 +24,7 @@ class ModelAsTruthExperiment(AbstractExperiment):
         super().__init__(altitudes, gcm_rcm_couples, safran_study_class, study_class, season, scenario, model_classes,
                          selection_method_names, massif_names, fit_method, temporal_covariate_for_fit,
                          display_only_model_that_pass_gof_test, remove_physically_implausible_models,
-                         param_name_to_climate_coordinates_with_effects, weight_on_observation, linear_effects)
+                         combination, weight_on_observation, linear_effects)
         self.year_max_for_pseudo_obs = year_max_for_pseudo_obs
         self.year_max = year_max_for_gcm
         self.gcm_rcm_couples_sampled_for_experiment = gcm_rcm_couples_sampled_for_experiment
@@ -42,7 +42,7 @@ class ModelAsTruthExperiment(AbstractExperiment):
 
     @property
     def excel_filename(self):
-        return super().excel_filename + '_{}_{}'.format(self.year_max_for_pseudo_obs, self.year_max)
+        return super().excel_filename + '_{}_{}'.format(self.year_max, self.year_max_for_pseudo_obs)
 
     def load_studies_obs_for_test(self, gcm_rcm_couple_as_pseudo_truth) -> AltitudesStudies:
         """For gcm_rcm_couple_set_as_truth, load the data from 2020 to 2100"""
@@ -60,11 +60,11 @@ class ModelAsTruthExperiment(AbstractExperiment):
         """For the gcm_rcm_couple_set_as_truth load only the data from 1959 to 2019"""
         gcm_rcm_couple_to_studies = {}
         # Load the pseudo observations
-        pseudo_truth_studies = self.load_studies_obs_for_train(gcm_rcm_couple_as_pseudo_truth)
-        assert pseudo_truth_studies.study.year_min == 1959, pseudo_truth_studies.study.year_min
-        assert pseudo_truth_studies.study.year_max <= 2019, pseudo_truth_studies.study.year_max
-        gcm_rcm_couple_to_studies[gcm_rcm_couple_as_pseudo_truth] = pseudo_truth_studies
-
+        if self.add_observations_to_gcm_rcm_couple_to_studies:
+            pseudo_truth_studies = self.load_studies_obs_for_train(gcm_rcm_couple_as_pseudo_truth)
+            assert pseudo_truth_studies.study.year_min == 1959, pseudo_truth_studies.study.year_min
+            assert pseudo_truth_studies.study.year_max <= 2019, pseudo_truth_studies.study.year_max
+            gcm_rcm_couple_to_studies[gcm_rcm_couple_as_pseudo_truth] = pseudo_truth_studies
         # Load the rest of the projections
         for gcm_rcm_couple in self.gcm_rcm_couples_for_ensemble_members(gcm_rcm_couple_as_pseudo_truth):
             gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple,

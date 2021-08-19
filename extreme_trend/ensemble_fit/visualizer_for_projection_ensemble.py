@@ -86,7 +86,8 @@ class VisualizerForProjectionEnsemble(object):
 
     @classmethod
     def load_gcm_rcm_couple_to_studies(cls, altitudes, gcm_rcm_couples, gcm_to_year_min_and_year_max,
-                                       safran_study_class, scenario, season, study_class):
+                                       safran_study_class, scenario, season, study_class,
+                                       year_max_for_safran_study=None):
         gcm_rcm_couple_to_studies = {}
         for gcm_rcm_couple in gcm_rcm_couples:
             if gcm_to_year_min_and_year_max is None:
@@ -105,7 +106,11 @@ class VisualizerForProjectionEnsemble(object):
             gcm_rcm_couple_to_studies[gcm_rcm_couple] = studies
         # Potentially add the observations
         if safran_study_class is not None:
-            studies = AltitudesStudies(safran_study_class, altitudes, season=season)
+            if year_max_for_safran_study is not None:
+                studies = AltitudesStudies(safran_study_class, altitudes, season=season,
+                                           year_max=year_max_for_safran_study)
+            else:
+                studies = AltitudesStudies(safran_study_class, altitudes, season=season)
             gcm_rcm_couple_to_studies[(None, None)] = studies
         if len(gcm_rcm_couple_to_studies) == 0:
             print('No valid studies for the following couples:', gcm_rcm_couples)

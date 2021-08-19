@@ -22,7 +22,8 @@ from extreme_fit.model.utils import SafeRunException
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.ensemble_fit.together_ensemble_fit.visualizer_non_stationary_ensemble import \
     VisualizerNonStationaryEnsemble
-from projects.projected_extreme_snowfall.results.combination_utils import load_combination, load_combination_name
+from projects.projected_extreme_snowfall.results.combination_utils import load_combination, load_combination_name, \
+    load_param_name_to_climate_coordinates_with_effects
 from projects.projected_extreme_snowfall.results.part_2.v2.utils import is_already_done, update_csv
 from root_utils import get_display_name_from_object_type, classproperty
 import os.path as op
@@ -38,7 +39,7 @@ class AbstractExperiment(object):
                  temporal_covariate_for_fit=None,
                  display_only_model_that_pass_gof_test=False,
                  remove_physically_implausible_models=False,
-                 param_name_to_climate_coordinates_with_effects=None,
+                 combination=None,
                  weight_on_observation=1,
                  linear_effects=(False, False, False),
                  only_obs_score=True,
@@ -52,7 +53,7 @@ class AbstractExperiment(object):
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.display_only_model_that_pass_gof_test = display_only_model_that_pass_gof_test
         self.remove_physically_implausible_models = remove_physically_implausible_models
-        self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
+        self.combination = combination
         self.model_classes = model_classes
         self.scenario = scenario
         self.season = season
@@ -60,6 +61,17 @@ class AbstractExperiment(object):
         self.safran_study_class = safran_study_class
         self.gcm_rcm_couples = gcm_rcm_couples
         self.altitudes = altitudes
+
+    @property
+    def param_name_to_climate_coordinates_with_effects(self):
+        if -1 in self.combination:
+            return None
+        else:
+            return load_param_name_to_climate_coordinates_with_effects(self.combination)
+
+    @property
+    def add_observations_to_gcm_rcm_couple_to_studies(self):
+        return -1 not in self.combination
 
     def load_studies_obs_for_train(self, **kwargs) -> AltitudesStudies:
         raise NotImplementedError
@@ -80,9 +92,15 @@ class AbstractExperiment(object):
         raise NotImplementedError
 
     def run_one_experiment(self, **kwargs):
-        gcm_couple = ("", "") if len(kwargs) == 0 else kwargs['gcm_rcm_couple_as_pseudo_truth']
+        if len(kwargs) == 0:
+            if len(self.gcm_rcm_couples) > 1:
+                gcm_rcm_couple = ("", "")
+            else:
+                gcm_rcm_couple = self.gcm_rcm_couples[0]
+        else:
+            gcm_rcm_couple = kwargs['gcm_rcm_couple_as_pseudo_truth']
         prefixs = self.prefixs[:2] if self.only_obs_score else self.prefixs
-        l = [is_already_done(self.excel_filepath, self.get_row_name(p), self.experiment_name, gcm_couple) for p
+        l = [is_already_done(self.excel_filepath, self.get_row_name(p), self.experiment_name, gcm_rcm_couple) for p
                     in prefixs]
         is_already_done_all = all(l)
         if not is_already_done_all:
@@ -96,7 +114,7 @@ class AbstractExperiment(object):
             print('Total duration for one experiment', duration)
             for nllh_list, prefix in zip(nllh_lists, prefixs):
                 row_name = self.get_row_name(prefix)
-                update_csv(self.excel_filepath, row_name, self.experiment_name, gcm_couple, np.array(nllh_list))
+                update_csv(self.excel_filepath, row_name, self.experiment_name, gcm_rcm_couple, np.array(nllh_list))
 
     @property
     def kwargs_for_visualizer(self):
@@ -126,17 +144,21 @@ class AbstractExperiment(object):
         best_estimator = one_fold_fit._sorted_estimators_with_method_name("aic")[0]
         # Compute the log score for the observations
         if self.only_obs_score:
-            gumbel_standardization = True
+            gumbel_standardization = False
             studies_for_train = self.load_studies_obs_for_train(**kwargs)
             studies_for_test = self.load_studies_obs_for_test(**kwargs)
             train_nllh_list = self.compute_nllh_list(best_estimator, kwargs, studies_for_train, gumbel_standardization)
             test_nllh_list = self.compute_nllh_list(best_estimator, kwargs, studies_for_test, gumbel_standardization)
             return [train_nllh_list, test_nllh_list]
         else:
-            _, _, total_nllh_list, _ = self.compute_log_score(best_estimator, False, kwargs)
-            assert len(total_nllh_list) == len(best_estimator.coordinates_for_nllh)
-            npt.assert_almost_equal(sum(total_nllh_list), best_estimator.nllh, decimal=0)
-            ensemble_members_nllh_list, test_nllh_list, total_nllh_list, train_nllh_list = self.compute_log_score(best_estimator, True, kwargs)
+            gumbel_standardization = False
+            if gumbel_standardization:
+                # Check the nllh
+                _, _, total_nllh_list, _ = self.compute_log_score(best_estimator, False, kwargs)
+                assert len(total_nllh_list) == len(best_estimator.coordinates_for_nllh)
+                npt.assert_almost_equal(sum(total_nllh_list), best_estimator.nllh, decimal=0)
+            ensemble_members_nllh_list, test_nllh_list, total_nllh_list, train_nllh_list = self.compute_log_score(best_estimator,
+                                                                                                                  gumbel_standardization, kwargs)
             return [train_nllh_list, test_nllh_list, ensemble_members_nllh_list, total_nllh_list]
 
     def compute_log_score(self, best_estimator, gumbel_standardization, kwargs):
@@ -229,7 +251,10 @@ class AbstractExperiment(object):
 
     @property
     def combination_name(self):
-        return load_combination_name(self.param_name_to_climate_coordinates_with_effects)
+        if self.add_observations_to_gcm_rcm_couple_to_studies:
+            return "with obs and " + load_combination_name(self.param_name_to_climate_coordinates_with_effects)
+        else:
+            return "without obs"
 
     def get_row_name(self, prefix):
         return "{}_{}".format(prefix, self.combination_name)

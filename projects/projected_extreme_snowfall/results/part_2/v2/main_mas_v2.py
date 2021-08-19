@@ -71,7 +71,7 @@ def main_model_as_truth_experiment():
                                             temporal_covariate_for_fit=temporal_covariate_for_fit,
                                             remove_physically_implausible_models=remove_physically_implausible_models,
                                             display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
-                                            param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
+                                            combination=param_name_to_climate_coordinates_with_effects,
                                             )
                 nllh_value = xp.run_one_experiment(gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
                 update_csv(csv_filepath, combination_name, altitude, gcm_rcm_couple, nllh_value)

@@ -6,7 +6,7 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_study import Abstra
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
-    NonStationaryLocationAndScaleAndShapeTemporalModel
+    NonStationaryLocationAndScaleAndShapeTemporalModel, NonStationaryLocationAndScaleTemporalModel
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
     NonStationaryTwoLinearLocationAndScaleAndShapeModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -34,35 +34,54 @@ def main_simple_visualizatoin():
         fast, snowfall)
 
     # Load the csv filepath
-    massif_name = 'Chartreuse'
-    gcm_rcm_couples = gcm_rcm_couples[:1]
-    altitudes = [1500]
-    percentage = 1
-    fit_method = MarginFitMethod.evgam
-    last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
-    linear_effects = (True, False, False)
+    massif_names = AbstractStudy.all_massif_names()
+    massif_names = ['Chartreuse']
 
-    display_only_model_that_pass_gof_test = False
+    # Good fits
+    massif_names = ['Haute-Maurienne', 'Thabor', 'Queyras']
 
-    print('Last year for the train set', last_year_for_the_train_set, 'Percentage', percentage)
-    year_max_for_studies = None
-    print('year max for studies:', year_max_for_studies)
-    weight_on_observation = 1
-    print('weight on observation=', weight_on_observation)
+    # Bad fits
+    massif_names = ['Devoluy', 'Mercantour']
+    massif_names = ['Parpaillon', 'Vercors']
 
-    combinations = [(0, 0, 0), (5, 5, 0)]
+    for massif_name in massif_names:
+        # indexes = [5, 8, 9, 13, 18]
+        # indexes = [1, 5, 6, 7, 8, 14, 15, 17, 18, 16]
+        # indexes = list(set(range(20))-set(indexes))
+        # gcm_rcm_couples = [gcm_rcm_couples[i] for i in indexes]
+        gcm_rcm_couples = gcm_rcm_couples[:1]
+        altitudes = [1500]
+        percentage = 0.7
+        fit_method = MarginFitMethod.evgam
+        last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
+        linear_effects = (False, False, False)
 
-    visualizer = VisualizerForSimpleCase(altitudes, gcm_rcm_couples, safran_study_class, study_class, Season.annual,
-                                         scenario=scenario,
-                                         model_classes=model_classes,
-                                         massif_name=massif_name,
-                                         fit_method=fit_method,
-                                         temporal_covariate_for_fit=temporal_covariate_for_fit,
-                                         remove_physically_implausible_models=remove_physically_implausible_models,
-                                         display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
-                                         combinations_for_together=combinations,
-                                         linear_effects=linear_effects)
-    visualizer.visualize_gev_parameters()
+        display_only_model_that_pass_gof_test = False
+
+        print('Last year for the train set', last_year_for_the_train_set, 'Percentage', percentage)
+        year_max_for_studies = None
+        print('year max for studies:', year_max_for_studies)
+        # weight_on_observation = 1 + 20
+        weight_on_observation = 1
+        print('weight on observation=', weight_on_observation)
+
+        combinations = [(0, 0, 0)][:]
+        for i in [5, 1, 2, 4]:
+            combinations.append((i, i, 0))
+        combinations.append((5,5,5))
+
+        visualizer = VisualizerForSimpleCase(altitudes, gcm_rcm_couples, safran_study_class, study_class, Season.annual,
+                                             scenario=scenario,
+                                             model_classes=model_classes,
+                                             massif_name=massif_name,
+                                             fit_method=fit_method,
+                                             temporal_covariate_for_fit=temporal_covariate_for_fit,
+                                             remove_physically_implausible_models=remove_physically_implausible_models,
+                                             display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
+                                             combinations_for_together=combinations,
+                                             weight_on_observation=weight_on_observation,
+                                             linear_effects=linear_effects)
+        visualizer.visualize_gev_parameters()
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))
     print('Total duration', duration)

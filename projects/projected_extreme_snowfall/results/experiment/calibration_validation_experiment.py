@@ -26,7 +26,7 @@ class CalibrationValidationExperiment(AbstractExperiment):
                  model_classes: List[AbstractTemporalLinearMarginModel], selection_method_names: List[str],
                  massif_names=None, fit_method=MarginFitMethod.extremes_fevd_mle, temporal_covariate_for_fit=None,
                  display_only_model_that_pass_gof_test=False, remove_physically_implausible_models=False,
-                 param_name_to_climate_coordinates_with_effects=None,
+                 combination=None,
                  weight_on_observation=1,
                  linear_effects=(False, False, False),
                  start_year_for_test_set=1990,
@@ -34,7 +34,7 @@ class CalibrationValidationExperiment(AbstractExperiment):
         super().__init__(altitudes, gcm_rcm_couples, safran_study_class, study_class, season, scenario, model_classes,
                          selection_method_names, massif_names, fit_method, temporal_covariate_for_fit,
                          display_only_model_that_pass_gof_test, remove_physically_implausible_models,
-                         param_name_to_climate_coordinates_with_effects, weight_on_observation,
+                         combination, weight_on_observation,
                          linear_effects
                          )
         self.year_max_for_studies = year_max_for_studies
@@ -42,7 +42,7 @@ class CalibrationValidationExperiment(AbstractExperiment):
 
     @property
     def excel_filename(self):
-        return super().excel_filename + '_{}_{}'.format(self.start_year_for_test_set-1, self.year_max_for_studies)
+        return super().excel_filename + '_{}_{}'.format(self.year_max_for_studies, self.start_year_for_test_set-1)
 
     def load_studies_obs_for_test(self) -> AltitudesStudies:
         return self.load_altitude_studies(None, self.start_year_for_test_set, 2019)
@@ -53,7 +53,8 @@ class CalibrationValidationExperiment(AbstractExperiment):
     def load_gcm_rcm_couple_to_studies(self):
         gcm_rcm_couple_to_studies = {}
         # Load the pseudo observations
-        gcm_rcm_couple_to_studies[(None, None)] = self.load_studies_obs_for_train()
+        if self.add_observations_to_gcm_rcm_couple_to_studies:
+            gcm_rcm_couple_to_studies[(None, None)] = self.load_studies_obs_for_train()
         # Load the rest of the projections
         for gcm_rcm_couple in self.gcm_rcm_couples:
             gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, None, year_max=self.year_max_for_studies)

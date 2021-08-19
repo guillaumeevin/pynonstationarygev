@@ -30,7 +30,7 @@ def compute_average_nllh(altitudes_list, param_name_to_climate_coordinates_with_
                                     temporal_covariate_for_fit=temporal_covariate_for_fit,
                                     remove_physically_implausible_models=remove_physically_implausible_models,
                                     display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
-                                    param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
+                                    combination=param_name_to_climate_coordinates_with_effects,
                                     gcm_rcm_couples_sampled_for_experiment=gcm_rcm_couples_sampled_for_experiment,
                                     weight_on_observation=weight_on_observation,
                                     )
