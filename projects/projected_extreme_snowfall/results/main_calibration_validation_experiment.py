@@ -2,6 +2,8 @@ import datetime
 import time
 
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
+    NonStationaryLocationAndScaleTemporalModel, NonStationaryLocationAndScaleGumbelModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.projected_extreme_snowfall.results.experiment.calibration_validation_experiment import \
     CalibrationValidationExperiment
@@ -21,10 +23,14 @@ def main_calibration_validation_experiment():
         fast, snowfall)
 
     # Load the csv filepath
-    altitudes_list = [[1500]]
+    altitudes_list = [[900]]
     calibration_class = CalibrationValidationExperiment
-    year_max_for_studies = 2019
-    all_gcm_rcm_couples = gcm_rcm_couples
+    fit_method = MarginFitMethod.extremes_fevd_mle
+    year_max_for_studies = None
+    # model_classes = [NonStationaryLocationAndScaleTemporalModel]
+    model_classes = [NonStationaryLocationAndScaleGumbelModel]
+    # fit_method = MarginFitMethod.extremes_fevd_gmle
+    linear_effects = (False, False, False)
 
     # indexes = [5, 8, 9, 13, 18]
     # indexes = list(set(range(20)) - set(indexes))
@@ -34,13 +40,11 @@ def main_calibration_validation_experiment():
     #     gcm_rcm_couples = [gcm_rcm_couple]
 
     for percentage in [0.1, 0.2, 0.3][:]:
-        percentage += 0.0
+        percentage += 0.6
         last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
         start_year_for_the_test_set = last_year_for_the_train_set + 1
 
         display_only_model_that_pass_gof_test = False
-        linear_effects = (False, False, False)
-        fit_method = MarginFitMethod.evgam
 
         print('Last year for the train set', last_year_for_the_train_set, 'Percentage', percentage)
         print('year max for studies:', year_max_for_studies)
@@ -49,11 +53,11 @@ def main_calibration_validation_experiment():
 
         for massif_name in massif_names:
             for altitudes in altitudes_list:
-                # for i in [-1, 0, 1, 2, 4, 5]:
-                for i in [-1, 0, 5][1:]:
+                for i in [-1, 0, 1, 2, 4, 5]:
+                # for i in [-1, 0, 5][1:]:
                     print("parameterization:", i)
                     # combination = (i, i, 0)
-                    combination = (i, i, 0)
+                    combination = (i, 0, 0)
                     xp = calibration_class(altitudes, gcm_rcm_couples, safran_study_class, study_class, Season.annual,
                                            scenario=scenario,
                                            selection_method_names=['aic'],

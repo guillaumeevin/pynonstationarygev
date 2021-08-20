@@ -16,13 +16,19 @@ class ResultFromMleExtremes(AbstractResultFromExtremes):
                  type_for_mle="GEV",
                  param_name_to_name_of_the_climatic_effects=None,
                  param_name_to_climate_coordinates_with_effects=None,
-                 linear_effects=(False, False, False)
+                 linear_effects=(False, False, False),
+                 has_log_scale=None,
                  ) -> None:
         super().__init__(result_from_fit, param_name_to_dim, dim_to_coordinate)
+        self.has_log_scale = has_log_scale
         self.param_name_to_climate_coordinates_with_effects = param_name_to_climate_coordinates_with_effects
         self.param_name_to_name_of_the_climatic_effects = param_name_to_name_of_the_climatic_effects
         self.type_for_mle = type_for_mle
         self.linear_effects = linear_effects
+
+    @property
+    def log_scale(self):
+        return self.has_log_scale
 
     @property
     def param_name_to_name_of_the_climatic_effects_to_load_margin_function(self):

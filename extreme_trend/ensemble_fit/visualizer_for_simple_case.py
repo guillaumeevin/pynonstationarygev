@@ -14,7 +14,8 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import \
     get_color_and_linestyle_from_massif_id
 from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
+    GumbelTemporalModel
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -47,7 +48,9 @@ class VisualizerForSimpleCase(object):
                  remove_physically_implausible_models=False,
                  combinations_for_together=None,
                  weight_on_observation=1,
-                 linear_effects=(False, False, False)
+                 linear_effects=(False, False, False),
+                 year_max_for_studies=None,
+                 last_year_for_the_train_set=2019,
                  ):
         self.linear_effects = linear_effects
         self.combinations_for_together = combinations_for_together
@@ -66,9 +69,11 @@ class VisualizerForSimpleCase(object):
         self.massif_name = massif_name
 
         # Load the gcm rcm couple to studies
-        # gcm_to_year_min_and_year_max = {gcm: (None, 2019) for gcm in gcm_to_color.keys()}
-        gcm_to_year_min_and_year_max = None
-        year_max_for_study = 2001
+        if year_max_for_studies is None:
+            gcm_to_year_min_and_year_max = None
+        else:
+            gcm_to_year_min_and_year_max = {gcm: (None, year_max_for_studies) for gcm in gcm_to_color.keys()}
+        year_max_for_study = last_year_for_the_train_set
         gcm_rcm_couple_to_studies = VisualizerForProjectionEnsemble.load_gcm_rcm_couple_to_studies(self.altitudes,
                                                                                                    self.gcm_rcm_couples,
                                                                                                    gcm_to_year_min_and_year_max,
@@ -79,35 +84,39 @@ class VisualizerForSimpleCase(object):
                                                                                                    year_max_for_safran_study=year_max_for_study)
 
         # Add the first 50% and the last 50% of the data
-        # self.other_obs_visualizers = []
-        # studies = AltitudesStudies(safran_study_class, altitudes, season=season, year_min=1959, year_max=year_max_for_study)
-        # visu = AltitudesStudiesVisualizerForNonStationaryModels(studies,
-        #                                                         model_classes=self.model_classes,
-        #                                                         massif_names=[massif_name],
-        #                                                         fit_method=fit_method,
-        #                                                         temporal_covariate_for_fit=temporal_covariate_for_fit,
-        #                                                         display_only_model_that_pass_anderson_test=display_only_model_that_pass_gof_test,
-        #                                                         confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method,
-        #                                                         remove_physically_implausible_models=remove_physically_implausible_models,
-        #                                                         param_name_to_climate_coordinates_with_effects=None,
-        #                                                         linear_effects=(False, False, False),
-        #                                                         weight_on_observation=weight_on_observation)
-        # self.other_obs_visualizers.append(visu)
-        # studies1 = AltitudesStudies(safran_study_class, altitudes, season=season, year_min=1959, year_max=1988)
-        # studies2 = AltitudesStudies(safran_study_class, altitudes, season=season, year_min=1989, year_max=2019)
-        # for studies in [studies1, studies2]:
-        #     visu = AltitudesStudiesVisualizerForNonStationaryModels(studies,
-        #                                                             model_classes=[StationaryTemporalModel],
-        #                                                             massif_names=[massif_name],
-        #                                                             fit_method=fit_method,
-        #                                                             temporal_covariate_for_fit=temporal_covariate_for_fit,
-        #                                                             display_only_model_that_pass_anderson_test=display_only_model_that_pass_gof_test,
-        #                                                             confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method,
-        #                                                             remove_physically_implausible_models=remove_physically_implausible_models,
-        #                                                             param_name_to_climate_coordinates_with_effects=None,
-        #                                                             linear_effects=(False, False, False),
-        #                                                             weight_on_observation=weight_on_observation)
-        #     self.other_obs_visualizers.append(visu)
+        self.other_obs_visualizers = []
+        studies = AltitudesStudies(safran_study_class, altitudes, season=season, year_min=1959, year_max=2019)
+        visu = AltitudesStudiesVisualizerForNonStationaryModels(studies,
+                                                                model_classes=self.model_classes,
+                                                                massif_names=[massif_name],
+                                                                fit_method=fit_method,
+                                                                temporal_covariate_for_fit=temporal_covariate_for_fit,
+                                                                display_only_model_that_pass_anderson_test=display_only_model_that_pass_gof_test,
+                                                                confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method,
+                                                                remove_physically_implausible_models=remove_physically_implausible_models,
+                                                                param_name_to_climate_coordinates_with_effects=None,
+                                                                linear_effects=(False, False, False),
+                                                                weight_on_observation=weight_on_observation)
+        self.other_obs_visualizers.append(visu)
+        studies1 = AltitudesStudies(safran_study_class, altitudes, season=season, year_min=1959, year_max=1988)
+        studies2 = AltitudesStudies(safran_study_class, altitudes, season=season, year_min=1989, year_max=2019)
+        for studies in [studies1, studies2]:
+            if issubclass(self.model_classes[0], GumbelTemporalModel):
+                model_class_simplified = GumbelTemporalModel
+            else:
+                model_class_simplified = StationaryTemporalModel
+            visu = AltitudesStudiesVisualizerForNonStationaryModels(studies,
+                                                                    model_classes=[model_class_simplified],
+                                                                    massif_names=[massif_name],
+                                                                    fit_method=fit_method,
+                                                                    temporal_covariate_for_fit=temporal_covariate_for_fit,
+                                                                    display_only_model_that_pass_anderson_test=display_only_model_that_pass_gof_test,
+                                                                    confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method,
+                                                                    remove_physically_implausible_models=remove_physically_implausible_models,
+                                                                    param_name_to_climate_coordinates_with_effects=None,
+                                                                    linear_effects=(False, False, False),
+                                                                    weight_on_observation=weight_on_observation)
+            self.other_obs_visualizers.append(visu)
 
         # Load the separate fit
         self.independent_ensemble_fit = IndependentEnsembleFit([self.massif_name], gcm_rcm_couple_to_studies,
@@ -153,16 +162,34 @@ class VisualizerForSimpleCase(object):
                 self.combination_name_to_visualizer_ensemble[combination_name] = visualizer_ensemble
 
     def visualize_gev_parameters(self):
-        for k, gev_param in enumerate(GevParams.PARAM_NAMES):
-            print(gev_param, 'plot')
+        gev_params = GevParams.PARAM_NAMES + [True]
+        for k, gev_param in enumerate(gev_params):
+            print(self.get_str(gev_param), 'plot')
             self.visualize_gev_parameter(gev_param, k)
+
+    def get_value(self, one_fold_fit, c, gev_param):
+        gev_params = one_fold_fit.best_margin_function_from_fit.get_params(c)
+        if gev_param in GevParams.PARAM_NAMES:
+            return gev_params.to_dict()[gev_param]
+        elif gev_param is True:
+            return gev_params.mean
+        else:
+            raise NotImplementedError
+
+    def get_str(self, gev_param):
+        if gev_param in GevParams.PARAM_NAMES:
+            return '{} parameter'.format(gev_param)
+        elif gev_param is True:
+            return "Mean"
+        else:
+            raise NotImplementedError
 
     def visualize_gev_parameter(self, gev_param, k):
         ax = plt.gca()
         # Independent plot
         items = list(self.independent_ensemble_fit.gcm_rcm_couple_to_visualizer.items())
-        # for vizu in self.other_obs_visualizers:
-        #     items.append(((None, None), vizu))
+        for vizu in self.other_obs_visualizers:
+            items.append(((None, None), vizu))
         # items.append(((None, None), self.half_visualizers[0]))
         # items.append(((None, None), self.half_visualizers[1]))
 
@@ -171,7 +198,7 @@ class VisualizerForSimpleCase(object):
             one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
             coordinates = one_fold_fit.best_estimator.coordinates_for_nllh
             x = [c[0] for c in coordinates]
-            y = [one_fold_fit.best_margin_function_from_fit.get_params(c).to_dict()[gev_param] for c in coordinates]
+            y = [self.get_value(one_fold_fit, c, gev_param) for c in coordinates]
             if gcm_rcm_couple[0] is None:
                 year_max = visualizer.study.ordered_years[-1]
                 percentage = round(100 * (int(year_max) + 1 - 1959) / 61, 2)
@@ -206,13 +233,14 @@ class VisualizerForSimpleCase(object):
             one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
             coordinates = one_fold_fit.best_estimator.coordinates_for_nllh
             x = sorted([c[0] for c in coordinates])
-            y = [one_fold_fit.best_margin_function_from_fit.get_params(np.array([e])).to_dict()[gev_param] for e in x]
+            y = [self.get_value(one_fold_fit, np.array([e]), gev_param) for e in x]
             # label = combination_name.replace('_', '-')
             label = labels[j]
-            if self.linear_effects[k]:
+            if (k < 3) and self.linear_effects[k]:
                 if "no effect" not in label:
                     label += ' with linear effect'
             ax.plot(x, y, label=label, color=color, linewidth=3)
+            # Add the slope with the added adjustment coefficients.
             # other_combinations = set([tuple(c[1:]) for c in coordinates])
             # other_combinations = [c for c in other_combinations if sum(c) > 0]
             # for last_coordinates in other_combinations:
@@ -222,14 +250,14 @@ class VisualizerForSimpleCase(object):
             #     ax.plot(x, y, linestyle='--', color=color)
 
         # Final plt
-        ylabel = '{} parameter ({})'.format(gev_param, visualizer.study.variable_unit)
+        ylabel = '{} ({})'.format(self.get_str(gev_param), visualizer.study.variable_unit)
         ylabel = ylabel[0].upper() + ylabel[1:]
         ax.set_ylabel(ylabel)
         xlabel = 'T, the smoothed anomaly of global temperature w.r.t. pre-industrial levels (K)'
         ax.set_xlabel(xlabel)
         ax.legend()
 
-        title = '{} massif {} parameter'.format(self.massif_name, gev_param)
+        title = '{} massif {}'.format(self.massif_name, self.get_str(gev_param))
         visualizer.plot_name = title
         visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()

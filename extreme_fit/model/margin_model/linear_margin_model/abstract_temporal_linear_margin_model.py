@@ -8,7 +8,7 @@ from extreme_fit.distribution.exp_params import ExpParams
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import LinearMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod, fitmethod_to_str, FEVD_MARGIN_FIT_METHODS, \
-    FEVD_MARGIN_FIT_METHOD_TO_ARGUMENT_STR
+    FEVD_MARGIN_FIT_METHOD_TO_ARGUMENT_STR, FEVD_MARGIN_FIT_WITH_LOG
 from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_bayesian_extremes import \
     AbstractResultFromExtremes, ResultFromBayesianExtremes
@@ -51,7 +51,8 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
         x = ro.FloatVector(data)
 
         if self.param_name_to_climate_coordinates_with_effects is not None:
-            assert self.fit_method in [MarginFitMethod.evgam, MarginFitMethod.extremes_fevd_mle]
+            assert self.fit_method in [MarginFitMethod.evgam, MarginFitMethod.extremes_fevd_mle,
+                                       MarginFitMethod.extremes_fevd_mle_with_log]
 
         if self.params_class is GevParams:
             if self.fit_method == MarginFitMethod.is_mev_gev_fit:
@@ -158,6 +159,13 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
             assert self.margin_function.is_a_stationary_model
         r_type_argument_kwargs, y, param_name_to_name_of_climatic_effects = self.extreme_arguments(df_coordinates_temp,
                                                                                                    df_coordinates_spat)
+        # Add log argument
+        if self.fit_method in FEVD_MARGIN_FIT_WITH_LOG:
+            r_type_argument_kwargs['use.phi'] = True
+            has_log_scale = True
+        else:
+            has_log_scale = None
+
         res = safe_run_r_estimator(function=r('fevd_fixed'),
                                    x=x,
                                    data=y,
@@ -171,6 +179,7 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                                      param_name_to_name_of_the_climatic_effects=param_name_to_name_of_climatic_effects,
                                      param_name_to_climate_coordinates_with_effects=self.param_name_to_climate_coordinates_with_effects,
                                      linear_effects=self.linear_effects,
+                                     has_log_scale=has_log_scale
                                      )
 
     def extremes_fevd_bayesian_fit(self, x, df_coordinates_temp) -> AbstractResultFromExtremes:

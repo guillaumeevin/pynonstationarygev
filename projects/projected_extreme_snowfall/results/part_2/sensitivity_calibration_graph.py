@@ -47,6 +47,12 @@ def main(massif_name, folder_idx=0):
         folder_idx]
     if folder_idx in [0, 1]:
         excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_(False, False, False)_None"
+        excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_(False, False, False)_2019"
+        excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleTemporalModel_w1_(False, False, False)_None"
+        # excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(False, False, False)_None"
+        excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(False, True, False)_2019"
+        excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(False, False, False)_None"
+        # excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(True, False, False)_None"
         # for i in [1, 2, 3, 4, 5, 6, 7, 8, 10, 15, 20][-4:]:
         #     excel_start = "AdamontSnowLoad_1500m_{}couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_(False, False, False)".format(i)
         plot(excel_start, folder, folder_idx, massif_name)
@@ -85,6 +91,9 @@ def plot(excel_start, folder, folder_idx, massif_name, nb_gcm=1):
     print(years)
     percentages = [round(100 * (int(year) + 1 - 1959) / 61, 2) for year in years]
     percentages = [round(p / 10) * 10 for p in percentages]
+    # Select only some of them
+    # years = years[-4:]
+    # percentages = percentages[-4:]
     if folder_idx == 1:
         percentages = percentages[::-1]
     names = list(df.index)
@@ -97,10 +106,18 @@ def plot(excel_start, folder, folder_idx, massif_name, nb_gcm=1):
         short_name = '_'.join(rest)
         if "with obs and " in short_name:
             short_name = short_name.replace("with obs and ", "")
+        if '_' in short_name:
+            short_name = '_'.join(short_name.split()[0].split('_')[1:])
         label = short_name_to_label[short_name] if prefix == 'ValidationObs' else None
         color = short_name_to_color[short_name]
         mean_scores = [year_to_name_to_mean_score[year][name] for year in years]
-        ax.plot(percentages, mean_scores, label=label, linestyle=linestyle, color=color)
+        if "scale" in '_'.join(rest):
+            marker = "x"
+            if label is not None:
+                label += 'with scale'
+        else:
+            marker = None
+        ax.plot(percentages, mean_scores, label=label, linestyle=linestyle, color=color, marker=marker)
     ax.legend(loc='upper left')
     ax3 = ax.twiny()
     ax3.set_xticks(percentages)
@@ -136,25 +153,19 @@ prefix_to_label = dict(zip(AbstractExperiment.prefixs, labels))
 short_name_to_color = {
     "without obs": "grey",
     "no effect": "blue",
-    "loc_is_ensemble_member scale_is_ensemble_member": 'yellow',
-    "loc_gcm scale_gcm": 'orange',
-    "loc_rcm scale_rcm": "red",
-    "loc_gcm_and_rcm scale_gcm_and_rcm": 'violet',
-    'loc_is_ensemble_member scale_is_ensemble_member shape_is_ensemble_member': 'green',
-    'loc_is_ensemble_member': "grey",
-    'scale_is_ensemble_member': 'violet'
+    "is_ensemble_member": 'yellow',
+    "gcm": 'orange',
+    "rcm": "red",
+    "gcm_and_rcm": 'violet',
 }
 
 short_name_to_label = {
     'without obs': "Baseline",
     "no effect": "Zero adjustment coefficients",
-    "loc_gcm scale_gcm": 'One adjustment coefficient for each GCM',
-    "loc_gcm_and_rcm scale_gcm_and_rcm": 'One adjustment coefficient for each GCM-RCM pair',
-    "loc_is_ensemble_member scale_is_ensemble_member": 'One adjustment coefficient for all GCM-RCM pairs',
-    "loc_rcm scale_rcm": "One adjustment coefficient for each RCM",
-    'loc_is_ensemble_member scale_is_ensemble_member shape_is_ensemble_member': 'is ensemble with shape',
-    'loc_is_ensemble_member': 'is ensemble loc only',
-    'scale_is_ensemble_member': 'is ensemble scale only'
+    "gcm": 'One adjustment coefficient for each GCM',
+    "gcm_and_rcm": 'One adjustment coefficient for each GCM-RCM pair',
+    "is_ensemble_member": 'One adjustment coefficient for all GCM-RCM pairs',
+    "rcm": "One adjustment coefficient for each RCM",
 }
 
 if __name__ == '__main__':
