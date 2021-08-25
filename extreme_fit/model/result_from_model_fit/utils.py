@@ -45,11 +45,12 @@ def get_margin_coef_ordered_dict(param_name_to_dims, mle_values, type_for_mle="G
                         i += 1
         # Add potential climatic effects
         if param_name_to_name_of_the_climatic_effects is not None:
-            for name in param_name_to_name_of_the_climatic_effects[param_name]:
-                coef_name = param_name + name
-                coef_dict[coef_name] = mle_values[i]
-                i += 1
-            if linear_effects[j]:
+            if linear_effects[j] in [False, None]:
+                for name in param_name_to_name_of_the_climatic_effects[param_name]:
+                    coef_name = param_name + name
+                    coef_dict[coef_name] = mle_values[i]
+                    i += 1
+            if linear_effects[j] in [None, True]:
                 for name in param_name_to_name_of_the_climatic_effects[param_name]:
                     coef_name = param_name + name + AbstractCoordinates.COORDINATE_T
                     coef_dict[coef_name] = mle_values[i]

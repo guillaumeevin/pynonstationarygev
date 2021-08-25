@@ -122,9 +122,17 @@ class AbstractTemporalLinearMarginModel(LinearMarginModel):
                         climate_coordinates_names_with_effects)
                 param_name_to_name_of_climatic_effects[param_name] = name_of_the_climatic_effects
                 # Potentially add a linearity for the effect
-                if self.linear_effects[j]:
+                # linear_effects[j] = False --> only constant effect
+                # linear_effects[j] = True --> only linear effect
+                # linear_effects[j] = None --> both constant and linear effects
+                if self.linear_effects[j] is None:
                     name_of_the_climatic_effects = ['{} + {}:{}'.format(name, AbstractCoordinates.COORDINATE_T, name)
                                                     for name in name_of_the_climatic_effects]
+                elif self.linear_effects[j] is True:
+                    name_of_the_climatic_effects = ['{}:{}'.format(AbstractCoordinates.COORDINATE_T, name)
+                                                    for name in name_of_the_climatic_effects]
+                else:
+                    name_of_the_climatic_effects = name_of_the_climatic_effects
                 # Save the appropriate formula
                 formula_effect_str = ' + '.join(name_of_the_climatic_effects)
                 ordered_formula_effect_str.append(formula_effect_str)

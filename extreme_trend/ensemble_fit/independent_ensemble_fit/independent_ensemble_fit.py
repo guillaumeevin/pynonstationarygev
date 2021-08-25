@@ -16,7 +16,6 @@ class IndependentEnsembleFit(AbstractEnsembleFit):
         # Load a classical visualizer
         self.gcm_rcm_couple_to_visualizer = {}
         for gcm_rcm_couple, studies in self.gcm_rcm_couple_to_altitude_studies.items():
-            print(gcm_rcm_couple)
             visualizer = AltitudesStudiesVisualizerForNonStationaryModels(studies, self.models_classes,
                                                                           False,
                                                                           self.massif_names, self.fit_method,

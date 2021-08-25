@@ -126,8 +126,9 @@ class ParametricMarginFunction(IndependentMarginFunction):
             param_name_to_ordered_climate_effects = {}
             for j, param_name in enumerate(GevParams.PARAM_NAMES):
                 names = param_name_to_name_of_the_climatic_effects[param_name]
-                ordered_climate_effects = [coef_dict[param_name + name] for name in names]
-                if linear_effects[j]:
+                coef_names = [param_name + name for name in names]
+                ordered_climate_effects = [coef_dict[coef_name] if coef_name in coef_dict else 0 for coef_name in coef_names]
+                if linear_effects[j] in [None, True]:
                     ordered_climate_effects_linear = [coef_dict[param_name + name + AbstractCoordinates.COORDINATE_T] for name in names]
                     param_name_to_ordered_climate_effects[param_name] = (ordered_climate_effects, ordered_climate_effects_linear)
                 else:

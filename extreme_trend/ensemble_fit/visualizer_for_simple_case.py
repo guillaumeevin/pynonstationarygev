@@ -14,6 +14,7 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import \
     get_color_and_linestyle_from_massif_id
 from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh_with_multiprocessing_for_large_samples
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
     GumbelTemporalModel
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
@@ -67,13 +68,13 @@ class VisualizerForSimpleCase(object):
         self.temporal_covariate_for_fit = temporal_covariate_for_fit
         self.altitudes = altitudes
         self.massif_name = massif_name
+        self.last_year_for_the_train_set = last_year_for_the_train_set
 
         # Load the gcm rcm couple to studies
         if year_max_for_studies is None:
             gcm_to_year_min_and_year_max = None
         else:
             gcm_to_year_min_and_year_max = {gcm: (None, year_max_for_studies) for gcm in gcm_to_color.keys()}
-        year_max_for_study = last_year_for_the_train_set
         gcm_rcm_couple_to_studies = VisualizerForProjectionEnsemble.load_gcm_rcm_couple_to_studies(self.altitudes,
                                                                                                    self.gcm_rcm_couples,
                                                                                                    gcm_to_year_min_and_year_max,
@@ -81,7 +82,7 @@ class VisualizerForSimpleCase(object):
                                                                                                    self.scenario,
                                                                                                    self.season,
                                                                                                    self.study_class,
-                                                                                                   year_max_for_safran_study=year_max_for_study)
+                                                                                                   year_max_for_safran_study=self.last_year_for_the_train_set)
 
         # Add the first 50% and the last 50% of the data
         self.other_obs_visualizers = []
@@ -128,7 +129,7 @@ class VisualizerForSimpleCase(object):
                                                                None)
 
         # Load the together approach without the observation
-        gcm_rcm_couple_to_studies_without_obs = {k: v for k, v in gcm_rcm_couple_to_studies.items() if k != None}
+        gcm_rcm_couple_to_studies_without_obs = {k: v for k, v in gcm_rcm_couple_to_studies.items() if k[0] != None}
         visualizer_ensemble_without_obs = VisualizerNonStationaryEnsemble(
             gcm_rcm_couple_to_studies=gcm_rcm_couple_to_studies_without_obs,
             massif_names=[self.massif_name],
@@ -138,7 +139,7 @@ class VisualizerForSimpleCase(object):
             confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method,
             remove_physically_implausible_models=remove_physically_implausible_models,
             param_name_to_climate_coordinates_with_effects=None,
-            linear_effects=(False, False, False),
+            linear_effects=linear_effects,
             weight_on_observation=weight_on_observation)
 
         # Load all the together fit approaches with observations
@@ -160,6 +161,29 @@ class VisualizerForSimpleCase(object):
                     linear_effects=linear_effects,
                     weight_on_observation=weight_on_observation)
                 self.combination_name_to_visualizer_ensemble[combination_name] = visualizer_ensemble
+
+    def compute_prediction_score(self):
+        for combination_name, visualizer_together in self.combination_name_to_visualizer_ensemble.items():
+            best_estimator = visualizer_together.massif_name_to_one_fold_fit[self.massif_name].best_estimator
+
+
+            studies_train = AltitudesStudies(self.safran_study_class, self.altitudes, season=self.season,
+                                       year_max=self.last_year_for_the_train_set)
+
+            studies_test = AltitudesStudies(self.safran_study_class, self.altitudes, season=self.season,
+                                       year_min=self.last_year_for_the_train_set + 1)
+
+            for studies in [studies_train, studies_test][1:]:
+
+                dataset_test = studies.spatio_temporal_dataset(self.massif_name)
+                df_coordinates_temp_for_test = best_estimator.load_coordinates_temp(dataset_test.coordinates,
+                                                                                    for_fit=False)
+                maxima_values = dataset_test.observations.maxima_gev
+                coordinate_values = df_coordinates_temp_for_test.values
+                nllh = compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxima_values,
+                                                                           best_estimator.margin_function_from_fit,
+                                                                           True, True, False)
+                print(combination_name, nllh / len(coordinate_values))
 
     def visualize_gev_parameters(self):
         gev_params = GevParams.PARAM_NAMES + [True]

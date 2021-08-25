@@ -12,6 +12,8 @@ source('ci_fevd_fixed.R')
 set.seed(42)
 N <- 50
 loc = 0; scale = 1; shape <- 1
+weights = seq(1, N, 1)
+weights = rep(1, N)
 x_gev <- rgev(N, loc = loc, scale = scale, shape = shape)
 # start_loc = 0; start_scale = 1; start_shape = 1
 # N <- 50
@@ -25,7 +27,8 @@ colnames(coord) = c("T")
 print(coord)
 coord = data.frame(coord, stringsAsFactors = TRUE)
 # res = fevd_fixed(x_gev, data=coord, method='MLE', verbose=TRUE, use.phi=FALSE)
-res = fevd_fixed(x_gev, data=coord, location.fun= ~T, scale.fun= ~T, method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
+res = fevd_fixed(x_gev, data=coord, location.fun= ~T, scale.fun= ~T, method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE,
+                 weights = weights)
 # res = fevd_fixed(x_gev, data=coord, shape.fun= ~1 + (G1-G2) + I(G2), method='MLE', type="GEV", verbose=FALSE, use.phi=FALSE)
 print(res)
 
