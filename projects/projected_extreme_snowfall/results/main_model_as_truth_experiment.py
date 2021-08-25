@@ -1,4 +1,5 @@
 import os.path as op
+import time
 
 import matplotlib
 
@@ -21,6 +22,8 @@ from projects.projected_extreme_snowfall.results.setting_utils import set_up_and
 def main_preliminary_projections():
     # Load parameters
     show = False
+    # print('sleeping...')
+    # time.sleep(60*30)
 
     fast = False
     snowfall = False
@@ -34,7 +37,7 @@ def main_preliminary_projections():
     year_max_for_pseudo_obs, year_max_for_gcm = 2019, 2100
 
 
-    for percentage in [0.6]:
+    for percentage in [1.0]:
         year_max_for_pseudo_obs, year_max_for_gcm = get_last_year_for_the_train_set(percentage), 2100
         weight_on_observation = 1
         print('weight on observation=', weight_on_observation)

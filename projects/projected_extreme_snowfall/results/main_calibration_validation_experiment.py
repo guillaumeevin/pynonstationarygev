@@ -3,7 +3,8 @@ import time
 
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
-    NonStationaryLocationAndScaleTemporalModel, NonStationaryLocationAndScaleGumbelModel
+    NonStationaryLocationAndScaleTemporalModel, NonStationaryLocationAndScaleGumbelModel, \
+    NonStationaryLocationGumbelModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.projected_extreme_snowfall.results.experiment.calibration_validation_experiment import \
     CalibrationValidationExperiment
@@ -22,15 +23,19 @@ def main_calibration_validation_experiment():
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
         fast, snowfall)
 
+    # print('sleeping...')
+    # time.sleep(60*40)
+
     # Load the csv filepath
-    altitudes_list = [[900]]
+    altitudes_list = [[1500]]
     calibration_class = CalibrationValidationExperiment
     fit_method = MarginFitMethod.extremes_fevd_mle
     year_max_for_studies = None
     # model_classes = [NonStationaryLocationAndScaleTemporalModel]
     model_classes = [NonStationaryLocationAndScaleGumbelModel]
+    model_classes = [NonStationaryLocationGumbelModel]
     # fit_method = MarginFitMethod.extremes_fevd_gmle
-    linear_effects = (False, False, False)
+    linear_effects = (True, False, False)
 
     # indexes = [5, 8, 9, 13, 18]
     # indexes = list(set(range(20)) - set(indexes))

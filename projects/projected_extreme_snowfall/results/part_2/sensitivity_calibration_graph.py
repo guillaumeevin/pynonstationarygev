@@ -52,13 +52,18 @@ def main(massif_name, folder_idx=0):
         # excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(False, False, False)_None"
         excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(False, True, False)_2019"
         excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(False, False, False)_None"
-        # excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(True, False, False)_None"
+        excel_start = "AdamontSnowLoad_2100m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(False, False, False)_None"
+        # excel_start = "AdamontSnowLoad_900m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(False, False, False)_None"
+
+        excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationGumbelModel_w1_(True, False, False)_None"
+        # excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationGumbelModel_w1_(False, False, False)_2019"
         # for i in [1, 2, 3, 4, 5, 6, 7, 8, 10, 15, 20][-4:]:
         #     excel_start = "AdamontSnowLoad_1500m_{}couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_(False, False, False)".format(i)
         plot(excel_start, folder, folder_idx, massif_name)
 
     else:
         excel_start = "AdamontSnowLoad_1500m_3couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_(False, False, False)_2019"
+        excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(False, False, False)_2100"
         plot(excel_start, folder, folder_idx, massif_name)
 
 
@@ -92,8 +97,8 @@ def plot(excel_start, folder, folder_idx, massif_name, nb_gcm=1):
     percentages = [round(100 * (int(year) + 1 - 1959) / 61, 2) for year in years]
     percentages = [round(p / 10) * 10 for p in percentages]
     # Select only some of them
-    # years = years[-4:]
-    # percentages = percentages[-4:]
+    years = years[-3:]
+    percentages = percentages[-3:]
     if folder_idx == 1:
         percentages = percentages[::-1]
     names = list(df.index)

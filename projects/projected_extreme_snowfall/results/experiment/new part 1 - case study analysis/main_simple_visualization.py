@@ -43,7 +43,8 @@ def main_simple_visualizatoin():
 
     # Bad fits
     # massif_names = ['Devoluy', 'Mercantour']
-    massif_names = ['Devoluy', 'Vercors']
+    # massif_names = ['Devoluy', 'Vercors']
+    # massif_names = ['Oisans', 'Bauges']
 
     for massif_name in massif_names:
         # indexes = [5, 8, 9, 13, 18]
@@ -52,17 +53,18 @@ def main_simple_visualizatoin():
         # gcm_rcm_couples = [gcm_rcm_couples[i] for i in indexes]
         gcm_rcm_couples = gcm_rcm_couples[:]
         altitudes = [1500]
-        percentage = 0.7
+        percentage = 0.6
         fit_method = MarginFitMethod.extremes_fevd_mle
+        # fit_method = MarginFitMethod.extremes_fevd_mle_with_log
         model_classes = [NonStationaryLocationAndScaleTemporalModel]
-        model_classes = [NonStationaryLocationAndScaleGumbelModel]
+        # model_classes = [NonStationaryLocationAndScaleGumbelModel]
         last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
         linear_effects = (False, False, False)
 
         display_only_model_that_pass_gof_test = False
 
         print('Last year for the train set', last_year_for_the_train_set, 'Percentage', percentage)
-        year_max_for_studies = 2019
+        year_max_for_studies = None
         print('year max for studies:', year_max_for_studies)
         # weight_on_observation = 1 + 20
         weight_on_observation = 1
