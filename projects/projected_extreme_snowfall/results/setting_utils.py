@@ -57,7 +57,7 @@ def set_up_and_load(fast, snowfall=True):
         altitudes_list = [1500]
         # model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
         # model_classes = [NonStationaryThreeLinearLocationAndScaleAndShapeModel]
-        # model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
+        model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
     elif snowfall is None:
         fit_method = MarginFitMethod.extremes_fevd_mle
         display_only_model_that_pass_gof_test = False

@@ -56,6 +56,13 @@ def main(massif_name, folder_idx=0):
         # excel_start = "AdamontSnowLoad_900m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(False, False, False)_None"
 
         excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationGumbelModel_w1_(True, False, False)_None"
+        excel_start = "AdamontSnowLoad_1500m_4couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w201_(True, False, False)_None"
+
+
+        excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w201_(True, False, False)_2019"
+        excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w201_(True, False, False)_None"
+
+        excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleTemporalModel_w1_(True, False, False)_2019"
         # excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationGumbelModel_w1_(False, False, False)_2019"
         # for i in [1, 2, 3, 4, 5, 6, 7, 8, 10, 15, 20][-4:]:
         #     excel_start = "AdamontSnowLoad_1500m_{}couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_(False, False, False)".format(i)
@@ -64,6 +71,8 @@ def main(massif_name, folder_idx=0):
     else:
         excel_start = "AdamontSnowLoad_1500m_3couples_testFalse_NonStationaryLocationAndScaleAndShapeTemporalModel_w1_(False, False, False)_2019"
         excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleGumbelModel_w1_(False, False, False)_2100"
+
+        excel_start = "AdamontSnowLoad_1500m_20couples_testFalse_NonStationaryLocationAndScaleTemporalModel_w1_(True, False, False)_2019"
         plot(excel_start, folder, folder_idx, massif_name)
 
 
@@ -97,8 +106,8 @@ def plot(excel_start, folder, folder_idx, massif_name, nb_gcm=1):
     percentages = [round(100 * (int(year) + 1 - 1959) / 61, 2) for year in years]
     percentages = [round(p / 10) * 10 for p in percentages]
     # Select only some of them
-    years = years[-3:]
-    percentages = percentages[-3:]
+    years = years[-4:]
+    percentages = percentages[-4:]
     if folder_idx == 1:
         percentages = percentages[::-1]
     names = list(df.index)
@@ -174,6 +183,6 @@ short_name_to_label = {
 }
 
 if __name__ == '__main__':
-    for folder_idx in [0, 2][:1]:
+    for folder_idx in [0, 2][1:]:
         for massif_name in [None] + AbstractStudy.all_massif_names():
             main(massif_name, folder_idx)

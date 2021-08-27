@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from typing import List, Dict
 
 import numpy as np
+from cached_property import cached_property
 
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_color
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str
@@ -14,6 +15,7 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import \
     get_color_and_linestyle_from_massif_id
 from extreme_fit.distribution.gev.gev_params import GevParams
+from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson, get_pvalue_anderson_darling_test
 from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh_with_multiprocessing_for_large_samples
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
     GumbelTemporalModel
@@ -120,13 +122,18 @@ class VisualizerForSimpleCase(object):
             self.other_obs_visualizers.append(visu)
 
         # Load the separate fit
-        self.independent_ensemble_fit = IndependentEnsembleFit([self.massif_name], gcm_rcm_couple_to_studies,
-                                                               model_classes,
-                                                               fit_method, temporal_covariate_for_fit,
-                                                               display_only_model_that_pass_gof_test,
-                                                               confidence_interval_based_on_delta_method,
-                                                               remove_physically_implausible_models,
-                                                               None)
+        try:
+            raise AssertionError
+            self.independent_ensemble_fit = IndependentEnsembleFit([self.massif_name], gcm_rcm_couple_to_studies,
+                                                                   model_classes,
+                                                                   fit_method, temporal_covariate_for_fit,
+                                                                   display_only_model_that_pass_gof_test,
+                                                                   confidence_interval_based_on_delta_method,
+                                                                   remove_physically_implausible_models,
+                                                                   None)
+        except AssertionError as e:
+            print(e.__repr__())
+            self.independent_ensemble_fit = None
 
         # Load the together approach without the observation
         gcm_rcm_couple_to_studies_without_obs = {k: v for k, v in gcm_rcm_couple_to_studies.items() if k[0] != None}
@@ -141,6 +148,8 @@ class VisualizerForSimpleCase(object):
             param_name_to_climate_coordinates_with_effects=None,
             linear_effects=linear_effects,
             weight_on_observation=weight_on_observation)
+
+        self.test_goodness_of_fit_obs(gcm_rcm_couple_to_studies, visualizer_ensemble_without_obs)
 
         # Load all the together fit approaches with observations
         self.combination_name_to_visualizer_ensemble = {'without obs': visualizer_ensemble_without_obs}
@@ -162,7 +171,25 @@ class VisualizerForSimpleCase(object):
                     weight_on_observation=weight_on_observation)
                 self.combination_name_to_visualizer_ensemble[combination_name] = visualizer_ensemble
 
-    def compute_prediction_score(self):
+    def test_goodness_of_fit_obs(self, gcm_rcm_couple_to_studies, visualizer):
+        margin_function = visualizer.massif_name_to_one_fold_fit[self.massif_name].best_margin_function_from_fit
+        # Test if the observation can be explained by the model
+        obs_dataset = gcm_rcm_couple_to_studies[(None, None)].spatio_temporal_dataset(self.massif_name)
+        coordinates_values = obs_dataset.coordinates.df_temporal_coordinates_for_fit(
+            temporal_covariate_for_fit=self.temporal_covariate_for_fit,
+            drop_duplicates=False,
+            for_fit=True).values
+        gumbel_quantiles = []
+        for maximum, coordinates in zip(obs_dataset.maxima_gev, coordinates_values):
+            gev_params = margin_function.get_params(coordinates)
+            maximum_standardized = gev_params.gumbel_standardization(maximum[0])
+            gumbel_quantiles.append(maximum_standardized)
+        test_result = goodness_of_fit_anderson(gumbel_quantiles)
+        print('Test result:', test_result, get_pvalue_anderson_darling_test(gumbel_quantiles))
+
+    @cached_property
+    def combination_name_to_two_scores(self):
+        combination_name_to_two_scores = {}
         for combination_name, visualizer_together in self.combination_name_to_visualizer_ensemble.items():
             best_estimator = visualizer_together.massif_name_to_one_fold_fit[self.massif_name].best_estimator
 
@@ -173,7 +200,8 @@ class VisualizerForSimpleCase(object):
             studies_test = AltitudesStudies(self.safran_study_class, self.altitudes, season=self.season,
                                        year_min=self.last_year_for_the_train_set + 1)
 
-            for studies in [studies_train, studies_test][1:]:
+            two_scores = []
+            for studies in [studies_train, studies_test][:]:
 
                 dataset_test = studies.spatio_temporal_dataset(self.massif_name)
                 df_coordinates_temp_for_test = best_estimator.load_coordinates_temp(dataset_test.coordinates,
@@ -183,12 +211,16 @@ class VisualizerForSimpleCase(object):
                 nllh = compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxima_values,
                                                                            best_estimator.margin_function_from_fit,
                                                                            True, True, False)
-                print(combination_name, nllh / len(coordinate_values))
+                score = nllh / len(coordinate_values)
+                print(combination_name, score)
+                two_scores.append(score)
+            combination_name_to_two_scores[combination_name] = tuple(two_scores)
+        return combination_name_to_two_scores
 
     def visualize_gev_parameters(self):
-        gev_params = GevParams.PARAM_NAMES + [True]
+        gev_params = GevParams.PARAM_NAMES + [True, False, None]
         for k, gev_param in enumerate(gev_params):
-            print(self.get_str(gev_param), 'plot')
+            # print(self.get_str(gev_param), 'plot')
             self.visualize_gev_parameter(gev_param, k)
 
     def get_value(self, one_fold_fit, c, gev_param):
@@ -197,6 +229,10 @@ class VisualizerForSimpleCase(object):
             return gev_params.to_dict()[gev_param]
         elif gev_param is True:
             return gev_params.mean
+        elif gev_param is False:
+            return gev_params.std
+        elif gev_param is None:
+            return gev_params.return_level(50)
         else:
             raise NotImplementedError
 
@@ -205,47 +241,52 @@ class VisualizerForSimpleCase(object):
             return '{} parameter'.format(gev_param)
         elif gev_param is True:
             return "Mean"
+        elif gev_param is False:
+            return "Std"
+        elif gev_param is None:
+            return '50-year return level'
         else:
             raise NotImplementedError
 
     def visualize_gev_parameter(self, gev_param, k):
         ax = plt.gca()
         # Independent plot
-        items = list(self.independent_ensemble_fit.gcm_rcm_couple_to_visualizer.items())
-        for vizu in self.other_obs_visualizers:
-            items.append(((None, None), vizu))
-        # items.append(((None, None), self.half_visualizers[0]))
-        # items.append(((None, None), self.half_visualizers[1]))
+        if self.independent_ensemble_fit is not None:
+            items = list(self.independent_ensemble_fit.gcm_rcm_couple_to_visualizer.items())
+            for vizu in self.other_obs_visualizers:
+                items.append(((None, None), vizu))
+            # items.append(((None, None), self.half_visualizers[0]))
+            # items.append(((None, None), self.half_visualizers[1]))
 
-        add_label_gcm = True
-        for gcm_rcm_couple, visualizer in items:
-            one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
-            coordinates = one_fold_fit.best_estimator.coordinates_for_nllh
-            x = [c[0] for c in coordinates]
-            y = [self.get_value(one_fold_fit, c, gev_param) for c in coordinates]
-            if gcm_rcm_couple[0] is None:
-                year_max = visualizer.study.ordered_years[-1]
-                percentage = round(100 * (int(year_max) + 1 - 1959) / 61, 2)
-                percentage = round(percentage / 10) * 10
+            add_label_gcm = True
+            for gcm_rcm_couple, visualizer in items:
+                one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
+                coordinates = one_fold_fit.best_estimator.coordinates_for_nllh
+                x = [c[0] for c in coordinates]
+                y = [self.get_value(one_fold_fit, c, gev_param) for c in coordinates]
+                if gcm_rcm_couple[0] is None:
+                    year_max = visualizer.study.ordered_years[-1]
+                    percentage = round(100 * (int(year_max) + 1 - 1959) / 61, 2)
+                    percentage = round(percentage / 10) * 10
 
-                label = "non-stationary GEV for {}\% of the observation".format(percentage)
-                linestyle = '-'
-                linewidth = 3
-                # percentage_to_marker = {
-                #     70: 'x',
-                #     100: None,
-                # }
-                # marker = percentage_to_marker[percentage]
-            else:
-                linestyle = '--'
-                linewidth = 1
-                if add_label_gcm:
-                    add_label_gcm = False
-                    label = "non-stationary GEV for one GCM-RCM couple"
+                    label = "non-stationary GEV for {}\% of the observation".format(percentage)
+                    linestyle = '-'
+                    linewidth = 3
+                    # percentage_to_marker = {
+                    #     70: 'x',
+                    #     100: None,
+                    # }
+                    # marker = percentage_to_marker[percentage]
                 else:
-                    label = None
+                    linestyle = '--'
+                    linewidth = 1
+                    if add_label_gcm:
+                        add_label_gcm = False
+                        label = "non-stationary GEV for one GCM-RCM couple"
+                    else:
+                        label = None
 
-            ax.plot(x, y, label=label, linestyle=linestyle, color='k', linewidth=linewidth, marker=None)
+                ax.plot(x, y, label=label, linestyle=linestyle, color='k', linewidth=linewidth, marker=None)
 
         # Together plot with obs
         colors = ['grey', 'blue', 'yellow', "orange", "red", "violet", 'gold']
@@ -254,12 +295,14 @@ class VisualizerForSimpleCase(object):
                   'One adjustment coefficient for each GCM-RCM pair', 'one for all for the 3 parameters']
         for j, (combination_name, visualizer) in enumerate(self.combination_name_to_visualizer_ensemble.items()):
             color = colors[j]
+            train_score, test_score = self.combination_name_to_two_scores[combination_name]
             one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
             coordinates = one_fold_fit.best_estimator.coordinates_for_nllh
             x = sorted([c[0] for c in coordinates])
             y = [self.get_value(one_fold_fit, np.array([e]), gev_param) for e in x]
             # label = combination_name.replace('_', '-')
             label = labels[j]
+            label += " ({}, {})".format(round(train_score, 2), round(test_score, 2))
             if (k < 3) and self.linear_effects[k]:
                 if "no effect" not in label:
                     label += ' with linear effect'

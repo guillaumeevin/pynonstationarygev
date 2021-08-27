@@ -30,10 +30,10 @@ def main_calibration_validation_experiment():
     altitudes_list = [[1500]]
     calibration_class = CalibrationValidationExperiment
     fit_method = MarginFitMethod.extremes_fevd_mle
-    year_max_for_studies = None
-    # model_classes = [NonStationaryLocationAndScaleTemporalModel]
-    model_classes = [NonStationaryLocationAndScaleGumbelModel]
-    model_classes = [NonStationaryLocationGumbelModel]
+    year_max_for_studies = 2019
+    model_classes = [NonStationaryLocationAndScaleTemporalModel]
+    # model_classes = [NonStationaryLocationAndScaleGumbelModel]
+    # model_classes = [NonStationaryLocationGumbelModel]
     # fit_method = MarginFitMethod.extremes_fevd_gmle
     linear_effects = (True, False, False)
 
@@ -43,9 +43,18 @@ def main_calibration_validation_experiment():
 
     # for gcm_rcm_couple in all_gcm_rcm_couples:
     #     gcm_rcm_couples = [gcm_rcm_couple]
+    # massif_names = ['Chablais']
 
-    for percentage in [0.1, 0.2, 0.3][:]:
-        percentage += 0.6
+    l = [0.1, 0.2, 0.3]
+    l = [0.3]
+    # l = [0.4]
+    # l = [0.5]
+    # l = [0.6]
+    # l = [0.7]
+    # l = [0.8]
+    # l = [0.9]
+    for percentage in l[:]:
+        # percentage += 0.6
         last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
         start_year_for_the_test_set = last_year_for_the_train_set + 1
 
@@ -53,12 +62,16 @@ def main_calibration_validation_experiment():
 
         print('Last year for the train set', last_year_for_the_train_set, 'Percentage', percentage)
         print('year max for studies:', year_max_for_studies)
+        # weight_on_observation = 1 + 20
+        # weight_on_observation = 1 + 9
         weight_on_observation = 1
+        # weight_on_observation = 1 + 20*13
         print('weight on observation=', weight_on_observation)
 
         for massif_name in massif_names:
+            print(massif_name)
             for altitudes in altitudes_list:
-                for i in [-1, 0, 1, 2, 4, 5]:
+                for i in [-1, 0, 1, 2, 4, 5][:]:
                 # for i in [-1, 0, 5][1:]:
                     print("parameterization:", i)
                     # combination = (i, i, 0)
