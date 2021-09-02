@@ -206,3 +206,63 @@ class NonStationaryFourLinearLocationAndScaleAndShapeModel(SplineMarginModel):
             GevParams.SHAPE: [(self.coordinates.idx_temporal_coordinates, 1, 4)],
             GevParams.SCALE: [(self.coordinates.idx_temporal_coordinates, 1, 4)],
         })
+
+
+class NonStationaryFiveLinearLocationAndScaleAndShapeModel(SplineMarginModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({
+            GevParams.LOC: [(self.coordinates.idx_temporal_coordinates, 1, 5)],
+            GevParams.SHAPE: [(self.coordinates.idx_temporal_coordinates, 1, 5)],
+            GevParams.SCALE: [(self.coordinates.idx_temporal_coordinates, 1, 5)],
+        })
+
+
+class NonStationarySixLinearLocationAndScaleAndShapeModel(SplineMarginModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({
+            GevParams.LOC: [(self.coordinates.idx_temporal_coordinates, 1, 6)],
+            GevParams.SHAPE: [(self.coordinates.idx_temporal_coordinates, 1, 6)],
+            GevParams.SCALE: [(self.coordinates.idx_temporal_coordinates, 1, 6)],
+        })
+
+
+class NonStationarySevenLinearLocationAndScaleAndShapeModel(SplineMarginModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({
+            GevParams.LOC: [(self.coordinates.idx_temporal_coordinates, 1, 7)],
+            GevParams.SHAPE: [(self.coordinates.idx_temporal_coordinates, 1, 7)],
+            GevParams.SCALE: [(self.coordinates.idx_temporal_coordinates, 1, 7)],
+        })
+
+
+class NonStationaryEightLinearLocationAndScaleAndShapeModel(SplineMarginModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({
+            GevParams.LOC: [(self.coordinates.idx_temporal_coordinates, 1, 8)],
+            GevParams.SHAPE: [(self.coordinates.idx_temporal_coordinates, 1, 8)],
+            GevParams.SCALE: [(self.coordinates.idx_temporal_coordinates, 1, 8)],
+        })
+
+
+class NonStationaryNineLinearLocationAndScaleAndShapeModel(SplineMarginModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({
+            GevParams.LOC: [(self.coordinates.idx_temporal_coordinates, 1, 9)],
+            GevParams.SHAPE: [(self.coordinates.idx_temporal_coordinates, 1, 9)],
+            GevParams.SCALE: [(self.coordinates.idx_temporal_coordinates, 1, 9)],
+        })
+
+
+class NonStationaryTenLinearLocationAndScaleAndShapeModel(SplineMarginModel):
+
+    def load_margin_function(self, param_name_to_dims=None):
+        return super().load_margin_function({
+            GevParams.LOC: [(self.coordinates.idx_temporal_coordinates, 1, 10)],
+            GevParams.SHAPE: [(self.coordinates.idx_temporal_coordinates, 1, 10)],
+            GevParams.SCALE: [(self.coordinates.idx_temporal_coordinates, 1, 10)],
+        })

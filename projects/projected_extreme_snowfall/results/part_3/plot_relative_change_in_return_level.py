@@ -76,9 +76,10 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
     print('relative:', relative, 'order:', order)
     print(get_display_name_from_object_type(type(one_fold_fit.best_margin_model)),
           "temporally significant={}".format(one_fold_fit.is_significant))
-    print("all effects significant={}".format(one_fold_fit.correction_is_significant))
-    print("gcm effects significant={}".format(one_fold_fit.gcm_correction_is_significant))
-    print("rcm effects significant={}".format(one_fold_fit.rcm_correction_is_significant))
+    if one_fold_fit.param_name_to_climate_coordinates_with_effects is not None:
+        print("all effects significant={}".format(one_fold_fit.correction_is_significant))
+    # print("gcm effects significant={}".format(one_fold_fit.gcm_correction_is_significant))
+    # print("rcm effects significant={}".format(one_fold_fit.rcm_correction_is_significant))
     if relative is None:
         f = one_fold_fit.get_moment_for_plots
     else:
@@ -86,15 +87,15 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
     altitude = visualizer.study.altitude
     color = altitude_to_color[altitude]
 
-    snowfall = not (visualizer.study.variable_class.NAME == TotalSnowLoadVariable.NAME)
+    snowfall = False
 
     # Plot the sub trend, i.e. for each GCM-RCM couples
-    for gcm_rcm_couple in gcm_rcm_couples[:]:
-        fake_altitude = gcm_rcm_couple
-        gcm_rcm_color = color if snowfall else gcm_rcm_couple_to_color[gcm_rcm_couple]
-        changes = [f([fake_altitude], order=order, covariate_before=covariate_before, covariate_after=t)[0] for t in
-                   x_list]
-        ax.plot(x_list, changes, color=gcm_rcm_color, linewidth=1, linestyle='dotted')
+    # for gcm_rcm_couple in gcm_rcm_couples[:]:
+    #     fake_altitude = gcm_rcm_couple
+    #     gcm_rcm_color = color if snowfall else gcm_rcm_couple_to_color[gcm_rcm_couple]
+    #     changes = [f([fake_altitude], order=order, covariate_before=covariate_before, covariate_after=t)[0] for t in
+    #                x_list]
+    #     ax.plot(x_list, changes, color=gcm_rcm_color, linewidth=1, linestyle='dotted')
 
     # Plot the main trend
     changes = [f([None], order=order, covariate_before=covariate_before, covariate_after=t)[0] for t in x_list]
@@ -139,12 +140,11 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
             Line2D([0], [0], color='k', lw=3, label=label_obs, linestyle='-'),
             # Line2D([0], [0], color='k', lw=1, label="French building standard", linestyle='dashed'),
         ]
-        if order != GevParams.SHAPE:
-            for gcm, color in gcm_to_color.items():
-                label_gcm = label_global + '(\\textrm{T,' + gcm + '},\\cdot)$'
-                legend_elements.append(Line2D([0], [0], color=color, lw=2, label=label_gcm, linestyle='dotted'))
-        legend_elements.append(Patch(facecolor='k', edgecolor='k', label="90\% uncertainty interval for {}".format(label_obs), alpha=alpha),
-)
+        # if order != GevParams.SHAPE:
+        #     for gcm, color in gcm_to_color.items():
+        #         label_gcm = label_global + '(\\textrm{T,' + gcm + '},\\cdot)$'
+        #         legend_elements.append(Line2D([0], [0], color=color, lw=2, label=label_gcm, linestyle='dotted'))
+        legend_elements.append(Patch(facecolor='k', edgecolor='k', label="90\% uncertainty interval for {}".format(label_obs), alpha=alpha),)
 
         size = 9
         loc = 'upper left' if order is GevParams.SHAPE else 'upper right'

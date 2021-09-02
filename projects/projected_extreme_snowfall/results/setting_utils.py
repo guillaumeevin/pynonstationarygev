@@ -24,7 +24,10 @@ from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_de
     NonStationaryTwoLinearLocationAndScaleAndShapeModel, \
     NonStationaryTwoLinearLocationAndScaleOneLinearShapeModel, NonStationaryTwoLinearLocationAndScaleModel, \
     NonStationaryTwoLinearLocationAndShape, NonStationaryThreeLinearLocationAndScaleAndShapeModel, \
-    NonStationaryFourLinearLocationAndScaleAndShapeModel
+    NonStationaryFourLinearLocationAndScaleAndShapeModel, NonStationaryFiveLinearLocationAndScaleAndShapeModel, \
+    NonStationarySixLinearLocationAndScaleAndShapeModel, NonStationarySevenLinearLocationAndScaleAndShapeModel, \
+    NonStationaryTenLinearLocationAndScaleAndShapeModel, NonStationaryEightLinearLocationAndScaleAndShapeModel, \
+    NonStationaryNineLinearLocationAndScaleAndShapeModel
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
     NonStationaryTwoLinearShapeModel, NonStationaryTwoLinearShapeOneLinearScaleModel, NonStationaryTwoLinearScaleModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -53,11 +56,18 @@ def set_up_and_load(fast, snowfall=True):
         fit_method = MarginFitMethod.evgam
         display_only_model_that_pass_gof_test = False
         return_period = 100
+        model_classes = [StationaryTemporalModel]
         model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
-        altitudes_list = [1500]
-        # model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
+        altitudes_list = [2100]
+        model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
         # model_classes = [NonStationaryThreeLinearLocationAndScaleAndShapeModel]
-        model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
+        # model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
+        # model_classes = [NonStationaryFiveLinearLocationAndScaleAndShapeModel]
+        # model_classes = [NonStationarySixLinearLocationAndScaleAndShapeModel]
+        # model_classes = [NonStationarySevenLinearLocationAndScaleAndShapeModel]
+        # model_classes = [NonStationaryEightLinearLocationAndScaleAndShapeModel]
+        # model_classes = [NonStationaryNineLinearLocationAndScaleAndShapeModel]
+        # model_classes = [NonStationaryTenLinearLocationAndScaleAndShapeModel]
     elif snowfall is None:
         fit_method = MarginFitMethod.extremes_fevd_mle
         display_only_model_that_pass_gof_test = False
@@ -82,8 +92,8 @@ def set_up_and_load(fast, snowfall=True):
     print('Covariate is {}'.format(temporal_covariate_for_fit))
     if fast is None:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        massif_names = AbstractStudy.all_massif_names()
-        gcm_rcm_couples = gcm_rcm_couples[:1]
+        massif_names = ["Vanoise"]
+        gcm_rcm_couples = gcm_rcm_couples[:]
     elif fast:
         gcm_rcm_couples = gcm_rcm_couples[:4]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
@@ -104,6 +114,7 @@ def set_up_and_load(fast, snowfall=True):
     for altitudes in altitudes_list:
         assert len(altitudes) == 1
     print('number of models', len(model_classes))
+    print('first model', get_display_name_from_object_type(model_classes[0]))
     print('number of gcm rcm couples', len(gcm_rcm_couples))
 
     print('only models that pass gof:', display_only_model_that_pass_gof_test)

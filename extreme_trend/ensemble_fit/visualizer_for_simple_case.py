@@ -123,7 +123,6 @@ class VisualizerForSimpleCase(object):
 
         # Load the separate fit
         try:
-            raise AssertionError
             self.independent_ensemble_fit = IndependentEnsembleFit([self.massif_name], gcm_rcm_couple_to_studies,
                                                                    model_classes,
                                                                    fit_method, temporal_covariate_for_fit,

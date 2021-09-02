@@ -133,24 +133,24 @@ class VisualizerForProjectionEnsemble(object):
         else:
             with_significance = True
             # Correction coefficient plots
-            if self.param_name_to_climate_coordinates_with_effects is not None:
-                # Plot the bias in the mean and std after taking into account the bias correction
-                for visualizer in visualizer_list:
-                    for massif_name in self.massif_names:
-                        gcm_rcm_couple_to_study, safran_study = load_study(visualizer.studies.study.altitude,
-                                                                           self.gcm_rcm_couples,
-                                                                           self.safran_study_class, self.scenario,
-                                                                           self.study_class)
-
-                        gcm_rcm_couple_to_params_effects = {}
-                        for gcm_rcm_couple in self.gcm_rcm_couples:
-                            params_effects = [load_total_effect(gcm_rcm_couple, massif_name,
-                                                                param_name, visualizer)
-                                              for param_name in GevParams.PARAM_NAMES]
-                            gcm_rcm_couple_to_params_effects[gcm_rcm_couple] = params_effects
-                        plot_bias_reduction(gcm_rcm_couple_to_study, massif_name, safran_study, visualizer, self.scenario)
-                if len(visualizer_list) > 1:
-                    self.plot_effect_against_altitude(visualizer_list)
+            # if self.param_name_to_climate_coordinates_with_effects is not None:
+            #     # Plot the bias in the mean and std after taking into account the bias correction
+            #     for visualizer in visualizer_list:
+            #         for massif_name in self.massif_names:
+            #             gcm_rcm_couple_to_study, safran_study = load_study(visualizer.studies.study.altitude,
+            #                                                                self.gcm_rcm_couples,
+            #                                                                self.safran_study_class, self.scenario,
+            #                                                                self.study_class)
+            #
+            #             gcm_rcm_couple_to_params_effects = {}
+            #             for gcm_rcm_couple in self.gcm_rcm_couples:
+            #                 params_effects = [load_total_effect(gcm_rcm_couple, massif_name,
+            #                                                     param_name, visualizer)
+            #                                   for param_name in GevParams.PARAM_NAMES]
+            #                 gcm_rcm_couple_to_params_effects[gcm_rcm_couple] = params_effects
+            #             plot_bias_reduction(gcm_rcm_couple_to_study, massif_name, safran_study, visualizer, self.scenario)
+            #     if len(visualizer_list) > 1:
+            #         self.plot_effect_against_altitude(visualizer_list)
             # Moment plot
             for relative in [None, True, False][:1]:
                 orders = [None] + GevParams.PARAM_NAMES[:]

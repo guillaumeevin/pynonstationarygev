@@ -144,7 +144,7 @@ class OneFoldFit(object):
             return gev_params.return_level(return_period=self.return_period)
         elif order in GevParams.PARAM_NAMES:
             d = gev_params.to_dict()
-            assert not np.isnan(d)
+            assert isinstance(d, dict)
             return d[order]
         else:
             raise NotImplementedError

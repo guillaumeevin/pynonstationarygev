@@ -99,9 +99,8 @@ class AbstractExperiment(object):
                 gcm_rcm_couple = self.gcm_rcm_couples[0]
         else:
             gcm_rcm_couple = kwargs['gcm_rcm_couple_as_pseudo_truth']
-        prefixs = self.prefixs[:2] if self.only_obs_score else self.prefixs
         l = [is_already_done(self.excel_filepath, self.get_row_name(p), self.experiment_name, gcm_rcm_couple) for p
-                    in prefixs]
+                    in self.prefixs]
         is_already_done_all = all(l)
         if not is_already_done_all:
             start = time.time()
@@ -109,10 +108,10 @@ class AbstractExperiment(object):
                 nllh_lists = self._run_one_experiment(kwargs)
             except (NllhIsInfException, SafeRunException, KeyError) as e:
                 print(e.__repr__())
-                nllh_lists = [[np.nan] for _ in prefixs]
+                nllh_lists = [[np.nan] for _ in self.prefixs]
             duration = str(datetime.timedelta(seconds=time.time() - start))
             print('Total duration for one experiment', duration)
-            for nllh_list, prefix in zip(nllh_lists, prefixs):
+            for nllh_list, prefix in zip(nllh_lists, self.prefixs):
                 row_name = self.get_row_name(prefix)
                 update_csv(self.excel_filepath, row_name, self.experiment_name, gcm_rcm_couple, np.array(nllh_list))
 
@@ -143,7 +142,7 @@ class AbstractExperiment(object):
         assert len(self.selection_method_names) == 1
         best_estimator = one_fold_fit._sorted_estimators_with_method_name("aic")[0]
         # Compute the log score for the observations
-        if self.only_obs_score:
+        if self.only_obs_score is True:
             gumbel_standardization = False
             studies_for_train = self.load_studies_obs_for_train(**kwargs)
             studies_for_test = self.load_studies_obs_for_test(**kwargs)
@@ -151,6 +150,8 @@ class AbstractExperiment(object):
             test_nllh_list = self.compute_nllh_list(best_estimator, kwargs, studies_for_test, gumbel_standardization)
             print("here 51", train_nllh_list[0], test_nllh_list[0])
             return [train_nllh_list, test_nllh_list]
+        elif self.only_obs_score is None:
+            return [best_estimator.aic, best_estimator.aic]
         else:
             gumbel_standardization = False
             if gumbel_standardization:
@@ -260,7 +261,13 @@ class AbstractExperiment(object):
     def get_row_name(self, prefix):
         return "{}_{}".format(prefix, self.combination_name)
 
-    @classproperty
+    @property
     def prefixs(self):
-        return ['CalibrationObs', 'ValidationObs', 'CalibrationEnsembleMembers',
-                'CalibrationAll']
+        prefixs = ['CalibrationObs', 'ValidationObs', 'CalibrationEnsembleMembers',
+         'CalibrationAll']
+        if self.only_obs_score is True:
+            return prefixs[:2]
+        elif self.only_obs_score is None:
+            return prefixs[:2]
+        else:
+            return prefixs

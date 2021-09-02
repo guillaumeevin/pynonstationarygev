@@ -22,11 +22,13 @@ def generate_excel_with_annual_maxima(fast=True):
             write_df_with_annual_maxima(altitude, writer, study)
         writer.save()
 
+
 def write_df_with_annual_maxima(altitude, writer, study) -> pd.DataFrame:
     df = study.df_latitude_longitude
     data_list = []
     for massif_name in df.index:
-        values = study.massif_name_to_annual_total[massif_name]
+        # values = study.massif_name_to_annual_total[massif_name]
+        values = study.massif_name_to_annual_maxima[massif_name]
         data_list.append(values)
     data = np.array(data_list)
     df2 = pd.DataFrame(data=data, index=df.index, columns=study.ordered_years).astype(float)
