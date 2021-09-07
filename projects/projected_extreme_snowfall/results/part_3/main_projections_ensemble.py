@@ -28,8 +28,8 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 def main():
     start = time.time()
 
-    fast = True
-    snowfall = True
+    fast = False
+    snowfall = False
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
@@ -41,7 +41,9 @@ def main():
     AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 100
     # all_massif_names = ['Vanoise']
 
-    massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(all_massif_names)
+    massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(all_massif_names,
+                                                                                      altitudes_list[0][0],
+                                                                                      snowfall=snowfall)
 
     for massif_name in all_massif_names:
         parametrization_number = massif_name_to_parametrization_number[massif_name]

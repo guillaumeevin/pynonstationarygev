@@ -27,7 +27,7 @@ def main_preliminary_projections():
     # time.sleep(60*30)
 
     fast = False
-    snowfall = True
+    snowfall = False
 
     if show in [None, True]:
         matplotlib.use('Agg')
@@ -50,7 +50,7 @@ def main_preliminary_projections():
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
         fast, snowfall)
 
-    altitudes_list = [[2100]]
+    altitudes_list = [[900], [2100]]
     for altitudes in altitudes_list:
         run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
                 model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
@@ -77,7 +77,7 @@ def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_coup
                 alpha=1000, show=show)
 
             print("Number of couples:", len(gcm_rcm_couples_sampled_for_experiment))
-            for i in [-1, 0, 1, 2, 4, 5][:]:
+            for i in [-1, 0, 1, 2, 4, 5][1:2]:
                 # for i in [-1, 0, 5][:]:
                 print('parametrization', i)
                 for gcm_rcm_couple in gcm_rcm_couples_sampled_for_experiment:

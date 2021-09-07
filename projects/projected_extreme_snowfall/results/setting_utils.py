@@ -56,12 +56,14 @@ def set_up_and_load(fast, snowfall=True):
         fit_method = MarginFitMethod.evgam
         display_only_model_that_pass_gof_test = False
         return_period = 100
-        model_classes = [StationaryTemporalModel]
-        model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
+        # model_classes = [StationaryTemporalModel]
+        # model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
         altitudes_list = [2100]
         model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
-        # model_classes = [NonStationaryThreeLinearLocationAndScaleAndShapeModel]
-        # model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
+        model_classes = [NonStationaryThreeLinearLocationAndScaleAndShapeModel]
+        model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
+
+
         # model_classes = [NonStationaryFiveLinearLocationAndScaleAndShapeModel]
         # model_classes = [NonStationarySixLinearLocationAndScaleAndShapeModel]
         # model_classes = [NonStationarySevenLinearLocationAndScaleAndShapeModel]
@@ -75,9 +77,14 @@ def set_up_and_load(fast, snowfall=True):
         return_period = 100
         altitudes_list = [1500]
     else:
-        fit_method = MarginFitMethod.extremes_fevd_mle
+        fit_method = MarginFitMethod.evgam
+        model_classes = [StationaryTemporalModel]
+        # model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
+        # model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
+        # model_classes = [NonStationaryThreeLinearLocationAndScaleAndShapeModel]
+        # model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
+
         display_only_model_that_pass_gof_test = False
-        model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
         return_period = 50
         altitudes_list = [1500]
     OneFoldFit.return_period = return_period

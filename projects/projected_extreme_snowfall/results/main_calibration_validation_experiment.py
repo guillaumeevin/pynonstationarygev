@@ -16,7 +16,7 @@ def main_calibration_validation_experiment():
     start = time.time()
 
     fast = False
-    snowfall = True
+    snowfall = False
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -27,7 +27,7 @@ def main_calibration_validation_experiment():
     # time.sleep(60*40)
 
     # Load the csv filepath
-    altitudes_list = [[2100]]
+    altitudes_list = [[1500]]
     calibration_class = CalibrationValidationExperiment
     year_max_for_studies = None
     linear_effects = (False, False, False)
@@ -43,7 +43,8 @@ def main_calibration_validation_experiment():
     l = [0.1, 0.2, 0.3]
     l = [0.3]
     # l = [0.4]
-    l = [0.7]
+    l = [0.6, 0.7, 0.8]
+    altitudes_list = [[900], [2100]]
     # l = [0.6]
     # l = [0.7, 0.8]
     # l = [0.8]

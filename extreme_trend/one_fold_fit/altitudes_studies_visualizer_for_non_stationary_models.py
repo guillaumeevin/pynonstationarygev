@@ -106,7 +106,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             else:
                 model_classes = self.model_classes
 
-            if massif_name in self.param_name_to_climate_coordinates_with_effects:
+            if isinstance(self.param_name_to_climate_coordinates_with_effects, dict) and massif_name in self.param_name_to_climate_coordinates_with_effects:
                 param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects[massif_name]
             else:
                 param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects
@@ -310,18 +310,15 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             # cmap = remove_the_extreme_colors(cmap, epsilon=0.25)
             # cmap = get_inverse_colormap(cmap)
             massif_name_to_text = {m: round(v, 1) for m, v in massif_name_to_value.items()}
-            # if self.altitude_group.altitude == 1500:
-            #     max_abs_change = 9.9
-            # else:
-            max_abs_change = None
-            graduation = 10
+            if self.altitude_group.altitude == 1500:
+                max_abs_change = 9.9
+            else:
+                max_abs_change = None
+            graduation = 2
             massif_names_with_white_dot = None
-            half_cmap_for_positive = True
-            negative_and_positive_values = False
-
-        else:
-            negative_and_positive_values = True
             half_cmap_for_positive = False
+        else:
+            half_cmap_for_positive = True
             fontsize_label = 10
             # cmap = plt.cm.RdYlGn
             cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
@@ -330,10 +327,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             cmap = remove_the_extreme_colors(cmap)
             if 'relative' in method_name:
                 graduation = 10
-                # max_abs_change = 55
+                max_abs_change = 100
             else:
-                graduation = 10
-                # max_abs_change = 4
+                graduation = 1
+                max_abs_change = 4
             if with_significance:
                 print('nb of massifs with singificant correct')
                 print(sum([one_fold_fit.gcm_correction_is_significant for one_fold_fit in self.massif_name_to_one_fold_fit.values()]))
@@ -347,6 +344,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             else:
                 massif_names_with_white_dot = None
 
+        negative_and_positive_values = False
 
         # Plot the map
         self.plot_map(cmap=cmap, graduation=graduation,
