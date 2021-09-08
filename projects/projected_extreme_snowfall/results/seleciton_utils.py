@@ -36,11 +36,11 @@ short_name_to_parametrization_number = {
 
 short_name_to_color = {
     "without obs": "grey",
-    "no effect": "blue",
-    "is_ensemble_member": 'yellow',
-    "gcm": 'orange',
-    "rcm": "red",
-    "gcm_and_rcm": 'violet',
+    "no effect": "paleturquoise",
+    "is_ensemble_member": 'lemonchiffon',
+    "gcm": 'navajowhite',
+    "rcm": "lightsalmon",
+    "gcm_and_rcm": 'plum',
     "mean": "black",
 }
 
