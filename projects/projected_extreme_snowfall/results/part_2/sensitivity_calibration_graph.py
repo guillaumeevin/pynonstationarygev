@@ -164,24 +164,6 @@ labels = ["Score for obs on calibration set", "Score for obs on validation set",
           "Score for ensemble members on calibration period", "Score on the complete calibration set"]
 prefix_to_label = dict(zip(AbstractExperiment.prefixs, labels))
 
-short_name_to_color = {
-    "without obs": "grey",
-    "no effect": "blue",
-    "is_ensemble_member": 'yellow',
-    "gcm": 'orange',
-    "rcm": "red",
-    "gcm_and_rcm": 'violet',
-}
-
-short_name_to_label = {
-    'without obs': "Baseline",
-    "no effect": "Zero adjustment coefficients",
-    "gcm": 'One adjustment coefficient for each GCM',
-    "gcm_and_rcm": 'One adjustment coefficient for each GCM-RCM pair',
-    "is_ensemble_member": 'One adjustment coefficient for all GCM-RCM pairs',
-    "rcm": "One adjustment coefficient for each RCM",
-}
-
 if __name__ == '__main__':
     for folder_idx in [0, 2][1:]:
         for massif_name in [None] + AbstractStudy.all_massif_names():

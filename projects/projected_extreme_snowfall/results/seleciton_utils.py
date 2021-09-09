@@ -26,12 +26,18 @@ number_to_model_class = {
     4: NonStationaryFourLinearLocationAndScaleAndShapeModel,
 }
 
+model_class_to_number = {v: k for k, v in number_to_model_class.items()}
+
 short_name_to_parametrization_number = {
     "no effect": 0,
     "is_ensemble_member": 5,
     "gcm": 1,
     "rcm": 2,
     "gcm_and_rcm": 4,
+}
+
+parametrization_number_to_short_name = {
+    v:k for k,v in short_name_to_parametrization_number.items()
 }
 
 short_name_to_color = {
