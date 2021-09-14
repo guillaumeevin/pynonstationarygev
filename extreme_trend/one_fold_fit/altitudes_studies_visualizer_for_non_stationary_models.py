@@ -192,6 +192,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             # self.plot_map_moment_projections('changes_of_moment', None, with_significance)
             self.plot_map_moment_projections('relative_changes_of_moment', None, with_significance)
 
+        # Plot the relative change on the map to analyze the pattern
+        # OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 4
+        # self.plot_map_moment_projections('changes_of_moment', None, with_significance)
+
         # Compute some number for the discussion
         covariate_before = (1986, 2005)
         if isinstance(covariate_before, tuple):
@@ -273,9 +277,12 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             plot_name += self.first_one_fold_fit.between_covariate_str
 
             if 'relative' in method_name:
+                # Put the relative score as text on the plot for the change.
+                massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
+                                       self.method_name_and_order_to_d(self.moment_names[2], order).items()}
                 # Put the change score as text on the plot for the change.
-                massif_name_to_text = {m: ('+' if v > 0 else '') + str(round(v, 1)) for m, v in
-                                       self.method_name_and_order_to_d(self.moment_names[1], order).items()}
+                # massif_name_to_text = {m: ('+' if v > 0 else '') + str(round(v, 1)) for m, v in
+                #                        self.method_name_and_order_to_d(self.moment_names[1], order).items()}
             else:
                 # Put the relative score as text on the plot for the change.
                 massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
@@ -327,7 +334,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             cmap = remove_the_extreme_colors(cmap)
             if 'relative' in method_name:
                 graduation = 10
-                max_abs_change = 100
+                max_abs_change = 60
             else:
                 graduation = 1
                 max_abs_change = 4

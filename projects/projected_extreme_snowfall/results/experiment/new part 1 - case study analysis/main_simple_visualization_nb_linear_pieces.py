@@ -41,7 +41,8 @@ def main_simple_visualizatoin():
 
     # Load the csv filepath
     massif_names = AbstractStudy.all_massif_names()[:1]
-    massif_names = AbstractStudy.all_massif_names()[:]
+    gcm_rcm_couples = gcm_rcm_couples[:]
+    massif_names = ['Thabor', 'Vanoise', 'Haute-Tarentaise'][:]
     massif_names, massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(massif_names,
                                                                                       altitudes[0],
                                                                                                      gcm_rcm_couples,
@@ -60,11 +61,8 @@ def main_simple_visualizatoin():
 
         display_only_model_that_pass_gof_test = False
 
-        print('Last year for the train set', last_year_for_the_train_set, 'Percentage', percentage)
         year_max_for_studies = None
-        print('year max for studies:', year_max_for_studies)
         weight_on_observation = 1
-        print('weight on observation=', weight_on_observation)
 
         combinations = [(0, 0, 0)][:]
         if parametrization_number == 0:
@@ -83,7 +81,7 @@ def main_simple_visualizatoin():
                                                  year_max_for_studies=year_max_for_studies,
                                                  last_year_for_the_train_set=last_year_for_the_train_set,
                                                  )
-            visualizer.visualize_gev_parameters()
+            visualizer.visualize_density_to_illustrate_adjustments(with_density=False)
 
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))

@@ -86,7 +86,7 @@ def main_simple_visualizatoin():
                                                  year_max_for_studies=year_max_for_studies,
                                                  last_year_for_the_train_set=last_year_for_the_train_set,
                                                  )
-            visualizer.visualize_density_to_illustrate_adjustments()
+            visualizer.visualize_density_to_illustrate_adjustments(with_density=True)
 
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))

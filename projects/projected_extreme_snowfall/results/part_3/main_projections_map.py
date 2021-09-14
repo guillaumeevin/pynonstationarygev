@@ -39,13 +39,13 @@ def main():
         fast, snowfall)
     season = Season.annual
 
-    altitudes_list = [[900]]
+    altitudes_list = [[2100]]
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     massif_names = AbstractStudy.all_massif_names()[:]
-    massif_names = ['Mercantour', 'Thabor', 'Devoluy', 'Parpaillon', 'Haut_Var-Haut_Verdon']
+    # massif_names = ['Mercantour', 'Thabor', 'Devoluy', 'Parpaillon', 'Haut_Var-Haut_Verdon']
 
-    massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitudes_list[0], gcm_rcm_couples,
-                                                             safran_study_class, scenario, season, study_class)
+    massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitudes_list[0][0], gcm_rcm_couples,
+                                                             safran_study_class, scenario, study_class)
 
     massif_names, massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(massif_names,
                                                                                       altitudes_list[0][0],

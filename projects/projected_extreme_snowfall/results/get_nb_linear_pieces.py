@@ -124,7 +124,13 @@ def plots(massif_name_to_short_name, d, show):
     # Plot the map
     ax = plt.gca()
     massif_name_to_color = {m: short_name_to_color[s] for m, s in massif_name_to_short_name.items()}
+
+    massif_name_to_hatch_boolean_list = {}
+    for massif_name in set(AbstractStudy.all_massif_names()) - set(list(massif_name_to_color.keys())):
+        massif_name_to_hatch_boolean_list[massif_name] = [True, True]
+
     AbstractStudy.visualize_study(ax, massif_name_to_color=massif_name_to_color,
+                                  massif_name_to_hatch_boolean_list=massif_name_to_hatch_boolean_list,
                                   massif_name_to_text={m: str(v) for m, v in d.items()},
                                   add_text=True,
                                   axis_off=True, show=False)
@@ -242,7 +248,7 @@ if __name__ == '__main__':
 
     _, gcm_rcm_couples, _, _, scenario, study_class, _, _, _, safran_study_class, _ = set_up_and_load(False, snowfall)
 
-    run_selection(massif_names, 2100, gcm_rcm_couples, safran_study_class, scenario, study_class,
+    run_selection(massif_names, 1500, gcm_rcm_couples, safran_study_class, scenario, study_class,
                   show=False, snowfall=snowfall)
     # run_selection(massif_names, 900, show=True, snowfall=False)
     # run_selection(massif_names, 2100, show=True, snowfall=False)
