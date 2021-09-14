@@ -43,7 +43,9 @@ parametrization_number_to_short_name = {
 short_name_to_color = {
     "without obs": "grey",
     "no effect": "paleturquoise",
-    "is_ensemble_member": 'lemonchiffon',
+    # "is_ensemble_member": 'lemonchiffon',
+    # "is_ensemble_member": 'beige',
+    "is_ensemble_member": 'palegoldenrod',
     "gcm": 'navajowhite',
     "rcm": "lightsalmon",
     "gcm_and_rcm": 'plum',

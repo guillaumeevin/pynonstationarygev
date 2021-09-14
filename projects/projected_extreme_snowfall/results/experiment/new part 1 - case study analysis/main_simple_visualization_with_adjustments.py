@@ -40,30 +40,37 @@ def main_simple_visualizatoin():
     percentage = 1
 
     # Load the csv filepath
-    massif_names = AbstractStudy.all_massif_names()[:3]
-    massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(massif_names,
+    massif_names = AbstractStudy.all_massif_names()[2:3]
+    massif_names = AbstractStudy.all_massif_names()[:]
+    massif_names = ['Mont-Blanc', 'Ubaye', 'Champsaur', 'Vercors'][:]
+    massif_names, massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(massif_names,
                                                                                       altitudes[0],
+                                                                                                     gcm_rcm_couples,
+                                                                                                     safran_study_class,
+                                                                                                     scenario,
+                                                                                                     study_class,
                                                                                       snowfall=snowfall)
 
-    massif_name_to_param_name_to_climate_coordinates_with_effects = {}
+    print(massif_name_to_parametrization_number)
     for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
+
+        model_classes = [massif_name_to_model_class[massif_name]]
+
+        last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
+        linear_effects = (False, False, False)
+
+        display_only_model_that_pass_gof_test = False
+
+        print('Last year for the train set', last_year_for_the_train_set, 'Percentage', percentage)
+        year_max_for_studies = None
+        print('year max for studies:', year_max_for_studies)
+        weight_on_observation = 1
+        print('weight on observation=', weight_on_observation)
+
         combinations = [(0, 0, 0)][:]
         if parametrization_number != 0:
-            print('\n\n', massif_name)
             combinations.append((parametrization_number, parametrization_number, 0))
-            model_classes = [massif_name_to_model_class[massif_name]]
-
-            last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
-            linear_effects = (False, False, False)
-
-            display_only_model_that_pass_gof_test = False
-
-            print('Last year for the train set', last_year_for_the_train_set, 'Percentage', percentage)
-            year_max_for_studies = None
-            print('year max for studies:', year_max_for_studies)
-            weight_on_observation = 1
-            print('weight on observation=', weight_on_observation)
-
+            print('\n\n', massif_name)
             visualizer = VisualizerForSimpleCase(altitudes, gcm_rcm_couples, safran_study_class, study_class,
                                                  Season.annual,
                                                  scenario=scenario,
@@ -79,7 +86,8 @@ def main_simple_visualizatoin():
                                                  year_max_for_studies=year_max_for_studies,
                                                  last_year_for_the_train_set=last_year_for_the_train_set,
                                                  )
-            visualizer.visualize_gev_parameters()
+            visualizer.visualize_density_to_illustrate_adjustments()
+
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))
     print('Total duration', duration)

@@ -37,15 +37,19 @@ def main():
 
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
 
-    all_massif_names = AbstractStudy.all_massif_names()[:]
-    AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 100
-    # all_massif_names = ['Vanoise']
+    massif_names = AbstractStudy.all_massif_names()[:]
+    altitudes_list = [[900]]
+    AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 2
+    # massif_names = ['Chartreuse', "Bauges"]
 
-    massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(all_massif_names,
+    massif_names, massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(massif_names,
                                                                                       altitudes_list[0][0],
+                                                                                      gcm_rcm_couples,
+                                                                                      safran_study_class,
+                                                                                      scenario, study_class,
                                                                                       snowfall=snowfall)
 
-    for massif_name in all_massif_names:
+    for massif_name in massif_names:
         parametrization_number = massif_name_to_parametrization_number[massif_name]
         combination = (parametrization_number, parametrization_number, 0)
         param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(

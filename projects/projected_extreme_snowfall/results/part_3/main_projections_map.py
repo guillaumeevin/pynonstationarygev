@@ -12,7 +12,8 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
-from projects.projected_extreme_snowfall.results.get_nb_linear_pieces import run_selection
+from projects.projected_extreme_snowfall.results.get_nb_linear_pieces import run_selection, \
+    eliminate_massif_name_with_too_much_zeros
 from projects.projected_extreme_snowfall.results.setting_utils import set_up_and_load
 
 matplotlib.use('Agg')
@@ -36,12 +37,22 @@ def main():
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
         fast, snowfall)
+    season = Season.annual
 
+    altitudes_list = [[900]]
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     massif_names = AbstractStudy.all_massif_names()[:]
-    # massif_names = ['Chablais', 'Vercors']
-    massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(massif_names,
+    massif_names = ['Mercantour', 'Thabor', 'Devoluy', 'Parpaillon', 'Haut_Var-Haut_Verdon']
+
+    massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitudes_list[0], gcm_rcm_couples,
+                                                             safran_study_class, scenario, season, study_class)
+
+    massif_names, massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(massif_names,
                                                                                       altitudes_list[0][0],
+                                                                                                    gcm_rcm_couples,
+                                                                                                    safran_study_class,
+                                                                                                    scenario,
+                                                                                                    study_class,
                                                                                       snowfall=snowfall)
 
     massif_name_to_param_name_to_climate_coordinates_with_effects = {}
@@ -51,7 +62,7 @@ def main():
         massif_name_to_param_name_to_climate_coordinates_with_effects[massif_name] = param_name_to_climate_coordinates_with_effects
 
     visualizer = VisualizerForProjectionEnsemble(
-        altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
+        altitudes_list, gcm_rcm_couples, study_class, season, scenario,
         model_classes=massif_name_to_model_class,
         ensemble_fit_classes=ensemble_fit_classes,
         massif_names=massif_names,

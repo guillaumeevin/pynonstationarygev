@@ -79,7 +79,7 @@ def set_up_and_load(fast, snowfall=True):
     else:
         fit_method = MarginFitMethod.evgam
         model_classes = [StationaryTemporalModel]
-        # model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
+        model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
         # model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
         # model_classes = [NonStationaryThreeLinearLocationAndScaleAndShapeModel]
         # model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]

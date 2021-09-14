@@ -1,8 +1,13 @@
 import matplotlib.pyplot as plt
+import matplotlib.path as mpath
+
+import seaborn as sns
 from typing import List
 
 import numpy as np
 from cached_property import cached_property
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_color
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
@@ -10,7 +15,7 @@ from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson, get_pvalue_anderson_darling_test
 from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh_with_multiprocessing_for_large_samples
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
-    GumbelTemporalModel, NonStationaryLocationAndScaleAndShapeTemporalModel
+    GumbelTemporalModel, NonStationaryLocationAndScaleAndShapeTemporalModel, NonStationaryLocationAndScaleTemporalModel
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -105,7 +110,7 @@ class VisualizerForSimpleCase(object):
         studies = AltitudesStudies(safran_study_class, altitudes, season=season, year_min=1959, year_max=2019)
         visu = AltitudesStudiesVisualizerForNonStationaryModels(studies,
                                                                 model_classes=[
-                                                                    StationaryTemporalModel],
+                                                                    NonStationaryLocationAndScaleTemporalModel],
                                                                 massif_names=[massif_name],
                                                                 fit_method=fit_method,
                                                                 temporal_covariate_for_fit=temporal_covariate_for_fit,
@@ -218,7 +223,7 @@ class VisualizerForSimpleCase(object):
 
     def visualize_gev_parameter(self, gev_param, k):
         ax = plt.gca()
-        right_limit = 4
+        right_limit = 5
         nb_pieces_suffix = " (\#Linear pieces = {})".format(model_class_to_number[self.model_classes[0]])
         # Independent plot
         if self.independent_ensemble_fit is not None:
@@ -237,7 +242,7 @@ class VisualizerForSimpleCase(object):
                 y = [self.get_value(one_fold_fit, c, gev_param) for c in coordinates if c[0] <= right_limit]
                 if gcm_rcm_couple[0] is None:
                     color = 'k'
-                    label = "non-stationary GEV for the past observation (\#Linear pieces = 0)"
+                    label = "non-stationary GEV for the observations (\#Linear pieces = 1, constant shape)"
                     linestyle = '-'
                     linewidth = 3
                 else:
@@ -246,28 +251,29 @@ class VisualizerForSimpleCase(object):
                     linewidth = 1
                     if add_label_gcm:
                         add_label_gcm = False
-                        label = "non-stationary GEV for one GCM-RCM pair" + nb_pieces_suffix
+                        label = "non-stationary GEV for each GCM-RCM pair" + nb_pieces_suffix
                     else:
                         label = None
 
                 ax.plot(x, y, label=label, linestyle=linestyle, color=color, linewidth=linewidth, marker=None)
 
         # Together plot with obs
-        for j, (parametrization_number, visualizer) in enumerate(self.parametrization_number_to_visualizer_ensemble.items()):
+        for j, (parametrization_number, visualizer) in enumerate(
+                self.parametrization_number_to_visualizer_ensemble.items()):
             short_name = parametrization_number_to_short_name[parametrization_number]
             color = short_name_to_color[short_name]
-            label = 'non-stationary GEV for the past observation and all GCM-RCM pairs with\n'
+            label = 'non-stationary GEV for the observations and all GCM-RCM pairs with\n'
             label += short_name_to_label[short_name]
             # train_score, test_score = self.combination_name_to_two_scores[combination_name]
             one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
             coordinates = one_fold_fit.best_estimator.coordinates_for_nllh
-            x = sorted([c[0] for c in coordinates if c[0]  <= right_limit])
+            x = sorted([c[0] for c in coordinates if c[0] <= right_limit])
             y = [self.get_value(one_fold_fit, np.array([e]), gev_param) for e in x]
             # label = combination_name.replace('_', '-')
             # label += " ({}, {})".format(round(train_score, 2), round(test_score, 2))
-            if (k < 3) and self.linear_effects[k]:
-                if "no effect" not in label:
-                    label += ' with linear effect'
+            # if (k < 3) and self.linear_effects[k]:
+            #     if "no effect" not in label:
+            #         label += ' with linear effect'
             label += nb_pieces_suffix
             ax.plot(x, y, label=label, color=color, linewidth=3)
             # Add the slope with the added adjustment coefficients.
@@ -284,7 +290,7 @@ class VisualizerForSimpleCase(object):
             AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
             if with_significance:
                 if (gev_param is None) or (gev_param in GevParams.PARAM_NAMES):
-                # Plot the uncertainty interval
+                    # Plot the uncertainty interval
                     margin_functions = one_fold_fit.bootstrap_fitted_functions_from_fit_cached
                     coordinates_list = [np.array([t]) for t in x]
 
@@ -302,11 +308,15 @@ class VisualizerForSimpleCase(object):
                     ax.fill_between(x, lower_bound, upper_bound, color=color, alpha=0.3)
 
         # Final plt
-        ylabel = '{} ({})'.format(self.get_str(gev_param), visualizer.study.variable_unit)
+        ylabel = '{} for the {} massif at {} m ({})'.format(self.get_str(gev_param),
+                                                            self.massif_name.replace('_', ' '),
+                                                            self.altitudes[0],
+                                                            visualizer.study.variable_unit)
         ylabel = ylabel[0].upper() + ylabel[1:]
         ax.set_ylabel(ylabel)
         xlabel = 'T, the smoothed anomaly of global temperature w.r.t. pre-industrial levels (K)'
         ax.set_xlabel(xlabel)
+        ax.set_xlim((0, right_limit))
         handles, labels = ax.get_legend_handles_labels()
         handles[:2] = handles[:2][::-1]
         labels[:2] = labels[:2][::-1]
@@ -316,6 +326,203 @@ class VisualizerForSimpleCase(object):
         visualizer.plot_name = title
         visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
         plt.close()
+
+    def visualize_density_to_illustrate_adjustments(self):
+        gev_param = None
+        ax = plt.gca()
+        ax2 = ax.twinx()
+
+        normalization_factor = 0
+
+        t_for_density = [1, 1.5]
+        right_limit = 1.5
+        left_limit = 0.5
+        linewidth_big_plot = 4
+        ylim_upper_for_plots = 0
+        percentage_upper_for_plots = 0.7
+        alpha = 0.4
+
+        nb_pieces_suffix = " (\#Linear pieces = {})".format(model_class_to_number[self.model_classes[0]])
+        # Independent plot
+        if self.independent_ensemble_fit is not None:
+            items = list(self.independent_ensemble_fit.gcm_rcm_couple_to_visualizer.items())
+            # Remove the safran plot with the complex model
+            items = [i for i in items if i[0][0] is not None]
+            # Add the safran plot with a simpler model
+            for vizu in self.other_obs_visualizers:
+                items.append(((None, None), vizu))
+
+            add_label_gcm = True
+            for gcm_rcm_couple, visualizer in items:
+                one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
+                coordinates = one_fold_fit.best_estimator.coordinates_for_nllh
+                x = [c[0] for c in coordinates if left_limit <= c[0] <= right_limit]
+                y = [self.get_value(one_fold_fit, c, gev_param) for c in coordinates if
+                     left_limit <= c[0] <= right_limit]
+                ylim_upper_for_plots = max(ylim_upper_for_plots, max(y))
+                color, linewidth = self.setting_for_plots(gcm_rcm_couple, linewidth_big_plot)
+
+                if gcm_rcm_couple[0] is None:
+                    label = "non-stationary GEV for the observations (\#Linear pieces = 1, constant shape)"
+                else:
+                    if add_label_gcm:
+                        add_label_gcm = False
+                        label = "non-stationary GEV for each GCM-RCM pair" + nb_pieces_suffix
+                    else:
+                        label = None
+                ax.plot(x, y, label=label, linestyle="--", color=color, linewidth=linewidth, marker=None)
+
+            ylim_upper = (1 / percentage_upper_for_plots) * ylim_upper_for_plots
+            for gcm_rcm_couple, visualizer in items:
+                one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
+                # Only plot for the first one
+                for t in t_for_density[:1]:
+                    c = np.array([t])
+                    gev_params = one_fold_fit.best_margin_function_from_fit.get_params(c)
+                    n = self.plot_density_vertically(ax, ax2, None, gev_params, t, ylim_upper_for_plots,
+                                                     None, None)
+                    normalization_factor = max(normalization_factor, n)
+            for gcm_rcm_couple, visualizer in items:
+                one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
+                color, linewidth = self.setting_for_plots(gcm_rcm_couple, linewidth_big_plot)
+                # Only plot for the first one
+                for t in t_for_density[:1]:
+                    c = np.array([t])
+                    gev_params = one_fold_fit.best_margin_function_from_fit.get_params(c)
+                    self.plot_density_vertically(ax, ax2, color, gev_params, t, ylim_upper_for_plots,
+                                                 linewidth, normalization_factor)
+
+        # Together plot with obs
+        for j, (parametrization_number, visualizer) in enumerate(
+                self.parametrization_number_to_visualizer_ensemble.items()):
+            short_name = parametrization_number_to_short_name[parametrization_number]
+            color = short_name_to_color[short_name]
+            label = 'non-stationary GEV for the observations and all GCM-RCM pairs with\n'
+            label += short_name_to_label[short_name]
+            # train_score, test_score = self.combination_name_to_two_scores[combination_name]
+            one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
+            coordinates = one_fold_fit.best_estimator.coordinates_for_nllh
+            x = sorted([c[0] for c in coordinates if left_limit <= c[0] <= right_limit])
+            y = [self.get_value(one_fold_fit, np.array([e]), gev_param) for e in x]
+            label += nb_pieces_suffix
+            ax.plot(x, y, label=label, color=color, linewidth=linewidth_big_plot,
+                    linestyle="--")
+
+            # Additional plots for the value of return level
+            with_significance = True
+            AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 100
+            if with_significance:
+                # Plot the uncertainty interval
+                margin_functions = one_fold_fit.bootstrap_fitted_functions_from_fit_cached
+                coordinates_list = [np.array([t]) for t in x]
+                values = [[f.get_params(c).return_level(OneFoldFit.return_period) for c in coordinates_list] for
+                          f in
+                          margin_functions]
+                q_list = [0.05, 0.95]
+                lower_bound, upper_bound = [np.quantile(values, q, axis=0) for q in q_list]
+                ax.fill_between(x, lower_bound, upper_bound, color=color, alpha=alpha)
+
+            for t in t_for_density[:]:
+                c = np.array([t])
+                # if t == 1:
+                text_height = ylim_upper_for_plots
+                ax.axhline(text_height, (t - 0.3 - 0.5) / 1, (t - 0.5) / 1, color='k', linewidth=1)
+                ax.axvline(t, 0, percentage_upper_for_plots, color='k', linewidth=1)
+                epsilon = 0.02
+                start_text = t - 0.3
+                for i in range(5):
+                    tick_x = start_text + 0.05 + 0.05 * i
+                    ax.axvline(tick_x, percentage_upper_for_plots - epsilon,
+                               percentage_upper_for_plots, color='k', linewidth=1)
+                ax.text(start_text, text_height + 0.1, "Probability density function")
+                gev_params = one_fold_fit.best_margin_function_from_fit.get_params(c)
+                # p = sns.distplot(gev_params.sample(1000), ax=ax2, label=None, color=color,
+                #             vertical=True, linewidth=0)
+                self.plot_density_vertically(ax, ax2, color, gev_params, t, ylim_upper_for_plots,
+                                             linewidth_big_plot, normalization_factor)
+
+            # Add the slope with the added adjustment coefficients.
+            # other_combinations = set([tuple(c[1:]) for c in coordinates])
+            # other_combinations = [c for c in other_combinations if sum(c) > 0]
+            # for last_coordinates in other_combinations:
+            #     other_coordinates = [np.array([e] + list(last_coordinates)) for e in x]
+            #     y = [one_fold_fit.best_margin_function_from_fit.get_params(c).to_dict()[gev_param] for c in
+            #          other_coordinates]
+            #     ax.plot(x, y, linestyle='--', color=color)
+
+        # Final plt
+        ylabel = 'Annual maxima for the {} massif at {} m ({})'.format(
+            self.massif_name.replace('_', ' '),
+            self.altitudes[0],
+            visualizer.study.variable_unit)
+        ylabel = ylabel[0].upper() + ylabel[1:]
+        ax.set_ylabel(ylabel)
+        xlabel = 'T, the smoothed anomaly of global temperature w.r.t. pre-industrial levels (K)'
+        ax.set_xlabel(xlabel)
+        ax.set_xlim((left_limit, right_limit))
+        ax.set_xticks([0.5, 1, 1.5])
+        ylim = (0, ylim_upper)
+        ax.set_ylim(ylim)
+        ax2.set_ylim(ylim)
+        ax2.set_yticks([])
+        handles, labels = ax.get_legend_handles_labels()
+        handles[:2] = handles[:2][::-1]
+        labels[:2] = labels[:2][::-1]
+        legendsize = 7
+        leg = ax.legend(handles, labels, prop={'size': legendsize}, loc='upper left')
+        linewidth_legend = 3
+        for line in leg.get_lines():
+            line.set_linewidth(linewidth_legend)
+            line.set_linestyle("-")
+
+        # Build legend for the different style
+        labels = ["Probability density function",
+                  "50-year return level which equals\n"
+                  "RL50 for the non-stationary\n"
+                  "GEV fitted on the observations\n"
+                  "and all GCM-RCM pairs",
+                  "90\% uncertainty interval for\n"
+                  "the 50-year return level RL50"]
+        handles = [
+            Line2D([0], [0], color='k', linestyle=linestyle)
+            for linestyle in ["-", "--"]
+        ]
+        handles.append(Patch(facecolor='k', edgecolor='k', alpha=alpha))
+
+        leg = ax2.legend(handles=handles, labels=labels, loc='upper right', prop={'size': legendsize},
+                         handlelength=3)
+        for line in leg.get_lines():
+            line.set_linewidth(linewidth_legend)
+
+        title = '{} massif {}'.format(self.massif_name, self.get_str(gev_param))
+        visualizer.plot_name = title
+        visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
+        plt.close()
+
+    def setting_for_plots(self, gcm_rcm_couple, linewidth_big_plot):
+        if gcm_rcm_couple[0] is None:
+            color = 'dimgrey'
+            linewidth = linewidth_big_plot
+
+
+        else:
+            color = 'lightgrey'
+            linewidth = 1
+        return color, linewidth
+
+    def plot_density_vertically(self, ax, ax2, color, gev_params, t, ylim_upper_for_plots, linewidth,
+                                normalize_factor=None):
+        sns.kdeplot(gev_params.sample(10000), ax=ax2, label=None, color=color,
+                    vertical=True, linewidth=0)
+        xp, yp = ax2.get_lines()[-1].get_data()
+        if normalize_factor is None:
+            return xp.max()
+        else:
+            xp = xp * 0.25 / normalize_factor
+            xp = t + -xp
+            l = [(xpp, ypp) for xpp, ypp in zip(xp, yp) if ypp <= ylim_upper_for_plots]
+            xp, yp = zip(*l)
+            ax.plot(xp, yp, color=color, linestyle='-', linewidth=linewidth)
 
     def test_goodness_of_fit_obs(self, gcm_rcm_couple_to_studies, visualizer):
         margin_function = visualizer.massif_name_to_one_fold_fit[self.massif_name].best_margin_function_from_fit
