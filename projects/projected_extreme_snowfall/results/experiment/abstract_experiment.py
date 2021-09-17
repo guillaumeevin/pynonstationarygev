@@ -148,7 +148,6 @@ class AbstractExperiment(object):
             studies_for_test = self.load_studies_obs_for_test(**kwargs)
             train_nllh_list = self.compute_nllh_list(best_estimator, kwargs, studies_for_train, gumbel_standardization)
             test_nllh_list = self.compute_nllh_list(best_estimator, kwargs, studies_for_test, gumbel_standardization)
-            print("here 51", train_nllh_list[0], test_nllh_list[0])
             return [train_nllh_list, test_nllh_list]
         elif self.only_obs_score is None:
             return [best_estimator.aic, best_estimator.aic]

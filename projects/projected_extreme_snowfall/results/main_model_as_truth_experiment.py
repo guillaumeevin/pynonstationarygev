@@ -7,7 +7,10 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_study import Abstra
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationAndScaleAndShapeTemporalModel, NonStationaryLocationAndScaleGumbelModel, \
-    NonStationaryLocationAndScaleTemporalModel
+    NonStationaryLocationAndScaleTemporalModel, StationaryTemporalModel
+from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
+    NonStationaryTwoLinearLocationAndScaleAndShapeModel, NonStationaryThreeLinearLocationAndScaleAndShapeModel, \
+    NonStationaryFourLinearLocationAndScaleAndShapeModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects, load_combination_name_for_tuple
@@ -27,7 +30,7 @@ def main_preliminary_projections():
     # time.sleep(60*30)
 
     fast = False
-    snowfall = False
+    snowfall = True
 
     if show in [None, True]:
         matplotlib.use('Agg')
@@ -50,12 +53,20 @@ def main_preliminary_projections():
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
         fast, snowfall)
 
-    altitudes_list = [[900], [2100]]
-    for altitudes in altitudes_list:
-        run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
-                model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
-                study_class, temporal_covariate_for_fit, year_max_for_gcm, year_max_for_pseudo_obs,
-                weight_on_observation, linear_effects, fit_method)
+    model_classes_list = [StationaryTemporalModel,
+                          NonStationaryLocationAndScaleAndShapeTemporalModel,
+                          NonStationaryTwoLinearLocationAndScaleAndShapeModel,
+                          NonStationaryThreeLinearLocationAndScaleAndShapeModel,
+                          NonStationaryFourLinearLocationAndScaleAndShapeModel][:]
+    altitudes_list = [[900], [1500], [2100], [2700], [3300]]
+
+    for model_class in model_classes_list:
+        model_classes = [model_class]
+        for altitudes in altitudes_list:
+            run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
+                    model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
+                    study_class, temporal_covariate_for_fit, year_max_for_gcm, year_max_for_pseudo_obs,
+                    weight_on_observation, linear_effects, fit_method)
 
 
 def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,

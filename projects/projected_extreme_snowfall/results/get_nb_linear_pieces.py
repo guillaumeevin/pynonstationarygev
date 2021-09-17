@@ -248,7 +248,7 @@ if __name__ == '__main__':
 
     _, gcm_rcm_couples, _, _, scenario, study_class, _, _, _, safran_study_class, _ = set_up_and_load(False, snowfall)
 
-    run_selection(massif_names, 1500, gcm_rcm_couples, safran_study_class, scenario, study_class,
+    run_selection(massif_names, 2100, gcm_rcm_couples, safran_study_class, scenario, study_class,
                   show=False, snowfall=snowfall)
     # run_selection(massif_names, 900, show=True, snowfall=False)
     # run_selection(massif_names, 2100, show=True, snowfall=False)

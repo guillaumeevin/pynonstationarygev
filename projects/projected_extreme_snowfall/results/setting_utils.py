@@ -50,43 +50,24 @@ def set_up_and_load(fast, snowfall=True):
     safran_study_class, study_class = load_study_classes(snowfall)
     OneFoldFit.multiprocessing = False
 
-    remove_physically_implausible_models, display_only_model_that_pass_gof_test = False, True
+    remove_physically_implausible_models, display_only_model_that_pass_gof_test = False, False
+
+    fit_method = MarginFitMethod.evgam
+
+    model_classes = [StationaryTemporalModel]
+    model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
+    # model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
+    # model_classes = [NonStationaryThreeLinearLocationAndScaleAndShapeModel]
+    # model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
+
+    altitudes_list = [1500]
 
     if snowfall is True:
-        fit_method = MarginFitMethod.evgam
-        display_only_model_that_pass_gof_test = False
         return_period = 100
-        # model_classes = [StationaryTemporalModel]
-        # model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
-        altitudes_list = [2100]
-        model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
-        model_classes = [NonStationaryThreeLinearLocationAndScaleAndShapeModel]
-        model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
-
-
-        # model_classes = [NonStationaryFiveLinearLocationAndScaleAndShapeModel]
-        # model_classes = [NonStationarySixLinearLocationAndScaleAndShapeModel]
-        # model_classes = [NonStationarySevenLinearLocationAndScaleAndShapeModel]
-        # model_classes = [NonStationaryEightLinearLocationAndScaleAndShapeModel]
-        # model_classes = [NonStationaryNineLinearLocationAndScaleAndShapeModel]
-        # model_classes = [NonStationaryTenLinearLocationAndScaleAndShapeModel]
     elif snowfall is None:
-        fit_method = MarginFitMethod.extremes_fevd_mle
-        display_only_model_that_pass_gof_test = False
-        model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
         return_period = 100
-        altitudes_list = [1500]
     else:
-        fit_method = MarginFitMethod.evgam
-        model_classes = [StationaryTemporalModel]
-        model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
-        # model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
-        # model_classes = [NonStationaryThreeLinearLocationAndScaleAndShapeModel]
-        # model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
-
-        display_only_model_that_pass_gof_test = False
         return_period = 50
-        altitudes_list = [1500]
     OneFoldFit.return_period = return_period
 
     temporal_covariate_for_fit = [TimeTemporalCovariate,
@@ -134,6 +115,7 @@ def set_up_and_load(fast, snowfall=True):
 
 
 def load_study_classes(snowfall):
+
     if snowfall is True:
         safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
         study_class = AdamontSnowfall

@@ -339,11 +339,16 @@ class VisualizerForSimpleCase(object):
         t_for_density = [1, 1.5]
 
         if with_density:
-            right_limit = 1.5
+            right_limit = 2
+            left_limit = 0.9
+            xtick = 1
         else:
             right_limit = 5.5
+            left_limit = 0.5
+            xtick = 0.5
 
-        left_limit = 0.5
+        length_x = right_limit - left_limit
+
         linewidth_big_plot = 4
         ylim_upper_for_plots = 0
         if with_density:
@@ -437,15 +442,33 @@ class VisualizerForSimpleCase(object):
                     c = np.array([t])
                     # if t == 1:
                     text_height = ylim_upper_for_plots
-                    ax.axhline(text_height, (t - 0.3 - 0.5) / 1, (t - 0.5) / 1, color='k', linewidth=1)
-                    ax.axvline(t, 0, percentage_upper_for_plots, color='k', linewidth=1)
-                    epsilon = 0.02
-                    start_text = t - 0.3
-                    for i in range(5):
-                        tick_x = start_text + 0.05 + 0.05 * i
-                        ax.axvline(tick_x, percentage_upper_for_plots - epsilon,
-                                   percentage_upper_for_plots, color='k', linewidth=1)
-                    ax.text(start_text, text_height + 0.1, "Probability density function")
+                    scale_for_upper_arrow = 0.05
+                    if j == 0:
+                        text_height = 0.5
+                        ax.axhline(text_height, (t + 0.4 - left_limit) / length_x, (t - left_limit) / length_x, color='k', linewidth=1)
+                        ax.axvline(t, 0, percentage_upper_for_plots + scale_for_upper_arrow, color='k', linewidth=1,
+                                   linestyle='dotted')
+                        epsilon = 0.02
+                        start_text = t + 0.05
+                        # Draw arrow
+                        size_arrow = 0.03
+                        ylims = ax.get_ylim()
+                        xlims = ax.get_xlim()
+                        scaling_for_y = (ylims[1] - ylims[0]) / (xlims[1] - xlims[0]) / percentage_upper_for_plots
+                        start_arrow = t + 0.4
+                        # horizontal arrow
+                        ax.plot([start_arrow, start_arrow - size_arrow], [text_height, text_height + size_arrow * scaling_for_y], color='k')
+                        ax.plot([start_arrow, start_arrow - size_arrow], [text_height, text_height - size_arrow * scaling_for_y], color='k')
+                        # vertical arrow
+                        scaling = 1.1
+                        ylim_upper_arrow = ylim_upper * (percentage_upper_for_plots + scale_for_upper_arrow)
+                        # ax.plot([t, t + size_arrow], [ylim_upper_arrow, ylim_upper_arrow - size_arrow * scaling_for_y * scaling], color='k')
+                        # ax.plot([t, t - size_arrow], [ylim_upper_arrow, ylim_upper_arrow - size_arrow * scaling_for_y * scaling], color='k')
+                        # for i in range(5):
+                        #     tick_x = start_text + 0.05 + 0.05 * i
+                        #     ax.axvline(tick_x, percentage_upper_for_plots - epsilon,
+                        #                percentage_upper_for_plots, color='k', linewidth=1)
+                        ax.text(start_text, text_height + 0.1, "Probability density function")
                     gev_params = one_fold_fit.best_margin_function_from_fit.get_params(c)
                     # p = sns.distplot(gev_params.sample(1000), ax=ax2, label=None, color=color,
                     #             vertical=True, linewidth=0)
@@ -462,7 +485,6 @@ class VisualizerForSimpleCase(object):
         xlabel = 'T, the smoothed anomaly of global temperature w.r.t. pre-industrial levels (K)'
         ax.set_xlabel(xlabel)
         ax.set_xlim((left_limit, right_limit))
-        xtick = 0.5
         xticks = []
         while xtick <= right_limit:
             xticks.append(xtick)
@@ -477,7 +499,7 @@ class VisualizerForSimpleCase(object):
         handles[:2] = handles[:2][::-1]
         labels[:2] = labels[:2][::-1]
         if with_density:
-            legendsize = 6.2
+            legendsize = 6.3
         else:
             legendsize = 8.5
         loc = 'upper left' if with_density else "lower left"
@@ -486,6 +508,7 @@ class VisualizerForSimpleCase(object):
             line.set_linewidth(linewidth_legend)
             line.set_linestyle("-")
 
+        # ax.yaxis.grid()
         self.add_second_legend(ax2, legendsize, with_density)
 
         title = '{} massif {}'.format(self.massif_name, self.get_str(gev_param))
@@ -526,16 +549,22 @@ class VisualizerForSimpleCase(object):
             linewidth = 1
         return color, linewidth
 
-    def plot_density_vertically(self, ax, ax2, color, gev_params, t, ylim_upper_for_plots, linewidth,
+    def plot_density_vertically(self, ax, ax2, color, gev_params: GevParams, t, ylim_upper_for_plots, linewidth,
                                 normalize_factor=None):
-        sns.kdeplot(gev_params.sample(10000), ax=ax2, label=None, color=color,
-                    vertical=True, linewidth=0)
-        xp, yp = ax2.get_lines()[-1].get_data()
+        real_density = True
+        if real_density:
+            yp = np.linspace(0, ylim_upper_for_plots, num=1000)
+            xp = gev_params.density(yp)
+        else:
+            sns.kdeplot(gev_params.sample(10000), ax=ax2, label=None, color=color,
+                        vertical=True, linewidth=0)
+            xp, yp = ax2.get_lines()[-1].get_data()
         if normalize_factor is None:
             return xp.max()
         else:
             xp = xp * 0.25 / normalize_factor
-            xp = t + -xp
+            # xp = t + -xp
+            xp = t + xp
             l = [(xpp, ypp) for xpp, ypp in zip(xp, yp) if ypp <= ylim_upper_for_plots]
             xp, yp = zip(*l)
             ax.plot(xp, yp, color=color, linestyle='-', linewidth=linewidth)

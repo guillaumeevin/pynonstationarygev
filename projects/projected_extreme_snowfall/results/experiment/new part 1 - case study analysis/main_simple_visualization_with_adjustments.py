@@ -43,6 +43,7 @@ def main_simple_visualizatoin():
     massif_names = AbstractStudy.all_massif_names()[2:3]
     massif_names = AbstractStudy.all_massif_names()[:]
     massif_names = ['Mont-Blanc', 'Ubaye', 'Champsaur', 'Vercors'][:]
+    # gcm_rcm_couples = gcm_rcm_couples[:5]
     massif_names, massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(massif_names,
                                                                                       altitudes[0],
                                                                                                      gcm_rcm_couples,

@@ -4,7 +4,10 @@ import time
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationAndScaleTemporalModel, NonStationaryLocationAndScaleGumbelModel, \
-    NonStationaryLocationGumbelModel
+    NonStationaryLocationGumbelModel, StationaryTemporalModel, NonStationaryLocationAndScaleAndShapeTemporalModel
+from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
+    NonStationaryTwoLinearLocationAndScaleAndShapeModel, NonStationaryThreeLinearLocationAndScaleAndShapeModel, \
+    NonStationaryFourLinearLocationAndScaleAndShapeModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.projected_extreme_snowfall.results.experiment.calibration_validation_experiment import \
     CalibrationValidationExperiment
@@ -16,7 +19,7 @@ def main_calibration_validation_experiment():
     start = time.time()
 
     fast = False
-    snowfall = False
+    snowfall = True
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -27,7 +30,6 @@ def main_calibration_validation_experiment():
     # time.sleep(60*40)
 
     # Load the csv filepath
-    altitudes_list = [[1500]]
     calibration_class = CalibrationValidationExperiment
     year_max_for_studies = None
     linear_effects = (False, False, False)
@@ -44,52 +46,58 @@ def main_calibration_validation_experiment():
     l = [0.3]
     # l = [0.4]
     l = [0.6, 0.7, 0.8]
-    altitudes_list = [[900], [2100]]
-    # l = [0.6]
-    # l = [0.7, 0.8]
-    # l = [0.8]
-    # l = [0.9]
-    for percentage in l:
-        # percentage += 0.6
-        last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
-        start_year_for_the_test_set = last_year_for_the_train_set + 1
+    altitudes_list = [[900], [1500], [2100], [2700], [3300]]
 
-        display_only_model_that_pass_gof_test = False
+    model_classes_list = [StationaryTemporalModel,
+                          NonStationaryLocationAndScaleAndShapeTemporalModel,
+                          NonStationaryTwoLinearLocationAndScaleAndShapeModel,
+                          NonStationaryThreeLinearLocationAndScaleAndShapeModel,
+                          NonStationaryFourLinearLocationAndScaleAndShapeModel][:]
 
-        print('Last year for the train set', last_year_for_the_train_set, 'Percentage', percentage)
-        print('year max for studies:', year_max_for_studies)
-        # weight_on_observation = 1 + 20
-        # weight_on_observation = 1 + 9
-        weight_on_observation = 1
-        # weight_on_observation = 1 + 20*13
-        print('weight on observation=', weight_on_observation)
+    for model_class in model_classes_list:
+        model_classes = [model_class]
+        for percentage in l:
+            # percentage += 0.6
+            last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
+            start_year_for_the_test_set = last_year_for_the_train_set + 1
 
-        for massif_name in massif_names:
-            print(massif_name)
-            for altitudes in altitudes_list:
-                for i in [-1, 0, 1, 2, 4, 5][:]:
-                # for i in [-1, 0, 5][1:]:
-                    print("parameterization:", i)
-                    # combination = (i, i, 0)
-                    combination = (i, i, 0)
-                    xp = calibration_class(altitudes, gcm_rcm_couples, safran_study_class, study_class, Season.annual,
-                                           scenario=scenario,
-                                           selection_method_names=['aic'],
-                                           model_classes=model_classes,
-                                           massif_names=[massif_name],
-                                           fit_method=fit_method,
-                                           temporal_covariate_for_fit=temporal_covariate_for_fit,
-                                           remove_physically_implausible_models=remove_physically_implausible_models,
-                                           display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
-                                           combination=combination,
-                                           weight_on_observation=weight_on_observation,
-                                           linear_effects=linear_effects,
-                                           start_year_for_test_set=start_year_for_the_test_set,
-                                           year_max_for_studies=year_max_for_studies)
-                    xp.run_one_experiment()
-        end = time.time()
-        duration = str(datetime.timedelta(seconds=end - start))
-        print('Total duration', duration)
+            display_only_model_that_pass_gof_test = False
+
+            print('Last year for the train set', last_year_for_the_train_set, 'Percentage', percentage)
+            print('year max for studies:', year_max_for_studies)
+            # weight_on_observation = 1 + 20
+            # weight_on_observation = 1 + 9
+            weight_on_observation = 1
+            # weight_on_observation = 1 + 20*13
+            print('weight on observation=', weight_on_observation)
+
+            for massif_name in massif_names:
+                print('\n',massif_name)
+                for altitudes in altitudes_list:
+                    print('\n',altitudes)
+                    for i in [-1, 0, 1, 2, 4, 5][:]:
+                    # for i in [-1, 0, 5][1:]:
+                        print("parameterization:", i)
+                        # combination = (i, i, 0)
+                        combination = (i, i, 0)
+                        xp = calibration_class(altitudes, gcm_rcm_couples, safran_study_class, study_class, Season.annual,
+                                               scenario=scenario,
+                                               selection_method_names=['aic'],
+                                               model_classes=model_classes,
+                                               massif_names=[massif_name],
+                                               fit_method=fit_method,
+                                               temporal_covariate_for_fit=temporal_covariate_for_fit,
+                                               remove_physically_implausible_models=remove_physically_implausible_models,
+                                               display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
+                                               combination=combination,
+                                               weight_on_observation=weight_on_observation,
+                                               linear_effects=linear_effects,
+                                               start_year_for_test_set=start_year_for_the_test_set,
+                                               year_max_for_studies=year_max_for_studies)
+                        xp.run_one_experiment()
+            end = time.time()
+            duration = str(datetime.timedelta(seconds=end - start))
+            print('Total duration', duration)
 
 
 if __name__ == '__main__':
