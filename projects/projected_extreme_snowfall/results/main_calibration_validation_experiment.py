@@ -19,7 +19,7 @@ def main_calibration_validation_experiment():
     start = time.time()
 
     fast = False
-    snowfall = True
+    snowfall = None
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \

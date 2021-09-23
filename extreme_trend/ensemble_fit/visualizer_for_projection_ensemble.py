@@ -131,7 +131,7 @@ class VisualizerForProjectionEnsemble(object):
                 plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative,
                                                         with_significance=with_significance)
         else:
-            with_significance = True
+            with_significance = False
             # Correction coefficient plots
             # if self.param_name_to_climate_coordinates_with_effects is not None:
             #     # Plot the bias in the mean and std after taking into account the bias correction
@@ -154,7 +154,7 @@ class VisualizerForProjectionEnsemble(object):
             # Moment plot
             for relative in [None, True, False][:1]:
                 orders = [None] + GevParams.PARAM_NAMES[:]
-                for order in orders[:]:
+                for order in orders[:1]:
                     plot_relative_dynamic(self.massif_names, visualizer_list,
                                           self.param_name_to_climate_coordinates_with_effects,
                                           self.safran_study_class,

@@ -29,6 +29,7 @@ def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_co
                                               ):
     new_massif_names = []
     for massif_name in massif_names:
+
         gcm_rcm_couple_to_studies = VisualizerForProjectionEnsemble.load_gcm_rcm_couple_to_studies([altitude],
                                                                                                    gcm_rcm_couples,
                                                                                                    None,
@@ -36,19 +37,21 @@ def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_co
                                                                                                    scenario,
                                                                                                    Season.annual,
                                                                                                    study_class)
-        nb_zeros = 0
-        nb_data = 0
-        for studies in gcm_rcm_couple_to_studies.values():
-            dataset = studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=[altitude])
-            s = dataset.observations.df_maxima_gev.iloc[:, 0]
-            nb_zeros += sum(s == 0)
-            nb_data += len(s)
-        print(massif_name, nb_zeros, nb_data)
-        threshold = 0.4
-        if 100 * nb_zeros / nb_data > threshold:
-            print('eliminate', massif_name)
-        else:
-            new_massif_names.append(massif_name)
+        safran_studies = gcm_rcm_couple_to_studies[(None, None)]
+        if massif_name in safran_studies.study.study_massif_names:
+            nb_zeros = 0
+            nb_data = 0
+            for studies in gcm_rcm_couple_to_studies.values():
+                dataset = studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=[altitude])
+                s = dataset.observations.df_maxima_gev.iloc[:, 0]
+                nb_zeros += sum(s == 0)
+                nb_data += len(s)
+            print(massif_name, nb_zeros, nb_data)
+            threshold = 0.4
+            if 100 * nb_zeros / nb_data > threshold:
+                print('eliminate', massif_name)
+            else:
+                new_massif_names.append(massif_name)
     return new_massif_names
 
 
@@ -56,11 +59,21 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
                   safran_study_class, scenario,
                   study_class, show=False,
                   snowfall=False):
+    if snowfall is True:
+        snowfall_str = 'snowfall'
+    elif snowfall is None:
+        snowfall_str = 'precipitation'
+    else:
+        snowfall_str = "snow load"
+    print('\n')
+    print(snowfall_str)
+
     massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
                                                              safran_study_class, scenario,
                                                              study_class)
 
-    snowfall_str = 'snowfall' if snowfall else "snow load"
+
+
     d = massif_name_to_nb_linear_pieces(massif_names,
                                         altitude,
                                         snowfall_str)
@@ -96,7 +109,7 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
         massif_name_to_short_name[massif_name] = short_name
     print('\n\nend with split-sample:')
 
-    plots(massif_name_to_short_name, d, show)
+    plots(massif_name_to_short_name, d, show, altitude, snowfall_str)
 
     massif_name_to_model_class = {m: number_to_model_class[n] for m, n in d.items()}
     massif_name_to_parametrization_number = {m: short_name_to_parametrization_number[s] for m, s in
@@ -104,7 +117,7 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
     return massif_names, massif_name_to_model_class, massif_name_to_parametrization_number
 
 
-def plots(massif_name_to_short_name, d, show):
+def plots(massif_name_to_short_name, d, show, altitude, snowfall_str):
     folder = op.join(VERSION_TIME, "selection method projections")
 
     # plot legend
@@ -119,7 +132,7 @@ def plots(massif_name_to_short_name, d, show):
         legend_elements.append(line2d)
 
     ax.legend(handles=legend_elements, prop={'size': 9})
-    plot("legend", folder, show)
+    plot("legend", folder, show, altitude, snowfall_str)
 
     # Plot the map
     ax = plt.gca()
@@ -135,7 +148,7 @@ def plots(massif_name_to_short_name, d, show):
                                   add_text=True,
                                   axis_off=True, show=False)
 
-    plot("map", folder, show)
+    plot("map", folder, show, altitude, snowfall_str)
 
     # plot the histogram for the number of pieces
     c = Counter(d.values())
@@ -148,7 +161,7 @@ def plots(massif_name_to_short_name, d, show):
         ax.set_ylabel('Percentage of massifs (%)')
         ax.set_xlabel('Number of linear pieces that minimizes the mean log score')
 
-        plot("histo number pieces", folder, show)
+        plot("histo number pieces", folder, show, altitude, snowfall_str)
 
     # plot the histogram for the parametrization
     ax = plt.gca()
@@ -175,14 +188,14 @@ def plots(massif_name_to_short_name, d, show):
     ax.set_ylabel('Percentage of massifs (%)')
     ax.set_xlabel('Parameterization that minimizes the mean log score')
 
-    plot("histo parametrization", folder, show)
+    plot("histo parametrization", folder, show, altitude, snowfall_str)
 
 
-def plot(filename, folder, show):
+def plot(filename, folder, show, altitude, snowfall_str):
     if show:
         plt.show()
     else:
-        filename = op.join(folder, filename)
+        filename = op.join(folder, filename + 'for {} at {}m'.format(snowfall_str, altitude))
         StudyVisualizer.savefig_in_results(filename, transparent=True)
         StudyVisualizer.savefig_in_results(filename, transparent=False)
     plt.close()
@@ -244,13 +257,14 @@ if __name__ == '__main__':
     massif_names = AbstractStudy.all_massif_names()
     # massif_names = ["Vanoise"]
 
-    snowfall = False
+    snowfall = None
+    for altitude in [900, 1500, 2100, 2700, 3300]:
+        _, gcm_rcm_couples, _, _, scenario, study_class, _, _, _, safran_study_class, _ = set_up_and_load(False,
+                                                                                                          snowfall)
 
-    _, gcm_rcm_couples, _, _, scenario, study_class, _, _, _, safran_study_class, _ = set_up_and_load(False, snowfall)
+        run_selection(massif_names, altitude, gcm_rcm_couples, safran_study_class, scenario, study_class,
+                      show=False, snowfall=snowfall)
+        # run_selection(massif_names, 900, show=True, snowfall=False)
+        # run_selection(massif_names, 2100, show=True, snowfall=False)
 
-    run_selection(massif_names, 2100, gcm_rcm_couples, safran_study_class, scenario, study_class,
-                  show=False, snowfall=snowfall)
-    # run_selection(massif_names, 900, show=True, snowfall=False)
-    # run_selection(massif_names, 2100, show=True, snowfall=False)
-
-    # massif_name_to_nb_linear_pieces_and_parametrization(['Vanoise'])
+        # massif_name_to_nb_linear_pieces_and_parametrization(['Vanoise'])

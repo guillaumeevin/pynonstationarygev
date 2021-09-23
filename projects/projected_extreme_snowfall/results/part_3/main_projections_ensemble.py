@@ -29,7 +29,7 @@ def main():
     start = time.time()
 
     fast = False
-    snowfall = False
+    snowfall = None
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
@@ -37,44 +37,47 @@ def main():
 
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
 
-    massif_names = AbstractStudy.all_massif_names()[:]
+    all_massif_names = AbstractStudy.all_massif_names()[:]
     altitudes_list = [[900]]
+    altitudes_list = [[900], [1500], [2100], [2700], [3300]]
+
     AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 2
     # massif_names = ['Chartreuse', "Bauges"]
 
-    massif_names, massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(massif_names,
-                                                                                      altitudes_list[0][0],
-                                                                                      gcm_rcm_couples,
-                                                                                      safran_study_class,
-                                                                                      scenario, study_class,
-                                                                                      snowfall=snowfall)
+    for altitudes in altitudes_list:
 
-    for massif_name in massif_names:
-        parametrization_number = massif_name_to_parametrization_number[massif_name]
-        combination = (parametrization_number, parametrization_number, 0)
-        param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
-            combination)
-        model_classes = [massif_name_to_model_class[massif_name]]
-        print(massif_name, model_classes, combination)
+        massif_names, massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(all_massif_names,
+                                                                                          altitudes[0],
+                                                                                          gcm_rcm_couples,
+                                                                                          safran_study_class,
+                                                                                          scenario, study_class,
+                                                                                          snowfall=snowfall)
 
-        massif_names = [massif_name]
-        visualizer = VisualizerForProjectionEnsemble(
-            altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
-            model_classes=model_classes,
-            ensemble_fit_classes=ensemble_fit_classes,
-            massif_names=massif_names,
-            fit_method=fit_method,
-            temporal_covariate_for_fit=temporal_covariate_for_fit,
-            remove_physically_implausible_models=remove_physically_implausible_models,
-            safran_study_class=safran_study_class,
-            display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
-            param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
-        )
-        visualizer.plot()
+        for massif_name in massif_names:
+            parametrization_number = massif_name_to_parametrization_number[massif_name]
+            combination = (parametrization_number, parametrization_number, 0)
+            param_name_to_climate_coordinates_with_effects = load_param_name_to_climate_coordinates_with_effects(
+                combination)
+            model_classes = [massif_name_to_model_class[massif_name]]
+            print(massif_name, model_classes, combination)
 
-    end = time.time()
-    duration = str(datetime.timedelta(seconds=end - start))
-    print('Total duration', duration)
+            visualizer = VisualizerForProjectionEnsemble(
+                [altitudes], gcm_rcm_couples, study_class, Season.annual, scenario,
+                model_classes=model_classes,
+                ensemble_fit_classes=ensemble_fit_classes,
+                massif_names=[massif_name],
+                fit_method=fit_method,
+                temporal_covariate_for_fit=temporal_covariate_for_fit,
+                remove_physically_implausible_models=remove_physically_implausible_models,
+                safran_study_class=safran_study_class,
+                display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
+                param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
+            )
+            visualizer.plot()
+
+        end = time.time()
+        duration = str(datetime.timedelta(seconds=end - start))
+        print('Total duration', duration)
 
 
 if __name__ == '__main__':
