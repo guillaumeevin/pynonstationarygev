@@ -11,6 +11,7 @@ from matplotlib.patches import Patch
 
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_color
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson, get_pvalue_anderson_darling_test
 from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh_with_multiprocessing_for_large_samples
@@ -58,7 +59,7 @@ from projects.projected_extreme_snowfall.results.seleciton_utils import model_cl
     parametrization_number_to_short_name, short_name_to_label, short_name_to_color
 
 alpha = 0.4
-linewidth_legend = 3
+linewidth_legend = 6
 
 
 class VisualizerForSimpleCase(object):
@@ -336,16 +337,18 @@ class VisualizerForSimpleCase(object):
         ax2 = ax.twinx()
 
         normalization_factor = 0
-        t_for_density = [1, 1.5]
+        t_for_density = [1, 2, 3]
 
         if with_density:
-            right_limit = 2
-            left_limit = 0.9
+            right_limit = 4
+            left_limit = 0.8
             xtick = 1
         else:
             right_limit = 5.5
             left_limit = 0.5
             xtick = 0.5
+
+        scaling_of_density = 0.75
 
         length_x = right_limit - left_limit
 
@@ -356,7 +359,7 @@ class VisualizerForSimpleCase(object):
         else:
             percentage_upper_for_plots = 1
 
-        nb_pieces_suffix = " (\#Linear pieces = {})".format(model_class_to_number[self.model_classes[0]])
+        nb_pieces_suffix = " (using {} linear pieces)".format(model_class_to_number[self.model_classes[0]])
         # Independent plot
         if self.independent_ensemble_fit is not None:
             items = list(self.independent_ensemble_fit.gcm_rcm_couple_to_visualizer.items())
@@ -377,42 +380,52 @@ class VisualizerForSimpleCase(object):
                 color, linewidth = self.setting_for_plots(gcm_rcm_couple, linewidth_big_plot)
 
                 if gcm_rcm_couple[0] is None:
-                    label = "non-stationary GEV for the observations (\#Linear pieces = 1)"
+                    label = "50-year return level computed with a non-stationary GEV fitted on the observations (using 1 linear piece)"
                 else:
                     if add_label_gcm:
                         add_label_gcm = False
-                        label = "non-stationary GEV for each GCM-RCM pair" + nb_pieces_suffix
+                        label = "50-year return level computed with a non-stationary GEV fitted on each GCM-RCM pair" + nb_pieces_suffix
                     else:
                         label = None
                 ax.plot(x, y, label=label, linestyle="--", color=color, linewidth=linewidth, marker=None)
+
+            massif_name_to_ylim_upper_for_plots = {
+                'Vercors': 8, 'Ubaye': 3.8
+            }
+            if (self.massif_name in massif_name_to_ylim_upper_for_plots) and (self.safran_study_class is CrocusSnowLoad2019):
+                print('default ylim selected')
+                ylim_upper_for_plots = massif_name_to_ylim_upper_for_plots[self.massif_name]
 
             ylim_upper = (1 / percentage_upper_for_plots) * ylim_upper_for_plots
             if with_density:
                 for gcm_rcm_couple, visualizer in items:
                     one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
                     # Only plot for the first one
-                    for t in t_for_density[:1]:
+                    t_list = t_for_density[:1] if gcm_rcm_couple[0] is None else t_for_density
+                    for t in t_list:
                         c = np.array([t])
                         gev_params = one_fold_fit.best_margin_function_from_fit.get_params(c)
                         n = self.plot_density_vertically(ax, ax2, None, gev_params, t, ylim_upper_for_plots,
-                                                         None, None)
+                                                         None, None, scaling_of_density)
                         normalization_factor = max(normalization_factor, n)
                 for gcm_rcm_couple, visualizer in items:
                     one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
                     color, linewidth = self.setting_for_plots(gcm_rcm_couple, linewidth_big_plot)
+
                     # Only plot for the first one
-                    for t in t_for_density[:1]:
+                    t_list = t_for_density[:1] if gcm_rcm_couple[0] is None else t_for_density
+                    for t in t_list:
                         c = np.array([t])
                         gev_params = one_fold_fit.best_margin_function_from_fit.get_params(c)
                         self.plot_density_vertically(ax, ax2, color, gev_params, t, ylim_upper_for_plots,
-                                                     linewidth, normalization_factor)
+                                                     linewidth, normalization_factor, scaling_of_density)
 
         # Together plot with obs
         for j, (parametrization_number, visualizer) in enumerate(
                 self.parametrization_number_to_visualizer_ensemble.items()):
             short_name = parametrization_number_to_short_name[parametrization_number]
             color = short_name_to_color[short_name]
-            label = 'non-stationary GEV for the observations and all GCM-RCM pairs with\n'
+            label = 'RL50 computed with a non-stationary GEV fitted on the observations and all GCM-RCM pairs with\n'
             label += short_name_to_label[short_name]
             # train_score, test_score = self.combination_name_to_two_scores[combination_name]
             one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
@@ -440,12 +453,10 @@ class VisualizerForSimpleCase(object):
             if with_density:
                 for t in t_for_density[:]:
                     c = np.array([t])
-                    # if t == 1:
-                    text_height = ylim_upper_for_plots
                     scale_for_upper_arrow = 0.05
                     if j == 0:
-                        text_height = 0.5
-                        ax.axhline(text_height, (t + 0.4 - left_limit) / length_x, (t - left_limit) / length_x, color='k', linewidth=1)
+                        text_height = 0.3
+                        ax.axhline(text_height, (t + scaling_of_density - left_limit) / length_x, (t - left_limit) / length_x, color='k', linewidth=1)
                         ax.axvline(t, 0, percentage_upper_for_plots + scale_for_upper_arrow, color='k', linewidth=1,
                                    linestyle='dotted')
                         epsilon = 0.02
@@ -455,7 +466,7 @@ class VisualizerForSimpleCase(object):
                         ylims = ax.get_ylim()
                         xlims = ax.get_xlim()
                         scaling_for_y = (ylims[1] - ylims[0]) / (xlims[1] - xlims[0]) / percentage_upper_for_plots
-                        start_arrow = t + 0.4
+                        start_arrow = t + scaling_of_density
                         # horizontal arrow
                         ax.plot([start_arrow, start_arrow - size_arrow], [text_height, text_height + size_arrow * scaling_for_y], color='k')
                         ax.plot([start_arrow, start_arrow - size_arrow], [text_height, text_height - size_arrow * scaling_for_y], color='k')
@@ -499,17 +510,19 @@ class VisualizerForSimpleCase(object):
         handles[:2] = handles[:2][::-1]
         labels[:2] = labels[:2][::-1]
         if with_density:
-            legendsize = 6.3
+            legendsize = 7
         else:
             legendsize = 8.5
-        loc = 'upper left' if with_density else "lower left"
-        leg = ax.legend(handles, labels, prop={'size': legendsize}, loc=loc)
-        for line in leg.get_lines():
-            line.set_linewidth(linewidth_legend)
-            line.set_linestyle("-")
+        loc = 'upper center' if with_density else "lower left"
+        leg = ax.legend(handles, labels, prop={'size': legendsize}, loc=loc,
+                        handlelength=4)
+        # for line in leg.get_lines():
+        #     line.lin
+        #     line.set_linewidth(linewidth_legend)
+            # line.set_linestyle("-")
 
         # ax.yaxis.grid()
-        self.add_second_legend(ax2, legendsize, with_density)
+        # self.add_second_legend(ax2, legendsize, with_density)
 
         title = '{} massif {}'.format(self.massif_name, self.get_str(gev_param))
         visualizer.plot_name = title
@@ -550,7 +563,7 @@ class VisualizerForSimpleCase(object):
         return color, linewidth
 
     def plot_density_vertically(self, ax, ax2, color, gev_params: GevParams, t, ylim_upper_for_plots, linewidth,
-                                normalize_factor=None):
+                                normalize_factor=None, scaling_of_density=1):
         real_density = True
         if real_density:
             yp = np.linspace(0, ylim_upper_for_plots, num=1000)
@@ -562,7 +575,7 @@ class VisualizerForSimpleCase(object):
         if normalize_factor is None:
             return xp.max()
         else:
-            xp = xp * 0.25 / normalize_factor
+            xp = xp * scaling_of_density / normalize_factor
             # xp = t + -xp
             xp = t + xp
             l = [(xpp, ypp) for xpp, ypp in zip(xp, yp) if ypp <= ylim_upper_for_plots]

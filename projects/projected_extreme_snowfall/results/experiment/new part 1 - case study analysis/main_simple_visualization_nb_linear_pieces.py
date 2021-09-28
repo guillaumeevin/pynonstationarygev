@@ -28,7 +28,7 @@ from root_utils import get_display_name_from_object_type
 def main_simple_visualizatoin():
     start = time.time()
 
-    fast = False
+    fast = True
     snowfall = False
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
