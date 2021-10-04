@@ -7,7 +7,9 @@ from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_m
     NonStationaryLocationGumbelModel, StationaryTemporalModel, NonStationaryLocationAndScaleAndShapeTemporalModel
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
     NonStationaryTwoLinearLocationAndScaleAndShapeModel, NonStationaryThreeLinearLocationAndScaleAndShapeModel, \
-    NonStationaryFourLinearLocationAndScaleAndShapeModel
+    NonStationaryFourLinearLocationAndScaleAndShapeModel, \
+    NonStationaryTwoLinearLocationOneLinearShapeModel, NonStationaryThreeLinearLocationAndScaleOneLinearShapeModel, \
+    NonStationaryFourLinearLocationAndScaleOneLinearShapeModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.projected_extreme_snowfall.results.experiment.calibration_validation_experiment import \
     CalibrationValidationExperiment
@@ -19,7 +21,7 @@ def main_calibration_validation_experiment():
     start = time.time()
 
     fast = False
-    snowfall = None
+    snowfall = True
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -46,13 +48,11 @@ def main_calibration_validation_experiment():
     l = [0.3]
     # l = [0.4]
     l = [0.6, 0.7, 0.8]
-    altitudes_list = [[900], [1500], [2100], [2700], [3300]]
+    altitudes_list = [[900], [1500], [2100], [2700], [3300]][:3]
 
-    model_classes_list = [StationaryTemporalModel,
-                          NonStationaryLocationAndScaleAndShapeTemporalModel,
-                          NonStationaryTwoLinearLocationAndScaleAndShapeModel,
-                          NonStationaryThreeLinearLocationAndScaleAndShapeModel,
-                          NonStationaryFourLinearLocationAndScaleAndShapeModel][:]
+    model_classes_list = [NonStationaryTwoLinearLocationOneLinearShapeModel,
+                          NonStationaryThreeLinearLocationAndScaleOneLinearShapeModel,
+                          NonStationaryFourLinearLocationAndScaleOneLinearShapeModel][:]
 
     for model_class in model_classes_list:
         model_classes = [model_class]

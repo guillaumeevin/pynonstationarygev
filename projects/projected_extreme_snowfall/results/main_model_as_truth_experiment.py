@@ -10,7 +10,9 @@ from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_m
     NonStationaryLocationAndScaleTemporalModel, StationaryTemporalModel
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
     NonStationaryTwoLinearLocationAndScaleAndShapeModel, NonStationaryThreeLinearLocationAndScaleAndShapeModel, \
-    NonStationaryFourLinearLocationAndScaleAndShapeModel
+    NonStationaryFourLinearLocationAndScaleAndShapeModel, NonStationaryTwoLinearLocationOneLinearShapeModel, \
+    NonStationaryThreeLinearLocationAndScaleOneLinearShapeModel, \
+    NonStationaryFourLinearLocationAndScaleOneLinearShapeModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects, load_combination_name_for_tuple
@@ -30,7 +32,7 @@ def main_preliminary_projections():
     # time.sleep(60*30)
 
     fast = False
-    snowfall = None
+    snowfall = True
 
     if show in [None, True]:
         matplotlib.use('Agg')
@@ -53,12 +55,11 @@ def main_preliminary_projections():
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
         fast, snowfall)
 
-    model_classes_list = [StationaryTemporalModel,
-                          NonStationaryLocationAndScaleAndShapeTemporalModel,
-                          NonStationaryTwoLinearLocationAndScaleAndShapeModel,
-                          NonStationaryThreeLinearLocationAndScaleAndShapeModel,
-                          NonStationaryFourLinearLocationAndScaleAndShapeModel][:]
-    altitudes_list = [[900], [1500], [2100], [2700], [3300]]
+    altitudes_list = [[900], [1500], [2100], [2700], [3300]][:3]
+
+    model_classes_list = [NonStationaryTwoLinearLocationOneLinearShapeModel,
+                          NonStationaryThreeLinearLocationAndScaleOneLinearShapeModel,
+                          NonStationaryFourLinearLocationAndScaleOneLinearShapeModel][:]
 
     for model_class in model_classes_list:
         model_classes = [model_class]
