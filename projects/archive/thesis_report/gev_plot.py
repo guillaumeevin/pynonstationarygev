@@ -24,12 +24,12 @@ def gev_plot_big():
     x = np.linspace(-lim, lim, 100)
     loc, scale = 1, 1
     shapes = [-1, 0, 1]
-    colors = ['tab:blue', 'k', 'tab:orange']
+    colors = ['tab:blue', 'tab:red', 'tab:green']
     for shape, color in zip(shapes, colors):
         label = '$\zeta= {} $'.format(shape)
         y = r.dgev(x, loc, scale, shape)
-        plt.plot(x, y, label=label, linewidth=10, color=color)
-    plt.legend(prop={'size': 20})
+        plt.plot(x, y, label=label, linewidth=5, color=color)
+    plt.legend(prop={'size': 15})
     plt.xlabel('$y$', fontsize=15)
     plt.ylabel('$f_{GEV}(y|1,1,\zeta)$', fontsize=15)
     plt.tick_params(axis='both', which='major', labelsize=15)
@@ -119,6 +119,7 @@ def quantile_function_plot():
 
 
 if __name__ == '__main__':
+    # gev_plot()
     gev_plot_big()
     # gev_plot_big_non_stationary_location()
     # max_stable_plot()
