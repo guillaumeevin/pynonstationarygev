@@ -510,7 +510,7 @@ class VisualizerForSimpleCase(object):
         handles[:2] = handles[:2][::-1]
         labels[:2] = labels[:2][::-1]
         if with_density:
-            legendsize = 7
+            legendsize = 6.4
         else:
             legendsize = 8.5
         loc = 'upper center' if with_density else "lower left"

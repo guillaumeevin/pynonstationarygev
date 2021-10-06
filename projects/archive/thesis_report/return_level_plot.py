@@ -36,10 +36,10 @@ def return_level_plot_big():
     ax.tick_params(axis='both', which='major', labelsize=15)
     ax.set_ylabel('$y_p$ the return level', fontsize=15)
 
-    # ax2 = ax.twiny()
-    # ax2.tick_params(labelsize=15)
-    # ax2.set_xlim(ax.get_xlim())
-    # ax2.set_xlabel('T the return period (year)', fontsize=15)
+    ax2 = ax.twiny()
+    ax2.tick_params(labelsize=15)
+    ax2.set_xlim(ax.get_xlim())
+    ax2.set_xlabel('T the return period in years', fontsize=15)
 
     labels = [str(int(e)) for e in ax.get_xticks()]
     ax.set_xticklabels(['1/{}'.format(l) for l in labels])
