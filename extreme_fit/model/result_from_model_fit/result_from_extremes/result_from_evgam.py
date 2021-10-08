@@ -177,19 +177,35 @@ class ResultFromEvgam(AbstractResultFromExtremes):
                 x_climatic = x_climatic[-len(name_of_the_climatic_effects):]
         # Load the coefficient correspond to the effect from the last climate model
         coefficients = self.load_coefficients(r_param_name, knots)
-        effects_coefficients = coefficients[-len(name_of_the_climatic_effects):]
-        assert len(effects_coefficients) == len(name_of_the_climatic_effects) == len(x_climatic)
+        nb_coef_to_retrieve = len(name_of_the_climatic_effects)
+        if linear_effect is None:
+            nb_coef_to_retrieve *= 2
+        effects_coefficients = coefficients[-nb_coef_to_retrieve:]
+        if linear_effect is None:
+            assert len(effects_coefficients) == nb_coef_to_retrieve == len(x_climatic) * 2
+        else:
+            assert len(effects_coefficients) == nb_coef_to_retrieve == len(x_climatic)
         df_coordinates = pd.DataFrame(x_climatic.transpose(), columns=name_of_the_climatic_effects)
         s_temporal_covariate = pd.Series(x_temporal_covariate, index=df_coordinates.index)
+
         for j, effect_coef in enumerate(effects_coefficients):
-            ind = df_coordinates.iloc[:, j] == 1.0
-            assert len(ind) == len(y)
-            if linear_effect is True:
-                y[ind.values] -= effect_coef * s_temporal_covariate.loc[ind.values]
-            elif linear_effect is False:
-                y[ind.values] -= effect_coef
+            if linear_effect is None:
+                if j >= len(name_of_the_climatic_effects):
+                    loop_linear_effect = True
+                    loop_j = j - len(name_of_the_climatic_effects)
+                else:
+                    loop_linear_effect = False
+                    loop_j = j
             else:
-                raise NotImplementedError
+                loop_j = j
+                loop_linear_effect = linear_effect
+            ind = df_coordinates.iloc[:, loop_j] == 1.0
+            assert len(ind) == len(y)
+            assert loop_linear_effect in [True, False]
+            if loop_linear_effect:
+                y[ind.values] -= effect_coef * s_temporal_covariate.loc[ind.values]
+            else:
+                y[ind.values] -= effect_coef
         return y
 
     def load_knots(self, r_param_name):
