@@ -44,7 +44,7 @@ def main_simple_visualizatoin():
     massif_names = AbstractStudy.all_massif_names()[:]
     massif_names = ['Mont-Blanc', 'Ubaye', 'Champsaur', 'Vercors'][:]
     # gcm_rcm_couples = gcm_rcm_couples[:5]
-    massif_names, massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(massif_names,
+    massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(massif_names,
                                                                                       altitudes[0],
                                                                                                      gcm_rcm_couples,
                                                                                                      safran_study_class,
@@ -52,13 +52,11 @@ def main_simple_visualizatoin():
                                                                                                      study_class,
                                                                                       snowfall=snowfall)
 
-    print(massif_name_to_parametrization_number)
     for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
 
         model_classes = [massif_name_to_model_class[massif_name]]
 
         last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
-        linear_effects = (False, False, False)
 
         display_only_model_that_pass_gof_test = False
 
