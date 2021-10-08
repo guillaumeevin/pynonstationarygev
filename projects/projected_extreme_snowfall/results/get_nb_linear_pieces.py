@@ -12,7 +12,8 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 from projects.projected_extreme_snowfall.results.seleciton_utils import get_short_name, short_name_to_label, \
-    short_name_to_color, number_to_model_name, number_to_model_class, short_name_to_parametrization_number
+    short_name_to_color, number_to_model_name, number_to_model_class, short_name_to_parametrization_number, \
+    linear_effects_for_selection
 from projects.projected_extreme_snowfall.results.setting_utils import get_last_year_for_the_train_set, set_up_and_load
 from root_utils import VERSION_TIME
 
@@ -68,6 +69,8 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
     print('\n')
     print(snowfall_str)
 
+    linear_effects = linear_effects_for_selection
+
     massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
                                                              safran_study_class, scenario,
                                                              study_class)
@@ -87,7 +90,7 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
         for p in percentages:
             year = get_last_year_for_the_train_set(p)
             excel_folder = calibration_excel_folder.format(snowfall_str, altitude, year)
-            df2 = load_df_complete(massif_name, [number], excel_folder)
+            df2 = load_df_complete(massif_name, [number], excel_folder, linear_effects)
             df = pd.concat([df, df2], axis=1)
         # Compute the mean
         s = df.mean(axis=1)
@@ -114,7 +117,7 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
     massif_name_to_model_class = {m: number_to_model_class[n] for m, n in d.items()}
     massif_name_to_parametrization_number = {m: short_name_to_parametrization_number[s] for m, s in
                                              massif_name_to_short_name.items()}
-    return massif_names, massif_name_to_model_class, massif_name_to_parametrization_number
+    return massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects_for_selection
 
 
 def plots(massif_name_to_short_name, d, show, altitude, snowfall_str):
@@ -222,26 +225,27 @@ def _get_nb_linear_pieces(massif_name, excel_folder, ):
 
 
 def load_serie_parametrization_without_adjustement(massif_name, numbers_of_pieces, excel_folder):
-    df = load_df_complete(massif_name, numbers_of_pieces, excel_folder)
+    df = load_df_complete(massif_name, numbers_of_pieces, excel_folder, linear_effects=(False, False, False))
     return df.iloc[0]
 
 
-def load_df_complete(massif_name, numbers_of_pieces, excel_folder):
+def load_df_complete(massif_name, numbers_of_pieces, excel_folder, linear_effects):
     df = pd.DataFrame()
     for number_of_pieces in numbers_of_pieces:
-        s = _load_dataframe(massif_name, number_of_pieces, excel_folder)
+        s = _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects)
         df = pd.concat([df, s], axis=1)
     df = df.iloc[[2 * i + 1 for i in range(len(df) // 2)]]
     df.columns = numbers_of_pieces
     return df
 
 
-def _load_dataframe(massif_name, number_of_pieces, excel_folder):
+def _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects):
     model_name = number_to_model_name[number_of_pieces]
     short_excel_folder = excel_folder.split('/')[-2:]
     assert op.exists(excel_folder), short_excel_folder
-    files = [f for f in os.listdir(excel_folder) if model_name in f]
-    assert len(files) == 1, "{} {}".format(short_excel_folder, model_name, files)
+    linear_effects_name = str(linear_effects)
+    files = [f for f in os.listdir(excel_folder) if (model_name in f) and (linear_effects_name in f)]
+    assert len(files) == 1, "{} {}".format(short_excel_folder, model_name, linear_effects, files)
     filepath = op.join(excel_folder, files[0])
     df = pd.read_excel(filepath)
     columns = [c for c in df.columns if massif_name in c]
@@ -255,10 +259,10 @@ def _load_dataframe(massif_name, number_of_pieces, excel_folder):
 if __name__ == '__main__':
     # massif_name_to_nb_linear_pieces(AbstractStudy.all_massif_names())
     massif_names = AbstractStudy.all_massif_names()
-    # massif_names = ["Vanoise"]
+    # massif_names = ["Pelvoux"]
 
-    snowfall = None
-    for altitude in [900, 1500, 2100, 2700, 3300]:
+    snowfall = False
+    for altitude in [900, 1500, 2100, 2700, 3300][1:2]:
         _, gcm_rcm_couples, _, _, scenario, study_class, _, _, _, safran_study_class, _ = set_up_and_load(False,
                                                                                                           snowfall)
 

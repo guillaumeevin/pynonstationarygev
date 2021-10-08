@@ -18,6 +18,8 @@ number_to_model_name = {
     10: "NonStationaryTenLinearLocationAndScaleAndShapeModel",
 }
 
+linear_effects_for_selection = (False, False, False)
+
 number_to_model_class = {
     0: StationaryTemporalModel,
     1: NonStationaryLocationAndScaleAndShapeTemporalModel,
