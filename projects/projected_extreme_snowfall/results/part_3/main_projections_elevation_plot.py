@@ -16,7 +16,8 @@ from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
 from projects.projected_extreme_snowfall.results.get_nb_linear_pieces import run_selection, \
     eliminate_massif_name_with_too_much_zeros
-from projects.projected_extreme_snowfall.results.part_3.projection_elevation_plot_utils import plot_pychart_scatter_plot
+from projects.projected_extreme_snowfall.results.part_3.projection_elevation_plot_utils import \
+    plot_pychart_scatter_plot, plot_relative_change_at_massif_level
 from projects.projected_extreme_snowfall.results.setting_utils import set_up_and_load
 import matplotlib.pyplot as plt
 
@@ -46,10 +47,10 @@ def main():
     season = Season.annual
 
     altitudes = [900, 1500, 2100, 2700, 3300]
-    massif_names = AbstractStudy.all_massif_names()[:]
+    all_massif_names = AbstractStudy.all_massif_names()[:]
 
     # altitudes = altitudes[2:4]
-    # massif_names = ['Vanoise', "Mont-Blanc"]
+    all_massif_names = ['Maurienne', "Mont-Blanc"][:1]
 
     visualizers = []
     for altitude in altitudes:
@@ -60,7 +61,7 @@ def main():
         # massif_names = ['Mercantour', 'Thabor', 'Devoluy', 'Parpaillon', 'Haut_Var-Haut_Verdon'][:2]
 
         massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(
-            massif_names,
+            all_massif_names,
             altitude,
             gcm_rcm_couples,
             safran_study_class,
@@ -96,16 +97,22 @@ def main():
         sub_visualizer = sub_visualizers[0]
         visualizers.append(sub_visualizer)
 
-
-    # Illustrate the percentage of massifs
+    # Illustrate the trend of each massif
     with_significance = False
-    covariates = [1.5, 2, 2.5, 3, 3.5, 4][:]
-    for with_return_level in [True, False]:
-        plot_pychart_scatter_plot(visualizers, massif_names, covariates, with_return_level)
-        for covariate in covariates:
-            print("covariate", covariate)
-            OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
-            plot_histogram_all_trends_against_altitudes(visualizers, massif_names, covariate, with_significance, with_return_level)
+    for relative_change in [True, False]:
+        for with_return_level in [True, False]:
+            for massif_name in all_massif_names:
+                plot_relative_change_at_massif_level(visualizers, massif_name, with_return_level,
+                                                     with_significance, relative_change)
+    # Illustrate the percentage of massifs
+    # with_significance = False
+    # covariates = [1.5, 2, 2.5, 3, 3.5, 4][:]
+    # for with_return_level in [True, False]:
+    #     plot_pychart_scatter_plot(visualizers, all_massif_names, covariates, with_return_level)
+    #     for covariate in covariates:
+    #         print("covariate", covariate)
+    #         OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
+    #         plot_histogram_all_trends_against_altitudes(visualizers, all_massif_names, covariate, with_significance, with_return_level)
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))
     print('Total duration', duration)

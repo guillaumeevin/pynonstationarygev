@@ -182,10 +182,11 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         OneFoldFit.COVARIATE_AFTER_TEMPERATURE = default_covariate
 
         # Standard plot
-        for covariate in [2, 3, 4]:
-            OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
-            # self.plot_map_moment_projections('changes_of_moment', None, with_significance)
-            self.plot_map_moment_projections('relative_changes_of_moment', None, with_significance)
+        for order in [1, None]:
+            for covariate in [2, 3, 4]:
+                OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
+                # self.plot_map_moment_projections('changes_of_moment', None, with_significance)
+                self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance)
 
         # Plot the relative change on the map to analyze the pattern
         # OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 4
@@ -319,7 +320,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                     max_abs_change = None
                 graduation = 2
             else:
-                graduation = 10
+                graduation = 5
             massif_names_with_white_dot = None
             half_cmap_for_positive = False
         else:
