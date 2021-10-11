@@ -50,7 +50,7 @@ def main():
     all_massif_names = AbstractStudy.all_massif_names()[:]
 
     # altitudes = altitudes[2:4]
-    all_massif_names = ['Maurienne', "Mont-Blanc"][:1]
+    # all_massif_names = ['Maurienne', "Mont-Blanc"][:1]
 
     visualizers = []
     for altitude in altitudes:
