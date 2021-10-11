@@ -29,7 +29,7 @@ def main():
     start = time.time()
 
     fast = False
-    snowfall = None
+    snowfall = True
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
@@ -39,18 +39,18 @@ def main():
 
     all_massif_names = AbstractStudy.all_massif_names()[:]
     altitudes_list = [[900]]
-    altitudes_list = [[900], [1500], [2100], [2700], [3300]]
+    altitudes_list = [[900], [1500], [2100], [2700], [3300]][3:4]
 
     AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 2
     # massif_names = ['Chartreuse', "Bauges"]
 
     for altitudes in altitudes_list:
 
-        massif_names, massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(all_massif_names,
+        massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(all_massif_names,
                                                                                           altitudes[0],
                                                                                           gcm_rcm_couples,
                                                                                           safran_study_class,
-                                                                                          scenario, study_class,
+                                                                                             scenario, study_class,
                                                                                           snowfall=snowfall)
 
         for massif_name in massif_names:
@@ -72,6 +72,7 @@ def main():
                 safran_study_class=safran_study_class,
                 display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
                 param_name_to_climate_coordinates_with_effects=param_name_to_climate_coordinates_with_effects,
+                linear_effects=linear_effects,
             )
             visualizer.plot()
 

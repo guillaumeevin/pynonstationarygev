@@ -12,7 +12,10 @@ from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_de
     NonStationaryTwoLinearLocationAndScaleAndShapeModel, NonStationaryThreeLinearLocationAndScaleAndShapeModel, \
     NonStationaryFourLinearLocationAndScaleAndShapeModel, NonStationaryTwoLinearLocationOneLinearShapeModel, \
     NonStationaryThreeLinearLocationAndScaleOneLinearShapeModel, \
-    NonStationaryFourLinearLocationAndScaleOneLinearShapeModel
+    NonStationaryFourLinearLocationAndScaleOneLinearShapeModel, NonStationaryFiveLinearLocationAndScaleAndShapeModel, \
+    NonStationarySixLinearLocationAndScaleAndShapeModel, NonStationarySevenLinearLocationAndScaleAndShapeModel, \
+    NonStationaryEightLinearLocationAndScaleAndShapeModel, NonStationaryNineLinearLocationAndScaleAndShapeModel, \
+    NonStationaryTenLinearLocationAndScaleAndShapeModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects, load_combination_name_for_tuple
@@ -42,7 +45,6 @@ def main_preliminary_projections():
 
     year_max_for_pseudo_obs, year_max_for_gcm = 2019, 2100
 
-
     # for percentage in [0.7]:
     # year_max_for_pseudo_obs, year_max_for_gcm = get_last_year_for_the_train_set(percentage), 2019
     weight_on_observation = 1
@@ -55,11 +57,15 @@ def main_preliminary_projections():
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
         fast, snowfall)
 
-    altitudes_list = [[900], [1500], [2100], [2700], [3300]][:3]
-
-    model_classes_list = [NonStationaryTwoLinearLocationOneLinearShapeModel,
-                          NonStationaryThreeLinearLocationAndScaleOneLinearShapeModel,
-                          NonStationaryFourLinearLocationAndScaleOneLinearShapeModel][:]
+    altitudes_list = [[900], [1500], [2100], [2700], [3300]][3:4]
+    print(altitudes_list)
+    model_classes_list = [NonStationaryTwoLinearLocationAndScaleAndShapeModel,
+                          NonStationaryThreeLinearLocationAndScaleAndShapeModel,
+                          NonStationaryFourLinearLocationAndScaleAndShapeModel,
+                          NonStationaryFiveLinearLocationAndScaleAndShapeModel,
+                          NonStationaryFiveLinearLocationAndScaleAndShapeModel,
+                          NonStationarySixLinearLocationAndScaleAndShapeModel,
+                          NonStationarySevenLinearLocationAndScaleAndShapeModel][6:7]
 
     for model_class in model_classes_list:
         model_classes = [model_class]

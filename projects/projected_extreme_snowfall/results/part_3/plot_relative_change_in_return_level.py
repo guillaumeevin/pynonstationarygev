@@ -39,6 +39,8 @@ def plot_relative_dynamic(massif_names, visualizer_list: List[
     unit = '\%' if relative is True else (visualizer.study.variable_unit if order != GevParams.SHAPE else 'no unit')
     if order is None:
         name = '{}-year return levels'.format(OneFoldFit.return_period)
+    elif order is True:
+        name = "Mean annual maxima"
     else:
         name = '{} parameter'.format(GevParams.full_name_from_param_name(order))
     ylabel = '{} {} ({})'.format(change, name, unit)
@@ -114,6 +116,11 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
                 values = [[f.get_params(c).return_level(OneFoldFit.return_period) for c in coordinates_list] for
                                  f in
                                  margin_functions]
+            elif order is True:
+                if order is None:
+                    values = [[f.get_params(c).mean for c in coordinates_list] for
+                              f in
+                              margin_functions]
             else:
                 values = [[f.get_params(c).to_dict()[order] for c in coordinates_list] for
                                  f in
@@ -130,6 +137,8 @@ def plot_curve(ax, massif_name, visualizer: AltitudesStudiesVisualizerForNonStat
 
         if order is None:
             label_global = "$\\textrm{RL50}"
+        elif order is True:
+            label_global = '$\\textrm{Mean annual maxima}'
         else:
             label_global = "$\\" + GevParams.greek_letter_from_param_name_confidence_interval(order, linearity_in_shape=True)
 

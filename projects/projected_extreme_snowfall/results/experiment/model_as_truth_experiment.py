@@ -29,6 +29,10 @@ class ModelAsTruthExperiment(AbstractExperiment):
         self.year_max = year_max_for_gcm
         self.gcm_rcm_couples_sampled_for_experiment = gcm_rcm_couples_sampled_for_experiment
 
+    @property
+    def specific_folder(self):
+        return "{} {}".format(self.altitude, self.variable_name)
+
     # def plot_time_series(self):
     #     # plot time series
     #     gcm_rcm_couple_to_studies_plot = xp.load_gcm_rcm_couple_to_studies(

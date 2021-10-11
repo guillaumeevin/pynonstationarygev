@@ -41,16 +41,21 @@ class CalibrationValidationExperiment(AbstractExperiment):
                          )
         self.year_max_for_studies = year_max_for_studies
         self.start_year_for_test_set = start_year_for_test_set
+        self.end_year_for_train_set = self.start_year_for_test_set - 1
+
+    @property
+    def specific_folder(self):
+        return "{}_{}_{}".format(self.variable_name, self.altitude, self.end_year_for_train_set)
 
     @property
     def excel_filename(self):
-        return super().excel_filename + '_{}_{}'.format(self.year_max_for_studies, self.start_year_for_test_set-1)
+        return super().excel_filename + '_{}_{}'.format(self.year_max_for_studies, self.end_year_for_train_set)
 
     def load_studies_obs_for_test(self) -> AltitudesStudies:
         return self.load_altitude_studies(None, self.start_year_for_test_set, 2019)
 
     def load_studies_obs_for_train(self):
-        return self.load_altitude_studies(None, 1959, self.start_year_for_test_set-1)
+        return self.load_altitude_studies(None, 1959, self.end_year_for_train_set)
 
     def load_gcm_rcm_couple_to_studies(self):
         gcm_rcm_couple_to_studies = {}
@@ -72,7 +77,7 @@ class CalibrationValidationExperiment(AbstractExperiment):
         gcm_rcm_couple_to_studies = {}
         for gcm_rcm_couple in self.gcm_rcm_couples:
             if self.start_year_for_test_set > get_year_min(self.scenario, gcm_rcm_couple):
-                gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, None, year_max=self.start_year_for_test_set-1)
+                gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, None, year_max=self.end_year_for_train_set)
         return gcm_rcm_couple_to_studies
 
     def load_gcm_rcm_couple_to_studies_for_test_period_and_ensemble_members(self, **kwargs):

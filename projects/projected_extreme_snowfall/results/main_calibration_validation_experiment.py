@@ -47,12 +47,11 @@ def main_calibration_validation_experiment():
     l = [0.1, 0.2, 0.3]
     l = [0.3]
     # l = [0.4]
-    l = [0.6, 0.7, 0.8]
-    altitudes_list = [[900], [1500], [2100], [2700], [3300]][:3]
+    l = [0.6, 0.7, 0.8][:]
+    altitudes_list = [[900], [1500], [2100], [2700], [3300]][2:3]
 
-    model_classes_list = [NonStationaryTwoLinearLocationOneLinearShapeModel,
-                          NonStationaryThreeLinearLocationAndScaleOneLinearShapeModel,
-                          NonStationaryFourLinearLocationAndScaleOneLinearShapeModel][:]
+    model_classes_list = [NonStationaryThreeLinearLocationAndScaleAndShapeModel,
+                          NonStationaryFourLinearLocationAndScaleAndShapeModel][1:]
 
     for model_class in model_classes_list:
         model_classes = [model_class]
@@ -75,7 +74,7 @@ def main_calibration_validation_experiment():
                 print('\n',massif_name)
                 for altitudes in altitudes_list:
                     print('\n',altitudes)
-                    for i in [-1, 0, 1, 2, 4, 5][:]:
+                    for i in [-1, 0, 1, 2, 4, 5][1:]:
                     # for i in [-1, 0, 5][1:]:
                         print("parameterization:", i)
                         # combination = (i, i, 0)

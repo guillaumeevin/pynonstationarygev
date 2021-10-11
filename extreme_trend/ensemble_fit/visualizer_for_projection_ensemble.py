@@ -153,7 +153,7 @@ class VisualizerForProjectionEnsemble(object):
             #         self.plot_effect_against_altitude(visualizer_list)
             # Moment plot
             for relative in [None, True, False][:1]:
-                orders = [None] + GevParams.PARAM_NAMES[:]
+                orders = [True] + GevParams.PARAM_NAMES[:]
                 for order in orders[:1]:
                     plot_relative_dynamic(self.massif_names, visualizer_list,
                                           self.param_name_to_climate_coordinates_with_effects,

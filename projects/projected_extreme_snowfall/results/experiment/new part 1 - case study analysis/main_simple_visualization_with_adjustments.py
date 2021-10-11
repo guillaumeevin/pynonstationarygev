@@ -29,20 +29,21 @@ def main_simple_visualizatoin():
     start = time.time()
 
     fast = False
-    snowfall = False
+    snowfall = True
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
         fast, snowfall)
 
-    altitudes = [1500]
+    altitudes = [2100]
     percentage = 1
 
     # Load the csv filepath
     massif_names = AbstractStudy.all_massif_names()[2:3]
     massif_names = AbstractStudy.all_massif_names()[:]
     massif_names = ['Mont-Blanc', 'Ubaye', 'Champsaur', 'Vercors'][:]
+    massif_names = ['Vanoise'][:]
     # gcm_rcm_couples = gcm_rcm_couples[:5]
     massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(massif_names,
                                                                                       altitudes[0],

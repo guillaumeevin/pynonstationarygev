@@ -17,7 +17,6 @@ from projects.projected_extreme_snowfall.results.seleciton_utils import get_shor
 from projects.projected_extreme_snowfall.results.setting_utils import get_last_year_for_the_train_set, set_up_and_load
 from root_utils import VERSION_TIME
 
-numbers_of_pieces = list(range(0, 5))
 
 model_as_truth_excel_folder = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/abstract_experiments/ModelAsTruthExperiment/{} {}"
 calibration_aic_excel_folder = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/abstract_experiments/CalibrationAicExperiment/{} {}"
@@ -59,31 +58,15 @@ def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_co
 def run_selection(massif_names, altitude, gcm_rcm_couples,
                   safran_study_class, scenario,
                   study_class, show=False,
-                  snowfall=False):
-    if snowfall is True:
-        snowfall_str = 'snowfall'
-    elif snowfall is None:
-        snowfall_str = 'precipitation'
-    else:
-        snowfall_str = "snow load"
-    print('\n')
-    print(snowfall_str)
-
-    linear_effects = linear_effects_for_selection
-
-    massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
-                                                             safran_study_class, scenario,
-                                                             study_class)
-
-
-
-    d = massif_name_to_nb_linear_pieces(massif_names,
-                                        altitude,
-                                        snowfall_str)
+                  snowfall=False,
+):
+    massif_name_to_number, linear_effects, massif_names, snowfall_str, numbers_of_pieces = get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names,
+                                                                              safran_study_class, scenario, snowfall,
+                                                                              study_class)
 
     massif_name_to_short_name = {}
     print('\n\nstart table with split-sample:')
-    for massif_name, number in d.items():
+    for massif_name, number in massif_name_to_number.items():
         print(massif_name.replace('_', ' '), end=' & ')
         percentages = [0.6, 0.7, 0.8][:]
         df = pd.DataFrame()
@@ -112,15 +95,46 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
         massif_name_to_short_name[massif_name] = short_name
     print('\n\nend with split-sample:')
 
-    plots(massif_name_to_short_name, d, show, altitude, snowfall_str)
+    plots(massif_name_to_short_name, massif_name_to_number, show, altitude, snowfall_str, numbers_of_pieces)
 
-    massif_name_to_model_class = {m: number_to_model_class[n] for m, n in d.items()}
+    massif_name_to_model_class = {m: number_to_model_class[n] for m, n in massif_name_to_number.items()}
     massif_name_to_parametrization_number = {m: short_name_to_parametrization_number[s] for m, s in
                                              massif_name_to_short_name.items()}
     return massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects_for_selection
 
 
-def plots(massif_name_to_short_name, d, show, altitude, snowfall_str):
+def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_study_class, scenario, snowfall,
+                              study_class):
+
+    if snowfall is True:
+        snowfall_str = 'snowfall'
+        min_number_of_pieces = 1
+        max_number_of_pieces = 7
+    elif snowfall is None:
+        snowfall_str = 'precipitation'
+        raise NotImplementedError
+    else:
+        min_number_of_pieces = 1
+        max_number_of_pieces = 4
+        snowfall_str = "snow load"
+    print('\n')
+    print(snowfall_str)
+    numbers_of_pieces = list(range(min_number_of_pieces, max_number_of_pieces + 1))
+    massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
+                                                             safran_study_class, scenario,
+                                                             study_class)
+    # if snowfall is True:
+    #     d = {m: 2 for m in massif_names}
+    # else:
+    d = massif_name_to_nb_linear_pieces(massif_names, altitude,
+                                        snowfall_str, numbers_of_pieces)
+    print('\n\n')
+    print(d)
+    linear_effects = linear_effects_for_selection
+    return d, linear_effects, massif_names, snowfall_str, numbers_of_pieces
+
+
+def plots(massif_name_to_short_name, d, show, altitude, snowfall_str, numbers_of_pieces):
     folder = op.join(VERSION_TIME, "selection method projections")
 
     # plot legend
@@ -204,18 +218,18 @@ def plot(filename, folder, show, altitude, snowfall_str):
     plt.close()
 
 
-def massif_name_to_nb_linear_pieces(massif_names, altitude, snowfall_str):
+def massif_name_to_nb_linear_pieces(massif_names, altitude, snowfall_str, numbers_of_pieces):
     massif_name_to_nb_linear_pieces = OrderedDict()
     print('start table with model as truth:')
     for massif_name in sorted(massif_names):
         print(massif_name.replace('_', ''), end=' & ')
-        nb = _get_nb_linear_pieces(massif_name, model_as_truth_excel_folder.format(altitude, snowfall_str))
+        nb = _get_nb_linear_pieces(massif_name, model_as_truth_excel_folder.format(altitude, snowfall_str), numbers_of_pieces)
         massif_name_to_nb_linear_pieces[massif_name] = nb
     print('end table with model as truth')
     return massif_name_to_nb_linear_pieces
 
 
-def _get_nb_linear_pieces(massif_name, excel_folder, ):
+def _get_nb_linear_pieces(massif_name, excel_folder, numbers_of_pieces):
     s = load_serie_parametrization_without_adjustement(massif_name, numbers_of_pieces, excel_folder)
     best_idx = s.idxmin()
     l = [str(round(v, 2)) for v in s.values]
@@ -261,8 +275,8 @@ if __name__ == '__main__':
     massif_names = AbstractStudy.all_massif_names()
     # massif_names = ["Pelvoux"]
 
-    snowfall = False
-    for altitude in [900, 1500, 2100, 2700, 3300][1:2]:
+    snowfall = True
+    for altitude in [900, 1500, 2100, 2700, 3300][2:3]:
         _, gcm_rcm_couples, _, _, scenario, study_class, _, _, _, safran_study_class, _ = set_up_and_load(False,
                                                                                                           snowfall)
 

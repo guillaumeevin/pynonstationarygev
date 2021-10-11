@@ -2,21 +2,11 @@ from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_m
     NonStationaryLocationAndScaleAndShapeTemporalModel
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
     NonStationaryTwoLinearLocationAndScaleAndShapeModel, NonStationaryThreeLinearLocationAndScaleAndShapeModel, \
-    NonStationaryFourLinearLocationAndScaleAndShapeModel
-
-number_to_model_name = {
-    0: "StationaryTemporalModel",
-    1: "NonStationaryLocationAndScaleAndShapeTemporalModel",
-    2: "NonStationaryTwoLinearLocationAndScaleAndShapeModel",
-    3: "NonStationaryThreeLinearLocationAndScaleAndShapeModel",
-    4: "NonStationaryFourLinearLocationAndScaleAndShapeModel",
-    5: "NonStationaryFiveLinearLocationAndScaleAndShapeModel",
-    6: "NonStationarySixLinearLocationAndScaleAndShapeModel",
-    7: "NonStationarySevenLinearLocationAndScaleAndShapeModel",
-    8: "NonStationaryEightLinearLocationAndScaleAndShapeModel",
-    9: "NonStationaryNineLinearLocationAndScaleAndShapeModel",
-    10: "NonStationaryTenLinearLocationAndScaleAndShapeModel",
-}
+    NonStationaryFourLinearLocationAndScaleAndShapeModel, NonStationaryFiveLinearLocationAndScaleAndShapeModel, \
+    NonStationarySixLinearLocationAndScaleAndShapeModel, NonStationarySevenLinearLocationAndScaleAndShapeModel, \
+    NonStationaryEightLinearLocationAndScaleAndShapeModel, NonStationaryNineLinearLocationAndScaleAndShapeModel, \
+    NonStationaryTenLinearLocationAndScaleAndShapeModel
+from root_utils import get_display_name_from_object_type
 
 linear_effects_for_selection = (False, False, False)
 
@@ -26,6 +16,17 @@ number_to_model_class = {
     2: NonStationaryTwoLinearLocationAndScaleAndShapeModel,
     3: NonStationaryThreeLinearLocationAndScaleAndShapeModel,
     4: NonStationaryFourLinearLocationAndScaleAndShapeModel,
+    5: NonStationaryFiveLinearLocationAndScaleAndShapeModel,
+    6: NonStationarySixLinearLocationAndScaleAndShapeModel,
+    7: NonStationarySevenLinearLocationAndScaleAndShapeModel,
+    8: NonStationaryEightLinearLocationAndScaleAndShapeModel,
+    9: NonStationaryNineLinearLocationAndScaleAndShapeModel,
+    10: NonStationaryTenLinearLocationAndScaleAndShapeModel,
+}
+
+number_to_model_name = {
+    number: get_display_name_from_object_type(model_class)
+    for number, model_class in number_to_model_class.items()
 }
 
 model_class_to_number = {v: k for k, v in number_to_model_class.items()}
@@ -39,7 +40,7 @@ short_name_to_parametrization_number = {
 }
 
 parametrization_number_to_short_name = {
-    v:k for k,v in short_name_to_parametrization_number.items()
+    v: k for k, v in short_name_to_parametrization_number.items()
 }
 
 short_name_to_color = {
