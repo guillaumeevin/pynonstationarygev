@@ -108,8 +108,8 @@ def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_st
 
     if snowfall is True:
         snowfall_str = 'snowfall'
-        min_number_of_pieces = 1
-        max_number_of_pieces = 7
+        min_number_of_pieces = 4
+        max_number_of_pieces = 4
     elif snowfall is None:
         snowfall_str = 'precipitation'
         raise NotImplementedError

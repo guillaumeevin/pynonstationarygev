@@ -32,22 +32,25 @@ def main():
     start = time.time()
 
     fast = False
-    snowfall = False
+    snowfall = True
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
         fast, snowfall)
     season = Season.annual
 
+    altitudes_list = [[900]]
+    altitudes_list = [[1500]]
     altitudes_list = [[2100]]
+    altitudes_list = [[2700]]
+    altitudes_list = [[3300]]
+    print('altitude', altitudes_list)
+
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     massif_names = AbstractStudy.all_massif_names()[:]
-    # massif_names = ['Mercantour', 'Thabor', 'Devoluy', 'Parpaillon', 'Haut_Var-Haut_Verdon']
+    # massif_names = ['Mercantour', 'Thabor', 'Devoluy', 'Parpaillon', 'Haut_Var-Haut_Verdon'][:2]
 
-    massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitudes_list[0][0], gcm_rcm_couples,
-                                                             safran_study_class, scenario, study_class)
-
-    massif_names, massif_name_to_model_class, massif_name_to_parametrization_number = run_selection(massif_names,
+    massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(massif_names,
                                                                                       altitudes_list[0][0],
                                                                                                     gcm_rcm_couples,
                                                                                                     safran_study_class,
@@ -70,6 +73,7 @@ def main():
         temporal_covariate_for_fit=temporal_covariate_for_fit,
         remove_physically_implausible_models=remove_physically_implausible_models,
         safran_study_class=safran_study_class,
+        linear_effects=linear_effects,
         display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
         param_name_to_climate_coordinates_with_effects=massif_name_to_param_name_to_climate_coordinates_with_effects,
     )

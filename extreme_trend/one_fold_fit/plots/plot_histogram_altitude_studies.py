@@ -271,7 +271,8 @@ def plot_shoe_plot_changes_against_altitude_for_maxima_and_total(massif_names, v
     plt.close()
 
 
-def plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x, add_for_percentage=True):
+def plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x, add_for_percentage=True,
+                                 range=True):
     # Plot number of massifs on the upper axis
     ax_twiny = ax.twiny()
     ax_twiny.plot(x, [0 for _ in x], linewidth=0)
@@ -279,7 +280,11 @@ def plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x, 
     ax_twiny.tick_params(labelsize=labelsize)
     ax_twiny.set_xticklabels(nb_massifs)
     ax_twiny.set_xlim(ax.get_xlim())
-    xlabel = 'Total number of massifs at each range'
+    xlabel = 'Total number of massifs at each '
+    if range:
+        xlabel += 'range'
+    else:
+        xlabel += 'elevation'
     if add_for_percentage:
         xlabel += ' (for the percentage)'
     ax_twiny.set_xlabel(xlabel, fontsize=legend_fontsize)

@@ -83,7 +83,7 @@ def set_up_and_load(fast, snowfall=True):
         massif_names = ["Vanoise"]
         gcm_rcm_couples = gcm_rcm_couples[:]
     elif fast:
-        gcm_rcm_couples = gcm_rcm_couples[:4]
+        gcm_rcm_couples = gcm_rcm_couples[:3] + gcm_rcm_couples[-3:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         massif_names = ['Vanoise']
     else:

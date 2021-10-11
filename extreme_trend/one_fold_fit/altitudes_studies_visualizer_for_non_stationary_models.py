@@ -4,31 +4,26 @@ from typing import List, Dict
 
 import matplotlib
 import matplotlib.pyplot as plt
-
 import numpy as np
 
-from extreme_data.cru_data.global_mean_temperature_until_2020 import _year_to_average_global_mean_temp, \
-    winter_year_to_averaged_global_mean_temp_wrt_1850_1900
 from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import year_to_averaged_global_mean_temp
+from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import TotalSnowLoadVariable
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_inverse_colormap, \
     remove_the_extreme_colors
 from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
     SCM_STUDY_CLASS_TO_ABBREVIATION
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
-from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import get_pvalue_anderson_darling_test
 from extreme_fit.function.margin_function.abstract_margin_function import AbstractMarginFunction
-from extreme_fit.function.param_function.linear_coef import LinearCoef
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
-from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from extreme_trend.one_fold_fit.altitude_group import \
-    get_altitude_group_from_altitudes, VeyHighAltitudeGroup, MidAltitudeGroup, DefaultAltitudeGroup
+    get_altitude_group_from_altitudes, VeyHighAltitudeGroup, MidAltitudeGroup
 from extreme_trend.one_fold_fit.one_fold_fit import \
     OneFoldFit
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureWithSplineTemporalCovariate
 
@@ -263,6 +258,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     def plot_map_moment_projections(self, method_name, order, with_significance, max_abs_change=None):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
+        snowfall = not (self.study.variable_class is TotalSnowLoadVariable)
         # Plot settings
         moment = ' '.join(method_name.split('_'))
         d_temperature = {'C': '{C}'}
@@ -306,7 +302,6 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
         is_return_level_plot = (self.moment_names.index(method_name) == 0) and (order is None)
         fontsize_label = 13
-
         if is_return_level_plot:
             print('average return level values:')
             print(np.mean(list(massif_name_to_value.values())))
@@ -317,11 +312,14 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             # cmap = remove_the_extreme_colors(cmap, epsilon=0.25)
             # cmap = get_inverse_colormap(cmap)
             massif_name_to_text = {m: round(v, 1) for m, v in massif_name_to_value.items()}
-            if self.altitude_group.altitude == 1500:
-                max_abs_change = 9.9
+            if not snowfall:
+                if self.altitude_group.altitude == 1500:
+                    max_abs_change = 9.9
+                else:
+                    max_abs_change = None
+                graduation = 2
             else:
-                max_abs_change = None
-            graduation = 2
+                graduation = 10
             massif_names_with_white_dot = None
             half_cmap_for_positive = False
         else:
@@ -332,12 +330,15 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             # cmap = get_inverse_colormap(cmap)
             # cmap = get_cmap_with_inverted_blue_and_green_channels(cmap)
             cmap = remove_the_extreme_colors(cmap)
-            if 'relative' in method_name:
-                graduation = 10
-                max_abs_change = 60
+            if not snowfall:
+                if 'relative' in method_name:
+                    graduation = 10
+                    max_abs_change = 60
+                else:
+                    graduation = 1
+                    max_abs_change = 4
             else:
-                graduation = 1
-                max_abs_change = 4
+                graduation = 10
             if with_significance:
                 print('nb of massifs with singificant correct')
                 print(sum([one_fold_fit.gcm_correction_is_significant for one_fold_fit in self.massif_name_to_one_fold_fit.values()]))
@@ -351,8 +352,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             else:
                 massif_names_with_white_dot = None
 
-        negative_and_positive_values = False
-
+        negative_and_positive_values = self.moment_names.index(method_name) > 0
         # Plot the map
         self.plot_map(cmap=cmap, graduation=graduation,
                       label=ylabel, massif_name_to_value=massif_name_to_value,
@@ -366,7 +366,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       massif_names_with_white_dot=massif_names_with_white_dot,
                       half_cmap_for_positive=half_cmap_for_positive,
                       )
-        return max_abs_change
+        if snowfall:
+            return None
+        else:
+            return max_abs_change
 
     def plot_map_moment(self, method_name, order, with_significance):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
@@ -621,7 +624,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 massif_name_to_return_level[m] = one_fold.return_level_last_temporal_coordinate
         return massif_name_to_return_level
 
-    def all_trends(self, massif_names, with_significance=True, with_relative_change=False):
+    def all_trends(self, massif_names, with_significance=True, with_relative_change=False,
+                   with_return_level=True):
         """return percents which contain decrease, significant decrease, increase, significant increase percentages"""
         valid_massif_names = self.get_valid_names(massif_names)
 
@@ -630,10 +634,17 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         for one_fold in [one_fold for m, one_fold in self.massif_name_to_one_fold_fit.items()
                          if m in valid_massif_names]:
             # Compute nb of non stationary models
-            if with_relative_change:
-                change_value = one_fold.relative_change_in_return_level_for_reference_altitude
+            if with_return_level:
+                if with_relative_change:
+                    change_value = one_fold.relative_change_in_return_level_for_reference_altitude
+                else:
+                    change_value = one_fold.change_in_return_level_for_reference_altitude
             else:
-                change_value = one_fold.change_in_return_level_for_reference_altitude
+                if with_relative_change:
+                    change_value = one_fold.relative_change_in_mean_for_reference_altitude
+                else:
+                    change_value = one_fold.change_in_mean_for_reference_altitude
+
             if change_value == 0:
                 continue
             # Compute nbs

@@ -165,6 +165,15 @@ class OneFoldFit(object):
     def relative_change_in_return_level_for_reference_altitude(self) -> float:
         return self.relative_changes_of_moment(altitudes=[self.altitude_plot], order=None)[0]
 
+    @property
+    def relative_change_in_mean_for_reference_altitude(self) -> float:
+        return self.relative_changes_of_moment(altitudes=[self.altitude_plot], order=1)[0]
+
+    @property
+    def change_in_mean_for_reference_altitude(self) -> float:
+        return self.changes_of_moment(altitudes=[self.altitude_plot], order=1)[0]
+
+
     def changes_of_moment(self, altitudes, order=1, covariate_before=None, covariate_after=None):
         covariate_after, covariate_before = self.set_covariate_before_and_after(covariate_after, covariate_before)
         changes = []
