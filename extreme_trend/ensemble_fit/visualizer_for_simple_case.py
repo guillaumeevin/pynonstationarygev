@@ -438,7 +438,7 @@ class VisualizerForSimpleCase(object):
 
             # Additional plots for the value of return level
             with_significance = True
-            AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 100
+            AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1000
             if with_significance:
                 # Plot the uncertainty interval
                 margin_functions = one_fold_fit.bootstrap_fitted_functions_from_fit_cached
@@ -493,7 +493,7 @@ class VisualizerForSimpleCase(object):
             visualizer.study.variable_unit)
         ylabel = ylabel[0].upper() + ylabel[1:]
         ax.set_ylabel(ylabel)
-        xlabel = 'T, the smoothed anomaly of global temperature w.r.t. pre-industrial levels (K)'
+        xlabel = 'Global warming above pre-industrial levels ($^o\\textrm{C}$)'
         ax.set_xlabel(xlabel)
         ax.set_xlim((left_limit, right_limit))
         xticks = []
@@ -501,6 +501,7 @@ class VisualizerForSimpleCase(object):
             xticks.append(xtick)
             xtick += 0.5
         ax.set_xticks(xticks)
+        ax.set_xticklabels(['+{}'.format(int(h) if int(h) == h else h) for h in xticks])
 
         ylim = (0, ylim_upper)
         ax.set_ylim(ylim)
