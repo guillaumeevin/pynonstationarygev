@@ -39,9 +39,10 @@ def main():
         fast, snowfall)
     season = Season.annual
 
-    altitudes_list = [[900]]
+    # altitudes_list = [[900]]
     # altitudes_list = [[1500]]
-    # altitudes_list = [[2100]]
+
+    altitudes_list = [[2100]]
     # altitudes_list = [[2700]]
     # altitudes_list = [[3300]]
     print('altitude', altitudes_list)

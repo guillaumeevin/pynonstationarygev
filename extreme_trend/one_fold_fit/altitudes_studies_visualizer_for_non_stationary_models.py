@@ -320,18 +320,17 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                     max_abs_change = None
                 graduation = 2
             else:
-                graduation = 5
+                graduation = 10
             massif_names_with_white_dot = None
             half_cmap_for_positive = False
         else:
             half_cmap_for_positive = True
             fontsize_label = 10
             # cmap = plt.cm.RdYlGn
-            cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
             # cmap = get_inverse_colormap(cmap)
             # cmap = get_cmap_with_inverted_blue_and_green_channels(cmap)
-            cmap = remove_the_extreme_colors(cmap)
             if not snowfall:
+                cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
                 if 'relative' in method_name:
                     graduation = 10
                     max_abs_change = 60
@@ -339,7 +338,11 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                     graduation = 1
                     max_abs_change = 4
             else:
-                graduation = 10
+                cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][2]
+                graduation = 5
+                max_abs_change = 20
+            cmap = remove_the_extreme_colors(cmap)
+
             if with_significance:
                 print('nb of massifs with singificant correct')
                 print(sum([one_fold_fit.gcm_correction_is_significant for one_fold_fit in self.massif_name_to_one_fold_fit.values()]))
