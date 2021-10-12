@@ -17,7 +17,8 @@ from projects.projected_extreme_snowfall.results.combination_utils import \
 from projects.projected_extreme_snowfall.results.get_nb_linear_pieces import run_selection, \
     eliminate_massif_name_with_too_much_zeros
 from projects.projected_extreme_snowfall.results.part_3.projection_elevation_plot_utils import \
-    plot_pychart_scatter_plot, plot_relative_change_at_massif_level
+    plot_pychart_scatter_plot, plot_relative_change_at_massif_level, \
+    plot_relative_change_at_massif_level_sensitivity_to_frequency
 from projects.projected_extreme_snowfall.results.setting_utils import set_up_and_load
 import matplotlib.pyplot as plt
 
@@ -49,8 +50,8 @@ def main():
     altitudes = [900, 1500, 2100, 2700, 3300]
     all_massif_names = AbstractStudy.all_massif_names()[:]
 
-    # altitudes = altitudes[2:4]
-    # all_massif_names = ['Maurienne', "Mont-Blanc"][:1]
+    # altitudes = altitudes[-2:]
+    # all_massif_names = ['Maurienne', "Mont-Blanc"][:]
 
     visualizers = []
     for altitude in altitudes:
@@ -97,32 +98,43 @@ def main():
         sub_visualizer = sub_visualizers[0]
         visualizers.append(sub_visualizer)
 
-    # Illustrate the trend of each massif
-    with_significance = False
-    for relative_change in [True, False]:
-        for with_return_level in [True, False]:
-            for massif_name in all_massif_names:
-                plot_relative_change_at_massif_level(visualizers, massif_name, with_return_level,
-                                                     with_significance, relative_change)
     # Illustrate the percentage of massifs
-    # with_significance = False
-    # covariates = [1.5, 2, 2.5, 3, 3.5, 4][:]
-    # for with_return_level in [True, False]:
-    #     plot_pychart_scatter_plot(visualizers, all_massif_names, covariates, with_return_level)
-    #     for covariate in covariates:
-    #         print("covariate", covariate)
-    #         OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
-    #         plot_histogram_all_trends_against_altitudes(visualizers, all_massif_names, covariate, with_significance, with_return_level)
+    with_significance = False
+    covariates = [1.5, 2, 2.5, 3, 3.5, 4][:]
+    for with_return_level in [True, False]:
+        plot_pychart_scatter_plot(visualizers, all_massif_names, covariates, with_return_level)
+        for covariate in covariates:
+            print("covariate", covariate)
+            OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
+            plot_histogram_all_trends_against_altitudes(visualizers, all_massif_names, covariate, with_significance,
+                                                        with_return_level)
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))
     print('Total duration', duration)
+
+    # Illustrate the trend of each massif
+    return_periods = [2, 5, 10, 20, 50, 100]
+    with_significance = False
+    for relative_change in [True, False]:
+        for massif_name in all_massif_names:
+            for visualizer in visualizers:
+                if massif_name in visualizer.massif_name_to_one_fold_fit:
+                    plot_relative_change_at_massif_level_sensitivity_to_frequency(visualizer, massif_name,
+                                                                                  with_significance, relative_change,
+                                                                                  return_periods)
+            plot_relative_change_at_massif_level(visualizers, massif_name, False,
+                                                 with_significance, relative_change, None)
+            for return_period in return_periods:
+                plot_relative_change_at_massif_level(visualizers, massif_name, True,
+                                                     with_significance, relative_change, return_period)
 
 def plot_histogram_all_trends_against_altitudes(visualizer_list, massif_names, covariate, with_significance=True,
                                                 with_return_level=True):
     assert with_significance is False
     visualizer = visualizer_list[0]
 
-    all_trends = [v.all_trends(massif_names, with_significance=with_significance, with_return_level=with_return_level) for v in visualizer_list]
+    all_trends = [v.all_trends(massif_names, with_significance=with_significance, with_return_level=with_return_level)
+                  for v in visualizer_list]
     nb_massifs, *all_l = zip(*all_trends)
 
     plt.close()
@@ -163,7 +175,6 @@ def plot_histogram_all_trends_against_altitudes(visualizer_list, massif_names, c
     ax.set_xticklabels(["{} m".format(v.study.altitude) for v in visualizer_list])
 
     plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x, range=False)
-
 
     label = "return level" if with_return_level else "mean"
     visualizer.plot_name = 'All trends for {} at {} degrees'.format(label, OneFoldFit.COVARIATE_AFTER_TEMPERATURE)
