@@ -50,7 +50,7 @@ def main():
 
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][:]
     # altitudes = [900, 1200, 1500, 1800, 2100][:]
-    altitudes = [2400, 2700, 3000, 3300, 3600][:]
+    altitudes = [2100, 2400, 2700, 3000, 3300, 3600][:]
 
     all_massif_names = AbstractStudy.all_massif_names()[:]
 

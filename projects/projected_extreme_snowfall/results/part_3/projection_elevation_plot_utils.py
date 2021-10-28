@@ -92,11 +92,15 @@ def drawPieMarker(ax, xs, ys, probabilities, sizes, edges_colors, pie_color, col
                 y_start = epislon_height if j == 0 else -epislon_height
                 x_start = epislon_height if j == 0 else -epislon_height
             epislon = 0.08
-            number_lines = standard_number_lines / 2
+            number_lines = standard_number_lines // 2
             if probability < 0.18:
                 x_start *= 2
             if probability < 0.05:
                 x_start *= 1.5
+                y_start /= 2
+                epislon /= 2
+                number_lines = standard_number_lines // 8
+
         else:
             epislon = 0
             y_start = 0
@@ -223,6 +227,8 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, wi
     if len(visualizer_list) == 5:
         # Optimal size for 5 elevations
         sizes = [1500 for _ in range(2)]
+    elif len(visualizer_list) == 6:
+        sizes = [1200, 100]
     elif len(visualizer_list) == 10:
         sizes = [300 for _ in range(2)]
     else:
@@ -269,17 +275,22 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, wi
                           color_to_linestyle, linewidth_pie)
 
             # add text with the percentage
-            epsilon = 40
+            if decreasing_percentage > 0.95:
+                epsilon = 50
+                righ_shift = 0.045
+            else:
+                righ_shift = 0.055
+                epsilon = 40
             shift = -20
             fontsize = 6
             if decreasing_percentage in [0, 1]:
-                ax.text(covariate - 0.045,
+                ax.text((covariate - 0.045),
                         shift + altitude,
                         "100\%",
                         fontsize=fontsize, weight='bold')
             else:
                 for j, probability in enumerate([1 - decreasing_percentage, decreasing_percentage]):
-                    ax.text(covariate + 0.055,
+                    ax.text((covariate + righ_shift),
                             shift + altitude - epsilon + 2 * j * epsilon,
                             str(int(100 * probability)) + "\%",
                             fontsize=fontsize, weight='bold')
@@ -289,11 +300,8 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, wi
     ax.set_xlabel('Global warming above pre-industrial levels ($^o\\textrm{C}$)', fontsize=legend_fontsize)
     ax.set_ylabel('Elevation (m)', fontsize=legend_fontsize)
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
-    ax.set_xticks(covariates)
+    ax.set_xticks([c for c in covariates])
     ax.set_yticks(altitudes)
-    mi, ma = ax.get_ylim()
-    border = 100
-    ax.set_ylim((mi - border, ma + border + 225))
     # ax.set_yticklabels(["{} m".format(v.study.altitude) for v in visualizer_list])
     ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates])
 
@@ -302,6 +310,11 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, wi
     ax2.set_ylim(ax.get_ylim())
     ax2.set_yticks(ax.get_yticks())
     ax2.set_yticklabels([str(nb) for nb in list_nb_valid_massifs])
+
+
+    mi, ma = ax.get_ylim()
+    border = 100
+    ax.set_ylim((mi - border, ma + border + 225))
     # Build legend
     # custom_lines = [Line2D([0], [0], color=color, lw=6) for color in ['blue', 'red']]
     custom_lines = [Patch(facecolor='white', edgecolor='k', linestyle=color_to_linestyle[color],
@@ -323,14 +336,14 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, wi
 
 
 def load_colorbar_info(relative_change):
-    vmax = 10.01
+    vmax = 12.01
     vmin = -vmax
     cmap = get_shifted_map(vmin, vmax, cmap=plt.cm.seismic)
     norm = Normalize(vmin, vmax)
     prefix_label = 'Average relative change' if relative_change else "Average change"
     label = prefix_label + ' in {}-year return levels with respect to + 1 degree (\%)'.format(
         OneFoldFit.return_period)
-    ticks_values_and_labels = ticks_values_and_labels_for_percentages(5, vmax)
+    ticks_values_and_labels = ticks_values_and_labels_for_percentages(2, vmax)
     return cmap, label, norm, prefix_label, ticks_values_and_labels, vmax, vmin
 
 
