@@ -32,7 +32,7 @@ def main():
     start = time.time()
 
     fast = False
-    snowfall = True
+    snowfall = False
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
@@ -43,8 +43,8 @@ def main():
     # altitudes_list = [[1500]]
 
     altitudes_list = [[2100]]
-    # altitudes_list = [[2700]]
-    # altitudes_list = [[3300]]
+    altitudes_list = [[2700]]
+    altitudes_list = [[3300]]
     print('altitude', altitudes_list)
 
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]

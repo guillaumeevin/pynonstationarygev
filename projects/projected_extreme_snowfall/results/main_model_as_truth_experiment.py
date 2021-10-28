@@ -35,7 +35,7 @@ def main_preliminary_projections():
     # time.sleep(60*30)
 
     fast = False
-    snowfall = True
+    snowfall = False
 
     if show in [None, True]:
         matplotlib.use('Agg')
@@ -57,15 +57,13 @@ def main_preliminary_projections():
     display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
         fast, snowfall)
 
-    altitudes_list = [[900], [1500], [2100], [2700], [3300]][3:4]
+    altitudes_list = [[900], [1500], [2100], [2700], [3300]][4:]
+    # altitudes_list = [[1200], [1800], [2400], [3000], [3600]][:1]
     print(altitudes_list)
-    model_classes_list = [NonStationaryTwoLinearLocationAndScaleAndShapeModel,
+    model_classes_list = [NonStationaryLocationAndScaleAndShapeTemporalModel,
+                          NonStationaryTwoLinearLocationAndScaleAndShapeModel,
                           NonStationaryThreeLinearLocationAndScaleAndShapeModel,
-                          NonStationaryFourLinearLocationAndScaleAndShapeModel,
-                          NonStationaryFiveLinearLocationAndScaleAndShapeModel,
-                          NonStationaryFiveLinearLocationAndScaleAndShapeModel,
-                          NonStationarySixLinearLocationAndScaleAndShapeModel,
-                          NonStationarySevenLinearLocationAndScaleAndShapeModel][6:7]
+                          NonStationaryFourLinearLocationAndScaleAndShapeModel][:]
 
     for model_class in model_classes_list:
         model_classes = [model_class]

@@ -54,13 +54,28 @@ def get_upper_half_colormap(cmap):
     return LinearSegmentedColormap.from_list('Upper Half', colors)
 
 
-def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None, fontsize=15):
+def get_upper_two_third_colormap(cmap):
+    colors = cmap(np.linspace(0.333, 1, int(0.666 * cmap.N)))
+    # Create a new colormap from those colors
+    return LinearSegmentedColormap.from_list('Upper Half', colors)
+
+
+def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None, fontsize=15, position='right'):
     divider = make_axes_locatable(ax)
-    cax = divider.append_axes('right', size='5%', pad=0.0)
+    cax = divider.append_axes(position, size='5%', pad=0.0)
     ticks = ticks_values_and_labels[0] if ticks_values_and_labels is not None else None
-    cb = cbar.ColorbarBase(cax, cmap=cmap, norm=norm, ticks=ticks)
+    horizontal_plot = position == 'top'
+    if horizontal_plot:
+        ticks = [t * norm.vmax * 2 - norm.vmax for t in ticks]
+        cb = cbar.ColorbarBase(cax, cmap=cmap, norm=norm, ticks=ticks, orientation="horizontal",
+                               ticklocation='top')
+    else:
+        cb = cbar.ColorbarBase(cax, cmap=cmap, norm=norm, ticks=ticks)
     if ticks_values_and_labels is not None:
-        cb.ax.set_yticklabels([str(t) for t in ticks_values_and_labels[1]])
+        if horizontal_plot:
+            cb.ax.set_xticklabels([str(t) for t in ticks_values_and_labels[1]])
+        else:
+            cb.ax.set_yticklabels([str(t) for t in ticks_values_and_labels[1]])
     if isinstance(label, str):
         cb.set_label(label, fontsize=fontsize)
     return norm

@@ -23,7 +23,7 @@ def main_calibration_validation_experiment():
     start = time.time()
 
     fast = False
-    snowfall = True
+    snowfall = False
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -31,14 +31,15 @@ def main_calibration_validation_experiment():
         fast, snowfall)
 
     # print('sleeping...')
-    # time.sleep(60*40)
+    # time.sleep(60*60*4)
 
     # Load the csv filepath
     calibration_class = CalibrationValidationExperiment
     year_max_for_studies = None
 
     l = [0.6, 0.7, 0.8][:]
-    altitudes_list = [[900], [1500], [2100], [2700], [3300]][2:3]
+    altitudes_list = [[900], [1500], [2100], [2700], [3300]][:]
+    # altitudes_list = [[1200], [1800], [2400], [3000], [3600]][:2]
 
     for altitudes in altitudes_list:
         altitude = altitudes[0]
