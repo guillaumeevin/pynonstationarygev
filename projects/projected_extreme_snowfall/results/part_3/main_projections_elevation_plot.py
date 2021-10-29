@@ -129,18 +129,18 @@ def main():
     all_massif_names = [None]
     # Illustrate the trend of each massif
 
-    # with_significance = False
-    # for relative_change in [True, False][:1]:
-    #     for massif_name in all_massif_names:
-    #         for visualizer in visualizers:
-    #             plot_relative_change_at_massif_level_sensitivity_to_frequency(visualizer, massif_name,
-    #                                                                           with_significance, relative_change,
-    #                                                                           return_periods)
-    #         # plot_relative_change_at_massif_level(visualizers, massif_name, False,
-    #         #                                      with_significance, relative_change, None)
-    #         for return_period in return_periods:
-    #             plot_relative_change_at_massif_level(visualizers, massif_name, True,
-    #                                                  with_significance, relative_change, return_period)
+    with_significance = False
+    for relative_change in [True, False][:1]:
+        for massif_name in all_massif_names:
+            # for visualizer in visualizers:
+            #     plot_relative_change_at_massif_level_sensitivity_to_frequency(visualizer, massif_name,
+            #                                                                   with_significance, relative_change,
+            #                                                                   return_periods)
+            # plot_relative_change_at_massif_level(visualizers, massif_name, False,
+            #                                      with_significance, relative_change, None)
+            for return_period in return_periods:
+                plot_relative_change_at_massif_level(visualizers, massif_name, True,
+                                                     with_significance, relative_change, return_period)
 
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))

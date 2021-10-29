@@ -8,6 +8,9 @@ from matplotlib.colors import Normalize
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario
+from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import year_to_averaged_global_mean_temp, \
+    get_closest_year
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map, \
     get_colors, create_colorbase_axis, ticks_values_and_labels_for_percentages, get_upper_two_third_colormap
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -149,6 +152,14 @@ def plot_transition_lines(visualizer, return_period_to_paths, relative_change):
     covariates_to_show = [1.5, 2, 2.5, 3, 3.5, 4]
     ax.set_xlim((covariates_to_show[0], covariates_to_show[-1]))
     ax.set_xticks(covariates_to_show)
+
+    years = get_closest_year(AdamontScenario.rcp85_extended, ax.get_xticks())
+    ax2 = ax.twiny()
+    ax2.set_xlabel('Year')
+    ax2.set_xlim(ax.get_xlim())
+    ax2.set_xticks(ax.get_xticks())
+    ax2.set_xticklabels(years)
+
     # ax.set_yticklabels(["{} m".format(tic) for tic in ax.get_yticks()])
     ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show])
     ax.set_xlabel('Global warming above pre-industrial levels ($^o\\textrm{C}$)', fontsize=legend_fontsize)
@@ -209,7 +220,7 @@ def plot_contour_changes_values(visualizer_list, relative_change, return_period)
     ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show])
 
     create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=ticks_values_and_labels,
-                          fontsize=10, position='top')
+                          fontsize=10, position='top', rescale_ticks=True)
 
     visualizer = visualizer_list[0]
     visualizer.plot_name = 'Contour plot with relative change = {} with return period {}'.format(relative_change, OneFoldFit.return_period)
@@ -325,7 +336,7 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, wi
     ax.legend(custom_lines, labels, prop={'size': 8.5}, loc='upper left')
 
     create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=ticks_values_and_labels,
-                          fontsize=10, position='top')
+                          fontsize=10, position='top', rescale_ticks=True)
 
     label = "return level" if with_return_level else "mean"
     visualizer = visualizer_list[0]
@@ -354,7 +365,8 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
     if with_return_level:
         OneFoldFit.return_period = return_period
     cmap = plt.cm.gnuplot
-    colors = cmap(np.linspace(0, 1, len(visualizer_list)))
+    # colors = cmap(np.linspace(0, 1, len(visualizer_list)))
+    colors = ['k', 'darkmagenta', 'darkviolet', 'blueviolet', 'plum', 'pink']
     # colors = ['k', 'forestgreen', 'limegreen', 'yellowgreen', 'greenyellow']
     covariates = np.linspace(1, 4, num=100)
     covariates_to_show = [1, 1.5, 2, 2.5, 3, 3.5, 4]
@@ -375,13 +387,19 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
     change_str = 'Relative change' if relative_change else 'Change'
     unit = '\%' if relative_change else visualizer.study.variable_unit
     metric = "{}-year return level".format(OneFoldFit.return_period) if with_return_level else "mean annual maxima"
-    ylabel = '{} in {} w.r.t +1 degree\nof global warming {} ({})'.format(change_str, metric,
-                                                                          massif_name_str_2, unit)
-    ax.set_ylabel(ylabel, fontsize=legend_fontsize)
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(covariates_to_show)
     ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show])
     ax.set_xlim((1, 4))
+
+    # Add colorbar on the right
+    ax.set_yticks([-12 + 2*i for i in range(13)])
+    ax.set_yticklabels([])
+    ax.yaxis.grid()
+    cmap, label, norm, prefix_label, ticks_values_and_labels, vmax, vmin = load_colorbar_info(relative_change)
+    create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels, rescale_ticks=True,
+                          position='right', fontsize=legend_fontsize)
+    ax.set_ylim((vmin, vmax))
 
     ax.legend(prop={'size': 12}, loc='lower left')
 

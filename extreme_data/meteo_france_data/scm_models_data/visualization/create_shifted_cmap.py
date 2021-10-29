@@ -60,13 +60,15 @@ def get_upper_two_third_colormap(cmap):
     return LinearSegmentedColormap.from_list('Upper Half', colors)
 
 
-def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None, fontsize=15, position='right'):
+def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None, fontsize=15, position='right',
+                          rescale_ticks=False):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes(position, size='5%', pad=0.0)
     ticks = ticks_values_and_labels[0] if ticks_values_and_labels is not None else None
     horizontal_plot = position == 'top'
-    if horizontal_plot:
+    if rescale_ticks:
         ticks = [t * norm.vmax * 2 - norm.vmax for t in ticks]
+    if horizontal_plot:
         cb = cbar.ColorbarBase(cax, cmap=cmap, norm=norm, ticks=ticks, orientation="horizontal",
                                ticklocation='top')
     else:

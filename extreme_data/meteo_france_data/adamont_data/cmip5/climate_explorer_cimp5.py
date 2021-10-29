@@ -55,6 +55,21 @@ def year_to_averaged_global_mean_temp(scenario, year_min=None, year_max=None, sp
     return d
 
 
+def get_closest_year(scenario, temps_to_find, spline=True, anomaly=True):
+    d = year_to_averaged_global_mean_temp(scenario, 1950, 2100, spline, anomaly)
+    i = 0
+    years_to_find = []
+    for year, global_mean_temp in d.items():
+        if i == len(temps_to_find):
+            break
+        temp_to_find = temps_to_find[i]
+        if temp_to_find < global_mean_temp:
+            years_to_find.append(year - 1)
+            i += 1
+    assert len(years_to_find) == len(temps_to_find)
+    return years_to_find
+
+
 def get_column_name(anomaly, spline):
     basic_column_name = 'Annual anomaly' if anomaly else 'Annual mean'
     if spline:
@@ -169,9 +184,6 @@ def apply_cubic_spline(x, y, gcm):
     return new_y
 
 
-
-
-
 def download_dat(dat_filepath, txt_filepath):
     web_filepath = op.join(GLOBALTEMP_WEB_PATH, op.basename(dat_filepath))
     dirname = op.dirname(dat_filepath)
@@ -199,5 +211,7 @@ def main_test_cmip5_loader():
 
 
 if __name__ == '__main__':
-    main_example()
+    # main_example()
+    years = get_closest_year(AdamontScenario.rcp85_extended, [2, 3, 4])
+    print(years)
     # main_test_cmip5_loader()
