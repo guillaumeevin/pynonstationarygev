@@ -128,7 +128,7 @@ def drawPieMarker(ax, xs, ys, probabilities, sizes, edges_colors, pie_color, col
 def plot_transition_lines(visualizer, return_period_to_paths, relative_change):
     ax = plt.gca()
 
-    colors = ['k', 'forestgreen', 'limegreen', 'yellowgreen', 'greenyellow']
+    colors = ['k', 'forestgreen', 'limegreen', 'yellowgreen', 'greenyellow', 'palegreen', 'khaki']
     for color, (return_period, paths) in zip(colors[::-1], list(return_period_to_paths.items())):
         x, y = [], []
         for path in paths:
@@ -138,7 +138,11 @@ def plot_transition_lines(visualizer, return_period_to_paths, relative_change):
             if (len(x) == 0) or (xv[0] > x[-1]):
                 x.extend(xv)
                 y.extend(yv)
-        ax.plot(x, y, label="{}-year return levels".format(return_period), color=color,
+        if isinstance(return_period, int):
+            label = "{}-year return levels".format(return_period)
+        else:
+            label = 'Mean annual maxima'
+        ax.plot(x, y, label=label, color=color,
                 linewidth=3)
     ax.legend()
 
@@ -163,9 +167,9 @@ def plot_transition_lines(visualizer, return_period_to_paths, relative_change):
     # ax.set_yticklabels(["{} m".format(tic) for tic in ax.get_yticks()])
     ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show])
     ax.set_xlabel('Global warming above pre-industrial levels ($^o\\textrm{C}$)', fontsize=legend_fontsize)
-    ax.set_ylabel('Elevation where average return levels are the same than at +1 degree, i.e. the average\n'
-                  'relative change of return levels with respect to +1 degree is equal to 0\% (m)', fontsize=legend_fontsize)
-    visualizer.plot_name = 'Transition lines with relative change = {}'.format(relative_change)
+    ax.set_ylabel('Elevation where the average value is the same than at +1 degree,\n'
+                  ' i.e. the average relative change with respect to +1 degree is equal to 0\% (m)', fontsize=legend_fontsize)
+    visualizer.plot_name = 'Transition lines with relative change = {} and lowest return period {}'.format(relative_change, list(return_period_to_paths.keys())[0])
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
     plt.close()
 
@@ -183,7 +187,7 @@ def plot_contour_changes_values(visualizer_list, relative_change, return_period)
     contour_data = pd.DataFrame()
     for visualizer in visualizer_list:
         altitude = visualizer.study.altitude
-        values = get_y(altitude, covariates, None, relative_change, visualizer)
+        values = get_y(altitude, covariates, None, relative_change, visualizer, return_period)
         df2 = pd.DataFrame({'x': covariates, 'y': [altitude for _ in covariates], 'z': values})
         contour_data = pd.concat([contour_data, df2], axis=0)
 
@@ -195,10 +199,10 @@ def plot_contour_changes_values(visualizer_list, relative_change, return_period)
 
     # Define levels in z-axis where we want lines to appear
 
-    levels = np.array([-10 + 2 * i for i in range(11)])
+    levels = np.array(load_levels())
 
     # Generate a color mapping of the levels we've specified
-    cmap, label, norm, _, ticks_values_and_labels, vmax, vmin = load_colorbar_info(relative_change)
+    cmap, label, norm, _, ticks_values_and_labels, vmax, vmin = load_colorbar_info(relative_change, return_period)
 
     cpf = ax.contourf(X, Y, Z, len(levels), cmap=cmap, levels=levels)
 
@@ -233,7 +237,7 @@ def plot_contour_changes_values(visualizer_list, relative_change, return_period)
     return cp.collections[list(levels).index(0)].get_paths()
 
 
-def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, with_return_level, relative_change):
+def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, relative_change, return_period):
     ax = plt.gca()
     if len(visualizer_list) == 5:
         # Optimal size for 5 elevations
@@ -245,6 +249,8 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, wi
     else:
         sizes = [1500 for _ in range(2)]
 
+    with_return_level = isinstance(return_period, int)
+
     color_to_linestyle = {
         'blue': 'dotted',
         'red': 'dashed',
@@ -252,7 +258,7 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, wi
     linewidth_pie = 1
 
     # color bar
-    cmap, label, norm, prefix_label, ticks_values_and_labels, vmax, vmin = load_colorbar_info(relative_change)
+    cmap, label, norm, prefix_label, ticks_values_and_labels, vmax, vmin = load_colorbar_info(relative_change, return_period)
 
     altitudes = []
     list_nb_valid_massifs = []
@@ -261,7 +267,7 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, wi
         altitudes.append(altitude)
 
         # Load facecolors
-        values = get_y(altitude, covariates, None, relative_change, visualizer)
+        values = get_y(altitude, covariates, None, relative_change, visualizer, return_period)
         facecolors = get_colors(values, cmap, vmin, vmax)
 
         for facecolor, covariate in zip(facecolors, covariates):
@@ -345,15 +351,23 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, wi
 
     plt.close()
 
+def load_levels():
+    max = 16
+    return [-max + 2 * i for i in range(max + 1)]
 
-def load_colorbar_info(relative_change):
-    vmax = 12.01
+def load_colorbar_info(relative_change, return_period):
+    max_level = load_levels()[-1]
+    vmax = max_level + 0.01
     vmin = -vmax
     cmap = get_shifted_map(vmin, vmax, cmap=plt.cm.seismic)
     norm = Normalize(vmin, vmax)
     prefix_label = 'Average relative change' if relative_change else "Average change"
-    label = prefix_label + ' in {}-year return levels with respect to + 1 degree (\%)'.format(
-        OneFoldFit.return_period)
+    if isinstance(return_period, int):
+        label = prefix_label + ' in {}-year return levels'.format(
+            OneFoldFit.return_period)
+    else:
+        label = prefix_label + ' in mean annual maxima'
+    label += ' with respect to\n + 1 degree of global warming above pre-industrial levels (\%)'
     ticks_values_and_labels = ticks_values_and_labels_for_percentages(2, vmax)
     return cmap, label, norm, prefix_label, ticks_values_and_labels, vmax, vmin
 
@@ -361,6 +375,9 @@ def load_colorbar_info(relative_change):
 def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_return_level,
                                          with_significance, relative_change, return_period
                                          ):
+    legend_fontsize = 10
+    labelsize = 10
+
     default_return_period = OneFoldFit.return_period
     if with_return_level:
         OneFoldFit.return_period = return_period
@@ -368,20 +385,22 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
     # colors = cmap(np.linspace(0, 1, len(visualizer_list)))
     colors = ['k', 'darkmagenta', 'darkviolet', 'blueviolet', 'plum', 'pink']
     # colors = ['k', 'forestgreen', 'limegreen', 'yellowgreen', 'greenyellow']
-    covariates = np.linspace(1, 4, num=100)
-    covariates_to_show = [1, 1.5, 2, 2.5, 3, 3.5, 4]
+    covariates = np.linspace(1.5, 4, num=100)
+    covariates_to_show = [1.5, 2, 2.5, 3, 3.5, 4]
     ax = plt.gca()
-    for color, visualizer in zip(colors, visualizer_list[::-1]):
+    for visualizer in visualizer_list[::-1]:
         altitude = visualizer.study.altitude
         label = '{} m'.format(altitude)
         visualizer: AltitudesStudiesVisualizerForNonStationaryModels
 
-        y = get_y(altitude, covariates, massif_name, relative_change, visualizer)
+        y = get_y(altitude, covariates, massif_name, relative_change, visualizer, return_period)
         if y is not None:
-            ax.plot(covariates, y, label=label, color=color, linewidth=3)
+            ax.plot(covariates, y, label=label, linewidth=3, color='k')
 
-    legend_fontsize = 10
-    labelsize = 10
+            index_where_to_plot_text = -10
+            ax.text(covariates[index_where_to_plot_text], y[index_where_to_plot_text], label,
+                    size=labelsize, color='k', ha="center", va="center", bbox=dict(ec='1', fc='1'))
+
     massif_name_str, massif_name_str_2 = get_massif_name_strs(massif_name)
     ax.set_xlabel('Global warming above pre-industrial levels ($^o\\textrm{C}$)', fontsize=legend_fontsize)
     change_str = 'Relative change' if relative_change else 'Change'
@@ -390,18 +409,18 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
     ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks(covariates_to_show)
     ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show])
-    ax.set_xlim((1, 4))
+    ax.set_xlim((covariates_to_show[0], covariates_to_show[-1]))
 
     # Add colorbar on the right
-    ax.set_yticks([-12 + 2*i for i in range(13)])
+    ax.set_yticks(load_levels())
     ax.set_yticklabels([])
     ax.yaxis.grid()
-    cmap, label, norm, prefix_label, ticks_values_and_labels, vmax, vmin = load_colorbar_info(relative_change)
+    cmap, label, norm, prefix_label, ticks_values_and_labels, vmax, vmin = load_colorbar_info(relative_change, return_period)
     create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels, rescale_ticks=True,
                           position='right', fontsize=legend_fontsize)
     ax.set_ylim((vmin, vmax))
 
-    ax.legend(prop={'size': 12}, loc='lower left')
+    # ax.legend(prop={'size': 12}, loc='lower left')
 
     visualizer = visualizer_list[0]
     visualizer.plot_name = '{}/{} of {} for {}'.format(massif_name_str, change_str, metric, massif_name_str)
@@ -467,7 +486,9 @@ def get_massif_name_strs(massif_name):
     return massif_name_str, massif_name_str_2
 
 
-def get_y(altitude, covariates, massif_name, relative_change, visualizer, order=None):
+def get_y(altitude, covariates, massif_name, relative_change, visualizer, return_period):
+    order = None if isinstance(return_period, int) else True
+
     if massif_name is not None:
         if massif_name in visualizer.massif_name_to_one_fold_fit:
             y = get_moments(altitude, covariates, massif_name, relative_change, visualizer, order)

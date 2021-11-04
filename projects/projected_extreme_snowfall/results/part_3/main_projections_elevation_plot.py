@@ -55,7 +55,7 @@ def main():
     all_massif_names = AbstractStudy.all_massif_names()[:]
 
     if fast:
-        # altitudes = altitudes[-2:]
+        altitudes = altitudes[-2:]
         all_massif_names = ['Maurienne', "Mont-Blanc"][:]
 
     visualizers = []
@@ -111,9 +111,10 @@ def main():
         visualizers_list = [visualizers]
     for visualizers_local in visualizers_list:
         for relative_change in [True, False][:1]:
-            plot_piechart_scatter_plot(visualizers_local, all_massif_names, covariates, True, relative_change)
+            for return_period in [OneFoldFit.return_period, None]:
+                plot_piechart_scatter_plot(visualizers_local, all_massif_names, covariates, relative_change, return_period)
 
-    return_periods = [5, 10, 20, 50, 100]
+    return_periods = [None, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000][:-4]
     # Illustrate the contour with all elevation
     for relative_change in [True, False][:1]:
         return_period_to_paths = OrderedDict()
@@ -122,8 +123,11 @@ def main():
             return_period_to_paths[return_period] = paths
 
         # Plot transition line together
-        plot_transition_lines(visualizers[0], return_period_to_paths, relative_change)
-
+        for return_periods_for_plots in [[None, 2, 5, 10, 20, 50, 100], [100, 200, 500, 1000, 2000]][:1]:
+            local_return_period_to_paths = OrderedDict()
+            for r in return_periods_for_plots:
+                local_return_period_to_paths[r] = return_period_to_paths[r]
+            plot_transition_lines(visualizers[0], local_return_period_to_paths, relative_change)
 
     all_massif_names += [None]
     all_massif_names = [None]
