@@ -8,6 +8,7 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
 from extreme_data.meteo_france_data.scm_models_data.studyfrommaxfiles import AbstractStudyMaxFiles
+from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
     NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel, NonStationaryShapeTemporalModel, \
@@ -53,6 +54,7 @@ def set_up_and_load(fast, snowfall=True):
     remove_physically_implausible_models, display_only_model_that_pass_gof_test = False, False
 
     fit_method = MarginFitMethod.evgam
+    season = Season.annual
 
     model_classes = [StationaryTemporalModel]
     model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
@@ -66,6 +68,7 @@ def set_up_and_load(fast, snowfall=True):
         return_period = 100
     elif snowfall is None:
         return_period = 100
+        season = Season.winter
     else:
         return_period = 50
     OneFoldFit.return_period = return_period
@@ -111,7 +114,7 @@ def set_up_and_load(fast, snowfall=True):
     print('observation class:', get_display_name_from_object_type(safran_study_class))
     print('Take into account the observations: {}'.format(safran_study_class is not None))
 
-    return altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method
+    return altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method, season
 
 
 def load_study_classes(snowfall):

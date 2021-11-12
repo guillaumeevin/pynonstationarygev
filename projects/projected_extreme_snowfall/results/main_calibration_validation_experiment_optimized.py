@@ -23,11 +23,11 @@ def main_calibration_validation_experiment():
     start = time.time()
 
     fast = False
-    snowfall = False
+    snowfall = None
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
-    display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
+    display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
         fast, snowfall)
 
     # print('sleeping...')
@@ -38,7 +38,8 @@ def main_calibration_validation_experiment():
     year_max_for_studies = None
 
     l = [0.6, 0.7, 0.8][:]
-    altitudes_list = [[900], [1500], [2100], [2700], [3300]][:]
+    altitudes_list = [[2100], [2400], [2700], [3000], [3300], [3600]][5:6]
+    # altitudes_list = [[900], [1500], [2100], [2700], [3300]][:]
     # altitudes_list = [[1200], [1800], [2400], [3000], [3600]][:2]
 
     for altitudes in altitudes_list:
@@ -50,7 +51,8 @@ def main_calibration_validation_experiment():
                                                                                                       safran_study_class,
                                                                                                       scenario,
                                                                                                       snowfall,
-                                                                                                      study_class)
+                                                                                                      study_class,
+                                                                                              season)
         for massif_name, number in massif_name_to_number.items():
             print('\n', massif_name, number)
             model_classes = [number_to_model_class[number]]
@@ -69,7 +71,7 @@ def main_calibration_validation_experiment():
                     print("parameterization:", i)
                     # combination = (i, i, 0)
                     combination = (i, i, 0)
-                    xp = calibration_class(altitudes, gcm_rcm_couples, safran_study_class, study_class, Season.annual,
+                    xp = calibration_class(altitudes, gcm_rcm_couples, safran_study_class, study_class, season,
                                            scenario=scenario,
                                            selection_method_names=['aic'],
                                            model_classes=model_classes,

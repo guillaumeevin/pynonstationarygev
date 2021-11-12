@@ -1,25 +1,23 @@
-import matplotlib.pyplot as plt
 from collections import OrderedDict
 from typing import List
+
+import matplotlib.pyplot as plt
 
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_to_color
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
-from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from extreme_trend.ensemble_fit.abstract_ensemble_fit import AbstractEnsembleFit
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.one_fold_fit.altitude_group import get_altitude_group_from_altitudes
 from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
-from projects.projected_extreme_snowfall.results.part_2.average_bias import load_study
-from projects.projected_extreme_snowfall.results.part_3.bias_reduction import plot_bias_reduction
-from projects.projected_extreme_snowfall.results.part_3.plot_gcm_rcm_effects import plot_gcm_rcm_effects, \
-    load_total_effect
+from projects.projected_extreme_snowfall.results.part_3.plot_gcm_rcm_effects import plot_gcm_rcm_effects
 from projects.projected_extreme_snowfall.results.part_3.plot_relative_change_in_return_level import \
     plot_relative_dynamic
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates

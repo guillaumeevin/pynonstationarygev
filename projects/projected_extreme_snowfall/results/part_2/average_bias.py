@@ -7,6 +7,7 @@ from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import A
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_to_color
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
+from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 
 
@@ -166,13 +167,13 @@ def compute_bias(massif_name, study_reference: AbstractStudy,
     return np.array(biases)
 
 
-def load_study(altitude, gcm_rcm_couples, safran_study_class, scenario, study_class):
+def load_study(altitude, gcm_rcm_couples, safran_study_class, scenario, study_class, season=Season.annual):
     year_min, year_max = 1959, 2019
-    safran_study = safran_study_class(altitude=altitude, year_min=year_min, year_max=year_max)
+    safran_study = safran_study_class(altitude=altitude, year_min=year_min, year_max=year_max, season=season)
     gcm_rcm_couple_to_study = OrderedDict()
     for gcm_rcm_couple in gcm_rcm_couples:
         study = study_class(altitude=altitude, scenario=scenario, gcm_rcm_couple=gcm_rcm_couple,
-                            year_min=year_min, year_max=year_max)
+                            year_min=year_min, year_max=year_max, season=season)
         gcm_rcm_couple_to_study[gcm_rcm_couple] = study
     return gcm_rcm_couple_to_study, safran_study
 

@@ -51,7 +51,8 @@ def main():
                                                                                           gcm_rcm_couples,
                                                                                           safran_study_class,
                                                                                              scenario, study_class,
-                                                                                          snowfall=snowfall)
+                                                                                          snowfall=snowfall,
+                                                                                                                        season=season)
 
         for massif_name in massif_names:
             parametrization_number = massif_name_to_parametrization_number[massif_name]

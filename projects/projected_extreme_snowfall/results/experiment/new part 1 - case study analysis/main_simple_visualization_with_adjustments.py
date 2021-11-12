@@ -33,7 +33,7 @@ def main_simple_visualizatoin():
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
-    display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
+    display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
         fast, snowfall)
 
     altitudes = [1500]
@@ -51,7 +51,8 @@ def main_simple_visualizatoin():
                                                                                                      safran_study_class,
                                                                                                      scenario,
                                                                                                      study_class,
-                                                                                      snowfall=snowfall)
+                                                                                      snowfall=snowfall,
+                                                                                                                    season=season)
 
     for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
 

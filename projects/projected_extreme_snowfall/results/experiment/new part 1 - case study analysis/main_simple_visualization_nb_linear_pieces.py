@@ -49,7 +49,8 @@ def main_simple_visualizatoin():
                                                                                                      safran_study_class,
                                                                                                      scenario,
                                                                                                      study_class,
-                                                                                      snowfall=snowfall)
+                                                                                      snowfall=snowfall,
+                                                                                                    season=season)
 
     print(massif_name_to_parametrization_number)
     for massif_name, parametrization_number in massif_name_to_parametrization_number.items():

@@ -61,13 +61,25 @@ def get_upper_two_third_colormap(cmap):
 
 
 def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None, fontsize=15, position='right',
-                          rescale_ticks=False):
+                          rescale_ticks=False, snowfall=True,
+                          vmin=None, vmax=None):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes(position, size='5%', pad=0.0)
     ticks = ticks_values_and_labels[0] if ticks_values_and_labels is not None else None
     horizontal_plot = position == 'top'
-    if rescale_ticks:
-        ticks = [t * norm.vmax * 2 - norm.vmax for t in ticks]
+    if rescale_ticks is True:
+        if vmin is None:
+            vmin = norm.vmin
+        if vmax is None:
+            vmax = norm.vmax
+        factor = max(abs(vmin), abs(vmax))
+        if vmin < 0 < vmax:
+            ticks = [t * (norm.vmax - norm.vmin) + norm.vmin for t in ticks]
+        elif vmin > 0:
+            ticks = [t * factor for t in ticks]
+        else:
+            ticks = [-t * factor for t in ticks][::-1]
+
     if horizontal_plot:
         cb = cbar.ColorbarBase(cax, cmap=cmap, norm=norm, ticks=ticks, orientation="horizontal",
                                ticklocation='top')
@@ -123,7 +135,7 @@ def ticks_values_and_labels_for_percentages(graduation, max_abs_change):
         new_tick = round(tick, 2)
         positive_ticks.append(new_tick)
         tick += graduation
-    all_ticks_labels = [-t for t in positive_ticks] + [0] + positive_ticks
+    all_ticks_labels = [-t for t in positive_ticks][::-1] + [0] + positive_ticks
     ticks_values = [((t / max_abs_change) + 1) / 2 for t in all_ticks_labels]
     return ticks_values, all_ticks_labels
 

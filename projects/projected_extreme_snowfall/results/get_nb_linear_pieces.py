@@ -4,6 +4,7 @@ from collections import Counter, OrderedDict
 import matplotlib.pyplot as plt
 import os.path as op
 
+import numpy as np
 import pandas as pd
 from matplotlib.lines import Line2D
 
@@ -25,7 +26,7 @@ calibration_excel_folder = "/home/erwan/Documents/projects/spatiotemporalextreme
 
 def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
                                               safran_study_class, scenario,
-                                              study_class
+                                              study_class, season
                                               ):
     new_massif_names = []
     for massif_name in massif_names:
@@ -35,7 +36,7 @@ def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_co
                                                                                                    None,
                                                                                                    safran_study_class,
                                                                                                    scenario,
-                                                                                                   Season.annual,
+                                                                                                   season,
                                                                                                    study_class)
         safran_studies = gcm_rcm_couple_to_studies[(None, None)]
         if massif_name in safran_studies.study.study_massif_names:
@@ -59,10 +60,11 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
                   safran_study_class, scenario,
                   study_class, show=False,
                   snowfall=False,
+season=Season.annual
 ):
     massif_name_to_number, linear_effects, massif_names, snowfall_str, numbers_of_pieces = get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names,
                                                                               safran_study_class, scenario, snowfall,
-                                                                              study_class)
+                                                                              study_class, season)
 
     massif_name_to_short_name = {}
     print('\n\nstart table with split-sample:')
@@ -91,6 +93,9 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
         print(
             " & ".join(["\\textbf{" + number + '}' if idx == best_idx else number for idx, number in zip(s2.index, l)]),
             '\\\\')
+        if not isinstance(best_idx, str) and np.isnan(best_idx):
+            massif_names.remove(massif_name)
+            continue
         short_name = get_short_name(best_idx)
         massif_name_to_short_name[massif_name] = short_name
     print('\n\nend with split-sample:')
@@ -104,7 +109,7 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
 
 
 def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_study_class, scenario, snowfall,
-                              study_class):
+                              study_class, season):
 
     if snowfall is True:
         snowfall_str = 'snowfall'
@@ -112,7 +117,8 @@ def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_st
         max_number_of_pieces = 4
     elif snowfall is None:
         snowfall_str = 'precipitation'
-        raise NotImplementedError
+        min_number_of_pieces = 1
+        max_number_of_pieces = 4
     else:
         min_number_of_pieces = 1
         max_number_of_pieces = 4
@@ -122,7 +128,7 @@ def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_st
     numbers_of_pieces = list(range(min_number_of_pieces, max_number_of_pieces + 1))
     massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
                                                              safran_study_class, scenario,
-                                                             study_class)
+                                                             study_class, season)
     # if snowfall is True:
     #     d = {m: 2 for m in massif_names}
     # else:

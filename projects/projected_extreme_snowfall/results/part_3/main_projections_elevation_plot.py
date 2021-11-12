@@ -40,23 +40,27 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 def main():
     start = time.time()
 
-    fast = False
+    fast = None
     snowfall = True
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
-    display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
+    display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
         fast, snowfall)
-    season = Season.annual
 
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][:]
     # altitudes = [900, 1200, 1500, 1800, 2100][:]
     altitudes = [2100, 2400, 2700, 3000, 3300, 3600][:]
 
     all_massif_names = AbstractStudy.all_massif_names()[:]
+    # all_massif_names = ["Mont-Blanc", "Vanoise", "Oisans", "Grandes-Rousses"]
 
     if fast:
         altitudes = altitudes[-2:]
-        all_massif_names = ['Maurienne', "Mont-Blanc"][:]
+        all_massif_names = ["Mont-Blanc", "Vanoise", "Oisans", "Grandes-Rousses"]
+
+    if fast is None:
+        altitudes = altitudes[-2:]
+        all_massif_names = ["Mont-Blanc", "Vanoise", "Oisans", "Grandes-Rousses"]
 
     visualizers = []
     for altitude in altitudes:
@@ -73,7 +77,10 @@ def main():
             safran_study_class,
             scenario,
             study_class,
-            snowfall=snowfall)
+            snowfall=snowfall,
+        season=season)
+
+        print(altitude, massif_names)
 
         massif_name_to_param_name_to_climate_coordinates_with_effects = {}
         for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
@@ -103,36 +110,42 @@ def main():
         sub_visualizer = sub_visualizers[0]
         visualizers.append(sub_visualizer)
 
-    # Illustrate the percentage of massifs
-    covariates = [1.5, 2, 2.5, 3, 3.5, 4][:]
-    if len(visualizers) == 10:
-        visualizers_list = [visualizers[:5], visualizers[5:]]
-    else:
-        visualizers_list = [visualizers]
-    for visualizers_local in visualizers_list:
-        for relative_change in [True, False][:1]:
-            for return_period in [OneFoldFit.return_period, None]:
-                plot_piechart_scatter_plot(visualizers_local, all_massif_names, covariates, relative_change, return_period)
-
     return_periods = [None, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000][:-4]
-    # Illustrate the contour with all elevation
-    for relative_change in [True, False][:1]:
-        return_period_to_paths = OrderedDict()
-        for return_period in return_periods[:]:
-            paths = plot_contour_changes_values(visualizers, relative_change, return_period)
-            return_period_to_paths[return_period] = paths
 
-        # Plot transition line together
-        for return_periods_for_plots in [[None, 2, 5, 10, 20, 50, 100], [100, 200, 500, 1000, 2000]][:1]:
-            local_return_period_to_paths = OrderedDict()
-            for r in return_periods_for_plots:
-                local_return_period_to_paths[r] = return_period_to_paths[r]
-            plot_transition_lines(visualizers[0], local_return_period_to_paths, relative_change)
+    if snowfall is True:
+        # Illustrate the percentage of massifs
+        covariates = [1.5, 2, 2.5, 3, 3.5, 4][:]
+        if len(visualizers) == 10:
+            visualizers_list = [visualizers[:5], visualizers[5:]]
+        else:
+            visualizers_list = [visualizers]
+        for visualizers_local in visualizers_list:
+            for relative_change in [True, False][:1]:
+                for return_period in [OneFoldFit.return_period, None]:
+                    plot_piechart_scatter_plot(visualizers_local, all_massif_names, covariates, relative_change, return_period, snowfall)
 
-    all_massif_names += [None]
-    all_massif_names = [None]
+        # Illustrate the contour with all elevation
+        elevations_for_contour_plot = [2100, 2400, 2700, 3000, 3300, 3600]
+        for relative_change in [True, False][:1]:
+            return_period_to_paths = OrderedDict()
+            visualizers_for_contour_plot = [v for v in visualizers if v.study.altitude in elevations_for_contour_plot]
+            for return_period in return_periods[:]:
+                paths = plot_contour_changes_values(visualizers_for_contour_plot, relative_change, return_period, snowfall)
+                return_period_to_paths[return_period] = paths
+
+            # Plot transition line together
+            for return_periods_for_plots in [[None, 2, 5, 10, 20, 50, 100], [100, 200, 500, 1000, 2000]][:1]:
+                local_return_period_to_paths = OrderedDict()
+                for r in return_periods_for_plots:
+                    local_return_period_to_paths[r] = return_period_to_paths[r]
+                plot_transition_lines(visualizers[0], local_return_period_to_paths, relative_change)
+
+    if snowfall:
+        all_massif_names = [None]
+    else:
+        all_massif_names = [None]
+
     # Illustrate the trend of each massif
-
     with_significance = False
     for relative_change in [True, False][:1]:
         for massif_name in all_massif_names:
@@ -142,9 +155,26 @@ def main():
             #                                                                   return_periods)
             # plot_relative_change_at_massif_level(visualizers, massif_name, False,
             #                                      with_significance, relative_change, None)
-            for return_period in return_periods:
-                plot_relative_change_at_massif_level(visualizers, massif_name, True,
-                                                     with_significance, relative_change, return_period)
+            if snowfall in [True, None]:
+                return_periods_for_plots = [return_periods[0], return_periods[-1]]
+                return_period_to_categories_list = {
+                    return_periods[-1]: [[900, 1200, 1500, 1800, 2100, 2400], [2700, 3000], [3300, 3600]],
+                    return_periods[0]: [[900, 1200, 1500, 1800, 2100, 2400, 2700, 3000], [3300], [3600]],
+                }
+            else:
+                return_periods_for_plots = [return_periods[-2]]
+                return_period_to_categories_list = {
+                    return_periods[-2]: [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
+                }
+            for return_period in return_periods_for_plots:
+                categories_list = return_period_to_categories_list[return_period]
+                for categories in categories_list:
+                    categories = set(categories)
+                    visualizers_categories = [v for v in visualizers if v.study.altitude in categories]
+                    if len(visualizers_categories) > 0:
+                        plot_relative_change_at_massif_level(visualizers_categories, massif_name, True,
+                                                             with_significance, relative_change, return_period,
+                                                             snowfall)
 
     end = time.time()
     duration = str(datetime.timedelta(seconds=end - start))

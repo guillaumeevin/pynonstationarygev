@@ -54,10 +54,10 @@ def main_preliminary_projections():
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
-    display_only_model_that_pass_gof_test, safran_study_class, fit_method = set_up_and_load(
+    display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
         fast, snowfall)
 
-    altitudes_list = [[900], [1500], [2100], [2700], [3300]][4:]
+    altitudes_list = [[2100], [2400], [2700], [3000], [3300], [3600]][:1]
     # altitudes_list = [[1200], [1800], [2400], [3000], [3600]][:1]
     print(altitudes_list)
     model_classes_list = [NonStationaryLocationAndScaleAndShapeTemporalModel,
@@ -71,17 +71,17 @@ def main_preliminary_projections():
             run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
                     model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
                     study_class, temporal_covariate_for_fit, year_max_for_gcm, year_max_for_pseudo_obs,
-                    weight_on_observation, linear_effects, fit_method)
+                    weight_on_observation, linear_effects, fit_method, season)
 
 
 def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,
             model_classes, remove_physically_implausible_models, safran_study_class, scenario, show, snowfall,
             study_class, temporal_covariate_for_fit, year_max_for_gcm, year_max_for_pseudo_obs, weight_on_observation,
-            linear_effects, fit_method):
+            linear_effects, fit_method, season):
     altitude = altitudes[0]
     print('Altitude={}'.format(altitude))
     gcm_rcm_couple_to_study, safran_study = load_study(altitude, gcm_rcm_couples, safran_study_class, scenario,
-                                                       study_class)
+                                                       study_class, season)
 
     for massif_name in massif_names[::1]:
         if massif_name in safran_study.study_massif_names:
@@ -101,7 +101,7 @@ def run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_coup
 
                     xp = ModelAsTruthExperiment(altitudes, gcm_rcm_couples,
                                                 safran_study_class,
-                                                study_class, Season.annual,
+                                                study_class, season=season,
                                                 scenario=scenario,
                                                 selection_method_names=['aic'],
                                                 model_classes=model_classes,
