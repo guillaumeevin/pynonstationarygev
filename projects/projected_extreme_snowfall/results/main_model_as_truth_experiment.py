@@ -35,7 +35,7 @@ def main_preliminary_projections():
     # time.sleep(60*30)
 
     fast = False
-    snowfall = False
+    snowfall = None
 
     if show in [None, True]:
         matplotlib.use('Agg')
@@ -58,7 +58,7 @@ def main_preliminary_projections():
         fast, snowfall)
 
     altitudes_list = [[2100], [2400], [2700], [3000], [3300], [3600]][:1]
-    # altitudes_list = [[1200], [1800], [2400], [3000], [3600]][:1]
+    altitudes_list = [[900], [1200], [1500], [1800]][3:4]
     print(altitudes_list)
     model_classes_list = [NonStationaryLocationAndScaleAndShapeTemporalModel,
                           NonStationaryTwoLinearLocationAndScaleAndShapeModel,

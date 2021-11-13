@@ -152,21 +152,13 @@ def plot_transition_lines(visualizer, return_period_to_paths, relative_change):
 
     legend_fontsize = 10
     ax.grid()
-    miny, maxy = ax.get_ylim()
-    miny = int(math.floor(miny / 100.0)) * 100
-    maxy = int(math.ceil(maxy / 100.0)) * 100
-    ax.set_ylim((miny, maxy))
+    ax.set_ylim((2100, 3600))
     ax.set_yticks([int(t) for t in ax.get_yticks() if t % 100 == 0])
     covariates_to_show = [1.5, 2, 2.5, 3, 3.5, 4]
     ax.set_xlim((covariates_to_show[0], covariates_to_show[-1]))
     ax.set_xticks(covariates_to_show)
 
-    years = get_closest_year(AdamontScenario.rcp85_extended, ax.get_xticks())
-    ax2 = ax.twiny()
-    ax2.set_xlabel('Year')
-    ax2.set_xlim(ax.get_xlim())
-    ax2.set_xticks(ax.get_xticks())
-    ax2.set_xticklabels(years)
+    add_years_on_top(ax)
 
     # ax.set_yticklabels(["{} m".format(tic) for tic in ax.get_yticks()])
     ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show])
@@ -177,6 +169,15 @@ def plot_transition_lines(visualizer, return_period_to_paths, relative_change):
         relative_change, list(return_period_to_paths.keys())[0])
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
     plt.close()
+
+
+def add_years_on_top(ax):
+    years = get_closest_year(AdamontScenario.rcp85_extended, ax.get_xticks())
+    ax2 = ax.twiny()
+    ax2.set_xlabel('Year')
+    ax2.set_xlim(ax.get_xlim())
+    ax2.set_xticks(ax.get_xticks())
+    ax2.set_xticklabels(years)
 
 
 def plot_contour_changes_values(visualizer_list, relative_change, return_period, snowfall):
@@ -292,6 +293,7 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, re
                 probabilities = [1]
                 colors = ['red']
             else:
+
                 probabilities = [decreasing_percentage,
                                  (1 - decreasing_percentage)]
                 colors = ['blue', 'red']
@@ -314,7 +316,8 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, re
                         "100\%",
                         fontsize=fontsize, weight='bold')
             else:
-                for j, probability in enumerate([1 - decreasing_percentage, decreasing_percentage]):
+                rounded_decreasing_percentage = round(decreasing_percentage, 2)
+                for j, probability in enumerate([1 - rounded_decreasing_percentage, rounded_decreasing_percentage]):
                     ax.text((covariate + righ_shift),
                             shift + altitude - epsilon + 2 * j * epsilon,
                             str(int(100 * probability)) + "\%",
@@ -359,7 +362,7 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, re
     plt.close()
 
 
-def load_levels(snowfall):
+def load_levels(snowfall, withcolorbar=True):
     if snowfall is None:
         level_max = 20
         graduation = 5
@@ -369,7 +372,10 @@ def load_levels(snowfall):
         graduation = 5
         levels = [-level_max + graduation * i for i in range(10 + 1)]
     else:
-        level_max = 16
+        if withcolorbar:
+            level_max = 20
+        else:
+            level_max = 40
         graduation = 2
         levels = [-level_max + graduation * i for i in range(level_max + 1)]
     return levels, level_max, graduation
@@ -431,8 +437,8 @@ def negative_values(cmap, epsilon, graduation, max_level):
 
 
 def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_return_level,
-                                         with_significance, relative_change, return_period, snowfall
-                                         ):
+                                         with_significance, relative_change, return_period, snowfall,
+                                         temperature_covariate=True):
     legend_fontsize = 10
     labelsize = 10
 
@@ -443,8 +449,13 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
     # colors = cmap(np.linspace(0, 1, len(visualizer_list)))
     colors = ['k', 'darkmagenta', 'darkviolet', 'blueviolet', 'plum', 'pink']
     # colors = ['k', 'forestgreen', 'limegreen', 'yellowgreen', 'greenyellow']
-    covariates = np.linspace(1.5, 4, num=100)
-    covariates_to_show = [1.5, 2, 2.5, 3, 3.5, 4]
+    if temperature_covariate:
+        covariates_to_show = [1.5, 2, 2.5, 3, 3.5, 4]
+        covariates = np.linspace(covariates_to_show[0], covariates_to_show[-1], num=100)
+    else:
+        covariates_to_show = [2030 + 10 * i for i in range(8)]
+        covariates = [2030 + i for i in range(71)]
+
     ax = plt.gca()
     all_y = []
     for visualizer in visualizer_list[::-1]:
@@ -452,27 +463,49 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
         label = '{} m'.format(altitude)
         visualizer: AltitudesStudiesVisualizerForNonStationaryModels
 
-        y = get_y(altitude, covariates, massif_name, relative_change, visualizer, return_period)
+        y = get_y(altitude, covariates, massif_name, relative_change, visualizer, return_period, temperature_covariate)
         if y is not None:
             all_y.extend(y)
             ax.plot(covariates, y, label=label, linewidth=3, color='k')
 
             index_where_to_plot_text = -10
-            ax.text(covariates[index_where_to_plot_text], y[index_where_to_plot_text], label,
+            covariate_for_text = covariates[index_where_to_plot_text]
+            y_for_text = y[index_where_to_plot_text]
+            if return_period is not None:
+                if (snowfall is True) and (altitude == 1800):
+                    y_for_text += 0.75
+                if (snowfall is True) and (altitude == 1200):
+                    y_for_text += 0.25
+                if (snowfall is True) and (altitude == 2100):
+                    y_for_text -= 0.25
+                if (snowfall is False) and (altitude == 1800):
+                    y_for_text += 2
+                if (snowfall is None) and (altitude == 3000):
+                    y_for_text += 1
+
+            ax.text(covariate_for_text, y_for_text, label,
                     size=labelsize, color='k', ha="center", va="center", bbox=dict(ec='1', fc='1'))
 
     massif_name_str, massif_name_str_2 = get_massif_name_strs(massif_name)
-    ax.set_xlabel('Global warming above pre-industrial levels ($^o\\textrm{C}$)', fontsize=legend_fontsize)
-    change_str = 'Relative change' if relative_change else 'Change'
-    unit = '\%' if relative_change else visualizer.study.variable_unit
-    metric = "{}-year return level".format(OneFoldFit.return_period) if with_return_level else "mean annual maxima"
-    ax.tick_params(axis='both', which='major', labelsize=labelsize)
+    if temperature_covariate:
+        xlabel = 'Global warming above pre-industrial levels ($^o\\textrm{C}$)'
+        xtickslabels = ["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show]
+    else:
+        xlabel = "Years"
+        xtickslabels = covariates_to_show
+    ax.set_xlabel(xlabel, fontsize=legend_fontsize)
     ax.set_xticks(covariates_to_show)
-    ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show])
+    ax.set_xticklabels(xtickslabels)
     ax.set_xlim((covariates_to_show[0], covariates_to_show[-1]))
 
+    change_str = 'Relative change' if relative_change else 'Change'
+    metric = "{}-year return level".format(OneFoldFit.return_period) if with_return_level else "mean annual maxima"
+    ax.tick_params(axis='both', which='major', labelsize=labelsize)
+
+
     # Add colorbar on the right
-    ax.set_yticks(load_levels(snowfall)[0])
+    levels, _, graduation = load_levels(snowfall, withcolorbar=False)
+    ax.set_yticks(levels)
     # ax.set_yticklabels([])
     ax.yaxis.grid()
     # cmap, label, norm, prefix_label, ticks_values_and_labels, vmax, vmin = load_colorbar_info(relative_change,
@@ -482,16 +515,18 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
     # create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels, rescale_ticks=True, snowfall=snowfall,
     #                       position='right', fontsize=legend_fontsize, vmin=vmin, vmax=vmax)
     ax.set_ylabel(label)
+    if temperature_covariate:
+        add_years_on_top(ax)
 
-    miny = int(math.floor(min(all_y) / 2.0)) * 2
-    maxy = int(math.ceil(max(all_y) / 2.0)) * 2
+    miny = int(math.floor(min(all_y) / graduation)) * graduation
+    maxy = int(math.ceil(max(all_y) / graduation)) * graduation
 
     ax.set_ylim(miny, maxy)
 
     # ax.legend(prop={'size': 12}, loc='lower left')
 
     visualizer = visualizer_list[0]
-    visualizer.plot_name = '{}/{} of {} for {}'.format(massif_name_str, change_str, metric, massif_name_str)
+    visualizer.plot_name = '{}/{} of {} for {} with temp covariate {}'.format(massif_name_str, change_str, metric, massif_name_str, temperature_covariate)
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
 
     OneFoldFit.return_period = default_return_period
@@ -554,8 +589,13 @@ def get_massif_name_strs(massif_name):
     return massif_name_str, massif_name_str_2
 
 
-def get_y(altitude, covariates, massif_name, relative_change, visualizer, return_period):
+def get_y(altitude, covariates, massif_name, relative_change, visualizer, return_period, temperature_covariate=True):
     order = None if isinstance(return_period, int) else True
+
+    if not temperature_covariate:
+        d = year_to_averaged_global_mean_temp(AdamontScenario.rcp85_extended, covariates[0], covariates[-1])
+        # Transform time covariate into temperature covariates
+        covariates = [d[year] for year in covariates]
 
     if massif_name is not None:
         if massif_name in visualizer.massif_name_to_one_fold_fit:
