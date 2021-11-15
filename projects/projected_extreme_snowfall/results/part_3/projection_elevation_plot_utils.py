@@ -477,61 +477,65 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
                 if (snowfall is True) and (altitude == 1200):
                     y_for_text += 0.25
                 if (snowfall is True) and (altitude == 2100):
-                    y_for_text -= 0.25
+                    y_for_text += 0.25
                 if (snowfall is False) and (altitude == 1800):
                     y_for_text += 2
                 if (snowfall is None) and (altitude == 3000):
+                    y_for_text += 1
+            if return_period is None:
+                if (snowfall is True) and (altitude == 1500):
                     y_for_text += 1
 
             ax.text(covariate_for_text, y_for_text, label,
                     size=labelsize, color='k', ha="center", va="center", bbox=dict(ec='1', fc='1'))
 
-    massif_name_str, massif_name_str_2 = get_massif_name_strs(massif_name)
-    if temperature_covariate:
-        xlabel = 'Global warming above pre-industrial levels ($^o\\textrm{C}$)'
-        xtickslabels = ["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show]
-    else:
-        xlabel = "Years"
-        xtickslabels = covariates_to_show
-    ax.set_xlabel(xlabel, fontsize=legend_fontsize)
-    ax.set_xticks(covariates_to_show)
-    ax.set_xticklabels(xtickslabels)
-    ax.set_xlim((covariates_to_show[0], covariates_to_show[-1]))
+    if len(all_y) > 0:
+        massif_name_str, massif_name_str_2 = get_massif_name_strs(massif_name)
+        if temperature_covariate:
+            xlabel = 'Global warming above pre-industrial levels ($^o\\textrm{C}$)'
+            xtickslabels = ["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show]
+        else:
+            xlabel = "Years"
+            xtickslabels = covariates_to_show
+        ax.set_xlabel(xlabel, fontsize=legend_fontsize)
+        ax.set_xticks(covariates_to_show)
+        ax.set_xticklabels(xtickslabels)
+        ax.set_xlim((covariates_to_show[0], covariates_to_show[-1]))
 
-    change_str = 'Relative change' if relative_change else 'Change'
-    metric = "{}-year return level".format(OneFoldFit.return_period) if with_return_level else "mean annual maxima"
-    ax.tick_params(axis='both', which='major', labelsize=labelsize)
+        change_str = 'Relative change' if relative_change else 'Change'
+        metric = "{}-year return level".format(OneFoldFit.return_period) if with_return_level else "mean annual maxima"
+        ax.tick_params(axis='both', which='major', labelsize=labelsize)
 
 
-    # Add colorbar on the right
-    levels, _, graduation = load_levels(snowfall, withcolorbar=False)
-    ax.set_yticks(levels)
-    # ax.set_yticklabels([])
-    ax.yaxis.grid()
-    # cmap, label, norm, prefix_label, ticks_values_and_labels, vmax, vmin = load_colorbar_info(relative_change,
-    #                                                                                           return_period, snowfall,
-    #                                                                                           massif_name, vmin, vmax)
-    cmap, label, *_ = load_colorbar_info(relative_change, return_period, snowfall, massif_name)
-    # create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels, rescale_ticks=True, snowfall=snowfall,
-    #                       position='right', fontsize=legend_fontsize, vmin=vmin, vmax=vmax)
-    ax.set_ylabel(label)
-    if temperature_covariate:
-        add_years_on_top(ax)
+        # Add colorbar on the right
+        levels, _, graduation = load_levels(snowfall, withcolorbar=False)
+        ax.set_yticks(levels)
+        # ax.set_yticklabels([])
+        ax.yaxis.grid()
+        # cmap, label, norm, prefix_label, ticks_values_and_labels, vmax, vmin = load_colorbar_info(relative_change,
+        #                                                                                           return_period, snowfall,
+        #                                                                                           massif_name, vmin, vmax)
+        cmap, label, *_ = load_colorbar_info(relative_change, return_period, snowfall, massif_name)
+        # create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels, rescale_ticks=True, snowfall=snowfall,
+        #                       position='right', fontsize=legend_fontsize, vmin=vmin, vmax=vmax)
+        ax.set_ylabel(label)
+        if temperature_covariate:
+            add_years_on_top(ax)
 
-    miny = int(math.floor(min(all_y) / graduation)) * graduation
-    maxy = int(math.ceil(max(all_y) / graduation)) * graduation
+        miny = int(math.floor(min(all_y) / graduation)) * graduation
+        maxy = int(math.ceil(max(all_y) / graduation)) * graduation
 
-    ax.set_ylim(miny, maxy)
+        ax.set_ylim(miny, maxy)
 
-    # ax.legend(prop={'size': 12}, loc='lower left')
+        # ax.legend(prop={'size': 12}, loc='lower left')
 
-    visualizer = visualizer_list[0]
-    visualizer.plot_name = '{}/{} of {} for {} with temp covariate {}'.format(massif_name_str, change_str, metric, massif_name_str, temperature_covariate)
-    visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
+        visualizer = visualizer_list[0]
+        visualizer.plot_name = '{}/{} of {} for {} with temp covariate {}'.format(massif_name_str, change_str, metric, massif_name_str, temperature_covariate)
+        visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
 
-    OneFoldFit.return_period = default_return_period
+        OneFoldFit.return_period = default_return_period
 
-    plt.close()
+        plt.close()
 
 
 def plot_relative_change_at_massif_level_sensitivity_to_frequency(

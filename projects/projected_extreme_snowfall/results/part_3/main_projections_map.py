@@ -12,8 +12,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extra
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
-from projects.projected_extreme_snowfall.results.get_nb_linear_pieces import run_selection, \
-    eliminate_massif_name_with_too_much_zeros
+from projects.projected_extreme_snowfall.results.get_nb_linear_pieces import run_selection
 from projects.projected_extreme_snowfall.results.setting_utils import set_up_and_load
 
 matplotlib.use('Agg')

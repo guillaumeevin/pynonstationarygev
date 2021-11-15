@@ -26,7 +26,7 @@ calibration_excel_folder = "/home/erwan/Documents/projects/spatiotemporalextreme
 
 def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
                                               safran_study_class, scenario,
-                                              study_class, season
+                                              study_class, season, snowfall
                                               ):
     new_massif_names = []
     for massif_name in massif_names:
@@ -47,10 +47,14 @@ def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_co
                 s = dataset.observations.df_maxima_gev.iloc[:, 0]
                 nb_zeros += sum(s == 0)
                 nb_data += len(s)
-            print(massif_name, nb_zeros, nb_data)
-            threshold = 0.4
-            if 100 * nb_zeros / nb_data > threshold:
-                print('eliminate', massif_name)
+            if snowfall is True:
+                threshold = 0.04
+            else:
+                threshold = 0.4
+
+            threshold_massif = 100 * nb_zeros / nb_data
+            if threshold_massif > threshold:
+                print('eliminate due to zeros:', massif_name)
             else:
                 new_massif_names.append(massif_name)
     return new_massif_names
@@ -60,16 +64,19 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
                   safran_study_class, scenario,
                   study_class, show=False,
                   snowfall=False,
-season=Season.annual
+season=Season.annual,
+                  print_latex_table=False,
 ):
     massif_name_to_number, linear_effects, massif_names, snowfall_str, numbers_of_pieces = get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names,
                                                                               safran_study_class, scenario, snowfall,
                                                                               study_class, season)
 
     massif_name_to_short_name = {}
-    print('\n\nstart table with split-sample:')
+    if print_latex_table:
+        print('\n\nstart table with split-sample:')
     for massif_name, number in massif_name_to_number.items():
-        print(massif_name.replace('_', ' '), end=' & ')
+        if print_latex_table:
+            print(massif_name.replace('_', ' '), end=' & ')
         percentages = [0.6, 0.7, 0.8][:]
         df = pd.DataFrame()
         for p in percentages:
@@ -90,15 +97,17 @@ season=Season.annual
         s2_values = s2_values[:-1]
         s2 = pd.Series(index=s2_index, data=s2_values)
         l = [str(round(v, 2)) for v in s2.values]
-        print(
-            " & ".join(["\\textbf{" + number + '}' if idx == best_idx else number for idx, number in zip(s2.index, l)]),
-            '\\\\')
+        if print_latex_table:
+            print(
+                " & ".join(["\\textbf{" + number + '}' if idx == best_idx else number for idx, number in zip(s2.index, l)]),
+                '\\\\')
         if not isinstance(best_idx, str) and np.isnan(best_idx):
             massif_names.remove(massif_name)
             continue
         short_name = get_short_name(best_idx)
         massif_name_to_short_name[massif_name] = short_name
-    print('\n\nend with split-sample:')
+    if print_latex_table:
+        print('\n\nend with split-sample:')
 
     plots(massif_name_to_short_name, massif_name_to_number, show, altitude, snowfall_str, numbers_of_pieces)
 
@@ -111,6 +120,25 @@ season=Season.annual
 def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_study_class, scenario, snowfall,
                               study_class, season):
 
+    max_number_of_pieces, min_number_of_pieces, snowfall_str = get_min_max_number_of_pieces(snowfall)
+    print('\n')
+    print(snowfall_str)
+    numbers_of_pieces = list(range(min_number_of_pieces, max_number_of_pieces + 1))
+    massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
+                                                             safran_study_class, scenario,
+                                                             study_class, season, snowfall)
+    # if snowfall is True:
+    #     d = {m: 2 for m in massif_names}
+    # else:
+    d = massif_name_to_nb_linear_pieces(massif_names, altitude,
+                                        snowfall_str, numbers_of_pieces)
+    print('\n\n')
+    print(d)
+    linear_effects = linear_effects_for_selection
+    return d, linear_effects, massif_names, snowfall_str, numbers_of_pieces
+
+
+def get_min_max_number_of_pieces(snowfall):
     if snowfall is True:
         snowfall_str = 'snowfall'
         min_number_of_pieces = 1
@@ -123,21 +151,7 @@ def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_st
         min_number_of_pieces = 1
         max_number_of_pieces = 4
         snowfall_str = "snow load"
-    print('\n')
-    print(snowfall_str)
-    numbers_of_pieces = list(range(min_number_of_pieces, max_number_of_pieces + 1))
-    massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
-                                                             safran_study_class, scenario,
-                                                             study_class, season)
-    # if snowfall is True:
-    #     d = {m: 2 for m in massif_names}
-    # else:
-    d = massif_name_to_nb_linear_pieces(massif_names, altitude,
-                                        snowfall_str, numbers_of_pieces)
-    print('\n\n')
-    print(d)
-    linear_effects = linear_effects_for_selection
-    return d, linear_effects, massif_names, snowfall_str, numbers_of_pieces
+    return max_number_of_pieces, min_number_of_pieces, snowfall_str
 
 
 def plots(massif_name_to_short_name, d, show, altitude, snowfall_str, numbers_of_pieces):
@@ -224,23 +238,27 @@ def plot(filename, folder, show, altitude, snowfall_str):
     plt.close()
 
 
-def massif_name_to_nb_linear_pieces(massif_names, altitude, snowfall_str, numbers_of_pieces):
+def massif_name_to_nb_linear_pieces(massif_names, altitude, snowfall_str, numbers_of_pieces, print_latex_table=False):
     massif_name_to_nb_linear_pieces = OrderedDict()
-    print('start table with model as truth:')
+    if print_latex_table:
+        print('start table with model as truth:')
     for massif_name in sorted(massif_names):
-        print(massif_name.replace('_', ''), end=' & ')
-        nb = _get_nb_linear_pieces(massif_name, model_as_truth_excel_folder.format(altitude, snowfall_str), numbers_of_pieces)
+        if print_latex_table:
+            print(massif_name.replace('_', ''), end=' & ')
+        nb = _get_nb_linear_pieces(massif_name, model_as_truth_excel_folder.format(altitude, snowfall_str), numbers_of_pieces, print_latex_table)
         massif_name_to_nb_linear_pieces[massif_name] = nb
-    print('end table with model as truth')
+    if print_latex_table:
+        print('end table with model as truth')
     return massif_name_to_nb_linear_pieces
 
 
-def _get_nb_linear_pieces(massif_name, excel_folder, numbers_of_pieces):
+def _get_nb_linear_pieces(massif_name, excel_folder, numbers_of_pieces, print_latex_table=False):
     s = load_serie_parametrization_without_adjustement(massif_name, numbers_of_pieces, excel_folder)
     best_idx = s.idxmin()
     l = [str(round(v, 2)) for v in s.values]
-    print(" & ".join(["\\textbf{" + number + '}' if idx == best_idx else number for idx, number in zip(s.index, l)]),
-          '\\\\')
+    if print_latex_table:
+        print(" & ".join(["\\textbf{" + number + '}' if idx == best_idx else number for idx, number in zip(s.index, l)]),
+              '\\\\')
     return best_idx
 
 
@@ -279,16 +297,24 @@ def _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects)
 if __name__ == '__main__':
     # massif_name_to_nb_linear_pieces(AbstractStudy.all_massif_names())
     massif_names = AbstractStudy.all_massif_names()
-    # massif_names = ["Pelvoux"]
+    massif_names = ["Bauges"]
 
     snowfall = True
-    for altitude in [900, 1500, 2100, 2700, 3300][2:3]:
-        _, gcm_rcm_couples, _, _, scenario, study_class, _, _, _, safran_study_class, _ = set_up_and_load(False,
+    altitude_to_number_of_pieces = OrderedDict()
+    for altitude in [1200, 1500, 1800, 2100, 2400][-2:]:
+        _, gcm_rcm_couples, _, _, scenario, study_class, _, _, _, safran_study_class, _, season = set_up_and_load(False,
                                                                                                           snowfall)
 
-        run_selection(massif_names, altitude, gcm_rcm_couples, safran_study_class, scenario, study_class,
-                      show=False, snowfall=snowfall)
+        # _, _, d, _ = run_selection(massif_names, altitude, gcm_rcm_couples, safran_study_class, scenario, study_class,
+        #               show=False, snowfall=snowfall)
+
+        d, *_ = get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_study_class,
+                                  scenario, snowfall, study_class, season)
+
+        altitude_to_number_of_pieces[altitude] = d[massif_names[0]]
         # run_selection(massif_names, 900, show=True, snowfall=False)
         # run_selection(massif_names, 2100, show=True, snowfall=False)
 
         # massif_name_to_nb_linear_pieces_and_parametrization(['Vanoise'])
+    print('\n\n')
+    print(altitude_to_number_of_pieces)

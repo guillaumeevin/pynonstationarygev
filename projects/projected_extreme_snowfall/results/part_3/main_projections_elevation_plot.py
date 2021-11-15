@@ -3,6 +3,7 @@ import time
 from collections import OrderedDict
 
 import matplotlib
+import pandas as pd
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
@@ -16,10 +17,13 @@ from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import plo
 from projects.projected_extreme_snowfall.results.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
 from projects.projected_extreme_snowfall.results.get_nb_linear_pieces import run_selection, \
-    eliminate_massif_name_with_too_much_zeros
+    get_min_max_number_of_pieces
+from projects.projected_extreme_snowfall.results.part_3.print_table_model_selected import print_table_model_selected
 from projects.projected_extreme_snowfall.results.part_3.projection_elevation_plot_utils import \
     plot_piechart_scatter_plot, plot_relative_change_at_massif_level, \
     plot_relative_change_at_massif_level_sensitivity_to_frequency, plot_contour_changes_values, plot_transition_lines
+from projects.projected_extreme_snowfall.results.seleciton_utils import short_name_to_parametrization_number, \
+    model_class_to_number
 from projects.projected_extreme_snowfall.results.setting_utils import set_up_and_load
 import matplotlib.pyplot as plt
 
@@ -41,7 +45,7 @@ def main():
     start = time.time()
 
     fast = False
-    snowfall = None
+    snowfall = True
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
@@ -62,6 +66,10 @@ def main():
         altitudes = altitudes[-2:]
         all_massif_names = ["Mont-Blanc", "Vanoise", "Oisans", "Grandes-Rousses"]
 
+    parameterization_numbers = sorted(list(short_name_to_parametrization_number.values()))
+    max_number, min_number, _ = get_min_max_number_of_pieces(snowfall)
+    pieces_numbers = list(range(min_number, max_number+1))
+    df_model_selected = pd.DataFrame(0, index=parameterization_numbers, columns=pieces_numbers)
     visualizers = []
     for altitude in altitudes:
         print('altitude', altitude)
@@ -80,7 +88,10 @@ def main():
             snowfall=snowfall,
         season=season)
 
-        print(altitude, massif_names)
+        # Fill the dataframe
+        for massif_name in massif_names:
+            df_model_selected.loc[massif_name_to_parametrization_number[massif_name],
+                model_class_to_number[massif_name_to_model_class[massif_name]]] += 1
 
         massif_name_to_param_name_to_climate_coordinates_with_effects = {}
         for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
@@ -111,12 +122,12 @@ def main():
         visualizers.append(sub_visualizer)
 
     return_periods = [None, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000][:-4]
-
-    if snowfall is True:
+    print_table_model_selected(df_model_selected)
+    # if snowfall is True:
+    if False:
         elevations_for_contour_plot = [2100, 2400, 2700, 3000, 3300, 3600]
         visualizers_for_contour_plot = [v for v in visualizers if v.study.altitude in elevations_for_contour_plot]
 
-        # if False:
         # Illustrate the percentage of massifs
         covariates = [1.5, 2, 2.5, 3, 3.5, 4][:]
 
@@ -138,7 +149,7 @@ def main():
                 plot_transition_lines(visualizers[0], local_return_period_to_paths, relative_change)
 
     if snowfall:
-        all_massif_names = [None]
+        all_massif_names += [None]
     else:
         all_massif_names = [None]
 
