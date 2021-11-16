@@ -171,6 +171,18 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 # self.plot_against_years(method_name, order)
                 self.plot_map_moment(method_name, order, with_significance)
 
+    def plot_moments_projections_snowfall(self, with_significance, scenario):
+        default_covariate = OneFoldFit.COVARIATE_AFTER_TEMPERATURE
+        OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 1
+
+        # Standard plot
+        for order in [1, None]:
+            for covariate in [2, 3, 4]:
+                OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
+                # self.plot_map_moment_projections('changes_of_moment', None, with_significance)
+                self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance)
+
+
     def plot_moments_projections(self, with_significance, scenario):
         default_covariate = OneFoldFit.COVARIATE_AFTER_TEMPERATURE
         OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 1

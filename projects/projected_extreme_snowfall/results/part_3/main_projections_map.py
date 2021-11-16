@@ -31,7 +31,7 @@ def main():
     start = time.time()
 
     fast = False
-    snowfall = None
+    snowfall = True
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
@@ -40,10 +40,12 @@ def main():
     # altitudes_list = [[900]]
     # altitudes_list = [[1500]]
 
-    altitudes_list = [[2100]]
-    altitudes_list = [[2700]]
-    altitudes_list = [[3300]]
-    altitudes_list = [[2100], [2400], [2700], [3000], [3300], [3600]][:]
+    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][:]
+    altitudes_list = [[a] for a in altitudes]
+    # altitudes_list = [[2100]]
+    # altitudes_list = [[2700]]
+    # altitudes_list = [[2100], [2400], [2700], [3000], [3300], [3600]][:]
+    # altitudes_list = [[3300]]
 
     print('altitude', altitudes_list)
 
@@ -86,7 +88,10 @@ def main():
                            for together_ensemble_fit in visualizer.ensemble_fits(TogetherEnsembleFit)]
         print(len(sub_visualizers))
         sub_visualizer = sub_visualizers[0]
-        sub_visualizer.plot_moments_projections(with_significance, scenario)
+        if snowfall:
+            sub_visualizer.plot_moments_projections_snowfall(with_significance, scenario)
+        else:
+            sub_visualizer.plot_moments_projections(with_significance, scenario)
 
         end = time.time()
         duration = str(datetime.timedelta(seconds=end - start))

@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.model.utils import r
+from root_utils import VERSION_TIME
 
 
 def gev_plot():
@@ -20,6 +22,7 @@ def gev_plot():
 
 
 def gev_plot_big():
+    ax = plt.gca()
     lim = 5
     x = np.linspace(-lim, lim, 100)
     loc, scale = 1, 1
@@ -28,12 +31,19 @@ def gev_plot_big():
     for shape, color in zip(shapes, colors):
         label = '$\zeta= {} $'.format(shape)
         y = r.dgev(x, loc, scale, shape)
-        plt.plot(x, y, label=label, linewidth=5, color=color)
-    plt.legend(prop={'size': 15})
-    plt.xlabel('$y$', fontsize=15)
-    plt.ylabel('$f_{GEV}(y|1,1,\zeta)$', fontsize=15)
-    plt.tick_params(axis='both', which='major', labelsize=15)
-    plt.show()
+        ax.plot(x, y, label=label, linewidth=5, color=color)
+    ax.set_ylim(0, 1)
+    ax.set_xlim(-lim, lim)
+    ax.legend(prop={'size': 15})
+    ax.set_xlabel('$y$, an annual maximum', fontsize=15)
+    ax.set_ylabel('$f_{GEV}(y|1,1,\zeta)$, the probability density\n'
+                  'function of the GEV distribution', fontsize=15)
+    ax.tick_params(axis='both', which='major', labelsize=15)
+    # plt.show()
+    filename = "{}/{}".format(VERSION_TIME, "gev plot big")
+    StudyVisualizer.savefig_in_results(filename, transparent=True)
+    plt.close()
+
 
 
 def gev_plot_big_non_stationary_location():

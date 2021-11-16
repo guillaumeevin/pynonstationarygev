@@ -2,8 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
+from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.utils import r
+from root_utils import VERSION_TIME
 
 
 def plot_density_vertically(ax, color, gev_params: GevParams, t, ylim_upper_for_plots, linewidth,
@@ -152,10 +154,13 @@ def non_stationary_gev_plot(loc_plot=True):
     leg = ax2.legend(handles=handles, labels=labels, loc='upper right', prop={'size': legendsize},
                      handlelength=3)
 
-    plt.show()
+    # plt.show()
     # visualizer.plot_name = title
     # visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
     # plt.close()
+    filename = "{}/{}".format(VERSION_TIME, "non stationary plot {}".format(loc_plot))
+    StudyVisualizer.savefig_in_results(filename, transparent=True)
+    plt.close()
 
 
 if __name__ == '__main__':
