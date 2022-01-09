@@ -55,10 +55,13 @@ class AdamontStudies(object):
         study_visualizer.show_or_save_to_file(add_classic_title=False, dpi=500, no_title=no_title,
                                               tight_layout=tight_layout)
 
-    def plot_maxima_time_series_adamont(self, massif_names=None, scm_study=None, legend_and_labels=True):
+    def plot_maxima_time_series_adamont(self, massif_names=None, scm_study=None, legend_and_labels=True, slides=False):
         massif_names = massif_names if massif_names is not None else self.study.all_massif_names()
         for massif_names in massif_names:
-            self._plot_maxima_time_series(massif_names, scm_study, legend_and_labels=legend_and_labels)
+            if slides is True:
+                self._plot_maxima_time_series_for_slides(massif_names, scm_study, legend_and_labels=legend_and_labels)
+            else:
+                self._plot_maxima_time_series(massif_names, scm_study, legend_and_labels=legend_and_labels)
 
     def _plot_maxima_time_series(self, massif_name, scm_study=None, legend_and_labels=True):
         ax = plt.gca()
@@ -103,7 +106,8 @@ class AdamontStudies(object):
         if legend_and_labels is True:
             # Augment the ylim for the legend
             ylim_min, ylim_max = ax.get_ylim()
-            ax.set_ylim((ylim_min, ylim_max * 1.5))
+            factor = 1.5
+            ax.set_ylim((ylim_min, ylim_max * factor))
             ax.tick_params(axis='both', which='major', labelsize=13)
             handles, labels = ax.get_legend_handles_labels()
             ncol = 2 if self.study.adamont_version == 1 else 3
@@ -118,5 +122,76 @@ class AdamontStudies(object):
             ax.set_xlabel('years', fontsize=fontsize)
         plot_name = 'time series/' + plot_name
         self.show_or_save_to_file(plot_name=plot_name, show=False, no_title=True, tight_layout=True)
+        ax.clear()
+        plt.close()
+
+    def _plot_maxima_time_series_for_slides(self, massif_name, scm_study=None, legend_and_labels=True):
+        legend_and_labels = True
+        ax = plt.gca()
+        linewidth = 0
+        for gcm_rcm_couple, study in list(self.gcm_rcm_couple_to_study.items())[::-1]:
+            if massif_name in study.massif_name_to_annual_maxima:
+                x = study.ordered_years
+                y = study.massif_name_to_annual_maxima[massif_name]
+                label = gcm_rcm_couple_to_str(gcm_rcm_couple)
+                color = gcm_rcm_couple_to_color[gcm_rcm_couple]
+                if len(self.gcm_rcm_couples) == 1:
+                    color = 'green'
+                ax.plot(x, y, linewidth=linewidth, label=label, color=color, marker='o')
+        # if scm_study is None:
+        #     pass
+            # I should recode that, taking into account that the length of annual maxima is not the same
+            # for all the time series
+            # x = study.ordered_years
+            # y = np.array([study.massif_name_to_annual_maxima[massif_name] for study in self.study_list
+            #      if massif_name in study.massif_name_to_annual_maxima])
+            # if len(y) > 0:
+            #     y = np.mean(y, axis=0)
+            #     label = 'Mean maxima'
+            #     color = 'black'
+            #     ax.plot(x, y, linewidth=linewidth * 2, label=label, color=color)
+        # else:
+            # todo: otherwise display the mean in strong black
+        if scm_study is not None:
+            try:
+                x = scm_study.ordered_years
+                y = scm_study.massif_name_to_annual_maxima[massif_name]
+                if issubclass(type(scm_study.variable_class), SafranSnowfallVariable):
+                    label = 'SAFRAN reanalysis'
+                else:
+                    label = 'S2M reanalysis'
+                color = 'k'
+                ax.plot(x, y, linewidth=linewidth, label=label, color=color, marker="o")
+            except AttributeError:
+                pass
+
+        ticks = [year for year in range(self.year_min_studies, self.year_max_studies+1) if year % 10 == 0]
+        ax.xaxis.set_ticks(ticks)
+        ax.yaxis.grid()
+        ax.set_xlim((self.year_min_studies, self.year_max_studies))
+        if legend_and_labels is True:
+            # Augment the ylim for the legend
+            ylim_min, ylim_max = ax.get_ylim()
+            if scm_study is None:
+                factor = 1.7
+            elif len(self.gcm_rcm_couples) > 1:
+                factor = 1.7
+            else:
+                factor = 1.1
+            ax.set_ylim((ylim_min, ylim_max * factor))
+            ax.tick_params(axis='both', which='major', labelsize=13)
+            handles, labels = ax.get_legend_handles_labels()
+            ncol = 2 if self.study.adamont_version == 1 else 3
+            ax.legend(handles[::-1], labels[::-1], ncol=ncol, prop={'size': 11})
+        plot_name = 'Annual maxima of {}\nin {} at {} m'.format(ADAMONT_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
+                                                       massif_name.replace('_', ' '),
+                                                        self.study.altitude)
+        fontsize = 13
+        ax.tick_params(axis='both', which='major', labelsize=fontsize)
+        if legend_and_labels in [None, True]:
+            ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=fontsize)
+            ax.set_xlabel('years', fontsize=fontsize)
+        plot_name = 'time series/' + plot_name
+        self.show_or_save_to_file(plot_name=plot_name, show=False, no_title=True, tight_layout=False)
         ax.clear()
         plt.close()
