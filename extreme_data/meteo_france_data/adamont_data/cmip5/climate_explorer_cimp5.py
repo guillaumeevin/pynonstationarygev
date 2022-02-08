@@ -1,18 +1,15 @@
 import calendar
-import os
 import os.path as op
-import pandas as pd
 import subprocess
-from datetime import datetime, timedelta
 
-import cdsapi
 import numpy as np
-from netCDF4._netCDF4 import Dataset, OrderedDict
-from scipy.interpolate import interp1d, UnivariateSpline
+import pandas as pd
+from netCDF4._netCDF4 import OrderedDict
+from scipy.interpolate import UnivariateSpline
 
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_rnumber
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import get_year_min_and_year_max_from_scenario, \
-    AdamontScenario, adamont_scenarios_real, get_gcm_list, scenario_to_real_scenarios
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, adamont_scenarios_real, \
+    get_gcm_list, scenario_to_real_scenarios
 from extreme_data.utils import DATA_PATH
 
 GLOBALTEMP_WEB_PATH = "https://climexp.knmi.nl/CMIP5/Tglobal/"
@@ -204,14 +201,4 @@ def main_example():
 def main_test_cmip5_loader():
     for scenario in adamont_scenarios_real[1:]:
         for gcm in get_gcm_list(adamont_version=2)[:]:
-            print(gcm, scenario)
             years, temps = years_and_global_mean_temps(gcm, scenario)
-            print(years)
-            print(temps)
-
-
-if __name__ == '__main__':
-    # main_example()
-    years = get_closest_year(AdamontScenario.rcp85_extended, [2, 3, 4])
-    print(years)
-    # main_test_cmip5_loader()

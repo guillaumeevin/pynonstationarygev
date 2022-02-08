@@ -48,22 +48,24 @@ def main_data_reanalysis():
 
         print(x[-1])
 
-        ax.set_xlabel('Year', fontsize=15)
+        fontsize = 17
+        ax.set_xlabel('Years', fontsize=fontsize)
         abbreviation = 'snowfall' if snowfall else 'snow load'
         plot_name = 'Annual maxima of {}\n in {} at {} m'.format(abbreviation,
                                                                massif_name.replace('_', ' '),
                                                                study.altitude)
-        ax.set_ylabel('{} ({})'.format(plot_name, study.variable_unit), fontsize=15)
+        ax.set_ylabel('{} ({})'.format(plot_name, study.variable_unit), fontsize=fontsize)
 
+        ax.tick_params(axis='both', which='major', labelsize=fontsize)
         # plt.xticks(rotation=70)
         # ax.tick_params(axis='x', which='major', labelsize=6)
         # ax.set_yticks([0.1 * j for j in range(6)])
-        ax.set_xticks(x[::10])
+        ax.set_xticks(x[::20])
         # ax.set_ylim([0, 220])
         ax.set_xlim([x[0], x[-1]])
         ax.legend()
         filename = '{}/{}/annual maxima'.format(VERSION_TIME, abbreviation)
-        StudyVisualizer.savefig_in_results(filename, transparent=True, tight_pad={'h_pad': 0.1})
+        StudyVisualizer.savefig_in_results(filename, transparent=False, tight_pad={'h_pad': 0.1})
         plt.close()
 
 def main_data_projections_and_reanalysis():
@@ -118,6 +120,7 @@ def main_data_projections():
 
 
 if __name__ == '__main__':
-    main_adjustement_coefficients()
+    # main_data_projections()
+    # main_adjustement_coefficients()
     # main_data_reanalysis()
-    # main_data_projections_and_reanalysis()
+    main_data_projections_and_reanalysis()

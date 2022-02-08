@@ -204,21 +204,26 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
     def plot_trends(self, max_abs_tdrl=None, add_colorbar=True):
         if max_abs_tdrl is not None:
             self.global_max_abs_change = max_abs_tdrl
+        massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in self.massif_name_to_change_value.items()}
+        print(self.label)
+        label = self.label.replace('GSL', 'snow load')
         ax = self.study.visualize_study(massif_name_to_value=self.massif_name_to_change_value,
                                         replace_blue_by_white=False,
                                         axis_off=False, show_label=False,
                                         add_colorbar=add_colorbar,
-                                        massif_name_to_marker_style=self.massif_name_to_marker_style,
+                                        massif_name_to_marker_style=None,
                                         marker_style_to_label_name=self.selected_marker_style_to_label_name,
                                         massif_name_to_color=self.massif_name_to_color,
                                         cmap=self.cmap,
                                         show=False,
                                         ticks_values_and_labels=self.ticks_values_and_labels,
-                                        label=self.label,
-                                        add_legend=False)
+                                        label=label,
+                                        add_legend=False,
+                                        massif_name_to_text=massif_name_to_text,
+                                        add_text=True)
         ax.get_xaxis().set_visible(True)
         ax.set_xticks([])
-        ax.set_xlabel('Altitude = {}m'.format(self.study.altitude), fontsize=15)
+        ax.set_xlabel('Elevation = {} m'.format(self.study.altitude), fontsize=15)
         middle_word = 'o' if (not add_colorbar and self.study.altitude in [1800, 2700]) else ''
         self.plot_name = 'tdlr_trends_w' + middle_word + '_colorbar'
         self.show_or_save_to_file(add_classic_title=False, tight_layout=True, no_title=True,

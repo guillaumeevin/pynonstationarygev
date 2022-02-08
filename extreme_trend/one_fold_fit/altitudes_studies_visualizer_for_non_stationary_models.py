@@ -176,11 +176,12 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 1
 
         # Standard plot
-        for order in [1, None]:
-            for covariate in [2, 3, 4]:
+        for order in [1, None][-1:]:
+            for covariate in [2, 3, 4][-1:]:
                 OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
                 # self.plot_map_moment_projections('changes_of_moment', None, with_significance)
-                self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance)
+                self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance,
+                                                 max_abs_change=20.01, add_elevation=True)
 
 
     def plot_moments_projections(self, with_significance, scenario):
@@ -269,7 +270,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             ratios.append(ratio)
         return ratios
 
-    def plot_map_moment_projections(self, method_name, order, with_significance, max_abs_change=None):
+    def plot_map_moment_projections(self, method_name, order, with_significance, max_abs_change=None, add_elevation=False):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
         snowfall = not (self.study.variable_class is TotalSnowLoadVariable)
         # Plot settings
@@ -283,15 +284,27 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
         if 'change' in method_name:
             plot_name = plot_name.replace(str_for_last_year, '')
-            plot_name += self.first_one_fold_fit.between_covariate_str
+            if add_elevation:
+                plot_name.replace('of', 'in')
+                plot_name = plot_name[0].upper() + plot_name[1:]
+                plot_name += " at {}m\n".format(self.study.altitude)
+                # plot_name += " at {}m at +${}".format(self.study.altitude, OneFoldFit.COVARIATE_BEFORE_TEMPERATURE) \
+                #              + "^o\mathrm{C}$ w.r.t. +$" + "{}".format(OneFoldFit.COVARIATE_AFTER_TEMPERATURE) + "^o\mathrm{C}$"
+                plot_name += self.first_one_fold_fit.between_covariate_str
+                plot_name += ' of global warming'
+
+            else:
+                plot_name += self.first_one_fold_fit.between_covariate_str
 
             if 'relative' in method_name:
-                # Put the relative score as text on the plot for the change.
-                massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
-                                       self.method_name_and_order_to_d(self.moment_names[2], order).items()}
-                # Put the change score as text on the plot for the change.
-                # massif_name_to_text = {m: ('+' if v > 0 else '') + str(round(v, 1)) for m, v in
-                #                        self.method_name_and_order_to_d(self.moment_names[1], order).items()}
+                if add_elevation:
+                    # Put the change score as text on the plot for the change.
+                    massif_name_to_text = {m: ('+' if v > 0 else '') + str(round(v, 1)) for m, v in
+                                           self.method_name_and_order_to_d(self.moment_names[1], order).items()}
+                else:
+                    # Put the relative score as text on the plot for the change.
+                    massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
+                                           self.method_name_and_order_to_d(self.moment_names[2], order).items()}
             else:
                 # Put the relative score as text on the plot for the change.
                 massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
@@ -368,6 +381,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             else:
                 massif_names_with_white_dot = None
 
+        # print(massif_name_to_value)
+        # print(massif_name_to_text)
         negative_and_positive_values = self.moment_names.index(method_name) > 0
         # Plot the map
         self.plot_map(cmap=cmap, graduation=graduation,

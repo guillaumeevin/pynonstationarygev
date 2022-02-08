@@ -165,7 +165,7 @@ class AdamontStudies(object):
             except AttributeError:
                 pass
 
-        ticks = [year for year in range(self.year_min_studies, self.year_max_studies+1) if year % 10 == 0]
+        ticks = [year for year in range(self.year_min_studies, self.year_max_studies+1) if year % 50 == 0]
         ax.xaxis.set_ticks(ticks)
         ax.yaxis.grid()
         ax.set_xlim((self.year_min_studies, self.year_max_studies))
@@ -186,11 +186,11 @@ class AdamontStudies(object):
         plot_name = 'Annual maxima of {}\nin {} at {} m'.format(ADAMONT_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '),
                                                         self.study.altitude)
-        fontsize = 13
+        fontsize = 17
         ax.tick_params(axis='both', which='major', labelsize=fontsize)
         if legend_and_labels in [None, True]:
             ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=fontsize)
-            ax.set_xlabel('years', fontsize=fontsize)
+            ax.set_xlabel('Years', fontsize=fontsize)
         plot_name = 'time series/' + plot_name
         self.show_or_save_to_file(plot_name=plot_name, show=False, no_title=True, tight_layout=False)
         ax.clear()

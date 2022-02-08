@@ -6,10 +6,7 @@ from matplotlib.lines import Line2D
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_color
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import get_linestyle_from_scenario, \
     adamont_scenarios_real, AdamontScenario, scenario_to_str, get_gcm_list, rcp_scenarios
-from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import year_to_global_mean_temp, \
-    years_and_global_mean_temps
-from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import VisualizationParameters, \
-    StudyVisualizer
+from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import years_and_global_mean_temps
 from root_utils import VERSION_TIME
 
 

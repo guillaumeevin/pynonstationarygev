@@ -108,6 +108,94 @@ def histogram_for_gev_snowfall(add_location=0, add_scale=0):
     plt.close()
 
 
+def histogram_for_gev_snow_load(add_location=0.0, add_scale=0.0):
+    import matplotlib.pyplot as plt
+    ax = plt.gca()
+    study_class = CrocusSnowLoadTotal
+    study = study_class(altitude=1500)
+    s = study.observations_annual_maxima.df_maxima_gev.loc['Vanoise']
+    x_gev = s.values
+    plot_histo_bis(add_location, add_scale, ax, x_gev)
+    ax.set_xlabel('Annual maximum of snow load (kN m$^{-2}$)', fontsize=15)
+    ax.tick_params(axis='both', which='major', labelsize=15)
+    ax.set_yticks([0.1 * j for j in range(5)])
+    ax.set_xticks([2 * j for j in range(6)])
+    ax.set_xlim([0, 11])
+    ax.set_ylim([0, 0.4])
+
+    ax.legend(prop={'size': 12})
+
+    filename = "{}/{}".format(VERSION_TIME, "gev histo {} {}".format(add_location, add_scale))
+    StudyVisualizer.savefig_in_results(filename, transparent=False, tight_pad={'h_pad': 0.1})
+    plt.close()
+
+
+def return_level_for_gev_snow_load():
+    import matplotlib.pyplot as plt
+    first = 6.084228523010236
+    last = 5.411714800614831
+    ax = plt.gca()
+
+    x = [1959 + i for i in range(62)]
+    x_scaled = [(e - 1959) / 61 for e in x]
+    assert x_scaled[0] == 0
+    assert x_scaled[-1] == 1
+    y = [first + (last - first) * e for e in x_scaled]
+    print(x)
+    print(y)
+    ax.plot(x, y, color='orange', linewidth=4)
+    ax.set_ylabel('50-year return level of snow load (kN m$^{-2}$)', fontsize=15)
+    ax.set_xlabel('Years', fontsize=15)
+    ax.tick_params(axis='both', which='major', labelsize=15)
+    ax.set_yticks([5 + j for j in range(3)])
+    ax.set_xticks([1959 + 20 * j for j in range(4)])
+    ax.set_xlim([1959, 2019])
+    ax.set_ylim([4.5, 7])
+
+    filename = "{}/{}".format(VERSION_TIME, "return level plot")
+    StudyVisualizer.savefig_in_results(filename, transparent=False, tight_pad={'h_pad': 0.1})
+    plt.close()
+
+
+
+def plot_histo_bis(add_location, add_scale, ax, x_gev, edgecolor='grey', linewidth=3):
+    gev_params = fitted_stationary_gev(x_gev)
+    print('\nAdd some parameters: loc {} sclae {}'.format(add_location, add_scale))
+    gev_params.location += add_location
+    gev_params.scale += add_scale
+    print('50 year return level', gev_params.return_level(return_period=50))
+    samples = gev_params.sample(10000)
+    if edgecolor == 'grey':
+        maxi = 10
+    else:
+        maxi = 10
+
+
+    linestyle = 'solid'
+    if (edgecolor == 'k') and (add_location != 0):
+        linestyle = 'dashed'
+
+    nb = 12
+    epsilon = 0.0
+    bins = [maxi / 10 * i for i in range(10)]
+    x, bins, p = ax.hist(samples, bins,
+                         color='white', edgecolor=edgecolor, density=True, stacked=True,
+                         linewidth=linewidth, label='histogram', linestyle=(linestyle))
+    for item in p:
+        item.set_height((item.get_height() / sum(x)))
+    # print(gev_params)
+    if edgecolor == 'grey':
+        x_density = np.linspace(0.0, maxi, 1000)
+        y_density = gev_params.density(x_density)
+        factor = max([item.get_height() for item in p]) / max(y_density)
+        # print(max(y_density))
+        y_density = [k * factor for k in y_density]
+        # print(max(y_density))
+        ax.plot(x_density, y_density, linewidth=2, color='k', linestyle='--',
+                label='probability density function')
+    ax.set_ylabel('Probability', fontsize=15)
+
+
 def plot_histo(add_location, add_scale, ax, x_gev, edgecolor='grey', linewidth=3):
     gev_params = fitted_stationary_gev(x_gev)
     print('\nAdd some parameters: loc {} sclae {}'.format(add_location, add_scale))
@@ -242,6 +330,70 @@ def two_annual_maxima_time_series_snowfall():
     StudyVisualizer.savefig_in_results(filename, transparent=True, tight_pad={'h_pad': 0.1})
     plt.close()
 
+def daily_time_series_snowload_for_maxima_extraction():
+    import matplotlib.pyplot as plt
+    for year in [1959, 2009]:
+        ax = plt.gca()
+        study_class = CrocusSnowLoadTotal
+        study = study_class(altitude=1500, year_min=year, year_max=year+10)
+        massif_name = 'Chartreuse'
+        y = study.massif_name_to_daily_time_series[massif_name]
+        x = list(range(len(y)))
+        xlabels = study.all_days
+        ax.plot(x, y, label='daily values', color='grey')
+
+        # Draw the limit between each years
+        ymax = study.massif_name_to_annual_maxima[massif_name]
+        xi_for_ymax = []
+        count = 0
+        for xi, xlabel, yi in zip(x, xlabels, y):
+            if yi == ymax[count]:
+                xi_for_ymax.append(xi)
+
+            print(xlabel)
+            if xlabel[-5:-3] == '08' and xlabel[-2:] == '01':
+                if xi > 0:
+                    ax.vlines(xi, 0, 10, linestyles='--', color='k', linewidth=2)
+
+                    count += 1
+                print(len(xi_for_ymax), count)
+                assert len(xi_for_ymax) == count
+
+        # Plot a dot on each max
+        ax.plot(xi_for_ymax, ymax, marker='o', linestyle=None, label='annual maxima',
+                color='green')
+
+        ax.set_xlabel('Date', fontsize=15)
+        ax.set_ylabel('Daily value of accumulated snow load (kN m$^{-2}$)', fontsize=12)
+        ax.tick_params(axis='both', which='major', labelsize=12)
+
+        # Extract the xi that correspond to the first of a month
+
+        xi_list = []
+        xi_labels = []
+        for xi, xlabel in zip(x, xlabels):
+            if xlabel[-2:] == '01':
+                xi_list.append(xi)
+                xi_labels.append(xlabel)
+        plt.xticks(rotation=70)
+        ax.tick_params(axis='x', which='major', labelsize=6)
+        ax.set_xticks(xi_list[::2])
+        ax.set_xticklabels(xi_labels[::2])
+
+        # ax.set_yticks([0.1 * j for j in range(6)])
+        # ax.set_xticks([50 * j for j in range(6)])
+        # ax.set_xlim([0, 1500])
+        # ax.set_ylim([0, ylim])
+        ax.legend(prop={'size': 10})
+
+        # Plot the years on top
+        ax2 = ax.twiny()
+        ax2.set_xlim(ax.get_xlim())
+        ax2.set_yticks([])
+        ax2.set_xticks(ax.get_xticks()[3::6])
+        ax2.set_xticklabels(study.ordered_years)
+        plt.show()
+
 
 def daily_time_series_snowfall_for_maxima_extraction():
     import matplotlib.pyplot as plt
@@ -339,8 +491,8 @@ def histogram_for_selected_model_snow_load():
     plt.show()
 
 if __name__ == '__main__':
-    histogram_for_selected_model_snow_load()
-
+    # histogram_for_selected_model_snow_load()
+    return_level_for_gev_snow_load()
     # binomial_observation()
     # histogram_for_gev()
     # histogram_for_normal()
@@ -348,11 +500,12 @@ if __name__ == '__main__':
     # daily_time_series_snowfall()
 
     # Snowfall for the thesis presentation
-    # histogram_for_gev_snowfall()
-    # for add_location in [-25, 25]:
-    #     histogram_for_gev_snowfall(add_location=add_location)
-    # for add_scale in [-2, 2]:
-    #     histogram_for_gev_snowfall(add_scale=add_scale)
+    # histogram_for_gev_snow_load()
+    # for add_location in [-1, 1]:
+    #     histogram_for_gev_snow_load(add_location=add_location)
+    # f = 0.21
+    # for add_scale in [-f, f]:
+    #     histogram_for_gev_snow_load(add_scale=add_scale)
 
     # for past in [True, False]:
     #     histogram_for_adjustment_coefficients(past)
@@ -361,4 +514,5 @@ if __name__ == '__main__':
 
     # daily_time_series_snowfall()
     # annual_maxima_time_series_snowfall()
+    # daily_time_series_snowload_for_maxima_extraction()
     # plt.show()

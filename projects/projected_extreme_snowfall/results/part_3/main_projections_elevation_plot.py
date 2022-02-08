@@ -51,7 +51,7 @@ def main():
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
         fast, snowfall)
 
-    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][:]
+    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][-4:]
     # altitudes = [900, 1200, 1500, 1800][:]
     # altitudes = [2100, 2400, 2700, 3000, 3300, 3600][:]
 
@@ -68,7 +68,7 @@ def main():
 
     parameterization_numbers = sorted(list(short_name_to_parametrization_number.values()))
     max_number, min_number, _ = get_min_max_number_of_pieces(snowfall)
-    pieces_numbers = list(range(min_number, max_number+1))
+    pieces_numbers = list(range(min_number, max_number + 1))
     df_model_selected = pd.DataFrame(0, index=parameterization_numbers, columns=pieces_numbers)
     visualizers = []
     for altitude in altitudes:
@@ -86,12 +86,12 @@ def main():
             scenario,
             study_class,
             snowfall=snowfall,
-        season=season)
+            season=season)
 
         # Fill the dataframe
         for massif_name in massif_names:
             df_model_selected.loc[massif_name_to_parametrization_number[massif_name],
-                model_class_to_number[massif_name_to_model_class[massif_name]]] += 1
+                                  model_class_to_number[massif_name_to_model_class[massif_name]]] += 1
 
         massif_name_to_param_name_to_climate_coordinates_with_effects = {}
         for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
@@ -123,8 +123,8 @@ def main():
 
     return_periods = [None, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000][:-4]
     print_table_model_selected(df_model_selected)
-    # if snowfall is True:
-    if False:
+    if snowfall is True:
+    # if False:
         elevations_for_contour_plot = [2100, 2400, 2700, 3000, 3300, 3600]
         visualizers_for_contour_plot = [v for v in visualizers if v.study.altitude in elevations_for_contour_plot]
 
@@ -133,12 +133,14 @@ def main():
 
         for relative_change in [True, False][:1]:
             for return_period in [OneFoldFit.return_period, None]:
-                plot_piechart_scatter_plot(visualizers_for_contour_plot, all_massif_names, covariates, relative_change, return_period, snowfall)
+                plot_piechart_scatter_plot(visualizers_for_contour_plot, all_massif_names, covariates, relative_change,
+                                           return_period, snowfall)
 
-        # Illustrate the contour with all elevation
+            # Illustrate the contour with all elevation
             return_period_to_paths = OrderedDict()
             for return_period in return_periods[:]:
-                paths = plot_contour_changes_values(visualizers_for_contour_plot, relative_change, return_period, snowfall)
+                paths = plot_contour_changes_values(visualizers_for_contour_plot, relative_change, return_period,
+                                                    snowfall)
                 return_period_to_paths[return_period] = paths
 
             # Plot transition line together
@@ -155,7 +157,7 @@ def main():
 
     # Illustrate the trend of each massif
     with_significance = False
-    for relative_change in [True, False][:1]:
+    for relative_change in [True, False][:]:
         for massif_name in all_massif_names:
             # for visualizer in visualizers:
             #     plot_relative_change_at_massif_level_sensitivity_to_frequency(visualizer, massif_name,

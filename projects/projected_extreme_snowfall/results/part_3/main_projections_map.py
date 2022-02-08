@@ -40,21 +40,24 @@ def main():
     # altitudes_list = [[900]]
     # altitudes_list = [[1500]]
 
-    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][:]
+    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][-1:]
     altitudes_list = [[a] for a in altitudes]
     # altitudes_list = [[2100]]
     # altitudes_list = [[2700]]
     # altitudes_list = [[2100], [2400], [2700], [3000], [3300], [3600]][:]
     # altitudes_list = [[3300]]
 
+    if fast:
+        altitudes_list = altitudes_list[-1:]
+
     print('altitude', altitudes_list)
 
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
-    massif_names = AbstractStudy.all_massif_names()[:]
+    all_massif_names = AbstractStudy.all_massif_names()[:]
     # massif_names = ['Mercantour', 'Thabor', 'Devoluy', 'Parpaillon', 'Haut_Var-Haut_Verdon'][:2]
 
     for altitudes in altitudes_list:
-        massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(massif_names,
+        massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(all_massif_names,
                                                                                           altitudes[0],
                                                                                                         gcm_rcm_couples,
                                                                                                         safran_study_class,

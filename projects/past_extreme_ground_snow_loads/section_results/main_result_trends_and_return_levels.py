@@ -90,8 +90,8 @@ def major_result():
     # study_classes = [CrocusSnowLoad3Days, CrocusSnowLoad5Days, CrocusSnowLoad7Days][::-1]
     altitudes = [300, 600, 900, 1800, 2700][:]
     altitudes = [300, 600, 900, 1200, 1500, 1800][2:]
-    altitudes = paper_altitudes
-    # altitudes = [900, 1800, 2700][:]
+    # altitudes = paper_altitudes
+    altitudes = [900, 1800, 2700][:]
     for study_class in study_classes:
         print('new stuy class', study_class)
         if study_class is CrocusSnowLoadEurocode:

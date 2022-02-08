@@ -333,15 +333,13 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, re
     # ax.set_yticklabels(["{} m".format(v.study.altitude) for v in visualizer_list])
     ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates])
 
-    ax2 = ax.twinx()
-    ax2.set_ylabel('Number of massifs for each elevation')
-    ax2.set_ylim(ax.get_ylim())
-    ax2.set_yticks(ax.get_yticks())
-    ax2.set_yticklabels([str(nb) for nb in list_nb_valid_massifs])
-
     mi, ma = ax.get_ylim()
     border = 100
     ax.set_ylim((mi - border, ma + border + 225))
+
+
+
+
     # Build legend
     # custom_lines = [Line2D([0], [0], color=color, lw=6) for color in ['blue', 'red']]
     custom_lines = [Patch(facecolor='white', edgecolor='k', linestyle=color_to_linestyle[color],
@@ -353,6 +351,12 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, re
 
     create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=ticks_values_and_labels,
                           fontsize=10, position='top', rescale_ticks=True)
+
+    ax2 = ax.twinx()
+    ax2.set_ylabel('Number of massifs for each elevation')
+    ax2.set_ylim(ax.get_ylim())
+    ax2.set_yticks(ax.get_yticks())
+    ax2.set_yticklabels([str(nb) for nb in list_nb_valid_massifs])
 
     label = "return level" if with_return_level else "mean"
     visualizer = visualizer_list[0]
