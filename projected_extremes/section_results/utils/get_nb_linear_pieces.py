@@ -11,18 +11,18 @@ from matplotlib.lines import Line2D
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
+from extreme_data.utils import DATA_PATH
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
-from projects.projected_extreme_snowfall.results.seleciton_utils import get_short_name, short_name_to_label, \
-    short_name_to_color, number_to_model_name, number_to_model_class, short_name_to_parametrization_number, \
-    linear_effects_for_selection
-from projects.projected_extreme_snowfall.results.setting_utils import get_last_year_for_the_train_set, set_up_and_load
+from projected_extremes.section_results.utils.selection_utils import get_short_name, number_to_model_class, \
+    short_name_to_parametrization_number, linear_effects_for_selection, number_to_model_name, short_name_to_color, \
+    short_name_to_label
+from projected_extremes.section_results.utils.setting_utils import get_last_year_for_the_train_set, set_up_and_load
 from root_utils import VERSION_TIME
 
 
-model_as_truth_excel_folder = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/abstract_experiments/ModelAsTruthExperiment/{} {}"
-calibration_aic_excel_folder = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/abstract_experiments/CalibrationAicExperiment/{} {}"
-calibration_excel_folder = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/abstract_experiments/CalibrationValidationExperiment/{}_{}_{}"
-
+abstract_experiment_folder = op.join(DATA_PATH, "abstract_experiments")
+model_as_truth_excel_folder = op.join(abstract_experiment_folder, "ModelAsTruthExperiment/{} {}")
+calibration_excel_folder = op.join(abstract_experiment_folder, "CalibrationValidationExperiment/{}_{}_{}")
 
 def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
                                               safran_study_class, scenario,
@@ -59,7 +59,6 @@ def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_co
                 new_massif_names.append(massif_name)
     return new_massif_names
 
-
 def run_selection(massif_names, altitude, gcm_rcm_couples,
                   safran_study_class, scenario,
                   study_class, show=False,
@@ -83,10 +82,14 @@ season=Season.annual,
             year = get_last_year_for_the_train_set(p)
             excel_folder = calibration_excel_folder.format(snowfall_str, altitude, year)
             df2 = load_df_complete(massif_name, [number], excel_folder, linear_effects)
+            print('here', df2)
             df = pd.concat([df, df2], axis=1)
         # Compute the mean
         s = df.mean(axis=1)
         best_idx = s.idxmin()
+        print(df)
+        print('\n\n')
+        print(s, best_idx)
 
         # display for some table
         s2_index = list(s.index)
@@ -271,6 +274,7 @@ def load_df_complete(massif_name, numbers_of_pieces, excel_folder, linear_effect
     df = pd.DataFrame()
     for number_of_pieces in numbers_of_pieces:
         s = _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects)
+        # print(, number_of_pieces, s)
         df = pd.concat([df, s], axis=1)
     df = df.iloc[[2 * i + 1 for i in range(len(df) // 2)]]
     df.columns = numbers_of_pieces
@@ -280,7 +284,7 @@ def load_df_complete(massif_name, numbers_of_pieces, excel_folder, linear_effect
 def _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects):
     model_name = number_to_model_name[number_of_pieces]
     short_excel_folder = excel_folder.split('/')[-2:]
-    assert op.exists(excel_folder), short_excel_folder
+    assert op.exists(excel_folder), "Run a {} for {}".format(*short_excel_folder)
     linear_effects_name = str(linear_effects)
     files = [f for f in os.listdir(excel_folder) if (model_name in f) and (linear_effects_name in f)]
     assert len(files) == 1, "{} {}".format(short_excel_folder, model_name, linear_effects, files)

@@ -70,7 +70,7 @@ class SafranSnowfallSimulationVariable(AbstractAdamontVariable):
 
     @classproperty
     def indicator_name_for_maxima(cls):
-        return 'max-1day-snowf'
+        return 'max-1day-snowf-year'
 
 
 class SafranPrecipitationSimulationVariable(AbstractAdamontVariable):

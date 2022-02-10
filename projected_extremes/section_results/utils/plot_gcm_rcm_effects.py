@@ -8,8 +8,7 @@ from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
-from projects.projected_extreme_snowfall.results.part_3.plot_relative_change_in_return_level import set_plot_name
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
+from projected_extremes.section_results.utils.plot_relative_change_in_return_level import set_plot_name
 
 
 def plot_gcm_rcm_effects(massif_names, visualizer_list: List[

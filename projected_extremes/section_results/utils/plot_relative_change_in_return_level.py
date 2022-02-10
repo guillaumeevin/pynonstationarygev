@@ -1,17 +1,11 @@
 from typing import List
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
-from extreme_data.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
-from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_to_color, gcm_to_color
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable, \
-    TotalSnowLoadVariable
 from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
-    AbstractExtractEurocodeReturnLevel
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit

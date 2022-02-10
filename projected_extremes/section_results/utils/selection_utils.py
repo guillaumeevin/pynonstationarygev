@@ -67,6 +67,7 @@ short_name_to_label = {
 
 
 def get_short_name(i):
+    assert isinstance(i, str)
     prefix, short_name = i.split("Obs_with obs and ")
     if 'loc' in short_name:
         short_name = short_name.split()[0][4:]

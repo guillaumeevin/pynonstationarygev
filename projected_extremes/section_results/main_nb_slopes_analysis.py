@@ -2,6 +2,7 @@ from collections import Counter
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
+from projected_extremes.section_results.utils.selection_utils import short_name_to_color
 from root_utils import VERSION_TIME
 
 model_as_truth_excel_path = "/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets/abstract_experiments/ModelAsTruthExperiment/2100 snowfall"

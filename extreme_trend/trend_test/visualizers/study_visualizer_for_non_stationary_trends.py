@@ -7,8 +7,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from cached_property import cached_property
 
-from extreme_data.eurocode_data.eurocode_region import C2, C1, E
-from extreme_data.eurocode_data.massif_name_to_departement import massif_name_to_eurocode_region
 from extreme_data.eurocode_data.utils import EUROCODE_QUANTILE, EUROCODE_RETURN_LEVEL_STR, \
     YEAR_OF_INTEREST_FOR_RETURN_LEVEL
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_shifted_map, \
@@ -17,7 +15,6 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_extended_study impo
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
-from projects.past_extreme_ground_snow_loads.utils import NON_STATIONARY_TREND_TEST_PAPER_1, ALTITUDE_TO_GREY_MASSIF
 from extreme_trend.trend_test.abstract_gev_trend_test import AbstractGevTrendTest
 from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
@@ -26,8 +23,29 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_int
     ConfidenceIntervalMethodFromExtremes
 from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
     compute_eurocode_confidence_interval, EurocodeConfidenceIntervalFromExtremes
+from extreme_trend.trend_test.trend_test_one_parameter.gumbel_trend_test_one_parameter import GumbelVersusGumbel, \
+    GevStationaryVersusGumbel, GumbelLocationTrendTest, GumbelScaleTrendTest
+from extreme_trend.trend_test.trend_test_three_parameters.gev_trend_test_three_parameters import \
+    GevLocationAndScaleTrendTestAgainstGumbel
+from extreme_trend.trend_test.trend_test_two_parameters.gev_trend_test_two_parameters import GevLocationAgainstGumbel, \
+    GevScaleAgainstGumbel
+from extreme_trend.trend_test.trend_test_two_parameters.gumbel_test_two_parameters import \
+    GumbelLocationAndScaleTrendTest
 from root_utils import NB_CORES
 
+NON_STATIONARY_TREND_TEST_PAPER_1 = [GumbelVersusGumbel,
+                                     GevStationaryVersusGumbel,
+
+                                     GumbelLocationTrendTest,
+                                     GevLocationAgainstGumbel,
+
+                                     GumbelScaleTrendTest,
+                                     GevScaleAgainstGumbel,
+
+                                     GumbelLocationAndScaleTrendTest,
+                                     GevLocationAndScaleTrendTestAgainstGumbel,
+
+                                     ]
 
 class ModelSubsetForUncertainty(Enum):
     stationary_gumbel = 0
@@ -120,21 +138,6 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             return {m: 1 - ((1 - EUROCODE_QUANTILE) / p_snow) for m, p_snow in self.massif_name_to_psnow.items()}
         else:
             return {m: EUROCODE_QUANTILE for m in self.massif_name_to_psnow.keys()}
-
-    @property
-    def intersection_of_massif_names_fitted(self) -> List[str]:
-        all_massif = set(self.study.all_massif_names())
-        missing_massifs_given = set(ALTITUDE_TO_GREY_MASSIF[self.altitude])
-        if ModelSubsetForUncertainty.non_stationary_gumbel_and_gev in self.model_subsets_for_uncertainty:
-            # Check the assertion for the missing massifs
-            # For the paper 1, I should enter in this loop only for the ground snow load
-            # (because i should not use this ModelSubsetForUncertainty for the Eurocode)
-            massifs_found = set(self.massif_name_to_trend_test_that_minimized_aic.keys())
-            missing_massifs_found = all_massif - massifs_found
-            assert missing_massifs_found == missing_massifs_given
-        # Return by default this result
-        intersection_massif_names = all_massif - missing_massifs_given
-        return list(intersection_massif_names)
 
     @cached_property
     def massif_name_to_years_and_maxima_for_model_fitting(self):
@@ -342,86 +345,6 @@ class StudyVisualizerForNonStationaryTrends(StudyVisualizer):
             return self.massif_name_to_trend_test_that_minimized_aic[massif_name].unconstrained_model_class
         else:
             raise ValueError(model_subset_for_uncertainty)
-
-    def all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(self,
-                                                                              ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
-                                                                              model_subset_for_uncertainty=ModelSubsetForUncertainty.non_stationary_gumbel_and_gev) \
-            -> Dict[str, EurocodeConfidenceIntervalFromExtremes]:
-        # Compute for the uncertainty massif names
-        massifs_names = self.intersection_of_massif_names_fitted
-        arguments = [
-            [self.massif_name_to_years_and_maxima_for_model_fitting[m],
-             self.massif_name_and_model_subset_to_model_class(m, model_subset_for_uncertainty),
-             ci_method, self.effective_temporal_covariate,
-             self.massif_name_to_eurocode_quantile_level_in_practice[m]
-             ] for m in massifs_names]
-        if self.multiprocessing:
-            with Pool(NB_CORES) as p:
-                res = p.starmap(compute_eurocode_confidence_interval, arguments)
-        else:
-            res = [compute_eurocode_confidence_interval(*argument) for argument in arguments]
-        massif_name_to_eurocode_return_level_uncertainty = dict(zip(massifs_names, res))
-        # For the rest of the massif names. Create a Eurocode Return Level Uncertainty as nan
-        for massif_name in set(self.study.all_massif_names()) - set(massifs_names):
-            massif_name_to_eurocode_return_level_uncertainty[massif_name] = self.default_eurocode_uncertainty
-        return massif_name_to_eurocode_return_level_uncertainty
-
-    @cached_property
-    def default_eurocode_uncertainty(self):
-        return EurocodeConfidenceIntervalFromExtremes(mean_estimate=np.nan, confidence_interval=(np.nan, np.nan))
-
-    @cached_property
-    def triplet_to_eurocode_uncertainty(self):
-        d = {}
-        for ci_method in self.uncertainty_methods:
-            for model_subset_for_uncertainty in self.model_subsets_for_uncertainty:
-                for massif_name, eurocode_uncertainty in self.all_massif_name_to_eurocode_uncertainty_for_minimized_aic_model_class(
-                        ci_method, model_subset_for_uncertainty).items():
-                    d[(ci_method, model_subset_for_uncertainty, massif_name)] = eurocode_uncertainty
-        return d
-
-    def model_name_to_uncertainty_method_to_ratio_above_eurocode(self):
-        assert self.uncertainty_massif_names == self.study.study_massif_names
-
-    # Some values for the histogram
-
-    @cached_property
-    def massif_name_to_eurocode_values(self):
-        """Eurocode values for the altitude"""
-        return {m: r().valeur_caracteristique(altitude=self.study.altitude)
-                for m, r in massif_name_to_eurocode_region.items() if m in self.uncertainty_massif_names}
-
-    def excess_metrics(self, ci_method, model_subset_for_uncertainty):
-        triplet = [(massif_name_to_eurocode_region[massif_name],
-                    self.massif_name_to_eurocode_values[massif_name],
-                    self.triplet_to_eurocode_uncertainty[(ci_method, model_subset_for_uncertainty, massif_name)])
-                   for massif_name in self.intersection_of_massif_names_fitted]
-        # First array for histogram
-        a = 100 * np.array([(uncertainty.confidence_interval[0] > eurocode,
-                             uncertainty.mean_estimate > eurocode,
-                             uncertainty.confidence_interval[1] > eurocode)
-                            for _, eurocode, uncertainty in triplet])
-        a = np.mean(a, axis=0)
-        # Second array for curve
-        b = [[] for _ in range(3)]
-        for eurocode_region, eurocode, uncertainty in triplet:
-            diff = uncertainty.mean_estimate - eurocode
-            b[0].append(diff)
-            if eurocode_region in [C1, C2]:
-                b[1].append(diff)
-            if eurocode_region in [E]:
-                b[2].append(diff)
-
-        b = [np.mean(np.array(e)) for e in b]
-        # Third array for curve of percentage of exceedance for return levels
-        c = [[] , [],  []]
-        for _, eurocode, uncertainty in triplet:
-            metrics = [uncertainty.confidence_interval[0], uncertainty.mean_estimate, uncertainty.confidence_interval[1]]
-            for j, metric in enumerate(metrics):
-                relative_difference = 100 * (metric - eurocode) / eurocode
-                c[j].append(relative_difference)
-        c = np.array([np.mean(np.array(e)) if len(e) > 0 else 0 for e in c])
-        return a, b, c
 
     # Part 3 - QQPLOT
 

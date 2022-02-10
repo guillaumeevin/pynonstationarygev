@@ -1,12 +1,10 @@
 from typing import List
 
-import numpy as np
-
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
-from projected_extremes.results.experiment import AbstractExperiment
+from projected_extremes.section_results.validation_experiment.abstract_experiment import AbstractExperiment
 
 
 class ModelAsTruthExperiment(AbstractExperiment):

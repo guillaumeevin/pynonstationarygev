@@ -1,29 +1,18 @@
 import datetime
 import time
 
-from extreme_data.meteo_france_data.scm_models_data.utils import Season
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
-    NonStationaryLocationAndScaleTemporalModel, NonStationaryLocationAndScaleGumbelModel, \
-    NonStationaryLocationGumbelModel, StationaryTemporalModel, NonStationaryLocationAndScaleAndShapeTemporalModel
-from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
-    NonStationaryTwoLinearLocationAndScaleAndShapeModel, NonStationaryThreeLinearLocationAndScaleAndShapeModel, \
-    NonStationaryFourLinearLocationAndScaleAndShapeModel, \
-    NonStationaryTwoLinearLocationOneLinearShapeModel, NonStationaryThreeLinearLocationAndScaleOneLinearShapeModel, \
-    NonStationaryFourLinearLocationAndScaleOneLinearShapeModel
-from extreme_fit.model.margin_model.utils import MarginFitMethod
-from projected_extremes.results.experiment import \
+from projected_extremes.section_results.utils.get_nb_linear_pieces import get_massif_name_to_number
+from projected_extremes.section_results.utils.selection_utils import number_to_model_class
+from projected_extremes.section_results.utils.setting_utils import set_up_and_load, get_last_year_for_the_train_set
+from projected_extremes.section_results.validation_experiment.calibration_validation_experiment import \
     CalibrationValidationExperiment
-from projects.projected_extreme_snowfall.results.get_nb_linear_pieces import get_massif_name_to_number
-from projects.projected_extreme_snowfall.results.part_3.main_projections_ensemble import set_up_and_load
-from projects.projected_extreme_snowfall.results.seleciton_utils import number_to_model_class
-from projects.projected_extreme_snowfall.results.setting_utils import get_last_year_for_the_train_set
 
 
 def main_calibration_validation_experiment():
     start = time.time()
 
-    fast = False
-    snowfall = None
+    fast = True
+    snowfall = True
 
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -40,9 +29,7 @@ def main_calibration_validation_experiment():
     l = [0.6, 0.7, 0.8][:]
     altitudes_list = [[2100], [2400], [2700], [3000], [3300], [3600]][5:6]
     altitudes_list = [[900], [1200], [1500], [1800]][:1]
-
-    # altitudes_list = [[900], [1500], [2100], [2700], [3300]][:]
-    # altitudes_list = [[1200], [1800], [2400], [3000], [3600]][:2]
+    altitudes_list = [[900], [1200], [1500], [1800]][3:4]
 
     for altitudes in altitudes_list:
         altitude = altitudes[0]

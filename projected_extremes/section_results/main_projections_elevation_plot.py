@@ -6,28 +6,16 @@ import matplotlib
 import pandas as pd
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
-    NonStationaryTwoLinearLocationAndScaleAndShapeModel
-from extreme_fit.model.margin_model.utils import MarginFitMethod
-from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
-    AbstractExtractEurocodeReturnLevel
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
-from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import plot_nb_massif_on_upper_axis
-from projects.projected_extreme_snowfall.results.combination_utils import \
-    load_param_name_to_climate_coordinates_with_effects
-from projects.projected_extreme_snowfall.results.get_nb_linear_pieces import run_selection, \
-    get_min_max_number_of_pieces
-from projects.projected_extreme_snowfall.results.part_3.print_table_model_selected import print_table_model_selected
-from projects.projected_extreme_snowfall.results.part_3.projection_elevation_plot_utils import \
-    plot_piechart_scatter_plot, plot_relative_change_at_massif_level, \
-    plot_relative_change_at_massif_level_sensitivity_to_frequency, plot_contour_changes_values, plot_transition_lines
-from projects.projected_extreme_snowfall.results.seleciton_utils import short_name_to_parametrization_number, \
+from projected_extremes.section_results.utils.combination_utils import load_param_name_to_climate_coordinates_with_effects
+from projected_extremes.section_results.utils.get_nb_linear_pieces import get_min_max_number_of_pieces, run_selection
+from projected_extremes.section_results.utils.print_table_model_selected import print_table_model_selected
+from projected_extremes.section_results.utils.projection_elevation_plot_utils import plot_piechart_scatter_plot, \
+    plot_contour_changes_values, plot_transition_lines, plot_relative_change_at_massif_level
+from projected_extremes.section_results.utils.selection_utils import short_name_to_parametrization_number, \
     model_class_to_number
-from projects.projected_extreme_snowfall.results.setting_utils import set_up_and_load
-import matplotlib.pyplot as plt
-
-import numpy as np
+from projected_extremes.section_results.utils.setting_utils import set_up_and_load
 
 matplotlib.use('Agg')
 import matplotlib as mpl
@@ -38,13 +26,11 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 
-from extreme_data.meteo_france_data.scm_models_data.utils import Season
-
 
 def main():
     start = time.time()
 
-    fast = False
+    fast = True
     snowfall = True
     altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
@@ -52,15 +38,15 @@ def main():
         fast, snowfall)
 
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][-4:]
-    # altitudes = [900, 1200, 1500, 1800][:]
-    # altitudes = [2100, 2400, 2700, 3000, 3300, 3600][:]
+
+    altitudes_list = [[900], [1200], [1500], [1800]][3:4]
+
 
     all_massif_names = AbstractStudy.all_massif_names()[:]
-    # all_massif_names = ["Mont-Blanc", "Vanoise", "Oisans", "Grandes-Rousses"]
 
     if fast:
-        altitudes = altitudes[-2:]
-        all_massif_names = ["Mont-Blanc", "Vanoise", "Oisans", "Grandes-Rousses"]
+        altitudes = [1800]
+        all_massif_names = ["Vanoise"]
 
     if fast is None:
         altitudes = altitudes[-2:]
@@ -76,7 +62,6 @@ def main():
         altitudes_list = [[altitude]]
 
         ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
-        # massif_names = ['Mercantour', 'Thabor', 'Devoluy', 'Parpaillon', 'Haut_Var-Haut_Verdon'][:2]
 
         massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(
             all_massif_names,
@@ -123,8 +108,8 @@ def main():
 
     return_periods = [None, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000][:-4]
     print_table_model_selected(df_model_selected)
+
     if snowfall is True:
-    # if False:
         elevations_for_contour_plot = [2100, 2400, 2700, 3000, 3300, 3600]
         visualizers_for_contour_plot = [v for v in visualizers if v.study.altitude in elevations_for_contour_plot]
 
@@ -159,12 +144,6 @@ def main():
     with_significance = False
     for relative_change in [True, False][:]:
         for massif_name in all_massif_names:
-            # for visualizer in visualizers:
-            #     plot_relative_change_at_massif_level_sensitivity_to_frequency(visualizer, massif_name,
-            #                                                                   with_significance, relative_change,
-            #                                                                   return_periods)
-            # plot_relative_change_at_massif_level(visualizers, massif_name, False,
-            #                                      with_significance, relative_change, None)
             if snowfall is True:
                 return_periods_for_plots = [return_periods[0], return_periods[-1]]
                 return_period_to_categories_list = {

@@ -7,10 +7,9 @@ from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_de
     NonStationaryFourLinearLocationAndScaleAndShapeModel, NonStationaryFiveLinearLocationAndScaleAndShapeModel, \
     NonStationarySevenLinearLocationAndScaleAndShapeModel, \
     NonStationaryEightLinearLocationAndScaleAndShapeModel
-from projected_extremes.results.experiment import ModelAsTruthExperiment
-from projects.projected_extreme_snowfall.results.part_2.average_bias import plot_average_bias, load_study, \
-    compute_average_bias, plot_bias
-from projects.projected_extreme_snowfall.results.setting_utils import set_up_and_load
+from projected_extremes.section_results.utils.average_bias import compute_average_bias, load_study, plot_average_bias
+from projected_extremes.section_results.utils.setting_utils import set_up_and_load
+from projected_extremes.section_results.validation_experiment.model_as_truth_experiment import ModelAsTruthExperiment
 
 
 def main_preliminary_projections():
@@ -19,8 +18,8 @@ def main_preliminary_projections():
     # print('sleeping...')
     # time.sleep(60*30)
 
-    fast = False
-    snowfall = None
+    fast = True
+    snowfall = False
 
     if show in [None, True]:
         matplotlib.use('Agg')

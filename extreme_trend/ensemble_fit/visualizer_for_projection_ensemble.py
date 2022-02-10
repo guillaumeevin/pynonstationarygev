@@ -17,9 +17,8 @@ from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit impo
 from extreme_trend.one_fold_fit.altitude_group import get_altitude_group_from_altitudes
 from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import \
     plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
-from projects.projected_extreme_snowfall.results.part_3.plot_gcm_rcm_effects import plot_gcm_rcm_effects
-from projects.projected_extreme_snowfall.results.part_3.plot_relative_change_in_return_level import \
-    plot_relative_dynamic
+from projected_extremes.section_results.utils.plot_gcm_rcm_effects import plot_gcm_rcm_effects
+from projected_extremes.section_results.utils.plot_relative_change_in_return_level import plot_relative_dynamic
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
