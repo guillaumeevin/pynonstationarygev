@@ -35,7 +35,7 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_retur
 from extreme_fit.model.utils import SafeRunException
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup, altitudes_for_groups
 from extreme_trend.one_fold_fit.utils_split_sample_selection import compute_mean_log_score_with_split_sample
-from projects.projected_extreme_snowfall.results.combination_utils import load_combination, generate_sub_combination, \
+from projected_extremes.results.combination_utils import load_combination, generate_sub_combination, \
     load_param_name_to_climate_coordinates_with_effects
 from root_utils import NB_CORES, batch, get_display_name_from_object_type
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates

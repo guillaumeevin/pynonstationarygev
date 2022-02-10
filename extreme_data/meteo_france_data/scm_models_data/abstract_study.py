@@ -674,7 +674,7 @@ class AbstractStudy(object):
 
     @classproperty
     def result_full_path(cls) -> str:
-        return op.join(cls.full_path, 'results')
+        return op.join(op.dirname(cls.full_path), 'results')
 
     @property
     def study_full_path(self) -> str:
@@ -739,7 +739,7 @@ class AbstractStudy(object):
             french_region = FrenchRegion.pyrenees
             key = 'massif_num'
 
-        metadata_path = op.join(reanalysis_path, 'metadata')
+        metadata_path = op.join(cls.full_path, 'metadata')
         dbf = Dbf5(op.join(metadata_path, '{}.dbf'.format(dbf_filename)))
         df = dbf.to_dataframe().copy()  # type: pd.DataFrame
         dbf.f.close()

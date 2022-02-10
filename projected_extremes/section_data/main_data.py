@@ -1,6 +1,6 @@
 import matplotlib as mpl
 
-from projects.projected_extreme_snowfall.results.setting_utils import load_study_classes
+from projected_extremes.results.setting_utils import load_study_classes
 
 mpl.use('Agg')
 mpl.rcParams['text.usetex'] = True
