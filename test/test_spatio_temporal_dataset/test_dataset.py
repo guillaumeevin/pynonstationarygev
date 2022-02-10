@@ -18,7 +18,7 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset, MarginDataset
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
-from test.test_utils import load_test_max_stable_models, load_test_3D_spatial_coordinates, \
+from test.test_utils import load_test_max_stable_models, \
     load_test_1D_and_2D_spatial_coordinates, load_test_spatiotemporal_coordinates
 
 
@@ -76,27 +76,6 @@ class TestDataset(unittest.TestCase):
                                                      coordinates=coordinates)
             assert len(dataset.df_dataset.columns) == self.nb_obs + dataset.coordinates.nb_coordinates
         self.assertTrue(True)
-
-    def test_max_stable_dataset_crash_R3(self):
-        """Test to warn me when spatialExtremes handles R3"""
-        with self.assertRaises(SafeRunException):
-            smith_process = load_test_max_stable_models()[0]
-            coordinates = load_test_3D_spatial_coordinates(nb_points=self.nb_points)[0]
-            MaxStableDataset.from_sampling(nb_obs=self.nb_obs,
-                                           max_stable_model=smith_process,
-                                           coordinates=coordinates)
-
-    def test_max_stable_dataset_R3_with_R2_spatial_structure(self):
-        """Test to create a dataset in R3, but where the spatial structure is only with respect to the 2 fisrt coordinates"""
-        coordinates = \
-            load_test_3D_spatial_coordinates(nb_points=self.nb_points,
-                                             transformation_class=BetweenZeroAndOneNormalization)[
-                0]
-        smith_process = load_test_max_stable_models()[0]
-        MaxStableDataset.from_sampling(nb_obs=self.nb_obs,
-                                       max_stable_model=smith_process,
-                                       coordinates=coordinates,
-                                       use_rmaxstab_with_2_coordinates=True)
 
 
 class TestSpatioTemporalDataset(unittest.TestCase):

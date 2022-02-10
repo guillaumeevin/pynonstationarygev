@@ -1,1 +1,6 @@
-DATA_PATH = """/home/erwan/Documents/projects/spatiotemporalextremes/local/spatio_temporal_datasets"""
+import os.path as op
+
+from root_utils import get_root_path
+
+ROOT_PATH = get_root_path()
+DATA_PATH = op.join(ROOT_PATH, 'data')

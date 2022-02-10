@@ -13,7 +13,6 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_ba
 from extreme_fit.model.result_from_model_fit.result_from_extremes.result_from_mle_extremes import ResultFromMleExtremes
 from root_utils import classproperty
 
-
 class AbstractExtractEurocodeReturnLevel(object):
     ALPHA_CONFIDENCE_INTERVAL_UNCERTAINTY = 0.05
     NB_BOOTSTRAP = 1000

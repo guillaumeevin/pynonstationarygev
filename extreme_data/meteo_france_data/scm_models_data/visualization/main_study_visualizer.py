@@ -28,10 +28,6 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf impo
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariableCenterOnDay
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
     StudyVisualizer
-from projects.past_extreme_ground_snow_loads.section_discussion.crocus_study_comparison_with_eurocode import \
-    CrocusDifferenceSnowLoad, \
-    CrocusSnowDensityAtMaxofSwe, CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization, \
-    CrocusSnowDepthDifference, CrocusSnowDepthAtMaxofSwe
 from root_utils import get_display_name_from_object_type
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization
@@ -75,12 +71,6 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     CrocusSnowLoad3Days: 'GSL3',
     CrocusSnowLoad5Days: 'GSL5',
     CrocusSnowLoad7Days: 'GSL7',
-    CrocusSnowDensityAtMaxofSwe: '{} when the max of GSL \nis reached'.format(snow_density_str),
-    CrocusDifferenceSnowLoadRescaledAndEurocodeToSeeSynchronization: 'max GSL rescaled - GSL from max HS \nboth with {}'.format(
-        eurocode_snow_density),
-    CrocusDifferenceSnowLoad: ('max GSL - GSL from max HS \n with {}'.format(eurocode_snow_density)),
-    CrocusSnowDepthDifference: 'max HS - HS at max of GSL',
-    CrocusSnowDepthAtMaxofSwe: 'HS at max of GSL',
     CrocusSnowDensity: 'Density',
     SafranDateFirstSnowfall: 'SF1 first date'
 }

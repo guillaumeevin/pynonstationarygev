@@ -5,7 +5,7 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
     BetweenZeroAndOneNormalization
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset
 from test.test_utils import load_test_max_stable_models, load_test_1D_and_2D_spatial_coordinates, \
-    load_test_max_stable_estimators, load_test_3D_spatial_coordinates
+    load_test_max_stable_estimators
 
 
 class TestMaxStableEstimators(unittest.TestCase):
@@ -38,37 +38,6 @@ class TestMaxStableEstimators(unittest.TestCase):
                         print(dataset.df_dataset.head())
                         print(max_stable_estimator.additional_information)
 
-
-class TestMaxStableEstimatorWorkingFor3DCoordinates(TestMaxStableEstimators):
-
-    def setUp(self):
-        super().setUp()
-        self.coordinates = load_test_3D_spatial_coordinates(nb_points=self.nb_points,
-                                                            transformation_class=BetweenZeroAndOneNormalization)
-        # Select only the max stable structure that work with 3D coordinates
-        self.max_stable_models = load_test_max_stable_models()[1:]
-
-
-class TestMaxStableEstimatorGaussFor3DCoordinates(TestMaxStableEstimators):
-    """
-    See the fhe function rmaxstab3Dimprovedgauss in my file max_stable_fit.R
-    it returns the following error when we try to fit a 3D smipth process:
-
-    Error in nplk(p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10],  :
-    objet 'C_smithdsgnmat3d' introuvable
-    Calls: source ... rmaxstab3Dimprovedgauss -> fitmaxstab -> smithform -> do.call -> nllh -> nplk
-    Exécution arrêtée
-    """
-
-    def setUp(self):
-        super().setUp()
-        self.coordinates = load_test_3D_spatial_coordinates(nb_points=self.nb_points,
-                                                            transformation_class=BetweenZeroAndOneNormalization)
-        self.max_stable_models = load_test_max_stable_models()[:1]
-
-    def test_max_stable_estimators(self):
-        self.fit_max_stable_estimator_for_all_coordinates()
-        self.assertTrue(True)
 
 
 if __name__ == '__main__':

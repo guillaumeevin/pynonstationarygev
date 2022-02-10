@@ -21,8 +21,6 @@ from extreme_fit.model.quantile_model.quantile_regression_model import ConstantQ
     TemporalCoordinatesQuantileRegressionModel
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
-from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import \
-    AlpsStation3DCoordinatesWithAnisotropy
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
     CircleSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
@@ -41,7 +39,6 @@ In this case, unit test (at least on the constructor) must be ensured in the tes
 
 TEST_MAX_STABLE_MODEL = [Smith, BrownResnick, Schlather, Geometric, ExtremalT, ISchlather]
 TEST_1D_AND_2D_SPATIAL_COORDINATES = [UniformSpatialCoordinates, CircleSpatialCoordinates]
-TEST_3D_SPATIAL_COORDINATES = [AlpsStation3DCoordinatesWithAnisotropy]
 TEST_TEMPORAL_COORDINATES = [ConsecutiveTemporalCoordinates]
 TEST_SPATIO_TEMPORAL_COORDINATES = [UniformSpatioTemporalCoordinates, LinSpaceSpatial2DSpatioTemporalCoordinates]
 TEST_MARGIN_TYPES = [ConstantMarginModel, LinearAllParametersAllDimsMarginModel][:]
@@ -99,12 +96,6 @@ def load_test_1D_and_2D_spatial_coordinates(nb_points, transformation_class=None
     AbstractSpatialCoordinates]:
     return load_test_spatial_coordinates(nb_points, TEST_1D_AND_2D_SPATIAL_COORDINATES,
                                          transformation_class=transformation_class)
-
-
-def load_test_3D_spatial_coordinates(nb_points, transformation_class=None) -> List[AbstractSpatialCoordinates]:
-    return load_test_spatial_coordinates(nb_points, TEST_3D_SPATIAL_COORDINATES,
-                                         transformation_class=transformation_class)
-
 
 def load_test_temporal_coordinates(nb_steps, transformation_class=None) -> List[AbstractTemporalCoordinates]:
     return [coordinate_class.from_nb_temporal_steps(nb_temporal_steps=nb_steps,

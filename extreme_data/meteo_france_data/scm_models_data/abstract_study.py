@@ -20,7 +20,6 @@ from matplotlib.colors import Normalize
 from matplotlib.patches import Polygon
 from netCDF4 import Dataset
 
-from extreme_data.edf_data.weather_types import load_df_weather_types
 from extreme_data.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
 from extreme_data.meteo_france_data.scm_models_data.utils import ALTITUDES, ZS_INT_23, ZS_INT_MASK, LONGITUDES, \
     LATITUDES, ORIENTATIONS, SLOPES, ORDERED_ALLSLOPES_ALTITUDES, ORDERED_ALLSLOPES_ORIENTATIONS, \
@@ -67,9 +66,9 @@ class AbstractStudy(object):
     The year 2017 represents the nc file that correspond to the winter between the year 2017 and 2018.
     """
     # REANALYSIS_FLAT_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_flat/reanalysis'
-    REANALYSIS_ALPS_FLAT_FOLDER = 'S2M_AERIS_MARS_2020/'
-    REANALYSIS_PYRENEES_FLAT_FOLDER = 'S2M_AERIS_AVRIL_2020/'
-    REANALYSIS_ALPS_ALLSLOPES_FOLDER = 'SAFRAN_montagne-CROCUS_2019/alp_allslopes/reanalysis'
+    REANALYSIS_ALPS_FLAT_FOLDER = 'alps_flat/'
+    REANALYSIS_PYRENEES_FLAT_FOLDER = 'pyrennes_flat/'
+    REANALYSIS_ALPS_ALLSLOPES_FOLDER = 'alps_allslopes'
 
     YEAR_MIN = 1959
     YEAR_MAX = 2019
@@ -144,50 +143,6 @@ class AbstractStudy(object):
         return year_to_days
 
     @cached_property
-    def year_to_wps(self):
-        assert 1954 <= self.year_min and self.year_max <= WP_PATTERN_MAX_YEAR, \
-            'Weather patterns are not available between {} and {}'.format(self.year_min, self.year_max)
-        year_to_wps = OrderedDict()
-        for year, days in self.year_to_days.items():
-            year_to_wps[year] = self.df_weather_types.loc[days].iloc[:, 0].values
-        return year_to_wps
-
-    def df_for_top_annual_maxima(self, nb_top=None, massif_names=None, limit_for_the_percentage=None):
-        # Replace default arguments
-        if nb_top is None:
-            nb_top = self.nb_years
-        if massif_names is None:
-            massif_names = self.study_massif_names
-        # Load percentages of massifs
-        wps = pd.Series(np.concatenate([self.massif_name_to_df_ordered_by_maxima[massif_name]['WP'].values[:nb_top]
-                                        for massif_name in massif_names]))
-        s_normalized = wps.value_counts(normalize=True) * 100
-        # Add several columns that indicate the strength of the maxima to each weather pattern
-        f = {wp: [] for wp in s_normalized.index}
-        for massif_name in massif_names:
-            df_ordered_by_maxima = self.massif_name_to_df_ordered_by_maxima[massif_name]
-            df_ordered_by_maxima = df_ordered_by_maxima.iloc[:nb_top, :]  # type: pd.DataFrame
-            assert len(df_ordered_by_maxima) == nb_top
-            for _, row in df_ordered_by_maxima.iterrows():
-                wp, maxima = row['WP'], row['Maxima']
-                f[wp].append(maxima)
-        df = pd.DataFrame({wp: pd.Series(l).describe() for wp, l in f.items()}).transpose()
-        df = pd.concat([s_normalized, df], axis=1)
-        df.columns = ['%' if i == 0 else c for i, c in enumerate(df.columns)]
-        drop_columns = ['25%', '75%']
-        if df['std'].isnull().any():
-            drop_columns.append('std')
-        df.drop(columns=drop_columns, inplace=True)
-        df.rename(columns={'50%': 'median'}, inplace=True)
-        df = df.astype(int)
-        start_year, end_year = self.start_year_and_stop_year
-        df.index.name = 'Top {} maxima ({} -{})'.format(nb_top, start_year, end_year)
-        if limit_for_the_percentage is not None:
-            ind = df['%'] > limit_for_the_percentage
-            df = df.loc[ind]
-        return df
-
-    @cached_property
     def massif_name_to_df_ordered_by_maxima(self):
         df_annual_maxima = pd.DataFrame(self.year_to_annual_maxima)
         df_wps = pd.DataFrame(self.year_to_wp_for_annual_maxima)
@@ -214,10 +169,6 @@ class AbstractStudy(object):
             wps_for_annual_maxima = self.year_to_wps[year][idx]
             year_to_wp_for_annual_maxima[year] = wps_for_annual_maxima
         return year_to_wp_for_annual_maxima
-
-    @cached_property
-    def df_weather_types(self):
-        return load_df_weather_types()
 
     @property
     def all_days(self):
@@ -711,7 +662,7 @@ class AbstractStudy(object):
 
     @classproperty
     def relative_path(self) -> str:
-        return r'local/spatio_temporal_datasets'
+        return r'data'
 
     @classproperty
     def full_path(self) -> str:

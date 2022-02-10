@@ -1,4 +1,3 @@
-from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_3D_coordinates import AlpsStation3DCoordinates
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
     BetweenZeroAndOneNormalization
 from spatio_temporal_dataset.coordinates.transformed_coordinates.transformed_coordinates import TransformedCoordinates
