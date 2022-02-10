@@ -82,14 +82,10 @@ season=Season.annual,
             year = get_last_year_for_the_train_set(p)
             excel_folder = calibration_excel_folder.format(snowfall_str, altitude, year)
             df2 = load_df_complete(massif_name, [number], excel_folder, linear_effects)
-            print('here', df2)
             df = pd.concat([df, df2], axis=1)
         # Compute the mean
         s = df.mean(axis=1)
         best_idx = s.idxmin()
-        print(df)
-        print('\n\n')
-        print(s, best_idx)
 
         # display for some table
         s2_index = list(s.index)
@@ -287,7 +283,8 @@ def _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects)
     assert op.exists(excel_folder), "Run a {} for {}".format(*short_excel_folder)
     linear_effects_name = str(linear_effects)
     files = [f for f in os.listdir(excel_folder) if (model_name in f) and (linear_effects_name in f)]
-    assert len(files) == 1, "{} {}".format(short_excel_folder, model_name, linear_effects, files)
+    assert len(files) > 0, "Run a {} for {}".format(short_excel_folder, ' '.join([model_name, linear_effects, files]))
+    assert len(files) < 2, "Too many files that correspond: {}".format(*files)
     filepath = op.join(excel_folder, files[0])
     df = pd.read_excel(filepath)
     columns = [c for c in df.columns if massif_name in c]

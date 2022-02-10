@@ -8,7 +8,8 @@ import pandas as pd
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
-from projected_extremes.section_results.utils.combination_utils import load_param_name_to_climate_coordinates_with_effects
+from projected_extremes.section_results.utils.combination_utils import \
+    load_param_name_to_climate_coordinates_with_effects
 from projected_extremes.section_results.utils.get_nb_linear_pieces import get_min_max_number_of_pieces, run_selection
 from projected_extremes.section_results.utils.print_table_model_selected import print_table_model_selected
 from projected_extremes.section_results.utils.projection_elevation_plot_utils import plot_piechart_scatter_plot, \
@@ -40,7 +41,6 @@ def main():
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][-4:]
 
     altitudes_list = [[900], [1200], [1500], [1800]][3:4]
-
 
     all_massif_names = AbstractStudy.all_massif_names()[:]
 
@@ -102,7 +102,6 @@ def main():
 
         sub_visualizers = [together_ensemble_fit.visualizer
                            for together_ensemble_fit in visualizer.ensemble_fits(TogetherEnsembleFit)]
-        print(len(sub_visualizers))
         sub_visualizer = sub_visualizers[0]
         visualizers.append(sub_visualizer)
 
@@ -112,28 +111,30 @@ def main():
     if snowfall is True:
         elevations_for_contour_plot = [2100, 2400, 2700, 3000, 3300, 3600]
         visualizers_for_contour_plot = [v for v in visualizers if v.study.altitude in elevations_for_contour_plot]
+        if len(visualizers_for_contour_plot) > 0:
 
-        # Illustrate the percentage of massifs
-        covariates = [1.5, 2, 2.5, 3, 3.5, 4][:]
+            # Illustrate the percentage of massifs
+            covariates = [1.5, 2, 2.5, 3, 3.5, 4][:]
 
-        for relative_change in [True, False][:1]:
-            for return_period in [OneFoldFit.return_period, None]:
-                plot_piechart_scatter_plot(visualizers_for_contour_plot, all_massif_names, covariates, relative_change,
-                                           return_period, snowfall)
+            for relative_change in [True, False][:1]:
+                for return_period in [OneFoldFit.return_period, None]:
+                    plot_piechart_scatter_plot(visualizers_for_contour_plot, all_massif_names, covariates,
+                                               relative_change,
+                                               return_period, snowfall)
 
-            # Illustrate the contour with all elevation
-            return_period_to_paths = OrderedDict()
-            for return_period in return_periods[:]:
-                paths = plot_contour_changes_values(visualizers_for_contour_plot, relative_change, return_period,
-                                                    snowfall)
-                return_period_to_paths[return_period] = paths
+                # Illustrate the contour with all elevation
+                return_period_to_paths = OrderedDict()
+                for return_period in return_periods[:]:
+                    paths = plot_contour_changes_values(visualizers_for_contour_plot, relative_change, return_period,
+                                                        snowfall)
+                    return_period_to_paths[return_period] = paths
 
-            # Plot transition line together
-            for return_periods_for_plots in [[None, 2, 5, 10, 20, 50, 100], [100, 200, 500, 1000, 2000]][:1]:
-                local_return_period_to_paths = OrderedDict()
-                for r in return_periods_for_plots:
-                    local_return_period_to_paths[r] = return_period_to_paths[r]
-                plot_transition_lines(visualizers[0], local_return_period_to_paths, relative_change)
+                # Plot transition line together
+                for return_periods_for_plots in [[None, 2, 5, 10, 20, 50, 100], [100, 200, 500, 1000, 2000]][:1]:
+                    local_return_period_to_paths = OrderedDict()
+                    for r in return_periods_for_plots:
+                        local_return_period_to_paths[r] = return_period_to_paths[r]
+                    plot_transition_lines(visualizers[0], local_return_period_to_paths, relative_change)
 
     if snowfall:
         all_massif_names += [None]
