@@ -41,9 +41,6 @@ def main_preliminary_projections():
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
         fast, snowfall)
 
-    altitudes_list = [[2100], [2400], [2700], [3000], [3300], [3600]][:1]
-    altitudes_list = [[900], [1200], [1500], [1800]][3:4]
-    print(altitudes_list)
     model_classes_list = [NonStationaryLocationAndScaleAndShapeTemporalModel,
                           NonStationaryTwoLinearLocationAndScaleAndShapeModel,
                           NonStationaryThreeLinearLocationAndScaleAndShapeModel,

@@ -27,9 +27,6 @@ def main_calibration_validation_experiment():
     year_max_for_studies = None
 
     l = [0.6, 0.7, 0.8][:]
-    altitudes_list = [[2100], [2400], [2700], [3000], [3300], [3600]][5:6]
-    altitudes_list = [[900], [1200], [1500], [1800]][:1]
-    altitudes_list = [[900], [1200], [1500], [1800]][3:4]
 
     for altitudes in altitudes_list:
         altitude = altitudes[0]
