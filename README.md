@@ -33,6 +33,6 @@ These two scripts are located in the folder projected_extremes/section_results/v
 
 _Third step: Create some plots_
 
--
+- main_projections_elevation_plot.py
 
 These scripts are located in the folder projected_extremes/section_results
