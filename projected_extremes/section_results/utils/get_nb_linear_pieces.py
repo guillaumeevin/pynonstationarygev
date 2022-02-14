@@ -11,7 +11,7 @@ from matplotlib.lines import Line2D
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
-from extreme_data.utils import DATA_PATH
+from extreme_data.utils import DATA_PATH, RESULTS_PATH
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 from projected_extremes.section_results.utils.selection_utils import get_short_name, number_to_model_class, \
     short_name_to_parametrization_number, linear_effects_for_selection, number_to_model_name, short_name_to_color, \
@@ -20,7 +20,7 @@ from projected_extremes.section_results.utils.setting_utils import get_last_year
 from root_utils import VERSION_TIME
 
 
-abstract_experiment_folder = op.join(DATA_PATH, "abstract_experiments")
+abstract_experiment_folder = op.join(RESULTS_PATH, "abstract_experiments")
 model_as_truth_excel_folder = op.join(abstract_experiment_folder, "ModelAsTruthExperiment/{} {}")
 calibration_excel_folder = op.join(abstract_experiment_folder, "CalibrationValidationExperiment/{}_{}_{}")
 

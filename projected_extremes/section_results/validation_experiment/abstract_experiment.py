@@ -12,7 +12,7 @@ from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import Alt
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
-from extreme_data.utils import DATA_PATH
+from extreme_data.utils import DATA_PATH, RESULTS_PATH
 from extreme_fit.estimator.margin_estimator.utils_functions import NllhIsInfException, \
     compute_nllh_with_multiprocessing_for_large_samples
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
@@ -224,7 +224,7 @@ class AbstractExperiment(object):
 
     @property
     def excel_filepath(self):
-        path = op.join(DATA_PATH, "abstract_experiments",
+        path = op.join(RESULTS_PATH, "abstract_experiments",
                        get_display_name_from_object_type(self),
                        self.specific_folder)
         if not op.exists(path):
