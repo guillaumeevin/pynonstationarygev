@@ -17,3 +17,22 @@ Several metadata need to be downloaded. You can find this metadata in the follow
 **4. Run the code**
 
 Activate the virtualenv $ source <env_name>/bin/activate
+
+_First step: Select the setting_
+
+In each script, you have to specify two arguments "fast" and "snowfall".
+- "fast=False" considers all ensemble members and all elevations, while "fast=True" considers only 6 ensemble mmebers and 1 elevation
+- "snowfall=True" corresponds to snowfall, while "snowfall=False" corresponds to ground snow load. 
+
+_Second step: The validation experiment_
+
+- run main_model_as_truth_experiment.py for the model as truth experiment (to select the optimal number of linear pieces)
+- run main_calibration_validation_experiment_optimized.py for the calibration validation experiment (to select the parameterization for the adjustment coefficients)
+
+These two scripts are located in the folder projected_extremes/section_results/validation_experiment
+
+_Third step: Create some plots_
+
+-
+
+These scripts are located in the folder projected_extremes/section_results
