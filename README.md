@@ -17,3 +17,10 @@ Several metadata need to be downloaded. You can find this metadata in the follow
 **4. Run the code**
 
 Activate the virtualenv $ source <env_name>/bin/activate
+
+First step: The validation experiment
+
+- run main_model_as_truth_experiment.py for the model as truth experiment (to select the optimal number of linear pieces)
+- run main_calibration_validation_experiment_optimized.py for the calibration validation experiment (to select the parameterization for the adjustment coefficients)
+
+Second step: Create some plots
