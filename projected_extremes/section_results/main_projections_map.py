@@ -4,16 +4,11 @@ import time
 import matplotlib
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
-    NonStationaryTwoLinearLocationAndScaleAndShapeModel
-from extreme_fit.model.margin_model.utils import MarginFitMethod
-from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
-    AbstractExtractEurocodeReturnLevel
 from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
-from projects.projected_extreme_snowfall.results.combination_utils import \
+from projected_extremes.section_results.utils.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
-from projects.projected_extreme_snowfall.results.get_nb_linear_pieces import run_selection
-from projects.projected_extreme_snowfall.results.setting_utils import set_up_and_load
+from projected_extremes.section_results.utils.get_nb_linear_pieces import run_selection
+from projected_extremes.section_results.utils.setting_utils import set_up_and_load
 
 matplotlib.use('Agg')
 import matplotlib as mpl
@@ -24,37 +19,19 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 
-from extreme_data.meteo_france_data.scm_models_data.utils import Season
-
 
 def main():
     start = time.time()
 
-    fast = False
-    snowfall = True
-    altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
+    fast = None
+    snowfall = False
+    altitudes_list, gcm_rcm_couples, massif_names, _, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
         fast, snowfall)
 
-    # altitudes_list = [[900]]
-    # altitudes_list = [[1500]]
-
-    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][-1:]
-    altitudes_list = [[a] for a in altitudes]
-    # altitudes_list = [[2100]]
-    # altitudes_list = [[2700]]
-    # altitudes_list = [[2100], [2400], [2700], [3000], [3300], [3600]][:]
-    # altitudes_list = [[3300]]
-
-    if fast:
-        altitudes_list = altitudes_list[-1:]
-
-    print('altitude', altitudes_list)
-
     ensemble_fit_classes = [IndependentEnsembleFit, TogetherEnsembleFit][1:]
     all_massif_names = AbstractStudy.all_massif_names()[:]
-    # massif_names = ['Mercantour', 'Thabor', 'Devoluy', 'Parpaillon', 'Haut_Var-Haut_Verdon'][:2]
 
     for altitudes in altitudes_list:
         massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(all_massif_names,

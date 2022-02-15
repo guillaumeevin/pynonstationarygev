@@ -1,10 +1,8 @@
-import matplotlib.pyplot as plt
-import matplotlib.path as mpath
-
-import seaborn as sns
 from typing import List
 
+import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 from cached_property import cached_property
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
@@ -15,8 +13,8 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson, get_pvalue_anderson_darling_test
 from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh_with_multiprocessing_for_large_samples
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
-    GumbelTemporalModel, NonStationaryLocationAndScaleAndShapeTemporalModel, NonStationaryLocationAndScaleTemporalModel
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
+    NonStationaryLocationAndScaleTemporalModel
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -29,34 +27,10 @@ from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import Visual
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
-from projects.projected_extreme_snowfall.results.combination_utils import load_combination_name, \
+from projected_extremes.section_results.utils.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
-from typing import List
-
-import matplotlib.pyplot as plt
-import numpy as np
-from cached_property import cached_property
-
-from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_color
-from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson, get_pvalue_anderson_darling_test
-from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh_with_multiprocessing_for_large_samples
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
-    GumbelTemporalModel
-from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
-    AbstractSpatioTemporalPolynomialModel
-from extreme_fit.model.margin_model.utils import MarginFitMethod
-from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
-from extreme_trend.ensemble_fit.together_ensemble_fit.visualizer_non_stationary_ensemble import \
-    VisualizerNonStationaryEnsemble
-from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
-from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
-    AltitudesStudiesVisualizerForNonStationaryModels
-from projects.projected_extreme_snowfall.results.combination_utils import load_combination_name, \
-    load_param_name_to_climate_coordinates_with_effects
-from projects.projected_extreme_snowfall.results.seleciton_utils import model_class_to_number, \
-    parametrization_number_to_short_name, short_name_to_label, short_name_to_color
+from projected_extremes.section_results.utils.selection_utils import model_class_to_number, \
+    parametrization_number_to_short_name, short_name_to_color, short_name_to_label
 
 alpha = 0.4
 linewidth_legend = 6
@@ -77,7 +51,9 @@ class VisualizerForSimpleCase(object):
                  linear_effects=(False, False, False),
                  year_max_for_studies=None,
                  last_year_for_the_train_set=2019,
+                 with_bootstrap_interval=True,
                  ):
+        self.with_bootstrap_interval = with_bootstrap_interval
         self.linear_effects = linear_effects
         self.combinations_for_together = combinations_for_together
         self.safran_study_class = safran_study_class
@@ -437,9 +413,7 @@ class VisualizerForSimpleCase(object):
                     linestyle="--")
 
             # Additional plots for the value of return level
-            with_significance = True
-            AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1000
-            if with_significance:
+            if self.with_bootstrap_interval:
                 # Plot the uncertainty interval
                 margin_functions = one_fold_fit.bootstrap_fitted_functions_from_fit_cached
                 coordinates_list = [np.array([t]) for t in x]

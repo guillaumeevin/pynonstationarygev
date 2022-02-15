@@ -18,8 +18,8 @@ def main_preliminary_projections():
     # print('sleeping...')
     # time.sleep(60*30)
 
-    fast = True
-    snowfall = True
+    fast = None
+    snowfall = False
 
     if show in [None, True]:
         matplotlib.use('Agg')
@@ -36,17 +36,12 @@ def main_preliminary_projections():
 
     linear_effects = (False, False, False)
 
-    altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
+    altitudes_list, gcm_rcm_couples, massif_names, model_classes_list, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
         fast, snowfall)
 
-    model_classes_list = [NonStationaryLocationAndScaleAndShapeTemporalModel,
-                          NonStationaryTwoLinearLocationAndScaleAndShapeModel,
-                          NonStationaryThreeLinearLocationAndScaleAndShapeModel,
-                          NonStationaryFourLinearLocationAndScaleAndShapeModel][:]
-
-    for model_class in model_classes_list:
+    for model_class in model_classes_list[-2:-1]:
         model_classes = [model_class]
         for altitudes in altitudes_list:
             run_mas(altitudes, display_only_model_that_pass_gof_test, fast, gcm_rcm_couples, massif_names,

@@ -56,13 +56,10 @@ def set_up_and_load(fast, snowfall=True):
     fit_method = MarginFitMethod.evgam
     season = Season.annual
 
-    model_classes = [StationaryTemporalModel]
-    model_classes = [NonStationaryLocationAndScaleAndShapeTemporalModel]
-    # model_classes = [NonStationaryTwoLinearLocationAndScaleAndShapeModel]
-    # model_classes = [NonStationaryThreeLinearLocationAndScaleAndShapeModel]
-    # model_classes = [NonStationaryFourLinearLocationAndScaleAndShapeModel]
-
-    altitudes_list = [1500]
+    model_classes_list = [NonStationaryLocationAndScaleAndShapeTemporalModel,
+                          NonStationaryTwoLinearLocationAndScaleAndShapeModel,
+                          NonStationaryThreeLinearLocationAndScaleAndShapeModel,
+                          NonStationaryFourLinearLocationAndScaleAndShapeModel][:]
 
     if snowfall is True:
         return_period = 100
@@ -83,16 +80,17 @@ def set_up_and_load(fast, snowfall=True):
     print('Covariate is {}'.format(temporal_covariate_for_fit))
     if fast is None:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
-        massif_names = ["Vanoise"]
-        gcm_rcm_couples = gcm_rcm_couples[:]
+        massif_names = AbstractStudy.all_massif_names()
+        altitudes_list = [1500]
     elif fast:
         gcm_rcm_couples = gcm_rcm_couples[:3] + gcm_rcm_couples[-3:]
-        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
+        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1000
         massif_names = ['Vanoise']
         altitudes_list = [1800]
     else:
-        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 100
+        AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1000
         massif_names = AbstractStudy.all_massif_names()
+        altitudes_list = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
 
     assert isinstance(gcm_rcm_couples, list)
     altitudes_list = [[a] for a in altitudes_list]
@@ -105,8 +103,8 @@ def set_up_and_load(fast, snowfall=True):
     print('Significance level:', OneFoldFit.SIGNIFICANCE_LEVEL)
     for altitudes in altitudes_list:
         assert len(altitudes) == 1
-    print('number of models', len(model_classes))
-    print('first model', get_display_name_from_object_type(model_classes[0]))
+    print('number of models', len(model_classes_list))
+    print('first model', get_display_name_from_object_type(model_classes_list[0]))
     print('number of gcm rcm couples', len(gcm_rcm_couples))
 
     print('only models that pass gof:', display_only_model_that_pass_gof_test)
@@ -115,11 +113,10 @@ def set_up_and_load(fast, snowfall=True):
     print('observation class:', get_display_name_from_object_type(safran_study_class))
     print('Take into account the observations: {}'.format(safran_study_class is not None))
 
-    return altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method, season
+    return altitudes_list, gcm_rcm_couples, massif_names, model_classes_list, scenario, study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method, season
 
 
 def load_study_classes(snowfall):
-
     if snowfall is True:
         safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
         study_class = AdamontSnowfall
@@ -136,60 +133,3 @@ def get_last_year_for_the_train_set(percentage):
     last_year_for_the_train_set = 1959 + round(percentage * 61) - 1
     return last_year_for_the_train_set
 
-
-LINEAR_MODELS_FOR_PROJECTION_ONE_ALTITUDE= [
-    StationaryTemporalModel,
-    NonStationaryScaleTemporalModel,
-    NonStationaryShapeTemporalModel,
-    NonStationaryLocationTemporalModel,
-    NonStationaryLocationAndScaleTemporalModel,
-    NonStationaryLocationAndShapeTemporalModel,
-    NonStationaryScaleAndShapeTemporalModel,
-    NonStationaryLocationAndScaleAndShapeTemporalModel,
-]
-
-SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE = [
-
-    # Models with a constant Location parameter
-    StationaryTemporalModel,
-    # Simple linearity for the others
-    NonStationaryScaleTemporalModel,
-    NonStationaryShapeTemporalModel,
-    NonStationaryScaleAndShapeTemporalModel,
-    # Double linearity for the others
-    NonStationaryTwoLinearScaleModel,
-    NonStationaryTwoLinearShapeModel,
-    NonStationaryTwoLinearShapeOneLinearScaleModel,
-    NonStationaryTwoLinearScaleOneLinearShapeModel,
-    NonStationaryTwoLinearScaleAndShapeModel,
-
-    # Models with a linear location parameter
-    NonStationaryLocationTemporalModel,
-    # Simple linearity for the others
-    NonStationaryLocationAndScaleTemporalModel,
-    NonStationaryLocationAndShapeTemporalModel,
-    NonStationaryLocationAndScaleAndShapeTemporalModel,
-    # Double linearity for the others
-    NonStationaryTwoLinearScaleOneLinearLocModel,
-    NonStationaryTwoLinearShapeOneLinearLocModel,
-    NonStationaryTwoLinearScaleOneLinearLocAndShapeModel,
-    NonStationaryTwoLinearShapeOneLinearLocAndScaleModel,
-    NonStationaryTwoLinearScaleAndShapeOneLinearLocModel,
-
-    # Models with linear location parameter with double linearity
-    NonStationaryTwoLinearLocationModel,
-    # Simple linearity for the others
-    NonStationaryTwoLinearLocationOneLinearScaleModel,
-    NonStationaryTwoLinearLocationOneLinearShapeModel,
-    NonStationaryTwoLinearLocationOneLinearScaleAndShapeModel,
-    # Double Linearity for the others
-    NonStationaryTwoLinearLocationAndScaleModel,
-    NonStationaryTwoLinearLocationAndScaleOneLinearShapeModel,
-    NonStationaryTwoLinearLocationAndShape,
-    NonStationaryTwoLinearLocationAndShapeOneLinearScaleModel,
-    NonStationaryTwoLinearLocationAndScaleAndShapeModel,
-
-]
-
-if __name__ == '__main__':
-    print(len(set(SPLINE_MODELS_FOR_PROJECTION_ONE_ALTITUDE)))

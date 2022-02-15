@@ -19,10 +19,10 @@ from projected_extremes.section_results.utils.selection_utils import get_short_n
 from projected_extremes.section_results.utils.setting_utils import get_last_year_for_the_train_set, set_up_and_load
 from root_utils import VERSION_TIME
 
-
 abstract_experiment_folder = op.join(RESULTS_PATH, "abstract_experiments")
 model_as_truth_excel_folder = op.join(abstract_experiment_folder, "ModelAsTruthExperiment/{} {}")
 calibration_excel_folder = op.join(abstract_experiment_folder, "CalibrationValidationExperiment/{}_{}_{}")
+
 
 def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
                                               safran_study_class, scenario,
@@ -59,20 +59,23 @@ def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_co
                 new_massif_names.append(massif_name)
     return new_massif_names
 
+
 def run_selection(massif_names, altitude, gcm_rcm_couples,
                   safran_study_class, scenario,
                   study_class, show=False,
                   snowfall=False,
-season=Season.annual,
+                  season=Season.annual,
                   print_latex_table=False,
-):
-    massif_name_to_number, linear_effects, massif_names, snowfall_str, numbers_of_pieces = get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names,
-                                                                              safran_study_class, scenario, snowfall,
-                                                                              study_class, season)
+                  ):
+    massif_name_to_number, linear_effects, massif_names, snowfall_str, numbers_of_pieces = get_massif_name_to_number(
+        altitude, gcm_rcm_couples, massif_names,
+        safran_study_class, scenario, snowfall,
+        study_class, season)
 
     massif_name_to_short_name = {}
     if print_latex_table:
         print('\n\nstart table with split-sample:')
+    print(massif_name_to_number)
     for massif_name, number in massif_name_to_number.items():
         if print_latex_table:
             print(massif_name.replace('_', ' '), end=' & ')
@@ -81,7 +84,7 @@ season=Season.annual,
         for p in percentages:
             year = get_last_year_for_the_train_set(p)
             excel_folder = calibration_excel_folder.format(snowfall_str, altitude, year)
-            df2 = load_df_complete(massif_name, [number], excel_folder, linear_effects)
+            df2 = load_df_complete(massif_name, [number], excel_folder, linear_effects, gcm_rcm_couples)
             df = pd.concat([df, df2], axis=1)
         # Compute the mean
         s = df.mean(axis=1)
@@ -98,7 +101,8 @@ season=Season.annual,
         l = [str(round(v, 2)) for v in s2.values]
         if print_latex_table:
             print(
-                " & ".join(["\\textbf{" + number + '}' if idx == best_idx else number for idx, number in zip(s2.index, l)]),
+                " & ".join(
+                    ["\\textbf{" + number + '}' if idx == best_idx else number for idx, number in zip(s2.index, l)]),
                 '\\\\')
         if not isinstance(best_idx, str) and np.isnan(best_idx):
             massif_names.remove(massif_name)
@@ -118,21 +122,15 @@ season=Season.annual,
 
 def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_study_class, scenario, snowfall,
                               study_class, season):
-
     max_number_of_pieces, min_number_of_pieces, snowfall_str = get_min_max_number_of_pieces(snowfall)
-    print('\n')
-    print(snowfall_str)
     numbers_of_pieces = list(range(min_number_of_pieces, max_number_of_pieces + 1))
     massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
                                                              safran_study_class, scenario,
                                                              study_class, season, snowfall)
-    # if snowfall is True:
-    #     d = {m: 2 for m in massif_names}
-    # else:
     d = massif_name_to_nb_linear_pieces(massif_names, altitude,
-                                        snowfall_str, numbers_of_pieces)
-    print('\n\n')
-    print(d)
+                                        snowfall_str, numbers_of_pieces, gcm_rcm_couples)
+
+    massif_names = list(d.keys())
     linear_effects = linear_effects_for_selection
     return d, linear_effects, massif_names, snowfall_str, numbers_of_pieces
 
@@ -237,39 +235,43 @@ def plot(filename, folder, show, altitude, snowfall_str):
     plt.close()
 
 
-def massif_name_to_nb_linear_pieces(massif_names, altitude, snowfall_str, numbers_of_pieces, print_latex_table=False):
+def massif_name_to_nb_linear_pieces(massif_names, altitude, snowfall_str, numbers_of_pieces, gcm_rcm_couples,
+                                    print_latex_table=False):
     massif_name_to_nb_linear_pieces = OrderedDict()
     if print_latex_table:
         print('start table with model as truth:')
     for massif_name in sorted(massif_names):
         if print_latex_table:
             print(massif_name.replace('_', ''), end=' & ')
-        nb = _get_nb_linear_pieces(massif_name, model_as_truth_excel_folder.format(altitude, snowfall_str), numbers_of_pieces, print_latex_table)
-        massif_name_to_nb_linear_pieces[massif_name] = nb
+        nb = _get_nb_linear_pieces(massif_name, model_as_truth_excel_folder.format(altitude, snowfall_str),
+                                   numbers_of_pieces, gcm_rcm_couples, print_latex_table)
+        if not np.isnan(nb):
+            massif_name_to_nb_linear_pieces[massif_name] = nb
     if print_latex_table:
         print('end table with model as truth')
     return massif_name_to_nb_linear_pieces
 
 
-def _get_nb_linear_pieces(massif_name, excel_folder, numbers_of_pieces, print_latex_table=False):
-    s = load_serie_parametrization_without_adjustement(massif_name, numbers_of_pieces, excel_folder)
+def _get_nb_linear_pieces(massif_name, excel_folder, numbers_of_pieces, gcm_rcm_couples, print_latex_table=False):
+    s = load_serie_parametrization_without_adjustement(massif_name, numbers_of_pieces, excel_folder, gcm_rcm_couples)
     best_idx = s.idxmin()
     l = [str(round(v, 2)) for v in s.values]
     if print_latex_table:
-        print(" & ".join(["\\textbf{" + number + '}' if idx == best_idx else number for idx, number in zip(s.index, l)]),
-              '\\\\')
+        print(
+            " & ".join(["\\textbf{" + number + '}' if idx == best_idx else number for idx, number in zip(s.index, l)]),
+            '\\\\')
     return best_idx
 
 
-def load_serie_parametrization_without_adjustement(massif_name, numbers_of_pieces, excel_folder):
-    df = load_df_complete(massif_name, numbers_of_pieces, excel_folder, linear_effects=(False, False, False))
+def load_serie_parametrization_without_adjustement(massif_name, numbers_of_pieces, excel_folder, gcm_rcm_couples):
+    df = load_df_complete(massif_name, numbers_of_pieces, excel_folder, (False, False, False), gcm_rcm_couples)
     return df.iloc[0]
 
 
-def load_df_complete(massif_name, numbers_of_pieces, excel_folder, linear_effects):
+def load_df_complete(massif_name, numbers_of_pieces, excel_folder, linear_effects, gcm_rcm_couples):
     df = pd.DataFrame()
     for number_of_pieces in numbers_of_pieces:
-        s = _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects)
+        s = _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects, gcm_rcm_couples)
         # print(, number_of_pieces, s)
         df = pd.concat([df, s], axis=1)
     df = df.iloc[[2 * i + 1 for i in range(len(df) // 2)]]
@@ -277,12 +279,14 @@ def load_df_complete(massif_name, numbers_of_pieces, excel_folder, linear_effect
     return df
 
 
-def _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects):
+def _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects, gcm_rcm_couples):
     model_name = number_to_model_name[number_of_pieces]
     short_excel_folder = excel_folder.split('/')[-2:]
     assert op.exists(excel_folder), "Run a {} for {}".format(*short_excel_folder)
     linear_effects_name = str(linear_effects)
-    files = [f for f in os.listdir(excel_folder) if (model_name in f) and (linear_effects_name in f)]
+    couplename = str(len(gcm_rcm_couples)) + 'couples'
+    files = [f for f in os.listdir(excel_folder) if
+             (model_name in f) and (linear_effects_name in f) and (couplename in f)]
     join_str = ' '.join([model_name] + [str(e) for e in linear_effects])
     assert len(files) > 0, "Run a {} for {}".format(short_excel_folder[0], join_str)
     assert len(files) < 2, "Too many files that correspond: {}".format(*files)
@@ -305,13 +309,13 @@ if __name__ == '__main__':
     altitude_to_number_of_pieces = OrderedDict()
     for altitude in [1200, 1500, 1800, 2100, 2400][-2:]:
         _, gcm_rcm_couples, _, _, scenario, study_class, _, _, _, safran_study_class, _, season = set_up_and_load(False,
-                                                                                                          snowfall)
+                                                                                                                  snowfall)
 
         # _, _, d, _ = run_selection(massif_names, altitude, gcm_rcm_couples, safran_study_class, scenario, study_class,
         #               show=False, snowfall=snowfall)
 
         d, *_ = get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_study_class,
-                                  scenario, snowfall, study_class, season)
+                                          scenario, snowfall, study_class, season)
 
         altitude_to_number_of_pieces[altitude] = d[massif_names[0]]
         # run_selection(massif_names, 900, show=True, snowfall=False)

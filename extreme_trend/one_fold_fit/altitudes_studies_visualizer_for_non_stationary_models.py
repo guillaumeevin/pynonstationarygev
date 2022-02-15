@@ -179,7 +179,6 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         for order in [1, None][-1:]:
             for covariate in [2, 3, 4][-1:]:
                 OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
-                # self.plot_map_moment_projections('changes_of_moment', None, with_significance)
                 self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance,
                                                  max_abs_change=20.01, add_elevation=True)
 
@@ -335,8 +334,6 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 max_abs_change = max([v for v in massif_name_to_value.values()])
 
             cmap = plt.cm.Oranges
-            # cmap = remove_the_extreme_colors(cmap, epsilon=0.25)
-            # cmap = get_inverse_colormap(cmap)
             massif_name_to_text = {m: round(v, 1) for m, v in massif_name_to_value.items()}
             if not snowfall:
                 if self.altitude_group.altitude == 1500:

@@ -11,22 +11,19 @@ from projected_extremes.section_results.validation_experiment.calibration_valida
 def main_calibration_validation_experiment():
     start = time.time()
 
-    fast = True
-    snowfall = True
+    fast = None
+    snowfall = False
 
-    altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
+    altitudes_list, gcm_rcm_couples, massif_names, _, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
         fast, snowfall)
-
-    # print('sleeping...')
-    # time.sleep(60*60*4)
 
     # Load the csv filepath
     calibration_class = CalibrationValidationExperiment
     year_max_for_studies = None
 
-    l = [0.6, 0.7, 0.8][:]
+    l = [0.6, 0.7, 0.8][2:]
 
     for altitudes in altitudes_list:
         altitude = altitudes[0]
@@ -43,7 +40,6 @@ def main_calibration_validation_experiment():
             print('\n', massif_name, number)
             model_classes = [number_to_model_class[number]]
             for percentage in l:
-                # percentage += 0.6
                 last_year_for_the_train_set = get_last_year_for_the_train_set(percentage)
                 start_year_for_the_test_set = last_year_for_the_train_set + 1
 
@@ -53,9 +49,7 @@ def main_calibration_validation_experiment():
                 print('year max for studies:', year_max_for_studies)
 
                 for i in [0, 1, 2, 4, 5][:]:
-                    # for i in [-1, 0, 5][1:]:
                     print("parameterization:", i)
-                    # combination = (i, i, 0)
                     combination = (i, i, 0)
                     xp = calibration_class(altitudes, gcm_rcm_couples, safran_study_class, study_class, season,
                                            scenario=scenario,

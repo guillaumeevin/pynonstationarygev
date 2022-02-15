@@ -31,26 +31,16 @@ from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import Visual
 def main():
     start = time.time()
 
-    fast = True
+    fast = None
     snowfall = True
-    altitudes_list, gcm_rcm_couples, massif_names, model_classes, scenario, \
+    altitudes_list, gcm_rcm_couples, massif_names, _, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
         fast, snowfall)
 
-    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][-4:]
-
-    altitudes_list = [[900], [1200], [1500], [1800]][3:4]
-
     all_massif_names = AbstractStudy.all_massif_names()[:]
 
-    if fast:
-        altitudes = [1800]
-        all_massif_names = ["Vanoise"]
-
-    if fast is None:
-        altitudes = altitudes[-2:]
-        all_massif_names = ["Mont-Blanc", "Vanoise", "Oisans", "Grandes-Rousses"]
+    altitudes = [e[0] for e in altitudes_list]
 
     parameterization_numbers = sorted(list(short_name_to_parametrization_number.values()))
     max_number, min_number, _ = get_min_max_number_of_pieces(snowfall)
