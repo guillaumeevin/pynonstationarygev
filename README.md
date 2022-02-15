@@ -33,6 +33,8 @@ These two scripts are located in the folder projected_extremes/section_results/v
 
 _Third step: Create some plots_
 
-- main_projections_elevation_plot.py
+- main_simple_visualization_with_adjustments.py to create the Figure 4 for the ESD article 
+- main_projections_map.py to create maps of return levels, and changes of return levels 
+- main_projections_elevation_plot.py to create almost all the Figures for the chapter on extreme snowfall in the PhD manuscript 
 
-These scripts are located in the folder projected_extremes/section_results
+These three scripts are located in the folder projected_extremes/section_results
