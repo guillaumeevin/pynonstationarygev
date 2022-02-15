@@ -22,7 +22,7 @@ _First step: Select the setting_
 
 In each script, you have to specify two arguments "fast" and "snowfall".
 - "fast=False" considers all ensemble members and all elevations, while "fast=True" considers only 6 ensemble mmebers and 1 elevation
-- "snowfall=True" corresponds to snowfall, while "snowfall=False" corresponds to ground snow load. 
+- "snowfall=True" corresponds to daily snowfall, while "snowfall=False" corresponds to accumulated ground snow load, "snowfall=None" corresponds to daily winter precipitation
 
 _Second step: The validation experiment_
 
@@ -33,6 +33,8 @@ These two scripts are located in the folder projected_extremes/section_results/v
 
 _Third step: Create some plots_
 
--
+- main_simple_visualization_with_adjustments.py to create the Figure 4 for the ESD article 
+- main_projections_map.py to create maps of return levels, and changes of return levels 
+- main_projections_elevation_plot.py to create almost all the Figures for the chapter on extreme snowfall in the PhD manuscript 
 
-These scripts are located in the folder projected_extremes/section_results
+These three scripts are located in the folder projected_extremes/section_results
