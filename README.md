@@ -22,7 +22,7 @@ _First step: Select the setting_
 
 In each script, you have to specify two arguments "fast" and "snowfall".
 - "fast=False" considers all ensemble members and all elevations, while "fast=True" considers only 6 ensemble mmebers and 1 elevation
-- "snowfall=True" corresponds to snowfall, while "snowfall=False" corresponds to ground snow load. 
+- "snowfall=True" corresponds to daily snowfall, while "snowfall=False" corresponds to accumulated ground snow load, "snowfall=None" corresponds to daily winter precipitation
 
 _Second step: The validation experiment_
 
