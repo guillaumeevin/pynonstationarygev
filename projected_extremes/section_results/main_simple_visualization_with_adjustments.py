@@ -13,8 +13,21 @@ from projected_extremes.section_results.utils.setting_utils import set_up_and_lo
 
 
 def main_simple_visualizatoin():
-    start = time.time()
+    """
+    Set parameters
 
+    fast = False considers all ensemble members and all elevations,
+    fast = None considers all ensemble members and 1 elevation,
+    fast = True considers only 6 ensemble mmebers and 1 elevation
+
+    snowfall=True corresponds to daily snowfall
+    snowfall=False corresponds to accumulated ground snow load
+    snowfall=None corresponds to daily winter precipitation
+
+    with_bootstrap_interval=False do not compute uncertainty interval
+    with_bootstrap_interval=True computes uncertainty intervals with the bootstrap method
+    (when the number of bootstrap is equal to 1000 this code can be quite long)
+    """
     fast = None
     snowfall = False
     with_bootstrap_interval = False
@@ -72,10 +85,6 @@ def main_simple_visualizatoin():
                                                  last_year_for_the_train_set=last_year_for_the_train_set,
                                                  with_bootstrap_interval=with_bootstrap_interval)
             visualizer.visualize_density_to_illustrate_adjustments(with_density=True)
-
-    end = time.time()
-    duration = str(datetime.timedelta(seconds=end - start))
-    print('Total duration', duration)
 
 
 if __name__ == '__main__':

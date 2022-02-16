@@ -29,10 +29,21 @@ from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import Visual
 
 
 def main():
-    start = time.time()
+    """
+    Set parameters
 
+    fast = False considers all ensemble members and all elevations,
+    fast = None considers all ensemble members and 1 elevation,
+    fast = True considers only 6 ensemble mmebers and 1 elevation
+
+    snowfall=True corresponds to daily snowfall
+    snowfall=False corresponds to accumulated ground snow load
+    snowfall=None corresponds to daily winter precipitation
+    """
     fast = None
     snowfall = True
+
+    # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
@@ -162,10 +173,6 @@ def main():
                             plot_relative_change_at_massif_level(visualizers_categories, massif_name, True,
                                                                  with_significance, relative_change, return_period,
                                                                  snowfall, temperature_covariate)
-
-    end = time.time()
-    duration = str(datetime.timedelta(seconds=end - start))
-    print('Total duration', duration)
 
 
 if __name__ == '__main__':

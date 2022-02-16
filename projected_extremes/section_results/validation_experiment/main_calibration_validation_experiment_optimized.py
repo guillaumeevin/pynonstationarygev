@@ -9,11 +9,21 @@ from projected_extremes.section_results.validation_experiment.calibration_valida
 
 
 def main_calibration_validation_experiment():
-    start = time.time()
+    """
+    Set parameters
 
+    fast = False considers all ensemble members and all elevations,
+    fast = None considers all ensemble members and 1 elevation,
+    fast = True considers only 6 ensemble mmebers and 1 elevation
+
+    snowfall=True corresponds to daily snowfall
+    snowfall=False corresponds to accumulated ground snow load
+    snowfall=None corresponds to daily winter precipitation
+    """
     fast = None
     snowfall = False
 
+    # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
@@ -29,12 +39,12 @@ def main_calibration_validation_experiment():
         altitude = altitudes[0]
         print('\n', altitudes)
         massif_name_to_number, linear_effects, massif_names, _, _ = get_massif_name_to_number(altitude,
-                                                                                                      gcm_rcm_couples,
-                                                                                                      massif_names,
-                                                                                                      safran_study_class,
-                                                                                                      scenario,
-                                                                                                      snowfall,
-                                                                                                      study_class,
+                                                                                              gcm_rcm_couples,
+                                                                                              massif_names,
+                                                                                              safran_study_class,
+                                                                                              scenario,
+                                                                                              snowfall,
+                                                                                              study_class,
                                                                                               season)
         for massif_name, number in massif_name_to_number.items():
             print('\n', massif_name, number)
@@ -65,9 +75,6 @@ def main_calibration_validation_experiment():
                                            start_year_for_test_set=start_year_for_the_test_set,
                                            year_max_for_studies=year_max_for_studies)
                     xp.run_one_experiment()
-    end = time.time()
-    duration = str(datetime.timedelta(seconds=end - start))
-    print('Total duration', duration)
 
 
 if __name__ == '__main__':
