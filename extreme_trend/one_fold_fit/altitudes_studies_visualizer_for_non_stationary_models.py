@@ -101,8 +101,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             else:
                 model_classes = self.model_classes
 
-            if isinstance(self.param_name_to_climate_coordinates_with_effects, dict) and massif_name in self.param_name_to_climate_coordinates_with_effects:
-                param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects[massif_name]
+            if isinstance(self.param_name_to_climate_coordinates_with_effects,
+                          dict) and massif_name in self.param_name_to_climate_coordinates_with_effects:
+                param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects[
+                    massif_name]
             else:
                 param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects
 
@@ -180,8 +182,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             for covariate in [2, 3, 4][-1:]:
                 OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
                 self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance,
-                                                 max_abs_change=20.01, add_elevation=True)
-
+                                                 max_abs_change=20.01, add_elevation=True, snowfall=True)
 
     def plot_moments_projections(self, with_significance, scenario):
         default_covariate = OneFoldFit.COVARIATE_AFTER_TEMPERATURE
@@ -197,18 +198,14 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         for order in [1, None]:
             for covariate in [2, 3, 4]:
                 OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
-                # self.plot_map_moment_projections('changes_of_moment', None, with_significance)
                 self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance)
-
-        # Plot the relative change on the map to analyze the pattern
-        # OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 4
-        # self.plot_map_moment_projections('changes_of_moment', None, with_significance)
 
         # Compute some number for the discussion
         covariate_before = (1986, 2005)
         if isinstance(covariate_before, tuple):
             OneFoldFit.COVARIATE_BEFORE_DISPLAY = "{}-{}".format(*covariate_before)
-            covariate_before = tuple(year_to_averaged_global_mean_temp(scenario, covariate_before[0], covariate_before[1]).values())
+            covariate_before = tuple(
+                year_to_averaged_global_mean_temp(scenario, covariate_before[0], covariate_before[1]).values())
         OneFoldFit.COVARIATE_BEFORE_TEMPERATURE = covariate_before
 
         for order in [1, None]:
@@ -269,9 +266,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             ratios.append(ratio)
         return ratios
 
-    def plot_map_moment_projections(self, method_name, order, with_significance, max_abs_change=None, add_elevation=False):
+    def plot_map_moment_projections(self, method_name, order, with_significance, max_abs_change=None,
+                                    add_elevation=False,
+                                    snowfall=False):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
-        snowfall = not (self.study.variable_class is TotalSnowLoadVariable)
         # Plot settings
         moment = ' '.join(method_name.split('_'))
         d_temperature = {'C': '{C}'}
@@ -309,7 +307,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
                                        self.method_name_and_order_to_d(self.moment_names[2], order).items()}
             print("\n", self.first_one_fold_fit.between_covariate_str, 'Order is {}'.format(order)
-)
+                  )
             for i in [1, 2]:
                 if i == 2:
                     print('relative change')
@@ -321,7 +319,6 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
         parenthesis = self.study.variable_unit if 'relative' not in method_name else '\%'
         ylabel = '{} ({})'.format(plot_name, parenthesis)
-
 
         add_colorbar = True
 
@@ -367,7 +364,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
             if with_significance:
                 print('nb of massifs with singificant correct')
-                print(sum([one_fold_fit.gcm_correction_is_significant for one_fold_fit in self.massif_name_to_one_fold_fit.values()]))
+                print(sum([one_fold_fit.gcm_correction_is_significant for one_fold_fit in
+                           self.massif_name_to_one_fold_fit.values()]))
                 print('nb of massifs with singificant trend')
                 print(sum([one_fold_fit.is_significant for one_fold_fit in self.massif_name_to_one_fold_fit.values()]))
 
@@ -378,9 +376,11 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             else:
                 massif_names_with_white_dot = None
 
-        # print(massif_name_to_value)
-        # print(massif_name_to_text)
-        negative_and_positive_values = self.moment_names.index(method_name) > 0
+        if snowfall:
+            negative_and_positive_values = self.moment_names.index(method_name) > 0
+        else:
+            negative_and_positive_values = False
+
         # Plot the map
         self.plot_map(cmap=cmap, graduation=graduation,
                       label=ylabel, massif_name_to_value=massif_name_to_value,
