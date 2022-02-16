@@ -4,6 +4,12 @@
 
 **2. Install required python packages in a virtualenv**
 
+This project relies on Python3.6, if you do not have it, install it and rely on this python for the following.
+
+You can use the integrated tool of the pycharm IDE to create this virtualenv from the requirements.txt files
+
+or you can use the following command in a terminal located at the root of the project:
+
 $ virtualenv <env_name>
 
 $ source <env_name>/bin/activate
