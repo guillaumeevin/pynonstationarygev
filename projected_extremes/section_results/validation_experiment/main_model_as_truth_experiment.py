@@ -18,8 +18,8 @@ def main_preliminary_projections():
     # print('sleeping...')
     # time.sleep(60*30)
 
-    fast = None
-    snowfall = False
+    fast = True
+    snowfall = True
 
     if show in [None, True]:
         matplotlib.use('Agg')

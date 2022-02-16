@@ -1,15 +1,6 @@
-from collections import OrderedDict
-import os.path as op
-
-import numpy as np
-from cached_property import cached_property
-from netCDF4._netCDF4 import Dataset
-
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day, Safran, \
-    SafranPrecipitation1Day
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranPrecipitation1Day
 from extreme_data.meteo_france_data.scm_models_data.studyfrommaxfiles import AbstractStudyMaxFiles
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
-from extreme_data.utils import DATA_PATH
 
 
 class AbstractSafranPrecipitationMaxFiles(AbstractStudyMaxFiles, SafranPrecipitation1Day):

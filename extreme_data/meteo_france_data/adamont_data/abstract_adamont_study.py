@@ -7,7 +7,7 @@ from enum import Enum
 from typing import List
 
 import numpy as np
-from netCDF4._netCDF4 import Dataset
+from netCDF4 import Dataset
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_variables import AbstractAdamontVariable
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import get_gcm_rcm_couple_adamont_to_full_name

@@ -4,7 +4,7 @@ import subprocess
 
 import numpy as np
 import pandas as pd
-from netCDF4._netCDF4 import OrderedDict
+from collections import OrderedDict
 from scipy.interpolate import UnivariateSpline
 
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_rnumber
