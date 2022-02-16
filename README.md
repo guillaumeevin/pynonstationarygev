@@ -21,14 +21,14 @@ $ source <env_name>/bin/activate
 Several metadata need to be downloaded. You can find this metadata in the following google drive folder ( https://drive.google.com/drive/folders/1bZmmYhyvSqlrgAYXnsF_J2hHdgR41ayl?usp=sharing ). Download all the zip files, unzip them, and put them in the "data" folder.
 
 
-**4. Generate plots from the data section **
+**4. Generate plots from the data section**
 
 run main_data.py to obtain the plot with the 21 time series with many colors
 run main_temperature.py to obtain the plot with the global mean temperatures with respect to the years 
 
 These two scripts are located in the folder projected_extremes/section_data
 
-**5. Generate plots from the results section **
+**5. Generate plots from the results section**
 
 Activate the virtualenv $ source <env_name>/bin/activate
 
