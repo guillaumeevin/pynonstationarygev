@@ -1,26 +1,21 @@
-from typing import Union
-
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 from extreme_data.cru_data.global_mean_temperature_until_2020 import \
     winter_year_to_averaged_global_mean_temp_wrt_1850_1900
 from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_to_color
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import get_linestyle_from_scenario, \
-    adamont_scenarios_real, AdamontScenario, scenario_to_str, get_gcm_list, rcp_scenarios
-from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import year_to_global_mean_temp, \
-    years_and_global_mean_temps
-from extreme_data.meteo_france_data.adamont_data.cmip5.plot_temperatures import plot_temperature_for_rcp_gcm
-from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import VisualizationParameters, \
-    StudyVisualizer
+from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_list
+from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import years_and_global_mean_temps
+from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from root_utils import VERSION_TIME
+
 
 def main_plot_temperature_with_spline_on_top(anomaly=True):
     ax = plt.gca()
     scenario = AdamontScenario.rcp85
     for gcm in get_gcm_list(adamont_version=2)[:]:
         for spline in [True, False]:
-            linestyle, linewidth, label = get_setting(spline, gcm  + ' GCM')
+            linestyle, linewidth, label = get_setting(spline, gcm + ' GCM')
             color = gcm_to_color[gcm]
             years, global_mean_temp = years_and_global_mean_temps(gcm, scenario, year_min=1850, year_max=2100,
                                                                   spline=spline, anomaly=anomaly)

@@ -1,6 +1,6 @@
 import matplotlib as mpl
 
-from projected_extremes.results.setting_utils import load_study_classes
+from projected_extremes.section_results.utils.setting_utils import load_study_classes
 
 mpl.use('Agg')
 mpl.rcParams['text.usetex'] = True
@@ -8,11 +8,9 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 import matplotlib.pyplot as plt
 
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples, \
     scenario_to_real_scenarios
 from extreme_data.meteo_france_data.adamont_data.adamont_studies import AdamontStudies
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall1Day
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 
@@ -37,6 +35,7 @@ def main():
         print(altitude, adamont_scenario)
         adamont_studies.plot_maxima_time_series_adamont(massif_names=massif_names,
                                                         scm_study=scm_study, legend_and_labels=legend_and_labels)
+
 
 if __name__ == '__main__':
     main()

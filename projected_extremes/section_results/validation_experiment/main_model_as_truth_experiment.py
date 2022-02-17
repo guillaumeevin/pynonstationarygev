@@ -1,3 +1,6 @@
+from collections import OrderedDict
+from typing import Any
+
 import matplotlib
 
 show = False
@@ -14,17 +17,15 @@ from projected_extremes.section_results.validation_experiment.model_as_truth_exp
 
 
 def main_preliminary_projections():
-    """
-    Set parameters
+    # Set parameters
 
-    fast = False considers all ensemble members and all elevations,
-    fast = None considers all ensemble members and 1 elevation,
-    fast = True considers only 6 ensemble mmebers and 1 elevation
+    # fast = False considers all ensemble members and all elevations,
+    # fast = None considers all ensemble members and 1 elevation,
+    # fast = True considers only 6 ensemble mmebers and 1 elevation
 
-    snowfall=True corresponds to daily snowfall
-    snowfall=False corresponds to accumulated ground snow load
-    snowfall=None corresponds to daily winter precipitation
-    """
+    # snowfall=True corresponds to daily snowfall
+    # snowfall=False corresponds to accumulated ground snow load
+    # snowfall=None corresponds to daily winter precipitation
     fast = True
     snowfall = True
 
@@ -46,14 +47,15 @@ def main_preliminary_projections():
 def run_mas(altitudes, display_only_model_that_pass_gof_test, gcm_rcm_couples, massif_names,
             model_classes, remove_physically_implausible_models, safran_study_class, scenario, show,
             study_class, temporal_covariate_for_fit, fit_method, season):
+
+    # Load the data that correspond to the altitude of interest
     altitude = altitudes[0]
     print('Altitude={}'.format(altitude))
     gcm_rcm_couple_to_study, safran_study = load_study(altitude, gcm_rcm_couples, safran_study_class, scenario,
                                                        study_class, season)
 
-    year_max_for_pseudo_obs, year_max_for_gcm = 2019, 2100
-
-    for massif_name in massif_names[::1]:
+    # Loop on the massifs
+    for massif_name in massif_names:
         if massif_name in safran_study.study_massif_names:
             print(massif_name)
 
@@ -62,8 +64,13 @@ def run_mas(altitudes, display_only_model_that_pass_gof_test, gcm_rcm_couples, m
                 gcm_rcm_couple_to_study, massif_name, average_bias,
                 alpha=1000, show=show)
 
-            print("Number of couples:", len(gcm_rcm_couples_sampled_for_experiment))
+            print("Number of couples for the model as truth experiment:", len(gcm_rcm_couples_sampled_for_experiment))
+            # Loop on the gcm_rcm_couples (one loop for each gcm_rcm_couple that we set as pseudo-truth)
             for gcm_rcm_couple in gcm_rcm_couples_sampled_for_experiment:
+
+                # Loop on the potential parameterization for the three parameters of the GEV distribution
+                # 0 represents the parameterization without adjustment coefficients
+                # We do not rely on adjustment coefficients for the model as truth experiment
                 combination = (0, 0, 0)
 
                 xp = ModelAsTruthExperiment(altitudes, gcm_rcm_couples,
@@ -79,8 +86,8 @@ def run_mas(altitudes, display_only_model_that_pass_gof_test, gcm_rcm_couples, m
                                             display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
                                             gcm_rcm_couples_sampled_for_experiment=gcm_rcm_couples_sampled_for_experiment,
                                             combination=combination,
-                                            year_max_for_gcm=year_max_for_gcm,
-                                            year_max_for_pseudo_obs=year_max_for_pseudo_obs,
+                                            year_max_for_gcm=2100,
+                                            year_max_for_pseudo_obs=2019,
                                             linear_effects=(False, False, False)
                                             ,
                                             )

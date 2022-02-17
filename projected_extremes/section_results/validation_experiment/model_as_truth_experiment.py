@@ -31,17 +31,6 @@ class ModelAsTruthExperiment(AbstractExperiment):
     def specific_folder(self):
         return "{} {}".format(self.altitude, self.variable_name)
 
-    # def plot_time_series(self):
-    #     # plot time series
-    #     gcm_rcm_couple_to_studies_plot = xp.load_gcm_rcm_couple_to_studies(
-    #         gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple)
-    #     gcm_rcm_couple_to_study_plot = {c: studies.study for c, studies in
-    #                                     gcm_rcm_couple_to_studies_plot.items()}
-    #     gcm_rcm_couple_to_other_study_plot = {c: s for c, s in gcm_rcm_couple_to_study.items() if
-    #                                           c != gcm_rcm_couple}
-    #     plot_time_series(massif_name, gcm_rcm_couple_to_study_plot[gcm_rcm_couple],
-    #                      gcm_rcm_couple_to_other_study_plot, show)
-
     @property
     def excel_filename(self):
         return super().excel_filename + '_{}_{}'.format(self.year_max, self.year_max_for_pseudo_obs)

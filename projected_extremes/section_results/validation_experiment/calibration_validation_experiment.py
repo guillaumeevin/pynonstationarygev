@@ -52,13 +52,15 @@ class CalibrationValidationExperiment(AbstractExperiment):
             gcm_rcm_couple_to_studies[(None, None)] = self.load_studies_obs_for_train()
         # Load the rest of the projections
         for gcm_rcm_couple in self.gcm_rcm_couples:
-            gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, None, year_max=self.year_max_for_studies)
+            gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, None,
+                                                                                   year_max=self.year_max_for_studies)
         return gcm_rcm_couple_to_studies
 
     def load_gcm_rcm_couple_to_studies_for_ensemble_members(self, **kwargs):
         gcm_rcm_couple_to_studies = {}
         for gcm_rcm_couple in self.gcm_rcm_couples:
-            gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, None, year_max=self.year_max_for_studies)
+            gcm_rcm_couple_to_studies[gcm_rcm_couple] = self.load_altitude_studies(gcm_rcm_couple, None,
+                                                                                   year_max=self.year_max_for_studies)
         return gcm_rcm_couple_to_studies
 
     def load_gcm_rcm_couple_to_studies_for_train_period_and_ensemble_members(self, **kwargs):

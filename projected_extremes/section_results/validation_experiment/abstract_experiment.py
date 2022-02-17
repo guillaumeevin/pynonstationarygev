@@ -12,7 +12,7 @@ from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import Alt
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
-from extreme_data.utils import DATA_PATH, RESULTS_PATH
+from extreme_data.utils import RESULTS_PATH
 from extreme_fit.estimator.margin_estimator.utils_functions import NllhIsInfException, \
     compute_nllh_with_multiprocessing_for_large_samples
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
@@ -97,9 +97,10 @@ class AbstractExperiment(object):
                 gcm_rcm_couple = self.gcm_rcm_couples[0]
         else:
             gcm_rcm_couple = kwargs['gcm_rcm_couple_as_pseudo_truth']
-        l = [is_already_done(self.excel_filepath, self.get_row_name(p), self.experiment_name, gcm_rcm_couple) for p
-                    in self.prefixs]
-        is_already_done_all = all(l)
+        is_already_done_list = [
+            is_already_done(self.excel_filepath, self.get_row_name(p), self.experiment_name, gcm_rcm_couple) for p
+            in self.prefixs]
+        is_already_done_all = all(is_already_done_list)
         if not is_already_done_all:
             start = time.time()
             try:
@@ -156,8 +157,9 @@ class AbstractExperiment(object):
                 _, _, total_nllh_list, _ = self.compute_log_score(best_estimator, False, kwargs)
                 assert len(total_nllh_list) == len(best_estimator.coordinates_for_nllh)
                 npt.assert_almost_equal(sum(total_nllh_list), best_estimator.nllh, decimal=0)
-            ensemble_members_nllh_list, test_nllh_list, total_nllh_list, train_nllh_list = self.compute_log_score(best_estimator,
-                                                                                                                  gumbel_standardization, kwargs)
+            ensemble_members_nllh_list, test_nllh_list, total_nllh_list, train_nllh_list = self.compute_log_score(
+                best_estimator,
+                gumbel_standardization, kwargs)
             return [train_nllh_list, test_nllh_list, ensemble_members_nllh_list, total_nllh_list]
 
     def compute_log_score(self, best_estimator, gumbel_standardization, kwargs):
@@ -171,9 +173,8 @@ class AbstractExperiment(object):
         ensemble_members_nllh_list = self.compute_nllh_list_from_studies_list(best_estimator, kwargs,
                                                                               studies_list_for_ensemble_members,
                                                                               gumbel_standardization)
-        train_nllh_list = list(itertools.chain.from_iterable([train_nllh_list for _ in range(self.weight_on_observation)]))
-        # ensemble_members_nllh_list = list(itertools.chain.from_iterable([ensemble_members_nllh_list for _ in range(self.weight_on_observation)]))
-
+        train_nllh_list = list(
+            itertools.chain.from_iterable([train_nllh_list for _ in range(self.weight_on_observation)]))
         total_nllh_list = train_nllh_list + ensemble_members_nllh_list
         return ensemble_members_nllh_list, test_nllh_list, total_nllh_list, train_nllh_list
 
@@ -190,7 +191,8 @@ class AbstractExperiment(object):
                                                                             for_fit=False)
         maxima_values = dataset_test.observations.maxima_gev
         coordinate_values = df_coordinates_temp_for_test.values
-        nllh = compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxima_values, best_estimator.margin_function_from_fit,
+        nllh = compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxima_values,
+                                                                   best_estimator.margin_function_from_fit,
                                                                    True, True, gumbel_standardization)
         return [nllh / len(coordinate_values) for _ in coordinate_values]
 
@@ -219,7 +221,7 @@ class AbstractExperiment(object):
         goodness_of_fit = self.display_only_model_that_pass_gof_test
         model_name = get_display_name_from_object_type(self.model_class)
         return "{}_{}m_{}couples_test{}_{}_w{}_{}".format(study_name, altitude, nb_couples, goodness_of_fit, model_name,
-                                                      self.weight_on_observation,
+                                                          self.weight_on_observation,
                                                           self.linear_effects)
 
     @property
@@ -277,8 +279,7 @@ class AbstractExperiment(object):
 
     @property
     def prefixs(self):
-        prefixs = ['CalibrationObs', 'ValidationObs', 'CalibrationEnsembleMembers',
-         'CalibrationAll']
+        prefixs = ['CalibrationObs', 'ValidationObs', 'CalibrationEnsembleMembers', 'CalibrationAll']
         if self.only_obs_score is True:
             return prefixs[:2]
         elif self.only_obs_score is None:
