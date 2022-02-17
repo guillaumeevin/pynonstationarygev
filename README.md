@@ -4,6 +4,12 @@
 
 **2. Install required python packages in a virtualenv**
 
+This project relies on Python3.6, if you do not have it, install it and rely on this python for the following.
+
+You can use the integrated tool of the pycharm IDE to create this virtualenv from the requirements.txt files
+
+or you can use the following command in a terminal located at the root of the project:
+
 $ virtualenv <env_name>
 
 $ source <env_name>/bin/activate
@@ -14,7 +20,15 @@ $ source <env_name>/bin/activate
 
 Several metadata need to be downloaded. You can find this metadata in the following google drive folder ( https://drive.google.com/drive/folders/1bZmmYhyvSqlrgAYXnsF_J2hHdgR41ayl?usp=sharing ). Download all the zip files, unzip them, and put them in the "data" folder.
 
-**4. Run the code**
+
+**4. Generate plots from the data section**
+
+run main_data.py to obtain the plot with the 21 time series with many colors
+run main_temperature.py to obtain the plot with the global mean temperatures with respect to the years 
+
+These two scripts are located in the folder projected_extremes/section_data
+
+**5. Generate plots from the results section**
 
 Activate the virtualenv $ source <env_name>/bin/activate
 
