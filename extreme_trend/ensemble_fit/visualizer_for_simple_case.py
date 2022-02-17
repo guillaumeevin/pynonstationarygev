@@ -89,8 +89,7 @@ class VisualizerForSimpleCase(object):
         self.other_obs_visualizers = []
         studies = AltitudesStudies(safran_study_class, altitudes, season=season, year_min=1959, year_max=2019)
         visu = AltitudesStudiesVisualizerForNonStationaryModels(studies,
-                                                                model_classes=[
-                                                                    NonStationaryLocationAndScaleTemporalModel],
+                                                                model_classes=[NonStationaryLocationAndScaleTemporalModel],
                                                                 massif_names=[massif_name],
                                                                 fit_method=fit_method,
                                                                 temporal_covariate_for_fit=temporal_covariate_for_fit,
@@ -444,19 +443,8 @@ class VisualizerForSimpleCase(object):
                         # horizontal arrow
                         ax.plot([start_arrow, start_arrow - size_arrow], [text_height, text_height + size_arrow * scaling_for_y], color='k')
                         ax.plot([start_arrow, start_arrow - size_arrow], [text_height, text_height - size_arrow * scaling_for_y], color='k')
-                        # vertical arrow
-                        scaling = 1.1
-                        ylim_upper_arrow = ylim_upper * (percentage_upper_for_plots + scale_for_upper_arrow)
-                        # ax.plot([t, t + size_arrow], [ylim_upper_arrow, ylim_upper_arrow - size_arrow * scaling_for_y * scaling], color='k')
-                        # ax.plot([t, t - size_arrow], [ylim_upper_arrow, ylim_upper_arrow - size_arrow * scaling_for_y * scaling], color='k')
-                        # for i in range(5):
-                        #     tick_x = start_text + 0.05 + 0.05 * i
-                        #     ax.axvline(tick_x, percentage_upper_for_plots - epsilon,
-                        #                percentage_upper_for_plots, color='k', linewidth=1)
                         ax.text(start_text, text_height + 0.1, "Probability density function")
                     gev_params = one_fold_fit.best_margin_function_from_fit.get_params(c)
-                    # p = sns.distplot(gev_params.sample(1000), ax=ax2, label=None, color=color,
-                    #             vertical=True, linewidth=0)
                     self.plot_density_vertically(ax, ax2, color, gev_params, t, ylim_upper_for_plots,
                                                  linewidth_big_plot, normalization_factor)
 

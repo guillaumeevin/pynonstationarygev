@@ -287,11 +287,7 @@ class OneFoldFit(object):
                     continue
             # Append to the list
             well_defined_estimators.append(estimator)
-        # print('well defined estimators for {} m:'.format(self.altitude_group.reference_altitude),
-        #       len(well_defined_estimators),'out of', len(self.fitted_estimators))
-        # for e in well_defined_estimators:
-        #     print(get_display_name_from_object_type(type(e.margin_model)))
-        #     print(e.margin_model.param_name_to_climate_coordinates_with_effects)
+
         if len(well_defined_estimators) == 0:
             print(self.massif_name,
                   " has only implausible models for altitude={}".format(self.altitude_group.reference_altitude))
