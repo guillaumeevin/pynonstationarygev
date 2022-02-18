@@ -122,10 +122,11 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         additional_term = 2 * self.nb_params * (self.nb_params + 1) / (self.nb_data - self.nb_params - 1)
         return self.aic + additional_term
 
-    def sorted_empirical_standard_gumbel_quantiles(self, coordinate_for_filter=None):
+    def sorted_empirical_standard_gumbel_quantiles(self, coordinate_for_filter=None, coordinate_values=None):
         sorted_empirical_quantiles = []
         maxima_values = self.dataset.maxima_gev
-        coordinate_values = self.df_coordinates_for_fit.values
+        if coordinate_values is None:
+            coordinate_values = self.df_coordinates_for_fit.values
         for maximum, coordinate in zip(maxima_values, coordinate_values):
             if coordinate_for_filter is not None:
                 assert len(coordinate) == len(coordinate_for_filter)

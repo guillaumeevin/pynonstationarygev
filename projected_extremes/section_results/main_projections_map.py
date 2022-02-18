@@ -50,6 +50,7 @@ def main():
 
         massif_name_to_param_name_to_climate_coordinates_with_effects = {}
         for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
+            print('parameterization number for the effects:', parametrization_number)
 
             # The line below states that:
 
@@ -79,7 +80,7 @@ def main():
             remove_physically_implausible_models=remove_physically_implausible_models,
             safran_study_class=safran_study_class,
             linear_effects=linear_effects,
-            display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
+            display_only_model_that_pass_gof_test=True,
             param_name_to_climate_coordinates_with_effects=massif_name_to_param_name_to_climate_coordinates_with_effects,
         )
 

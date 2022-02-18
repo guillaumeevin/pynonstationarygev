@@ -137,6 +137,22 @@ class AbstractCoordinates(object):
         return len(self.spatial_coordinates_names)
 
     @property
+    def has_several_climate_coordinates(self):
+        for coordinate_name in self.climate_coordinates_names:
+            unique_values = set(self.df_coordinate_climate_model.loc[:, coordinate_name])
+            if len(unique_values) > 1:
+                return True
+        return False
+
+    @property
+    def has_climate_coordinates(self) -> bool:
+        return len(self.climate_coordinates_names) > 0
+
+    @property
+    def climate_coordinates_names(self) -> List[str]:
+        return [name for name in self.COORDINATE_CLIMATE_MODEL_NAMES if name in self.df_coordinate_climate_model.columns]
+
+    @property
     def has_spatial_coordinates(self) -> bool:
         return self.nb_spatial_coordinates > 0
 
@@ -222,15 +238,17 @@ class AbstractCoordinates(object):
                             df[value_name] = serie_is_value
                         sum_of_ones = df.iloc[1:].sum(axis=0)
                         assert sum_of_ones.sum() > 0
-                    elif not for_fit:
+                    else:
                         if len(unique_values_without_nan) == 1:
                             for c in [self.COORDINATE_GCM, self.COORDINATE_RCM]:
                                 df[c] = self.df_coordinate_climate_model[c]
                         else:
                             raise NotImplementedError
-                    else:
+                        if for_fit:
+                            print('WARNING !!! No observations but GCM RCM values. Check if this is expected')
+                    # else:
 
-                        raise NotImplementedError
+                        # raise NotImplementedError
                         # todo: the coordinate for three gcm should be 1, 0 then 0, 1 finally -1 -1
                             # maybe it not exactly that, but in this case (without observaitons),
                             # i need to ensure a constraint that the sum of coef is zero

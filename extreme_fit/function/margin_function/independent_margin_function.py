@@ -49,7 +49,10 @@ class IndependentMarginFunction(AbstractMarginFunction):
             else:
                 # Load full coordinates, and coordinates
                 assert self.coordinates.nb_coordinates == 1, 'replace the line below if assert'
-                temporal_coordinate = float(coordinate[0].copy())
+                if isinstance(coordinate[0], float):
+                    temporal_coordinate = coordinate[0]
+                else:
+                    temporal_coordinate = float(coordinate[0].copy())
                 full_climate_coordinate = coordinate[self.coordinates.nb_coordinates:].copy()
                 assert self.param_name_to_ordered_climate_effects is not None
                 assert AbstractCoordinates.COORDINATE_X not in self.coordinates.coordinates_names, \

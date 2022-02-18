@@ -27,8 +27,10 @@ def main_calibration_validation_experiment():
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
         fast, snowfall)
 
+    altitudes_list = [[2100]]
+
     # We consider three types of split where the training set represents either 60%, 70% or 80% of the reanalysis data
-    percentage_for_the_train_set = [0.6, 0.7, 0.8][:]
+    percentage_for_the_train_set = [0.6, 0.7, 0.8][:1]
 
     # Loop on the altitudes
     for altitudes in altitudes_list:

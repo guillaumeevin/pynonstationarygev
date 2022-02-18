@@ -283,6 +283,7 @@ class OneFoldFit(object):
                     continue
             #  Apply the goodness of fit
             if self.only_models_that_pass_goodness_of_fit_test:
+                print('goodness of fit check for ', self.massif_name)
                 if not self.goodness_of_fit_test(estimator):
                     continue
             # Append to the list
@@ -506,14 +507,61 @@ class OneFoldFit(object):
             return_levels.append(return_level)
         return 100 * (return_levels[1] - return_levels[0]) / return_levels[0]
 
-    def goodness_of_fit_test(self, estimator):
-        quantiles = estimator.sorted_empirical_standard_gumbel_quantiles()
-        try:
-            goodness_of_fit_anderson_test = goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
-        except SafeRunException as e:
-            print('goodness of fit failed:', e.__repr__())
-            goodness_of_fit_anderson_test = False
-        return goodness_of_fit_anderson_test
+    def goodness_of_fit_test_separated_for_each_gcm_rcm_couple(self, estimator):
+        print('start special goodness of fit')
+        df = estimator.dataset.coordinates.df_coordinate_climate_model.loc[:, [AbstractCoordinates.COORDINATE_GCM,
+                                                                                AbstractCoordinates.COORDINATE_RCM]]
+        df = df.drop_duplicates()
+        test_results = []
+        # Save the df of reference
+        # df_all_coordinates_estimator = estimator.dataset.coordinates.df_all_coordinates.copy()
+        df_coordinate_climate_model_estimator = estimator.dataset.coordinates.df_coordinate_climate_model.copy()
+        df_maxima_gev_estimator = estimator.dataset.observations.df_maxima_gev.copy()
+        df_coordinates_for_fit_estimator = estimator.df_coordinates_for_fit.copy()
+        for j, (i, row) in enumerate(df.iterrows(), 1):
+            # Load gcm and rcm of interest
+            gcm, rcm = row[AbstractCoordinates.COORDINATE_GCM], row[AbstractCoordinates.COORDINATE_RCM]
+            print('loop ', j, ' for {} and {}'.format(gcm, rcm))
+            # Find the index for this row
+            if isinstance(gcm, str):
+                ind = df_coordinate_climate_model_estimator[AbstractCoordinates.COORDINATE_GCM] == gcm
+                ind &= df_coordinate_climate_model_estimator[AbstractCoordinates.COORDINATE_RCM] == rcm
+            else:
+                ind = df_coordinate_climate_model_estimator[AbstractCoordinates.COORDINATE_GCM].isnull()
+                ind &= df_coordinate_climate_model_estimator[AbstractCoordinates.COORDINATE_RCM].isnull()
+            assert 0 < sum(ind) <= 150
+            # Create an estimator with only the information on this row
+            # estimator.dataset.coordinates.df_all_coordinates = df_all_coordinates_estimator.loc[ind].copy()
+            estimator.dataset.coordinates.df_coordinate_climate_model = df_coordinate_climate_model_estimator.loc[ind].copy()
+            estimator.dataset.observations.df_maxima_gev = df_maxima_gev_estimator.loc[ind].copy()
+            coordinate_values = df_coordinates_for_fit_estimator.loc[ind].copy().values
+            assert len(coordinate_values) <= 150, len(coordinate_values)
+            # Run test with some specific coordinate for fit
+            test_result = self.goodness_of_fit_test(estimator, coordinate_values)
+            test_results.append(test_result)
+            print(test_result, test_result is False, not test_result)
+            if not test_result:
+                print('end looping before the end')
+                return False
+        print('end looping', test_results)
+        estimator.dataset.observations.df_maxima_gev = df_maxima_gev_estimator
+        estimator.dataset.coordinates.df_coordinate_climate_model = df_coordinate_climate_model_estimator
+        return True
+        # Reset well the estimator
+        # estimator.dataset.coordinates.df_all_coordinates = df_all_coordinates_estimator
+        # return all(test_results)
+
+    def goodness_of_fit_test(self, estimator, coordinate_values=None):
+        if estimator.dataset.coordinates.has_several_climate_coordinates:
+            return self.goodness_of_fit_test_separated_for_each_gcm_rcm_couple(estimator)
+        else:
+            quantiles = estimator.sorted_empirical_standard_gumbel_quantiles(coordinate_values=coordinate_values)
+            try:
+                goodness_of_fit_anderson_test = goodness_of_fit_anderson(quantiles, self.SIGNIFICANCE_LEVEL)
+            except SafeRunException as e:
+                print('goodness of fit failed:', e.__repr__())
+                goodness_of_fit_anderson_test = False
+            return goodness_of_fit_anderson_test
 
     def standard_gumbel_quantiles(self, n=None):
         standard_gumbel_distribution = GevParams(loc=0, scale=1, shape=0)
