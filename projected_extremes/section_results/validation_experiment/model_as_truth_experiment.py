@@ -29,7 +29,7 @@ class ModelAsTruthExperiment(AbstractExperiment):
 
     @property
     def specific_folder(self):
-        return "{} {}".format(self.altitude, self.variable_name)
+        return "{} {}".format(self.altitude, self.variable_name).replace(' ', '')
 
     @property
     def excel_filename(self):

@@ -33,7 +33,7 @@ class CalibrationValidationExperiment(AbstractExperiment):
 
     @property
     def specific_folder(self):
-        return "{}_{}_{}".format(self.variable_name, self.altitude, self.end_year_for_train_set)
+        return "{}_{}_{}".format(self.variable_name, self.altitude, self.end_year_for_train_set).replace(' ', '')
 
     @property
     def excel_filename(self):

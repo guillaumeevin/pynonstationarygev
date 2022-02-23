@@ -32,6 +32,7 @@ def is_already_done(excel_filepath, combination_name, altitude, gcm_rcm_couple):
 
 
 def update_csv(excel_filepath, row_name, altitude, gcm_rcm_couple, value_list, sheetname=None):
+    excel_filepath = excel_filepath.replace(' ', '')
     # Check value
     writer = pd.ExcelWriter(excel_filepath, engine='xlsxwriter')
     # Update main result
