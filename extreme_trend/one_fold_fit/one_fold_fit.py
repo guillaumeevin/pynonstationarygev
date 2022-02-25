@@ -11,7 +11,7 @@ from scipy.stats import chi2
 from sklearn.utils import resample
 
 from extreme_fit.distribution.gev.gev_params import GevParams
-from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson
+from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson, get_pvalue_anderson_darling_test
 from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
 from extreme_fit.function.margin_function.independent_margin_function import IndependentMarginFunction
@@ -513,6 +513,8 @@ class OneFoldFit(object):
                                                                                 AbstractCoordinates.COORDINATE_RCM]]
         df = df.drop_duplicates()
         test_results = []
+        test_names = []
+        pvalues = []
         # Save the df of reference
         # df_all_coordinates_estimator = estimator.dataset.coordinates.df_all_coordinates.copy()
         df_coordinate_climate_model_estimator = estimator.dataset.coordinates.df_coordinate_climate_model.copy()
@@ -522,6 +524,7 @@ class OneFoldFit(object):
             # Load gcm and rcm of interest
             gcm, rcm = row[AbstractCoordinates.COORDINATE_GCM], row[AbstractCoordinates.COORDINATE_RCM]
             print('loop ', j, ' for {} and {}'.format(gcm, rcm))
+            test_names.append(str(gcm) + '_' + str(rcm))
             # Find the index for this row
             if isinstance(gcm, str):
                 ind = df_coordinate_climate_model_estimator[AbstractCoordinates.COORDINATE_GCM] == gcm
@@ -537,23 +540,17 @@ class OneFoldFit(object):
             coordinate_values = df_coordinates_for_fit_estimator.loc[ind].copy().values
             assert len(coordinate_values) <= 150, len(coordinate_values)
             # Run test with some specific coordinate for fit
-            test_result = self.goodness_of_fit_test(estimator, coordinate_values)
-            test_results.append(test_result)
-            print(test_result, test_result is False, not test_result)
-            if not test_result:
-                print('end looping before the end')
-                return False
-        print('end looping', test_results)
+            test_results.append(self.goodness_of_fit_test(estimator, coordinate_values))
+            # Compute pvalue
+            pvalues.append(get_pvalue_anderson_darling_test(estimator.sorted_empirical_standard_gumbel_quantiles(coordinate_values=coordinate_values)))
         estimator.dataset.observations.df_maxima_gev = df_maxima_gev_estimator
         estimator.dataset.coordinates.df_coordinate_climate_model = df_coordinate_climate_model_estimator
-        return True
-        # Reset well the estimator
-        # estimator.dataset.coordinates.df_all_coordinates = df_all_coordinates_estimator
-        # return all(test_results)
+        return test_results, test_names, pvalues
 
     def goodness_of_fit_test(self, estimator, coordinate_values=None):
         if estimator.dataset.coordinates.has_several_climate_coordinates:
-            return self.goodness_of_fit_test_separated_for_each_gcm_rcm_couple(estimator)
+            test_results, *_ = self.goodness_of_fit_test_separated_for_each_gcm_rcm_couple(estimator)
+            return all(test_results)
         else:
             quantiles = estimator.sorted_empirical_standard_gumbel_quantiles(coordinate_values=coordinate_values)
             try:

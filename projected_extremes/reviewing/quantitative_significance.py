@@ -1,5 +1,8 @@
 import matplotlib
 
+from extreme_trend.ensemble_fit.together_ensemble_fit.visualizer_non_stationary_ensemble import \
+    VisualizerNonStationaryEnsemble
+
 matplotlib.use('Agg')
 import matplotlib as mpl
 
@@ -14,6 +17,28 @@ from projected_extremes.section_results.utils.get_nb_linear_pieces import run_se
 from projected_extremes.section_results.utils.setting_utils import set_up_and_load
 
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
+
+import numpy as np
+from matplotlib import pyplot as plt
+from matplotlib.ticker import PercentFormatter
+
+
+def quantitative(pvalues, visualizer):
+    # Create an histogram for the metric
+    ax = plt.gca()
+    count_above_5_percent = [int(m >= 0.05) for m in pvalues]
+    percentage_above_5_percent = 100 * sum(count_above_5_percent) / len(count_above_5_percent)
+    print("Percentage above 5 percent", percentage_above_5_percent)
+    ax.hist(pvalues, bins=20, range=[0, 1], weights=np.ones(len(pvalues)) / len(pvalues))
+    ax.set_xlim((0, 1))
+    ylim = ax.get_ylim()
+    ax.vlines(0.05, ymin=ylim[0], ymax=ylim[1], color='k', linestyles='dashed', label='0.05 significance level')
+    ax.yaxis.set_major_formatter(PercentFormatter(1))
+    ax.set_xlabel('p-value for the Anderson-Darling test')
+    ax.set_ylabel('Percentage')
+    ax.legend()
+    visualizer.plot_name = 'All pvalues'
+    visualizer.show_or_save_to_file()
 
 
 def main():
@@ -86,14 +111,15 @@ def main():
 
         with_significance = False
         sub_visualizer = [together_ensemble_fit.visualizer
-                           for together_ensemble_fit in visualizer.ensemble_fits(TogetherEnsembleFit)][0]
+                          for together_ensemble_fit in visualizer.ensemble_fits(TogetherEnsembleFit)][0] # type: VisualizerNonStationaryEnsemble
 
-        # Visualize the projected changes for the return levels and the relative changes in return levels
-        if snowfall:
-            sub_visualizer.plot_moments_projections_snowfall(with_significance, scenario)
-        else:
-            sub_visualizer.plot_moments_projections(with_significance, scenario)
+        all_pvalues = []
+        for massif_name, one_fold_fit in sub_visualizer.massif_name_to_one_fold_fit.items():
+            _, test_names, pvalues = one_fold_fit.goodness_of_fit_test_separated_for_each_gcm_rcm_couple(one_fold_fit.best_estimator)
+            all_pvalues.extend(pvalues)
 
+        print(len(all_pvalues), all_pvalues)
+        quantitative(all_pvalues, sub_visualizer)
 
 if __name__ == '__main__':
     main()
