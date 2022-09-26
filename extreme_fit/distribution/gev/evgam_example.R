@@ -2,7 +2,7 @@
 # Objective : TODO
 # Created by: erwan
 # Created on: 30/03/2021
-source('/home/erwan/Documents/projects/spatiotemporalextremes/extreme_fit/distribution/gev/evgam_fixed.R')
+source('evgam_fixed.R')
 library(evgam)
 library(mgcv)
 library(SpatialExtremes)

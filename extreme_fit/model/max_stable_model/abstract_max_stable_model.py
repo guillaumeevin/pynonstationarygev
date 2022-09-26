@@ -3,7 +3,7 @@ from enum import Enum
 import numpy as np
 import pandas as pd
 from rpy2.rinterface import RRuntimeWarning
-from rpy2.rinterface._rinterface import RRuntimeError
+from rpy2.rinterface_lib.embedded import RRuntimeError
 
 from extreme_fit.model.abstract_model import AbstractModel
 from extreme_fit.model.result_from_model_fit.result_from_spatial_extreme import ResultFromSpatialExtreme

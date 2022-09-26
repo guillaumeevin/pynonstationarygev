@@ -13,7 +13,7 @@ import pandas as pd
 import rpy2.robjects as ro
 from rpy2 import robjects
 from rpy2.rinterface import RRuntimeWarning
-from rpy2.rinterface._rinterface import RRuntimeError
+from rpy2.rinterface_lib.embedded import RRuntimeError
 from rpy2.robjects import numpy2ri
 from rpy2.robjects import pandas2ri
 
@@ -159,7 +159,7 @@ def get_coord(df_coordinates: pd.DataFrame):
 
 
 def get_r_dataframe_from_python_dataframe(df: pd.DataFrame):
-    coord = pandas2ri.py2ri_pandasdataframe(df)
+    coord = pandas2ri.py2rpy_pandasdataframe(df)
     colname = df.columns
     coord.colnames = r.c(colname)
     coord = r('data.frame')(coord, stringsAsFactors=True)

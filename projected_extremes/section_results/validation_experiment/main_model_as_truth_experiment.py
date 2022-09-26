@@ -26,15 +26,15 @@ def main_preliminary_projections():
     # snowfall=True corresponds to daily snowfall
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
-    fast = None
-    snowfall = False
+    fast = True
+    snowfall = True
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, model_classes_list, scenario, study_class, \
     temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test,\
     safran_study_class, fit_method, season = set_up_and_load(fast, snowfall)
 
-    altitudes_list = [[2100]]
+    altitudes_list = [[1800]]
 
     # Run a model as truth experiment
     # for each altitude and for each model_class (number of pieces for the piecewise linear functions)
