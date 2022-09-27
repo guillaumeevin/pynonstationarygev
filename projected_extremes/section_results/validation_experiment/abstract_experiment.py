@@ -231,7 +231,9 @@ class AbstractExperiment(object):
                        self.specific_folder)
         if not op.exists(path):
             os.makedirs(path, exist_ok=True)
-        return op.join(path, self.excel_filename + '.xlsx')
+        excel_filepath = op.join(path, self.excel_filename + '.xlsx')
+        excel_filepath = excel_filepath.replace(' ', '')
+        return excel_filepath
 
     @property
     def specific_folder(self):

@@ -282,7 +282,7 @@ def load_df_complete(massif_name, numbers_of_pieces, excel_folder, linear_effect
 def _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects, gcm_rcm_couples):
     model_name = number_to_model_name[number_of_pieces]
     short_excel_folder = excel_folder.split('/')[-2:]
-    assert op.exists(excel_folder), "Run a {} for {}".format(*short_excel_folder)
+    assert op.exists(excel_folder), "Run a {} for {} and {} number of pieces".format(*short_excel_folder, number_of_pieces)
     linear_effects_name = str(linear_effects)
     couplename = str(len(gcm_rcm_couples)) + 'couples'
     files = [f for f in os.listdir(excel_folder) if

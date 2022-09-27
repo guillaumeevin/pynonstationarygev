@@ -38,7 +38,7 @@ def main_preliminary_projections():
 
     # Run a model as truth experiment
     # for each altitude and for each model_class (number of pieces for the piecewise linear functions)
-    for model_class in model_classes_list[3:]:
+    for model_class in model_classes_list[:]:
         model_classes = [model_class]
         for altitudes in altitudes_list:
             run_mas(altitudes, display_only_model_that_pass_gof_test, gcm_rcm_couples, massif_names,
