@@ -20,7 +20,7 @@ from projected_extremes.section_results.utils.setting_utils import get_last_year
 from root_utils import VERSION_TIME
 
 abstract_experiment_folder = op.join(RESULTS_PATH, "abstract_experiments")
-model_as_truth_excel_folder = op.join(abstract_experiment_folder, "ModelAsTruthExperiment/{} {}")
+model_as_truth_excel_folder = op.join(abstract_experiment_folder, "ModelAsTruthExperiment/{}_{}")
 calibration_excel_folder = op.join(abstract_experiment_folder, "CalibrationValidationExperiment/{}_{}_{}")
 
 
@@ -282,11 +282,11 @@ def load_df_complete(massif_name, numbers_of_pieces, excel_folder, linear_effect
 def _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects, gcm_rcm_couples):
     model_name = number_to_model_name[number_of_pieces]
     short_excel_folder = excel_folder.split('/')[-2:]
-    assert op.exists(excel_folder), "Run a {} for {} and {} number of pieces".format(*short_excel_folder, number_of_pieces)
-    linear_effects_name = str(linear_effects)
+    assert op.exists(excel_folder), "Run a {} for {} and {} number of pieces and {} massif".format(*short_excel_folder, number_of_pieces, massif_name)
+    linear_effects_name = str(linear_effects).replace(' ', '')
     couplename = str(len(gcm_rcm_couples)) + 'couples'
     files = [f for f in os.listdir(excel_folder) if
-             (model_name in f) and (linear_effects_name in f) and (couplename in f)]
+             (model_name in f) and (linear_effects_name in f) and (couplename in f) and ('~lock' not in f)]
     join_str = ' '.join([model_name] + [str(e) for e in linear_effects])
     assert len(files) > 0, "Run a {} for {}".format(short_excel_folder[0], join_str)
     assert len(files) < 2, "Too many files that correspond: {}".format(*files)
