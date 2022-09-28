@@ -4,11 +4,15 @@
 
 **2. Install required python packages in a virtualenv**
 
-This project relies on Python3.6, if you do not have it, install it and rely on this python for the following.
+This project relies on Python3.7, if you do not have it, install it and rely on this python version for the following.
 
-You can use the integrated tool of the pycharm IDE to create this virtualenv from the requirements.txt files
+This project only requires to install R with a version >= 4.0 (R 4.2.1 was used to test everything)
 
-or you can use the following command in a terminal located at the root of the project:
+To create this virtualenv from the requirements.txt files, you can either use:
+
+-the integrated tool of the pycharm IDE 
+
+-or the following command in a terminal located at the root of the project:
 
 $ virtualenv <env_name>
 

@@ -578,7 +578,7 @@ class StudyVisualizer(VisualizationParameters):
         filepath = op.join(AbstractStudy.result_full_path, filename + '.' + img_format)
         if transparent:
             dir_list = filepath.split('/')
-            dir_list[-1:] = ['transparent', dir_list[-1]]
+            dir_list[-1:] = ['svg', dir_list[-1]]
             filepath = '/'.join(dir_list)
         dirname = op.dirname(filepath)
         if not op.exists(dirname):

@@ -33,7 +33,7 @@ def main():
     # snowfall=True corresponds to daily snowfall
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
-    fast = None
+    fast = False
     snowfall = True
 
     # Load parameters

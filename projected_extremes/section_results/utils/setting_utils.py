@@ -81,7 +81,7 @@ def set_up_and_load(fast, snowfall=True):
     if fast is None:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 10
         massif_names = AbstractStudy.all_massif_names()
-        altitudes_list = [1500]
+        altitudes_list = [2100]
     elif fast:
         gcm_rcm_couples = gcm_rcm_couples[:3] + gcm_rcm_couples[-3:]
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1000
@@ -90,7 +90,10 @@ def set_up_and_load(fast, snowfall=True):
     else:
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1000
         massif_names = AbstractStudy.all_massif_names()
-        altitudes_list = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
+        if snowfall:
+            altitudes_list = [2100, 2400, 2700, 3000, 3300, 3600]
+        else:
+            altitudes_list = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
 
     assert isinstance(gcm_rcm_couples, list)
     altitudes_list = [[a] for a in altitudes_list]
