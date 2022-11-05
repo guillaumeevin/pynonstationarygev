@@ -91,7 +91,8 @@ def set_up_and_load(fast, snowfall=True):
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1000
         massif_names = AbstractStudy.all_massif_names()
         if snowfall:
-            altitudes_list = [2100, 2400, 2700, 3000, 3300, 3600]
+            altitudes_list = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
+            # altitudes_list = [2100, 2400, 2700, 3000, 3300, 3600]
         else:
             altitudes_list = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
 

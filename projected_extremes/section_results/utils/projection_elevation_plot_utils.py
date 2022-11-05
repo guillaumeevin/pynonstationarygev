@@ -1,16 +1,20 @@
 import math
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.colors import Normalize
+from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
+from matplotlib.ticker import FixedLocator
 
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario
 from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import year_to_averaged_global_mean_temp, \
     get_closest_year
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_colors, \
-    create_colorbase_axis, ticks_values_and_labels_for_percentages, get_lower_half_colormap, get_upper_half_colormap
+    create_colorbase_axis, ticks_values_and_labels_for_percentages, get_lower_half_colormap, get_upper_half_colormap, \
+    get_inverse_colormap
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
@@ -122,10 +126,11 @@ def draw_pie_marker(ax, xs, ys, probabilities, sizes, edges_colors, pie_color, c
         ax.scatter(xs, ys, **marker)
 
 
-def plot_transition_lines(visualizer, return_period_to_paths, relative_change):
+def plot_transition_lines(visualizer, return_period_to_paths, relative_change, legend_fontsize, ticksize):
     ax = plt.gca()
 
-    colors = ['k', 'forestgreen', 'limegreen', 'yellowgreen', 'greenyellow', 'palegreen', 'khaki']
+    # colors = ['k', 'forestgreen', 'limegreen', 'yellowgreen', 'greenyellow', 'palegreen', 'khaki']
+    colors = ['k', 'darkblue', 'mediumblue', 'royalblue', 'cornflowerblue', 'deepskyblue', 'cyan']
     for color, (return_period, paths) in zip(colors[::-1], list(return_period_to_paths.items())):
         x, y = [], []
         for path in paths:
@@ -144,9 +149,8 @@ def plot_transition_lines(visualizer, return_period_to_paths, relative_change):
             print(label, value_at_start, value_at_end)
         ax.plot(x, y, label=label, color=color,
                 linewidth=3)
-    ax.legend(loc='lower right')
+    ax.legend(loc='lower right', prop={'size': 10})
 
-    legend_fontsize = 10
     ax.grid()
     ax.set_ylim((2100, 3600))
     ax.set_yticks([int(t) for t in ax.get_yticks() if t % 100 == 0])
@@ -154,29 +158,29 @@ def plot_transition_lines(visualizer, return_period_to_paths, relative_change):
     ax.set_xlim((covariates_to_show[0], covariates_to_show[-1]))
     ax.set_xticks(covariates_to_show)
 
-    add_years_on_top(ax)
+    add_years_on_top(ax, legend_fontsize, ticksize)
 
-    # ax.set_yticklabels(["{} m".format(tic) for tic in ax.get_yticks()])
-    ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show])
+    ax.set_yticklabels(["{}".format(tic) for tic in ax.get_yticks()], fontsize=ticksize)
+    ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show], fontsize=ticksize)
     ax.set_xlabel('Global warming above pre-industrial levels ($^o\\textrm{C}$)', fontsize=legend_fontsize)
-    ax.set_ylabel('Elevation thresholds, i.e. where the average relative change\n'
-                  'with respect to +1 degree is equal to 0\% (m)', fontsize=legend_fontsize)
+    ax.set_ylabel('Elevation threshold (m)', fontsize=legend_fontsize)
     visualizer.plot_name = 'Transition lines with relative change = {} and lowest return period {}'.format(
         relative_change, list(return_period_to_paths.keys())[0])
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
     plt.close()
 
 
-def add_years_on_top(ax):
+def add_years_on_top(ax, legend_fontsize, ticksize):
     years = get_closest_year(AdamontScenario.rcp85_extended, ax.get_xticks())
     ax2 = ax.twiny()
-    ax2.set_xlabel('Year')
+    ax2.set_xlabel('Year', fontsize=legend_fontsize)
     ax2.set_xlim(ax.get_xlim())
     ax2.set_xticks(ax.get_xticks())
-    ax2.set_xticklabels(years)
+    ax2.set_xticklabels(years, fontsize=ticksize)
 
 
-def plot_contour_changes_values(visualizer_list, relative_change, return_period, snowfall):
+def plot_contour_changes_values(visualizer_list, relative_change, return_period, snowfall, legend_fontsize, ticksize
+                                ):
     default_return_period = OneFoldFit.return_period
     OneFoldFit.return_period = return_period
 
@@ -217,17 +221,18 @@ def plot_contour_changes_values(visualizer_list, relative_change, return_period,
     level_to_str = {level: '{} \%'.format(int(level)) for level in levels}
     ax.clabel(cp, fontsize=10, colors=line_colors, fmt=level_to_str)
     # ax.clabel(cp, fontsize=10, colors=line_colors, fmt='%.0f')
-    legend_fontsize = 10
     ax.set_xticks(covariates_to_show)
     ax.set_xlabel('Global warming above pre-industrial levels ($^o\\textrm{C}$)', fontsize=legend_fontsize)
+    set_top_label(ax, legend_fontsize, return_period)
+
     ax.set_ylabel('Elevation (m)', fontsize=legend_fontsize)
 
     ax.set_yticks(altitudes)
-    # ax.set_yticklabels(["{} m".format(tic) for tic in ax.get_yticks()])
-    ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show])
+    ax.set_yticklabels(["{}".format(tic) for tic in ax.get_yticks()], fontsize=ticksize)
+    ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates_to_show], fontsize=ticksize)
 
     create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=ticks_values_and_labels,
-                          fontsize=10, position='top', rescale_ticks=True)
+                          fontsize=legend_fontsize, position='top', rescale_ticks=True, ticksize=ticksize)
 
     visualizer = visualizer_list[0]
     visualizer.plot_name = 'Contour plot with relative change = {} with return period {}'.format(relative_change,
@@ -241,13 +246,29 @@ def plot_contour_changes_values(visualizer_list, relative_change, return_period,
     return cp.collections[list(levels).index(0)].get_paths()
 
 
-def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, relative_change, return_period, snowfall):
+def set_top_label(ax, legend_fontsize, return_period):
+    if isinstance(return_period, int):
+        top_label = '$\\bf{(b)}$ Relative change in ' + str(OneFoldFit.return_period) + '-year return levels'
+    else:
+        top_label = '$\\bf{(a)}$ Relative change in mean annual maxima'
+    ax_twin = ax.twiny()
+    ax_twin.set_xticks([])
+    # ax_twin.set_yticks([])
+    ax_twin.set_xlabel(top_label, fontsize=legend_fontsize)
+
+
+def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, relative_change, return_period, snowfall,
+                               legend_fontsize, ticksize):
     ax = plt.gca()
+
+
+    ax.yaxis.label.set_size(20)
+
     if len(visualizer_list) == 5:
         # Optimal size for 5 elevations
         sizes = [1500 for _ in range(2)]
     elif len(visualizer_list) == 6:
-        sizes = [1000, 100]
+        sizes = [1100 for _ in range(2)]
     elif len(visualizer_list) == 10:
         sizes = [300 for _ in range(2)]
     else:
@@ -289,7 +310,7 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, re
                 probabilities = [1]
                 colors = ['red']
             else:
-
+                decreasing_percentage = round(decreasing_percentage, 2)
                 probabilities = [decreasing_percentage,
                                  (1 - decreasing_percentage)]
                 colors = ['blue', 'red']
@@ -298,7 +319,7 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, re
                             color_to_linestyle, linewidth_pie)
 
             # add text with the percentage
-            if decreasing_percentage > 0.95:
+            if decreasing_percentage >= 0.9:
                 epsilon = 50
                 righ_shift = 0.045
             else:
@@ -307,49 +328,48 @@ def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, re
             shift = -20
             fontsize = 6
             if decreasing_percentage in [0, 1]:
-                ax.text((covariate - 0.045),
+                ax.text(covariate - 0.045,
                         shift + altitude,
                         "100\%",
                         fontsize=fontsize, weight='bold')
             else:
-                rounded_decreasing_percentage = round(decreasing_percentage, 2)
-                for j, probability in enumerate([1 - rounded_decreasing_percentage, rounded_decreasing_percentage]):
-                    ax.text((covariate + righ_shift),
+                for j, probability in enumerate([1 - decreasing_percentage, decreasing_percentage]):
+                    ax.text(covariate + righ_shift,
                             shift + altitude - epsilon + 2 * j * epsilon,
                             str(int(100 * probability)) + "\%",
                             fontsize=fontsize, weight='bold')
 
-    legend_fontsize = 10
-    labelsize = 10
     ax.set_xlabel('Global warming above pre-industrial levels ($^o\\textrm{C}$)', fontsize=legend_fontsize)
+    set_top_label(ax, legend_fontsize, return_period)
+
     ax.set_ylabel('Elevation (m)', fontsize=legend_fontsize)
-    ax.tick_params(axis='both', which='major', labelsize=labelsize)
     ax.set_xticks([c for c in covariates])
-    ax.set_yticks(altitudes)
-    # ax.set_yticklabels(["{} m".format(v.study.altitude) for v in visualizer_list])
-    ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates])
+    ax.set_xticklabels(["+{}".format(int(c) if int(c) == c else c) for c in covariates], fontsize=ticksize)
 
     mi, ma = ax.get_ylim()
     border = 100
     ax.set_ylim((mi - border, ma + border + 225))
+    ax.set_yticks(altitudes)
+    ax.tick_params(axis='both', which='major', labelsize=ticksize)
 
     # Build legend
     # custom_lines = [Line2D([0], [0], color=color, lw=6) for color in ['blue', 'red']]
     custom_lines = [Patch(facecolor='white', edgecolor='k', linestyle=color_to_linestyle[color],
                           linewidth=linewidth_pie) for color in ['blue', 'red']]
     metric = '{}-year return levels'.format(OneFoldFit.return_period) if with_return_level else 'mean annual maxima'
-    labels = ['\% of massifs with {} in {} between +T and +1 degrees'.format(s, metric) for s in
+    labels = ['\% of massifs with ' + s + ' in ' + metric + ' between +T$^o\\textrm{C}$ and +1$^o\\textrm{C}$' for s in
               ['a decrease', 'an increase']]
     ax.legend(custom_lines, labels, prop={'size': 8.5}, loc='upper left')
 
     create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=ticks_values_and_labels,
-                          fontsize=10, position='top', rescale_ticks=True)
+                          fontsize=legend_fontsize, position='top', rescale_ticks=True,
+                          ticksize=ticksize)
 
-    ax2 = ax.twinx()
-    ax2.set_ylabel('Number of massifs for each elevation')
-    ax2.set_ylim(ax.get_ylim())
-    ax2.set_yticks(ax.get_yticks())
-    ax2.set_yticklabels([str(nb) for nb in list_nb_valid_massifs])
+    # ax2 = ax.twinx()
+    # ax2.set_ylabel('Number of massifs for each elevation', fontsize=legend_fontsize)
+    # ax2.set_ylim(ax.get_ylim())
+    # ax2.set_yticks(altitudes)
+    # ax2.set_yticklabels([str(nb) for nb in list_nb_valid_massifs], fontsize=ticksize)
 
     label = "return level" if with_return_level else "mean"
     visualizer = visualizer_list[0]
@@ -382,8 +402,10 @@ def load_colorbar_info(relative_change, return_period, snowfall, massif_name=Non
     _, max_level, graduation = load_levels(snowfall)
     epsilon = 0.0001
     max_level = max_level + epsilon
-    cmap = plt.cm.seismic
+    # cmap = get_inverse_colormap(plt.cm.seismic)
+    cmap = plt.cm.BrBG
     if snowfall:
+        graduation = 5
         ticks_values_and_labels, vmax, vmin = postive_and_negative_values(graduation, max_level)
     elif snowfall is None:
         cmap, ticks_values_and_labels, vmax, vmin = positive_values(cmap, epsilon, graduation, max_level)
@@ -395,16 +417,17 @@ def load_colorbar_info(relative_change, return_period, snowfall, massif_name=Non
         prefix_label = 'Average relative change' if relative_change else "Average change"
     else:
         prefix_label = 'Relative change' if relative_change else "Change"
-    if isinstance(return_period, int):
-        label = prefix_label + ' in {}-year return levels'.format(
-            OneFoldFit.return_period)
-    else:
-        label = prefix_label + ' in mean annual maxima'
+    label = prefix_label
+    # if isinstance(return_period, int):
+    #     label += ' in {}-year return levels'.format(
+    #         OneFoldFit.return_period)
+    # else:
+    #     label += ' in mean annual maxima'
     if massif_name is not None:
         label += ' for the {} massif with\nrespect to'.format(massif_name.replace('_', '-'))
     else:
-        label += ' with respect to\n'
-    label += ' + 1 degree of global warming above pre-industrial levels (\%)'
+        label += ' with respect to'
+    label += ' + 1$^o\\textrm{C}$ of\nglobal warming above pre-industrial levels (\%)'
     return cmap, label, norm, prefix_label, ticks_values_and_labels, vmax, vmin
 
 
@@ -434,10 +457,12 @@ def negative_values(cmap, epsilon, graduation, max_level):
 
 def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_return_level,
                                          relative_change, return_period, snowfall,
-                                         temperature_covariate=True):
-    legend_fontsize = 10
-    labelsize = 10
-
+                                         temperature_covariate=True,
+                                         categories_list_color=None, legend_fontsize=16,
+                                         ticksize=10):
+    inside_size = 9
+    colors = ['darkgoldenrod', 'darkgrey', 'mediumseagreen']
+    labels_colors = ['Decrease', "Increase followed by a decrease", "Increase"]
     default_return_period = OneFoldFit.return_period
     if with_return_level:
         OneFoldFit.return_period = return_period
@@ -459,7 +484,24 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
         y = get_y(altitude, covariates, massif_name, relative_change, visualizer, return_period, temperature_covariate)
         if y is not None:
             all_y.extend(y)
-            ax.plot(covariates, y, label=label, linewidth=3, color='k')
+            if categories_list_color is None:
+                color = 'k'
+            else:
+                assert any([altitude in l for l in categories_list_color])
+                assert len(categories_list_color) == 3
+                if altitude in categories_list_color[0]:
+                    color = colors[0]
+                elif altitude in categories_list_color[1]:
+                    color = colors[1]
+                else:
+                    color = colors[2]
+            ax.plot(covariates, y, label=label, linewidth=3, color=color)
+
+            # Create a legend
+            if categories_list_color is not None:
+                legend_elements = [Line2D([0], [0], color=color, lw=4, label=label_color)
+                                   for color, label_color in zip(colors[::-1], labels_colors[::-1])]
+                ax.legend(handles=legend_elements, loc='lower left', prop={'size': legend_fontsize-2})
 
             index_where_to_plot_text = -10
             covariate_for_text = covariates[index_where_to_plot_text]
@@ -468,7 +510,14 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
                 if (snowfall is True) and (altitude == 1800):
                     y_for_text += 0.75
                 if (snowfall is True) and (altitude == 1200):
-                    y_for_text += 0.25
+                    y_for_text -= 0.75
+                    if return_period is None:
+                        y_for_text -= 2
+                        print('here', return_period, 'adapt plot utils')
+                    else:
+                        print('here', return_period)
+                if (snowfall is True) and (altitude == 1500) and (return_period is None):
+                    y_for_text += 0.8
                 if (snowfall is True) and (altitude == 2100):
                     y_for_text += 0.25
                 if (snowfall is False) and (altitude == 1800):
@@ -480,7 +529,7 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
                     y_for_text += 1
 
             ax.text(covariate_for_text, y_for_text, label,
-                    size=labelsize, color='k', ha="center", va="center", bbox=dict(ec='1', fc='1'))
+                    size=inside_size, color='k', ha="center", va="center", bbox=dict(ec='1', fc='1'))
 
     if len(all_y) > 0:
         massif_name_str, massif_name_str_2 = get_massif_name_strs(massif_name)
@@ -497,7 +546,7 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
 
         change_str = 'Relative change' if relative_change else 'Change'
         metric = "{}-year return level".format(OneFoldFit.return_period) if with_return_level else "mean annual maxima"
-        ax.tick_params(axis='both', which='major', labelsize=labelsize)
+        ax.tick_params(axis='both', which='major', labelsize=ticksize)
 
         # Add colorbar on the right
         levels, _, graduation = load_levels(snowfall, withcolorbar=False)
@@ -505,14 +554,18 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
         ax.yaxis.grid()
         cmap, label, *_ = load_colorbar_info(relative_change, return_period, snowfall, massif_name)
 
-        ax.set_ylabel(label)
+        ax.set_ylabel(label, fontsize=legend_fontsize)
         if temperature_covariate:
-            add_years_on_top(ax)
+            add_years_on_top(ax, legend_fontsize, ticksize)
 
         miny = int(math.floor(min(all_y) / graduation)) * graduation
-        maxy = int(math.ceil(max(all_y) / graduation)) * graduation
+        if snowfall is None:
+            maxy = 25
+        else:
+            maxy = int(math.ceil(max(all_y) / graduation)) * graduation
 
         ax.set_ylim(miny, maxy)
+        set_top_label(ax, legend_fontsize, return_period)
 
         visualizer = visualizer_list[0]
         visualizer.plot_name = '{}/{} of {} for {} with temp covariate {}'.format(massif_name_str, change_str, metric,

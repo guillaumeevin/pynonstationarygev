@@ -34,7 +34,7 @@ def main():
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
     fast = False
-    snowfall = True
+    snowfall = None
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, \
@@ -43,8 +43,11 @@ def main():
         fast, snowfall)
 
     all_massif_names = AbstractStudy.all_massif_names()[:]
-
     altitudes = [e[0] for e in altitudes_list]
+    print(altitudes)
+    # Quick mode
+    # all_massif_names = ['Chartreuse', 'Mont-Blanc', 'Bauges', 'Queyras']
+    # altitudes = [2100, 3000, 3300, 3600][:2]
 
     # Initialize a dataframe called df_model_selected to analyze the repartition of selected models (repartition of
     # the selected number of linear pieces, repartition of the selected parameterization of adjustment coefficients)
@@ -66,7 +69,8 @@ def main():
             scenario,
             study_class,
             snowfall=snowfall,
-            season=season)
+            season=season,
+            plot_selection_graph=False)
 
         # Fill the dataframe
         for massif_name in massif_names:
@@ -75,7 +79,6 @@ def main():
 
         massif_name_to_param_name_to_climate_coordinates_with_effects = {}
         for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
-
             # The line below states that:
 
             # For the 2 first parameters of the GEV distribution (location and scale parameters)
@@ -108,13 +111,17 @@ def main():
             param_name_to_climate_coordinates_with_effects=massif_name_to_param_name_to_climate_coordinates_with_effects,
         )
         sub_visualizer = [together_ensemble_fit.visualizer
-                           for together_ensemble_fit in visualizer.ensemble_fits(TogetherEnsembleFit)][0]
+                          for together_ensemble_fit in visualizer.ensemble_fits(TogetherEnsembleFit)][0]
         visualizers.append(sub_visualizer)
 
     return_periods = [None, 2, 5, 10, 20, 50, 100]
     print_table_model_selected(df_model_selected)
 
+    legend_fontsize = 16
+    ticksize = 14
+
     if snowfall is True:
+    # if False:
         elevations_for_contour_plot = [2100, 2400, 2700, 3000, 3300, 3600]
         visualizers_for_contour_plot = [v for v in visualizers if v.study.altitude in elevations_for_contour_plot]
         if len(visualizers_for_contour_plot) > 0:
@@ -130,13 +137,13 @@ def main():
             for return_period in [OneFoldFit.return_period, None]:
                 plot_piechart_scatter_plot(visualizers_for_contour_plot, all_massif_names, covariates,
                                            relative_change,
-                                           return_period, snowfall)
+                                           return_period, snowfall, legend_fontsize, ticksize)
 
             # Illustrate the contour with all elevation
             return_period_to_paths = OrderedDict()
             for return_period in return_periods[:]:
                 paths = plot_contour_changes_values(visualizers_for_contour_plot, relative_change, return_period,
-                                                    snowfall)
+                                                    snowfall, legend_fontsize, ticksize)
                 return_period_to_paths[return_period] = paths
 
             # Plot transition line together
@@ -144,11 +151,13 @@ def main():
                 local_return_period_to_paths = OrderedDict()
                 for r in return_periods_for_plots:
                     local_return_period_to_paths[r] = return_period_to_paths[r]
-                plot_transition_lines(visualizers[0], local_return_period_to_paths, relative_change)
+                plot_transition_lines(visualizers[0], local_return_period_to_paths, relative_change, legend_fontsize,
+                                      ticksize)
 
     if snowfall:
         # For snowfall, we visualize each massif and the average value on all massifs
-        all_massif_names += [None]
+        # all_massif_names += [None]
+        all_massif_names = [None]
     else:
         # For snow load and winter precipitation, we only visualize the value on all massifs
         all_massif_names = [None]
@@ -157,16 +166,21 @@ def main():
     with_significance = False
 
     # Visualize the relative changes and the absolute changes
-    for relative_change in [True, False][:]:
+    for relative_change in [True, False][:1]:
 
         # Loop on each massif
         for massif_name in all_massif_names:
 
             # For each return period, we specify the elevations that have the same trend
             # (decreasing, increasing then decreasing, increasing) to visualize these elevations together
+            return_period_to_categories_list_color = None
             if snowfall is True:
                 return_periods_for_plots = [return_periods[0], return_periods[-1]]
                 return_period_to_categories_list = {
+                    r: [[900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]]
+                    for r in return_periods_for_plots
+                }
+                return_period_to_categories_list_color = {
                     return_periods[-1]: [[900, 1200, 1500, 1800, 2100, 2400], [2700, 3000], [3300, 3600]],
                     return_periods[0]: [[900, 1200, 1500, 1800, 2100, 2400, 2700, 3000], [3300], [3600]],
                 }
@@ -184,15 +198,18 @@ def main():
 
             # Visualize the evolution of these changes
             for return_period in return_periods_for_plots:
+                categories_list_color = None if return_period_to_categories_list_color is None else return_period_to_categories_list_color[return_period]
                 categories_list = return_period_to_categories_list[return_period]
                 for categories in categories_list:
                     categories = set(categories)
                     visualizers_categories = [v for v in visualizers if v.study.altitude in categories]
                     if len(visualizers_categories) > 0:
-                        for temperature_covariate in [True, False]:
+                        for temperature_covariate in [True, False][:1]:
                             plot_relative_change_at_massif_level(visualizers_categories, massif_name, True,
                                                                  relative_change, return_period,
-                                                                 snowfall, temperature_covariate)
+                                                                 snowfall, temperature_covariate,
+                                                                 categories_list_color, legend_fontsize,
+                                                                 ticksize)
 
 
 if __name__ == '__main__':

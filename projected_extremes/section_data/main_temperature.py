@@ -13,34 +13,37 @@ from root_utils import VERSION_TIME
 def main_plot_temperature_with_spline_on_top(anomaly=True):
     ax = plt.gca()
     scenario = AdamontScenario.rcp85
+    splines = [True, False][:1]
     for gcm in get_gcm_list(adamont_version=2)[:]:
-        for spline in [True, False]:
+        for spline in splines:
             linestyle, linewidth, label = get_setting(spline, gcm + ' GCM')
             color = gcm_to_color[gcm]
             years, global_mean_temp = years_and_global_mean_temps(gcm, scenario, year_min=1850, year_max=2100,
                                                                   spline=spline, anomaly=anomaly)
             ax.plot(years, global_mean_temp, linestyle=linestyle, color=color, label=label, linewidth=linewidth)
     # plot observation
-    for spline in [True, False]:
+    for spline in splines:
         d = winter_year_to_averaged_global_mean_temp_wrt_1850_1900(spline)
         years, global_mean_temp = list(d.keys()), list(d.values())
         linestyle, linewidth, label = get_setting(spline, "HadCRUT5 reanalysis")
         linewidth *= 1
         ax.plot(years, global_mean_temp, linestyle=linestyle, color='k', label=label, linewidth=linewidth)
 
-    ax2 = ax.twinx()
-    legend_elements = [
-        Line2D([0], [0], color='k', lw=1, label="Smoothed global mean", linestyle='-'),
-        Line2D([0], [0], color='k', lw=1, label="Raw global mean", linestyle='dotted'),
-    ]
-    ax2.legend(handles=legend_elements, loc='center left')
-    ax2.set_yticks([])
+    if len(splines) == 2:
+        ax2 = ax.twinx()
+        legend_elements = [
+            Line2D([0], [0], color='k', lw=1, label="Smoothed global mean", linestyle='-'),
+            Line2D([0], [0], color='k', lw=1, label="Raw global mean", linestyle='dotted'),
+        ]
+        ax2.legend(handles=legend_elements, loc='center left')
+        ax2.set_yticks([])
 
     title = 'Anomaly'
-    ax.legend(loc='upper left')
-    ax.set_xlabel('Years')
-    ax.set_ylabel('Anomaly of global mean temperature\nwith respect to pre-industrial levels ($^o$C)')
+    ax.legend(loc='upper left', prop={'size': 14})
+    ax.set_xlabel('Years', fontsize=13)
+    ax.set_ylabel('Anomaly of global mean temperature\nwith respect to pre-industrial levels ($^o$C)', fontsize=13)
     ax.set_xlim((1850, 2100))
+    ax.tick_params(axis='both', which='major', labelsize=13)
     # plt.show()
     if title is None:
         plt.show()

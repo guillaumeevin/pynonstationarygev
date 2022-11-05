@@ -66,6 +66,7 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
                   snowfall=False,
                   season=Season.annual,
                   print_latex_table=False,
+                  plot_selection_graph=True,
                   ):
     massif_name_to_number, linear_effects, massif_names, snowfall_str, numbers_of_pieces = get_massif_name_to_number(
         altitude, gcm_rcm_couples, massif_names,
@@ -112,7 +113,8 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
     if print_latex_table:
         print('\n\nend with split-sample:')
 
-    plots(massif_name_to_short_name, massif_name_to_number, show, altitude, snowfall_str, numbers_of_pieces)
+    if plot_selection_graph:
+        plots(massif_name_to_short_name, massif_name_to_number, show, altitude, snowfall_str, numbers_of_pieces)
 
     massif_name_to_model_class = {m: number_to_model_class[n] for m, n in massif_name_to_number.items()}
     massif_name_to_parametrization_number = {m: short_name_to_parametrization_number[s] for m, s in

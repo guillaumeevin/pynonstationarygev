@@ -27,26 +27,31 @@ def main():
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
     fast = None
-    snowfall = False
+    snowfall = True
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, study_class, temporal_covariate_for_fit, \
     remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method, \
     season = set_up_and_load(fast, snowfall)
 
+    altitudes_list = [[2700], [3000], [3300], [3600]][-1:]
+
     # Loop on the altitudes
     for altitudes in altitudes_list:
 
         # Load the selected parameterization (adjustment coefficient and number of linear pieces)
+        massif_names = AbstractStudy.all_massif_names()[:]
+        # massif_names = ['Belledonne', 'Mont-Blanc', 'Aravis']
         massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(
-            AbstractStudy.all_massif_names()[:],
+            massif_names,
             altitudes[0],
             gcm_rcm_couples,
             safran_study_class,
             scenario,
             study_class,
             snowfall=snowfall,
-            season=season)
+            season=season,
+        plot_selection_graph=False)
 
         massif_name_to_param_name_to_climate_coordinates_with_effects = {}
         for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
