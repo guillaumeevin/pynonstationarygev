@@ -110,8 +110,9 @@ class AdamontStudies(object):
             ax.set_ylim((ylim_min, ylim_max * factor))
             ax.tick_params(axis='both', which='major', labelsize=13)
             handles, labels = ax.get_legend_handles_labels()
-            ncol = 2 if self.study.adamont_version == 1 else 3
-            ax.legend(handles[::-1], labels[::-1], ncol=ncol, prop={'size': 7})
+            ncol = 2
+            # ncol = 2 if self.study.adamont_version == 1 else 3
+            ax.legend(handles[::-1], labels[::-1], ncol=ncol, prop={'size': 8})
         plot_name = 'Annual maxima of {} in {} at {} m'.format(ADAMONT_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '),
                                                         self.study.altitude)
@@ -119,7 +120,7 @@ class AdamontStudies(object):
         ax.tick_params(axis='both', which='major', labelsize=fontsize)
         if legend_and_labels in [None, True]:
             ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=fontsize)
-            ax.set_xlabel('years', fontsize=fontsize)
+            ax.set_xlabel('Years', fontsize=fontsize)
         plot_name = 'time series/' + plot_name
         self.show_or_save_to_file(plot_name=plot_name, show=False, no_title=True, tight_layout=True)
         ax.clear()

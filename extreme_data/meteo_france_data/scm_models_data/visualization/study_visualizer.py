@@ -47,7 +47,7 @@ from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
 from test.test_utils import load_test_max_stable_models
 from root_utils import get_display_name_from_object_type, VERSION_TIME, float_to_str_with_only_some_significant_digits, \
-    cached_property, NB_CORES
+    cached_property, NB_CORES, SHORT_VERSION_TIME
 
 BLOCK_MAXIMA_DISPLAY_NAME = 'block maxima '
 
@@ -561,10 +561,12 @@ class StudyVisualizer(VisualizationParameters):
         if self.save_to_file:
             main_title, specific_title = '_'.join(self.study.title.split()).split('/')
             main_title += self.study.season_name
+            # Shorter main title
+            main_title = '_'.join(main_title.split('_')[:2])
             if folder_for_variable:
-                filename = "{}/{}/".format(VERSION_TIME, main_title)
+                filename = "{}/{}/".format(SHORT_VERSION_TIME, main_title)
             else:
-                filename = "{}/".format(VERSION_TIME)
+                filename = "{}/".format(SHORT_VERSION_TIME)
             if not self.only_one_graph:
                 filename += "{}".format('_'.join(self.plot_name.split())) + '_'
             filename += specific_title

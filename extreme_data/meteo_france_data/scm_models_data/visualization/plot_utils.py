@@ -93,6 +93,7 @@ def load_plot(cmap, graduation, label, massif_name_to_value, altitude, add_x_lab
     for massif_name in set(AbstractStudy.all_massif_names()) - set(list(massif_name_to_value.keys())):
         massif_name_to_hatch_boolean_list[massif_name] = [True, True]
 
+    print('here4', 'massif name with hatch boolean', massif_name_to_hatch_boolean_list)
     AbstractStudy.visualize_study(ax=ax,
                                   massif_name_to_value=massif_name_to_value,
                                   massif_name_to_color=massif_name_to_color,

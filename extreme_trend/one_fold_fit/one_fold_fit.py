@@ -119,7 +119,7 @@ class OneFoldFit(object):
     @classmethod
     def get_moment_str(cls, order):
         if order == 1:
-            return 'mean'
+            return 'mean annual maxima'
         elif order == 2:
             return 'std'
         elif order is None:

@@ -11,6 +11,7 @@ VERSION = datetime.datetime.now()
 VERSION_TIME = str(VERSION).split('.')[0]
 for c in [' ', ':', '-']:
     VERSION_TIME = VERSION_TIME.replace(c, '_')
+SHORT_VERSION_TIME = VERSION_TIME[8:]
 
 NB_CORES = 7
 

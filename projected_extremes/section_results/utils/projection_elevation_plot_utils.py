@@ -154,7 +154,7 @@ def plot_transition_lines(visualizer, return_period_to_paths, relative_change, l
     ax.grid()
     ax.set_ylim((2100, 3600))
     ax.set_yticks([int(t) for t in ax.get_yticks() if t % 100 == 0])
-    covariates_to_show = [1.5, 2, 2.5, 3, 3.5, 4]
+    covariates_to_show = [1, 1.5, 2, 2.5, 3, 3.5, 4]
     ax.set_xlim((covariates_to_show[0], covariates_to_show[-1]))
     ax.set_xticks(covariates_to_show)
 
@@ -187,8 +187,8 @@ def plot_contour_changes_values(visualizer_list, relative_change, return_period,
     ax = plt.gca()
     altitudes = [v.study.altitude for v in visualizer_list]
 
-    covariates = np.linspace(1.5, 4, 50)
-    covariates_to_show = [1.5, 2, 2.5, 3, 3.5, 4]
+    covariates = np.linspace(1, 4, 50)
+    covariates_to_show = [1, 1.5, 2, 2.5, 3, 3.5, 4]
 
     contour_data = pd.DataFrame()
     for visualizer in visualizer_list:
@@ -257,10 +257,10 @@ def set_top_label(ax, legend_fontsize, return_period):
     ax_twin.set_xlabel(top_label, fontsize=legend_fontsize)
 
 
-def plot_piechart_scatter_plot(visualizer_list, all_massif_names, covariates, relative_change, return_period, snowfall,
+def plot_piechart_scatter_plot(visualizer_list, all_massif_names, relative_change, return_period, snowfall,
                                legend_fontsize, ticksize):
     ax = plt.gca()
-
+    covariates = [1.5, 2, 2.5, 3, 3.5, 4][:]
 
     ax.yaxis.label.set_size(20)
 
@@ -393,7 +393,7 @@ def load_levels(snowfall, withcolorbar=True):
             level_max = 20
         else:
             level_max = 40
-        graduation = 2
+        graduation = 5
         levels = [-level_max + graduation * i for i in range(level_max + 1)]
     return levels, level_max, graduation
 
@@ -468,7 +468,7 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
         OneFoldFit.return_period = return_period
 
     if temperature_covariate:
-        covariates_to_show = [1.5, 2, 2.5, 3, 3.5, 4]
+        covariates_to_show = [1, 1.5, 2, 2.5, 3, 3.5, 4]
         covariates = np.linspace(covariates_to_show[0], covariates_to_show[-1], num=100)
     else:
         covariates_to_show = [2030 + 10 * i for i in range(8)]
@@ -563,6 +563,9 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
             maxy = 25
         else:
             maxy = int(math.ceil(max(all_y) / graduation)) * graduation
+
+        if snowfall is True:
+            miny, maxy = -30, 10
 
         ax.set_ylim(miny, maxy)
         set_top_label(ax, legend_fontsize, return_period)

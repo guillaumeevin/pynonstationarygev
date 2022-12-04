@@ -180,8 +180,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 1
 
         # Standard plot
-        for order in [1, None][-1:]:
-            for covariate in [2, 3, 4][-1:]:
+        for order in [1, None][:]:
+            for covariate in [2, 4][:]:
                 OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
                 self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance,
                                                  max_abs_change=20.01, add_elevation=True, snowfall=True)
@@ -286,12 +286,6 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             if add_elevation:
                 plot_name.replace('of', 'in')
                 plot_name = plot_name[0].upper() + plot_name[1:]
-                plot_name += " at {}m\n".format(self.study.altitude)
-                # plot_name += " at {}m at +${}".format(self.study.altitude, OneFoldFit.COVARIATE_BEFORE_TEMPERATURE) \
-                #              + "^o\mathrm{C}$ w.r.t. +$" + "{}".format(OneFoldFit.COVARIATE_AFTER_TEMPERATURE) + "^o\mathrm{C}$"
-                plot_name += self.first_one_fold_fit.between_covariate_str
-                plot_name += ' of global warming'
-
             else:
                 plot_name += self.first_one_fold_fit.between_covariate_str
 
@@ -321,8 +315,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
         parenthesis = self.study.variable_unit if 'relative' not in method_name else '\%'
         ylabel = '{} ({})'.format(plot_name, parenthesis)
+        plot_name += 'at +{}$^o$C'.format(self.first_one_fold_fit.covariate_after)
 
-        add_colorbar = True
+        add_colorbar = self.study.altitude == 3600
 
         is_return_level_plot = (self.moment_names.index(method_name) == 0) and (order is None)
         fontsize_label = 13
@@ -347,9 +342,6 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         else:
             half_cmap_for_positive = True
             fontsize_label = 10
-            # cmap = plt.cm.RdYlGn
-            # cmap = get_inverse_colormap(cmap)
-            # cmap = get_cmap_with_inverted_blue_and_green_channels(cmap)
             if not snowfall:
                 cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
                 if 'relative' in method_name:
@@ -359,7 +351,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                     graduation = 1
                     max_abs_change = 4
             else:
-                cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][2]
+                cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic, plt.cm.BrBG][-1]
                 graduation = 5
                 max_abs_change = 20
             cmap = remove_the_extreme_colors(cmap)
@@ -383,6 +375,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         else:
             negative_and_positive_values = False
 
+        fontsize_label = 14
         # Plot the map
         self.plot_map(cmap=cmap, graduation=graduation,
                       label=ylabel, massif_name_to_value=massif_name_to_value,

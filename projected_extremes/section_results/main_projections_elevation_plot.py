@@ -34,7 +34,7 @@ def main():
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
     fast = False
-    snowfall = None
+    snowfall = True
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, \
@@ -126,16 +126,13 @@ def main():
         visualizers_for_contour_plot = [v for v in visualizers if v.study.altitude in elevations_for_contour_plot]
         if len(visualizers_for_contour_plot) > 0:
 
-            # Illustrate the percentage of massifs
-            covariates = [1.5, 2, 2.5, 3, 3.5, 4][:]
-
             # Visualize the evolution of the relative change in return levels with global warming
             relative_change = True
 
             # Visualize the distribution of trends in return levels for the return level of interest
             # and for the mean annual maxima (which correspond to return period = None)
             for return_period in [OneFoldFit.return_period, None]:
-                plot_piechart_scatter_plot(visualizers_for_contour_plot, all_massif_names, covariates,
+                plot_piechart_scatter_plot(visualizers_for_contour_plot, all_massif_names,
                                            relative_change,
                                            return_period, snowfall, legend_fontsize, ticksize)
 

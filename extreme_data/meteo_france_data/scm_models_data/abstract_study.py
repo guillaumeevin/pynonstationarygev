@@ -531,7 +531,7 @@ class AbstractStudy(object):
                         massif_name_to_color=None,
                         show_label=True,
                         scaled=True,
-                        fontsize=7,
+                        fontsize=8,
                         axis_off=False,
                         massif_name_to_hatch_boolean_list=None,
                         norm=None,
@@ -618,7 +618,8 @@ class AbstractStudy(object):
                     str_value = str(value)
                 else:
                     str_value = massif_name_to_text[massif_name]
-                ax.text(x, y, str_value, horizontalalignment='center', verticalalignment='center', fontsize=fontsize)
+                ax.text(x, y, str_value, horizontalalignment='center', verticalalignment='center', fontsize=fontsize,
+                        weight="bold", fontweight="bold")
 
         if scaled:
             plt.axis('scaled')
