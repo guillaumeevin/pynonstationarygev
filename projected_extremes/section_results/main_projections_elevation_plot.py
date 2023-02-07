@@ -34,7 +34,7 @@ def main():
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
     fast = False
-    snowfall = True
+    snowfall = None
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, \
@@ -43,10 +43,10 @@ def main():
         fast, snowfall)
 
     all_massif_names = AbstractStudy.all_massif_names()[:]
-    altitudes = [e[0] for e in altitudes_list]
+    altitudes = [e[0] for e in altitudes_list][:]
     print(altitudes)
     # Quick mode
-    # all_massif_names = ['Chartreuse', 'Mont-Blanc', 'Bauges', 'Queyras']
+    # all_massif_names = ['Chartreuse', 'Bauges', 'Mont-Blanc','Queyras'][2:]
     # altitudes = [2100, 3000, 3300, 3600][:2]
 
     # Initialize a dataframe called df_model_selected to analyze the repartition of selected models (repartition of
@@ -121,35 +121,35 @@ def main():
     ticksize = 14
 
     if snowfall is True:
-    # if False:
-        elevations_for_contour_plot = [2100, 2400, 2700, 3000, 3300, 3600]
+
+        # Visualize the evolution of the relative change in return levels with global warming
+        relative_change = True
+
+        # Visualize the distribution of trends in return levels for the return level of interest
+        # and for the mean annual maxima (which correspond to return period = None)
+        # elevations_for_contour_plot = [900, 1800, 2700, 3600]
+        # visualizers_for_contour_plot = [v for v in visualizers if v.study.altitude in elevations_for_contour_plot]
+        # for return_period in [OneFoldFit.return_period, None]:
+        #     plot_piechart_scatter_plot(visualizers_for_contour_plot, all_massif_names,
+        #                                relative_change,
+        #                                return_period, snowfall, legend_fontsize, ticksize)
+
+        # Illustrate the contour with all elevation
+        return_period_to_paths = OrderedDict()
+        elevations_for_contour_plot = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
         visualizers_for_contour_plot = [v for v in visualizers if v.study.altitude in elevations_for_contour_plot]
-        if len(visualizers_for_contour_plot) > 0:
+        for return_period in return_periods[:]:
+            paths = plot_contour_changes_values(visualizers_for_contour_plot, relative_change, return_period,
+                                                snowfall, legend_fontsize, ticksize)
+            return_period_to_paths[return_period] = paths
 
-            # Visualize the evolution of the relative change in return levels with global warming
-            relative_change = True
-
-            # Visualize the distribution of trends in return levels for the return level of interest
-            # and for the mean annual maxima (which correspond to return period = None)
-            for return_period in [OneFoldFit.return_period, None]:
-                plot_piechart_scatter_plot(visualizers_for_contour_plot, all_massif_names,
-                                           relative_change,
-                                           return_period, snowfall, legend_fontsize, ticksize)
-
-            # Illustrate the contour with all elevation
-            return_period_to_paths = OrderedDict()
-            for return_period in return_periods[:]:
-                paths = plot_contour_changes_values(visualizers_for_contour_plot, relative_change, return_period,
-                                                    snowfall, legend_fontsize, ticksize)
-                return_period_to_paths[return_period] = paths
-
-            # Plot transition line together
-            for return_periods_for_plots in [[None, 2, 5, 10, 20, 50, 100], [100, 200, 500, 1000, 2000]][:1]:
-                local_return_period_to_paths = OrderedDict()
-                for r in return_periods_for_plots:
-                    local_return_period_to_paths[r] = return_period_to_paths[r]
-                plot_transition_lines(visualizers[0], local_return_period_to_paths, relative_change, legend_fontsize,
-                                      ticksize)
+        # Plot transition line together
+        for return_periods_for_plots in [[None, 2, 5, 10, 20, 50, 100], [100, 200, 500, 1000, 2000]][:1]:
+            local_return_period_to_paths = OrderedDict()
+            for r in return_periods_for_plots:
+                local_return_period_to_paths[r] = return_period_to_paths[r]
+            plot_transition_lines(visualizers[0], local_return_period_to_paths, relative_change, legend_fontsize,
+                                  ticksize)
 
     if snowfall:
         # For snowfall, we visualize each massif and the average value on all massifs
@@ -163,7 +163,7 @@ def main():
     with_significance = False
 
     # Visualize the relative changes and the absolute changes
-    for relative_change in [True, False][:1]:
+    for relative_change in [True, False][:]:
 
         # Loop on each massif
         for massif_name in all_massif_names:
@@ -183,9 +183,10 @@ def main():
                 }
             elif snowfall is None:
                 return_periods_for_plots = [return_periods[0], return_periods[-1]]
+                # return_periods_for_plots = [return_periods[-1]]
                 return_period_to_categories_list = {
-                    return_periods[-1]: [[900, 1200, 1500, 1800, 2100], [2400, 2700, 3000, 3300, 3600]],
-                    return_periods[0]: [[900, 1200, 1500, 1800, 2100], [2400, 2700, 3000, 3300, 3600]],
+                    return_periods[-1]: [[900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]],
+                    return_periods[0]: [[900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]],
                 }
             else:
                 return_periods_for_plots = [return_periods[-2]]

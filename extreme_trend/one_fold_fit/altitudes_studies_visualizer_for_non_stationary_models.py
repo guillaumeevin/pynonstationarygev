@@ -24,6 +24,7 @@ from extreme_trend.one_fold_fit.altitude_group import \
     get_altitude_group_from_altitudes, VeyHighAltitudeGroup, MidAltitudeGroup
 from extreme_trend.one_fold_fit.one_fold_fit import \
     OneFoldFit
+from projected_extremes.section_results.utils.plot_utils import add_suffix_label
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureWithSplineTemporalCovariate
 
@@ -177,14 +178,20 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     def plot_moments_projections_snowfall(self, with_significance, scenario):
         default_covariate = OneFoldFit.COVARIATE_AFTER_TEMPERATURE
-        OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 1
+        OneFoldFit.COVARIATE_BEFORE_TEMPERATURE = 1
 
         # Standard plot
         for order in [1, None][:]:
             for covariate in [2, 4][:]:
-                OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
-                self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance,
-                                                 max_abs_change=20.01, add_elevation=True, snowfall=True)
+                for moment_name in ['changes_of_moment', 'relative_changes_of_moment'][:]:
+                    if 'relative' in moment_name:
+                        max_abs_change = 30.01
+                    else:
+                        max_abs_change = 15.01
+
+                    OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
+                    self.plot_map_moment_projections(moment_name, order, with_significance,
+                                                     max_abs_change=max_abs_change, add_elevation=True, snowfall=True)
 
     def plot_moments_projections(self, with_significance, scenario):
         default_covariate = OneFoldFit.COVARIATE_AFTER_TEMPERATURE
@@ -272,6 +279,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                                     add_elevation=False,
                                     snowfall=False):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
+        print('here \n\n')
+        print(self.altitude_group.altitude, order, method_name, min(massif_name_to_value.values()), max(massif_name_to_value.values()))
+
         # Plot settings
         moment = ' '.join(method_name.split('_'))
         d_temperature = {'C': '{C}'}
@@ -283,25 +293,27 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
         if 'change' in method_name:
             plot_name = plot_name.replace(str_for_last_year, '')
-            if add_elevation:
-                plot_name.replace('of', 'in')
-                plot_name = plot_name[0].upper() + plot_name[1:]
-            else:
-                plot_name += self.first_one_fold_fit.between_covariate_str
+            plot_name = plot_name.replace('of', 'in')
+            label = plot_name[0].upper() + plot_name[1:]
+            # label = add_suffix_label(plot_name, None, 'relative' in method_name)
+            # if add_elevation:
+            #     plot_name = plot_name[0].upper() + plot_name[1:]
+            # else:
+            #     plot_name += self.first_one_fold_fit.between_covariate_str
 
-            if 'relative' in method_name:
-                if add_elevation:
-                    # Put the change score as text on the plot for the change.
-                    massif_name_to_text = {m: ('+' if v > 0 else '') + str(round(v, 1)) for m, v in
-                                           self.method_name_and_order_to_d(self.moment_names[1], order).items()}
-                else:
-                    # Put the relative score as text on the plot for the change.
-                    massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
-                                           self.method_name_and_order_to_d(self.moment_names[2], order).items()}
-            else:
-                # Put the relative score as text on the plot for the change.
-                massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
-                                       self.method_name_and_order_to_d(self.moment_names[2], order).items()}
+            # if 'relative' in method_name:
+            #     if add_elevation:
+            #         # Put the change score as text on the plot for the change.
+            #         massif_name_to_text = {m: ('+' if v > 0 else '') + str(round(v, 1)) for m, v in
+            #                                self.method_name_and_order_to_d(self.moment_names[1], order).items()}
+            #     else:
+            #         # Put the relative score as text on the plot for the change.
+            #         massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
+            #                                self.method_name_and_order_to_d(self.moment_names[2], order).items()}
+            # else:
+            #     # Put the relative score as text on the plot for the change.
+            #     massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
+            #                            self.method_name_and_order_to_d(self.moment_names[2], order).items()}
             print("\n", self.first_one_fold_fit.between_covariate_str, 'Order is {}'.format(order)
                   )
             for i in [1, 2]:
@@ -314,10 +326,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 print("Average", np.mean(list(d.values())))
 
         parenthesis = self.study.variable_unit if 'relative' not in method_name else '\%'
-        ylabel = '{} ({})'.format(plot_name, parenthesis)
+        ylabel = label + ' ({})'.format(parenthesis)
         plot_name += 'at +{}$^o$C'.format(self.first_one_fold_fit.covariate_after)
 
-        add_colorbar = self.study.altitude == 3600
+        add_colorbar = self.study.altitude in [2100, 3600]
 
         is_return_level_plot = (self.moment_names.index(method_name) == 0) and (order is None)
         fontsize_label = 13
@@ -353,7 +365,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             else:
                 cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic, plt.cm.BrBG][-1]
                 graduation = 5
-                max_abs_change = 20
+                max_abs_change = max_abs_change
             cmap = remove_the_extreme_colors(cmap)
 
             if with_significance:
@@ -384,7 +396,6 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       altitude=self.altitude_group.reference_altitude,
                       add_colorbar=add_colorbar,
                       max_abs_change=max_abs_change,
-                      massif_name_to_text=massif_name_to_text,
                       fontsize_label=fontsize_label,
                       massif_names_with_white_dot=massif_names_with_white_dot,
                       half_cmap_for_positive=half_cmap_for_positive,

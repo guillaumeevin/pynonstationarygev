@@ -34,14 +34,16 @@ def main():
     remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method, \
     season = set_up_and_load(fast, snowfall)
 
-    altitudes_list = [[2700], [3000], [3300], [3600]][-1:]
+
+    altitudes_list = [[900], [1200], [1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]][:]
+    # altitudes_list = [[900], [3600]][:]
 
     # Loop on the altitudes
     for altitudes in altitudes_list:
 
         # Load the selected parameterization (adjustment coefficient and number of linear pieces)
         massif_names = AbstractStudy.all_massif_names()[:]
-        # massif_names = ['Belledonne', 'Mont-Blanc', 'Aravis']
+        # massif_names = [ 'Mont-Blanc', 'Vanoise']
         massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(
             massif_names,
             altitudes[0],
