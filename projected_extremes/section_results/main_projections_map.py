@@ -36,6 +36,7 @@ def main():
 
 
     altitudes_list = [[900], [1200], [1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]][:]
+    altitudes_list = [[900], [1800], [2700], [3600]][:]
     # altitudes_list = [[900], [3600]][:]
 
     # Loop on the altitudes

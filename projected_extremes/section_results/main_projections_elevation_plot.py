@@ -34,7 +34,7 @@ def main():
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
     fast = False
-    snowfall = None
+    snowfall = True
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, \

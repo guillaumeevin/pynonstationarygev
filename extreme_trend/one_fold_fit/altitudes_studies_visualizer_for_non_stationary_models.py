@@ -185,9 +185,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             for covariate in [2, 4][:]:
                 for moment_name in ['changes_of_moment', 'relative_changes_of_moment'][:]:
                     if 'relative' in moment_name:
-                        max_abs_change = 30.01
+                        max_abs_change = 40.01
                     else:
-                        max_abs_change = 15.01
+                        max_abs_change = 25.01
 
                     OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
                     self.plot_map_moment_projections(moment_name, order, with_significance,

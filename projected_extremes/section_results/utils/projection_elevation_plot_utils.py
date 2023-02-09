@@ -487,7 +487,7 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
         OneFoldFit.return_period = return_period
 
     if temperature_covariate:
-        covariates_to_show = [1, 1.5, 2, 2.5, 3, 3.5, 4]
+        covariates_to_show = [1.5, 2, 2.5, 3, 3.5, 4]
         covariates = np.linspace(covariates_to_show[0], covariates_to_show[-1], num=100)
     else:
         covariates_to_show = [2030 + 10 * i for i in range(8)]
