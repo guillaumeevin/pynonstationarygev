@@ -45,7 +45,7 @@ def main():
     # altitudes_list = [[2700]]
     # for mode in range(4):
     # for mode in range(6):
-    for mode in [11]:
+    for mode in [9]:
         for altitudes in altitudes_list[:]:
 
             altitude = altitudes[0]

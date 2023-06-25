@@ -10,8 +10,6 @@ from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
-
-
 def load_temporal_coordinates_and_dataset(maxima, years):
     df = pd.DataFrame({AbstractCoordinates.COORDINATE_T: years})
     df_maxima_gev = pd.DataFrame(maxima, index=df.index)

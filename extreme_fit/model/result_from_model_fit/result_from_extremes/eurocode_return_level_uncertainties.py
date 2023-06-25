@@ -11,7 +11,7 @@ from extreme_fit.model.margin_model.utils import \
     MarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
     ConfidenceIntervalMethodFromExtremes
-from extreme_trend.trend_test.utils import load_temporal_coordinates_and_dataset
+from extreme_fit.model.result_from_model_fit.result_from_extremes.utils import load_temporal_coordinates_and_dataset
 
 
 def compute_eurocode_confidence_interval(smooth_maxima_x_y, model_class, ci_method, temporal_covariate, quantile_level):

@@ -8,7 +8,6 @@ from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_int
     ConfidenceIntervalMethodFromExtremes
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
-from extreme_trend.trend_test.visualizers.utils import load_altitude_to_visualizer
 
 def run_fit(study_class):
     altitudes = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300][5:]

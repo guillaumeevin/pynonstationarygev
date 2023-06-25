@@ -19,13 +19,16 @@ mode_to_name = {
     6: 'piecewise_fulleffect',
     7: 'linear_fulleffect',
     8: 'constant_fulleffect',
+    9: 'two_wo',
+    10: 'three_wo',
+    11: 'four_wo',
 }
 
 
 def load_csv_filepath_gof(mode, altitude, all_massif):
     name = mode_to_name[mode]
     csv_filename = '{}_{}_{}'.format(name, altitude, int(all_massif))
-    csv_filepath = op.join(get_root_path(), "gof", csv_filename + '.csv')
+    csv_filepath = op.join(get_root_path(), "data", "gof", csv_filename + '.csv')
     return csv_filepath
 
 def load_parameters(mode, massif_name_to_model_class, massif_name_to_parametrization_number):

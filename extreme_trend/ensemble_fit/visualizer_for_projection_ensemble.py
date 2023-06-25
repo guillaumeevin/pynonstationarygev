@@ -1,25 +1,11 @@
 from collections import OrderedDict
 from typing import List
 
-import matplotlib.pyplot as plt
-
-from extreme_data.meteo_france_data.adamont_data.adamont_gcm_rcm_couples import gcm_rcm_couple_to_color
-from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm_couple_to_str
-from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
-from extreme_trend.ensemble_fit.abstract_ensemble_fit import AbstractEnsembleFit
-from extreme_trend.ensemble_fit.independent_ensemble_fit.independent_ensemble_fit import IndependentEnsembleFit
-from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.one_fold_fit.altitude_group import get_altitude_group_from_altitudes
-from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import \
-    plot_histogram_all_trends_against_altitudes, plot_shoe_plot_changes_against_altitude
-from projected_extremes.section_results.utils.plot_gcm_rcm_effects import plot_gcm_rcm_effects
-from projected_extremes.section_results.utils.plot_relative_change_in_return_level import plot_relative_dynamic
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 
 
 class VisualizerForProjectionEnsemble(object):
@@ -113,149 +99,9 @@ class VisualizerForProjectionEnsemble(object):
             print('No valid studies for the following couples:', gcm_rcm_couples)
         return gcm_rcm_couple_to_studies
 
-    @property
-    def has_elevation_non_stationarity(self):
-        return all([len(a) > 1 for a in self.altitudes_list])
-
-    def plot_for_visualizer_list(self, visualizer_list):
-        if self.has_elevation_non_stationarity:
-            with_significance = False
-            for visualizer in visualizer_list:
-                visualizer.plot_moments(with_significance=with_significance)
-            plot_histogram_all_trends_against_altitudes(self.massif_names, visualizer_list,
-                                                        with_significance=with_significance)
-            for relative in [True, False]:
-                plot_shoe_plot_changes_against_altitude(self.massif_names, visualizer_list, relative=relative,
-                                                        with_significance=with_significance)
-        else:
-            with_significance = False
-            # Correction coefficient plots
-            # if self.param_name_to_climate_coordinates_with_effects is not None:
-            #     # Plot the bias in the mean and std after taking into account the bias correction
-            #     for visualizer in visualizer_list:
-            #         for massif_name in self.massif_names:
-            #             gcm_rcm_couple_to_study, safran_study = load_study(visualizer.studies.study.altitude,
-            #                                                                self.gcm_rcm_couples,
-            #                                                                self.safran_study_class, self.scenario,
-            #                                                                self.study_class)
-            #
-            #             gcm_rcm_couple_to_params_effects = {}
-            #             for gcm_rcm_couple in self.gcm_rcm_couples:
-            #                 params_effects = [load_total_effect(gcm_rcm_couple, massif_name,
-            #                                                     param_name, visualizer)
-            #                                   for param_name in GevParams.PARAM_NAMES]
-            #                 gcm_rcm_couple_to_params_effects[gcm_rcm_couple] = params_effects
-            #             plot_bias_reduction(gcm_rcm_couple_to_study, massif_name, safran_study, visualizer, self.scenario)
-            #     if len(visualizer_list) > 1:
-            #         self.plot_effect_against_altitude(visualizer_list)
-            # Moment plot
-            for relative in [None, True, False][:1]:
-                orders = [None, True] + GevParams.PARAM_NAMES[:]
-                for order in orders[:2]:
-                    plot_relative_dynamic(self.massif_names, visualizer_list,
-                                          self.param_name_to_climate_coordinates_with_effects,
-                                          self.safran_study_class,
-                                          relative,
-                                          order,
-                                          self.gcm_rcm_couples,
-                                          with_significance)
-
-    def plot_effect_against_altitude(self, visualizer_list):
-        climate_coordinate_with_effects_to_list = {
-            (AbstractCoordinates.COORDINATE_GCM, AbstractCoordinates.COORDINATE_RCM): self.gcm_rcm_couples,
-            AbstractCoordinates.COORDINATE_GCM: [[e] for e in set([g for g, r in self.gcm_rcm_couples])],
-            AbstractCoordinates.COORDINATE_RCM: [[e] for e in set([r for g, r in self.gcm_rcm_couples])]
-        }
-        for c, gcm_rcm_couples in climate_coordinate_with_effects_to_list.items():
-            for param_name in GevParams.PARAM_NAMES[:]:
-                climate_coordinates_with_param_effects = self.param_name_to_climate_coordinates_with_effects[param_name]
-                if climate_coordinates_with_param_effects is not None:
-                    climate_coordinates_names_with_param_effects_to_extract = list(c) if isinstance(c, tuple) else [c]
-                    if set(climate_coordinates_names_with_param_effects_to_extract).issubset(
-                            set(climate_coordinates_with_param_effects)):
-                        plot_gcm_rcm_effects(self.massif_names, visualizer_list,
-                                             climate_coordinates_names_with_param_effects_to_extract,
-                                             self.safran_study_class,
-                                             gcm_rcm_couples,
-                                             param_name)
-
-    def plot(self):
-        # Set limit for the plot
-        visualizer_list = []
-        for ensemble_fit_class in self.ensemble_fit_classes:
-            for ensemble_fit in self.ensemble_fits(ensemble_fit_class):
-                visualizer_list.extend(ensemble_fit.visualizer_list)
-        # compute_and_assign_max_abs(visualizer_list)
-        # Plot
-        if IndependentEnsembleFit in self.ensemble_fit_classes:
-            self.plot_independent()
-        if TogetherEnsembleFit in self.ensemble_fit_classes:
-            self.plot_together()
-
-    def plot_independent(self):
-        # Aggregated at gcm_rcm_level plots
-        merge_keys = [AbstractEnsembleFit.Median_merge, AbstractEnsembleFit.Mean_merge]
-        keys = self.gcm_rcm_couples + merge_keys
-        # Only plot Mean for speed
-        # keys = [AbstractEnsembleFit.Mean_merge]
-        for key in keys:
-            visualizer_list = [independent_ensemble_fit.gcm_rcm_couple_to_visualizer[key]
-                               if key in self.gcm_rcm_couples
-                               else independent_ensemble_fit.merge_function_name_to_visualizer[key]
-                               for independent_ensemble_fit in self.ensemble_fits(IndependentEnsembleFit)
-                               ]
-            if key in merge_keys:
-                for v in visualizer_list:
-                    v.studies.study.gcm_rcm_couple = ("{} {}".format(key, "merge"), self.interval_str_prefix)
-            self.plot_for_visualizer_list(visualizer_list)
-
-    def plot_together(self):
-        visualizer_list = [together_ensemble_fit.visualizer
-                           for together_ensemble_fit in self.ensemble_fits(TogetherEnsembleFit)]
-        for v in visualizer_list:
-            v.studies.study.gcm_rcm_couple = ("together merge", self.interval_str_prefix)
-        self.plot_for_visualizer_list(visualizer_list)
-
     def ensemble_fits(self, ensemble_class):
         """Return the ordered ensemble fit for a given ensemble class (in the order of the altitudes)"""
         return [ensemble_class_to_ensemble_fit[ensemble_class]
                 for ensemble_class_to_ensemble_fit
                 in self.altitude_group_to_ensemble_class_to_ensemble_fit.values()]
 
-    def plot_preliminary_first_part(self):
-        if self.massif_names is None:
-            massif_names = AbstractStudy.all_massif_names()
-        else:
-            massif_names = self.massif_names
-        assert isinstance(massif_names, list)
-        # Plot for all parameters
-        for param_name in GevParams.PARAM_NAMES:
-            for degree in [0, 1]:
-                for massif_name in massif_names:
-                    self.plot_preliminary_first_part_for_one_massif(massif_name, param_name, degree)
-
-    def plot_preliminary_first_part_for_one_massif(self, massif_name, param_name, degree):
-        # Retrieve the data
-        ensemble_fit: IndependentEnsembleFit
-        gcm_rcm_couple_to_data = {
-            c: [] for c in self.gcm_rcm_couples
-        }
-        for ensemble_fit in self.ensemble_fits(IndependentEnsembleFit):
-            for gcm_rcm_couple in self.gcm_rcm_couples:
-                visualizer = ensemble_fit.gcm_rcm_couple_to_visualizer[gcm_rcm_couple]
-                if massif_name in visualizer.massif_name_to_one_fold_fit:
-                    one_fold_fit = visualizer.massif_name_to_one_fold_fit[massif_name]
-                    coef = one_fold_fit.best_coef(param_name, 0, degree)
-                    altitude = visualizer.altitude_group.reference_altitude
-                    gcm_rcm_couple_to_data[gcm_rcm_couple].append((altitude, coef))
-        # Plot
-        ax = plt.gca()
-        for gcm_rcm_couple, data in gcm_rcm_couple_to_data.items():
-            altitudes, coefs = list(zip(*data))
-            color = gcm_rcm_couple_to_color[gcm_rcm_couple]
-            label = gcm_rcm_couple_to_str(gcm_rcm_couple)
-            ax.plot(coefs, altitudes, color=color, label=label, marker='o')
-        ax.legend()
-        visualizer.plot_name = '{}/{}_{}'.format(param_name, degree, massif_name)
-        visualizer.show_or_save_to_file(no_title=True)
-        plt.close()

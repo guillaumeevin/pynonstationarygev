@@ -18,8 +18,25 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
-from extreme_trend.one_fold_fit.plots.plot_histogram_altitude_studies import plot_nb_massif_on_upper_axis
 from projected_extremes.section_results.utils.plot_utils import add_suffix_label
+
+def plot_nb_massif_on_upper_axis(ax, labelsize, legend_fontsize, nb_massifs, x, add_for_percentage=True,
+                                 range=True):
+    # Plot number of massifs on the upper axis
+    ax_twiny = ax.twiny()
+    ax_twiny.plot(x, [0 for _ in x], linewidth=0)
+    ax_twiny.set_xticks(x)
+    ax_twiny.tick_params(labelsize=labelsize)
+    ax_twiny.set_xticklabels(nb_massifs)
+    ax_twiny.set_xlim(ax.get_xlim())
+    xlabel = 'Total number of massifs at each '
+    if range:
+        xlabel += 'range'
+    else:
+        xlabel += 'elevation'
+    if add_for_percentage:
+        xlabel += ' (for the percentage)'
+    ax_twiny.set_xlabel(xlabel, fontsize=legend_fontsize)
 
 
 def plot_histogram_all_trends_against_altitudes(visualizer_list, massif_names, covariate, with_significance=True,

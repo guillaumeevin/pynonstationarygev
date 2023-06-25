@@ -1,15 +1,10 @@
-from typing import List, Dict, Tuple
+from typing import Dict, Tuple
+
 import pandas as pd
 
-from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
-    AbstractSpatioTemporalPolynomialModel
-from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
-from extreme_trend.trend_test.visualizers.study_visualizer_for_non_stationary_trends import \
-    StudyVisualizerForNonStationaryTrends
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
