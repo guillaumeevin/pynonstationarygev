@@ -43,13 +43,14 @@ def main():
     # Loop on the altitudes
     print(altitudes_list)
     # altitudes_list = [[2700]]
-    for mode in range(1):
-        for altitudes in altitudes_list[:]:
+    # for mode in range(4):
+    for mode in range(6):
+        for altitudes in altitudes_list[:5]:
 
             altitude = altitudes[0]
 
             # Load the selected parameterization (adjustment coefficient and number of linear pieces)
-            all_massif = False
+            all_massif = True
             all_massif_names = AbstractStudy.all_massif_names()[:] if all_massif else ['Mont-Blanc']
             massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(
                 all_massif_names,
@@ -65,12 +66,16 @@ def main():
             massif_name_to_model_class, massif_name_to_parametrization_number \
                 = load_parameters(mode, massif_name_to_model_class, massif_name_to_parametrization_number)
 
-            if not op.exists(csv_filepath):
+            csv_filename = op.basename(csv_filepath)
+            if op.exists(csv_filepath):
+                print('already done: {}'.format(csv_filename))
+            else:
+                print('run: {}'.format(csv_filename))
 
 
                 massif_name_to_param_name_to_climate_coordinates_with_effects = {}
                 for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
-                    print('parameterization number for the effects:', parametrization_number)
+                    # print('parameterization number for the effects:', parametrization_number)
 
                     # The line below states that:
 

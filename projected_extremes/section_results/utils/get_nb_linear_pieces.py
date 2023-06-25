@@ -76,7 +76,6 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
     massif_name_to_short_name = {}
     if print_latex_table:
         print('\n\nstart table with split-sample:')
-    print(massif_name_to_number)
     for massif_name, number in massif_name_to_number.items():
         if print_latex_table:
             print(massif_name.replace('_', ' '), end=' & ')

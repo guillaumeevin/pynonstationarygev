@@ -508,7 +508,6 @@ class OneFoldFit(object):
         return 100 * (return_levels[1] - return_levels[0]) / return_levels[0]
 
     def goodness_of_fit_test_separated_for_each_gcm_rcm_couple(self, estimator):
-        print('start special goodness of fit')
         df = estimator.dataset.coordinates.df_coordinate_climate_model.loc[:, [AbstractCoordinates.COORDINATE_GCM,
                                                                                 AbstractCoordinates.COORDINATE_RCM]]
         df = df.drop_duplicates()
@@ -523,7 +522,7 @@ class OneFoldFit(object):
         for j, (i, row) in enumerate(df.iterrows(), 1):
             # Load gcm and rcm of interest
             gcm, rcm = row[AbstractCoordinates.COORDINATE_GCM], row[AbstractCoordinates.COORDINATE_RCM]
-            print('loop ', j, ' for {} and {}'.format(gcm, rcm))
+            # print('loop ', j, ' for {} and {}'.format(gcm, rcm))
             test_names.append(str(gcm) + '_' + str(rcm))
             # Find the index for this row
             if isinstance(gcm, str):
