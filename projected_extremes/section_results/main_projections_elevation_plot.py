@@ -8,14 +8,11 @@ from collections import OrderedDict
 import pandas as pd
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
-from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from projected_extremes.section_results.utils.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
 from projected_extremes.section_results.utils.get_nb_linear_pieces import get_min_max_number_of_pieces, run_selection
 from projected_extremes.section_results.utils.print_table_model_selected import print_table_model_selected
-from projected_extremes.section_results.utils.projection_elevation_plot_utils import plot_piechart_scatter_plot, \
-    plot_contour_changes_values, plot_transition_lines, plot_relative_change_at_massif_level
+from projected_extremes.section_results.utils.projection_elevation_plot_utils import plot_contour_changes_values, plot_transition_lines, plot_relative_change_at_massif_level
 from projected_extremes.section_results.utils.selection_utils import short_name_to_parametrization_number, \
     model_class_to_number
 from projected_extremes.section_results.utils.setting_utils import set_up_and_load
@@ -100,7 +97,6 @@ def main():
         visualizer = VisualizerForProjectionEnsemble(
             altitudes_list, gcm_rcm_couples, study_class, season, scenario,
             model_classes=massif_name_to_model_class,
-            ensemble_fit_classes=[TogetherEnsembleFit],
             massif_names=massif_names,
             fit_method=fit_method,
             temporal_covariate_for_fit=temporal_covariate_for_fit,
@@ -110,8 +106,7 @@ def main():
             display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
             param_name_to_climate_coordinates_with_effects=massif_name_to_param_name_to_climate_coordinates_with_effects,
         )
-        sub_visualizer = [together_ensemble_fit.visualizer
-                          for together_ensemble_fit in visualizer.ensemble_fits(TogetherEnsembleFit)][0]
+        sub_visualizer = visualizer.visualizer
         visualizers.append(sub_visualizer)
 
     return_periods = [None, 2, 5, 10, 20, 50, 100]

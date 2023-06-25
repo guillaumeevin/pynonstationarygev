@@ -13,7 +13,6 @@ from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_de
     NonStationaryTwoLinearScaleAndShapeOneLinearLocModel, NonStationaryTwoLinearLocationAndScaleAndShapeModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.utils import set_seed_for_test
-from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
@@ -45,7 +44,6 @@ class TestProjectedEnsemble(unittest.TestCase):
         only_model_that_pass_gof = True
         remove_physically_implausible_models = True
         safran_study_class = SafranSnowfall2019
-        ensemble_fit_classes = [TogetherEnsembleFit]
 
         idx_list = [(0,0,0), (0, 1, 0), (0, 2, 3), (1, 2, 3)]
         for i1, i2, i3 in idx_list:
@@ -59,7 +57,6 @@ class TestProjectedEnsemble(unittest.TestCase):
             visualizer = VisualizerForProjectionEnsemble(
                 altitudes_list, gcm_rcm_couples, study_class, Season.annual, scenario,
                 model_classes=model_classes,
-                ensemble_fit_classes=ensemble_fit_classes,
                 massif_names=massif_names,
                 fit_method=MarginFitMethod.evgam,
                 temporal_covariate_for_fit=temporal_covariate_for_fit,

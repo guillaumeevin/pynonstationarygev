@@ -19,7 +19,7 @@ from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.utils import SafeRunException
-from extreme_trend.ensemble_fit.together_ensemble_fit.visualizer_non_stationary_ensemble import \
+from extreme_trend.ensemble_fit.visualizer_non_stationary_ensemble import \
     VisualizerNonStationaryEnsemble
 from projected_extremes.section_results.utils.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects, load_combination_name

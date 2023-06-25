@@ -1,18 +1,17 @@
-from collections import OrderedDict
 from typing import List
 
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
-from extreme_trend.one_fold_fit.altitude_group import get_altitude_group_from_altitudes
+from extreme_trend.ensemble_fit.visualizer_non_stationary_ensemble import \
+    VisualizerNonStationaryEnsemble
 
 
 class VisualizerForProjectionEnsemble(object):
 
     def __init__(self, altitudes_list, gcm_rcm_couples, study_class, season, scenario,
                  model_classes: List[AbstractTemporalLinearMarginModel],
-                 ensemble_fit_classes=None,
                  massif_names=None,
                  fit_method=MarginFitMethod.extremes_fevd_mle,
                  temporal_covariate_for_fit=None,
@@ -34,7 +33,6 @@ class VisualizerForProjectionEnsemble(object):
         self.scenario = scenario
         self.gcm_rcm_couples = gcm_rcm_couples
         self.massif_names = massif_names
-        self.ensemble_fit_classes = ensemble_fit_classes
 
         # Some checks
         if gcm_to_year_min_and_year_max is not None:
@@ -43,29 +41,23 @@ class VisualizerForProjectionEnsemble(object):
                 assert len(years) == 2, years
 
         # Load all studies
-        altitude_group_to_gcm_couple_to_studies = OrderedDict()
-        for altitudes in altitudes_list:
-            altitude_group = get_altitude_group_from_altitudes(altitudes)
-            gcm_rcm_couple_to_studies = self.load_gcm_rcm_couple_to_studies(altitudes, gcm_rcm_couples,
-                                                                            gcm_to_year_min_and_year_max,
-                                                                            safran_study_class, scenario, season,
-                                                                            study_class)
-            altitude_group_to_gcm_couple_to_studies[altitude_group] = gcm_rcm_couple_to_studies
+        altitudes = altitudes_list[0]
+        gcm_rcm_couple_to_studies = self.load_gcm_rcm_couple_to_studies(altitudes, gcm_rcm_couples,
+                                                                        gcm_to_year_min_and_year_max,
+                                                                        safran_study_class, scenario, season,
+                                                                        study_class)
 
-        # Load ensemble fit
-        self.altitude_group_to_ensemble_class_to_ensemble_fit = OrderedDict()
-        for altitude_group, gcm_rcm_couple_to_studies in altitude_group_to_gcm_couple_to_studies.items():
-            ensemble_class_to_ensemble_fit = {}
-            for ensemble_fit_class in ensemble_fit_classes:
-                ensemble_fit = ensemble_fit_class(massif_names, gcm_rcm_couple_to_studies, model_classes,
-                                                  fit_method, temporal_covariate_for_fit,
-                                                  display_only_model_that_pass_gof_test,
-                                                  confidence_interval_based_on_delta_method,
-                                                  remove_physically_implausible_models,
-                                                  param_name_to_climate_coordinates_with_effects,
-                                                  linear_effects)
-                ensemble_class_to_ensemble_fit[ensemble_fit_class] = ensemble_fit
-            self.altitude_group_to_ensemble_class_to_ensemble_fit[altitude_group] = ensemble_class_to_ensemble_fit
+        self.visualizer =  VisualizerNonStationaryEnsemble(gcm_rcm_couple_to_studies,
+                                                          model_classes,
+                                                          False,
+                                                          self.massif_names, fit_method,
+                                                          temporal_covariate_for_fit,
+                                                          display_only_model_that_pass_gof_test,
+                                                          confidence_interval_based_on_delta_method,
+                                                          remove_physically_implausible_models,
+                                                          param_name_to_climate_coordinates_with_effects,
+                                                          linear_effects
+                                                          )
 
     @classmethod
     def load_gcm_rcm_couple_to_studies(cls, altitudes, gcm_rcm_couples, gcm_to_year_min_and_year_max,

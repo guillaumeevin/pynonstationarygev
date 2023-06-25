@@ -7,7 +7,6 @@ mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from projected_extremes.section_results.utils.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
 from projected_extremes.section_results.utils.get_nb_linear_pieces import run_selection
@@ -83,7 +82,6 @@ def main():
         visualizer = VisualizerForProjectionEnsemble(
             [altitudes], gcm_rcm_couples, study_class, season, scenario,
             model_classes=massif_name_to_model_class,
-            ensemble_fit_classes=[TogetherEnsembleFit],
             massif_names=massif_names,
             fit_method=fit_method,
             temporal_covariate_for_fit=temporal_covariate_for_fit,
@@ -95,8 +93,7 @@ def main():
         )
 
         with_significance = False
-        sub_visualizer = [together_ensemble_fit.visualizer
-                           for together_ensemble_fit in visualizer.ensemble_fits(TogetherEnsembleFit)][0]
+        sub_visualizer = visualizer.visualizer
 
         # Visualize the projected changes for the return levels and the relative changes in return levels
         if snowfall:

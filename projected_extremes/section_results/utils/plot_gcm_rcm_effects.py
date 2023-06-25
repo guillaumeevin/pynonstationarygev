@@ -8,7 +8,6 @@ from extreme_data.meteo_france_data.adamont_data.adamont_scenario import gcm_rcm
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
     AltitudesStudiesVisualizerForNonStationaryModels
-from projected_extremes.section_results.utils.plot_relative_change_in_return_level import set_plot_name
 
 
 def plot_gcm_rcm_effects(massif_names, visualizer_list: List[
@@ -48,6 +47,17 @@ def plot_gcm_rcm_effects(massif_names, visualizer_list: List[
     visualizer.show_or_save_to_file(add_classic_title=False, no_title=True)
 
     plt.close()
+
+def set_plot_name(param_name_to_climate_coordinates_with_effects, safran_study_class, title, visualizer, massif_name):
+    # raise NotImplementedError
+    plot_name = ' %s' % title
+    plot_name += ' with {} effects'.format('no' if param_name_to_climate_coordinates_with_effects is None
+                                           else ' and '.join(
+        [c.replace('coord_', '') for c in param_name_to_climate_coordinates_with_effects]))
+    plot_name += ' with{} observations'.format('out' if safran_study_class is None else '')
+    plot_name += massif_name.replace('-', '_')
+    visualizer.plot_name = plot_name
+
 
 
 def plot_curve_gcm_rcm_effect(ax, massif_name, visualizer_list: List[AltitudesStudiesVisualizerForNonStationaryModels],

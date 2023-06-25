@@ -2,8 +2,6 @@ import os.path as op
 import matplotlib
 import pandas as pd
 
-from extreme_trend.ensemble_fit.together_ensemble_fit.visualizer_non_stationary_ensemble import \
-    VisualizerNonStationaryEnsemble
 from projected_extremes.reviewing.reviewing_utils import load_csv_filepath_gof, load_parameters
 
 matplotlib.use('Agg')
@@ -13,7 +11,6 @@ mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_trend.ensemble_fit.together_ensemble_fit.together_ensemble_fit import TogetherEnsembleFit
 from projected_extremes.section_results.utils.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects
 from projected_extremes.section_results.utils.get_nb_linear_pieces import run_selection
@@ -41,17 +38,17 @@ def main():
     season = set_up_and_load(fast, snowfall)
 
     # Loop on the altitudes
+    altitudes_list = [[2700]]
     print(altitudes_list)
-    # altitudes_list = [[2700]]
     # for mode in range(4):
     # for mode in range(6):
-    for mode in [9]:
+    for mode in [8]:
         for altitudes in altitudes_list[:]:
 
             altitude = altitudes[0]
 
             # Load the selected parameterization (adjustment coefficient and number of linear pieces)
-            all_massif = True
+            all_massif = False
             all_massif_names = AbstractStudy.all_massif_names()[:] if all_massif else ['Mont-Blanc']
             massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(
                 all_massif_names,
@@ -99,7 +96,6 @@ def main():
                 visualizer = VisualizerForProjectionEnsemble(
                     [altitudes], gcm_rcm_couples, study_class, season, scenario,
                     model_classes=massif_name_to_model_class,
-                    ensemble_fit_classes=[TogetherEnsembleFit],
                     massif_names=massif_names,
                     fit_method=fit_method,
                     temporal_covariate_for_fit=temporal_covariate_for_fit,
@@ -111,8 +107,7 @@ def main():
                 )
 
                 with_significance = False
-                sub_visualizer = [together_ensemble_fit.visualizer
-                                  for together_ensemble_fit in visualizer.ensemble_fits(TogetherEnsembleFit)][0] # type: VisualizerNonStationaryEnsemble
+                sub_visualizer = visualizer.visualizer
 
                 all_pvalues = []
                 for massif_name, one_fold_fit in sub_visualizer.massif_name_to_one_fold_fit.items():
