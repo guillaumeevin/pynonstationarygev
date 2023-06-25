@@ -149,7 +149,7 @@ def get_min_max_number_of_pieces(snowfall):
     else:
         min_number_of_pieces = 1
         max_number_of_pieces = 4
-        snowfall_str = "snow load"
+        snowfall_str = "snowload"
     return max_number_of_pieces, min_number_of_pieces, snowfall_str
 
 
@@ -290,6 +290,7 @@ def _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects,
     files = [f for f in os.listdir(excel_folder) if
              (model_name in f) and (linear_effects_name in f) and (couplename in f) and ('~lock' not in f)]
     join_str = ' '.join([model_name] + [str(e) for e in linear_effects])
+    print(excel_folder)
     assert len(files) > 0, "Run a {} for {}".format(short_excel_folder[0], join_str)
     assert len(files) < 2, "Too many files that correspond: {}".format(*files)
     filepath = op.join(excel_folder, files[0])

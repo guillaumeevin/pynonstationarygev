@@ -29,6 +29,9 @@ def quantitative(pvalues, visualizer):
     count_above_5_percent = [int(m >= 0.05) for m in pvalues]
     percentage_above_5_percent = 100 * sum(count_above_5_percent) / len(count_above_5_percent)
     print("Percentage above 5 percent", percentage_above_5_percent)
+    count_above_1_percent = [int(m >= 0.01) for m in pvalues]
+    percentage_above_1_percent = 100 * sum(count_above_1_percent) / len(count_above_1_percent)
+    print("Percentage above 1 percent", percentage_above_1_percent)
     ax.hist(pvalues, bins=20, range=[0, 1], weights=np.ones(len(pvalues)) / len(pvalues))
     ax.set_xlim((0, 1))
     ylim = ax.get_ylim()
@@ -51,7 +54,7 @@ def main():
     # snowfall=True corresponds to daily snowfall
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
-    fast = None
+    fast = False
     snowfall = False
 
     # Load parameters
@@ -60,7 +63,10 @@ def main():
     season = set_up_and_load(fast, snowfall)
 
     # Loop on the altitudes
-    for altitudes in altitudes_list:
+    print(altitudes_list)
+    altitudes_list = [[2700]]
+    for altitudes in altitudes_list[:]:
+        print(altitudes)
 
         # Load the selected parameterization (adjustment coefficient and number of linear pieces)
         massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(
