@@ -17,8 +17,6 @@ from extreme_fit.model.utils import r, set_seed_for_test
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_coordinates import \
     AbstractTemporalCoordinates
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
-    CenteredScaledNormalization
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.spatio_temporal_observations.abstract_spatio_temporal_observations import \
     AbstractSpatioTemporalObservations
@@ -122,42 +120,6 @@ class TestConfidenceInterval(unittest.TestCase):
             for a, b in zip(expected_triplet, found_triplet):
                 self.assertAlmostEqual(a, b, msg="\n{} \nfound_triplet: {}".format(model_class, found_triplet))
 
-
-class TestConfidenceIntervalModifiedCoordinates(TestConfidenceInterval):
-
-    @staticmethod
-    def load_coordinates(df):
-        return AbstractTemporalCoordinates.from_df(df, transformation_class=CenteredScaledNormalization)
-
-    @property
-    def bayesian_ci(self):
-        return {
-            StationaryTemporalModel: (5.322109348451903, 7.079916459448501, 9.204148461413848),
-            NonStationaryLocationTemporalModel: (7.285138442751067, 9.965330929203255, 13.313068256451233),
-            NonStationaryLocationAndScaleTemporalModel: (11.744572233784234, 15.89417144494369, 23.522431032480416),
-        }
-
-    # def test_my_bayes(self):
-    #     super().test_my_bayes()
-
-    # def test_ci_bayes(self):
-    #     super().test_ci_bayes()
-
-    def test_ci_normal_mle(self):
-        self.model_class_to_triplet = {}
-        self.assertTrue(True)
-
-    def test_ci_normal_gmle(self):
-        self.model_class_to_triplet = {}
-        self.assertTrue(True)
-
-    def test_ci_boot(self):
-        self.model_class_to_triplet = {}
-        self.assertTrue(True)
-
-    # def test_ci_proflik(self):
-    #     self.model_class_to_triplet = {}
-    #     self.assertTrue(True)
 
 
 if __name__ == '__main__':

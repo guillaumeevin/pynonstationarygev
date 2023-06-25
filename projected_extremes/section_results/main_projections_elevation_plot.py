@@ -1,5 +1,7 @@
 import matplotlib as mpl
 
+from extreme_trend.one_fold_fit.utils import load_sub_visualizer
+
 mpl.use('Agg')
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
@@ -17,7 +19,6 @@ from projected_extremes.section_results.utils.selection_utils import short_name_
     model_class_to_number
 from projected_extremes.section_results.utils.setting_utils import set_up_and_load
 
-from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 
 
 def main():
@@ -94,19 +95,12 @@ def main():
                 massif_name] = param_name_to_climate_coordinates_with_effects
 
         # Load and add a visualizer to the list of visualizers
-        visualizer = VisualizerForProjectionEnsemble(
-            altitudes_list, gcm_rcm_couples, study_class, season, scenario,
-            model_classes=massif_name_to_model_class,
-            massif_names=massif_names,
-            fit_method=fit_method,
-            temporal_covariate_for_fit=temporal_covariate_for_fit,
-            remove_physically_implausible_models=remove_physically_implausible_models,
-            safran_study_class=safran_study_class,
-            linear_effects=linear_effects,
-            display_only_model_that_pass_gof_test=display_only_model_that_pass_gof_test,
-            param_name_to_climate_coordinates_with_effects=massif_name_to_param_name_to_climate_coordinates_with_effects,
-        )
-        sub_visualizer = visualizer.visualizer
+        sub_visualizer = load_sub_visualizer(altitudes, display_only_model_that_pass_gof_test, fit_method,
+                                             gcm_rcm_couples, linear_effects, massif_name_to_model_class,
+                                             massif_name_to_param_name_to_climate_coordinates_with_effects,
+                                             massif_names, remove_physically_implausible_models,
+                                             safran_study_class, scenario, season, study_class,
+                                             temporal_covariate_for_fit)
         visualizers.append(sub_visualizer)
 
     return_periods = [None, 2, 5, 10, 20, 50, 100]

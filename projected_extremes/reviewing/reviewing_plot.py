@@ -21,7 +21,7 @@ def plot_pvalue_test():
             percentage_above_5_percent = 100 * sum(count_above_5_percent) / len(count_above_5_percent)
             print(percentage_above_5_percent)
             percentages.append(100 - percentage_above_5_percent)
-        ax.plot(percentages, altitudes, label=mode_to_name[mode])
+        ax.plot(percentages, altitudes, label=mode_to_name[mode].replace('fulleffect', 'oneeffect'))
     # ax.set_xlim((0, 100))
     # ylim = ax.get_ylim()
     # ax.vlines(5, ymin=ylim[0], ymax=ylim[1], color='k', linestyles='dashed', label='5\% significance level')

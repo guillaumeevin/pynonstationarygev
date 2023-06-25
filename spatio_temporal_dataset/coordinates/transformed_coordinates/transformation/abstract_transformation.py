@@ -24,9 +24,7 @@ class AbstractTransformation(object):
         return pd.Series(self.transform_array(s_coord.values), index=s_coord.index)
 
     def transform_df(self, df_coord: pd.DataFrame) -> pd.DataFrame:
-        df_coord = df_coord.copy()
-        data = [self.transform_serie(r) for _, r in df_coord.iterrows()]
-        return pd.DataFrame(data, index=df_coord.index, columns=df_coord.columns)
+        return df_coord.copy().apply(self.transform_serie, axis=1)
 
 
 class IdentityTransformation(AbstractTransformation):
@@ -35,13 +33,3 @@ class IdentityTransformation(AbstractTransformation):
         super().transform_array(coordinate)
         return coordinate
 
-
-class CenteredScaledNormalization(AbstractTransformation):
-
-    def __init__(self, df_coordinates):
-        super().__init__(df_coordinates)
-        assert self.nb_dimensions == 1
-        self.scaler = StandardScaler().fit(df_coordinates.transpose().values.reshape(-1, 1))
-
-    def transform_array(self, coordinate: np.ndarray):
-        return self.scaler.transform(np.array([coordinate]))[0]

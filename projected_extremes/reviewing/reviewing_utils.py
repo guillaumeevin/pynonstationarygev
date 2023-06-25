@@ -5,7 +5,8 @@ from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_m
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
     NonStationaryTwoLinearLocationAndScaleOneLinearShapeModel, \
     NonStationaryThreeLinearLocationAndScaleOneLinearShapeModel, \
-    NonStationaryFourLinearLocationAndScaleOneLinearShapeModel
+    NonStationaryFourLinearLocationAndScaleOneLinearShapeModel, NonStationaryTwoLinearLocationAndScaleAndShapeModel, \
+    NonStationaryThreeLinearLocationAndScaleAndShapeModel, NonStationaryFourLinearLocationAndScaleAndShapeModel
 from root_utils import get_root_path
 
 
@@ -19,9 +20,11 @@ mode_to_name = {
     6: 'piecewise_fulleffect',
     7: 'linear_fulleffect',
     8: 'constant_fulleffect',
-    9: 'two_wo',
-    10: 'three_wo',
-    11: 'four_wo',
+    9: 'one_fullfull',
+    10: 'two_fullfull',
+    11: 'three_fullfull',
+    12: 'four_fullfull',
+    13: 'selected_fullfull',
 }
 
 
@@ -33,28 +36,35 @@ def load_csv_filepath_gof(mode, altitude, all_massif):
 
 def load_parameters(mode, massif_name_to_model_class, massif_name_to_parametrization_number):
     assert mode in mode_to_name
-    # Force exact models
     new_model = None
+    new_parametrization_number = None
+    # For exact model
     if mode == 9:
-        new_model = NonStationaryTwoLinearLocationAndScaleOneLinearShapeModel
+        new_model = NonStationaryLocationAndScaleAndShapeTemporalModel
     if mode == 10:
-        new_model = NonStationaryThreeLinearLocationAndScaleOneLinearShapeModel
+        new_model = NonStationaryTwoLinearLocationAndScaleAndShapeModel
     if mode == 11:
-        new_model = NonStationaryFourLinearLocationAndScaleOneLinearShapeModel
-
+        new_model = NonStationaryThreeLinearLocationAndScaleAndShapeModel
+    if mode == 12:
+        new_model = NonStationaryFourLinearLocationAndScaleAndShapeModel
     # Force linear models
-    if mode in [1, 3, 7]:
+    if mode in [1, 3, 7, 10]:
         new_model = NonStationaryLocationAndScaleAndShapeTemporalModel
     # Force constant models
     if mode in [4, 5, 8]:
         new_model = StationaryTemporalModel
     # For without adjsutement coefficients
-    if mode in [2, 3, 4, 9, 10, 11]:
-        massif_name_to_parametrization_number = {k: 0 for k in massif_name_to_parametrization_number.keys()}
+    if mode in [2, 3, 4]:
+        new_parametrization_number = 0
     if mode in [6, 7, 8]:
-        massif_name_to_parametrization_number = {k: 5 for k in massif_name_to_parametrization_number.keys()}
+        new_parametrization_number = 5
+    if mode in [9, 10, 11, 12, 13]:
+        new_parametrization_number = 4
 
     if new_model is not None:
         massif_name_to_model_class = {k: new_model
                                       for k in massif_name_to_model_class.keys()}
+    if new_parametrization_number is not None:
+        massif_name_to_parametrization_number = {k: new_parametrization_number for k in massif_name_to_parametrization_number.keys()}
+
     return massif_name_to_model_class, massif_name_to_parametrization_number

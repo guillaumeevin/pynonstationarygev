@@ -29,6 +29,7 @@ number_to_model_name = {
     for number, model_class in number_to_model_class.items()
 }
 
+
 model_class_to_number = {v: k for k, v in number_to_model_class.items()}
 
 short_name_to_parametrization_number = {

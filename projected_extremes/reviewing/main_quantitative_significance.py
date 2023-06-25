@@ -1,7 +1,9 @@
 import os.path as op
+
 import matplotlib
 import pandas as pd
 
+from extreme_trend.one_fold_fit.utils import load_sub_visualizer
 from projected_extremes.reviewing.reviewing_utils import load_csv_filepath_gof, load_parameters
 
 matplotlib.use('Agg')
@@ -16,10 +18,8 @@ from projected_extremes.section_results.utils.combination_utils import \
 from projected_extremes.section_results.utils.get_nb_linear_pieces import run_selection
 from projected_extremes.section_results.utils.setting_utils import set_up_and_load
 
-from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
 
-
-def main():
+def main_quantitative():
     # Set parameters
 
     # fast = False considers all ensemble members and all elevations,
@@ -38,11 +38,11 @@ def main():
     season = set_up_and_load(fast, snowfall)
 
     # Loop on the altitudes
-    altitudes_list = [[2700]]
-    print(altitudes_list)
+    altitudes_list = [[2400]]
+    # print(altitudes_list)
     # for mode in range(4):
     # for mode in range(6):
-    for mode in [8]:
+    for mode in [9]:
         for altitudes in altitudes_list[:]:
 
             altitude = altitudes[0]
@@ -65,7 +65,8 @@ def main():
                 = load_parameters(mode, massif_name_to_model_class, massif_name_to_parametrization_number)
 
             csv_filename = op.basename(csv_filepath)
-            if op.exists(csv_filepath):
+            # if op.exists(csv_filepath):
+            if False:
                 print('already done: {}'.format(csv_filename))
             else:
                 print('run: {}'.format(csv_filename))
@@ -92,22 +93,12 @@ def main():
                     massif_name_to_param_name_to_climate_coordinates_with_effects[
                         massif_name] = param_name_to_climate_coordinates_with_effects
 
-                # Visualize together the values for all massifs on a map
-                visualizer = VisualizerForProjectionEnsemble(
-                    [altitudes], gcm_rcm_couples, study_class, season, scenario,
-                    model_classes=massif_name_to_model_class,
-                    massif_names=massif_names,
-                    fit_method=fit_method,
-                    temporal_covariate_for_fit=temporal_covariate_for_fit,
-                    remove_physically_implausible_models=remove_physically_implausible_models,
-                    safran_study_class=safran_study_class,
-                    linear_effects=linear_effects,
-                    display_only_model_that_pass_gof_test=False,
-                    param_name_to_climate_coordinates_with_effects=massif_name_to_param_name_to_climate_coordinates_with_effects,
-                )
-
-                with_significance = False
-                sub_visualizer = visualizer.visualizer
+                sub_visualizer = load_sub_visualizer(altitudes, display_only_model_that_pass_gof_test, fit_method,
+                                                     gcm_rcm_couples, linear_effects, massif_name_to_model_class,
+                                                     massif_name_to_param_name_to_climate_coordinates_with_effects,
+                                                     massif_names, remove_physically_implausible_models,
+                                                     safran_study_class, scenario, season, study_class,
+                                                     temporal_covariate_for_fit)
 
                 all_pvalues = []
                 for massif_name, one_fold_fit in sub_visualizer.massif_name_to_one_fold_fit.items():
@@ -119,5 +110,6 @@ def main():
 
 
 
+
 if __name__ == '__main__':
-    main()
+    main_quantitative()

@@ -12,7 +12,7 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_study import Abstra
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_data.utils import DATA_PATH, RESULTS_PATH
-from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
+from extreme_trend.one_fold_fit.utils import load_gcm_rcm_couple_to_studies
 from projected_extremes.section_results.utils.selection_utils import get_short_name, number_to_model_class, \
     short_name_to_parametrization_number, linear_effects_for_selection, number_to_model_name, short_name_to_color, \
     short_name_to_label
@@ -31,8 +31,7 @@ def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_co
     new_massif_names = []
     for massif_name in massif_names:
 
-        gcm_rcm_couple_to_studies = VisualizerForProjectionEnsemble.load_gcm_rcm_couple_to_studies([altitude],
-                                                                                                   gcm_rcm_couples,
+        gcm_rcm_couple_to_studies = load_gcm_rcm_couple_to_studies([altitude],gcm_rcm_couples,
                                                                                                    None,
                                                                                                    safran_study_class,
                                                                                                    scenario,
