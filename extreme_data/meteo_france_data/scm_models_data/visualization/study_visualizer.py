@@ -10,7 +10,6 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils imp
 from extreme_fit.function.margin_function.abstract_margin_function import \
     AbstractMarginFunction
 from extreme_fit.function.param_function.param_function import AbstractParamFunction
-from extreme_fit.model.max_stable_model.abstract_max_stable_model import CovarianceFunction
 from root_utils import SHORT_VERSION_TIME
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -66,8 +65,6 @@ class StudyVisualizer(VisualizationParameters):
         self._dataset = None
         self._coordinates = None
         self._observations = None
-
-        self.default_covariance_function = CovarianceFunction.powexp
 
         # KDE PLOT ARGUMENTS
         self.vertical_kde_plot = vertical_kde_plot
