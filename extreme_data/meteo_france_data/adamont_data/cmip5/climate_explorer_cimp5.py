@@ -41,7 +41,7 @@ def _year_to_global_mean_temp(gcm, scenario, year_min=None, year_max=None, splin
 
 def year_to_averaged_global_mean_temp(scenario, year_min=None, year_max=None, spline=True, anomaly=True):
     d = OrderedDict()
-    gcm_list = get_gcm_list(adamont_version=2)
+    gcm_list = get_gcm_list()
     d_list = [year_to_global_mean_temp(gcm, scenario, year_min, year_max, spline, anomaly) for gcm in gcm_list]
     l = [list(d.keys()) for d in d_list]
     min_year = min([years[0] for years in l])
@@ -200,5 +200,5 @@ def main_example():
 
 def main_test_cmip5_loader():
     for scenario in adamont_scenarios_real[1:]:
-        for gcm in get_gcm_list(adamont_version=2)[:]:
+        for gcm in get_gcm_list()[:]:
             years, temps = years_and_global_mean_temps(gcm, scenario)

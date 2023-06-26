@@ -71,31 +71,27 @@ def get_year_min(adamont_scenario, gcm_rcm_couple):
     return year_min
 
 
-def get_gcm_rcm_couples(adamont_scenario=AdamontScenario.histo, adamont_version=2):
+def get_gcm_rcm_couples(adamont_scenario=AdamontScenario.histo):
     # Get real scenario
     real_adamont_scenario = scenario_to_real_scenarios(adamont_scenario)[-1]
     # Remove some couples for each scenario for ADAMONT v2
-    gcm_rcm_couples = list(get_gcm_rcm_couple_adamont_to_full_name(adamont_version=adamont_version).keys())
-    if adamont_version == 1:
-        if real_adamont_scenario is AdamontScenario.rcp26:
-            gcm_rcm_couples = []
-    if adamont_version == 2:
-        scenario_to_list_to_remove = {
-            AdamontScenario.histo: [],
-            AdamontScenario.rcp26: [('EC-EARTH', 'CCLM4-8-17'), ('CNRM-CM5', 'ALADIN53'), ('CNRM-CM5', 'RCA4'),
-                                    ('MPI-ESM-LR', 'RCA4'), ('HadGEM2-ES', 'CCLM4-8-17'), ('IPSL-CM5A-MR', 'RCA4'),
-                                    ('CNRM-CM5', 'CCLM4-8-17'), ('IPSL-CM5A-MR', 'WRF381P'), ('NorESM1-M', 'HIRHAM5'),
-                                    ('IPSL-CM5A-MR', 'WRF331F'), ('HadGEM2-ES', 'RCA4')],
-            AdamontScenario.rcp45: [('NorESM1-M', 'REMO2015'), ('HadGEM2-ES', 'RegCM4-6')],
-            AdamontScenario.rcp85: [],
-        }
-        for couple_to_remove in scenario_to_list_to_remove[real_adamont_scenario]:
-            gcm_rcm_couples.remove(couple_to_remove)
+    gcm_rcm_couples = list(get_gcm_rcm_couple_adamont_to_full_name().keys())
+    scenario_to_list_to_remove = {
+        AdamontScenario.histo: [],
+        AdamontScenario.rcp26: [('EC-EARTH', 'CCLM4-8-17'), ('CNRM-CM5', 'ALADIN53'), ('CNRM-CM5', 'RCA4'),
+                                ('MPI-ESM-LR', 'RCA4'), ('HadGEM2-ES', 'CCLM4-8-17'), ('IPSL-CM5A-MR', 'RCA4'),
+                                ('CNRM-CM5', 'CCLM4-8-17'), ('IPSL-CM5A-MR', 'WRF381P'), ('NorESM1-M', 'HIRHAM5'),
+                                ('IPSL-CM5A-MR', 'WRF331F'), ('HadGEM2-ES', 'RCA4')],
+        AdamontScenario.rcp45: [('NorESM1-M', 'REMO2015'), ('HadGEM2-ES', 'RegCM4-6')],
+        AdamontScenario.rcp85: [],
+    }
+    for couple_to_remove in scenario_to_list_to_remove[real_adamont_scenario]:
+        gcm_rcm_couples.remove(couple_to_remove)
     return list(gcm_rcm_couples)
 
 
-def get_gcm_list(adamont_version):
-    s = set([gcm for gcm, _ in get_gcm_rcm_couples(adamont_version=adamont_version)])
+def get_gcm_list():
+    s = set([gcm for gcm, _ in get_gcm_rcm_couples()])
     return list(s)
 
 

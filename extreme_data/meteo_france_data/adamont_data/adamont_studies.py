@@ -21,17 +21,17 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualiz
 class AdamontStudies(object):
 
     def __init__(self, study_class, year_min_studies=None, year_max_studies=None,
-                 gcm_rcm_couples=None, adamont_version=2, **kwargs_study):
+                 gcm_rcm_couples=None, **kwargs_study):
         self.study_class = study_class
         self.year_min_studies = year_min_studies
         self.year_max_studies = year_max_studies
         if gcm_rcm_couples is None:
-            gcm_rcm_couple_to_full_name = get_gcm_rcm_couple_adamont_to_full_name(adamont_version)
+            gcm_rcm_couple_to_full_name = get_gcm_rcm_couple_adamont_to_full_name()
             gcm_rcm_couples = list(gcm_rcm_couple_to_full_name.keys())
         self.gcm_rcm_couples = gcm_rcm_couples
         self.gcm_rcm_couple_to_study = OrderedDict()  # type: OrderedDict[int, AbstractAdamontStudy]
         for gcm_rcm_couple in self.gcm_rcm_couples:
-            study = study_class(gcm_rcm_couple=gcm_rcm_couple, adamont_version=adamont_version,
+            study = study_class(gcm_rcm_couple=gcm_rcm_couple,
                                 year_min=year_min_studies, year_max=year_max_studies, **kwargs_study)
             self.gcm_rcm_couple_to_study[gcm_rcm_couple] = study
 
@@ -111,7 +111,6 @@ class AdamontStudies(object):
             ax.tick_params(axis='both', which='major', labelsize=13)
             handles, labels = ax.get_legend_handles_labels()
             ncol = 2
-            # ncol = 2 if self.study.adamont_version == 1 else 3
             ax.legend(handles[::-1], labels[::-1], ncol=ncol, prop={'size': 8})
         plot_name = 'Annual maxima of {} in {} at {} m'.format(ADAMONT_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '),
@@ -182,7 +181,7 @@ class AdamontStudies(object):
             ax.set_ylim((ylim_min, ylim_max * factor))
             ax.tick_params(axis='both', which='major', labelsize=13)
             handles, labels = ax.get_legend_handles_labels()
-            ncol = 2 if self.study.adamont_version == 1 else 3
+            ncol = 3
             ax.legend(handles[::-1], labels[::-1], ncol=ncol, prop={'size': 11})
         plot_name = 'Annual maxima of {}\nin {} at {} m'.format(ADAMONT_STUDY_CLASS_TO_ABBREVIATION[self.study_class],
                                                        massif_name.replace('_', ' '),

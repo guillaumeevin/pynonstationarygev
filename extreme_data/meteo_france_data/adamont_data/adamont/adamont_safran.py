@@ -19,7 +19,7 @@ class AdamontPrecipitation(AbstractAdamontStudy):
 
 
 if __name__ == '__main__':
-    study = AdamontPrecipitation(altitude=1800, adamont_version=2, gcm_rcm_couple=('HadGEM2-ES', 'RACMO22E'),
+    study = AdamontPrecipitation(altitude=1800, gcm_rcm_couple=('HadGEM2-ES', 'RACMO22E'),
                             scenario=AdamontScenario.rcp85_extended,
                                  season=Season.winter)
     print(study.year_to_annual_maxima)

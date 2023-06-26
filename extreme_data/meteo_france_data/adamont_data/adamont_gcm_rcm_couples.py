@@ -16,15 +16,12 @@ def get_year_min_and_year_max_used_to_compute_quantile(gcm):
     return reanalysis_years, model_year
 
 
-def get_rcm_gcm_couple_full_name(gcm_rcm_couple, adamont_version):
-    return get_gcm_rcm_couple_adamont_to_full_name(adamont_version)[gcm_rcm_couple]
+def get_rcm_gcm_couple_full_name(gcm_rcm_couple):
+    return get_gcm_rcm_couple_adamont_to_full_name()[gcm_rcm_couple]
 
 
-def get_gcm_rcm_couple_adamont_to_full_name(adamont_version):
-    if adamont_version == 1:
-        return _gcm_rcm_couple_adamont_v1_to_full_name
-    else:
-        return _gcm_rcm_couple_adamont_v2_to_full_name
+def get_gcm_rcm_couple_adamont_to_full_name():
+    return _gcm_rcm_couple_adamont_to_full_name
 
 gcm_to_rnumber = \
     {
@@ -36,29 +33,7 @@ gcm_to_rnumber = \
         'NorESM1-M': 1
     }
 
-_gcm_rcm_couple_adamont_v1_to_full_name = {
-    ('CNRM-CM5', 'ALADIN53'): 'CNRM-ALADIN53_CNRM-CERFACS-CNRM-CM5',
-    ('CNRM-CM5', 'RCA4'): 'SMHI-RCA4_CNRM-CERFACS-CNRM-CM5',
-    ('CNRM-CM5', 'CCLM4-8-17'): 'CLMcom-CCLM4-8-17_CNRM-CERFACS-CNRM-CM5',
-
-    ('EC-EARTH', 'CCLM4-8-17'): 'CLMcom-CCLM4-8-17_ICHEC-EC-EARTH',
-    ('EC-EARTH', 'RCA4'): 'SMHI-RCA4_ICHEC-EC-EARTH',
-
-    ('MPI-ESM-LR', 'CCLM4-8-17'): 'CLMcom-CCLM4-8-17_MPI-M-MPI-ESM-LR',
-    ('MPI-ESM-LR', 'RCA4'): 'SMHI-RCA4_MPI-M-MPI-ESM-LR',
-    ('MPI-ESM-LR', 'REMO2009'): 'MPI-CSC-REMO2009_MPI-M-MPI-ESM-LR',
-
-    ('HadGEM2-ES', 'CCLM4-8-17'): 'CLMcom-CCLM4-8-17_MOHC-HadGEM2-ES',
-    ('HadGEM2-ES', 'RACMO22E'): 'KNMI-RACMO22E_MOHC-HadGEM2-ES',
-    ('HadGEM2-ES', 'RCA4'): 'SMHI-RCA4_MOHC-HadGEM2-ES',
-
-    ('NorESM1-M', 'HIRHAM5'): 'DMI-HIRHAM5_NCC-NorESM1-M',
-
-    ('IPSL-CM5A-MR', 'WRF331F'): 'IPSL-INERIS-WRF331F_IPSL-IPSL-CM5A-MR',
-    ('IPSL-CM5A-MR', 'RCA4'): 'SMHI-RCA4_IPSL-IPSL-CM5A-MR',
-}
-
-_gcm_rcm_couple_adamont_v2_to_full_name = {
+_gcm_rcm_couple_adamont_to_full_name = {
     ('CNRM-CM5', 'RACMO22E'): 'KNMI-RACMO22E_CNRM-CERFACS-CNRM-CM5',
     ('CNRM-CM5', 'CCLM4-8-17'): 'CLMcom-CCLM4-8-17_CNRM-CERFACS-CNRM-CM5',
     ('CNRM-CM5', 'RCA4'): 'SMHI-RCA4_CNRM-CERFACS-CNRM-CM5',

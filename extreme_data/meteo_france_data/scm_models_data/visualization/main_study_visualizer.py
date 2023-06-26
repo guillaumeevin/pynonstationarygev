@@ -11,16 +11,11 @@ from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusD
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2020, CrocusSnowLoad2019
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_snow_density import CrocusSnowDensity
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusDensityVariable
-from extreme_data.meteo_france_data.scm_models_data.safran.gap_between_study import GapBetweenSafranSnowfall2019And2020, \
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019Recentered, GapBetweenSafranSnowfall2019AndMySafranSnowfall2019, \
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019NotRecentered, \
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019RecenteredMeanRate
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranRainfall, \
     SafranTemperature, SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, \
     SafranSnowfall7Days, SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days, \
-    SafranPrecipitation7Days, SafranDateFirstSnowfall, SafranSnowfallCenterOnDay1dayMeanRate, \
-    SafranSnowfallCenterOnDay1day
+    SafranPrecipitation7Days, SafranDateFirstSnowfall
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
     SafranSnowfall2019
@@ -39,13 +34,6 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall1Day: 'daily snowfall',
     SafranSnowfall2020: 'daily snowfall',
     SafranSnowfall2019: 'daily snowfall',
-    SafranSnowfallCenterOnDay1dayMeanRate: 'daily snowfall',
-    SafranSnowfallCenterOnDay1day: 'daily snowfall',
-    GapBetweenSafranSnowfall2019And2020: 'daily snowfall\n bias = SAFRAN 2020 minus SAFRAN 2019',
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019Recentered: 'daily snowfall\n my SAFRAN 2019 recentered minus SAFRAN 2019',
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019NotRecentered: 'daily snowfall\n my SAFRAN 2019 notrecentered minus SAFRAN 2019',
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019: 'daily snowfall\n my SAFRAN 2019 minus SAFRAN 2019',
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019RecenteredMeanRate: 'daily snowfall\n my SAFRAN 2019 recentered mean rate minus SAFRAN 2019',
     SafranSnowfall3Days: 'SF3',
     SafranSnowfall5Days: 'SF5',
     SafranSnowfall7Days: 'SF7',

@@ -6,7 +6,10 @@ from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_de
     NonStationaryTwoLinearLocationAndScaleOneLinearShapeModel, \
     NonStationaryThreeLinearLocationAndScaleOneLinearShapeModel, \
     NonStationaryFourLinearLocationAndScaleOneLinearShapeModel, NonStationaryTwoLinearLocationAndScaleAndShapeModel, \
-    NonStationaryThreeLinearLocationAndScaleAndShapeModel, NonStationaryFourLinearLocationAndScaleAndShapeModel
+    NonStationaryThreeLinearLocationAndScaleAndShapeModel, NonStationaryFourLinearLocationAndScaleAndShapeModel, \
+    NonStationarySevenLinearLocationAndScaleAndShapeModel, NonStationarySixLinearLocationAndScaleAndShapeModel, \
+    NonStationaryFiveLinearLocationAndScaleAndShapeModel, NonStationaryEightLinearLocationAndScaleAndShapeModel, \
+    NonStationaryNineLinearLocationAndScaleAndShapeModel
 from root_utils import get_root_path
 
 
@@ -25,6 +28,10 @@ mode_to_name = {
     11: 'three_fullfull',
     12: 'four_fullfull',
     13: 'selected_fullfull',
+    14: 'five_fullfull',
+    15: 'six_fullfull',
+    16: 'seven_fullfull',
+    17: 'eight_fullfull',
 }
 
 
@@ -47,6 +54,16 @@ def load_parameters(mode, massif_name_to_model_class, massif_name_to_parametriza
         new_model = NonStationaryThreeLinearLocationAndScaleAndShapeModel
     if mode == 12:
         new_model = NonStationaryFourLinearLocationAndScaleAndShapeModel
+    if mode == 14:
+        new_model = NonStationaryFiveLinearLocationAndScaleAndShapeModel
+    if mode == 15:
+        new_model = NonStationarySixLinearLocationAndScaleAndShapeModel
+    if mode == 16:
+        new_model = NonStationarySevenLinearLocationAndScaleAndShapeModel
+    if mode == 17:
+        new_model = NonStationaryEightLinearLocationAndScaleAndShapeModel
+    if mode == 18:
+        new_model = NonStationaryNineLinearLocationAndScaleAndShapeModel
     # Force linear models
     if mode in [1, 3, 7, 10]:
         new_model = NonStationaryLocationAndScaleAndShapeTemporalModel

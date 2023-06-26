@@ -42,7 +42,7 @@ def main_quantitative():
     # print(altitudes_list)
     # for mode in range(4):
     # for mode in range(6):
-    for mode in [9]:
+    for mode in [14, 15, 16, 17][:1]:
         for altitudes in altitudes_list[:]:
 
             altitude = altitudes[0]
@@ -65,8 +65,8 @@ def main_quantitative():
                 = load_parameters(mode, massif_name_to_model_class, massif_name_to_parametrization_number)
 
             csv_filename = op.basename(csv_filepath)
-            # if op.exists(csv_filepath):
-            if False:
+            if op.exists(csv_filepath):
+            # if False:
                 print('already done: {}'.format(csv_filename))
             else:
                 print('run: {}'.format(csv_filename))

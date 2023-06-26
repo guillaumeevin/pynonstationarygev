@@ -18,7 +18,6 @@ from extreme_data.meteo_france_data.adamont_data.utils.utils import massif_numbe
 
 from extreme_data.utils import DATA_PATH
 
-ADAMONT_PATH = op.join(DATA_PATH, 'ADAMONT')
 ADAMONT_v2_PATH = op.join(DATA_PATH, 'ADAMONT_v2')
 ADAMONT_v2_WEBPATH = """https://climatedata.umr-cnrm.fr/public/dcsc/projects/ADAMONT_MONTAGNE_2020/INDICATEURS_ANNUELS/alp_flat/"""
 
@@ -41,8 +40,7 @@ class AbstractAdamontStudy(AbstractStudy):
                  multiprocessing=True, season=Season.annual,
                  french_region=FrenchRegion.alps,
                  scenario=AdamontScenario.histo,
-                 gcm_rcm_couple=('CNRM-CM5', 'ALADIN53'),
-                 adamont_version=2):
+                 gcm_rcm_couple=('CNRM-CM5', 'ALADIN53')):
         # Load the default year_min & year_max for the scenario if not specified
         year_min_scenario, year_max_scenario = get_year_min_and_year_max_from_scenario(scenario, gcm_rcm_couple)
         # Raise exception
@@ -58,16 +56,14 @@ class AbstractAdamontStudy(AbstractStudy):
 
         super().__init__(variable_class=variable_class, altitude=altitude, year_min=year_min, year_max=year_max,
                          multiprocessing=multiprocessing, season=season, french_region=french_region)
-        self.adamont_version = adamont_version
         self.gcm_rcm_couple = gcm_rcm_couple
-        self.gcm_rcm_full_name = get_gcm_rcm_couple_adamont_to_full_name(adamont_version=self.adamont_version)[
+        self.gcm_rcm_full_name = get_gcm_rcm_couple_adamont_to_full_name()[
             gcm_rcm_couple]
         self.scenario = scenario
         assert issubclass(self.variable_class, AbstractAdamontVariable)
         # Assert the massif_name are in the same order
         for i, massif_name in enumerate(self.all_massif_names()):
             assert massif_name == massif_number_to_massif_name[i + 1]
-        assert self.adamont_version in [1, 2]
 
     @property
     def variable_name(self):
@@ -75,17 +71,11 @@ class AbstractAdamontStudy(AbstractStudy):
 
     @cached_property
     def year_to_annual_maxima(self) -> OrderedDict:
-        if self.adamont_version == 1:
-            return super().year_to_annual_maxima
-        else:
-            return self.load_year_to_annual_maxima_data_version_2(maxima_date=False)
+        return self.load_year_to_annual_maxima_data_version_2(maxima_date=False)
 
     @cached_property
     def year_to_annual_maxima_index(self) -> OrderedDict:
-        if self.adamont_version == 1:
-            return super().year_to_annual_maxima_index
-        else:
-            return self.load_year_to_annual_maxima_data_version_2(maxima_date=True)
+        return self.load_year_to_annual_maxima_data_version_2(maxima_date=True)
 
     # Loading part for adamont v2
 
@@ -224,7 +214,7 @@ class AbstractAdamontStudy(AbstractStudy):
 
     @cached_property
     def study_massif_names(self) -> List[str]:
-        massif_key = 'MASSIF_NUMBER' if self.adamont_version == 1 else 'massif_number'
+        massif_key = 'massif_number'
         massif_ids = np.array(self.datasets[0].variables[massif_key])[self.flat_mask]
         if len(self.datasets) > 1:
             massif_ids_bis = np.array(self.datasets[1].variables[massif_key])[self.flat_mask]
@@ -233,10 +223,7 @@ class AbstractAdamontStudy(AbstractStudy):
 
     @cached_property
     def datasets(self):
-        if self.adamont_version == 1:
-            return [Dataset(file_path) for file_path in self.nc_file_paths]
-        else:
-            return [self._load_dataset(scenario, maxima_date=False) for scenario in self.adamont_real_scenarios]
+        return [self._load_dataset(scenario, maxima_date=False) for scenario in self.adamont_real_scenarios]
 
     # PATHS
 
@@ -255,19 +242,3 @@ class AbstractAdamontStudy(AbstractStudy):
     def scenario_names(self):
         return [scenario_to_str(scenario) for scenario in self.adamont_real_scenarios]
 
-    @property
-    def nc_files_paths(self):
-        return [op.join(ADAMONT_PATH, self.variable_folder_name(), name) for name in self.scenario_names]
-
-    @property
-    def nc_file_paths(self):
-        file_paths = []
-        for scenario, scenario_name, files_path in zip(self.adamont_real_scenarios, self.scenario_names,
-                                                       self.nc_files_paths):
-            suffix_nc_file = get_suffix_for_the_nc_file(scenario, self.gcm_rcm_couple)
-            nc_file = '{}_FORCING_{}_{}_{}_{}.nc'.format(self.variable_folder_name(), self.gcm_rcm_full_name,
-                                                         scenario_name,
-                                                         self.region_name, suffix_nc_file)
-            file_paths.append(op.join(files_path, nc_file))
-        assert len(file_paths) <= 2, 'change my code to handle datasets of length larger than'
-        return file_paths

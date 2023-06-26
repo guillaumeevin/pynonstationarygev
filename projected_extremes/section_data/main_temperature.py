@@ -14,7 +14,7 @@ def main_plot_temperature_with_spline_on_top(anomaly=True):
     ax = plt.gca()
     scenario = AdamontScenario.rcp85
     splines = [True, False][:1]
-    for gcm in get_gcm_list(adamont_version=2)[:]:
+    for gcm in get_gcm_list()[:]:
         for spline in splines:
             linestyle, linewidth, label = get_setting(spline, gcm + ' GCM')
             color = gcm_to_color[gcm]

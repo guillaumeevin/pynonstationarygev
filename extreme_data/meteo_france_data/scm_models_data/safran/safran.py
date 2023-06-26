@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import List, Union, Dict
+from typing import List
 
 import numpy as np
 
@@ -10,15 +10,11 @@ from extreme_data.meteo_france_data.scm_models_data.safran.cumulated_study impor
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariable, \
     SafranRainfallVariable, SafranTemperatureVariable, SafranTotalPrecipVariable, \
     SafranNormalizedPrecipitationRateOnWetDaysVariable, SafranNormalizedPrecipitationRateVariable, \
-    SafranDateFirstSnowfallVariable, SafranSnowfallVariableCenterOnDay, SafranSnowfallVariableNotCenterOnDay, \
-    SafranSnowfallVariableCenterOnDayMeanRate
+    SafranDateFirstSnowfallVariable
 
 
 class Safran(AbstractStudy):
     SAFRAN_VARIABLES = [SafranSnowfallVariable,
-                        SafranSnowfallVariableCenterOnDayMeanRate,
-                        SafranSnowfallVariableCenterOnDay,
-                        SafranSnowfallVariableNotCenterOnDay,
                         SafranRainfallVariable,
                         SafranTemperatureVariable,
                         SafranTotalPrecipVariable,
@@ -42,41 +38,6 @@ class SafranSnowfall(Safran, CumulatedStudy):
 
 
 class SafranSnowfall1Day(SafranSnowfall):
-
-    def __init__(self, **kwargs):
-        super().__init__(nb_consecutive_days=1, **kwargs)
-
-
-class SafranSnowfallCenterOnDay(Safran, CumulatedStudy):
-
-    def __init__(self, **kwargs):
-        super().__init__(SafranSnowfallVariableCenterOnDay, **kwargs)
-
-
-class SafranSnowfallCenterOnDay1day(SafranSnowfallCenterOnDay):
-
-    def __init__(self, **kwargs):
-        super().__init__(nb_consecutive_days=1, **kwargs)
-
-
-class SafranSnowfallNotCenterOnDay(Safran, CumulatedStudy):
-
-    def __init__(self, **kwargs):
-        super().__init__(SafranSnowfallVariableNotCenterOnDay, **kwargs)
-
-
-class SafranSnowfallNotCenterOnDay1day(SafranSnowfallNotCenterOnDay):
-
-    def __init__(self, **kwargs):
-        super().__init__(nb_consecutive_days=1, **kwargs)
-
-class SafranSnowfallCenterOnDayMeanRate(Safran, CumulatedStudy):
-
-    def __init__(self, **kwargs):
-        super().__init__(SafranSnowfallVariableCenterOnDayMeanRate, **kwargs)
-
-
-class SafranSnowfallCenterOnDay1dayMeanRate(SafranSnowfallCenterOnDayMeanRate):
 
     def __init__(self, **kwargs):
         super().__init__(nb_consecutive_days=1, **kwargs)
@@ -250,6 +211,5 @@ if __name__ == '__main__':
     year_min = 1959
     year_max = 2019
     # study = SafranSnowfall(altitude=altitude, year_min=year_min, year_max=year_max)
-    study = SafranSnowfallCenterOnDay1day(altitude=altitude, year_min=year_min, year_max=year_max)
-    print(study.year_to_daily_time_serie_array[1959].shape)
+    # print(study.year_to_daily_time_serie_array[1959].shape)
     # print(study.massif_name_to_daily_time_series['Vanoise'].shape)
