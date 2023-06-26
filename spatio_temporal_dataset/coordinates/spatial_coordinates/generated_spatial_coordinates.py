@@ -21,8 +21,8 @@ class CircleSpatialCoordinates(AbstractSpatialCoordinates):
         return df
 
     @classmethod
-    def from_nb_points(cls, nb_points, max_radius=1.0, random=True, transformation_class=None):
-        return cls.from_df(df=cls.df_spatial(nb_points, max_radius, random), transformation_class=transformation_class)
+    def from_nb_points(cls, nb_points, max_radius=1.0, random=True):
+        return cls.from_df(df=cls.df_spatial(nb_points, max_radius, random))
 
     def visualization_2D(self):
         radius = 1.0

@@ -1,4 +1,3 @@
-import time
 from collections import OrderedDict
 from typing import List
 
@@ -7,7 +6,7 @@ from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import A
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, \
     ExtendedCrocusDepth, \
-    ExtendedCrocusSweTotal, CrocusDaysWithSnowOnGround, CrocusSwe3Days, CrocusSnowLoad3Days, CrocusSnowLoadTotal, \
+    ExtendedCrocusSweTotal, CrocusSwe3Days, CrocusSnowLoad3Days, CrocusSnowLoadTotal, \
     CrocusSnowLoadEurocode, CrocusSnowLoad5Days, CrocusSnowLoad7Days
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2020, CrocusSnowLoad2019
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_snow_density import CrocusSnowDensity
@@ -18,19 +17,14 @@ from extreme_data.meteo_france_data.scm_models_data.safran.gap_between_study imp
     GapBetweenSafranSnowfall2019AndMySafranSnowfall2019RecenteredMeanRate
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranRainfall, \
-    SafranTemperature, SafranPrecipitation, SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, \
+    SafranTemperature, SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, \
     SafranSnowfall7Days, SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days, \
     SafranPrecipitation7Days, SafranDateFirstSnowfall, SafranSnowfallCenterOnDay1dayMeanRate, \
     SafranSnowfallCenterOnDay1day
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
     SafranSnowfall2019
-from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariableCenterOnDay
-from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
-    StudyVisualizer
 from root_utils import get_display_name_from_object_type
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
-    BetweenZeroAndOneNormalization
 
 snow_density_str = '$\\rho_{SNOW}$'
 eurocode_snow_density = '{}=150 {}'.format(snow_density_str, CrocusDensityVariable.UNIT)

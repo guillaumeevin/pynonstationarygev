@@ -134,8 +134,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
                 if not keep:
                     continue
             gev_param = self.margin_function_from_fit.get_params(
-                coordinate=coordinate,
-                is_transformed=False)
+                coordinate=coordinate)
             # Take the first and unique maximum
             maximum = maximum[0]
             if isinstance(maximum, np.ndarray):
@@ -151,8 +150,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         assert len(standard_gumbel_quantiles) == len(coordinate_values)
         for quantile, coordinate in zip(standard_gumbel_quantiles, coordinate_values):
             gev_param = self.margin_function_from_fit.get_params(
-                coordinate=coordinate,
-                is_transformed=False)
+                coordinate=coordinate)
             maximum = gev_param.gumbel_inverse_standardization(quantile)
             coordinate_values_to_maxima[tuple(coordinate)] = np.array([maximum])
         return coordinate_values_to_maxima

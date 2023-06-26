@@ -25,7 +25,7 @@ def compute_nllh_for_list_of_pair(args):
             assert len(maximum) == 1, \
                 'So far, only one observation for each coordinate, but code would be easy to change'
             maximum = maximum[0]
-        gev_params = margin_function_from_fit.get_params(coordinate, is_transformed=True)
+        gev_params = margin_function_from_fit.get_params(coordinate)
         if gumbel_standardization:
             gev_params_gumbel = GevParams(0, 1, 0)
             p = gev_params_gumbel.density(gev_params.gumbel_standardization(maximum))

@@ -11,7 +11,8 @@ def plot_pvalue_test():
     ax = plt.gca()
     all_massif = True
     altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
-    for mode in range(9):
+    # for mode in range(14):
+    for mode in [9, 10, 11, 12, 13]:
         percentages = []
         for altitude in altitudes:
             csv_filepath = load_csv_filepath_gof(mode, altitude, all_massif)

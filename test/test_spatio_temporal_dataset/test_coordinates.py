@@ -4,25 +4,17 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
-from extreme_fit.model.utils import set_seed_for_test
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_2D_coordinates import \
-    AlpsStation2DCoordinatesBetweenZeroAndOne
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import UniformSpatialCoordinates, \
     LinSpaceSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
     CircleSpatialCoordinates
-from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
-    AbstractSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
     GeneratedSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
-    BetweenZeroAndOneNormalization
 from spatio_temporal_dataset.coordinates.utils import get_index_with_spatio_temporal_index_suffix
-from test.test_utils import load_test_spatiotemporal_coordinates, load_test_temporal_coordinates, \
-    load_test_1D_and_2D_spatial_coordinates
+from test.test_utils import load_test_temporal_coordinates
 
 
 class TestSpatialCoordinates(unittest.TestCase):
@@ -43,9 +35,6 @@ class TestSpatialCoordinates(unittest.TestCase):
 
     def test_circle(self):
         self.coord = CircleSpatialCoordinates.from_nb_points(nb_points=500)
-
-    def test_normalization(self):
-        self.coord = AlpsStation2DCoordinatesBetweenZeroAndOne.from_csv()
 
 
 

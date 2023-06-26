@@ -534,8 +534,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                     y_list = []
                     for t in t_list:
                         coordinate = np.array([altitude, t])
-                        gev_params = one_fold_fit.best_margin_function_from_fit.get_params(coordinate,
-                                                                                           is_transformed=False)
+                        gev_params = one_fold_fit.best_margin_function_from_fit.get_params(coordinate)
                         if plot_mean:
                             y = gev_params.mean
                         else:

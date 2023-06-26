@@ -31,8 +31,8 @@ class PolynomialMarginFunction(LinearMarginFunction):
         return PolynomialParamFunction(dim_and_degree=self.param_name_to_dim_and_max_degree[param_name],
                                        coef=self.param_name_to_coef[param_name])
 
-    def get_params(self, coordinate: np.ndarray, is_transformed: bool = True) -> GevParams:
-        return super().get_params(coordinate, is_transformed)
+    def get_params(self, coordinate: np.ndarray) -> GevParams:
+        return super().get_params(coordinate)
 
     @property
     def nb_params_for_margin_function(self):

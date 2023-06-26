@@ -74,17 +74,13 @@ class ParametricMarginFunction(IndependentMarginFunction):
     def load_specific_param_function(self, param_name) -> AbstractParamFunction:
         raise NotImplementedError
 
-    @property
-    def transformed_starting_point(self):
-        return self.coordinates.temporal_coordinates.transformation.transform_array(np.array([self.starting_point]))
+    def get_params(self, coordinate: np.ndarray) -> GevParams:
+        coordinate = self.shift_coordinates_if_needed(coordinate)
+        return super().get_params(coordinate)
 
-    def get_params(self, coordinate: np.ndarray, is_transformed: bool = True) -> GevParams:
-        coordinate = self.shift_coordinates_if_needed(coordinate, is_transformed)
-        return super().get_params(coordinate, is_transformed=is_transformed)
-
-    def shift_coordinates_if_needed(self, coordinate, is_transformed):
+    def shift_coordinates_if_needed(self, coordinate):
         if self.starting_point is not None:
-            starting_point = self.transformed_starting_point if is_transformed else self.starting_point
+            starting_point = self.starting_point
             # Shift temporal coordinate to enable to model temporal trend with starting point
             assert self.coordinates.has_temporal_coordinates
             assert 0 <= self.coordinates.idx_temporal_coordinates < len(coordinate)

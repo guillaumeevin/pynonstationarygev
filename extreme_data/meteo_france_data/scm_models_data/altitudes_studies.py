@@ -30,12 +30,8 @@ import matplotlib.pyplot as plt
 class AltitudesStudies(object):
 
     def __init__(self, study_class, altitudes,
-                 spatial_transformation_class=None,
-                 temporal_transformation_class=None,
                  **kwargs_study):
         self.study_class = study_class
-        self.spatial_transformation_class = spatial_transformation_class
-        self.temporal_transformation_class = temporal_transformation_class
         self.altitudes = altitudes
         self.altitude_to_study = OrderedDict()  # type: OrderedDict[int, AbstractStudy]
         for altitude in self.altitudes:
@@ -96,36 +92,29 @@ class AltitudesStudies(object):
             assert len(massif_altitudes) > 0
             spatial_coordinates = self.spatial_coordinates_for_altitudes(massif_altitudes)
         if isinstance(self.study, AbstractAdamontStudy):
-            return SpatioTemporalCoordinatesForClimateModels(transformation_class=self.spatial_transformation_class,
-                                                             spatial_coordinates=spatial_coordinates,
+            return SpatioTemporalCoordinatesForClimateModels(spatial_coordinates=spatial_coordinates,
                                                              temporal_coordinates=self.temporal_coordinates,
                                                              gcm_rcm_couple=self.study.gcm_rcm_couple,
                                                              scenario_str=scenario_to_str(self.study.scenario),
                                                              )
         else:
-            return SpatioTemporalCoordinatesForClimateModels(transformation_class=self.spatial_transformation_class,
-                                                             spatial_coordinates=spatial_coordinates,
+            return SpatioTemporalCoordinatesForClimateModels(spatial_coordinates=spatial_coordinates,
                                                              temporal_coordinates=self.temporal_coordinates,
                                                              gcm_rcm_couple=(np.nan, np.nan),
                                                              scenario_str=np.nan,
                                                              )
-            # return AbstractSpatioTemporalCoordinates(transformation_class=self.spatial_transformation_class,
-            #                                          spatial_coordinates=spatial_coordinates,
-            #                                          temporal_coordinates=self.temporal_coordinates)
 
     @cached_property
     def temporal_coordinates(self):
         return ConsecutiveTemporalCoordinates.from_nb_temporal_steps(nb_temporal_steps=self.study.nb_years,
-                                                                     start=self.study.year_min,
-                                                                     transformation_class=self.spatial_transformation_class)
+                                                                     start=self.study.year_min)
 
     @cached_property
     def spatial_coordinates(self):
         return self.spatial_coordinates_for_altitudes(self.altitudes)
 
     def spatial_coordinates_for_altitudes(self, altitudes):
-        return AbstractSpatialCoordinates.from_list_x_coordinates(x_coordinates=altitudes,
-                                                                  transformation_class=self.temporal_transformation_class)
+        return AbstractSpatialCoordinates.from_list_x_coordinates(x_coordinates=altitudes)
 
     @cached_property
     def _df_coordinates(self):

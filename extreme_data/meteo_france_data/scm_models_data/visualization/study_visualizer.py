@@ -46,7 +46,7 @@ class StudyVisualizer(VisualizationParameters):
 
     def __init__(self, study: AbstractStudy, show=True, save_to_file=False, only_one_graph=False, only_first_row=False,
                  vertical_kde_plot=False, year_for_kde_plot=None, plot_block_maxima_quantiles=False,
-                 temporal_non_stationarity=False, transformation_class=None, verbose=False, multiprocessing=False,
+                 temporal_non_stationarity=False, verbose=False, multiprocessing=False,
                  complete_non_stationary_trend_analysis=False):
         super().__init__(save_to_file, only_one_graph, only_first_row, show)
         self.nb_cores = 7
@@ -68,7 +68,6 @@ class StudyVisualizer(VisualizationParameters):
         self._observations = None
 
         self.default_covariance_function = CovarianceFunction.powexp
-        self.transformation_class = transformation_class
 
         # KDE PLOT ARGUMENTS
         self.vertical_kde_plot = vertical_kde_plot
@@ -97,16 +96,14 @@ class StudyVisualizer(VisualizationParameters):
 
     @property
     def spatial_coordinates(self):
-        return AbstractSpatialCoordinates.from_df(df=self.study.df_massifs_longitude_and_latitude,
-                                                  transformation_class=self.transformation_class)
+        return AbstractSpatialCoordinates.from_df(df=self.study.df_massifs_longitude_and_latitude)
 
     @property
     def temporal_coordinates(self):
         start, stop = self.study.start_year_and_stop_year
         nb_steps = stop - start + 1
         temporal_coordinates = ConsecutiveTemporalCoordinates.from_nb_temporal_steps(nb_temporal_steps=nb_steps,
-                                                                                     start=start,
-                                                                                     transformation_class=self.transformation_class)
+                                                                                     start=start)
         return temporal_coordinates
 
     @property

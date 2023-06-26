@@ -5,7 +5,7 @@ import numpy as np
 
 from extreme_fit.model.margin_model.linear_margin_model.linear_margin_model import \
     LinearNonStationaryLocationMarginModel
-from extreme_fit.model.utils import set_seed_for_test, SafeRunException
+from extreme_fit.model.utils import set_seed_for_test
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -13,8 +13,6 @@ from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_sp
     AbstractSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.generated_temporal_coordinates import \
     ConsecutiveTemporalCoordinates
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
-    BetweenZeroAndOneNormalization
 from spatio_temporal_dataset.dataset.abstract_dataset import AbstractDataset
 from spatio_temporal_dataset.dataset.simulation_dataset import MaxStableDataset, MarginDataset
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima

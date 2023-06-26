@@ -33,10 +33,8 @@ class IndependentMarginFunction(AbstractMarginFunction):
         else:
             return 0
 
-    def get_params(self, coordinate: np.ndarray, is_transformed: bool = True) -> GevParams:
+    def get_params(self, coordinate: np.ndarray) -> GevParams:
         """Each GEV parameter is computed independently through its corresponding param_function"""
-        # Since all the coordinates are usually transformed by default
-        # then we assume that the input coordinate are transformed by default
         assert self.param_name_to_param_function is not None
         assert len(self.param_name_to_param_function) == len(self.params_class.PARAM_NAMES)
 
@@ -67,8 +65,7 @@ class IndependentMarginFunction(AbstractMarginFunction):
 
         # Transform and compute the gev params from the param function
         assert len(coordinate) == self.coordinates.nb_coordinates
-        transformed_coordinate = coordinate if is_transformed else self.transform(coordinate)
-        params = {param_name: param_function.get_param_value(transformed_coordinate)
+        params = {param_name: param_function.get_param_value(coordinate)
                   for param_name, param_function in self.param_name_to_param_function.items()}
         if isinstance(param_name_to_total_effect, dict):
             for param_name, total_effect in param_name_to_total_effect.items():
@@ -133,9 +130,8 @@ class IndependentMarginFunction(AbstractMarginFunction):
         full_climate_coordinate = pd.Series(all_column_names).isin(column_names_for_gcm_rcm_couple).astype(float).values
         return self.load_total_effect_for_float(full_climate_coordinate, param_name, temporal_coordinate)
 
-    def get_first_derivative_param(self, coordinate: np.ndarray, is_transformed: bool, dim: int = 0):
-        transformed_coordinate = coordinate if is_transformed else self.transform(coordinate)
+    def get_first_derivative_param(self, coordinate: np.ndarray, dim: int = 0):
         return {
-            param_name: param_function.get_first_derivative_param_value(transformed_coordinate, dim)
+            param_name: param_function.get_first_derivative_param_value(coordinate, dim)
             for param_name, param_function in self.param_name_to_param_function.items()
         }

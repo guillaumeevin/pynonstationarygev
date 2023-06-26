@@ -18,26 +18,20 @@ from extreme_fit.function.margin_function.independent_margin_function import Ind
 from extreme_fit.function.param_function.polynomial_coef import PolynomialAllCoef, PolynomialCoef
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
 from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models import StationaryAltitudinal
-from extreme_fit.model.margin_model.polynomial_margin_model.gev_altitudinal_models_only_altitude_and_scale import \
-    AltitudinalOnlyScale, StationaryAltitudinalOnlyScale
 from extreme_fit.model.margin_model.polynomial_margin_model.gumbel_altitudinal_models import \
-    StationaryGumbelAltitudinal, AbstractGumbelAltitudinalModel
+    StationaryGumbelAltitudinal
 from extreme_fit.model.margin_model.polynomial_margin_model.models_based_on_pariwise_analysis.gev_with_linear_shape_wrt_altitude import \
     AltitudinalShapeLinearTimeStationary
 from extreme_fit.model.margin_model.spline_margin_model.spline_margin_model import SplineMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
-from extreme_fit.model.result_from_model_fit.result_from_extremes.confidence_interval_method import \
-    ConfidenceIntervalMethodFromExtremes
-from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
-    EurocodeConfidenceIntervalFromExtremes
 from extreme_fit.model.utils import SafeRunException
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup, altitudes_for_groups
 from extreme_trend.one_fold_fit.utils_split_sample_selection import compute_mean_log_score_with_split_sample
 from projected_extremes.section_results.utils.combination_utils import load_combination, generate_sub_combination, \
     load_param_name_to_climate_coordinates_with_effects
-from root_utils import NB_CORES, batch, get_display_name_from_object_type
+from root_utils import NB_CORES, batch
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate
@@ -151,7 +145,7 @@ class OneFoldFit(object):
 
     def get_gev_params(self, altitude, year):
         coordinate = self.get_coordinate(altitude, year)
-        gev_params = self.best_margin_function_from_fit.get_params(coordinate, is_transformed=False)
+        gev_params = self.best_margin_function_from_fit.get_params(coordinate)
         return gev_params
 
     def moment(self, altitudes, order=1):
@@ -309,7 +303,7 @@ class OneFoldFit(object):
 
     def _compute_shape_for_reference_altitude(self, estimator):
         coordinate = self.get_coordinate(self.altitude_plot, self.covariate_after)
-        gev_params = estimator.margin_function_from_fit.get_params(coordinate, is_transformed=False)
+        gev_params = estimator.margin_function_from_fit.get_params(coordinate)
         shape = gev_params.shape
         return shape
 
@@ -502,8 +496,7 @@ class OneFoldFit(object):
         for temporal_covariate in self._covariate_before_and_after:
             coordinate = np.array([self.altitude_plot, temporal_covariate])
             return_level = function_from_fit.get_params(
-                coordinate=coordinate,
-                is_transformed=False).return_level(return_period=self.return_period)
+                coordinate=coordinate).return_level(return_period=self.return_period)
             return_levels.append(return_level)
         return 100 * (return_levels[1] - return_levels[0]) / return_levels[0]
 
@@ -565,20 +558,6 @@ class OneFoldFit(object):
             n = len(self.dataset.coordinates)
         standard_gumbel_quantiles = [standard_gumbel_distribution.quantile(i / (n + 1)) for i in range(1, n + 1)]
         return standard_gumbel_quantiles
-
-    def best_confidence_interval(self, altitude, year) -> EurocodeConfidenceIntervalFromExtremes:
-        coordinate = self.get_coordinate(altitude, year)
-        if self.confidence_interval_based_on_delta_method:
-            EurocodeConfidenceIntervalFromExtremes.quantile_level = self.quantile_level
-            return EurocodeConfidenceIntervalFromExtremes.from_estimator_extremes(
-                estimator_extremes=self.best_estimator,
-                ci_method=ConfidenceIntervalMethodFromExtremes.ci_mle,
-                coordinate=coordinate)
-        else:
-            key = (altitude, year)
-            mean_estimate = self.cached_results_from_bootstrap[1][key]
-            confidence_interval = self.cached_results_from_bootstrap[2][key]
-            return EurocodeConfidenceIntervalFromExtremes(mean_estimate, confidence_interval)
 
     def get_return_level(self, function_from_fit, coordinate):
         return function_from_fit.get_params(coordinate).return_level(self.return_period)

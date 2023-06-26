@@ -14,7 +14,7 @@ class DailyObservations(AbstractSpatioTemporalObservations):
         assert isinstance(coordinates, AbstractTemporalCoordinates)
         df_coordinates = pd.concat([coordinates.df_all_coordinates for _ in range(self.nb_obs)])
         df_coordinates.index = pd.Index(range(self.nb_obs * coordinates.nb_steps))
-        coordinates = AbstractTemporalCoordinates.from_df(df_coordinates, transformation_class=coordinates.transformation_class)
+        coordinates = AbstractTemporalCoordinates.from_df(df_coordinates)
         df = pd.DataFrame(pd.concat([self.df_maxima_gev[c] for c in self.columns]))
         df.index = coordinates.index
         observation = AbstractSpatioTemporalObservations(df_maxima_gev=df)
