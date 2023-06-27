@@ -48,7 +48,7 @@ def main_quantitative():
             altitude = altitudes[0]
 
             # Load the selected parameterization (adjustment coefficient and number of linear pieces)
-            all_massif = False
+            all_massif = True
             all_massif_names = AbstractStudy.all_massif_names()[:] if all_massif else ['Mont-Blanc']
             massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(
                 all_massif_names,
