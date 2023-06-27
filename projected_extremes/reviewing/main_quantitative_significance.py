@@ -30,7 +30,7 @@ def main_quantitative():
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
     fast = False
-    snowfall = True
+    snowfall = False
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, study_class, temporal_covariate_for_fit, \
@@ -38,11 +38,11 @@ def main_quantitative():
     season = set_up_and_load(fast, snowfall)
 
     # Loop on the altitudes
-    altitudes_list = [[2400]]
+    altitudes_list = [[2700]]
     # print(altitudes_list)
     # for mode in range(4):
     # for mode in range(6):
-    for mode in [14, 15, 16, 17][:1]:
+    for mode in [0]:
         for altitudes in altitudes_list[:]:
 
             altitude = altitudes[0]
@@ -65,7 +65,8 @@ def main_quantitative():
                 = load_parameters(mode, massif_name_to_model_class, massif_name_to_parametrization_number)
 
             csv_filename = op.basename(csv_filepath)
-            if op.exists(csv_filepath):
+            # if op.exists(csv_filepath):
+            if False:
             # if False:
                 print('already done: {}'.format(csv_filename))
             else:
@@ -106,6 +107,9 @@ def main_quantitative():
                     all_pvalues.extend(pvalues)
 
                 # Save values to csv
+                count_above_5_percent = [int(m >= 0.05) for m in all_pvalues]
+                percentage_above_5_percent = 100 * sum(count_above_5_percent) / len(count_above_5_percent)
+                print(percentage_above_5_percent)
                 pd.Series(all_pvalues).to_csv(csv_filepath)
 
 
