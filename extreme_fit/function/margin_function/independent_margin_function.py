@@ -65,8 +65,9 @@ class IndependentMarginFunction(AbstractMarginFunction):
 
         # Transform and compute the gev params from the param function
         assert len(coordinate) == self.coordinates.nb_coordinates
-        params = {param_name: param_function.get_param_value(coordinate)
-                  for param_name, param_function in self.param_name_to_param_function.items()}
+        params = dict()
+        for param_name, param_function in self.param_name_to_param_function.items():
+            params[param_name] = param_function.get_param_value(coordinate)
         if isinstance(param_name_to_total_effect, dict):
             for param_name, total_effect in param_name_to_total_effect.items():
                 params[param_name] += total_effect

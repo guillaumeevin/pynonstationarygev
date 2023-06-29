@@ -72,9 +72,11 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self._max_abs_for_shape = None
 
     def load_one_fold_fit(self):
-        one_fold_fit_list = [self.fit_one_fold(massif_name) for massif_name in self.massif_names]
-        self._massif_name_to_one_fold_fit = {m: o for m, o in zip(self.massif_names, one_fold_fit_list) if
-                                             o is not None}
+        self._massif_name_to_one_fold_fit = dict()
+        for massif_name in self.massif_names:
+            o = self.fit_one_fold(massif_name)
+            if o is not None:
+                self._massif_name_to_one_fold_fit[massif_name] = o
         # Print number of massif without any validated fit
         massifs_without_any_validated_fit = [massif_name
                                              for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()

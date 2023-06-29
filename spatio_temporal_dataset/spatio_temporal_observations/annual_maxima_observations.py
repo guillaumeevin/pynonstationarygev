@@ -18,13 +18,13 @@ class AnnualMaxima(AbstractSpatioTemporalObservations):
         df_coordinates = coordinates.df_all_coordinates
         return cls.from_df_coordinates(coordinate_values_to_maxima, df_coordinates)
 
+
+
+
     @classmethod
     def from_df_coordinates(cls, coordinate_values_to_maxima, df_coordinates):
-        index_to_maxima = {}
-        for i, coordinate_values in df_coordinates.iterrows():
-            coordinate_values = tuple(coordinate_values)
-            index_to_maxima[i] = coordinate_values_to_maxima[coordinate_values]
-        df = pd.DataFrame(index_to_maxima, columns=df_coordinates.index).transpose()
+        series = df_coordinates.copy().apply(lambda s: coordinate_values_to_maxima[tuple(s.values)][0], axis=1)
+        df = pd.DataFrame(index=df_coordinates.index, data={0: series})
         return cls(df_maxima_gev=df)
 
 

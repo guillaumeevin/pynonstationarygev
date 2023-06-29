@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import pandas as pd
 
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
@@ -50,14 +52,21 @@ class AbstractSpatioTemporalCoordinates(AbstractCoordinates):
 
     @classmethod
     def get_df_from_df_spatial_and_coordinate_t_values(cls, coordinate_t_values, df_spatial):
-        df_time_steps = []
-        for t, coordinate_t_value in enumerate(coordinate_t_values):
-            df_time_step = df_spatial.copy()
-            df_time_step[cls.COORDINATE_T] = coordinate_t_value
-            df_time_step.index = get_index_with_spatio_temporal_index_suffix(df_spatial, t)
-            df_time_steps.append(df_time_step)
-        df_time_steps = pd.concat(df_time_steps)
-        return df_time_steps
+        if len(df_spatial) == 1:
+            d = OrderedDict()
+            d[cls.COORDINATE_X] = [df_spatial.values[0, 0]] * len(coordinate_t_values)
+            d[cls.COORDINATE_T] = coordinate_t_values
+            df = pd.DataFrame(d)
+            return df
+        else:
+            df_time_steps = []
+            for t, coordinate_t_value in enumerate(coordinate_t_values):
+                df_time_step = df_spatial.copy()
+                df_time_step[cls.COORDINATE_T] = coordinate_t_value
+                df_time_step.index = get_index_with_spatio_temporal_index_suffix(df_spatial, t)
+                df_time_steps.append(df_time_step)
+            df_time_steps = pd.concat(df_time_steps)
+            return df_time_steps
 
     @classmethod
     def get_df_from_spatial_and_temporal_coordinates(cls, spatial_coordinates, temporal_coordinates):
