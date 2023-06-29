@@ -41,7 +41,7 @@ def main_calibration_validation_experiment():
         # linear effects = (False, False, False) means that the adjustment are constant for the three parameters of the GEV distributions
         # However if you set linear effects = (True, False, False) it would mean the the adjustment coefficient for the
         # first parameter of the GEV distribution (the location parameter) is changing lienarly with the global warming
-        massif_name_to_number, linear_effects, massif_names, _, _ = get_massif_name_to_number(altitude,
+        massif_name_to_number, linear_effects, massif_names, _, _, _ = get_massif_name_to_number(altitude,
                                                                                               gcm_rcm_couples,
                                                                                               massif_names,
                                                                                               safran_study_class,

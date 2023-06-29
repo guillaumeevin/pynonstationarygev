@@ -69,6 +69,18 @@ def float_to_str_with_only_some_significant_digits(f, nb_digits) -> str:
     assert nb_digits > 0
     return '%s' % float('%.{}g'.format(nb_digits) % f)
 
+def memoize(function):
+    memo = {}
+
+    def wrapper(*args):
+        if args in memo:
+            return memo[args]
+        else:
+            rv = function(*args)
+            memo[args] = rv
+            return rv
+
+    return wrapper
 
 class Example(object):
 

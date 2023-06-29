@@ -11,6 +11,7 @@ from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_vis
     SCM_STUDY_CLASS_TO_ABBREVIATION, STUDY_CLASS_TO_ABBREVIATION
 from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
+from root_utils import memoize
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
@@ -43,6 +44,10 @@ class AltitudesStudies(object):
         return list(self.altitude_to_study.values())[0]
 
     # Dataset Loader
+
+    @memoize
+    def spatio_temporal_dataset_memoize(self, massif_name, massif_altitude):
+        return self.spatio_temporal_dataset(massif_name, [massif_altitude])
 
     def spatio_temporal_dataset(self, massif_name, massif_altitudes=None,
                                 gcm_rcm_couple_as_pseudo_truth=None):

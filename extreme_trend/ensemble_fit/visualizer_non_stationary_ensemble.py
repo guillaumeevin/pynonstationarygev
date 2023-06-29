@@ -31,7 +31,10 @@ class VisualizerNonStationaryEnsemble(AltitudesStudiesVisualizerForNonStationary
         df_coordinates_list = []
         df_maxima_gev_list = []
         for gcm_rcm_couple, studies in self.gcm_rcm_couple_to_studies.items():
-            dataset = studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes)
+            if len(massif_altitudes) == 1:
+                dataset = studies.spatio_temporal_dataset_memoize(massif_name, massif_altitudes[0])
+            else:
+                dataset = studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes)
             observation_or_pseudo_truth = gcm_rcm_couple in [gcm_rcm_couple_as_pseudo_truth, (None, None)]
             # By default the weight on data is always 1
             weight_on_data = self.weight_on_observation if observation_or_pseudo_truth else 1

@@ -59,7 +59,7 @@ def main():
         altitudes_list = [[altitude]]
 
         # Load the selected parameterization (adjustment coefficient and number of linear pieces)
-        massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(
+        massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects, gcm_rcm_couple_to_studies = run_selection(
             all_massif_names,
             altitude,
             gcm_rcm_couples,
@@ -100,7 +100,7 @@ def main():
                                              massif_name_to_param_name_to_climate_coordinates_with_effects,
                                              massif_names, remove_physically_implausible_models,
                                              safran_study_class, scenario, season, study_class,
-                                             temporal_covariate_for_fit)
+                                             temporal_covariate_for_fit, gcm_rcm_couple_to_studies)
         visualizers.append(sub_visualizer)
 
     return_periods = [None, 2, 5, 10, 20, 50, 100]

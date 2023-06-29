@@ -5,13 +5,8 @@ from extreme_trend.ensemble_fit.visualizer_non_stationary_ensemble import Visual
 def load_sub_visualizer(altitudes, display_only_model_that_pass_gof_test, fit_method, gcm_rcm_couples, linear_effects,
                         massif_name_to_model_class, massif_name_to_param_name_to_climate_coordinates_with_effects,
                         massif_names, remove_physically_implausible_models, safran_study_class, scenario, season,
-                        study_class, temporal_covariate_for_fit):
-    gcm_rcm_couple_to_studies = load_gcm_rcm_couple_to_studies(altitudes,
-                                                               gcm_rcm_couples,
-                                                               None, safran_study_class,
-                                                               scenario, season,
-                                                               study_class)
-    sub_visualizer = VisualizerNonStationaryEnsemble(gcm_rcm_couple_to_studies,
+                        study_class, temporal_covariate_for_fit, gcm_rcm_couple_to_studies):
+    return VisualizerNonStationaryEnsemble(gcm_rcm_couple_to_studies,
                                                      massif_name_to_model_class,
                                                      False,
                                                      massif_names, fit_method,
@@ -22,7 +17,6 @@ def load_sub_visualizer(altitudes, display_only_model_that_pass_gof_test, fit_me
                                                      massif_name_to_param_name_to_climate_coordinates_with_effects,
                                                      linear_effects
                                                      )
-    return sub_visualizer
 
 def load_gcm_rcm_couple_to_studies(altitudes, gcm_rcm_couples, gcm_to_year_min_and_year_max,
                                    safran_study_class, scenario, season, study_class,

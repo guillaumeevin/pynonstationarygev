@@ -129,7 +129,10 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             return None
 
     def get_dataset(self, massif_altitudes, massif_name, gcm_rcm_couple_as_pseudo_truth=None):
-        dataset = self.studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes,
+        if (len(massif_altitudes) == 1) and (gcm_rcm_couple_as_pseudo_truth is None):
+            dataset = self.studies.spatio_temporal_dataset_memoize(massif_name, massif_altitudes[0])
+        else:
+            dataset = self.studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes,
                                                        gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple_as_pseudo_truth)
         return dataset
 

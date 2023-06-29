@@ -50,7 +50,7 @@ def main_quantitative():
             # Load the selected parameterization (adjustment coefficient and number of linear pieces)
             all_massif = True
             all_massif_names = AbstractStudy.all_massif_names()[:] if all_massif else ['Mont-Blanc']
-            massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects = run_selection(
+            massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects, gcm_rcm_couple_to_studies = run_selection(
                 all_massif_names,
                 altitude,
                 gcm_rcm_couples,
@@ -99,7 +99,7 @@ def main_quantitative():
                                                      massif_name_to_param_name_to_climate_coordinates_with_effects,
                                                      massif_names, remove_physically_implausible_models,
                                                      safran_study_class, scenario, season, study_class,
-                                                     temporal_covariate_for_fit)
+                                                     temporal_covariate_for_fit, gcm_rcm_couple_to_studies)
 
                 all_pvalues = []
                 for massif_name, one_fold_fit in sub_visualizer.massif_name_to_one_fold_fit.items():

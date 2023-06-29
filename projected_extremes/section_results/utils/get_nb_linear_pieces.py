@@ -29,20 +29,23 @@ def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_co
                                               study_class, season, snowfall
                                               ):
     new_massif_names = []
+    gcm_rcm_couple_to_studies = load_gcm_rcm_couple_to_studies([altitude], gcm_rcm_couples,
+                                                               None,
+                                                               safran_study_class,
+                                                               scenario,
+                                                               season,
+                                                               study_class)
+    safran_studies = gcm_rcm_couple_to_studies[(None, None)]
+
     for massif_name in massif_names:
 
-        gcm_rcm_couple_to_studies = load_gcm_rcm_couple_to_studies([altitude],gcm_rcm_couples,
-                                                                                                   None,
-                                                                                                   safran_study_class,
-                                                                                                   scenario,
-                                                                                                   season,
-                                                                                                   study_class)
-        safran_studies = gcm_rcm_couple_to_studies[(None, None)]
+
+
         if massif_name in safran_studies.study.study_massif_names:
             nb_zeros = 0
             nb_data = 0
             for studies in gcm_rcm_couple_to_studies.values():
-                dataset = studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=[altitude])
+                dataset = studies.spatio_temporal_dataset_memoize(massif_name, altitude)
                 s = dataset.observations.df_maxima_gev.iloc[:, 0]
                 nb_zeros += sum(s == 0)
                 nb_data += len(s)
@@ -56,7 +59,7 @@ def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_co
                 print('eliminate due to zeros:', massif_name)
             else:
                 new_massif_names.append(massif_name)
-    return new_massif_names
+    return new_massif_names, gcm_rcm_couple_to_studies
 
 
 def run_selection(massif_names, altitude, gcm_rcm_couples,
@@ -67,7 +70,7 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
                   print_latex_table=False,
                   plot_selection_graph=True,
                   ):
-    massif_name_to_number, linear_effects, massif_names, snowfall_str, numbers_of_pieces = get_massif_name_to_number(
+    massif_name_to_number, linear_effects, massif_names, snowfall_str, numbers_of_pieces, gcm_rcm_couple_to_studies = get_massif_name_to_number(
         altitude, gcm_rcm_couples, massif_names,
         safran_study_class, scenario, snowfall,
         study_class, season)
@@ -117,14 +120,14 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
     massif_name_to_model_class = {m: number_to_model_class[n] for m, n in massif_name_to_number.items()}
     massif_name_to_parametrization_number = {m: short_name_to_parametrization_number[s] for m, s in
                                              massif_name_to_short_name.items()}
-    return massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects_for_selection
+    return massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects_for_selection, gcm_rcm_couple_to_studies
 
 
 def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_study_class, scenario, snowfall,
                               study_class, season):
     max_number_of_pieces, min_number_of_pieces, snowfall_str = get_min_max_number_of_pieces(snowfall)
     numbers_of_pieces = list(range(min_number_of_pieces, max_number_of_pieces + 1))
-    massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
+    massif_names, gcm_rcm_couple_to_studies = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
                                                              safran_study_class, scenario,
                                                              study_class, season, snowfall)
     d = massif_name_to_nb_linear_pieces(massif_names, altitude,
@@ -132,7 +135,7 @@ def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_st
 
     massif_names = list(d.keys())
     linear_effects = linear_effects_for_selection
-    return d, linear_effects, massif_names, snowfall_str, numbers_of_pieces
+    return d, linear_effects, massif_names, snowfall_str, numbers_of_pieces, gcm_rcm_couple_to_studies
 
 
 def get_min_max_number_of_pieces(snowfall):
