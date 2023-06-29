@@ -43,13 +43,13 @@ def compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxim
                                                         maximum_from_obs=True,
                                                         assertion_for_inf=True,
                                                         gumbel_standardization=False):
-    if len(coordinate_values) > 2000:
-        return compute_nllh_with_multiprocessing(coordinate_values, maxima_values, margin_function_from_fit,
-                                                 maximum_from_obs,
-                                                 assertion_for_inf, gumbel_standardization)
-    else:
-        return compute_nllh(coordinate_values, maxima_values, margin_function_from_fit, maximum_from_obs,
-                            assertion_for_inf, gumbel_standardization)
+    # if len(coordinate_values) > 2000:
+    #     return compute_nllh_with_multiprocessing(coordinate_values, maxima_values, margin_function_from_fit,
+    #                                              maximum_from_obs,
+    #                                              assertion_for_inf, gumbel_standardization)
+    # else:
+    return compute_nllh(coordinate_values, maxima_values, margin_function_from_fit, maximum_from_obs,
+                        assertion_for_inf, gumbel_standardization)
 
 
 def compute_nllh_with_multiprocessing(coordinate_values, maxima_values, margin_function_from_fit, maximum_from_obs=True,
