@@ -123,7 +123,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         return self.aic + additional_term
 
     def sorted_empirical_standard_gumbel_quantiles(self, coordinate_for_filter=None, coordinate_values=None):
-        sorted_empirical_quantiles = []
+        sorted_empirical_quantiles = set()
         maxima_values = self.dataset.maxima_gev
         if coordinate_values is None:
             coordinate_values = self.df_coordinates_for_fit.values
@@ -140,8 +140,8 @@ class LinearMarginEstimator(AbstractMarginEstimator):
             if isinstance(maximum, np.ndarray):
                 maximum = maximum[0]
             maximum_standardized = gev_param.gumbel_standardization(maximum)
-            sorted_empirical_quantiles.append(maximum_standardized)
-        sorted_empirical_quantiles = sorted(sorted_empirical_quantiles)
+            sorted_empirical_quantiles.add(maximum_standardized)
+        sorted_empirical_quantiles = sorted(list(sorted_empirical_quantiles))
         return sorted_empirical_quantiles
 
     def coordinate_values_to_maxima_from_standard_gumbel_quantiles(self, standard_gumbel_quantiles):
