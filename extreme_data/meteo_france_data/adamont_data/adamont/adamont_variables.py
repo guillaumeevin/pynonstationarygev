@@ -74,8 +74,15 @@ class SafranSnowfallSimulationVariable(AbstractAdamontVariable):
 
 class SafranSnowfall3daysSimulationVariable(SafranSnowfallSimulationVariable):
 
+    @classproperty
     def indicator_name_for_maxima(cls):
         return 'max-3day-consec-snowf-year'
+
+class SafranSnowfall5daysSimulationVariable(SafranSnowfallSimulationVariable):
+
+    @classproperty
+    def indicator_name_for_maxima(cls):
+        return 'max-5day-consec-snowf-year'
 
 
 class SafranPrecipitationSimulationVariable(AbstractAdamontVariable):

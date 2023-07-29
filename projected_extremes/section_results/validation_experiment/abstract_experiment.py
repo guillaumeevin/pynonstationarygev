@@ -11,7 +11,8 @@ import numpy.testing as npt
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
-from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019, \
+    SafranSnowfall3Days2022, SafranSnowfall5Days2022
 from extreme_data.utils import RESULTS_PATH
 from extreme_fit.estimator.margin_estimator.utils_functions import NllhIsInfException, \
     compute_nllh_with_multiprocessing_for_large_samples
@@ -109,7 +110,6 @@ class AbstractExperiment(object):
                 print(e.__repr__())
                 nllh_lists = [[np.nan] for _ in self.prefixs]
             duration = str(datetime.timedelta(seconds=time.time() - start))
-            print('Total duration for one experiment', duration)
             for nllh_list, prefix in zip(nllh_lists, self.prefixs):
                 row_name = self.get_row_name(prefix)
                 update_csv(self.excel_filepath, row_name, self.experiment_name, gcm_rcm_couple, np.array(nllh_list))
@@ -247,6 +247,10 @@ class AbstractExperiment(object):
             return "snowfall"
         elif self.safran_study_class is SafranPrecipitation2019:
             return "precipitation"
+        elif self.safran_study_class is SafranSnowfall3Days2022:
+            return "snowfall3days2022"
+        elif self.safran_study_class is SafranSnowfall5Days2022:
+            return "snowfall5days2022"
         else:
             raise NotImplementedError
 

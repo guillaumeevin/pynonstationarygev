@@ -105,6 +105,7 @@ class AbstractAdamontStudy(AbstractStudy):
             for year, maxima in zip(years, annual_maxima_data):
                 if self.year_min <= year <= self.year_max:
                     year_to_annual_maxima_data[year] = maxima
+            dataset.close()
         return year_to_annual_maxima_data
 
     def _load_dataset(self, scenario, maxima_date):

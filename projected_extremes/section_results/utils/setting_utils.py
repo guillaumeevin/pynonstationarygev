@@ -1,12 +1,15 @@
 from typing import List
 
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontSnowLoad
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall, AdamontPrecipitation
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall, AdamontPrecipitation, \
+    AdamontSnowfall3days, AdamontSnowfall5days
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019
+from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall3Days
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
-from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019
+from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019, \
+    SafranSnowfall3Days2022, SafranSnowfall5Days2022
 from extreme_data.meteo_france_data.scm_models_data.studyfrommaxfiles import AbstractStudyMaxFiles
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -46,9 +49,8 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covari
     AnomalyTemperatureWithSplineTemporalCovariate
 
 
-def set_up_and_load(fast, snowfall=True):
-    # todo: it might have been prerable to load an object containing all the attributes
-    safran_study_class, study_class = load_study_classes(snowfall)
+def set_up_and_load(fast, snowfall=True, nb_days=1):
+    safran_study_class, study_class = load_study_classes(snowfall, nb_days)
     OneFoldFit.multiprocessing = False
 
     remove_physically_implausible_models, display_only_model_that_pass_gof_test = False, False
@@ -91,8 +93,8 @@ def set_up_and_load(fast, snowfall=True):
         AbstractExtractEurocodeReturnLevel.NB_BOOTSTRAP = 1000
         massif_names = AbstractStudy.all_massif_names()
         if snowfall:
-            altitudes_list = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
-            # altitudes_list = [2100, 2400, 2700, 3000, 3300, 3600]
+            # altitudes_list = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
+            altitudes_list = [2100, 2400, 2700, 3000, 3300, 3600]
         else:
             altitudes_list = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
 
@@ -120,10 +122,20 @@ def set_up_and_load(fast, snowfall=True):
     return altitudes_list, gcm_rcm_couples, massif_names, model_classes_list, scenario, study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method, season
 
 
-def load_study_classes(snowfall):
+def load_study_classes(snowfall, nb_days=1):
+    print(f'number of days for study classes: {nb_days}')
     if snowfall is True:
-        safran_study_class = [None, SafranSnowfall2019][1]  # None means we do not account for the observations
-        study_class = AdamontSnowfall
+        if nb_days == 1:
+            safran_study_class = SafranSnowfall2019
+            study_class = AdamontSnowfall
+        elif nb_days == 3:
+            safran_study_class = SafranSnowfall3Days2022
+            study_class = AdamontSnowfall3days
+        elif nb_days == 5:
+            safran_study_class = SafranSnowfall5Days2022
+            study_class = AdamontSnowfall5days
+        else:
+            raise NotImplementedError
     elif snowfall is None:
         study_class = AdamontPrecipitation
         safran_study_class = SafranPrecipitation2019
