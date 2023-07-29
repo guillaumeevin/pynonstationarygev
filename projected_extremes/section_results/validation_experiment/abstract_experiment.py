@@ -14,8 +14,7 @@ from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf im
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019, \
     SafranSnowfall3Days2022, SafranSnowfall5Days2022
 from extreme_data.utils import RESULTS_PATH
-from extreme_fit.estimator.margin_estimator.utils_functions import NllhIsInfException, \
-    compute_nllh_with_multiprocessing_for_large_samples
+from extreme_fit.estimator.margin_estimator.utils_functions import NllhIsInfException, compute_nllh
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
@@ -191,8 +190,7 @@ class AbstractExperiment(object):
                                                                             for_fit=False)
         maxima_values = dataset_test.observations.maxima_gev
         coordinate_values = df_coordinates_temp_for_test.values
-        nllh = compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxima_values,
-                                                                   best_estimator.margin_function_from_fit,
+        nllh = compute_nllh(coordinate_values, maxima_values, best_estimator.margin_function_from_fit,
                                                                    True, True, gumbel_standardization)
         return [nllh / len(coordinate_values) for _ in coordinate_values]
 
