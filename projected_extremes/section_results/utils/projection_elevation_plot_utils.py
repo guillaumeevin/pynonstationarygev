@@ -24,7 +24,6 @@ from projected_extremes.section_results.utils.plot_utils import add_suffix_label
 def plot_transition_lines(visualizer, return_period_to_paths, relative_change, legend_fontsize, ticksize):
     ax = plt.gca()
 
-    # colors = ['k', 'forestgreen', 'limegreen', 'yellowgreen', 'greenyellow', 'palegreen', 'khaki']
     colors = ['k', 'darkblue', 'mediumblue', 'royalblue', 'cornflowerblue', 'deepskyblue', 'cyan']
     for color, (return_period, paths) in zip(colors[::-1], list(return_period_to_paths.items())):
         x, y = [], []

@@ -171,61 +171,45 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         return {massif_name: old_fold_fit for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
                 if old_fold_fit.has_at_least_one_valid_model}
 
-    @property
-    def first_one_fold_fit(self):
-        return list(self.massif_name_to_one_fold_fit.values())[0]
-
-    def plot_moments_projections_snowfall(self, with_significance, scenario):
-        default_covariate = OneFoldFit.COVARIATE_AFTER_TEMPERATURE
+    def plot_moments_projections_snowfall(self):
         OneFoldFit.COVARIATE_BEFORE_TEMPERATURE = 1
-
         # Standard plot
         for order in [1, None][:]:
             for covariate in [2, 4][:]:
                 for moment_name in ['changes_of_moment', 'relative_changes_of_moment'][:]:
-                    if 'relative' in moment_name:
-                        max_abs_change = 40.01
-                    else:
-                        max_abs_change = 25.01
-
+                    max_abs_change = 40.01 if 'relative' in moment_name else 25.01
                     OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
-                    self.plot_map_moment_projections(moment_name, order, with_significance,
-                                                     max_abs_change=max_abs_change, add_elevation=True, snowfall=True)
+                    self.plot_map_moment_projections(moment_name, order, max_abs_change, snowfall=True)
 
-    def plot_moments_projections(self, with_significance, scenario):
+    def plot_moments_projections(self, scenario):
         default_covariate = OneFoldFit.COVARIATE_AFTER_TEMPERATURE
         OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 1
-        max_abs = self.plot_map_moment_projections("moment", None, with_significance)
+        max_abs = self.plot_map_moment_projections("moment", None)
         for covariate in [2, 3, 4]:
             print("covariate", covariate)
             OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
-            self.plot_map_moment_projections("moment", None, with_significance, max_abs)
+            self.plot_map_moment_projections("moment", None, max_abs)
         OneFoldFit.COVARIATE_AFTER_TEMPERATURE = default_covariate
 
         # Standard plot
         for order in [1, None]:
             for covariate in [2, 3, 4]:
                 OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
-                self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance)
+                self.plot_map_moment_projections('relative_changes_of_moment', order)
 
         # Compute some number for the discussion
         covariate_before = (1986, 2005)
         if isinstance(covariate_before, tuple):
-            OneFoldFit.COVARIATE_BEFORE_DISPLAY = "{}-{}".format(*covariate_before)
-            covariate_before = tuple(
-                year_to_averaged_global_mean_temp(scenario, covariate_before[0], covariate_before[1]).values())
+            covariate_before = tuple(year_to_averaged_global_mean_temp(scenario, covariate_before[0], covariate_before[1]).values())
         OneFoldFit.COVARIATE_BEFORE_TEMPERATURE = covariate_before
 
         for order in [1, None]:
             for covariate in [(2031, 2050), (2080, 2099)]:
                 if isinstance(covariate, tuple):
-                    OneFoldFit.COVARIATE_AFTER_DISPLAY = "{}-{}".format(*covariate)
                     covariate = tuple(year_to_averaged_global_mean_temp(scenario, covariate[0], covariate[1]).values())
-                else:
-                    OneFoldFit.COVARIATE_AFTER_DISPLAY = "+$" + str(covariate) + "^o\mathrm{C}$"
                 OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
                 # self.plot_map_moment_projections('changes_of_moment', None, with_significance)
-                self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance)
+                self.plot_map_moment_projections('relative_changes_of_moment', order)
 
     def method_name_and_order_to_d(self, method_name, order):
         c = (method_name, order, OneFoldFit.COVARIATE_AFTER_TEMPERATURE)
@@ -248,19 +232,15 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
 
 
-    def plot_map_moment_projections(self, method_name, order, with_significance, max_abs_change=None,
-                                    add_elevation=False,
-                                    snowfall=False):
+    def plot_map_moment_projections(self, method_name, order, max_abs_change=None, snowfall=False):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
-        print('here \n\n')
-        print(self.altitude_group.altitude, order, method_name, min(massif_name_to_value.values()), max(massif_name_to_value.values()))
 
         # Plot settings
         moment = ' '.join(method_name.split('_'))
         d_temperature = {'C': '{C}'}
         str_for_last_year = ' at +${}^o\mathrm{C}$' \
             if self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate else ' in {}'
-        str_for_last_year = str_for_last_year.format(self.first_one_fold_fit.covariate_after, **d_temperature)
+        str_for_last_year = str_for_last_year.format(OneFoldFit.COVARIATE_AFTER_TEMPERATURE, **d_temperature)
         moment = moment.replace('moment', '{}{}'.format(OneFoldFit.get_moment_str(order=order), str_for_last_year))
         plot_name = '{} '.format(moment)
 
@@ -278,7 +258,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 massif_name_to_text = {m: ('+' if v > 0 else '') + str(round(v, 1)) for m, v in
                                        self.method_name_and_order_to_d(self.moment_names[1], order).items()}
 
-            print("\n", self.first_one_fold_fit.between_covariate_str, 'Order is {}'.format(order)
+            print("\n", OneFoldFit.COVARIATE_BEFORE_TEMPERATURE, OneFoldFit.COVARIATE_AFTER_TEMPERATURE, 'Order is {}'.format(order)
                   )
             for i in [1, 2]:
                 if i == 2:
@@ -291,7 +271,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
         parenthesis = self.study.variable_unit if 'relative' not in method_name else '\%'
         ylabel = label + ' ({})'.format(parenthesis)
-        plot_name += 'at +{}$^o$C'.format(self.first_one_fold_fit.covariate_after)
+        plot_name += 'at +{}$^o$C'.format(OneFoldFit.COVARIATE_AFTER_TEMPERATURE)
 
         add_colorbar = self.study.altitude in [2100, 3600]
 
@@ -313,11 +293,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 graduation = 2
             else:
                 graduation = 10
-            massif_names_with_white_dot = None
             half_cmap_for_positive = False
         else:
             half_cmap_for_positive = True
-            fontsize_label = 10
             if not snowfall:
                 cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
                 if 'relative' in method_name:
@@ -331,20 +309,6 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 graduation = 5
                 max_abs_change = max_abs_change
             cmap = remove_the_extreme_colors(cmap)
-
-            if with_significance:
-                print('nb of massifs with singificant correct')
-                print(sum([one_fold_fit.gcm_correction_is_significant for one_fold_fit in
-                           self.massif_name_to_one_fold_fit.values()]))
-                print('nb of massifs with singificant trend')
-                print(sum([one_fold_fit.is_significant for one_fold_fit in self.massif_name_to_one_fold_fit.values()]))
-
-                massif_names_with_white_dot = set([massif_name
-                                                   for massif_name, one_fold_fit in
-                                                   self.massif_name_to_one_fold_fit.items()
-                                                   if not one_fold_fit.is_significant])
-            else:
-                massif_names_with_white_dot = None
 
         if snowfall:
             negative_and_positive_values = self.moment_names.index(method_name) > 0
@@ -361,7 +325,6 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       add_colorbar=add_colorbar,
                       max_abs_change=max_abs_change,
                       fontsize_label=fontsize_label,
-                      massif_names_with_white_dot=massif_names_with_white_dot,
                       half_cmap_for_positive=half_cmap_for_positive,
                       massif_name_to_text=massif_name_to_text
                       )

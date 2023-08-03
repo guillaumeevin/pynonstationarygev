@@ -88,11 +88,10 @@ def main():
                                              temporal_covariate_for_fit, gcm_rcm_couple_to_studies)
 
         # Visualize the projected changes for the return levels and the relative changes in return levels
-        with_significance = False
         if snowfall:
-            sub_visualizer.plot_moments_projections_snowfall(with_significance, scenario)
+            sub_visualizer.plot_moments_projections_snowfall()
         else:
-            sub_visualizer.plot_moments_projections(with_significance, scenario)
+            sub_visualizer.plot_moments_projections(scenario)
 
 
 if __name__ == '__main__':
