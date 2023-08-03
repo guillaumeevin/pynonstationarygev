@@ -1,11 +1,15 @@
 from extreme_data.meteo_france_data.adamont_data.abstract_adamont_study import AbstractAdamontStudy
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_variables import CrocusSweSimulationVariable, \
-    CrocusTotalSnowLoadVariable
+    CrocusTotalSnowLoadVariable, CrocusDepthSimulationVariable
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusVariable
 from extreme_data.meteo_france_data.scm_models_data.utils import Season, FrenchRegion
 
 
+class AdamontDepth(AbstractAdamontStudy):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(CrocusDepthSimulationVariable, *args, **kwargs)
 class AdamontSwe(AbstractAdamontStudy):
 
     def __init__(self, *args, **kwargs):

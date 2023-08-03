@@ -1,11 +1,11 @@
 from typing import List
 
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontSnowLoad
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontSnowLoad, AdamontDepth
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall, AdamontPrecipitation, \
     AdamontSnowfall3days, AdamontSnowfall5days
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019, CrocusDepth2022
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall3Days
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019, \
@@ -140,8 +140,10 @@ def load_study_classes(snowfall, nb_days=1):
         study_class = AdamontPrecipitation
         safran_study_class = SafranPrecipitation2019
     else:
-        study_class = AdamontSnowLoad
-        safran_study_class = CrocusSnowLoad2019
+        study_class = AdamontDepth
+        safran_study_class = CrocusDepth2022
+        # study_class = AdamontSnowLoad
+        # safran_study_class = CrocusSnowLoad2019
     return safran_study_class, study_class
 
 
@@ -149,3 +151,18 @@ def get_last_year_for_the_train_set(percentage):
     last_year_for_the_train_set = 1959 + round(percentage * 61) - 1
     return last_year_for_the_train_set
 
+def get_variable_name(safran_study_class):
+    if safran_study_class is CrocusSnowLoad2019:
+        return "snow load"
+    elif safran_study_class is SafranSnowfall2019:
+        return "snowfall"
+    elif safran_study_class is SafranPrecipitation2019:
+        return "precipitation"
+    elif safran_study_class is SafranSnowfall3Days2022:
+        return "snowfall3days2022"
+    elif safran_study_class is SafranSnowfall5Days2022:
+        return "snowfall5days2022"
+    elif safran_study_class is CrocusDepth2022:
+        return "snowdepth2022"
+    else:
+        raise NotImplementedError

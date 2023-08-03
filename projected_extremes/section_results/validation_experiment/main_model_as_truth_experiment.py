@@ -35,13 +35,14 @@ def main_preliminary_projections():
     temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test,\
     safran_study_class, fit_method, season = set_up_and_load(fast, snowfall, nb_days)
 
-    # altitudes_list = [[3000], [3300], [3600]]
+    # altitudes_list = [[1500], [1800], [2100], [2400]]
+    # altitudes_list = [[1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]]
 
     # Run a model as truth experiment
     # for each altitude and for each model_class (number of pieces for the piecewise linear functions)
-    for model_class in model_classes_list[:]:
-        model_classes = [model_class]
-        for altitudes in altitudes_list:
+    for altitudes in altitudes_list:
+        for model_class in model_classes_list[:]:
+            model_classes = [model_class]
             run_mas(altitudes, display_only_model_that_pass_gof_test, gcm_rcm_couples, massif_names,
                     model_classes, remove_physically_implausible_models, safran_study_class, scenario, show,
                     study_class, temporal_covariate_for_fit, fit_method, season)

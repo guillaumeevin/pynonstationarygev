@@ -9,7 +9,7 @@ import numpy as np
 import numpy.testing as npt
 
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019, CrocusDepth2022
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019, \
     SafranSnowfall3Days2022, SafranSnowfall5Days2022
@@ -24,6 +24,7 @@ from extreme_trend.ensemble_fit.visualizer_non_stationary_ensemble import \
 from projected_extremes.section_results.utils.combination_utils import \
     load_param_name_to_climate_coordinates_with_effects, load_combination_name
 from projected_extremes.section_results.utils.csv_utils import update_csv, is_already_done
+from projected_extremes.section_results.utils.setting_utils import get_variable_name
 from root_utils import get_display_name_from_object_type
 
 
@@ -239,18 +240,7 @@ class AbstractExperiment(object):
 
     @property
     def variable_name(self):
-        if self.safran_study_class is CrocusSnowLoad2019:
-            return "snow load"
-        elif self.safran_study_class is SafranSnowfall2019:
-            return "snowfall"
-        elif self.safran_study_class is SafranPrecipitation2019:
-            return "precipitation"
-        elif self.safran_study_class is SafranSnowfall3Days2022:
-            return "snowfall3days2022"
-        elif self.safran_study_class is SafranSnowfall5Days2022:
-            return "snowfall5days2022"
-        else:
-            raise NotImplementedError
+        return get_variable_name(self.safran_study_class)
 
     @property
     def massif_name(self):

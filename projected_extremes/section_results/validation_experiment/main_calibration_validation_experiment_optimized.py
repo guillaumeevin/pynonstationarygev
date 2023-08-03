@@ -1,6 +1,3 @@
-import datetime
-import time
-
 from projected_extremes.section_results.utils.get_nb_linear_pieces import get_massif_name_to_number
 from projected_extremes.section_results.utils.selection_utils import number_to_model_class
 from projected_extremes.section_results.utils.setting_utils import set_up_and_load, get_last_year_for_the_train_set
@@ -19,15 +16,18 @@ def main_calibration_validation_experiment():
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
     fast = False
-    snowfall = False
+    snowfall = True
+    nb_days = 5
 
     # Load parameters
-    altitudes_list, gcm_rcm_couples, massif_names, _, scenario, \
+    altitudes_list, gcm_rcm_couples, all_massif_names, _, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
-        fast, snowfall)
+        fast, snowfall, nb_days)
 
-    altitudes_list = [[2700]]
+    # altitudes_list = [[1500], [1800], [2100], [2400]]
+    # all_massif_names = ['Mercantour']
+    # altitudes_list = [[1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]][::-1]
 
     # We consider three types of split where the training set represents either 60%, 70% or 80% of the reanalysis data
     percentage_for_the_train_set = [0.6, 0.7, 0.8][:]
@@ -43,7 +43,7 @@ def main_calibration_validation_experiment():
         # first parameter of the GEV distribution (the location parameter) is changing lienarly with the global warming
         massif_name_to_number, linear_effects, massif_names, _, _, _ = get_massif_name_to_number(altitude,
                                                                                               gcm_rcm_couples,
-                                                                                              massif_names,
+                                                                                              all_massif_names,
                                                                                               safran_study_class,
                                                                                               scenario,
                                                                                               snowfall,

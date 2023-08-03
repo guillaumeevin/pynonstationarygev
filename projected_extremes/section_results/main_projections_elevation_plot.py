@@ -50,7 +50,7 @@ def main():
     # Initialize a dataframe called df_model_selected to analyze the repartition of selected models (repartition of
     # the selected number of linear pieces, repartition of the selected parameterization of adjustment coefficients)
     parameterization_numbers = sorted(list(short_name_to_parametrization_number.values()))
-    max_number, min_number, _ = get_min_max_number_of_pieces(snowfall)
+    max_number, min_number = get_min_max_number_of_pieces()
     df_model_selected = pd.DataFrame(0, index=parameterization_numbers, columns=list(range(min_number, max_number + 1)))
 
     visualizers = []

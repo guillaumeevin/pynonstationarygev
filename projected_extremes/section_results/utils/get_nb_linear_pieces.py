@@ -16,7 +16,8 @@ from extreme_trend.one_fold_fit.utils import load_gcm_rcm_couple_to_studies
 from projected_extremes.section_results.utils.selection_utils import get_short_name, number_to_model_class, \
     short_name_to_parametrization_number, linear_effects_for_selection, number_to_model_name, short_name_to_color, \
     short_name_to_label
-from projected_extremes.section_results.utils.setting_utils import get_last_year_for_the_train_set, set_up_and_load
+from projected_extremes.section_results.utils.setting_utils import get_last_year_for_the_train_set, set_up_and_load, \
+    get_variable_name
 from root_utils import VERSION_TIME
 
 abstract_experiment_folder = op.join(RESULTS_PATH, "abstract_experiments")
@@ -125,7 +126,8 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
 
 def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_study_class, scenario, snowfall,
                               study_class, season):
-    max_number_of_pieces, min_number_of_pieces, snowfall_str = get_min_max_number_of_pieces(snowfall)
+    max_number_of_pieces, min_number_of_pieces = get_min_max_number_of_pieces()
+    snowfall_str = get_variable_name(safran_study_class)
     numbers_of_pieces = list(range(min_number_of_pieces, max_number_of_pieces + 1))
     massif_names, gcm_rcm_couple_to_studies = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
                                                              safran_study_class, scenario,
@@ -138,20 +140,10 @@ def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_st
     return d, linear_effects, massif_names, snowfall_str, numbers_of_pieces, gcm_rcm_couple_to_studies
 
 
-def get_min_max_number_of_pieces(snowfall):
-    if snowfall is True:
-        snowfall_str = 'snowfall'
-        min_number_of_pieces = 1
-        max_number_of_pieces = 4
-    elif snowfall is None:
-        snowfall_str = 'precipitation'
-        min_number_of_pieces = 1
-        max_number_of_pieces = 4
-    else:
-        min_number_of_pieces = 1
-        max_number_of_pieces = 4
-        snowfall_str = "snowload"
-    return max_number_of_pieces, min_number_of_pieces, snowfall_str
+def get_min_max_number_of_pieces():
+    min_number_of_pieces = 1
+    max_number_of_pieces = 4
+    return max_number_of_pieces, min_number_of_pieces
 
 
 def plots(massif_name_to_short_name, d, show, altitude, snowfall_str, numbers_of_pieces):
