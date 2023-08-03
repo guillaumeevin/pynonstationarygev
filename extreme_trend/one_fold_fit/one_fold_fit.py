@@ -1,18 +1,13 @@
-from typing import List
-
 import numpy as np
-from cached_property import cached_property
 
 from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.distribution.gumbel.gumbel_gof import goodness_of_fit_anderson, get_pvalue_anderson_darling_test
-from extreme_fit.estimator.margin_estimator.abstract_margin_estimator import LinearMarginEstimator
 from extreme_fit.estimator.margin_estimator.utils import fitted_linear_margin_estimator_short
 from extreme_fit.function.margin_function.independent_margin_function import IndependentMarginFunction
 from extreme_fit.model.margin_model.spline_margin_model.spline_margin_model import SplineMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.utils import SafeRunException
 from extreme_trend.one_fold_fit.altitude_group import DefaultAltitudeGroup
-from extreme_trend.one_fold_fit.utils_split_sample_selection import compute_mean_log_score_with_split_sample
 from projected_extremes.section_results.utils.combination_utils import load_combination, generate_sub_combination, \
     load_param_name_to_climate_coordinates_with_effects
 from root_utils import NB_CORES
@@ -31,7 +26,6 @@ class OneFoldFit(object):
     multiprocessing = None
     nb_cores_for_multiprocess = NB_CORES
     max_batchsize = None
-    SELECTION_METHOD_NAME = 'aic'
     COVARIATE_BEFORE_TEMPERATURE = 1
     COVARIATE_AFTER_TEMPERATURE = 2
 
@@ -46,6 +40,7 @@ class OneFoldFit(object):
                  param_name_to_climate_coordinates_with_effects=None,
                  linear_effects=(False, False, False),
                  with_sub_combinations=False):
+        assert len(models_classes) == 1
         self.linear_effects = linear_effects
         self.with_sub_combinations = with_sub_combinations
         self.first_year = first_year
@@ -75,8 +70,6 @@ class OneFoldFit(object):
                 fitted_estimator = self.fitted_linear_margin_estimator(model_class, self.dataset,
                                                                        param_name_to_climate_coordinates_with_effects)
                 self.fitted_estimators.add(fitted_estimator)
-        # Compute sorted estimators indirectly
-        _ = self.has_at_least_one_valid_model
 
     def fitted_linear_margin_estimator(self, model_class, dataset, param_name_to_climate_coordinates_with_effects):
         if issubclass(model_class, SplineMarginModel):
@@ -190,71 +183,10 @@ class OneFoldFit(object):
             relative_changes.append(relative_change)
         return relative_changes
 
-    # Minimizing the AIC and some properties
-
-    @cached_property
-    def sorted_estimators_with_default_selection_method(self):
-        return self._sorted_estimators_with_method_name(method_name=self.SELECTION_METHOD_NAME)
-
-    def method_name_to_best_estimator(self, method_names):
-        return {self._sorted_estimators_with_method_name(method_name) for method_name in method_names}
-
-    def _sorted_estimators_with_method_name(self, method_name) -> List[LinearMarginEstimator]:
-        estimators = self.estimators_quality_checked
-        if len(estimators) == 1:
-            return estimators
-        else:
-            try:
-                if OneFoldFit.SELECTION_METHOD_NAME == 'split_sample':
-                    for estimator in estimators:
-                        estimator.split_sample = compute_mean_log_score_with_split_sample(estimator)
-                    assert not all([np.isinf(estimator.split_sample) for estimator in estimators])
-                sorted_estimators = sorted([estimator for estimator in estimators],
-                                           key=lambda e: e.__getattribute__(method_name))
-            except AssertionError as e:
-                print('Error for:\n', self.massif_name, self.altitude_group)
-                raise e
-            return sorted_estimators
-
-    @cached_property
-    def estimators_quality_checked(self):
-        well_defined_estimators = []
-        for estimator in self.fitted_estimators:
-            if self.remove_physically_implausible_models:
-                # Remove wrong shape
-                if not (-0.5 < self._compute_shape_for_reference_altitude(estimator) < 0.5):
-                    continue
-                # Remove models with undefined parameters for the coordinate of interest
-                coordinate_values_for_the_fit = estimator.coordinates_for_nllh
-                if isinstance(self.altitude_group, DefaultAltitudeGroup):
-                    coordinate_values_for_the_result = []
-                else:
-                    coordinate_values_for_the_result = [np.array([self.altitude_group.reference_altitude, c])
-                                                        for c in self._covariate_before_and_after]
-                coordinate_values_to_check = list(coordinate_values_for_the_fit) + coordinate_values_for_the_result
-                has_undefined_parameters = False
-                for coordinate in coordinate_values_to_check:
-                    gev_params = estimator.margin_function_from_fit.get_params(coordinate)
-                    if gev_params.has_undefined_parameters:
-                        has_undefined_parameters = True
-                        break
-                if has_undefined_parameters:
-                    continue
-            #  Apply the goodness of fit
-            if self.only_models_that_pass_goodness_of_fit_test:
-                print('goodness of fit check for ', self.massif_name)
-                if not self.goodness_of_fit_test(estimator):
-                    continue
-            # Append to the list
-            well_defined_estimators.append(estimator)
-
-        if len(well_defined_estimators) == 0:
-            print(self.massif_name,
-                  " has only implausible models for altitude={}".format(self.altitude_group.reference_altitude))
-        # Check the number of models when we do not apply any goodness of fit
-        if not (self.remove_physically_implausible_models or self.only_models_that_pass_goodness_of_fit_test):
-            assert len(well_defined_estimators) == len(self.models_classes) * len(self.sub_combinations)
-        return well_defined_estimators
+    @property
+    def fitted_estimator(self):
+        assert len(self.fitted_estimators) == 1
+        return list(self.fitted_estimators)[0]
 
     def get_coordinate(self, altitude, year):
         if isinstance(self.altitude_group, DefaultAltitudeGroup):
@@ -266,48 +198,9 @@ class OneFoldFit(object):
             coordinate = np.array([altitude, year])
         return coordinate
 
-    def _compute_shape_for_reference_altitude(self, estimator):
-        coordinate = self.get_coordinate(self.altitude_plot, self.covariate_after)
-        gev_params = estimator.margin_function_from_fit.get_params(coordinate)
-        shape = gev_params.shape
-        return shape
-
-    @property
-    def has_at_least_one_valid_model(self):
-        return len(self.sorted_estimators_with_default_selection_method) > 0
-
-    @property
-    def model_class_and_combination_to_estimator_with_finite_aic(self):
-        return self._create_d(self.sorted_estimators_with_default_selection_method)
-
-    @property
-    def model_class_to_stationary_estimator_not_checked(self):
-        return self._create_d(self.fitted_estimators)
-
-    @staticmethod
-    def _create_d(estimators):
-        d = {}
-        for estimator in estimators:
-            margin_model = estimator.margin_model
-            combination = load_combination(margin_model.param_name_to_climate_coordinates_with_effects)
-            d[(type(margin_model), combination)] = estimator
-        return d
-
     @property
     def best_estimator(self):
-        if self.has_at_least_one_valid_model:
-            best_estimator = self.sorted_estimators_with_default_selection_method[0]
-            # Add some check up for the paper 2
-            if not isinstance(self.altitude_group, DefaultAltitudeGroup):
-                coordinate = best_estimator.coordinates_for_nllh[0]
-                gev_params = best_estimator.margin_function_from_fit.get_params(coordinate)
-                assert -0.5 < gev_params.shape < 0.5
-                assert not self.only_models_that_pass_goodness_of_fit_test
-                assert not self.remove_physically_implausible_models
-            return best_estimator
-        else:
-            raise ValueError('This object should not have been called because '
-                             'has_at_least_one_valid_model={}'.format(self.has_at_least_one_valid_model))
+        return self.fitted_estimator
 
     @property
     def best_margin_function_from_fit(self) -> IndependentMarginFunction:

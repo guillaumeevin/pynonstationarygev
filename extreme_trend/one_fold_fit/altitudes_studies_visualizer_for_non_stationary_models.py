@@ -30,7 +30,6 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covari
 
 
 class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
-    consider_at_least_two_altitudes = True
 
     def __init__(self, studies: AltitudesStudies,
                  model_classes: List[AbstractSpatioTemporalPolynomialModel],
@@ -77,56 +76,44 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             o = self.fit_one_fold(massif_name)
             if o is not None:
                 self._massif_name_to_one_fold_fit[massif_name] = o
-        # Print number of massif without any validated fit
-        massifs_without_any_validated_fit = [massif_name
-                                             for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
-                                             if not old_fold_fit.has_at_least_one_valid_model]
-        if self.display_only_model_that_pass_test:
-            print('# of massif without any validated fit:', len(massifs_without_any_validated_fit),
-                  massifs_without_any_validated_fit)
-        assert len(self.massif_names) > len(massifs_without_any_validated_fit), \
-            "All massifs did not pass the goodness of fit test"
 
     def fit_one_fold(self, massif_name):
         # Load valid massif altitudes
         massif_altitudes = self.get_massif_altitudes(massif_name)
-        if self.load_condition(massif_altitudes):
-            # Save the massif altitudes only for those who pass the condition
-            self.massif_name_to_massif_altitudes[massif_name] = massif_altitudes
-            # Load dataset
-            try:
-                dataset = self.get_dataset(massif_altitudes, massif_name, self.gcm_rcm_couple_as_pseudo_truth)
-            except AssertionError as e:
-                print('Exception for {}'.format(massif_name.replace("_", "")))
-                print(e.__repr__())
-                return None
-
-            if isinstance(self.model_classes, dict):
-                model_classes = [self.model_classes[massif_name]]
-            else:
-                model_classes = self.model_classes
-
-            if isinstance(self.param_name_to_climate_coordinates_with_effects,
-                          dict) and massif_name in self.param_name_to_climate_coordinates_with_effects:
-                param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects[
-                    massif_name]
-            else:
-                param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects
-
-            old_fold_fit = OneFoldFit(massif_name, dataset, model_classes,
-                                      self.study.year_min,
-                                      self.study.year_max,
-                                      self.fit_method,
-                                      self.temporal_covariate_for_fit,
-                                      self.altitude_group,
-                                      self.display_only_model_that_pass_test,
-                                      self.confidence_interval_based_on_delta_method,
-                                      self.remove_physically_implausible_models,
-                                      param_name_to_climate_coordinates_with_effects,
-                                      self.linear_effects)
-            return old_fold_fit
-        else:
+        # Save the massif altitudes only for those who pass the condition
+        self.massif_name_to_massif_altitudes[massif_name] = massif_altitudes
+        # Load dataset
+        try:
+            dataset = self.get_dataset(massif_altitudes, massif_name, self.gcm_rcm_couple_as_pseudo_truth)
+        except AssertionError as e:
+            print('Exception for {}'.format(massif_name.replace("_", "")))
+            print(e.__repr__())
             return None
+
+        if isinstance(self.model_classes, dict):
+            model_classes = [self.model_classes[massif_name]]
+        else:
+            model_classes = self.model_classes
+
+        if isinstance(self.param_name_to_climate_coordinates_with_effects,
+                      dict) and massif_name in self.param_name_to_climate_coordinates_with_effects:
+            param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects[
+                massif_name]
+        else:
+            param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects
+
+        old_fold_fit = OneFoldFit(massif_name, dataset, model_classes,
+                                  self.study.year_min,
+                                  self.study.year_max,
+                                  self.fit_method,
+                                  self.temporal_covariate_for_fit,
+                                  self.altitude_group,
+                                  self.display_only_model_that_pass_test,
+                                  self.confidence_interval_based_on_delta_method,
+                                  self.remove_physically_implausible_models,
+                                  param_name_to_climate_coordinates_with_effects,
+                                  self.linear_effects)
+        return old_fold_fit
 
     def get_dataset(self, massif_altitudes, massif_name, gcm_rcm_couple_as_pseudo_truth=None):
         if (len(massif_altitudes) == 1) and (gcm_rcm_couple_as_pseudo_truth is None):
@@ -158,18 +145,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 print(massif_name, altitude, percentage_of_non_zeros)
         return massif_altitudes
 
-    def load_condition(self, massif_altitudes):
-        # At least two altitudes for the estimated
-        # reference_altitude_is_in_altitudes = (self.altitude_group.reference_altitude in massif_altitudes)
-        if self.consider_at_least_two_altitudes:
-            return len(massif_altitudes) >= 2
-        else:
-            return True
-
     @property
     def massif_name_to_one_fold_fit(self) -> Dict[str, OneFoldFit]:
-        return {massif_name: old_fold_fit for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
-                if old_fold_fit.has_at_least_one_valid_model}
+        return {massif_name: old_fold_fit for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()}
 
     def plot_moments_projections_snowfall(self):
         OneFoldFit.COVARIATE_BEFORE_TEMPERATURE = 1

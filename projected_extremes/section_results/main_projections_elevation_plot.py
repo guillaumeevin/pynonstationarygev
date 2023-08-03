@@ -33,12 +33,13 @@ def main():
     # snowfall=None corresponds to daily winter precipitation
     fast = False
     snowfall = True
+    nb_days = 5
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, \
     study_class, temporal_covariate_for_fit, remove_physically_implausible_models, \
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
-        fast, snowfall)
+        fast, snowfall, nb_days)
 
     all_massif_names = AbstractStudy.all_massif_names()[:]
     altitudes = [e[0] for e in altitudes_list][:]

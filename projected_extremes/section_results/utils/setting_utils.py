@@ -76,7 +76,6 @@ def set_up_and_load(fast, snowfall=True, nb_days=1):
                                   AnomalyTemperatureWithSplineTemporalCovariate][1]
     set_seed_for_test()
     scenario = AdamontScenario.rcp85_extended
-    AltitudesStudiesVisualizerForNonStationaryModels.consider_at_least_two_altitudes = False
     gcm_rcm_couples = get_gcm_rcm_couples(scenario)
     print('Scenario is', scenario)
     print('Covariate is {}'.format(temporal_covariate_for_fit))
@@ -119,7 +118,9 @@ def set_up_and_load(fast, snowfall=True, nb_days=1):
     print('observation class:', get_display_name_from_object_type(safran_study_class))
     print('Take into account the observations: {}'.format(safran_study_class is not None))
 
-    return altitudes_list, gcm_rcm_couples, massif_names, model_classes_list, scenario, study_class, temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method, season
+    return (altitudes_list, gcm_rcm_couples, massif_names, model_classes_list, scenario, study_class,
+            temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test,
+            safran_study_class, fit_method, season)
 
 
 def load_study_classes(snowfall, nb_days=1):

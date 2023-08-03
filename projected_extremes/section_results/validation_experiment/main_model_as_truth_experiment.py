@@ -27,8 +27,8 @@ def main_preliminary_projections():
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
     fast = False
-    snowfall = True
-    nb_days = 5
+    snowfall = False
+    nb_days = 1
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, model_classes_list, scenario, study_class, \
@@ -36,7 +36,8 @@ def main_preliminary_projections():
     safran_study_class, fit_method, season = set_up_and_load(fast, snowfall, nb_days)
 
     # altitudes_list = [[1500], [1800], [2100], [2400]]
-    # altitudes_list = [[1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]]
+    altitudes_list = [[1500], [1800], [2100], [2400], [2700]]
+    massif_names = ['Mercantour']
 
     # Run a model as truth experiment
     # for each altitude and for each model_class (number of pieces for the piecewise linear functions)

@@ -139,7 +139,8 @@ class AbstractExperiment(object):
         one_fold_fit = visualizer.massif_name_to_one_fold_fit[self.massif_name]
         assert len(one_fold_fit.fitted_estimators) == 1, 'for the model as truth they should not be any combinations'
         assert len(self.selection_method_names) == 1
-        best_estimator = one_fold_fit._sorted_estimators_with_method_name("aic")[0]
+        assert len(self.model_classes) == 1
+        best_estimator = one_fold_fit.best_estimator
         # Compute the log score for the observations
         if self.only_obs_score is True:
             gumbel_standardization = False
