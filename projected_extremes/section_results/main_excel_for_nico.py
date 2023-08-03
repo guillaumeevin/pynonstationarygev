@@ -82,8 +82,9 @@ def main():
                                              safran_study_class, scenario, season, study_class,
                                              temporal_covariate_for_fit, gcm_rcm_couple_to_studies)
 
+
         for one_fold_fit in sub_visualizer.massif_name_to_one_fold_fit.values():
-            to_excel(one_fold_fit)
+            to_excel(one_fold_fit, gcm_rcm_couple_to_studies)
 
 
 if __name__ == '__main__':
