@@ -1,30 +1,22 @@
-from collections import Counter
+from math import ceil, floor
 from math import ceil, floor
 from typing import List, Dict
 
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
 from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import year_to_averaged_global_mean_temp
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import TotalSnowLoadVariable
-from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_inverse_colormap, \
-    remove_the_extreme_colors
-from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
-    SCM_STUDY_CLASS_TO_ABBREVIATION
-from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
+from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import remove_the_extreme_colors
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.distribution.gumbel.gumbel_gof import get_pvalue_anderson_darling_test
-from extreme_fit.function.margin_function.abstract_margin_function import AbstractMarginFunction
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_trend.one_fold_fit.altitude_group import \
-    get_altitude_group_from_altitudes, VeyHighAltitudeGroup, MidAltitudeGroup
+    get_altitude_group_from_altitudes
 from extreme_trend.one_fold_fit.one_fold_fit import \
     OneFoldFit
-from projected_extremes.section_results.utils.plot_utils import add_suffix_label
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
     AnomalyTemperatureWithSplineTemporalCovariate
 
@@ -212,6 +204,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     def plot_map_moment_projections(self, method_name, order, max_abs_change=None, snowfall=False):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
+        massif_name_to_text = {}
 
         # Plot settings
         moment = ' '.join(method_name.split('_'))

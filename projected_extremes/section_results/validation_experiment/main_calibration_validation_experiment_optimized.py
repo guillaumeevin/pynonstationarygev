@@ -16,8 +16,8 @@ def main_calibration_validation_experiment():
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
     fast = False
-    snowfall = True
-    nb_days = 3
+    snowfall = False
+    nb_days = 1
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, all_massif_names, _, scenario, \
@@ -25,9 +25,9 @@ def main_calibration_validation_experiment():
     display_only_model_that_pass_gof_test, safran_study_class, fit_method, season = set_up_and_load(
         fast, snowfall, nb_days)
 
-    # altitudes_list = [[1500], [1800], [2100], [2400]]
-    # all_massif_names = ['Mercantour']
-    altitudes_list = [[2100], [2400], [2700], [3000], [3300], [3600]][:]
+    altitudes_list = [[1500], [1800], [2100], [2400], [2700]]
+    all_massif_names = ['Mercantour']
+    # altitudes_list = [[2100], [2400], [2700], [3000], [3300], [3600]][:]
 
     # We consider three types of split where the training set represents either 60%, 70% or 80% of the reanalysis data
     percentage_for_the_train_set = [0.6, 0.7, 0.8][:]
