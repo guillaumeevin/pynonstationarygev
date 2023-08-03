@@ -20,7 +20,7 @@ def to_excel(one_fold_fit, gcm_rcm_couple_to_studies):
     gcm_rcm_couples = list(gcm_rcm_couple_to_studies.keys())
     #  Load writer
     model_name = get_display_name_from_object_type(one_fold_fit.models_classes[0])
-    excel_filename = f'{one_fold_fit.massif_name}_{one_fold_fit.altitude_plot}_{model_name}.xlsx'
+    excel_filename = f'{one_fold_fit.massif_name}_{one_fold_fit.altitude_plot}m_{model_name}.xlsx'
     path = op.join(RESULTS_PATH, SHORT_VERSION_TIME)
     if not op.exists(path):
         os.makedirs(path)
@@ -28,7 +28,7 @@ def to_excel(one_fold_fit, gcm_rcm_couple_to_studies):
     writer = pd.ExcelWriter(excel_filepath, engine='xlsxwriter')
     # Write sheetnames
     df_temperature_sheet(one_fold_fit).to_excel(writer, "quantile(rechauffement)", index=False)
-    df_temperature_sheet(one_fold_fit).to_excel(writer, "quantile(temps)", index=False)
+    df_temporal_sheet(one_fold_fit).to_excel(writer, "quantile(temps)", index=False)
     df_temperature_gcm_sheet(gcm_rcm_couples).to_excel(writer, "rechauffement pour chaque gcm", index=False)
     df_maxima(one_fold_fit, gcm_rcm_couple_to_studies).to_excel(writer, "maxima pour chaque gcm-rcm", index=False)
     # Save and close writer

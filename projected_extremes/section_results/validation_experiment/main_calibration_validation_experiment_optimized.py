@@ -16,8 +16,8 @@ def main_calibration_validation_experiment():
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
     fast = False
-    snowfall = False
-    nb_days = 1
+    snowfall = True
+    nb_days = 3
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, all_massif_names, _, scenario, \

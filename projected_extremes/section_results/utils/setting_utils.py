@@ -1,48 +1,29 @@
 from typing import List
 
-from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontSnowLoad, AdamontDepth
+from extreme_data.meteo_france_data.adamont_data.adamont.adamont_crocus import AdamontDepth
 from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import AdamontSnowfall, AdamontPrecipitation, \
     AdamontSnowfall3days, AdamontSnowfall5days
 from extreme_data.meteo_france_data.adamont_data.adamont_scenario import AdamontScenario, get_gcm_rcm_couples
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019, CrocusDepth2022
-from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall3Days
+from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2019, CrocusDepth2022, \
+    CrocusDepth2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2019, \
-    SafranSnowfall3Days2022, SafranSnowfall5Days2022
+    SafranSnowfall3Days2022, SafranSnowfall5Days2022, SafranSnowfall3Days2019, SafranSnowfall5Days2019
 from extreme_data.meteo_france_data.scm_models_data.studyfrommaxfiles import AbstractStudyMaxFiles
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
-from extreme_fit.distribution.gev.gev_params import GevParams
 from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import \
-    NonStationaryLocationTemporalModel, NonStationaryScaleTemporalModel, NonStationaryShapeTemporalModel, \
-    NonStationaryScaleAndShapeTemporalModel, NonStationaryLocationAndScaleAndShapeTemporalModel, \
-    NonStationaryLocationAndShapeTemporalModel, NonStationaryLocationAndScaleTemporalModel
-from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel
+    NonStationaryLocationAndScaleAndShapeTemporalModel
 from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
-    NonStationaryTwoLinearLocationModel, NonStationaryTwoLinearScaleOneLinearShapeModel, \
-    NonStationaryTwoLinearScaleAndShapeModel, NonStationaryTwoLinearShapeOneLinearLocAndScaleModel, \
-    NonStationaryTwoLinearScaleOneLinearLocAndShapeModel, NonStationaryTwoLinearShapeOneLinearLocModel, \
-    NonStationaryTwoLinearScaleOneLinearLocModel, NonStationaryTwoLinearScaleAndShapeOneLinearLocModel, \
-    NonStationaryTwoLinearLocationOneLinearScaleModel, NonStationaryTwoLinearLocationOneLinearScaleAndShapeModel, \
-    NonStationaryTwoLinearLocationOneLinearShapeModel, NonStationaryTwoLinearLocationAndShapeOneLinearScaleModel, \
     NonStationaryTwoLinearLocationAndScaleAndShapeModel, \
-    NonStationaryTwoLinearLocationAndScaleOneLinearShapeModel, NonStationaryTwoLinearLocationAndScaleModel, \
-    NonStationaryTwoLinearLocationAndShape, NonStationaryThreeLinearLocationAndScaleAndShapeModel, \
-    NonStationaryFourLinearLocationAndScaleAndShapeModel, NonStationaryFiveLinearLocationAndScaleAndShapeModel, \
-    NonStationarySixLinearLocationAndScaleAndShapeModel, NonStationarySevenLinearLocationAndScaleAndShapeModel, \
-    NonStationaryTenLinearLocationAndScaleAndShapeModel, NonStationaryEightLinearLocationAndScaleAndShapeModel, \
-    NonStationaryNineLinearLocationAndScaleAndShapeModel
-from extreme_fit.model.margin_model.spline_margin_model.temporal_spline_model_degree_1 import \
-    NonStationaryTwoLinearShapeModel, NonStationaryTwoLinearShapeOneLinearScaleModel, NonStationaryTwoLinearScaleModel
+    NonStationaryThreeLinearLocationAndScaleAndShapeModel, \
+    NonStationaryFourLinearLocationAndScaleAndShapeModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_fit.model.result_from_model_fit.result_from_extremes.abstract_extract_eurocode_return_level import \
     AbstractExtractEurocodeReturnLevel
 from extreme_fit.model.utils import set_seed_for_test
-from extreme_trend.one_fold_fit.altitudes_studies_visualizer_for_non_stationary_models import \
-    AltitudesStudiesVisualizerForNonStationaryModels
 from extreme_trend.one_fold_fit.one_fold_fit import OneFoldFit
 from root_utils import get_display_name_from_object_type
-from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
@@ -123,6 +104,9 @@ def set_up_and_load(fast, snowfall=True, nb_days=1):
             safran_study_class, fit_method, season)
 
 
+
+
+
 def load_study_classes(snowfall, nb_days=1):
     print(f'number of days for study classes: {nb_days}')
     if snowfall is True:
@@ -130,10 +114,10 @@ def load_study_classes(snowfall, nb_days=1):
             safran_study_class = SafranSnowfall2019
             study_class = AdamontSnowfall
         elif nb_days == 3:
-            safran_study_class = SafranSnowfall3Days2022
+            safran_study_class = SafranSnowfall3Days2019
             study_class = AdamontSnowfall3days
         elif nb_days == 5:
-            safran_study_class = SafranSnowfall5Days2022
+            safran_study_class = SafranSnowfall5Days2019
             study_class = AdamontSnowfall5days
         else:
             raise NotImplementedError
@@ -142,7 +126,7 @@ def load_study_classes(snowfall, nb_days=1):
         safran_study_class = SafranPrecipitation2019
     else:
         study_class = AdamontDepth
-        safran_study_class = CrocusDepth2022
+        safran_study_class = CrocusDepth2019
         # study_class = AdamontSnowLoad
         # safran_study_class = CrocusSnowLoad2019
     return safran_study_class, study_class
@@ -165,5 +149,11 @@ def get_variable_name(safran_study_class):
         return "snowfall5days2022"
     elif safran_study_class is CrocusDepth2022:
         return "snowdepth2022"
+    elif safran_study_class is SafranSnowfall3Days2019:
+        return "snowfall3days2019"
+    elif safran_study_class is SafranSnowfall5Days2019:
+        return "snowfall5days2019"
+    elif safran_study_class is CrocusDepth2019:
+        return "snowdepth2019"
     else:
         raise NotImplementedError

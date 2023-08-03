@@ -44,10 +44,32 @@ class SafranSnowfall3Days2022(AbstractSafranSnowfallMaxFiles):
     def _indicator_name(cls):
         return "max-3day-consec-snowf-year"
 
+class SafranSnowfall3Days2019(AbstractSafranSnowfallMaxFiles):
+
+    def __init__(self, **kwargs):
+        super().__init__(2019, **kwargs)
+
+    @classmethod
+    def _indicator_name(cls):
+        return "max-3days-consec-snowf-year"
+
+
+class SafranSnowfall5Days2019(AbstractSafranSnowfallMaxFiles):
+
+    def __init__(self, **kwargs):
+        super().__init__(2019, **kwargs)
+
+    @classmethod
+    def _indicator_name(cls):
+        return "max-5days-consec-snowf-year"
 class SafranSnowfall5Days2022(AbstractSafranSnowfallMaxFiles):
 
     def __init__(self, **kwargs):
         super().__init__(2022, **kwargs)
+
+    @classmethod
+    def _indicator_name(cls):
+        return "max-5day-consec-snowf-year"
 
     @classmethod
     def _indicator_name(cls):

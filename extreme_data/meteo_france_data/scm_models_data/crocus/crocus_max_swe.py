@@ -47,11 +47,20 @@ class AbstractCrocusDepthMaxFiles(AbstractStudyMaxFiles, CrocusDepth):
 
     def __init__(self, safran_year, **kwargs):
         super().__init__(safran_year, "sd-max-year-NN", **kwargs)
-
 class CrocusDepth2022(AbstractCrocusDepthMaxFiles):
 
     def __init__(self, **kwargs):
         super().__init__(2022, **kwargs)
+
+class AbstractCrocusDepthMaxFilesNewVersion(AbstractStudyMaxFiles, CrocusDepth):
+
+    def __init__(self, safran_year, **kwargs):
+        super().__init__(safran_year, "sd-max-year-NS", **kwargs)
+
+class CrocusDepth2019(AbstractCrocusDepthMaxFilesNewVersion):
+
+    def __init__(self, **kwargs):
+        super().__init__(2019, **kwargs)
 
 if __name__ == '__main__':
     study = CrocusSnowLoad2019(altitude=1800)

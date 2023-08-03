@@ -28,7 +28,7 @@ def main():
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
     fast = False
-    snowfall = False
+    snowfall = True
     nb_days = 1
 
     # Load parameters
@@ -36,7 +36,7 @@ def main():
     remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method, \
     season = set_up_and_load(fast, snowfall, nb_days)
 
-    altitudes_list = [[1500], [1800], [2100], [2400], [2700]][-1:]
+    altitudes_list = [[1500], [1800], [2100], [2400], [2700]][:]
 
     # Loop on the altitudes
     for altitudes in altitudes_list:
