@@ -114,15 +114,6 @@ def main():
         # Visualize the evolution of the relative change in return levels with global warming
         relative_change = True
 
-        # Visualize the distribution of trends in return levels for the return level of interest
-        # and for the mean annual maxima (which correspond to return period = None)
-        # elevations_for_contour_plot = [900, 1800, 2700, 3600]
-        # visualizers_for_contour_plot = [v for v in visualizers if v.study.altitude in elevations_for_contour_plot]
-        # for return_period in [OneFoldFit.return_period, None]:
-        #     plot_piechart_scatter_plot(visualizers_for_contour_plot, all_massif_names,
-        #                                relative_change,
-        #                                return_period, snowfall, legend_fontsize, ticksize)
-
         # Illustrate the contour with all elevation
         return_period_to_paths = OrderedDict()
         elevations_for_contour_plot = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
@@ -147,9 +138,6 @@ def main():
     else:
         # For snow load and winter precipitation, we only visualize the value on all massifs
         all_massif_names = [None]
-
-    # Illustrate the trend of each massif (and also for all massifs which correspond to massif_name = None)
-    with_significance = False
 
     # Visualize the relative changes and the absolute changes
     for relative_change in [True, False][:]:
