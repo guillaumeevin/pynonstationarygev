@@ -151,6 +151,22 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                     OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
                     self.plot_map_moment_projections(moment_name, order, max_abs_change, snowfall=True)
 
+    def plot_moments_projections_snowfall_discussion(self, scenario):
+        # Compute some number for the discussion
+        print('frei 2018 comparison')
+        self.set_covariates((1981, 2010), (2070, 2099), scenario)
+        self.plot_map_moment_projections('relative_changes_of_moment', order=1, only_print=True)
+        print('moreno 2011 comparison')
+        self.set_covariates((1960, 1990), (2070, 2100), scenario)
+        OneFoldFit.return_period = 25
+        self.plot_map_moment_projections('relative_changes_of_moment', order=None, only_print=True)
+
+    def set_covariates(self, covariate_before, covariate_after, scenario):
+        OneFoldFit.COVARIATE_BEFORE_TEMPERATURE = tuple(
+            year_to_averaged_global_mean_temp(scenario, covariate_before[0], covariate_before[1]).values())
+        OneFoldFit.COVARIATE_AFTER_TEMPERATURE = tuple(
+            year_to_averaged_global_mean_temp(scenario, covariate_after[0], covariate_after[1]).values())
+
     def plot_moments_projections(self, scenario):
         default_covariate = OneFoldFit.COVARIATE_AFTER_TEMPERATURE
         OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 1
@@ -202,7 +218,8 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
 
 
-    def plot_map_moment_projections(self, method_name, order, max_abs_change=None, snowfall=False):
+    def plot_map_moment_projections(self, method_name, order, max_abs_change=None, snowfall=False,
+                                    only_print=False):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
         massif_name_to_text = {}
 
@@ -237,8 +254,12 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             print(d)
             # print(inverse_d)
             values = list(d.values())
-            print(f"{s} values: min{np.min(values)} mean{np.mean(values)} max{np.max(values)}")
-            print(f"{s} massif min{inverse_d[np.min(values)]} max{inverse_d[np.max(values)]}")
+            print(f"mean{np.mean(values)}")
+            # print(f"{s} values: min{np.min(values)} max{np.max(values)}")
+            # print(f"{s} massif min{inverse_d[np.min(values)]} max{inverse_d[np.max(values)]}")
+
+        if only_print:
+            return
 
         parenthesis = self.study.variable_unit if 'relative' not in method_name else '\%'
         ylabel = label + ' ({})'.format(parenthesis)

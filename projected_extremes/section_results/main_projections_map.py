@@ -36,7 +36,11 @@ def main():
 
 
     altitudes_list = [[900], [1200], [1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]][:]
-    altitudes_list = [[900], [1800], [2700], [3600]][:]
+
+    # Frei comparison
+    altitudes_list = [[900], [1800], [2100], [2400]][:]
+    # Moreno comparison
+    # altitudes_list = [[1500]][:]
 
     # Loop on the altitudes
     for altitudes in altitudes_list:
@@ -85,7 +89,8 @@ def main():
 
         # Visualize the projected changes for the return levels and the relative changes in return levels
         if snowfall:
-            sub_visualizer.plot_moments_projections_snowfall()
+            # sub_visualizer.plot_moments_projections_snowfall()
+            sub_visualizer.plot_moments_projections_snowfall_discussion(scenario)
         else:
             sub_visualizer.plot_moments_projections(scenario)
 
