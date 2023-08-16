@@ -40,10 +40,10 @@ def main():
 
     # Loop on the altitudes
     for altitudes in altitudes_list:
+        print(altitudes[0])
 
         # Load the selected parameterization (adjustment coefficient and number of linear pieces)
         massif_names = AbstractStudy.all_massif_names()[:]
-        # massif_names = [ 'Mont-Blanc', 'Vanoise']
         massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects, gcm_rcm_couple_to_studies = run_selection(
             massif_names,
             altitudes[0],
@@ -54,12 +54,9 @@ def main():
             snowfall=snowfall,
             season=season,
         plot_selection_graph=False)
-        print('here')
-        print(massif_names)
 
         massif_name_to_param_name_to_climate_coordinates_with_effects = {}
         for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
-            print('parameterization number for the effects:', parametrization_number)
 
             # The line below states that:
 

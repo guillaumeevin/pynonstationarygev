@@ -43,10 +43,10 @@ def main():
 
     all_massif_names = AbstractStudy.all_massif_names()[:]
     altitudes = [e[0] for e in altitudes_list][:]
+    altitudes = [900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600][:]
     print(altitudes)
     # Quick mode
     # all_massif_names = ['Chartreuse', 'Bauges', 'Mont-Blanc','Queyras'][2:]
-    # altitudes = [2100, 3000, 3300, 3600][:2]
 
     # Initialize a dataframe called df_model_selected to analyze the repartition of selected models (repartition of
     # the selected number of linear pieces, repartition of the selected parameterization of adjustment coefficients)

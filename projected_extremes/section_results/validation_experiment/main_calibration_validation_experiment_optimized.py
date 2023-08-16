@@ -31,7 +31,7 @@ def main_calibration_validation_experiment():
 
     # We consider three types of split where the training set represents either 60%, 70% or 80% of the reanalysis data
     percentage_for_the_train_set = [0.6, 0.7, 0.8][:]
-    altitudes_list = [[900], [1200], [1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]][::-1]
+    altitudes_list = [[900], [1200], [1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]][5:7]
 
 
     # Loop on the altitudes

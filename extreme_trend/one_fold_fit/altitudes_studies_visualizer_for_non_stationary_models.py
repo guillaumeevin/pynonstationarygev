@@ -229,16 +229,16 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 massif_name_to_text = {m: ('+' if v > 0 else '') + str(round(v, 1)) for m, v in
                                        self.method_name_and_order_to_d(self.moment_names[1], order).items()}
 
-            print("\n", OneFoldFit.COVARIATE_BEFORE_TEMPERATURE, OneFoldFit.COVARIATE_AFTER_TEMPERATURE, 'Order is {}'.format(order)
-                  )
-            for i in [1, 2]:
-                if i == 2:
-                    print('relative change')
-                else:
-                    print('absolute change')
-                d = self.method_name_and_order_to_d(self.moment_names[i], order)
-                print(d)
-                print("Average", np.mean(list(d.values())))
+            # Some prints
+            # print(OneFoldFit.COVARIATE_BEFORE_TEMPERATURE, OneFoldFit.COVARIATE_AFTER_TEMPERATURE, 'Order is {}'.format(order))
+            s = 'relative change' if 'relative' in method_name else 'absolute change'
+            d = self.method_name_and_order_to_d(method_name, order)
+            inverse_d = {v: k for k,v in d.items()}
+            print(d)
+            # print(inverse_d)
+            values = list(d.values())
+            print(f"{s} values: min{np.min(values)} mean{np.mean(values)} max{np.max(values)}")
+            print(f"{s} massif min{inverse_d[np.min(values)]} max{inverse_d[np.max(values)]}")
 
         parenthesis = self.study.variable_unit if 'relative' not in method_name else '\%'
         ylabel = label + ' ({})'.format(parenthesis)

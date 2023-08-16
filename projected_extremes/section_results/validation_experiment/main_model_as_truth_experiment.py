@@ -35,7 +35,7 @@ def main_preliminary_projections():
     temporal_covariate_for_fit, remove_physically_implausible_models, display_only_model_that_pass_gof_test,\
     safran_study_class, fit_method, season = set_up_and_load(fast, snowfall, nb_days)
 
-    altitudes_list = [[900], [1200], [1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]][::-1]
+    altitudes_list = [[900], [1200], [1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]][1:2]
     # altitudes_list = [[1500], [1800], [2100], [2400]]
     # altitudes_list = [[1500], [1800], [2100], [2400], [2700]]
     # massif_names = ['Mercantour']

@@ -56,7 +56,6 @@ def main():
 
         massif_name_to_param_name_to_climate_coordinates_with_effects = {}
         for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
-            print('parameterization number for the effects:', parametrization_number)
 
             # The line below states that:
 
