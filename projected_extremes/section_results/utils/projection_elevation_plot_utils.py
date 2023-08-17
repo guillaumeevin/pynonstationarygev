@@ -220,7 +220,7 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
                                          relative_change, return_period, snowfall,
                                          temperature_covariate=True,
                                          categories_list_color=None, legend_fontsize=16,
-                                         ticksize=10):
+                                         ticksize=10, nb_days=1):
     inside_size = 9
     colors = ['darkgoldenrod', 'darkgrey', 'mediumseagreen']
     labels_colors = ['Decrease', "Increase followed by a decrease", "Increase"]
@@ -326,6 +326,8 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
         if snowfall is True:
             if relative_change:
                 miny, maxy = -30, 10
+                if nb_days > 1:
+                    miny = -35
             else:
                 miny, maxy = -15, 15
 

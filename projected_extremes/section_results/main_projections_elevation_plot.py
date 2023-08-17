@@ -33,7 +33,7 @@ def main():
     # snowfall=None corresponds to daily winter precipitation
     fast = False
     snowfall = True
-    nb_days = 5
+    nb_days = 3
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, \
@@ -155,10 +155,23 @@ def main():
                     r: [[900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]]
                     for r in return_periods_for_plots
                 }
-                return_period_to_categories_list_color = {
-                    return_periods[-1]: [[900, 1200, 1500, 1800, 2100, 2400], [2700, 3000], [3300, 3600]],
-                    return_periods[0]: [[900, 1200, 1500, 1800, 2100, 2400, 2700, 3000], [3300], [3600]],
-                }
+                if nb_days == 1:
+                    return_period_to_categories_list_color = {
+                        return_periods[-1]: [[900, 1200, 1500, 1800, 2100, 2400], [2700, 3000], [3300, 3600]],
+                        return_periods[0]: [[900, 1200, 1500, 1800, 2100, 2400, 2700, 3000], [3300], [3600]],
+                    }
+                elif nb_days == 3:
+                    return_period_to_categories_list_color = {
+                        return_periods[-1]: [[900, 1200, 1500, 1800, 2100], [2400, 2700, 3000], [3300, 3600]],
+                        return_periods[0]: [[900, 1200, 1500, 1800, 2100, 2400, 2700], [3000, 3300], [3600]],
+                    }
+                elif nb_days == 5:
+                    return_period_to_categories_list_color = {
+                        return_periods[-1]: [[900, 1200, 1500, 1800, 2100, 2400, 2700], [3000], [3300, 3600]],
+                        return_periods[0]: [[900, 1200, 1500, 1800, 2100, 2400, 2700], [3000, 3300], [3600]],
+                    }
+                else:
+                    raise NotImplementedError
             elif snowfall is None:
                 return_periods_for_plots = [return_periods[0], return_periods[-1]]
                 # return_periods_for_plots = [return_periods[-1]]
@@ -185,7 +198,7 @@ def main():
                                                                  relative_change, return_period,
                                                                  snowfall, temperature_covariate,
                                                                  categories_list_color, legend_fontsize,
-                                                                 ticksize)
+                                                                 ticksize, nb_days)
 
 
 if __name__ == '__main__':
