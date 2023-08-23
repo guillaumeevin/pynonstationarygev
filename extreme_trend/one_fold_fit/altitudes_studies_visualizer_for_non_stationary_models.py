@@ -327,40 +327,42 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
 
     def plot_qqplots(self):
         qqplots_metrics = []
+        massif_name_to_unconstrained_quantile = dict()
         for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
-            ax = plt.gca()
-            altitudes = self.massif_name_to_massif_altitudes[massif_name]
-            massif_name_corrected = massif_name.replace('_', ' ')
-
+            unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles()
+            massif_name_to_unconstrained_quantile[massif_name] = unconstrained_empirical_quantiles
+        # Sort massif names by group
+        massif_name_to_max_unconstrained_quantile = {m: max(u) for m, u in massif_name_to_unconstrained_quantile.items()}
+        massif_names = list(massif_name_to_max_unconstrained_quantile.keys())
+        sorted_massif_names = sorted(massif_names, key=lambda m: massif_name_to_max_unconstrained_quantile[m], reverse=True)
+        for i in range(4):
+            group_massif_names = sorted_massif_names[6*i:6*(i+1)]
             all_quantiles = []
 
-            for altitude in altitudes:
-                coordinate_for_filter = (altitude, None)
+            print(i, group_massif_names)
+            ax = plt.gca()
+            for massif_name in group_massif_names:
+                unconstrained_empirical_quantiles = massif_name_to_unconstrained_quantile[massif_name]
+                one_fold_fit = self.massif_name_to_one_fold_fit[massif_name]
+                massif_name_corrected = massif_name.replace('_', ' ')
+
+                altitude = self.altitude_group.reference_altitude
+
                 # We filter on the transformed gumbel quantiles for the altitude of interest
-                unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles(
-                    coordinate_for_filter=coordinate_for_filter)
                 n = len(unconstrained_empirical_quantiles)
                 if n > 0:
-                    assert n == 61
                     standard_gumbel_quantiles = one_fold_fit.standard_gumbel_quantiles(n=n)
                     ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
-                            label='{} m'.format(altitude), marker='o')
+                            label='{} massif'.format(massif_name_corrected, altitude), marker='o')
 
                     all_quantiles.extend(standard_gumbel_quantiles)
                     all_quantiles.extend(unconstrained_empirical_quantiles)
-
-                    # Compute the Root Mean Squared Percent Error (RMSPE)
-                    # unconstrained_empirical_quantiles = np.array(unconstrained_empirical_quantiles)
-                    # standard_gumbel_quantiles = np.array(standard_gumbel_quantiles)
-                    # change = unconstrained_empirical_quantiles - standard_gumbel_quantiles
-                    # ratio_of_change_array = 100 * change / standard_gumbel_quantiles
-
                     pvalue = get_pvalue_anderson_darling_test(unconstrained_empirical_quantiles)
                     qqplots_metrics.append(pvalue)
 
-            size_label = 20
-            ax.set_xlabel("Theoretical quantile", fontsize=size_label)
-            ax.set_ylabel("Empirical quantile", fontsize=size_label)
+                size_label = 20
+                ax.set_xlabel("Theoretical quantile", fontsize=size_label)
+                ax.set_ylabel("Empirical quantile", fontsize=size_label)
 
             epsilon = 0.1
             ax_lim = [min(all_quantiles) - epsilon, max(all_quantiles) + epsilon]
@@ -373,9 +375,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             ax.set_yticks(ticks)
             labelsize = 15
             ax.tick_params(labelsize=labelsize)
-            plot_name = 'qqplot/{}'.format(massif_name_corrected)
+            plot_name = 'qqplot/{}'.format(i)
             handles, labels = ax.get_legend_handles_labels()
-            ax.legend(handles[::-1], labels[::-1], prop={'size': labelsize})
+            ax.legend(handles[::-1], labels[::-1], prop={'size': 12}, loc="lower right")
             self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show, no_title=True)
             plt.close()
 

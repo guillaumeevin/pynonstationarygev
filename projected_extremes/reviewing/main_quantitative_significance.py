@@ -3,6 +3,8 @@ import os.path as op
 import matplotlib
 import pandas as pd
 
+from extreme_fit.model.margin_model.linear_margin_model.temporal_linear_margin_models import StationaryTemporalModel, \
+    NonStationaryLocationAndScaleAndShapeTemporalModel
 from extreme_trend.one_fold_fit.utils import load_sub_visualizer
 from projected_extremes.reviewing.reviewing_utils import load_csv_filepath_gof, load_parameters
 
@@ -30,15 +32,17 @@ def main_quantitative():
     # snowfall=False corresponds to accumulated ground snow load
     # snowfall=None corresponds to daily winter precipitation
     fast = False
-    snowfall = None
+    snowfall = True
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, study_class, temporal_covariate_for_fit, \
-    remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method, \
-    season = set_up_and_load(fast, snowfall)
+        remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method, \
+        season = set_up_and_load(fast, snowfall)
 
     # Loop on the altitudes
-    altitudes_list = [[2700]]
+    altitudes_list = [[3000]]
+    # altitudes_list = [[900], [1200], [1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]][:]
+
     # print(altitudes_list)
     # for mode in range(4):
     # for mode in range(6):
@@ -58,20 +62,25 @@ def main_quantitative():
                 scenario,
                 study_class,
                 snowfall=snowfall,
-                season=season)
+                season=season, plot_selection_graph=False)
+
+            # forced_model_class = [StationaryTemporalModel, NonStationaryLocationAndScaleAndShapeTemporalModel][1]
+            # print(massif_name_to_model_class)
+            # for massif_name in massif_name_to_model_class.keys():
+            #     massif_name_to_model_class[massif_name] = forced_model_class
 
             csv_filepath = load_csv_filepath_gof(mode, altitude, all_massif)
             massif_name_to_model_class, massif_name_to_parametrization_number \
                 = load_parameters(mode, massif_name_to_model_class, massif_name_to_parametrization_number)
+            print(massif_name_to_model_class)
 
             csv_filename = op.basename(csv_filepath)
             # if op.exists(csv_filepath):
             if False:
-            # if False:
+                # if False:
                 print('already done: {}'.format(csv_filename))
             else:
                 print('run: {}'.format(csv_filename))
-
 
                 massif_name_to_param_name_to_climate_coordinates_with_effects = {}
                 for massif_name, parametrization_number in massif_name_to_parametrization_number.items():
@@ -101,18 +110,21 @@ def main_quantitative():
                                                      safran_study_class, scenario, season, study_class,
                                                      temporal_covariate_for_fit, gcm_rcm_couple_to_studies)
 
+                #  Create qqplots
+                sub_visualizer.plot_qqplots()
+
+                #  Save pvalues
                 all_pvalues = []
                 for massif_name, one_fold_fit in sub_visualizer.massif_name_to_one_fold_fit.items():
-                    _, test_names, pvalues = one_fold_fit.goodness_of_fit_test_separated_for_each_gcm_rcm_couple(one_fold_fit.best_estimator)
+                    _, test_names, pvalues = one_fold_fit.goodness_of_fit_test_separated_for_each_gcm_rcm_couple(
+                        one_fold_fit.best_estimator)
                     all_pvalues.extend(pvalues)
 
-                # Save values to csv
+                #  Save values to csv
                 count_above_5_percent = [int(m >= 0.05) for m in all_pvalues]
                 percentage_above_5_percent = 100 * sum(count_above_5_percent) / len(count_above_5_percent)
                 print(percentage_above_5_percent)
                 pd.Series(all_pvalues).to_csv(csv_filepath)
-
-
 
 
 if __name__ == '__main__':

@@ -57,7 +57,6 @@ def main():
     visualizers = []
     for altitude in altitudes:
         print('altitude', altitude)
-        altitudes_list = [[altitude]]
 
         # Load the selected parameterization (adjustment coefficient and number of linear pieces)
         massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects, gcm_rcm_couple_to_studies = run_selection(
