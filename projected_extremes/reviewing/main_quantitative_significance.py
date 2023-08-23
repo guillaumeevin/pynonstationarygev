@@ -40,7 +40,7 @@ def main_quantitative():
         season = set_up_and_load(fast, snowfall)
 
     # Loop on the altitudes
-    altitudes_list = [[3000]]
+    altitudes_list = [[1500]]
     # altitudes_list = [[900], [1200], [1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]][:]
 
     # print(altitudes_list)

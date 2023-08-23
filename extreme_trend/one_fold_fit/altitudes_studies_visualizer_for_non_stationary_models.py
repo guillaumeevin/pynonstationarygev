@@ -364,7 +364,7 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 ax.set_xlabel("Theoretical quantile", fontsize=size_label)
                 ax.set_ylabel("Empirical quantile", fontsize=size_label)
 
-            epsilon = 0.1
+            epsilon = 0.5
             ax_lim = [min(all_quantiles) - epsilon, max(all_quantiles) + epsilon]
             ax.set_xlim(ax_lim)
             ax.set_ylim(ax_lim)
