@@ -29,7 +29,7 @@ def main():
     # snowfall=None corresponds to daily winter precipitation
     fast = False
     snowfall = True
-    nb_days = 1
+    nb_days = 3
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, study_class, temporal_covariate_for_fit, \

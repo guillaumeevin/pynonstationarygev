@@ -16,11 +16,15 @@ from root_utils import get_display_name_from_object_type, SHORT_VERSION_TIME
 
 
 #  Excel writing
-def to_excel(one_fold_fit, gcm_rcm_couple_to_studies):
+def to_excel(one_fold_fit: OneFoldFit, gcm_rcm_couple_to_studies):
     gcm_rcm_couples = list(gcm_rcm_couple_to_studies.keys())
     #  Load writer
     model_name = get_display_name_from_object_type(one_fold_fit.models_classes[0])
-    excel_filename = f'{one_fold_fit.massif_name}_{one_fold_fit.altitude_plot}m_{model_name}.xlsx'
+    effect = one_fold_fit.param_name_to_climate_coordinates_with_effects
+    effect = "none" if effect is None else effect['loc'][0].replace('coord', 'Each').replace('Each_is_ensemble_member', 'All')
+    effect = ''.join([s.capitalize() for s in effect.split('_')])
+    ajustement_name = 'coefAdjustedFor{}'.format(effect)
+    excel_filename = f'{one_fold_fit.massif_name}_{one_fold_fit.altitude_plot}m_{model_name}_{ajustement_name}.xlsx'
     path = op.join(RESULTS_PATH, SHORT_VERSION_TIME)
     if not op.exists(path):
         os.makedirs(path)
