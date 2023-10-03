@@ -4,7 +4,7 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_variable import Abs
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import AbstractSnowLoadVariable, \
     TotalSnowLoadVariable, CrocusTotalSweVariable, CrocusDepthVariable
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariable, \
-    SafranTotalPrecipVariable
+    SafranTotalPrecipVariable, SafranRainfallVariable
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from root_utils import classproperty
 
@@ -83,6 +83,25 @@ class SafranSnowfall5daysSimulationVariable(SafranSnowfallSimulationVariable):
     @classproperty
     def indicator_name_for_maxima(cls):
         return 'max-5day-consec-snowf-year'
+
+class SafranRainfallSimulationVariable(AbstractAdamontVariable):
+    UNIT = SafranRainfallVariable.UNIT
+    NAME = SafranRainfallVariable.NAME
+
+    @classmethod
+    def variable_folder_name(cls, annual_maxima_date):
+        if annual_maxima_date:
+            return cls.get_folder_name_from_indicator_name(cls.indicator_name_for_maxima_date)
+        else:
+            return 'Rain'
+
+    @property
+    def daily_time_serie_array(self) -> np.ndarray:
+        return self.variable_array
+
+    @classproperty
+    def indicator_name_for_maxima(cls):
+        return 'max-1day-rainf-year'
 
 
 class SafranPrecipitationSimulationVariable(AbstractAdamontVariable):
