@@ -143,9 +143,9 @@ def set_top_label(ax, legend_fontsize, return_period, change_str="Relative chang
 
 def load_levels(snowfall, withcolorbar=True):
     if snowfall is None:
-        level_max = 20
-        graduation = 5
-        levels = [0 + graduation * i for i in range(4 + 1)]
+        level_max = 80
+        graduation = 10
+        levels = [0 + graduation * i for i in range(8 + 1)]
     elif snowfall is False:
         level_max = 50
         graduation = 5
@@ -312,14 +312,14 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
         # Add colorbar on the right
         levels, _, graduation = load_levels(snowfall, withcolorbar=False)
         ax.set_yticks(levels)
-        ax.yaxis.grid()
+
         cmap, label, *_ = load_colorbar_info(relative_change, return_period, snowfall, massif_name)
 
         ax.set_ylabel(label, fontsize=legend_fontsize)
 
         miny = int(math.floor(min(all_y) / graduation)) * graduation
         if snowfall is None:
-            maxy = 25
+            maxy = 80
         else:
             maxy = int(math.ceil(max(all_y) / graduation)) * graduation
 
@@ -332,6 +332,7 @@ def plot_relative_change_at_massif_level(visualizer_list, massif_name, with_retu
                 miny, maxy = -15, 15
 
         ax.set_ylim(miny, maxy)
+        ax.yaxis.grid()
         set_top_label(ax, legend_fontsize, return_period, change_str)
 
         visualizer = visualizer_list[0]
