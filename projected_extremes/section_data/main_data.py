@@ -15,10 +15,10 @@ from extreme_data.meteo_france_data.scm_models_data.utils import Season
 
 
 def main():
-    scm_study_class, adamont_study_class = load_study_classes(snowfall=False)
+    scm_study_class, adamont_study_class = load_study_classes(snowfall=True)
     year_min = 1950
     year_max = 2100
-    legend_and_labels = None
+    legend_and_labels = True
     massif_names = ['Vanoise']
     season = Season.annual
     adamont_scenario = AdamontScenario.rcp85_extended

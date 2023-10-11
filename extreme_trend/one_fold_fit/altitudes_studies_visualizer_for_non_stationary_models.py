@@ -1,27 +1,20 @@
-from collections import Counter
+from math import ceil, floor
 from math import ceil, floor
 from typing import List, Dict
 
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
 from extreme_data.meteo_france_data.adamont_data.cmip5.climate_explorer_cimp5 import year_to_averaged_global_mean_temp
 from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import AltitudesStudies
-from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import TotalSnowLoadVariable
-from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import get_inverse_colormap, \
-    remove_the_extreme_colors
-from extreme_data.meteo_france_data.scm_models_data.visualization.main_study_visualizer import \
-    SCM_STUDY_CLASS_TO_ABBREVIATION
-from extreme_data.meteo_france_data.scm_models_data.visualization.plot_utils import plot_against_altitude
+from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import remove_the_extreme_colors
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_fit.distribution.gumbel.gumbel_gof import get_pvalue_anderson_darling_test
-from extreme_fit.function.margin_function.abstract_margin_function import AbstractMarginFunction
 from extreme_fit.model.margin_model.polynomial_margin_model.spatio_temporal_polynomial_model import \
     AbstractSpatioTemporalPolynomialModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
 from extreme_trend.one_fold_fit.altitude_group import \
-    get_altitude_group_from_altitudes, VeyHighAltitudeGroup, MidAltitudeGroup
+    get_altitude_group_from_altitudes
 from extreme_trend.one_fold_fit.one_fold_fit import \
     OneFoldFit
 from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covariate import \
@@ -29,7 +22,6 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.temperature_covari
 
 
 class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
-    consider_at_least_two_altitudes = True
 
     def __init__(self, studies: AltitudesStudies,
                  model_classes: List[AbstractSpatioTemporalPolynomialModel],
@@ -71,62 +63,55 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
         self._max_abs_for_shape = None
 
     def load_one_fold_fit(self):
-        one_fold_fit_list = [self.fit_one_fold(massif_name) for massif_name in self.massif_names]
-        self._massif_name_to_one_fold_fit = {m: o for m, o in zip(self.massif_names, one_fold_fit_list) if
-                                             o is not None}
-        # Print number of massif without any validated fit
-        massifs_without_any_validated_fit = [massif_name
-                                             for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
-                                             if not old_fold_fit.has_at_least_one_valid_model]
-        if self.display_only_model_that_pass_test:
-            print('# of massif without any validated fit:', len(massifs_without_any_validated_fit),
-                  massifs_without_any_validated_fit)
-        assert len(self.massif_names) > len(massifs_without_any_validated_fit), \
-            "All massifs did not pass the goodness of fit test"
+        self._massif_name_to_one_fold_fit = dict()
+        for massif_name in self.massif_names:
+            o = self.fit_one_fold(massif_name)
+            if o is not None:
+                self._massif_name_to_one_fold_fit[massif_name] = o
 
     def fit_one_fold(self, massif_name):
         # Load valid massif altitudes
         massif_altitudes = self.get_massif_altitudes(massif_name)
-        if self.load_condition(massif_altitudes):
-            # Save the massif altitudes only for those who pass the condition
-            self.massif_name_to_massif_altitudes[massif_name] = massif_altitudes
-            # Load dataset
-            try:
-                dataset = self.get_dataset(massif_altitudes, massif_name, self.gcm_rcm_couple_as_pseudo_truth)
-            except AssertionError as e:
-                print('Exception for {}'.format(massif_name.replace("_", "")))
-                print(e.__repr__())
-                return None
-
-            if isinstance(self.model_classes, dict):
-                model_classes = [self.model_classes[massif_name]]
-            else:
-                model_classes = self.model_classes
-
-            if isinstance(self.param_name_to_climate_coordinates_with_effects,
-                          dict) and massif_name in self.param_name_to_climate_coordinates_with_effects:
-                param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects[
-                    massif_name]
-            else:
-                param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects
-
-            old_fold_fit = OneFoldFit(massif_name, dataset, model_classes,
-                                      self.study.year_min,
-                                      self.study.year_max,
-                                      self.fit_method,
-                                      self.temporal_covariate_for_fit,
-                                      self.altitude_group,
-                                      self.display_only_model_that_pass_test,
-                                      self.confidence_interval_based_on_delta_method,
-                                      self.remove_physically_implausible_models,
-                                      param_name_to_climate_coordinates_with_effects,
-                                      self.linear_effects)
-            return old_fold_fit
-        else:
+        # Save the massif altitudes only for those who pass the condition
+        self.massif_name_to_massif_altitudes[massif_name] = massif_altitudes
+        # Load dataset
+        try:
+            dataset = self.get_dataset(massif_altitudes, massif_name, self.gcm_rcm_couple_as_pseudo_truth)
+        except AssertionError as e:
+            print('Exception for {}'.format(massif_name.replace("_", "")))
+            print(e.__repr__())
             return None
 
+        if isinstance(self.model_classes, dict):
+            model_classes = [self.model_classes[massif_name]]
+        else:
+            model_classes = self.model_classes
+
+        if isinstance(self.param_name_to_climate_coordinates_with_effects,
+                      dict) and massif_name in self.param_name_to_climate_coordinates_with_effects:
+            param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects[
+                massif_name]
+        else:
+            param_name_to_climate_coordinates_with_effects = self.param_name_to_climate_coordinates_with_effects
+
+        old_fold_fit = OneFoldFit(massif_name, dataset, model_classes,
+                                  self.study.year_min,
+                                  self.study.year_max,
+                                  self.fit_method,
+                                  self.temporal_covariate_for_fit,
+                                  self.altitude_group,
+                                  self.display_only_model_that_pass_test,
+                                  self.confidence_interval_based_on_delta_method,
+                                  self.remove_physically_implausible_models,
+                                  param_name_to_climate_coordinates_with_effects,
+                                  self.linear_effects)
+        return old_fold_fit
+
     def get_dataset(self, massif_altitudes, massif_name, gcm_rcm_couple_as_pseudo_truth=None):
-        dataset = self.studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes,
+        if (len(massif_altitudes) == 1) and (gcm_rcm_couple_as_pseudo_truth is None):
+            dataset = self.studies.spatio_temporal_dataset_memoize(massif_name, massif_altitudes[0])
+        else:
+            dataset = self.studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=massif_altitudes,
                                                        gcm_rcm_couple_as_pseudo_truth=gcm_rcm_couple_as_pseudo_truth)
         return dataset
 
@@ -152,81 +137,65 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 print(massif_name, altitude, percentage_of_non_zeros)
         return massif_altitudes
 
-    def load_condition(self, massif_altitudes):
-        # At least two altitudes for the estimated
-        # reference_altitude_is_in_altitudes = (self.altitude_group.reference_altitude in massif_altitudes)
-        if self.consider_at_least_two_altitudes:
-            return len(massif_altitudes) >= 2
-        else:
-            return True
-
     @property
     def massif_name_to_one_fold_fit(self) -> Dict[str, OneFoldFit]:
-        return {massif_name: old_fold_fit for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()
-                if old_fold_fit.has_at_least_one_valid_model}
+        return {massif_name: old_fold_fit for massif_name, old_fold_fit in self._massif_name_to_one_fold_fit.items()}
 
-    @property
-    def first_one_fold_fit(self):
-        return list(self.massif_name_to_one_fold_fit.values())[0]
-
-    def plot_moments(self, with_significance):
-        for method_name in self.moment_names[:2]:
-            for order in self.orders:
-                # self.plot_against_years(method_name, order)
-                self.plot_map_moment(method_name, order, with_significance)
-
-    def plot_moments_projections_snowfall(self, with_significance, scenario):
-        default_covariate = OneFoldFit.COVARIATE_AFTER_TEMPERATURE
-        OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 1
-
+    def plot_moments_projections_snowfall(self):
+        OneFoldFit.COVARIATE_BEFORE_TEMPERATURE = 1
         # Standard plot
-        for order in [1, None][-1:]:
-            for covariate in [2, 3, 4][-1:]:
-                OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
-                self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance,
-                                                 max_abs_change=20.01, add_elevation=True, snowfall=True)
+        for order in [1, None][:]:
+            for covariate in [2, 4][:]:
+                for moment_name in ['changes_of_moment', 'relative_changes_of_moment'][:]:
+                    max_abs_change = 40.01 if 'relative' in moment_name else 25.01
+                    OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
+                    self.plot_map_moment_projections(moment_name, order, max_abs_change, snowfall=True)
 
-    def plot_moments_projections(self, with_significance, scenario):
+    def plot_moments_projections_snowfall_discussion(self, scenario):
+        # Compute some number for the discussion
+        print('frei 2018 comparison')
+        self.set_covariates((1981, 2010), (2070, 2099), scenario)
+        self.plot_map_moment_projections('relative_changes_of_moment', order=1, only_print=True)
+        print('moreno 2011 comparison')
+        self.set_covariates((1960, 1990), (2070, 2100), scenario)
+        OneFoldFit.return_period = 25
+        self.plot_map_moment_projections('relative_changes_of_moment', order=None, only_print=True)
+
+    def set_covariates(self, covariate_before, covariate_after, scenario):
+        OneFoldFit.COVARIATE_BEFORE_TEMPERATURE = tuple(
+            year_to_averaged_global_mean_temp(scenario, covariate_before[0], covariate_before[1]).values())
+        OneFoldFit.COVARIATE_AFTER_TEMPERATURE = tuple(
+            year_to_averaged_global_mean_temp(scenario, covariate_after[0], covariate_after[1]).values())
+
+    def plot_moments_projections(self, scenario):
         default_covariate = OneFoldFit.COVARIATE_AFTER_TEMPERATURE
         OneFoldFit.COVARIATE_AFTER_TEMPERATURE = 1
-        max_abs = self.plot_map_moment_projections("moment", None, with_significance)
+        max_abs = self.plot_map_moment_projections("moment", None)
         for covariate in [2, 3, 4]:
             print("covariate", covariate)
             OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
-            self.plot_map_moment_projections("moment", None, with_significance, max_abs)
+            self.plot_map_moment_projections("moment", None, max_abs)
         OneFoldFit.COVARIATE_AFTER_TEMPERATURE = default_covariate
 
         # Standard plot
         for order in [1, None]:
             for covariate in [2, 3, 4]:
                 OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
-                self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance)
+                self.plot_map_moment_projections('relative_changes_of_moment', order)
 
         # Compute some number for the discussion
         covariate_before = (1986, 2005)
         if isinstance(covariate_before, tuple):
-            OneFoldFit.COVARIATE_BEFORE_DISPLAY = "{}-{}".format(*covariate_before)
-            covariate_before = tuple(
-                year_to_averaged_global_mean_temp(scenario, covariate_before[0], covariate_before[1]).values())
+            covariate_before = tuple(year_to_averaged_global_mean_temp(scenario, covariate_before[0], covariate_before[1]).values())
         OneFoldFit.COVARIATE_BEFORE_TEMPERATURE = covariate_before
 
         for order in [1, None]:
             for covariate in [(2031, 2050), (2080, 2099)]:
                 if isinstance(covariate, tuple):
-                    OneFoldFit.COVARIATE_AFTER_DISPLAY = "{}-{}".format(*covariate)
                     covariate = tuple(year_to_averaged_global_mean_temp(scenario, covariate[0], covariate[1]).values())
-                else:
-                    OneFoldFit.COVARIATE_AFTER_DISPLAY = "+$" + str(covariate) + "^o\mathrm{C}$"
                 OneFoldFit.COVARIATE_AFTER_TEMPERATURE = covariate
                 # self.plot_map_moment_projections('changes_of_moment', None, with_significance)
-                self.plot_map_moment_projections('relative_changes_of_moment', order, with_significance)
-
-    def method_name_and_order_to_max_abs(self, method_name, order):
-        c = (method_name, order)
-        if c not in self._method_name_and_order_to_max_abs:
-            return None
-        else:
-            return self._method_name_and_order_to_max_abs[c]
+                self.plot_map_moment_projections('relative_changes_of_moment', order)
 
     def method_name_and_order_to_d(self, method_name, order):
         c = (method_name, order, OneFoldFit.COVARIATE_AFTER_TEMPERATURE)
@@ -247,82 +216,56 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             self._method_name_and_order_to_massif_name_to_value[c] = massif_name_to_value
         return self._method_name_and_order_to_massif_name_to_value[c]
 
-    def ratio_groups(self):
-        return [self.ratio_uncertainty_interval_size(altitude, self.first_one_fold_fit.last_year) for altitude in
-                self.studies.altitudes]
 
-    def ratio_uncertainty_interval_size(self, altitude, year):
-        study = self.studies.altitude_to_study[altitude]
-        massif_name_to_interval = study.massif_name_to_stationary_gev_params_and_confidence(OneFoldFit.quantile_level,
-                                                                                            self.confidence_interval_based_on_delta_method)[
-            1]
-        massif_names_with_pointwise_interval = set(massif_name_to_interval)
-        valid_massif_names = set(self.massif_name_to_one_fold_fit.keys())
-        intersection_massif_names = valid_massif_names.intersection(massif_names_with_pointwise_interval)
-        ratios = []
-        for massif_name in intersection_massif_names:
-            one_fold_fit = self.massif_name_to_one_fold_fit[massif_name]
-            new_interval_size = one_fold_fit.best_confidence_interval(altitude, year).interval_size
-            old_interval_size = massif_name_to_interval[massif_name].interval_size
-            ratio = new_interval_size / old_interval_size
-            ratios.append(ratio)
-        return ratios
 
-    def plot_map_moment_projections(self, method_name, order, with_significance, max_abs_change=None,
-                                    add_elevation=False,
-                                    snowfall=False):
+    def plot_map_moment_projections(self, method_name, order, max_abs_change=None, snowfall=False,
+                                    only_print=False):
         massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
+        massif_name_to_text = {}
+
         # Plot settings
         moment = ' '.join(method_name.split('_'))
         d_temperature = {'C': '{C}'}
         str_for_last_year = ' at +${}^o\mathrm{C}$' \
             if self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate else ' in {}'
-        str_for_last_year = str_for_last_year.format(self.first_one_fold_fit.covariate_after, **d_temperature)
+        str_for_last_year = str_for_last_year.format(OneFoldFit.COVARIATE_AFTER_TEMPERATURE, **d_temperature)
         moment = moment.replace('moment', '{}{}'.format(OneFoldFit.get_moment_str(order=order), str_for_last_year))
         plot_name = '{} '.format(moment)
 
         if 'change' in method_name:
             plot_name = plot_name.replace(str_for_last_year, '')
-            if add_elevation:
-                plot_name.replace('of', 'in')
-                plot_name = plot_name[0].upper() + plot_name[1:]
-                plot_name += " at {}m\n".format(self.study.altitude)
-                # plot_name += " at {}m at +${}".format(self.study.altitude, OneFoldFit.COVARIATE_BEFORE_TEMPERATURE) \
-                #              + "^o\mathrm{C}$ w.r.t. +$" + "{}".format(OneFoldFit.COVARIATE_AFTER_TEMPERATURE) + "^o\mathrm{C}$"
-                plot_name += self.first_one_fold_fit.between_covariate_str
-                plot_name += ' of global warming'
-
-            else:
-                plot_name += self.first_one_fold_fit.between_covariate_str
+            plot_name = plot_name.replace('of', 'in')
+            label = plot_name[0].upper() + plot_name[1:]
 
             if 'relative' in method_name:
-                if add_elevation:
-                    # Put the change score as text on the plot for the change.
-                    massif_name_to_text = {m: ('+' if v > 0 else '') + str(round(v, 1)) for m, v in
-                                           self.method_name_and_order_to_d(self.moment_names[1], order).items()}
-                else:
-                    # Put the relative score as text on the plot for the change.
-                    massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
-                                           self.method_name_and_order_to_d(self.moment_names[2], order).items()}
-            else:
                 # Put the relative score as text on the plot for the change.
                 massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
                                        self.method_name_and_order_to_d(self.moment_names[2], order).items()}
-            print("\n", self.first_one_fold_fit.between_covariate_str, 'Order is {}'.format(order)
-                  )
-            for i in [1, 2]:
-                if i == 2:
-                    print('relative change')
-                else:
-                    print('absolute change')
-                d = self.method_name_and_order_to_d(self.moment_names[i], order)
-                print(d)
-                print("Average", np.mean(list(d.values())))
+            else:
+                # Put the change score as text on the plot for the change.
+                massif_name_to_text = {m: ('+' if v > 0 else '') + str(round(v, 1)) for m, v in
+                                       self.method_name_and_order_to_d(self.moment_names[1], order).items()}
+
+            # Some prints
+            # print(OneFoldFit.COVARIATE_BEFORE_TEMPERATURE, OneFoldFit.COVARIATE_AFTER_TEMPERATURE, 'Order is {}'.format(order))
+            s = 'relative change' if 'relative' in method_name else 'absolute change'
+            d = self.method_name_and_order_to_d(method_name, order)
+            inverse_d = {v: k for k,v in d.items()}
+            print(d)
+            # print(inverse_d)
+            values = list(d.values())
+            print(f"mean{np.mean(values)}")
+            # print(f"{s} values: min{np.min(values)} max{np.max(values)}")
+            # print(f"{s} massif min{inverse_d[np.min(values)]} max{inverse_d[np.max(values)]}")
+
+        if only_print:
+            return
 
         parenthesis = self.study.variable_unit if 'relative' not in method_name else '\%'
-        ylabel = '{} ({})'.format(plot_name, parenthesis)
+        ylabel = label + ' ({})'.format(parenthesis)
+        plot_name += 'at +{}$^o$C'.format(OneFoldFit.COVARIATE_AFTER_TEMPERATURE)
 
-        add_colorbar = True
+        add_colorbar = self.study.altitude in [2100, 3600]
 
         is_return_level_plot = (self.moment_names.index(method_name) == 0) and (order is None)
         fontsize_label = 13
@@ -342,14 +285,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                 graduation = 2
             else:
                 graduation = 10
-            massif_names_with_white_dot = None
             half_cmap_for_positive = False
         else:
             half_cmap_for_positive = True
-            fontsize_label = 10
-            # cmap = plt.cm.RdYlGn
-            # cmap = get_inverse_colormap(cmap)
-            # cmap = get_cmap_with_inverted_blue_and_green_channels(cmap)
             if not snowfall:
                 cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
                 if 'relative' in method_name:
@@ -359,30 +297,17 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                     graduation = 1
                     max_abs_change = 4
             else:
-                cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][2]
+                cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic, plt.cm.BrBG][-1]
                 graduation = 5
-                max_abs_change = 20
+                max_abs_change = max_abs_change
             cmap = remove_the_extreme_colors(cmap)
-
-            if with_significance:
-                print('nb of massifs with singificant correct')
-                print(sum([one_fold_fit.gcm_correction_is_significant for one_fold_fit in
-                           self.massif_name_to_one_fold_fit.values()]))
-                print('nb of massifs with singificant trend')
-                print(sum([one_fold_fit.is_significant for one_fold_fit in self.massif_name_to_one_fold_fit.values()]))
-
-                massif_names_with_white_dot = set([massif_name
-                                                   for massif_name, one_fold_fit in
-                                                   self.massif_name_to_one_fold_fit.items()
-                                                   if not one_fold_fit.is_significant])
-            else:
-                massif_names_with_white_dot = None
 
         if snowfall:
             negative_and_positive_values = self.moment_names.index(method_name) > 0
         else:
             negative_and_positive_values = False
 
+        fontsize_label = 14
         # Plot the map
         self.plot_map(cmap=cmap, graduation=graduation,
                       label=ylabel, massif_name_to_value=massif_name_to_value,
@@ -391,391 +316,55 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
                       altitude=self.altitude_group.reference_altitude,
                       add_colorbar=add_colorbar,
                       max_abs_change=max_abs_change,
-                      massif_name_to_text=massif_name_to_text,
                       fontsize_label=fontsize_label,
-                      massif_names_with_white_dot=massif_names_with_white_dot,
                       half_cmap_for_positive=half_cmap_for_positive,
+                      massif_name_to_text=massif_name_to_text
                       )
         if snowfall:
             return None
         else:
             return max_abs_change
 
-    def plot_map_moment(self, method_name, order, with_significance):
-        massif_name_to_value = self.method_name_and_order_to_d(method_name, order)
-        # Plot settings
-        moment = ' '.join(method_name.split('_'))
-        d_temperature = {'C': '{C}'}
-        str_for_last_year = ' at +${}^o\mathrm{C}$' \
-            if self.temporal_covariate_for_fit is AnomalyTemperatureWithSplineTemporalCovariate else ' in {}'
-        str_for_last_year = str_for_last_year.format(self.first_one_fold_fit.covariate_after, **d_temperature)
-        moment = moment.replace('moment', '{}{}'.format(OneFoldFit.get_moment_str(order=order), str_for_last_year))
-        plot_name = '{} '.format(moment)
-
-        if 'change' in method_name:
-            plot_name = plot_name.replace(str_for_last_year, '')
-            plot_name += self.first_one_fold_fit.between_covariate_str
-
-            if 'relative' not in method_name:
-                # Put the relative score as text on the plot for the change.
-                massif_name_to_text = {m: ('+' if v > 0 else '') + str(int(v)) + '\%' for m, v in
-                                       self.method_name_and_order_to_d(self.moment_names[2], order).items()}
-
-        parenthesis = self.study.variable_unit if 'relative' not in method_name else '\%'
-        ylabel = '{} ({})'.format(plot_name, parenthesis)
-
-        max_abs_change = self.method_name_and_order_to_max_abs(method_name, order)
-        add_colorbar = self.add_colorbar
-
-        is_return_level_plot = (self.moment_names.index(method_name) == 0) and (order is None)
-        if is_return_level_plot:
-
-            cmap = plt.cm.Spectral
-            cmap = remove_the_extreme_colors(cmap, epsilon=0.25)
-            cmap = get_inverse_colormap(cmap)
-            add_colorbar = True
-            max_abs_change = None
-            massif_name_to_text = {m: round(v) for m, v in massif_name_to_value.items()}
-            graduation = self.altitude_group.graduation_for_return_level
-            fontsize_label = 17
-            massif_names_with_white_dot = None
-        else:
-            # cmap = plt.cm.RdYlGn
-            cmap = [plt.cm.coolwarm, plt.cm.bwr, plt.cm.seismic][1]
-            # cmap = get_inverse_colormap(cmap)
-            # cmap = get_cmap_with_inverted_blue_and_green_channels(cmap)
-            cmap = remove_the_extreme_colors(cmap)
-            graduation = 10
-            fontsize_label = 10
-            if with_significance:
-                massif_names_with_white_dot = set([massif_name
-                                                   for massif_name, one_fold_fit in
-                                                   self.massif_name_to_one_fold_fit.items()
-                                                   if not one_fold_fit.is_significant])
-            else:
-                massif_names_with_white_dot = None
-
-        negative_and_positive_values = self.moment_names.index(method_name) > 0
-
-        # Plot the map
-
-        self.plot_map(cmap=cmap, graduation=graduation,
-                      label=ylabel, massif_name_to_value=massif_name_to_value,
-                      plot_name=plot_name, add_x_label=True,
-                      negative_and_positive_values=negative_and_positive_values,
-                      altitude=self.altitude_group.reference_altitude,
-                      add_colorbar=add_colorbar,
-                      max_abs_change=max_abs_change,
-                      massif_name_to_text=massif_name_to_text,
-                      xlabel=self.altitude_group.xlabel,
-                      fontsize_label=fontsize_label,
-                      massif_names_with_white_dot=massif_names_with_white_dot,
-                      )
-
-    @property
-    def add_colorbar(self):
-        # return True
-        return isinstance(self.altitude_group, (VeyHighAltitudeGroup, MidAltitudeGroup))
-
-    def plot_against_years(self, method_name, order):
-        ax = plt.gca()
-        min_altitude, *_, max_altitude = self.studies.altitudes
-        altitudes_plot = np.linspace(min_altitude, max_altitude, num=50)
-        for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
-            massif_altitudes = self.studies.massif_name_to_altitudes[massif_name]
-            ind = (min(massif_altitudes) <= altitudes_plot) & (altitudes_plot <= max(massif_altitudes))
-            massif_altitudes_plot = altitudes_plot[ind]
-            values = one_fold_fit.__getattribute__(method_name)(massif_altitudes_plot, order=order)
-            massif_id = self.massif_name_to_massif_id[massif_name]
-            plot_against_altitude(massif_altitudes_plot, ax, massif_id, massif_name, values)
-        # Plot settings
-        ax.legend(prop={'size': 7}, ncol=3)
-        moment = ' '.join(method_name.split('_'))
-        moment = moment.replace('moment',
-                                '{} in {}'.format(OneFoldFit.get_moment_str(order=order),
-                                                  self.first_one_fold_fit.last_year))
-        plot_name = 'Model {} annual maxima of {}'.format(moment,
-                                                          SCM_STUDY_CLASS_TO_ABBREVIATION[self.studies.study_class])
-        ax.set_ylabel('{} ({})'.format(plot_name, self.study.variable_unit), fontsize=15)
-        ax.set_xlabel('altitudes', fontsize=15)
-        ax.tick_params(axis='both', which='major', labelsize=13)
-        self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show, no_title=True)
-        ax.clear()
-
-    @property
-    def massif_name_to_shape(self):
-        return {massif_name: one_fold_fit.best_shape
-                for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()}
-
-    @property
-    def massif_name_to_best_name(self):
-        return {massif_name: one_fold_fit.best_name
-                for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items()}
-
-    def plot_shape_map(self):
-
-        label = 'Shape parameter in {} (no unit)'.format(self.first_one_fold_fit.last_year)
-        max_abs_change = self._max_abs_for_shape + 0.05
-        self.plot_map(massif_name_to_value=self.massif_name_to_shape,
-                      label=label,
-                      plot_name=label,
-                      fontsize_label=15,
-                      add_x_label=True, graduation=0.1,
-                      massif_name_to_text=self.massif_name_to_best_name,
-                      cmap=matplotlib.cm.get_cmap('BrBG_r'),
-                      altitude=self.altitude_group.reference_altitude,
-                      add_colorbar=self.add_colorbar,
-                      max_abs_change=max_abs_change,
-                      xlabel=self.altitude_group.xlabel,
-                      )
-
-    def plot_altitude_for_the_peak(self):
-        pass
-
-    def plot_year_for_the_peak(self, plot_mean=True):
-        t_list = self.study.ordered_years
-        return_period = 50
-        for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
-            ax = plt.gca()
-            # One plot for each altitude
-            altitudes = np.arange(500, min(3000, max(self.studies.altitudes)), 500)
-            for altitude in altitudes:
-                i = 0
-                while self.studies.altitudes[i] < altitude:
-                    i += 1
-                nearest_altitude = self.studies.altitudes[i]
-                nearest_study = self.studies.altitude_to_study[nearest_altitude]
-                if massif_name in nearest_study.study_massif_names:
-                    y_list = []
-                    for t in t_list:
-                        coordinate = np.array([altitude, t])
-                        gev_params = one_fold_fit.best_margin_function_from_fit.get_params(coordinate,
-                                                                                           is_transformed=False)
-                        if plot_mean:
-                            y = gev_params.mean
-                        else:
-                            y = gev_params.return_level(return_period=return_period)
-                        y_list.append(y)
-                    label = '{} m'.format(altitude)
-                    ax.plot(t_list, y_list, label=label)
-            ax.legend()
-            # Modify the limits of the y axis
-            lim_down, lim_up = ax.get_ylim()
-            ax_lim = (0, lim_up)
-            ax.set_ylim(ax_lim)
-            ax.set_xlabel('Year')
-            if plot_mean:
-                ylabel = 'Mean {} maxima'.format(self.study.season_name)
-            else:
-                ylabel = '{}-year return level'.format(return_period)
-            ax.set_ylabel('{} of {} in {} ({})'.format(ylabel, SCM_STUDY_CLASS_TO_ABBREVIATION[type(self.study)],
-                                                       massif_name.replace('_', ' '), self.study.variable_unit))
-            peak_year_folder = 'Peak year ' + ylabel
-            plot_name = '{}/Peak year for {}'.format(peak_year_folder,
-                                                     massif_name.replace('_', ''))
-            self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show, no_title=True, tight_layout=True)
-            plt.close()
-
-    # Plots "altitude switch" and "peak year"
-
-    @property
-    def massif_name_to_is_decreasing_parabol(self):
-        # For the test we only activate the Mont-Blanc massif
-        d = {massif_name: False for massif_name in self.massif_name_to_one_fold_fit.keys()}
-        if max(self.study.ordered_years) < 2030:
-            for massif_name in ['Vanoise', 'Aravis', 'Beaufortain', 'Chablais']:
-                d[massif_name] = True
-        return d
-
-    @property
-    def massif_name_to_altitudes_switch_and_peak_years(self):
-        return {massif_name: self.compute_couple_peak_year_and_altitude_switch(massif_name)
-                for massif_name, is_decreasing_parabol in self.massif_name_to_is_decreasing_parabol.items()
-                if is_decreasing_parabol}
-
-    def compute_couple_peak_year_and_altitude_switch(self, massif_name):
-        # Get the altitude limits
-        altitudes = self.study.massif_name_to_altitudes[massif_name]
-        # use a step of 100m for instance
-        step = 10
-        altitudes = list(np.arange(min(altitudes), max(altitudes) + step, step))
-        # Get all the correspond peak years
-        margin_function = self.massif_name_to_one_fold_fit[massif_name].best_margin_function_from_fit
-        peak_years = []
-        year_left = 1900
-        switch_altitudes = []
-        for altitude in altitudes:
-            year_left = self.compute_peak_year(margin_function, altitude, year_left)
-            if year_left > 2020:
-                break
-            peak_years.append(year_left)
-            switch_altitudes.append(altitude)
-        print(switch_altitudes)
-        print(peak_years)
-        return switch_altitudes, peak_years
-
-    def compute_peak_year(self, margin_function: AbstractMarginFunction, altitude, year_left):
-        year_right = year_left + 0.1
-        mean_left = margin_function.get_params(np.array([altitude, year_left])).mean
-        mean_right = margin_function.get_params(np.array([altitude, year_right])).mean
-        print(year_left, year_right, mean_left, mean_right)
-        if mean_right < mean_left:
-            return year_left
-        else:
-            return self.compute_peak_year(margin_function, altitude, year_right)
-
-    def plot_peak_year_against_altitude(self):
-        ax = plt.gca()
-        for massif_name, (altitudes, peak_years) in self.massif_name_to_altitudes_switch_and_peak_years.items():
-            ax.plot(altitudes, peak_years, label=massif_name)
-        ax.legend()
-        ax.set_xlabel('Altitude')
-        ax.set_ylabel('Peak years')
-        plot_name = 'Peak Years'
-        self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
-        plt.close()
-
-    def plot_altitude_switch_against_peak_year(self):
-        ax = plt.gca()
-        for massif_name, (altitudes, peak_years) in self.massif_name_to_altitudes_switch_and_peak_years.items():
-            ax.plot(peak_years, altitudes, label=massif_name)
-        ax.legend()
-        ax.set_xlabel('Peak years')
-        ax.set_ylabel('Altitude')
-        plot_name = 'Switch altitude'
-        self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show)
-        plt.close()
-
-    def massif_name_to_return_level(self, massif_names):
-        valid_massif_names = self.get_valid_names(massif_names)
-        massif_name_to_return_level = {}
-        for m, one_fold in self.massif_name_to_one_fold_fit.items():
-            if m in valid_massif_names:
-                massif_name_to_return_level[m] = one_fold.return_level_last_temporal_coordinate
-        return massif_name_to_return_level
-
-    def all_trends(self, massif_names, with_significance=True, with_relative_change=False,
-                   with_return_level=True):
-        """return percents which contain decrease, significant decrease, increase, significant increase percentages"""
-        valid_massif_names = self.get_valid_names(massif_names)
-
-        nb_valid_massif_names = len(valid_massif_names)
-        nbs = np.zeros(4)
-        for one_fold in [one_fold for m, one_fold in self.massif_name_to_one_fold_fit.items()
-                         if m in valid_massif_names]:
-            # Compute nb of non stationary models
-            if with_return_level:
-                if with_relative_change:
-                    change_value = one_fold.relative_change_in_return_level_for_reference_altitude
-                else:
-                    change_value = one_fold.change_in_return_level_for_reference_altitude
-            else:
-                if with_relative_change:
-                    change_value = one_fold.relative_change_in_mean_for_reference_altitude
-                else:
-                    change_value = one_fold.change_in_mean_for_reference_altitude
-
-            if change_value == 0:
-                continue
-            # Compute nbs
-            idx = 0 if change_value < 0 else 2
-            nbs[idx] += 1
-            if with_significance and one_fold.is_significant:
-                nbs[idx + 1] += 1
-
-        percents = 100 * nbs / nb_valid_massif_names
-        return [nb_valid_massif_names] + list(percents)
-
-    def all_changes(self, massif_names, relative=False, with_significance=True):
-        """return percents which contain decrease, significant decrease, increase, significant increase percentages"""
-        valid_massif_names = self.get_valid_names(massif_names)
-        changes = []
-        non_stationary_changes = []
-        non_stationary_significant_changes = []
-        for one_fold in [one_fold for m, one_fold in self.massif_name_to_one_fold_fit.items()
-                         if m in valid_massif_names]:
-            # Compute changes
-            if relative:
-                change = one_fold.relative_change_in_return_level_for_reference_altitude
-            else:
-                change = one_fold.change_in_return_level_for_reference_altitude
-            changes.append(change)
-            if change != 0:
-                non_stationary_changes.append(change)
-                if with_significance:
-                    if one_fold.is_significant:
-                        non_stationary_significant_changes.append(change)
-
-        moment = 'relative mean' if relative else 'Mean'
-        print('{} for {}m'.format(moment, self.altitude_group.reference_altitude), np.mean(changes))
-        if with_significance:
-            return changes, non_stationary_changes, non_stationary_significant_changes
-        else:
-            return changes, non_stationary_changes
-
-    def get_valid_names(self, massif_names):
-        valid_massif_names = set(self.massif_name_to_one_fold_fit.keys())
-        if massif_names is not None:
-            valid_massif_names = valid_massif_names.intersection(set(massif_names))
-        return valid_massif_names
-
-    def model_name_to_percentages(self, massif_names, only_significant=False):
-        valid_massif_names = self.get_valid_names(massif_names)
-        nb_valid_massif_names = len(valid_massif_names)
-        best_names = [one_fold_fit.best_estimator.margin_model.name_str
-                      for m, one_fold_fit in self.massif_name_to_one_fold_fit.items()
-                      if m in valid_massif_names and (not only_significant or one_fold_fit.is_significant)]
-        counter = Counter(best_names)
-        d = {name: 100 * c / nb_valid_massif_names for name, c in counter.items()}
-        # Add 0 for the name not present
-        for name in self.model_names:
-            if name not in d:
-                d[name] = 0
-        return d
-
-    @property
-    def model_names(self):
-        massif_name = list(self.massif_name_to_one_fold_fit.keys())[0]
-        return self.massif_name_to_one_fold_fit[massif_name].model_names
-
     def plot_qqplots(self):
         qqplots_metrics = []
+        massif_name_to_unconstrained_quantile = dict()
         for massif_name, one_fold_fit in self.massif_name_to_one_fold_fit.items():
-            ax = plt.gca()
-            altitudes = self.massif_name_to_massif_altitudes[massif_name]
-            massif_name_corrected = massif_name.replace('_', ' ')
-
+            unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles()
+            massif_name_to_unconstrained_quantile[massif_name] = unconstrained_empirical_quantiles
+        # Sort massif names by group
+        massif_name_to_max_unconstrained_quantile = {m: max(u) for m, u in massif_name_to_unconstrained_quantile.items()}
+        massif_names = list(massif_name_to_max_unconstrained_quantile.keys())
+        sorted_massif_names = sorted(massif_names, key=lambda m: massif_name_to_max_unconstrained_quantile[m], reverse=True)
+        for i in range(4):
+            group_massif_names = sorted_massif_names[6*i:6*(i+1)]
             all_quantiles = []
 
-            for altitude in altitudes:
-                coordinate_for_filter = (altitude, None)
+            print(i, group_massif_names)
+            ax = plt.gca()
+            for massif_name in group_massif_names:
+                unconstrained_empirical_quantiles = massif_name_to_unconstrained_quantile[massif_name]
+                one_fold_fit = self.massif_name_to_one_fold_fit[massif_name]
+                massif_name_corrected = massif_name.replace('_', ' ')
+
+                altitude = self.altitude_group.reference_altitude
+
                 # We filter on the transformed gumbel quantiles for the altitude of interest
-                unconstrained_empirical_quantiles = one_fold_fit.best_estimator.sorted_empirical_standard_gumbel_quantiles(
-                    coordinate_for_filter=coordinate_for_filter)
                 n = len(unconstrained_empirical_quantiles)
                 if n > 0:
-                    assert n == 61
                     standard_gumbel_quantiles = one_fold_fit.standard_gumbel_quantiles(n=n)
                     ax.plot(standard_gumbel_quantiles, unconstrained_empirical_quantiles, linestyle='None',
-                            label='{} m'.format(altitude), marker='o')
+                            label='{} massif'.format(massif_name_corrected, altitude), marker='o')
 
                     all_quantiles.extend(standard_gumbel_quantiles)
                     all_quantiles.extend(unconstrained_empirical_quantiles)
-
-                    # Compute the Root Mean Squared Percent Error (RMSPE)
-                    # unconstrained_empirical_quantiles = np.array(unconstrained_empirical_quantiles)
-                    # standard_gumbel_quantiles = np.array(standard_gumbel_quantiles)
-                    # change = unconstrained_empirical_quantiles - standard_gumbel_quantiles
-                    # ratio_of_change_array = 100 * change / standard_gumbel_quantiles
-
                     pvalue = get_pvalue_anderson_darling_test(unconstrained_empirical_quantiles)
                     qqplots_metrics.append(pvalue)
 
-            size_label = 20
-            ax.set_xlabel("Theoretical quantile", fontsize=size_label)
-            ax.set_ylabel("Empirical quantile", fontsize=size_label)
+                size_label = 20
+                ax.set_xlabel("Theoretical quantile", fontsize=size_label)
+                ax.set_ylabel("Empirical quantile", fontsize=size_label)
 
-            epsilon = 0.1
+            epsilon = 0.5
             ax_lim = [min(all_quantiles) - epsilon, max(all_quantiles) + epsilon]
             ax.set_xlim(ax_lim)
             ax.set_ylim(ax_lim)
@@ -786,9 +375,9 @@ class AltitudesStudiesVisualizerForNonStationaryModels(StudyVisualizer):
             ax.set_yticks(ticks)
             labelsize = 15
             ax.tick_params(labelsize=labelsize)
-            plot_name = 'qqplot/{}'.format(massif_name_corrected)
+            plot_name = 'qqplot/{}'.format(i)
             handles, labels = ax.get_legend_handles_labels()
-            ax.legend(handles[::-1], labels[::-1], prop={'size': labelsize})
+            ax.legend(handles[::-1], labels[::-1], prop={'size': 12}, loc="lower right")
             self.studies.show_or_save_to_file(plot_name=plot_name, show=self.show, no_title=True)
             plt.close()
 

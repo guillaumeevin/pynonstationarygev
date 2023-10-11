@@ -4,6 +4,7 @@ from typing import List
 
 from cached_property import cached_property
 from mpmath import euler
+from scipy.stats import genextreme
 
 from extreme_fit.distribution.abstract_extreme_params import AbstractExtremeParams
 from extreme_fit.distribution.abstract_params import AbstractParams
@@ -12,6 +13,7 @@ from extreme_fit.model.utils import r
 import numpy as np
 from scipy.special import gamma
 
+density_dict = dict()
 
 class GevParams(AbstractExtremeParams):
     # Parameters
@@ -36,11 +38,21 @@ class GevParams(AbstractExtremeParams):
 
     @nan_if_undefined_wrapper
     def density(self, x, log_scale=False):
-        res = r.dgev(x, self.location, self.scale, self.shape, log_scale)
-        if isinstance(x, float):
-            return res[0]
+        t = (x, self.shape, self.location, self.scale)
+        if t in density_dict:
+            return density_dict[t]
         else:
-            return np.array(res)
+            res = genextreme.pdf(x, self.shape, self.location, self.scale)
+            if res == 0:
+                res = r.dgev(x, self.location, self.scale, self.shape, log_scale)
+            assert res > 0
+            density_dict[t] = res
+            return res
+        # res = r.dgev(x, self.location, self.scale, self.shape, log_scale)
+        # if isinstance(x, float):
+        #     return res[0]
+        # else:
+        #     return np.array(res)
 
     def time_derivative_of_return_level(self, p=0.99, mu1=0.0, sigma1=0.0):
         """

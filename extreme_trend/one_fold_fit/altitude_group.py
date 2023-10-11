@@ -177,15 +177,3 @@ def get_altitude_group_from_altitudes(altitudes):
         return DefaultAltitudeGroup(altitudes)
 
 
-def get_linestyle_for_altitude_class(altitude_class):
-    assert issubclass(altitude_class, AbstractAltitudeGroup)
-    if altitude_class is LowAltitudeGroup:
-        return 'solid'
-    elif altitude_class is MidAltitudeGroup:
-        return 'dashed'
-    elif altitude_class is HighAltitudeGroup:
-        return 'dashdot'
-    elif altitude_class is VeyHighAltitudeGroup:
-        return 'dotted'
-    else:
-        raise NotImplementedError

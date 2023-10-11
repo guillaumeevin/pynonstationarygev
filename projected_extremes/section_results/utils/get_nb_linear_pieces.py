@@ -12,15 +12,16 @@ from extreme_data.meteo_france_data.scm_models_data.abstract_study import Abstra
 from extreme_data.meteo_france_data.scm_models_data.utils import Season
 from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import StudyVisualizer
 from extreme_data.utils import DATA_PATH, RESULTS_PATH
-from extreme_trend.ensemble_fit.visualizer_for_projection_ensemble import VisualizerForProjectionEnsemble
+from extreme_trend.one_fold_fit.utils import load_gcm_rcm_couple_to_studies
 from projected_extremes.section_results.utils.selection_utils import get_short_name, number_to_model_class, \
     short_name_to_parametrization_number, linear_effects_for_selection, number_to_model_name, short_name_to_color, \
     short_name_to_label
-from projected_extremes.section_results.utils.setting_utils import get_last_year_for_the_train_set, set_up_and_load
+from projected_extremes.section_results.utils.setting_utils import get_last_year_for_the_train_set, set_up_and_load, \
+    get_variable_name
 from root_utils import VERSION_TIME
 
 abstract_experiment_folder = op.join(RESULTS_PATH, "abstract_experiments")
-model_as_truth_excel_folder = op.join(abstract_experiment_folder, "ModelAsTruthExperiment/{} {}")
+model_as_truth_excel_folder = op.join(abstract_experiment_folder, "ModelAsTruthExperiment/{}_{}")
 calibration_excel_folder = op.join(abstract_experiment_folder, "CalibrationValidationExperiment/{}_{}_{}")
 
 
@@ -29,21 +30,23 @@ def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_co
                                               study_class, season, snowfall
                                               ):
     new_massif_names = []
+    gcm_rcm_couple_to_studies = load_gcm_rcm_couple_to_studies([altitude], gcm_rcm_couples,
+                                                               None,
+                                                               safran_study_class,
+                                                               scenario,
+                                                               season,
+                                                               study_class)
+    safran_studies = gcm_rcm_couple_to_studies[(None, None)]
+
     for massif_name in massif_names:
 
-        gcm_rcm_couple_to_studies = VisualizerForProjectionEnsemble.load_gcm_rcm_couple_to_studies([altitude],
-                                                                                                   gcm_rcm_couples,
-                                                                                                   None,
-                                                                                                   safran_study_class,
-                                                                                                   scenario,
-                                                                                                   season,
-                                                                                                   study_class)
-        safran_studies = gcm_rcm_couple_to_studies[(None, None)]
+
+
         if massif_name in safran_studies.study.study_massif_names:
             nb_zeros = 0
             nb_data = 0
             for studies in gcm_rcm_couple_to_studies.values():
-                dataset = studies.spatio_temporal_dataset(massif_name=massif_name, massif_altitudes=[altitude])
+                dataset = studies.spatio_temporal_dataset_memoize(massif_name, altitude)
                 s = dataset.observations.df_maxima_gev.iloc[:, 0]
                 nb_zeros += sum(s == 0)
                 nb_data += len(s)
@@ -57,7 +60,7 @@ def eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_co
                 print('eliminate due to zeros:', massif_name)
             else:
                 new_massif_names.append(massif_name)
-    return new_massif_names
+    return new_massif_names, gcm_rcm_couple_to_studies
 
 
 def run_selection(massif_names, altitude, gcm_rcm_couples,
@@ -66,8 +69,9 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
                   snowfall=False,
                   season=Season.annual,
                   print_latex_table=False,
+                  plot_selection_graph=True,
                   ):
-    massif_name_to_number, linear_effects, massif_names, snowfall_str, numbers_of_pieces = get_massif_name_to_number(
+    massif_name_to_number, linear_effects, massif_names, snowfall_str, numbers_of_pieces, gcm_rcm_couple_to_studies = get_massif_name_to_number(
         altitude, gcm_rcm_couples, massif_names,
         safran_study_class, scenario, snowfall,
         study_class, season)
@@ -75,7 +79,6 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
     massif_name_to_short_name = {}
     if print_latex_table:
         print('\n\nstart table with split-sample:')
-    print(massif_name_to_number)
     for massif_name, number in massif_name_to_number.items():
         if print_latex_table:
             print(massif_name.replace('_', ' '), end=' & ')
@@ -112,19 +115,21 @@ def run_selection(massif_names, altitude, gcm_rcm_couples,
     if print_latex_table:
         print('\n\nend with split-sample:')
 
-    plots(massif_name_to_short_name, massif_name_to_number, show, altitude, snowfall_str, numbers_of_pieces)
+    if plot_selection_graph:
+        plots(massif_name_to_short_name, massif_name_to_number, show, altitude, snowfall_str, numbers_of_pieces)
 
     massif_name_to_model_class = {m: number_to_model_class[n] for m, n in massif_name_to_number.items()}
     massif_name_to_parametrization_number = {m: short_name_to_parametrization_number[s] for m, s in
                                              massif_name_to_short_name.items()}
-    return massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects_for_selection
+    return massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects_for_selection, gcm_rcm_couple_to_studies
 
 
 def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_study_class, scenario, snowfall,
                               study_class, season):
-    max_number_of_pieces, min_number_of_pieces, snowfall_str = get_min_max_number_of_pieces(snowfall)
+    max_number_of_pieces, min_number_of_pieces = get_min_max_number_of_pieces()
+    snowfall_str = get_variable_name(safran_study_class)
     numbers_of_pieces = list(range(min_number_of_pieces, max_number_of_pieces + 1))
-    massif_names = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
+    massif_names, gcm_rcm_couple_to_studies = eliminate_massif_name_with_too_much_zeros(massif_names, altitude, gcm_rcm_couples,
                                                              safran_study_class, scenario,
                                                              study_class, season, snowfall)
     d = massif_name_to_nb_linear_pieces(massif_names, altitude,
@@ -132,23 +137,13 @@ def get_massif_name_to_number(altitude, gcm_rcm_couples, massif_names, safran_st
 
     massif_names = list(d.keys())
     linear_effects = linear_effects_for_selection
-    return d, linear_effects, massif_names, snowfall_str, numbers_of_pieces
+    return d, linear_effects, massif_names, snowfall_str, numbers_of_pieces, gcm_rcm_couple_to_studies
 
 
-def get_min_max_number_of_pieces(snowfall):
-    if snowfall is True:
-        snowfall_str = 'snowfall'
-        min_number_of_pieces = 1
-        max_number_of_pieces = 4
-    elif snowfall is None:
-        snowfall_str = 'precipitation'
-        min_number_of_pieces = 1
-        max_number_of_pieces = 4
-    else:
-        min_number_of_pieces = 1
-        max_number_of_pieces = 4
-        snowfall_str = "snow load"
-    return max_number_of_pieces, min_number_of_pieces, snowfall_str
+def get_min_max_number_of_pieces():
+    min_number_of_pieces = 1
+    max_number_of_pieces = 4
+    return max_number_of_pieces, min_number_of_pieces
 
 
 def plots(massif_name_to_short_name, d, show, altitude, snowfall_str, numbers_of_pieces):
@@ -282,11 +277,11 @@ def load_df_complete(massif_name, numbers_of_pieces, excel_folder, linear_effect
 def _load_dataframe(massif_name, number_of_pieces, excel_folder, linear_effects, gcm_rcm_couples):
     model_name = number_to_model_name[number_of_pieces]
     short_excel_folder = excel_folder.split('/')[-2:]
-    assert op.exists(excel_folder), "Run a {} for {}".format(*short_excel_folder)
-    linear_effects_name = str(linear_effects)
+    assert op.exists(excel_folder), "Run a {} for {} and {} number of pieces and {} massif".format(*short_excel_folder, number_of_pieces, massif_name)
+    linear_effects_name = str(linear_effects).replace(' ', '')
     couplename = str(len(gcm_rcm_couples)) + 'couples'
     files = [f for f in os.listdir(excel_folder) if
-             (model_name in f) and (linear_effects_name in f) and (couplename in f)]
+             (model_name in f) and (linear_effects_name in f) and (couplename in f) and ('~lock' not in f)]
     join_str = ' '.join([model_name] + [str(e) for e in linear_effects])
     assert len(files) > 0, "Run a {} for {}".format(short_excel_folder[0], join_str)
     assert len(files) < 2, "Too many files that correspond: {}".format(*files)

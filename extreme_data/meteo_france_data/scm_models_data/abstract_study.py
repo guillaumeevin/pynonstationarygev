@@ -1,7 +1,4 @@
 import datetime
-import time
-
-from matplotlib.lines import Line2D
 import io
 import os
 import os.path as op
@@ -14,34 +11,25 @@ from typing import List, Dict, Tuple, Union
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PIL import Image
-from PIL import ImageDraw
 from matplotlib.colors import Normalize
+from matplotlib.lines import Line2D
 from matplotlib.patches import Polygon
 from netCDF4 import Dataset
 
 from extreme_data.meteo_france_data.scm_models_data.abstract_variable import AbstractVariable
 from extreme_data.meteo_france_data.scm_models_data.utils import ALTITUDES, ZS_INT_23, ZS_INT_MASK, LONGITUDES, \
     LATITUDES, ORIENTATIONS, SLOPES, ORDERED_ALLSLOPES_ALTITUDES, ORDERED_ALLSLOPES_ORIENTATIONS, \
-    ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM, date_to_str, WP_PATTERN_MAX_YEAR, Season, \
-    first_day_and_last_day, FrenchRegion, ZS_INT_MASK_PYRENNES, alps_massif_order, ZS_INT_MASK_PYRENNES_LIST, \
+    ORDERED_ALLSLOPES_SLOPES, ORDERED_ALLSLOPES_MASSIFNUM, date_to_str, Season, \
+    first_day_and_last_day, FrenchRegion, ZS_INT_MASK_PYRENNES, ZS_INT_MASK_PYRENNES_LIST, \
     season_to_str
-from extreme_data.meteo_france_data.scm_models_data.utils_function import \
-    fitted_stationary_gev_with_uncertainty_interval
-from extreme_data.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
-from extreme_fit.estimator.margin_estimator.utils import fitted_stationary_gev
-from extreme_fit.function.margin_function.abstract_margin_function import \
-    AbstractMarginFunction
 from extreme_data.meteo_france_data.scm_models_data.visualization.create_shifted_cmap import create_colorbase_axis, \
     get_shifted_map, get_colors
-from extreme_fit.model.margin_model.utils import MarginFitMethod
-from extreme_fit.model.result_from_model_fit.result_from_extremes.eurocode_return_level_uncertainties import \
-    EurocodeConfidenceIntervalFromExtremes
+from extreme_data.meteo_france_data.scm_models_data.visualization.utils import get_km_formatter
+from root_utils import get_full_path, cached_property, NB_CORES, classproperty
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.abstract_spatial_coordinates import \
     AbstractSpatialCoordinates
 from spatio_temporal_dataset.spatio_temporal_observations.annual_maxima_observations import AnnualMaxima
-from root_utils import get_full_path, cached_property, NB_CORES, classproperty
 
 f = io.StringIO()
 with redirect_stdout(f):
@@ -487,7 +475,7 @@ class AbstractStudy(object):
 
     @property
     def title(self):
-        return "{}/at altitude {}m ({} mountain chains)".format(self.variable_name, self.altitude,
+        return "{}/at {}m ({} massifs)".format(self.variable_name, self.altitude,
                                                                 len(self.study_massif_names))
 
     @property
@@ -531,7 +519,7 @@ class AbstractStudy(object):
                         massif_name_to_color=None,
                         show_label=True,
                         scaled=True,
-                        fontsize=7,
+                        fontsize=8,
                         axis_off=False,
                         massif_name_to_hatch_boolean_list=None,
                         norm=None,
@@ -618,7 +606,8 @@ class AbstractStudy(object):
                     str_value = str(value)
                 else:
                     str_value = massif_name_to_text[massif_name]
-                ax.text(x, y, str_value, horizontalalignment='center', verticalalignment='center', fontsize=fontsize)
+                ax.text(x, y, str_value, horizontalalignment='center', verticalalignment='center', fontsize=fontsize,
+                        weight="bold", fontweight="bold")
 
         if scaled:
             plt.axis('scaled')
@@ -804,106 +793,10 @@ class AbstractStudy(object):
         all_idxs = set([t[0] for t in coord_tuples])
         return {idx: [coords for idx_loop, *coords in coord_tuples if idx == idx_loop] for idx in all_idxs}
 
-    @property
-    def all_coords_list(self):
-        all_values = []
-        for e in self.idx_to_coords_list.values():
-            all_values.extend(e)
-        return list(zip(*all_values))
 
-    @property
-    def visualization_x_limits(self):
-        return min(self.all_coords_list[0]), max(self.all_coords_list[0])
 
-    @property
-    def visualization_y_limits(self):
-        return min(self.all_coords_list[1]), max(self.all_coords_list[1])
 
-    @cached_property
-    def mask_french_alps(self):
-        resolution = AbstractMarginFunction.VISUALIZATION_RESOLUTION
-        mask_french_alps = np.zeros([resolution, resolution])
-        for polygon in self.idx_to_coords_list.values():
-            xy_values = list(zip(*polygon))
-            normalized_polygon = []
-            for values, (minlim, max_lim) in zip(xy_values, [self.visualization_x_limits, self.visualization_y_limits]):
-                values -= minlim
-                values *= resolution / (max_lim - minlim)
-                normalized_polygon.append(values)
-            normalized_polygon = list(zip(*normalized_polygon))
-            img = Image.new('L', (resolution, resolution), 0)
-            ImageDraw.Draw(img).polygon(normalized_polygon, outline=1, fill=1)
-            mask_massif = np.array(img)
-            mask_french_alps += mask_massif
-        return ~np.array(mask_french_alps, dtype=bool)
 
-    def massif_name_to_return_level_list_from_bootstrap(self, return_period):
-        quantile_level = 1 - 1 / return_period
-        _, _, d = self.massif_name_to_stationary_gev_params_and_confidence(quantile_level=quantile_level,
-                                                                           confidence_interval_based_on_delta_method=False)
-        return d
 
-    def massif_name_to_return_level(self, return_period):
-        return {massif_name: gev_params.return_level(return_period=return_period)
-                for massif_name, gev_params in self.massif_name_to_stationary_gev_params.items()}
 
-    @property
-    def massif_name_to_stationary_gev_params(self):
-        d, _, _ = self.massif_name_to_stationary_gev_params_and_confidence(quantile_level=None)
-        return d
 
-    def massif_name_to_stationary_gev_params_and_confidence(self, quantile_level,
-                                                            confidence_interval_based_on_delta_method=True):
-        t = (quantile_level, confidence_interval_based_on_delta_method)
-        if t in self._cache_for_pointwise_fit:
-            return self._cache_for_pointwise_fit[t]
-        else:
-            res = self._massif_name_to_stationary_gev_params_and_confidence(*t, self._massif_names_for_cache)
-            self._cache_for_pointwise_fit[t] = res
-            return res
-
-    def _massif_name_to_stationary_gev_params_and_confidence(self, quantile_level=None,
-                                                             confidence_interval_based_on_delta_method=True,
-                                                             massif_names=None):
-        """ at least 90% of values must be above zero"""
-        massif_name_to_stationary_gev_params = {}
-        massif_name_to_confidence = {}
-        massif_name_to_return_level_list = {}
-        for massif_name, annual_maxima in self.massif_name_to_annual_maxima.items():
-            if (massif_names is None) or (massif_name in massif_names):
-                percentage_of_non_zeros = 100 * np.count_nonzero(annual_maxima) / len(annual_maxima)
-                if percentage_of_non_zeros > 90:
-                    gev_params, mean_estimate, confidence, return_level_list = fitted_stationary_gev_with_uncertainty_interval(
-                        annual_maxima,
-                        fit_method=MarginFitMethod.extremes_fevd_mle,
-                        quantile_level=quantile_level,
-                        confidence_interval_based_on_delta_method=confidence_interval_based_on_delta_method)
-
-                    if -0.5 <= gev_params.shape <= 0.5:
-                        massif_name_to_stationary_gev_params[massif_name] = gev_params
-                        massif_name_to_confidence[massif_name] = EurocodeConfidenceIntervalFromExtremes(mean_estimate,
-                                                                                                        confidence)
-                        massif_name_to_return_level_list[massif_name] = return_level_list
-        return massif_name_to_stationary_gev_params, massif_name_to_confidence, massif_name_to_return_level_list
-
-    def massif_name_to_gev_param_list(self, year_min_and_max_list):
-        year_to_index = {y: i for i, y in enumerate(self.ordered_years)}
-        self.index_min_and_max_list = [(year_to_index[mi], year_to_index[ma]) for mi, ma in year_min_and_max_list]
-        return self._massif_name_to_gev_param_list
-
-    @cached_property
-    def _massif_name_to_gev_param_list(self):
-        massif_name_to_stationary_gev_params = {}
-        for massif_name, annual_maxima in self.massif_name_to_annual_maxima.items():
-            gev_params_list = []
-            for index_min, index_max in self.index_min_and_max_list:
-                annual_maxima_sliced = annual_maxima[index_min: index_max + 1]
-                gev_params_list.append(fitted_stationary_gev(annual_maxima_sliced))
-            massif_name_to_stationary_gev_params[massif_name] = gev_params_list
-        return massif_name_to_stationary_gev_params
-
-    def aggregate_annual_maxima(self, f):
-        annual_maxima = []
-        for maxima in self.year_to_annual_maxima.values():
-            annual_maxima.extend(maxima)
-        return f(annual_maxima)

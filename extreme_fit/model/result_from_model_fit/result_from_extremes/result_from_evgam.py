@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from rpy2 import robjects
-from rpy2.robjects.pandas2ri import ri2py_dataframe
 from scipy.interpolate import make_interp_spline
 
 from extreme_fit.distribution.gev.gev_params import GevParams
@@ -65,7 +64,9 @@ class ResultFromEvgam(AbstractResultFromExtremes):
 
     @property
     def maxima(self):
-        return np.array(self.get_python_dictionary(self.name_to_value['location'])['model'][0])
+        model = self.get_python_dictionary(self.name_to_value['location'])['model']
+        maxima = model.iloc[0, :].values
+        return maxima
 
     @property
     def nb_parameters(self):

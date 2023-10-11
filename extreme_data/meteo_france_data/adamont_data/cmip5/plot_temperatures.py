@@ -12,7 +12,7 @@ from root_utils import VERSION_TIME
 
 def main_plot_temperature_all(anomaly=True, spline=True):
     ax = plt.gca()
-    for gcm in get_gcm_list(adamont_version=2)[:]:
+    for gcm in get_gcm_list()[:]:
         for scenario in rcp_scenarios[:]:
             label=gcm if scenario == rcp_scenarios[0] else None
             plot_temperature_for_rcp_gcm(ax, gcm, scenario, label=label, year_min=2005, year_max=2100, spline=spline, anomaly=anomaly)
@@ -22,7 +22,7 @@ def main_plot_temperature_all(anomaly=True, spline=True):
 
 def main_plot_temperature_with_spline_on_top(anomaly=True):
     spline = None
-    for gcm in get_gcm_list(adamont_version=2)[:]:
+    for gcm in get_gcm_list()[:]:
         ax = plt.gca()
         # Plot the historical part in solid line (this part is the same between the different scenarios)
         linestyle = get_linestyle_from_scenario(AdamontScenario.histo)

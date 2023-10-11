@@ -11,6 +11,7 @@ VERSION = datetime.datetime.now()
 VERSION_TIME = str(VERSION).split('.')[0]
 for c in [' ', ':', '-']:
     VERSION_TIME = VERSION_TIME.replace(c, '_')
+SHORT_VERSION_TIME = VERSION_TIME[8:]
 
 NB_CORES = 7
 
@@ -68,6 +69,18 @@ def float_to_str_with_only_some_significant_digits(f, nb_digits) -> str:
     assert nb_digits > 0
     return '%s' % float('%.{}g'.format(nb_digits) % f)
 
+def memoize(function):
+    memo = {}
+
+    def wrapper(*args):
+        if args in memo:
+            return memo[args]
+        else:
+            rv = function(*args)
+            memo[args] = rv
+            return rv
+
+    return wrapper
 
 class Example(object):
 

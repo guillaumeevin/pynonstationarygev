@@ -1,5 +1,6 @@
 import matplotlib
 
+from extreme_trend.one_fold_fit.excel_from_one_fold_fit import to_excel
 from extreme_trend.one_fold_fit.utils import load_sub_visualizer
 
 matplotlib.use('Agg')
@@ -28,26 +29,20 @@ def main():
     # snowfall=None corresponds to daily winter precipitation
     fast = False
     snowfall = True
+    nb_days = 3
 
     # Load parameters
     altitudes_list, gcm_rcm_couples, massif_names, _, scenario, study_class, temporal_covariate_for_fit, \
     remove_physically_implausible_models, display_only_model_that_pass_gof_test, safran_study_class, fit_method, \
-    season = set_up_and_load(fast, snowfall)
+    season = set_up_and_load(fast, snowfall, nb_days)
 
-
-    altitudes_list = [[900], [1200], [1500], [1800], [2100], [2400], [2700], [3000], [3300], [3600]][:]
-
-    # Frei comparison
-    altitudes_list = [[900], [1800], [2100], [2400]][:]
-    # Moreno comparison
-    # altitudes_list = [[1500]][:]
+    altitudes_list = [[1500], [1800], [2100], [2400], [2700]][:]
 
     # Loop on the altitudes
     for altitudes in altitudes_list:
-        print(altitudes[0])
 
         # Load the selected parameterization (adjustment coefficient and number of linear pieces)
-        massif_names = AbstractStudy.all_massif_names()[:]
+        massif_names = [ 'Mercantour']
         massif_names, massif_name_to_model_class, massif_name_to_parametrization_number, linear_effects, gcm_rcm_couple_to_studies = run_selection(
             massif_names,
             altitudes[0],
@@ -79,7 +74,6 @@ def main():
             massif_name_to_param_name_to_climate_coordinates_with_effects[
                 massif_name] = param_name_to_climate_coordinates_with_effects
 
-        # Visualize together the values for all massifs on a map
         sub_visualizer = load_sub_visualizer(altitudes, display_only_model_that_pass_gof_test, fit_method,
                                              gcm_rcm_couples, linear_effects, massif_name_to_model_class,
                                              massif_name_to_param_name_to_climate_coordinates_with_effects,
@@ -87,12 +81,9 @@ def main():
                                              safran_study_class, scenario, season, study_class,
                                              temporal_covariate_for_fit, gcm_rcm_couple_to_studies)
 
-        # Visualize the projected changes for the return levels and the relative changes in return levels
-        if snowfall:
-            # sub_visualizer.plot_moments_projections_snowfall()
-            sub_visualizer.plot_moments_projections_snowfall_discussion(scenario)
-        else:
-            sub_visualizer.plot_moments_projections(scenario)
+
+        for one_fold_fit in sub_visualizer.massif_name_to_one_fold_fit.values():
+            to_excel(one_fold_fit, gcm_rcm_couple_to_studies)
 
 
 if __name__ == '__main__':

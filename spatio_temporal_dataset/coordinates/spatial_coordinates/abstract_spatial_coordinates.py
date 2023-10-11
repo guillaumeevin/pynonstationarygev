@@ -8,15 +8,15 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 class AbstractSpatialCoordinates(AbstractCoordinates, ABC):
 
     @classmethod
-    def from_list_x_coordinates(cls, x_coordinates, transformation_class: type = None):
+    def from_list_x_coordinates(cls, x_coordinates):
         df = pd.DataFrame({cls.COORDINATE_X: x_coordinates})
-        return cls.from_df(df, transformation_class)
+        return cls.from_df(df)
 
     @classmethod
-    def from_df(cls, df: pd.DataFrame, transformation_class: type = None):
+    def from_df(cls, df: pd.DataFrame):
         assert cls.COORDINATE_X in df.columns
         assert cls.COORDINATE_T not in df.columns
-        return super().from_df_and_transformation_class(df, transformation_class)
+        return super().from_df(df)
 
     @classmethod
     def from_nb_points(cls, nb_points: int, **kwargs):

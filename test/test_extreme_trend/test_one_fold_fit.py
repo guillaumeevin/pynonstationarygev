@@ -74,43 +74,6 @@ class TestOneFoldFit(unittest.TestCase):
             _ = one_fold_fit.best_estimator.margin_model
         self.assertTrue(True)
 
-    # def test_remove_physically_implausible_models(self):
-    #     self.massif_name = "Aravis"
-    #     self.altitudes = [600, 900]
-    #     self.model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS
-    #     dataset = self.load_dataset(AdamontSnowfall,
-    #                                 scenario=AdamontScenario.rcp85, gcm_rcm_couple=('CNRM-CM5', 'CCLM4-8-17'))
-    #     one_fold_fit = OneFoldFit(self.massif_name, dataset,
-    #                               models_classes=self.model_classes,
-    #                               temporal_covariate_for_fit=None,
-    #                               only_models_that_pass_goodness_of_fit_test=False,
-    #                               remove_physically_implausible_models=True,
-    #                               altitude_group=LowAltitudeGroup(),
-    #                               first_year=1959,
-    #                               last_year=2019
-    #                               )
-    #     self.assertFalse(one_fold_fit.has_at_least_one_valid_model)
-
-    def test_assertion_error_for_a_specific_case(self):
-        self.massif_name = "Thabor"
-        self.model_classes = ALTITUDINAL_GEV_MODELS_BASED_ON_POINTWISE_ANALYSIS[:]
-        self.altitudes = [3000, 3300, 3600]
-        gcm_rcm_couple = ('HadGEM2-ES', 'RegCM4-6')
-        scenario = AdamontScenario.rcp85
-        year_min, year_max = get_year_min_and_year_max(gcm_rcm_couple[0], scenario, left_limit=1.0,
-                                                       right_limit=2.5, is_temperature_interval=True)
-        dataset = self.load_dataset(AdamontSnowfall,
-                                    scenario=scenario, gcm_rcm_couple=gcm_rcm_couple,
-                                    year_min=year_min, year_max=year_max)
-        one_fold_fit = OneFoldFit(self.massif_name, dataset,
-                                  models_classes=self.model_classes,
-                                  temporal_covariate_for_fit=AnomalyTemperatureWithSplineTemporalCovariate,
-                                  altitude_group=VeyHighAltitudeGroup(),
-                                  only_models_that_pass_goodness_of_fit_test=False,
-                                  remove_physically_implausible_models=True,
-                                  first_year=1959,
-                                  last_year=2019)
-        self.assertTrue(one_fold_fit.has_at_least_one_valid_model)
 
 if __name__ == '__main__':
     unittest.main()

@@ -67,7 +67,7 @@ def plot_nb_data(is_temperature_interval, is_shift_interval):
     left_limit, right_limit = get_interval_limits(is_temperature_interval, is_shift_interval)
 
     ax = plt.gca()
-    for gcm in get_gcm_list(adamont_version=2)[:]:
+    for gcm in get_gcm_list()[:]:
         for i, scenario in enumerate(rcp_scenarios[1:]):
             first_scenario = i == 0
             plot_nb_data_one_line(ax, gcm, scenario, left_limit, right_limit,
@@ -133,7 +133,7 @@ def plot_year_for_temperature_interval():
     left_limit, right_limit = get_interval_limits(True, False)
 
     ax = plt.gca()
-    for gcm in get_gcm_list(adamont_version=2)[:]:
+    for gcm in get_gcm_list()[:]:
         for i, scenario in enumerate(rcp_scenarios[2:]):
             first_scenario = i == 0
             plot_year_for_temperature_interval_one_line(ax, gcm, scenario, left_limit, right_limit, first_scenario)

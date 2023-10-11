@@ -4,33 +4,17 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
-from extreme_fit.model.utils import set_seed_for_test
 from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoordinates
-from spatio_temporal_dataset.coordinates.spatial_coordinates.alps_station_2D_coordinates import \
-    AlpsStation2DCoordinatesBetweenZeroAndOne
 from spatio_temporal_dataset.coordinates.spatial_coordinates.coordinates_1D import UniformSpatialCoordinates, \
     LinSpaceSpatialCoordinates
 from spatio_temporal_dataset.coordinates.spatial_coordinates.generated_spatial_coordinates import \
     CircleSpatialCoordinates
-from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.abstract_spatio_temporal_coordinates import \
-    AbstractSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.spatio_temporal_coordinates.generated_spatio_temporal_coordinates import \
     GeneratedSpatioTemporalCoordinates
 from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_covariate_for_fit import \
     TimeTemporalCovariate
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
-    CenteredScaledNormalization
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
-    BetweenZeroAndOneNormalization
 from spatio_temporal_dataset.coordinates.utils import get_index_with_spatio_temporal_index_suffix
-from test.test_utils import load_test_spatiotemporal_coordinates, load_test_temporal_coordinates, \
-    load_test_1D_and_2D_spatial_coordinates
-
-
-class TestCoordinatesUtils(unittest.TestCase):
-
-    def test_csv_creation(self):
-        AlpsStation3DCoordinatesWithAnisotropy.transform_txt_into_csv(create_csv=False)
+from test.test_utils import load_test_temporal_coordinates
 
 
 class TestSpatialCoordinates(unittest.TestCase):
@@ -52,11 +36,6 @@ class TestSpatialCoordinates(unittest.TestCase):
     def test_circle(self):
         self.coord = CircleSpatialCoordinates.from_nb_points(nb_points=500)
 
-    def test_normalization(self):
-        self.coord = AlpsStation2DCoordinatesBetweenZeroAndOne.from_csv()
-
-    def test_anisotropy(self):
-        self.coord = AlpsStation3DCoordinatesWithAnisotropy.from_csv()
 
 
 class SpatioTemporalCoordinates(unittest.TestCase):
@@ -111,45 +90,6 @@ class SpatioTemporalCoordinates(unittest.TestCase):
             self.assertEqual(list(coordinates.df_all_coordinates.columns),
                              [AbstractCoordinates.COORDINATE_X, AbstractCoordinates.COORDINATE_T])
 
-
-class TestCoordinatesWithTransformedStartingPoint(unittest.TestCase):
-
-    def setUp(self) -> None:
-        set_seed_for_test(seed=42)
-        self.nb_points = 2
-        self.nb_steps = 50
-        self.nb_obs = 1
-
-    def test_starting_point_with_zero_one_normalization(self):
-        # Load some 2D spatial coordinates
-        coordinates = load_test_spatiotemporal_coordinates(nb_steps=self.nb_steps, nb_points=self.nb_points,
-                                                           transformation_class=BetweenZeroAndOneNormalization)[1]  # type: AbstractSpatioTemporalCoordinates
-        self.assertEqual(None, coordinates.transformation_class)
-        self.assertEqual(BetweenZeroAndOneNormalization, coordinates.spatial_coordinates.transformation_class)
-        self.assertEqual(BetweenZeroAndOneNormalization, coordinates.temporal_coordinates.transformation_class)
-        df = coordinates.df_temporal_coordinates_for_fit(starting_point=2)
-        start_coordinates = df.iloc[2, 0]
-        self.assertEqual(start_coordinates, 0.0)
-
-    def test_starting_point_with_centered_scaled_normalization(self):
-        # Load some 2D spatial coordinates
-        spatial_coordinate = load_test_1D_and_2D_spatial_coordinates(nb_points=self.nb_points,
-                                                                     transformation_class=BetweenZeroAndOneNormalization)[
-            0]
-        temporal_coordinates = \
-            load_test_temporal_coordinates(nb_steps=self.nb_steps, transformation_class=CenteredScaledNormalization)[0]
-        coordinates = AbstractSpatioTemporalCoordinates.from_spatial_coordinates_and_temporal_coordinates(
-            spatial_coordinates=spatial_coordinate,
-            temporal_coordinates=temporal_coordinates)
-        # Check that df_all_coordinates have not yet been normalized
-        self.assertEqual(coordinates.df_temporal_coordinates(transformed=False).iloc[-1, 0], 49.0)
-        # Check that the normalization is working
-        self.assertAlmostEqual(coordinates.df_temporal_coordinates_for_fit(starting_point=None).iloc[0, 0],
-                               -1.697749375254331)
-        self.assertAlmostEqual(coordinates.df_temporal_coordinates_for_fit(starting_point=2).iloc[2, 0],
-                               -1.5739459974625107)
-        self.assertNotEqual(coordinates.df_temporal_coordinates_for_fit(starting_point=2).iloc[2, 0],
-                            coordinates.df_temporal_coordinates_for_fit(starting_point=2).iloc[3, 0])
 
 
 class TestCoordinatesWithModifiedCovariate(unittest.TestCase):

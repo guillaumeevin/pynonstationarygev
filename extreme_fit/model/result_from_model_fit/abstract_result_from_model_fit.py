@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from rpy2 import robjects
 
 
@@ -24,7 +25,14 @@ class AbstractResultFromModelFit(object):
 
     @staticmethod
     def get_python_dictionary(r_dictionary):
-        return {name: r_dictionary.rx2(name) for name in r_dictionary.names}
+        d = {str(name): r_dictionary.rx2(str(name)) for name in r_dictionary.names}
+        new_d = dict()
+        for k, v in d.items():
+            if isinstance(v, pd.DataFrame):
+                new_d[k] = v.transpose()
+            else:
+                new_d[k] = v
+        return new_d
 
     @property
     def names(self):

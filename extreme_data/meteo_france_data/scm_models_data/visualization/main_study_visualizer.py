@@ -1,4 +1,3 @@
-import time
 from collections import OrderedDict
 from typing import List
 
@@ -7,30 +6,20 @@ from extreme_data.meteo_france_data.adamont_data.adamont.adamont_safran import A
 from extreme_data.meteo_france_data.scm_models_data.abstract_study import AbstractStudy
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus import CrocusDepth, CrocusSweTotal, \
     ExtendedCrocusDepth, \
-    ExtendedCrocusSweTotal, CrocusDaysWithSnowOnGround, CrocusSwe3Days, CrocusSnowLoad3Days, CrocusSnowLoadTotal, \
+    ExtendedCrocusSweTotal, CrocusSwe3Days, CrocusSnowLoad3Days, CrocusSnowLoadTotal, \
     CrocusSnowLoadEurocode, CrocusSnowLoad5Days, CrocusSnowLoad7Days
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_max_swe import CrocusSnowLoad2020, CrocusSnowLoad2019
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_snow_density import CrocusSnowDensity
 from extreme_data.meteo_france_data.scm_models_data.crocus.crocus_variables import CrocusDensityVariable
-from extreme_data.meteo_france_data.scm_models_data.safran.gap_between_study import GapBetweenSafranSnowfall2019And2020, \
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019Recentered, GapBetweenSafranSnowfall2019AndMySafranSnowfall2019, \
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019NotRecentered, \
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019RecenteredMeanRate
 from extreme_data.meteo_france_data.scm_models_data.safran.safran import SafranSnowfall, ExtendedSafranSnowfall, \
     SafranRainfall, \
-    SafranTemperature, SafranPrecipitation, SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, \
+    SafranTemperature, SafranSnowfall1Day, SafranSnowfall3Days, SafranSnowfall5Days, \
     SafranSnowfall7Days, SafranPrecipitation1Day, SafranPrecipitation3Days, SafranPrecipitation5Days, \
-    SafranPrecipitation7Days, SafranDateFirstSnowfall, SafranSnowfallCenterOnDay1dayMeanRate, \
-    SafranSnowfallCenterOnDay1day
+    SafranPrecipitation7Days, SafranDateFirstSnowfall
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_precipf import SafranPrecipitation2019
 from extreme_data.meteo_france_data.scm_models_data.safran.safran_max_snowf import SafranSnowfall2020, \
     SafranSnowfall2019
-from extreme_data.meteo_france_data.scm_models_data.safran.safran_variable import SafranSnowfallVariableCenterOnDay
-from extreme_data.meteo_france_data.scm_models_data.visualization.study_visualizer import \
-    StudyVisualizer
 from root_utils import get_display_name_from_object_type
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.uniform_normalization import \
-    BetweenZeroAndOneNormalization
 
 snow_density_str = '$\\rho_{SNOW}$'
 eurocode_snow_density = '{}=150 {}'.format(snow_density_str, CrocusDensityVariable.UNIT)
@@ -45,13 +34,6 @@ SCM_STUDY_CLASS_TO_ABBREVIATION = {
     SafranSnowfall1Day: 'daily snowfall',
     SafranSnowfall2020: 'daily snowfall',
     SafranSnowfall2019: 'daily snowfall',
-    SafranSnowfallCenterOnDay1dayMeanRate: 'daily snowfall',
-    SafranSnowfallCenterOnDay1day: 'daily snowfall',
-    GapBetweenSafranSnowfall2019And2020: 'daily snowfall\n bias = SAFRAN 2020 minus SAFRAN 2019',
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019Recentered: 'daily snowfall\n my SAFRAN 2019 recentered minus SAFRAN 2019',
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019NotRecentered: 'daily snowfall\n my SAFRAN 2019 notrecentered minus SAFRAN 2019',
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019: 'daily snowfall\n my SAFRAN 2019 minus SAFRAN 2019',
-    GapBetweenSafranSnowfall2019AndMySafranSnowfall2019RecenteredMeanRate: 'daily snowfall\n my SAFRAN 2019 recentered mean rate minus SAFRAN 2019',
     SafranSnowfall3Days: 'SF3',
     SafranSnowfall5Days: 'SF5',
     SafranSnowfall7Days: 'SF7',
@@ -158,121 +140,19 @@ def study_iterator(study_class, only_first_one=False, verbose=True, altitudes=No
                 break
 
 
-def extended_visualization():
-    save_to_file = False
-    only_first_one = True
-    for study_class in SCM_EXTENDED_STUDIES[-1:]:
-        for study in study_iterator(study_class, only_first_one=only_first_one):
-            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file, only_one_graph=True,
-                                               plot_block_maxima_quantiles=False)
-            # study_visualizer.visualize_all_mean_and_max_graphs()
-            study_visualizer.visualize_all_experimental_law()
-    # for study_class in SCM_EXTENDED_STUDIES[:]:
-    #     for study in study_iterator(study_class, only_first_one=False):
-    #         study_visualizer = StudyVisualizer(study, single_massif_graph=True, save_to_file=True)
-    #         # study_visualizer.visualize_all_kde_graphs()
-    #         study_visualizer.visualize_all_experimental_law()
 
 
-def annual_mean_vizu_compare_durand_study(safran=True, take_mean_value=True, altitude=1800):
-    if safran:
-        for study_class in [SafranPrecipitation, SafranRainfall, AdamontSnowfall, SafranTemperature][-1:]:
-            study = study_class(altitude=altitude, year_min=1958, year_max=2001)
-            study_visualizer = StudyVisualizer(study)
-            study_visualizer.visualize_annual_mean_values(take_mean_value=True)
-    else:
-        for study_class in [CrocusSweTotal, CrocusDepth, CrocusDaysWithSnowOnGround][-1:]:
-            study = study_class(altitude=altitude, year_min=1958, year_max=2004)
-            study_visualizer = StudyVisualizer(study)
-            study_visualizer.visualize_annual_mean_values(take_mean_value=take_mean_value)
 
 
-def all_normal_vizu():
-    for study in study_iterator_global(study_classes=ALL_STUDIES, only_first_one=False, altitudes=ALL_ALTITUDES):
-        study_visualizer = StudyVisualizer(study, save_to_file=True, temporal_non_stationarity=True)
-        study_visualizer.visualize_all_mean_and_max_graphs()
 
 
-def case_study():
-    for study in study_iterator(study_class=AdamontSnowfall, only_first_one=False, altitudes=[2100],
-                                nb_consecutive_days=3):
-        study_visualizer = StudyVisualizer(study, save_to_file=False, temporal_non_stationarity=False)
-        study_visualizer.visualize_all_mean_and_max_graphs()
-        massif_id = study.study_massif_names.index('Chablais')
-        print(massif_id)
-        x, y = study_visualizer.smooth_maxima_x_y(massif_id)
-        print(x)
-        print(y)
 
 
-def complete_analysis(only_first_one=False):
-    """An overview of everything that is possible with study OR extended study"""
-    for study_class, extended_study_class in list(SCM_STUDY_TO_EXTENDED_STUDY.items())[:]:
-        # First explore everything you can do with the extended study class
-        print('Extended study')
-        for extended_study in study_iterator(extended_study_class, only_first_one=only_first_one):
-            study_visualizer = StudyVisualizer(extended_study, save_to_file=True)
-            study_visualizer.visualize_all_mean_and_max_graphs()
-            study_visualizer.visualize_all_experimental_law()
-        print('Study normal')
-        for study in study_iterator(study_class, only_first_one=only_first_one):
-            study_visualizer = StudyVisualizer(study, save_to_file=True)
-            study_visualizer.visualize_linear_margin_fit()
 
 
-def maxima_analysis():
-    save_to_file = False
-    only_first_one = True
-    durand_altitude = [2700]
-    altitudes = durand_altitude
-    normalization_class = BetweenZeroAndOneNormalization
-    study_classes = [CrocusSwe3Days][:]
-    for study in study_iterator_global(study_classes, only_first_one=only_first_one, altitudes=altitudes):
-        study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
-                                           transformation_class=normalization_class,
-                                           temporal_non_stationarity=True,
-                                           verbose=True,
-                                           multiprocessing=True,
-                                           complete_non_stationary_trend_analysis=True)
-        # study_visualizer.visualize_all_score_wrt_starting_year()
-        # study_visualizer.visualize_all_independent_temporal_trend()
-        # study_visualizer.visualize_independent_margin_fits()
-        # study_visualizer.visualize_all_mean_and_max_graphs()
-        study_visualizer.visualize_summary_of_annual_values_and_stationary_gev_fit()
 
 
-def max_graph_annual_maxima_poster():
-    save_to_file = True
-    choice_tuple = [
-        altitude_massif_name_and_study_class_for_poster,
-        altitude_massif_name_and_study_class_for_poster_evan,
-        altitude_massif_name_and_study_class_for_committee,
-    ][2]
-    for altitude, massif_name, study_class in choice_tuple:
-        for study in study_iterator_global([study_class], altitudes=[altitude]):
-            study_visualizer = StudyVisualizer(study, save_to_file=save_to_file,
-                                               verbose=True,
-                                               multiprocessing=True)
-            snow_abbreviation = SCM_STUDY_CLASS_TO_ABBREVIATION[study_class]
-            # color = SCM_STUDY_CLASS_TO_COLOR[study_class]
-            color = poster_altitude_to_color[altitude]
-            study_visualizer.visualize_max_graphs_poster(massif_name, altitude, snow_abbreviation, color)
-            # study_visualizer.visualize_gev_graphs_poster(massif_name, altitude, snow_abbreviation, color)
 
 
-def altitude_analysis():
-    study = CrocusSweTotal(altitude=900)
-    all_names = set(study.study_massif_names)
-    for a, names in study.altitude_to_massif_names.items():
-        print(a, len(names), all_names - set(names))
 
 
-def main_run():
-    max_graph_annual_maxima_poster()
-
-
-if __name__ == '__main__':
-    start = time.time()
-    main_run()
-    duration = time.time() - start
-    print('Full run took {}s'.format(round(duration, 1)))

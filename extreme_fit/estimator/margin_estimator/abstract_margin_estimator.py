@@ -6,8 +6,7 @@ import pandas as pd
 from cached_property import cached_property
 
 from extreme_fit.estimator.abstract_estimator import AbstractEstimator
-from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh, \
-    compute_nllh_with_multiprocessing_for_large_samples
+from extreme_fit.estimator.margin_estimator.utils_functions import compute_nllh
 from extreme_fit.estimator.utils import load_margin_function
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
@@ -90,8 +89,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
     def nllh(self):
         maxima_values = self.dataset.maxima_gev
         coordinate_values = self.coordinates_for_nllh
-        nllh = compute_nllh_with_multiprocessing_for_large_samples(coordinate_values, maxima_values,
-                                                                   self.margin_function_from_fit)
+        nllh = compute_nllh(coordinate_values, maxima_values, self.margin_function_from_fit)
         npt.assert_almost_equal(self.result_from_model_fit.nllh, nllh, decimal=0)
         return nllh
 
@@ -123,7 +121,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         return self.aic + additional_term
 
     def sorted_empirical_standard_gumbel_quantiles(self, coordinate_for_filter=None, coordinate_values=None):
-        sorted_empirical_quantiles = []
+        sorted_empirical_quantiles = set()
         maxima_values = self.dataset.maxima_gev
         if coordinate_values is None:
             coordinate_values = self.df_coordinates_for_fit.values
@@ -134,15 +132,14 @@ class LinearMarginEstimator(AbstractMarginEstimator):
                 if not keep:
                     continue
             gev_param = self.margin_function_from_fit.get_params(
-                coordinate=coordinate,
-                is_transformed=False)
+                coordinate=coordinate)
             # Take the first and unique maximum
             maximum = maximum[0]
             if isinstance(maximum, np.ndarray):
                 maximum = maximum[0]
             maximum_standardized = gev_param.gumbel_standardization(maximum)
-            sorted_empirical_quantiles.append(maximum_standardized)
-        sorted_empirical_quantiles = sorted(sorted_empirical_quantiles)
+            sorted_empirical_quantiles.add(maximum_standardized)
+        sorted_empirical_quantiles = sorted(list(sorted_empirical_quantiles))
         return sorted_empirical_quantiles
 
     def coordinate_values_to_maxima_from_standard_gumbel_quantiles(self, standard_gumbel_quantiles):
@@ -151,8 +148,7 @@ class LinearMarginEstimator(AbstractMarginEstimator):
         assert len(standard_gumbel_quantiles) == len(coordinate_values)
         for quantile, coordinate in zip(standard_gumbel_quantiles, coordinate_values):
             gev_param = self.margin_function_from_fit.get_params(
-                coordinate=coordinate,
-                is_transformed=False)
+                coordinate=coordinate)
             maximum = gev_param.gumbel_inverse_standardization(quantile)
             coordinate_values_to_maxima[tuple(coordinate)] = np.array([maximum])
         return coordinate_values_to_maxima

@@ -7,8 +7,6 @@ import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 
-from spatio_temporal_dataset.coordinates.transformed_coordinates.transformation.abstract_transformation import \
-    AbstractTransformation, IdentityTransformation
 from spatio_temporal_dataset.coordinates.utils import get_index_without_spatio_temporal_index_suffix
 
 
@@ -41,7 +39,7 @@ class AbstractCoordinates(object):
     ALL_COORDINATES_ACCEPTED_TYPES = ['int64', 'float64']
     COORDINATE_TYPE = 'float64'
 
-    def __init__(self, df: pd.DataFrame, transformation_class: type = None):
+    def __init__(self, df: pd.DataFrame):
         # Extract df_all_coordinates from df
         coordinate_columns = [c for c in df.columns if c in self.COORDINATES_NAMES]
         assert len(coordinate_columns) > 0
@@ -54,17 +52,10 @@ class AbstractCoordinates(object):
         self.df_all_coordinates = self.df_all_coordinates.loc[:, ~ind] # type: pd.DataFrame
         self.df_all_coordinates = self.df_all_coordinates.astype(self.COORDINATE_TYPE)  # type: pd.DataFrame
 
-        # Transformation attribute
-        if transformation_class is None:
-            transformation_class = IdentityTransformation
-        self.transformation_class = transformation_class  # type: type
         # Transformation only works for float coordinates
         accepted_dtypes = [self.COORDINATE_TYPE]
         assert len(self.df_all_coordinates.select_dtypes(include=accepted_dtypes).columns) \
                == len(coordinate_columns) - sum(ind), 'coordinates columns dtypes should belong to {}'.format(accepted_dtypes)
-        # Transformation class is instantiated with all coordinates
-        self.transformation = transformation_class(self.df_all_coordinates)  # type: AbstractTransformation
-        assert isinstance(self.transformation, AbstractTransformation)
         # Some parameters to set if needed
         self.gcm_rcm_couple_as_pseudo_truth = None
 
@@ -72,13 +63,9 @@ class AbstractCoordinates(object):
 
     @classmethod
     def from_df(cls, df: pd.DataFrame):
-        return cls(df=df)
-
-    @classmethod
-    def from_df_and_transformation_class(cls, df: pd.DataFrame, transformation_class: type = None):
         # All the index should be unique
         assert len(set(df.index)) == len(df), 'df indices are not unique'
-        return cls(df=df, transformation_class=transformation_class)
+        return cls(df=df)
 
     @classmethod
     def from_csv(cls, csv_path: str = None):
@@ -97,18 +84,15 @@ class AbstractCoordinates(object):
 
     # Split
 
-    def df_coordinates(self, transformed=True, add_climate_informations=False) -> pd.DataFrame:
-        if transformed:
-            df_transformed_coordinates = self.transformation.transform_df(self.df_all_coordinates)
-        else:
-            df_transformed_coordinates = self.df_all_coordinates
+    def df_coordinates(self, add_climate_informations=False) -> pd.DataFrame:
+        df_coordinates = self.df_all_coordinates
         if add_climate_informations:
-            df_transformed_coordinates = pd.concat([df_transformed_coordinates,
+            df_coordinates = pd.concat([df_coordinates,
                                                     self.df_coordinate_climate_model], axis=1)
-        return df_transformed_coordinates
+        return df_coordinates
 
-    def coordinates_values(self, transformed=True) -> np.ndarray:
-        return self.df_coordinates(transformed=transformed).values
+    def coordinates_values(self) -> np.ndarray:
+        return self.df_coordinates().values
 
     @property
     def coordinates_names(self) -> List[str]:
@@ -156,11 +140,11 @@ class AbstractCoordinates(object):
     def has_spatial_coordinates(self) -> bool:
         return self.nb_spatial_coordinates > 0
 
-    def df_spatial_coordinates(self, transformed=True, drop_duplicates=True) -> pd.DataFrame:
+    def df_spatial_coordinates(self, drop_duplicates=True) -> pd.DataFrame:
         if self.nb_spatial_coordinates == 0:
             return pd.DataFrame()
         else:
-            df = self.df_coordinates(transformed).loc[:, self.spatial_coordinates_names]
+            df = self.df_coordinates().loc[:, self.spatial_coordinates_names]
             return df.drop_duplicates() if drop_duplicates else df
 
     @property
@@ -186,11 +170,11 @@ class AbstractCoordinates(object):
     def has_temporal_coordinates(self) -> bool:
         return self.nb_temporal_coordinates > 0
 
-    def df_temporal_coordinates(self, transformed=True, drop_duplicates=True) -> pd.DataFrame:
+    def df_temporal_coordinates(self, drop_duplicates=True) -> pd.DataFrame:
         if self.nb_temporal_coordinates == 0:
             return pd.DataFrame()
         else:
-            df = self.df_coordinates(transformed=transformed).loc[:, self.temporal_coordinates_names]
+            df = self.df_coordinates().loc[:, self.temporal_coordinates_names]
             if drop_duplicates:
                 return df.drop_duplicates()
             else:
@@ -202,10 +186,10 @@ class AbstractCoordinates(object):
                                         for_fit=True) -> pd.DataFrame:
         # Load time covariate
         if starting_point is None:
-            df = self.df_temporal_coordinates(transformed=True, drop_duplicates=drop_duplicates)
+            df = self.df_temporal_coordinates(drop_duplicates=drop_duplicates)
         else:
             # Load the un transformed coordinates
-            df_temporal_coordinates = self.df_temporal_coordinates(transformed=False)
+            df_temporal_coordinates = self.df_temporal_coordinates()
             # If starting point is not None, the transformation has not yet been applied
             # thus we need to modify the coordinate with the starting point, and then to apply the transformation
             # Compute the indices to modify
@@ -216,10 +200,7 @@ class AbstractCoordinates(object):
             assert 0 < sum(ind_to_modify) < len(ind_to_modify), msg
             # Modify the temporal coordinates to enforce the stationarity
             df_temporal_coordinates.loc[ind_to_modify] = starting_point
-            # Load the temporal transformation object
-            temporal_transformation = self.temporal_coordinates.transformation_class(df_temporal_coordinates)  # type: AbstractTransformation
-            # Return the result of the temporal transformation
-            df = temporal_transformation.transform_df(df_temporal_coordinates)
+            df = df_temporal_coordinates
 
         # Potentially transform the time covariate into another covariate
         if temporal_covariate_for_fit is not None:

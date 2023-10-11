@@ -62,7 +62,9 @@ def get_upper_two_third_colormap(cmap):
 
 def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None, fontsize=15, position='right',
                           rescale_ticks=False, snowfall=True,
-                          vmin=None, vmax=None):
+                          vmin=None, vmax=None, ticksize=None):
+    if ticksize is None:
+        ticksize = 12
     divider = make_axes_locatable(ax)
     cax = divider.append_axes(position, size='5%', pad=0.0)
     ticks = ticks_values_and_labels[0] if ticks_values_and_labels is not None else None
@@ -87,9 +89,9 @@ def create_colorbase_axis(ax, label, cmap, norm, ticks_values_and_labels=None, f
         cb = cbar.ColorbarBase(cax, cmap=cmap, norm=norm, ticks=ticks)
     if ticks_values_and_labels is not None:
         if horizontal_plot:
-            cb.ax.set_xticklabels([str(t) for t in ticks_values_and_labels[1]])
+            cb.ax.set_xticklabels([str(t) for t in ticks_values_and_labels[1]], fontsize=ticksize)
         else:
-            cb.ax.set_yticklabels([str(t) for t in ticks_values_and_labels[1]])
+            cb.ax.set_yticklabels([str(t) for t in ticks_values_and_labels[1]], fontsize=ticksize)
     if isinstance(label, str):
         cb.set_label(label, fontsize=fontsize)
     return norm

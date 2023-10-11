@@ -1,5 +1,6 @@
 import unittest
 
+from extreme_fit.model.result_from_model_fit.abstract_result_from_model_fit import AbstractResultFromModelFit
 from extreme_fit.model.utils import set_seed_r, r
 
 
@@ -15,9 +16,13 @@ class TestUnitaryAbstract(unittest.TestCase):
     @property
     def r_fitted_values_from_res_variable(self):
         res = r.res
-        fitted_values = res.rx2('fitted.values')
-        fitted_values = {key: fitted_values.rx2(key)[0] for key in fitted_values.names}
-        return fitted_values
+        fitted_values = res.rx('fitted.values')
+        return AbstractResultFromModelFit.get_python_dictionary(fitted_values)
+
+        # print(fitted_values, type(fitted_values))
+        # # print(res, type(res))
+        # fitted_values = {key: fitted_values.rx2(key)[0] for key in fitted_values.names}
+        # return fitted_values
 
     @property
     def r_output(self):

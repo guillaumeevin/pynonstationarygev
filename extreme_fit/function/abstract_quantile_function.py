@@ -10,9 +10,8 @@ from spatio_temporal_dataset.coordinates.abstract_coordinates import AbstractCoo
 
 class AbstractQuantileFunction(AbstractFunction):
 
-    def get_quantile(self, coordinate: np.ndarray, is_transformed: bool = True) -> float:
-        transformed_coordinate = coordinate if is_transformed else self.transform(coordinate)
-        return self._get_quantile(transformed_coordinate)
+    def get_quantile(self, coordinate: np.ndarray) -> float:
+        return self._get_quantile(coordinate)
 
     def _get_quantile(self, coordinate: np.ndarray):
         raise NotImplementedError

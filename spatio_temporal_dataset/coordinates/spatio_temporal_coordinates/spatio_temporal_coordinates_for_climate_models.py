@@ -11,8 +11,7 @@ from spatio_temporal_dataset.coordinates.temporal_coordinates.abstract_temporal_
 
 class SpatioTemporalCoordinatesForClimateModels(AbstractSpatioTemporalCoordinates):
 
-    def __init__(self, df: pd.DataFrame = None,
-                 transformation_class: type = None, spatial_coordinates: AbstractSpatialCoordinates = None,
+    def __init__(self, df: pd.DataFrame = None, spatial_coordinates: AbstractSpatialCoordinates = None,
                  temporal_coordinates: AbstractTemporalCoordinates = None,
                  gcm_rcm_couple=None,
                  scenario_str=None):
@@ -28,4 +27,4 @@ class SpatioTemporalCoordinatesForClimateModels(AbstractSpatioTemporalCoordinate
         else:
             df[self.COORDINATE_GCM_AND_RCM] = gcm + rcm
             df[self.COORDINATE_IS_ENSEMBLE_MEMBER] = self.IS_ENSEMBLE_STR
-        super().__init__(df, transformation_class, spatial_coordinates, temporal_coordinates)
+        super().__init__(df, spatial_coordinates, temporal_coordinates)

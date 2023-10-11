@@ -5,6 +5,7 @@ from extreme_data.meteo_france_data.scm_models_data.altitudes_studies import Alt
 from extreme_fit.model.margin_model.linear_margin_model.abstract_temporal_linear_margin_model import \
     AbstractTemporalLinearMarginModel
 from extreme_fit.model.margin_model.utils import MarginFitMethod
+from projected_extremes.section_results.utils.get_nb_linear_pieces import calibration_excel_folder
 from projected_extremes.section_results.validation_experiment.abstract_experiment import AbstractExperiment
 
 
@@ -33,7 +34,7 @@ class CalibrationValidationExperiment(AbstractExperiment):
 
     @property
     def specific_folder(self):
-        return "{}_{}_{}".format(self.variable_name, self.altitude, self.end_year_for_train_set).replace(' ', '')
+        return calibration_excel_folder.format(self.variable_name, self.altitude, self.end_year_for_train_set)
 
     @property
     def excel_filename(self):
